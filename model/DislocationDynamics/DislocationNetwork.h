@@ -191,14 +191,14 @@ namespace model
                     break;
             }
             
-            if(NodeType::use_velocityFilter)
-            {
-                assert(0 && "velocityFilter not implemented yet.");
-                //            for(auto& node : this->nodes())
-                //            {
-                //                node.second->applyVelocityFilter(vMax);
-                //            }
-            }
+//            if(NodeType::use_velocityFilter)
+//            {
+//                assert(0 && "velocityFilter not implemented yet.");
+//                //            for(auto& node : this->nodes())
+//                //            {
+//                //                node.second->applyVelocityFilter(vMax);
+//                //            }
+//            }
             
             
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;

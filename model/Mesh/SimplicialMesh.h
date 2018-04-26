@@ -27,6 +27,7 @@
 #include <model/Mesh/MeshRegionObserver.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Mesh/MeshRegionBoundary.h>
+#include <model/Mesh/SimplexObserver.h>
 
 
 namespace model

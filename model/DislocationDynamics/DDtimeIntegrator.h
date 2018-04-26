@@ -33,7 +33,7 @@ namespace model
     struct DDtimeIntegrator<0>
     {
 //        DislocationNetworkType& DN;
-        static constexpr auto name="vMax integrator";
+        static constexpr auto tag="vMax integrator";
 
         static double dxMax;
         static double shearWaveSpeedFraction;

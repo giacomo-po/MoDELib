@@ -23,16 +23,13 @@
 #include <vtkJPEGWriter.h>
 #include <vtkPropPicker.h>
 #include <vtkRendererCollection.h>
+#include <vtkObjectFactory.h>
 
-//#include <model/IO/VertexReader.h>
-//#include <model/IO/EdgeReader.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
-//#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/PKActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/EigenDataReader.h>
-
 
 
 namespace model
@@ -48,27 +45,17 @@ namespace model
     //    public vtkInteractorStyleMultiTouchCamera
     {
         
-        
-        
-        
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
         std::unique_ptr<GlidePlaneActor> ddGP;
-        
-        
-        
         int xCol;
         int yCol;
-        
         double winFrac;
-        
         std::string selectedKey;
         bool saveImage;
         int imageType;
         int imageMagnification;
         bool imageTransparentBackground;
-        
-        //        long int frameID;
         long int frameIncrement;
         long int currentFrameID;
         vtkActor    *LastPickedActor;
@@ -84,14 +71,12 @@ namespace model
         vtkRenderer* plotRenderer;
         
         
-        /*************************************************************************/
+        /**********************************************************************/
         bool loadFrame(const long int& frameID)
         {
             
             bool frameLoaded=false;
             if(   currentFrameID!=frameID
-               //&& (DislocationSegmentActor::VertexReaderType::isGood(frameID,false) || DislocationSegmentActor::VertexReaderType::isGood(frameID,true))
-               //&& (DislocationSegmentActor::EdgeReaderType::isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType::isGood(frameID,true))
                && (DislocationSegmentActor::VertexReaderType().isGood(frameID,false) || DislocationSegmentActor::VertexReaderType().isGood(frameID,true))
                && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
                )
@@ -188,10 +173,8 @@ namespace model
         
         
         
-        /*************************************************************************/
+        /**********************************************************************/
         DDinteractionStyle() :
-        //        /* init list   */ ddRenderer(ddRen),
-        //        /* init list   */ plotRenderer(plotRen),
         /* init list   */ xCol(0),
         /* init list   */ yCol(0),
         /* init list   */ winFrac(0.5),
@@ -207,21 +190,21 @@ namespace model
             
             model::EigenDataReader EDR;
             EDR.readScalarInFile("./DDinput.txt","outputFrequency",frameIncrement);
-
+            
             
         }
         
         
-        /*************************************************************************/
+        /**********************************************************************/
         virtual ~DDinteractionStyle()
         {
             LastPickedProperty->Delete();
         }
-
-        /*************************************************************************/
+        
+        /**********************************************************************/
         virtual void OnRightButtonDown()
         {
-
+            
             double viewUp[3];
             this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewUp( viewUp[0], viewUp[1], viewUp[2] );
             
@@ -230,11 +213,11 @@ namespace model
             
             double camaraPosition[3];
             this->GetDefaultRenderer( )->GetActiveCamera( )->GetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
-
+            
             double viewAngle= this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewAngle(  );
-
+            
             double parallelScale=this->GetDefaultRenderer( )->GetActiveCamera( )->GetParallelScale( );
-
+            
             
             std::cout<<greenBoldColor<<"writing to cameraState.txt"<<defaultColor<<std::endl;
             std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
@@ -242,7 +225,7 @@ namespace model
             std::cout<<"camaraPosition="<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
             std::cout<<"viewAngle="<<viewAngle<<std::endl;
             std::cout<<"parallelScale="<<parallelScale<<std::endl;
-
+            
             std::ofstream myfile;
             myfile.open ("cameraState.txt");
             myfile<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
@@ -251,13 +234,6 @@ namespace model
             myfile<<viewAngle<<std::endl;
             myfile<<parallelScale<<std::endl;
             myfile.close();
-            
-//            void MyClass:resetcamera( double c[3] )
-//             {
-//                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetViewUp( 0, 1, 0 );
-//                        this->GetDefaultRenderer( )->GetActiveCamera( )->SetFocalPoint( 0.0, 0.0, 0.0 );
-//                        this->GetDefaultRenderer( )->GetActiveCamera( )->SetPosition( c[0], c[1], c[2] );
-//                 }
             
             // Forward events
             vtkInteractorStyleTrackballCamera::OnRightButtonDown();
@@ -306,12 +282,7 @@ namespace model
         {
             // Get the keypress
             vtkRenderWindowInteractor *rwi = this->Interactor;
-            //        const std::string key = rwi->GetKeySym();
             std::string key = rwi->GetKeySym();
-            
-            
-            //            std::cout << "Pressed " << key << std::endl;
-            
             
             if(key == "Escape")
             {
@@ -319,32 +290,30 @@ namespace model
                 exit(0);
             }
             
-
-            
             if(key == "c")
             {
-
+                
                 std::cout<<greenBoldColor<<"reading cameraState.txt"<<defaultColor<<std::endl;
                 std::ifstream ifs ( "cameraState.txt" , std::ifstream::in );
                 if (ifs.is_open())
                 {
                     std::string line;
-
+                    
                     std::getline(ifs, line);
                     double viewUp[3];
                     std::stringstream viewUpss(line);
                     viewUpss>>viewUp[0]>>viewUp[1]>>viewUp[2];
-
+                    
                     std::getline(ifs, line);
                     double focalPoint[3];
                     std::stringstream focalPointss(line);
                     focalPointss>>focalPoint[0]>>focalPoint[1]>>focalPoint[2];
-
+                    
                     std::getline(ifs, line);
                     double camaraPosition[3];
                     std::stringstream camaraPositionss(line);
                     camaraPositionss>>camaraPosition[0]>>camaraPosition[1]>>camaraPosition[2];
-
+                    
                     std::getline(ifs, line);
                     double viewAngle;
                     std::stringstream viewAngless(line);
@@ -354,7 +323,7 @@ namespace model
                     double parallelScale;
                     std::stringstream parallelScaless(line);
                     parallelScaless>>parallelScale;
-
+                    
                     
                     std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
                     std::cout<<"focalPoint="<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
@@ -367,16 +336,13 @@ namespace model
                     this->GetDefaultRenderer()->GetActiveCamera()->SetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetViewAngle( viewAngle );
                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetParallelScale( parallelScale );
-
                     
-                    
-//                    this->GetDefaultRenderer()->ResetCamera();
                     this->Interactor->Render();
-
+                    
                 }
                 else
                 {
-                                std::cout<<"file not found."<<std::endl;
+                    std::cout<<"file not found."<<std::endl;
                 }
                 ifs.close();
                 
@@ -441,39 +407,6 @@ namespace model
                 this->Interactor->Render();
             }
             
-            //            if(key == "Left")
-            //            {
-            //
-            //
-            //                if(loadFrame(currentFrameID-frameIncrement))
-            //                {
-            ////                    && !this->Interactor->GetShiftKey()
-            ////                    std::cout<<this->Interactor->GetRepeatCount()<<std::endl;
-            //                OnKeyPress();
-            ////                    sleep(5000);         //make the programme waiting for 5 seconds
-            //
-            //                }
-            ////                while(loadFrame(currentFrameID-frameIncrement))
-            ////                {
-            ////
-            ////                }
-            //            }
-            //
-            //            if(key == "Right")
-            //            {
-            //                if(loadFrame(currentFrameID+frameIncrement))
-            //                {
-            //                OnKeyPress();
-            ////                    sleep(5000);         //make the programme waiting for 5 seconds
-            //
-            //                }
-            //
-            ////                while(loadFrame(currentFrameID+frameIncrement))
-            ////                {
-            ////
-            ////                }
-            //            }
-            
             if(key == "e")
             {
                 selectedKey="e";
@@ -483,13 +416,7 @@ namespace model
                 std::cout<<"      1 to show/hide boundary segments"<<std::endl;
                 std::cout<<"      2 to turn on/off segment radii scaled by Burgers norm"<<std::endl;
                 std::cout<<"      3 to color grain-boundary segments in black "<<std::endl;
-
-                
-                //                std::cout<<"      1 to show/hide node IDs"<<std::endl;
-                //                std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
             }
-            
-            
             
             if(key == "i")
             {
@@ -564,28 +491,6 @@ namespace model
                 std::cout<<"    press 0 to enable/disable transparent background"<<std::endl;
                 std::cout<<"    press +/- to increase/decrease image resolution"<<std::endl;
                 
-                
-                //                if(selectedKey=="s")
-                //                {
-                //                    selectedKey=" ";
-                //                    saveImage=false;
-                //                    std::cout<<"Saving images: OFF"<<std::endl;
-                //                }
-                //                else
-                //                {
-                //                    selectedKey="s";
-                //                    saveImage=true;
-                //                    std::cout<<"Saving images: ON"<<std::endl;
-                //                    std::cout<<"Save images menu:"<<std::endl;
-                //                    std::cout<<"    press 1 to save in png format"<<std::endl;
-                //                    std::cout<<"    press 2 to save in jgp format"<<std::endl;
-                //                    std::cout<<"    press 3 to save in bmp format"<<std::endl;
-                //                    std::cout<<"    +/- to increase image resolution"<<std::endl;
-                //
-                //                }
-                
-                //                saveImage=!saveImage;
-                //                std::cout<<"Saving image="<<saveImage<<std::endl;
             }
             
             
@@ -656,9 +561,6 @@ namespace model
                 {
                     selectedKey="t";
                     std::cout<<"selecting objects: Slipped Areas"<<std::endl;
-//                    std::cout<<"      1 to show/hide node IDs"<<std::endl;
-//                    std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
-                    
                     std::cout<<"    +/- to increase/decrease opacity"<<std::endl;
                     
                     if(ddSegments.get()!=nullptr)
@@ -689,8 +591,6 @@ namespace model
                     std::cout<<"selecting objects: Dislocation Nodes"<<std::endl;
                     std::cout<<"      1 to show/hide node IDs"<<std::endl;
                     std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
-                    
-                    //std::cout<<"    +/- to increase vector size"<<std::endl;
                     
                     if(ddSegments.get()!=nullptr)
                     {
@@ -774,10 +674,6 @@ namespace model
                     ddSegments->modify();
                     this->Interactor->Render();
                 }
-                
-                
-                
-                
                 
             }
             
@@ -984,6 +880,7 @@ namespace model
         }
         
     };
+    
     vtkStandardNewMacro(DDinteractionStyle);
     
     

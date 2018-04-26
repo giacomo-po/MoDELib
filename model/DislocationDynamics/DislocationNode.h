@@ -705,10 +705,49 @@ namespace model
         }
         
         
+//        /**********************************************************************/
+//        void set_V(const VectorDofType& vNew)
+//        {
+//            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+//        }
+
         /**********************************************************************/
         void set_V(const VectorDofType& vNew)
         {
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            
+            
+            if(use_velocityFilter)
+            {
+                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
+                
+                if(velocity.dot(vOld)<-filterThreshold)
+                {
+                    velocityReductionCoeff*=velocityReductionFactor;
+                }
+                else if(velocity.dot(vOld)>filterThreshold)
+                {
+                    velocityReductionCoeff/=velocityReductionFactor;
+                }
+                else
+                {
+                    // don't change velocityReductionCoeff
+                }
+                if(velocityReductionCoeff>1.0)
+                {
+                    velocityReductionCoeff=1.0;
+                }
+                if(velocityReductionCoeff<0.005)
+                {
+                    velocityReductionCoeff=0.005;
+                }
+                velocity*=velocityReductionCoeff;
+                
+            }
+            
+            vOld=velocity; // store current value of velocity before updating
+            
+            
         }
         
         /**********************************************************************/
@@ -1157,7 +1196,7 @@ namespace model
                 velocity=(this->get_P()-P_old)/dt;
             }
             
-            vOld=velocity; // store current value of velocity before updating
+//            vOld=velocity; // store current value of velocity before updating
         }
         
         /**********************************************************************/

@@ -41,7 +41,9 @@ namespace model
         
         SparseNullSpace(const SparseMatrixType& C,
                         const Scalar& tol=Eigen::NumTraits<Scalar>::dummy_precision())
-        {
+        {/*!Example usage for solving the constrained minimization problem
+          * x=argmin{1/2*x^T*A*x-b*x} subject to C*x=d
+          */
 
 //            const auto t1= std::chrono::system_clock::now();
 //            model::cout<<"Computing null-space... "<<std::flush;
