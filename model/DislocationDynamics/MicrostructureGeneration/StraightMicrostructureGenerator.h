@@ -115,26 +115,14 @@ namespace model
                         else //if(ssi.size==1)
                         {
                             nIntersections++;
-                            
                             nodePos.push_back((ssi.x0+ssi.x1)*0.5);
-//                            nodePos.push_back(pair.second);
                         }
-//                        else
-//                        {
-//                            std::cout<<"ssi.size="<<ssi.size<<std::endl;
-//                            std::cout<<"A="<<A.transpose()<<std::endl;
-//                                                        std::cout<<"B="<<B.transpose()<<std::endl;
-//                                                        std::cout<<"pair.first="<<pair.first.transpose()<<std::endl;
-//                                                        std::cout<<"pair.second="<<pair.second.transpose()<<std::endl;
-//                            assert(0 && "2 intersections are impossible");
-//                        }
                     }
                     else if(nIntersections==1)
                     {
                         if(ssi.dMin>FLT_EPSILON) // no intersection
                         {
                             nodePos.push_back(pair.first);
-                            
                         }
                         else //if(ssi.size==1)
                         {
@@ -142,15 +130,6 @@ namespace model
                             nodePos.push_back(pair.first);
                             nodePos.push_back((ssi.x0+ssi.x1)*0.5);
                         }
-//                        else
-//                        {
-//                            std::cout<<"ssi.size="<<ssi.size<<std::endl;
-//                            std::cout<<"A="<<A.transpose()<<std::endl;
-//                            std::cout<<"B="<<B.transpose()<<std::endl;
-//                            std::cout<<"pair.first="<<pair.first.transpose()<<std::endl;
-//                            std::cout<<"pair.second="<<pair.second.transpose()<<std::endl;
-//                            assert(0 && "2 intersections are impossible");
-//                        }
                     }
                     else
                     {
@@ -168,7 +147,10 @@ namespace model
                     // write node and edge file
                     for(int k=0;k<nodePos.size();++k)
                     {
-                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        vertexFile<<dlIO;
+//                        vertexFile.write(dlIO);
+//                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                         
                         const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
                         edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";

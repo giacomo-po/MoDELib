@@ -41,6 +41,25 @@ namespace model
 //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
             
         }
+        
+        /**********************************************************************/
+        DislocationNodeIO(const size_t& sID_in,          // sID
+                          const VectorDim& P_in,          // position
+                          const VectorDim& V_in,          // velocity
+                          const double& velocityReduction_in,             // velocity reduction factor
+                          const size_t& snID_in,          // component ID
+                          const int&  meshLocation_in) :
+        /* init */ sID(sID_in),
+        /* init */ P(P_in),
+        /* init */ V(V_in),
+        /* init */ velocityReduction(velocityReduction_in),
+        /* init */ snID(snID_in),
+        /* init */ meshLocation(meshLocation_in)
+        {
+            
+            //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
+            
+        }
 
         
         /**********************************************************************/
