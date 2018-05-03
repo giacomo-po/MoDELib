@@ -33,6 +33,11 @@ namespace model
 //    public:
         
         
+        ~NodeObserver()
+        {
+            std::cout<<"Destroying NodeObserver"<<std::endl;
+        }
+        
         /**********************************************************************/
         IsNodeType node(const size_t& i)
         {

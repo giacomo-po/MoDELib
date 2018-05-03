@@ -101,13 +101,8 @@ namespace model
             VerboseLoopLink(1,"Destroying LoopLink "<<name()<<" (loop "<<pLoop->sID<<")"<<std::endl);
             pLoop->removeLink(this);
             pLink->removeLink(this);
-            
             _source->removeLoopLink(this);
             _sink->removeLoopLink(this);
-            
-            //            NodeObserver<LoopNodeType>::removeNode(source());
-            //            NodeObserver<LoopNodeType>::removeNode(sink());
-            
         }
         
         std::shared_ptr<LoopNodeType> source() const

@@ -88,7 +88,6 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
-//            std::cout<<"Destroying Loop "<<this->sID<<std::endl;
             _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
         }

@@ -64,8 +64,26 @@
 namespace model
 {
     
+    template <int dim>
+    struct DislocationNetworkBase
+    {// Class that stores objects that need to be destroyed last
+    
+        SimplicialMesh<dim> mesh;
+        Polycrystal<dim> poly;
+        BVPsolver<dim,2> bvpSolver;
+        
+        DislocationNetworkBase() :
+        /* init list  */ poly(mesh),
+        /* init list  */ bvpSolver(mesh)
+        {
+        
+        }
+
+
+    };
+    
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork :
+    class DislocationNetwork : public DislocationNetworkBase<_dim>, // must be first in inheritance tree
     /* base                 */ public GlidePlaneObserver<_dim>,
     /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
@@ -120,9 +138,9 @@ namespace model
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
-        SimplicialMesh<dim> mesh;
-        PolycrystalType poly;
-        BvpSolverType bvpSolver;
+//        SimplicialMesh<dim> mesh;
+//        PolycrystalType poly;
+//        BvpSolverType bvpSolver;
         // MatrixDimD externalStress;
         bool use_externalStress;
         bool use_externaldislocationstressfield;
@@ -163,7 +181,7 @@ namespace model
                 if (!(runID%use_bvp))
                 {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
+                    this->bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
                 }
             }
             if (use_externalStress)
@@ -327,8 +345,8 @@ namespace model
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),
-        /* init list  */ poly(mesh),
-        /* init list  */ bvpSolver(mesh),
+//        /* init list  */ poly(mesh),
+//        /* init list  */ bvpSolver(mesh),
         /* init list  */ use_externalStress(false),
         /* init list  */ use_externaldislocationstressfield(false),
         /* init list  */ extStressController(),
@@ -356,6 +374,8 @@ namespace model
             // Initializing configuration
             move(0.0);	// initial configuration
         }
+        
+        
         
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
@@ -725,7 +745,7 @@ namespace model
             std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
             if (use_boundary)
             {
-                temp=mesh.searchWithGuess(P0,guess);
+                temp=this->mesh.searchWithGuess(P0,guess);
             }
             return temp;
         }

@@ -150,7 +150,6 @@ namespace model
         /**********************************************************************/
         ~NetworkLink()
         {
-            //                        std::cout<<"Destroying NetworkLink "<<source->sID<<" "<<sink->sID<<std::endl;
             loopNetwork->removeLink(this->p_derived());
             
             source->removeFromNeighborhood(this->p_derived());

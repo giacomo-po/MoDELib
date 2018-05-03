@@ -41,6 +41,12 @@ namespace model
         
 //    public:
         
+        ~NetworkLinkObserver()
+        {
+            std::cout<<"Destroying NetworkLinkObserver"<<std::endl;
+        }
+
+        
         /**********************************************************************/
         IsNetworkEdgeType link(const size_t & i, const size_t & j)
         {

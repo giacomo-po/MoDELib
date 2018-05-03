@@ -117,6 +117,8 @@ namespace model
     private:
         
         
+
+        
         /**********************************************************************/
         DanglingNodeContainerType& danglingNodes()
         {
@@ -233,8 +235,7 @@ namespace model
     public:
         
         static int verboseLevel;
-        
-        
+                
         /**********************************************************************/
         void clearDanglingNodes()
         {

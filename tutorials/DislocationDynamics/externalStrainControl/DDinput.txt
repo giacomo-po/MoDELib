@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=10000;
+Nsteps=1;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 
@@ -92,7 +92,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################

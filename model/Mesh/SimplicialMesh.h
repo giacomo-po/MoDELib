@@ -92,7 +92,7 @@ namespace model
         {
             readMesh(meshID);
         }
-        
+                
         /**********************************************************************/
         const SimplexMapType& simplices() const
         {
