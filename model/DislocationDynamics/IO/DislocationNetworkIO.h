@@ -285,8 +285,8 @@ namespace model
             
             
             // Cross-Slip
-            EDR.readScalarInFile(fullName.str(),"use_crossSlip",DN.use_crossSlip);
-            if(DN.use_crossSlip)
+            EDR.readScalarInFile(fullName.str(),"crossSlipModel",DN.crossSlipModel);
+            if(DN.crossSlipModel)
             {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
                 assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
@@ -295,7 +295,7 @@ namespace model
                 EDR.readScalarInFile(fullName.str(),"verboseCrossSlip",DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip);
 
             }
-            
+        
             // Mesh and BVP
             EDR.readScalarInFile(fullName.str(),"use_boundary",DN.use_boundary);
             if (DN.use_boundary)

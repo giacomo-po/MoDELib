@@ -15,11 +15,16 @@
 #include <model/Geometry/SegmentSegmentDistance.h>
 //#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
 #include <model/DislocationDynamics/DislocationNetworkRemesh.h>
+#include <model/DislocationDynamics/CrossSlip/CrossSlipModels.h>
+
 #include <model/Geometry/PlanePlaneIntersection.h>
 
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
+#include <model/DislocationDynamics/Materials/BCCcrystal.h>
+#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+
 
 #ifndef NDEBUG
 #define VerboseCrossSlip(N,x) if(verboseCrossSlip>=N){model::cout<<x;}
@@ -50,7 +55,7 @@ namespace model
         
         
         /**********************************************************************/
-        CrossSlipContainerType findCrossSlipSegments() const
+        CrossSlipContainerType findCrossSlipSegments(const int& crossSlipModel) const
         {
             
             const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
@@ -66,32 +71,27 @@ namespace model
                    && link.second->chord().normalized().cross(link.second->burgers().normalized()).norm()<=sinCrossSlipRad
                    )
                 {
-                    
-                    assert(link.second->grains().size()==1 && "THERE SHOULD BE ONLY ONE GRAIN FOR AN INTERNAL SEGMENT");
-                    
-                    // Find slip system on which screw segment has highest glide force
-                    const Grain<dim>& grain(**link.second->grains().begin());
-                    const VectorDim pki=link.second->pkIntegral();
-                    std::map<double,int> ssMap;
-                    for(size_t s=0;s<grain.slipSystems().size();++s)
+                    const auto& grain(**link.second->grains().begin());
+                    const int& materialZ(grain.material());
+                    switch (materialZ)
                     {
-                        const auto& slipSystem(grain.slipSystems()[s]);
-                        //const VectorDim ncs=slipSystem.unitNormal.normalized();
-                        if((slipSystem.s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON)
-                        {
-                            const double pkGlide=(pki-pki.dot(slipSystem.unitNormal)*slipSystem.unitNormal).norm();
-                            ssMap.emplace(pkGlide,s);
-                        }
+                        case Grain<dim>::Al.Z:
+                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Al.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                            break;
+                        case Grain<dim>::Ni.Z:
+                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Ni.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                            break;
+                        case Grain<dim>::Cu.Z:
+                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Cu.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                            break;
+                        case Grain<dim>::W.Z:
+                            CrossSlipModels<typename PeriodicElement<Grain<dim>::W.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                            break;
+                        default:
+                            assert(0 && "DislocationCrossSlip: Material not implemented.");
+                            break;
                     }
-                    
-                    if(ssMap.size())
-                    {
-                        const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
-                        if(crosSlipSystem.unitNormal.cross(link.second->glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
-                        {// cross slip system is different than original system
-                            crossSlipDeq.emplace_back(link.second->source->sID,link.second->sink->sID,grain.grainID,ssMap.rbegin()->second);
-                        }
-                    }
+
                 }
             }
             
@@ -100,7 +100,6 @@ namespace model
         
     public:
         
-        
         static int verboseCrossSlip;
         static double crossSlipDeg;
         
@@ -108,12 +107,12 @@ namespace model
         DislocationCrossSlip(DislocationNetworkType& DN_in) :
         /* init list */ DN(DN_in)
         {
-            if(DN.use_crossSlip)
+            if(DN.crossSlipModel)
             {
                 const auto t0= std::chrono::system_clock::now();
                 model::cout<<"		CrossSlip "<<std::flush;
                 
-                const CrossSlipContainerType crossSlipDeq=findCrossSlipSegments();
+                const CrossSlipContainerType crossSlipDeq=findCrossSlipSegments(DN.crossSlipModel);
                 VerboseCrossSlip(1,"crossSlipDeq.size()="<<crossSlipDeq.size()<<std::endl;);
                 
                 for(const auto& tup : crossSlipDeq)
@@ -137,10 +136,19 @@ namespace model
                         const int height=LatticePlane::computeHeight(crosSlipSystem.n,midPoint).second;
                         const VectorDim planePoint(height*crosSlipSystem.n.planeSpacing()*crosSlipSystem.unitNormal);
                         
-                        const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem.unitNormal)*crosSlipSystem.unitNormal; // closest point to midPoint on the crossSlip plane
+                        //const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem.unitNormal)*crosSlipSystem.unitNormal; // closest point to midPoint on the crossSlip plane
                         
-                        PlanePlaneIntersection<dim> ppi(midPoint,isLink.second->glidePlaneNormal(),
-                                                        planePoint2,crosSlipSystem.unitNormal);
+//                        PlanePlaneIntersection<dim> ppi(midPoint,isLink.second->glidePlaneNormal(),
+//                                                        planePoint2,crosSlipSystem.unitNormal);
+
+                        
+                        
+                        
+                        PlanePlaneIntersection<dim> ppi((*isLink.second->loopLinks().begin())->loop()->glidePlane.P,
+                                                        (*isLink.second->loopLinks().begin())->loop()->glidePlane.unitNormal,
+                                                        planePoint,
+                                                        crosSlipSystem.unitNormal);
+
                         
                         const VectorDim newSourceP(ppi.P+(isSource.second->get_P()-ppi.P).dot(ppi.d)*ppi.d);
                         const VectorDim newSinkP(ppi.P+(isSink.second->get_P()-ppi.P).dot(ppi.d)*ppi.d);
@@ -174,8 +182,6 @@ namespace model
                                               newNodeP,
                                               grainID);
                             }
-                            
-
                         }
                     }
                 }

@@ -97,6 +97,7 @@ namespace model
                 ddSegments.reset(new DislocationSegmentActor(frameID,ddRenderer));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
+ 
                 
                 // Update renderer
                 rwi->Render();

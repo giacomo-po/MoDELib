@@ -116,7 +116,7 @@ namespace model
         MatrixDimD _plasticDistortionRate;
         int ddSolverType;
         bool computeDDinteractions;
-        bool use_crossSlip;
+        int crossSlipModel;
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
@@ -323,7 +323,7 @@ namespace model
         ///* init list  */ externalStress(MatrixDimD::Zero()),
         /* init list  */ ddSolverType(0),
         /* init list  */ computeDDinteractions(true),
-        /* init list  */ use_crossSlip(true),
+        /* init list  */ crossSlipModel(0),
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),

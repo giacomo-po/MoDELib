@@ -128,6 +128,11 @@ namespace model
             //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
         }
         
+        /**********************************************************************/
+        VectorDimD planeOrigin() const
+        {
+            return h*n.planeSpacing()*n.cartesian().normalized();
+        }
         
 //        /**********************************************************************/
 //        VectorDimD snapToPlane(const VectorDimD& P0) const

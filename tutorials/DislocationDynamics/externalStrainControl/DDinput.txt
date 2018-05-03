@@ -92,7 +92,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+crossSlipModel=1;
 crossSlipDeg=2.0;
 
 ######################################

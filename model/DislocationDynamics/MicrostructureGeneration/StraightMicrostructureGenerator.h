@@ -148,7 +148,7 @@ namespace model
                     for(int k=0;k<nodePos.size();++k)
                     {
                         DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        vertexFile<<dlIO;
+                        vertexFile<<dlIO<<"\n";
 //                        vertexFile.write(dlIO);
 //                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                         

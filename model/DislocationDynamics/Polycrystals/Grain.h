@@ -53,10 +53,6 @@ namespace model
         typedef std::vector<unsigned int> PlaneNormalIDContainerType;
         
         
-        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
-        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
-        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
-        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
         
 //        /**********************************************************************/
 //        static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
@@ -135,6 +131,14 @@ namespace model
         int materialZ;
         
     public:
+        
+        
+        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
+        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
+        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
+
+        
         static constexpr double roundTol=FLT_EPSILON;
         
         const MeshRegionType& region;
@@ -356,6 +360,11 @@ namespace model
 //        }
 //        
 
+        
+        const int& material() const
+        {
+            return materialZ;
+        }
         
         /**********************************************************************/
         const MatrixDimD& get_C2G() const

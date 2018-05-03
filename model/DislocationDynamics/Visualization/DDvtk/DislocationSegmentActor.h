@@ -57,7 +57,7 @@ namespace model
         typedef IDreader<'K',2,13,double> EdgeReaderType;
         typedef IDreader<'E',3,0,double> LoopLinkReaderType;
         typedef IDreader<'L',1,13,double> LoopReaderType;
-
+        
         
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
         
@@ -109,7 +109,7 @@ namespace model
         vtkSmartPointer<vtkUnsignedCharArray> colors;
         vtkSmartPointer<vtkUnsignedCharArray> colorsBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper;
-//        vtkSmartPointer<vtkPolyDataMapper> lineMapperBnd;
+        //        vtkSmartPointer<vtkPolyDataMapper> lineMapperBnd;
         vtkSmartPointer<vtkPolyDataMapper> lineMapper0;
         vtkSmartPointer<vtkTubeFilter> tubeFilter;
         vtkSmartPointer<vtkTubeFilter> tubeFilterBnd;
@@ -156,7 +156,7 @@ namespace model
         vtkSmartPointer<vtkPolyData> trianglePolyData;
         vtkSmartPointer<vtkPolyDataMapper> triangleMapper;
         vtkSmartPointer<vtkActor> triangleActor;
-
+        
         
         /*********************************************************************/
         void computeColor()
@@ -379,132 +379,132 @@ namespace model
                 Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
                 Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
                 
-//                const int   snID(edgeRow(2*dim+2));
-//                const bool sourceOnBoundary(sourceRow(2*dim+1));
-//                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
-//                
-//                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
-//                {
+                //                const int   snID(edgeRow(2*dim+2));
+                //                const bool sourceOnBoundary(sourceRow(2*dim+1));
+                //                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
+                //
+                //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
+                //                {
                 
                 int meshLocation=edgeRow(12);
-                    
-                    Eigen::Matrix<float,dim,6> P0T0P1T1BN;
-                    
-                    P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-                    P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-                    //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-                    //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-                    P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-                    P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-                    P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-                    P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-                    chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
-                    burgers=P0T0P1T1BN.col(4);
-                    planeNormal=P0T0P1T1BN.col(5);
-                    const float g = std::pow(chord.norm(),alpha);
-                    
-                    
-                    //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
-                    //                    auto& line(*lines.rbegin());
-                    vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
-                    line->GetPointIds()->SetNumberOfIds(Np);
-                    
-                    //                    unsigned char clr0[3]={255,255,255};
+                
+                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
+                
+                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+                burgers=P0T0P1T1BN.col(4);
+                planeNormal=P0T0P1T1BN.col(5);
+                const float g = std::pow(chord.norm(),alpha);
+                
+                
+                //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
+                //                    auto& line(*lines.rbegin());
+                vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
+                line->GetPointIds()->SetNumberOfIds(Np);
+                
+                //                    unsigned char clr0[3]={255,255,255};
                 
                 const float burgersNorm(burgers.norm());
+                
+                for (int k=0;k<Np;++k) // this may have to go to Np+1
+                {
+                    const float u1=k*1.0/(Np-1);
+                    const float u2=u1*u1;
+                    const float u3=u2*u1;
                     
-                    for (int k=0;k<Np;++k) // this may have to go to Np+1
+                    // Compute positions along axis
+                    VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
+                    /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
+                    /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
+                    /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+                    
+                    points->InsertNextPoint(P.data());
+                    radii->InsertNextValue(burgersNorm*tubeRadius);
+                    line->GetPointIds()->SetId(k,ptID);
+                    
+                    ptID++;
+                }
+                
+                
+                if(burgers.squaredNorm()>FLT_EPSILON)
+                {
+                    
+                    computeColor();
+                    //                    unsigned char lineClr[3]={51,153,255};
+                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+                    
+                    if(meshLocation>=1)
                     {
-                        const float u1=k*1.0/(Np-1);
-                        const float u2=u1*u1;
-                        const float u3=u2*u1;
+                        cellsBnd->InsertNextCell(line);
+                        colorsBnd->InsertNextTypedTuple(lineClr);
                         
-                        // Compute positions along axis
-                        VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
-                        /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
-                        /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
-                        /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
-                        
-                        points->InsertNextPoint(P.data());
-                        radii->InsertNextValue(burgersNorm*tubeRadius);
-                        line->GetPointIds()->SetId(k,ptID);
-                        
-                        ptID++;
-                    }
-                    
-                    
-                    if(burgers.squaredNorm()>FLT_EPSILON)
-                    {
-                        
-                        computeColor();
-                        //                    unsigned char lineClr[3]={51,153,255};
-                        unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-
-                        if(meshLocation>=1)
-                        {
-                            cellsBnd->InsertNextCell(line);
-                            colorsBnd->InsertNextTypedTuple(lineClr);
-                            
-                        }
-                        else
-                        {
-                            cells->InsertNextCell(line);
-                            
-                            if(meshLocation==2 && blackGrainBoundarySegments)
-                            {
-                                unsigned char lineClr1[3]={1,1,1};
-                                colors->InsertNextTypedTuple(lineClr1);
-                            }
-                            else
-                            {
-                                colors->InsertNextTypedTuple(lineClr);
-                            }
-                        }
-                        
-//                        if(meshLocation==1)
-//                        {
-//                            cellsBnd->InsertNextCell(line);
-//                            colorsBnd->InsertNextTypedTuple(lineClr);
-//
-//                        }
-//                        else
-//                        {
-//                            cells->InsertNextCell(line);
-//
-//                            if(meshLocation==2 && blackGrainBoundarySegments)
-//                            {
-//                                unsigned char lineClr1[3]={1,1,1};
-//                                colors->InsertNextTypedTuple(lineClr1);
-//                            }
-//                            else
-//                            {
-//                                colors->InsertNextTypedTuple(lineClr);
-//                            }
-//                        }
                     }
                     else
                     {
-                        cells0->InsertNextCell(line);
+                        cells->InsertNextCell(line);
+                        
+                        if(meshLocation==2 && blackGrainBoundarySegments)
+                        {
+                            unsigned char lineClr1[3]={1,1,1};
+                            colors->InsertNextTypedTuple(lineClr1);
+                        }
+                        else
+                        {
+                            colors->InsertNextTypedTuple(lineClr);
+                        }
                     }
                     
-//                }
+                    //                        if(meshLocation==1)
+                    //                        {
+                    //                            cellsBnd->InsertNextCell(line);
+                    //                            colorsBnd->InsertNextTypedTuple(lineClr);
+                    //
+                    //                        }
+                    //                        else
+                    //                        {
+                    //                            cells->InsertNextCell(line);
+                    //
+                    //                            if(meshLocation==2 && blackGrainBoundarySegments)
+                    //                            {
+                    //                                unsigned char lineClr1[3]={1,1,1};
+                    //                                colors->InsertNextTypedTuple(lineClr1);
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                colors->InsertNextTypedTuple(lineClr);
+                    //                            }
+                    //                        }
+                }
+                else
+                {
+                    cells0->InsertNextCell(line);
+                }
+                
+                //                }
             }
             
             polyData->SetPoints(points);
             polyData->SetLines(cells);
-//            polyData->GetCellData()->SetScalars(colors);
+            //            polyData->GetCellData()->SetScalars(colors);
             
-//            polyData->GetPointData()->SetScalars(radii);
-//            polyData->GetCellData()->SetScalars(radii);
+            //            polyData->GetPointData()->SetScalars(radii);
+            //            polyData->GetCellData()->SetScalars(radii);
             polyData->GetCellData()->AddArray(colors);
             polyData->GetPointData()->AddArray(radii);
             polyData->GetPointData()->SetActiveScalars("TubeRadius");
-
+            
             
             polyDataBnd->SetPoints(points);
             polyDataBnd->SetLines(cellsBnd);
             polyDataBnd->GetCellData()->SetScalars(colorsBnd);
-
+            
             
             polyData0->SetPoints(points);
             polyData0->SetLines(cells0);
@@ -535,22 +535,22 @@ namespace model
             
             assert(loopMap.size()==loopReader.size());
             
-//            std::cout<<"here 0"<<std::endl;
+            //            std::cout<<"here 0"<<std::endl;
             
             size_t loopLumber=1;
             for(const auto& loop : loopReader())
             {
-//                                    std::cout<<"Loop"<<std::endl;
+                //                                    std::cout<<"Loop"<<std::endl;
                 
                 Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
                 
                 const size_t loopID=loop.first;
-//                const size_t grainID=row(9);
+                //                const size_t grainID=row(9);
                 
                 const auto loopFound=loopMap.find(loopID);
                 assert(loopFound!=loopMap.end());
                 
-//                            std::cout<<"here 1"<<std::endl;
+                //                            std::cout<<"here 1"<<std::endl;
                 
                 std::vector<size_t> nodeIDs;
                 nodeIDs.push_back(loopFound->second.begin()->first);
@@ -577,7 +577,7 @@ namespace model
                     }
                 }
                 
-//                            std::cout<<"here 2"<<std::endl;
+                //                            std::cout<<"here 2"<<std::endl;
                 
                 const Eigen::Vector3d B=row.template segment<dim>(0*dim).transpose();
                 const Eigen::Vector3d N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
@@ -587,8 +587,8 @@ namespace model
                 pp.assignPoints(nodePositions);
                 std::deque<std::array<size_t, 3>> tri=pp.triangulate();
                 
-//                            std::cout<<"here 3"<<std::endl;
-
+                //                            std::cout<<"here 3"<<std::endl;
+                
                 for(const auto& triID : tri)
                 {
                     
@@ -596,41 +596,41 @@ namespace model
                     const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
                     const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
                     
-//                    std::cout<<"Triangle"<<std::endl;
-//                    std::cout<<nodeID0<<std::endl;
-//                    std::cout<<nodeID1<<std::endl;
-//                    std::cout<<nodeID2<<std::endl;
+                    //                    std::cout<<"Triangle"<<std::endl;
+                    //                    std::cout<<nodeID0<<std::endl;
+                    //                    std::cout<<nodeID1<<std::endl;
+                    //                    std::cout<<nodeID2<<std::endl;
                     
                     const size_t ptID0=std::distance(vertexReader().begin(),vertexReader().find(nodeID0));
                     const size_t ptID1=std::distance(vertexReader().begin(),vertexReader().find(nodeID1));
                     const size_t ptID2=std::distance(vertexReader().begin(),vertexReader().find(nodeID2));
                     
-//                    std::cout<<"here 5"<<std::endl;
-
+                    //                    std::cout<<"here 5"<<std::endl;
+                    
                     
                     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
                     triangle->GetPointIds()->SetId ( 0, ptID0 );
                     triangle->GetPointIds()->SetId ( 1, ptID1 );
                     triangle->GetPointIds()->SetId ( 2, ptID2 );
                     triangles->InsertNextCell ( triangle );
-
-//                    std::cout<<"here 6"<<std::endl;
-
+                    
+                    //                    std::cout<<"here 6"<<std::endl;
+                    
                 }
                 
-//                            std::cout<<"here 7"<<std::endl;
+                //                            std::cout<<"here 7"<<std::endl;
                 
-//                model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
-//                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
-//                assert(loopID==newLoopID);
-//                loopLumber++;
+                //                model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
+                //                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
+                //                assert(loopID==newLoopID);
+                //                loopLumber++;
             }
             
             trianglePolyData->SetPoints ( nodePoints );
             trianglePolyData->SetPolys ( triangles );
             trianglePolyData->Modified();
-
-
+            
+            
         }
         
         /**********************************************************************/
@@ -689,9 +689,9 @@ namespace model
         /* init */ triangleMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ triangleActor(vtkSmartPointer<vtkActor>::New())
         {
-         
+            
             radii->SetName("TubeRadius");
-
+            
             colors->SetName("Colors");
             colors->SetNumberOfComponents(3);
             colorsBnd->SetNumberOfComponents(3);
@@ -709,23 +709,23 @@ namespace model
             
             readNodes(frameID);
             readSegments(frameID);
-//            if(showSlippedArea)
-//            {
-                readLoopLinks(frameID);
-//            }
+            //            if(showSlippedArea)
+            //            {
+            readLoopLinks(frameID);
+            //            }
             
             // Populate polyData
             
             // Segments
             tubeFilter->SetInputData(polyData);
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
-//            tubeFilter->SetRadiusFactor(tubeRadius);
-//            tubeFilter->SetVaryRadiusToVaryRadiusByScalar();
-if(scaleRadiusByBurgers)
-{
-            tubeFilter->SetVaryRadiusToVaryRadiusByAbsoluteScalar();
-}
-//            tubeFilter->SetColorModeToColorByVector();
+            //            tubeFilter->SetRadiusFactor(tubeRadius);
+            //            tubeFilter->SetVaryRadiusToVaryRadiusByScalar();
+            if(scaleRadiusByBurgers)
+            {
+                tubeFilter->SetVaryRadiusToVaryRadiusByAbsoluteScalar();
+            }
+            //            tubeFilter->SetColorModeToColorByVector();
             tubeFilter->SetNumberOfSides(10);
             tubeFilter->Update();
             tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
@@ -733,7 +733,7 @@ if(scaleRadiusByBurgers)
             
             tubeMapper->SetScalarModeToUseCellFieldData();
             tubeMapper->SelectColorArray("Colors");
-
+            
             
             lineMapper->SetInputData(polyData);
             tubeActor->SetMapper(tubeMapper);
@@ -749,7 +749,7 @@ if(scaleRadiusByBurgers)
             tubeMapperBnd->SetInputConnection(tubeFilterBnd->GetOutputPort());
             tubeMapperBnd->ScalarVisibilityOn();
             tubeActorBnd->SetMapper(tubeMapperBnd);
-//            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
+            //            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
             tubeActorBnd->GetProperty()->SetOpacity(0.3); //(R,G,B)
             renderer->AddActor(tubeActorBnd);
             
@@ -773,15 +773,15 @@ if(scaleRadiusByBurgers)
             nodeGlyphs->ScalingOn();
             nodeGlyphs->SetScaleModeToScaleByVector();
             nodeGlyphs->SetScaleFactor(2.0*tubeRadius*1.2);
-//            nodeGlyphs->OrientOn();
-//            nodeGlyphs->ClampingOff();
-//            nodeGlyphs->SetVectorModeToUseVector();
-//            nodeGlyphs->SetIndexModeToOff();
-                        nodeGlyphs->SetColorModeToColorByScalar();
+            //            nodeGlyphs->OrientOn();
+            //            nodeGlyphs->ClampingOff();
+            //            nodeGlyphs->SetVectorModeToUseVector();
+            //            nodeGlyphs->SetIndexModeToOff();
+            nodeGlyphs->SetColorModeToColorByScalar();
             nodeGlyphs->Update();
             //            nodeGlyphs->SetColorModeToColorByVector();
             nodeMapper->SetInputConnection(nodeGlyphs->GetOutputPort());
-//            nodeMapper->ScalarVisibilityOff();
+            //            nodeMapper->ScalarVisibilityOff();
             nodeActor->SetMapper(nodeMapper);
             renderer->AddActor(nodeActor);
             
@@ -826,7 +826,7 @@ if(scaleRadiusByBurgers)
             triangleMapper->SetInputData(trianglePolyData);
             triangleActor->SetMapper(triangleMapper);
             renderer->AddActor(triangleActor);
-
+            
             
             modify();
         }
@@ -842,7 +842,7 @@ if(scaleRadiusByBurgers)
             renderer->RemoveActor(labelActor);
             renderer->RemoveActor(singleNodeLabelActor);
             renderer->RemoveActor(triangleActor);
-
+            
         }
         
         /**********************************************************************/
@@ -858,7 +858,7 @@ if(scaleRadiusByBurgers)
             
             triangleActor->GetProperty()->SetColor(0.5,0.0,0.5);
             triangleActor->GetProperty()->SetOpacity(slippedAreaOpacity);
-
+            
             if(showSlippedArea)
             {
                 triangleActor->VisibilityOn();
@@ -871,7 +871,7 @@ if(scaleRadiusByBurgers)
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
-
+            
             if(showBoundarySegments)
             {
                 tubeActorBnd->VisibilityOn();
