@@ -52,40 +52,9 @@ namespace model
         typedef std::vector<SlipSystem> SlipSystemContainerType;
         typedef std::vector<unsigned int> PlaneNormalIDContainerType;
         
-        
-        
-//        /**********************************************************************/
-//        static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
-//        {
-//            const Eigen::Array<double,dim,1> nda(nd.array().abs()); // vector of close-to-integer numbers corresponding to lattice coordinates
-//            size_t maxID=0;
-//            const double maxVal(nda.maxCoeff(&maxID));
-//            nd/=maxVal; // make each value of nd in [-1:1]
-//            
-//            Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Ones();
-//            Eigen::Array<long int,dim,1> dens=Eigen::Matrix<long int,dim,1>::Ones();
-//            long int denProd=1;
-//            
-//            for(int k=0;k<dim;++k)
-//            {
-//                BestRationalApproximation bra(nd(k),100);
-//                
-//                nums(k)=bra.num;
-//                dens(k)=bra.den;
-//                denProd*=bra.den;
-//            }
-//            
-//            for(int k=0;k<dim;++k)
-//            {
-//                nums(k)*=(denProd/dens(k));
-//            }
-//            return nums.matrix();
-//        }
-        
         /**********************************************************************/
         void setLatticeBasis()
         {
-//            model::cout<<"Grain"<<grainID<<", material="<<materialZ<<std::endl;
             
             Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
             
@@ -112,19 +81,10 @@ namespace model
             }
             
             Lattice<dim>::setLatticeBasis(C2G*A);
-//            _covBasis=C2G*A;
-//            _contraBasis=_covBasis.inverse().transpose();
-//            
-//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-//            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
         }
         
         PlaneNormalContainerType planeNormalContainer;
         SlipSystemContainerType slipSystemContainer;
-        
-        //! The static column matrix of lattice vectors
-//        MatrixDimD    _covBasis;
-//        MatrixDimD _contraBasis;
         
         Eigen::Matrix<double,dim,dim> C2G;
         
@@ -148,8 +108,6 @@ namespace model
         Grain(const MeshRegionType& region_in,
               const int& Z,
               const Eigen::Matrix<double,dim,dim>& C2G_in) :
-//        /* init */ _covBasis(MatrixDimD::Identity()),
-//        /* init */ _contraBasis(MatrixDimD::Identity()),
         /* init */ C2G(C2G_in),
         /* init */ materialZ(Z),
         /* init */ region(region_in),
@@ -206,13 +164,6 @@ namespace model
                     break;
             }
             
-//            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
-//            for (unsigned int k=0; k<planeNormalContainer.size();++k)
-//            {
-//                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
-//            }
-//            model::cout<<defaultColor<<std::endl;
-            
         }
         
         /**********************************************************************/
@@ -227,16 +178,7 @@ namespace model
             // store C2G
             C2G=C2G_in;
             setLatticeBasis();
-            
-//            model::cout<<magentaColor<<"Current Crystal Plane Normals are:"<<std::endl;
-//            for (unsigned int k=0; k<planeNormalContainer.size();++k)
-//            {
-//                model::cout<<"    "<<planeNormalContainer[k].cartesian().normalized().transpose()<<std::endl;
-//            }
-//            model::cout<<defaultColor<<std::endl;
         }
-        
-
         
         /**********************************************************************/
         std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
@@ -320,9 +262,7 @@ namespace model
             }
             
         }
-        
-        
-        
+
         /**********************************************************************/
         std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
                                                                  const ReciprocalLatticeDirectionType& N) const
@@ -341,26 +281,7 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        const MatrixDimD& covBasis() const
-//        {
-//            return _covBasis;
-//        }
-//        
-//        /**********************************************************************/
-//        const MatrixDimD& contraBasis() const
-//        {
-//            return _contraBasis;
-//        }
-        
-//        /**********************************************************************/
-//        LatticeVectorType latticeVector(const VectorDimD& p) const
-//        {
-//            return LatticeVectorType(p,_covBasis,_contraBasis);
-//        }
-//        
-
-        
+        /**********************************************************************/
         const int& material() const
         {
             return materialZ;
@@ -386,181 +307,5 @@ namespace model
         
     };
     
-    
-} // end namespace
+}
 #endif
-
-//        /**********************************************************************/
-//        PlaneNormalIDContainerType find_slipSystem(const LatticeVectorType& chord,
-//                                                   const LatticeVectorType& Burgers,
-//                                                   const bool& isGBsegment) const
-//        {/*!
-//          */
-//            assert(  chord.squaredNorm()>0 && "CHORD HAS ZERO NORM");
-//            assert(Burgers.squaredNorm()>0 && "BURGERS HAS ZERO NORM");
-//
-//
-//            PlaneNormalIDContainerType allowedSlipSystems;
-//
-//            // Try to find a plane which has normal orthogonal to both the chord and the Burgers
-//            for (unsigned int k=0;k<planeNormalContainer.size();++k)
-//            {
-//                if(planeNormalContainer[k].dot(chord)==0
-//                   && planeNormalContainer[k].dot(Burgers)==0)
-//                {
-//                    allowedSlipSystems.push_back(k);
-//                }
-//            }
-//
-//            // If no planes are found, check only chord to detect possibly sessile segment
-//            if(allowedSlipSystems.size()+isGBsegment==0)
-//            {
-//                for (unsigned int k=0;k<planeNormalContainer.size();++k)
-//                {
-//                    if(	planeNormalContainer[k].dot(chord)==0)
-//                    {
-//                        allowedSlipSystems.push_back(k);
-//                    }
-//                }
-//                if (allowedSlipSystems.size()<2)
-//                {
-//                    std::cout<<"chord="<<chord.cartesian().transpose()<<std::endl;
-//                    std::cout<<"Burgers="<<Burgers.cartesian().transpose()<<std::endl;
-//                    for (const auto& planeNormal : planeNormalContainer)
-//                    {
-//
-//                        std::cout<<"n="<<planeNormal.cartesian().normalized().transpose()<<" c*n="<< planeNormal.dot(chord)<<" b*n="<< planeNormal.dot(Burgers) <<std::endl;
-//                    }
-//                    assert(allowedSlipSystems.size()>=2 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO CRYSTALLOGRAPHIC PLANES.");
-//                }
-//            }
-//
-//            return allowedSlipSystems;
-//        }
-//
-//        /**********************************************************************/
-//        const LatticePlaneBase& find_glidePlane(const LatticeVectorType& sourceL,
-//                                                const LatticeVectorType& sinkL,
-//                                                const LatticeVectorType& Burgers) const
-//        {/*!@param[in] sourceL the source node position of a DislocationSegment
-//          * @param[in] sourceL the sink node position of a DislocationSegment
-//          * @param[in] Burgers the Burgers vector of a DislocationSegment
-//          *\returns A const reference to the first vector in planeNormalContainer
-//          * which is orthogonal to both chord and Burgers.
-//          */
-//
-//            bool isGBsegment=false;
-//            const GrainBoundary<NetworkType>* p_GB=NULL;
-//            for(const auto& gb : grainBoundaries())
-//            {
-//                //                std::cout<<"CHECKING GRAINBOUNDARIES"<<std::endl;
-//                //                std::cout<<gb.second->latticePlane(grainID).contains(sourceL)<<std::endl;
-//                //                std::cout<<gb.second->latticePlane(grainID).contains(sinkL)<<std::endl;
-//                //                std::cout<<gb.second->latticePlane(grainID).n.dot(Burgers)<<std::endl;
-//
-//                if(   gb.second->latticePlane(grainID).contains(sourceL)
-//                   && gb.second->latticePlane(grainID).contains(sinkL)
-//                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
-//                   )
-//                {
-//                    isGBsegment=true;
-//                    p_GB=gb.second;
-//                    break;
-//                }
-//            }
-//
-//            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,isGBsegment);
-//
-//            return allowedSlipSystems.size()>0? planeNormalContainer[allowedSlipSystems[0]] : p_GB->latticePlane(grainID).n ; // RETURNING THE FIRST PLANE FOUND IS SOMEWHAT ARBITRARY
-//        }
-//
-//        /**********************************************************************/
-//        const LatticePlaneBase& find_sessilePlane(const LatticeVectorType& sourceL,
-//                                                  const LatticeVectorType& sinkL,
-//                                                  const LatticeVectorType& Burgers) const
-//        {/*!@param[in] sourceL the source node position of a DislocationSegment
-//          * @param[in] sinkL the sink node position of a DislocationSegment
-//          * @param[in] Burgers the Burgers vector of a DislocationSegment
-//          *\returns A const reference to the a second LatticePlaneBase
-//          * which contains the chord.
-//
-//          * If both sourceL and sinkL are contained in one of the Grainboundaries
-//          * of this Grain, then the corresponding LatticePlaneBase is returned.
-//          * Otherwise, a search within the crystallographic planes is performed.
-//          * If the search returns one plane, then the sessilePlane os the same as
-//          * the glidePlane, and the segment is glissile on that plane. If the search
-//          * returns two planes, then the glidePlane is returned for a screw segment,
-//          * while the other plane is returned for a non-screw segment.
-//          */
-//
-//            // if the segment is on a GB, always return the GB as the sessile plane
-//            for(const auto& gb : grainBoundaries())
-//            {
-//                if(   gb.second->latticePlane(grainID).contains(sourceL)
-//                   && gb.second->latticePlane(grainID).contains(sinkL)
-//                   //                   && gb.second->latticePlane(grainID).n.dot(Burgers)==0
-//                   )
-//                {
-//                    return gb.second->latticePlane(grainID).n;
-//                }
-//            }
-//
-//            const PlaneNormalIDContainerType allowedSlipSystems=find_slipSystem(sinkL-sourceL,Burgers,false);
-//
-//            int planeID(0);
-//            if (allowedSlipSystems.size()>=2)
-//            {
-//                if ((sinkL-sourceL).cross(Burgers).squaredNorm()!=0) // a sessile segment
-//                {
-//                    planeID=1;
-//                }
-//                else // a screw segment
-//                {
-//                    planeID=0; // allow glide on primary plane
-//                }
-//            }
-//
-//            return planeNormalContainer[allowedSlipSystems[planeID]];
-//        }
-
-
-//        /**********************************************************************/
-//        VectorDimI d2cov(const VectorDimD& d) const
-//        {
-//            const VectorDimD nd(AT*d);
-//            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
-//            if((nd-rd).norm()>roundTol)
-//            {
-//                std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;
-//                std::cout<<"d2cov, rd="<<rd.transpose()<<std::endl;
-//                assert(0 && "Input vector is not a reciprocal lattice vector");
-//            }
-//            //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
-//            return rd.template cast<long int>();
-//        }
-
-//        /**********************************************************************/
-//        LatticeDirectionType latticeDirection(const VectorDimD& d) const
-//        {
-//            bool found=false;
-//            VectorDimD rdk(VectorDimD::Zero());
-//
-//            const VectorDimD nd(_contraBasis.transpose()*d);
-//
-//
-//            for(int k=0;k<dim;++k)
-//            {
-//                if(fabs(nd(k))>roundTol)
-//                {
-//                    const VectorDimD ndk(nd/fabs(nd(k)));
-//                    rdk=RoundEigen<double,dim>::round(ndk);
-//                    if((ndk-rdk).norm()<roundTol)
-//                    {
-//                        found=true;
-//                        break;
-//                    }
-//                }
-//            }
-//            assert(found && "Input vector is not on a lattice direction");
-//            return LatticeDirectionType(rdk.template cast<long int>(),_covBasis,_contraBasis);
-//        }

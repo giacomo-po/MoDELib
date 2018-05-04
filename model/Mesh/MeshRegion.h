@@ -48,10 +48,8 @@ namespace model
         /**********************************************************************/
         ~MeshRegion()
         {
-//            std::cout<<"Destroying Region..."<<std::flush;
             const size_t n=regionObserver.erase(regionID);
             assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
-            std::cout<<"done"<<std::endl;
         }
         
         /**********************************************************************/

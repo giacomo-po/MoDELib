@@ -49,7 +49,7 @@ namespace model
             
             mu=1.0;     // mu is used to normalized stress
             b =1.0;     // b is used to normalized length
-            cs=1.0;     // sc*=sqrt(mu*/rho*)
+            cs=1.0;     // sc*=sqrt(mu*/rho*) is used to normalize speed
             
             b_real=PeriodicElement<Z,Isotropic>::b;
             //            B =1.0;     // B=A*T [Pa*sec] is effectively used to normalize time
@@ -67,33 +67,17 @@ namespace model
             
             /* still unused, to be used in BCC mobility */
             kB=1.38e-23/IM::mu/std::pow(IM::b,3); // [-]
-            //            dH0=PeriodicElement<Z,Isotropic>::dH0/IM::mu/std::pow(IM::b,3); // [-]
-            //            p=PeriodicElement<Z,Isotropic>::p; // [-]
-            //            q=PeriodicElement<Z,Isotropic>::q; // [-]
-            ////            Ae=PeriodicElement<Z,Isotropic>::Ae / IM::mu / (IM::b/sqrt(IM::mu/IM::rho));   // [1/K]
-            //            Be=1.0;   // [1/K]
-            //            Bs=PeriodicElement<Z,Isotropic>::As / PeriodicElement<Z,Isotropic>::Ae;   // [1/K]
-            //            tauP=PeriodicElement<Z,Isotropic>::tauP / IM::mu ;  // [-]
-            //            Ta=PeriodicElement<Z,Isotropic>::Ta;  // [K]
             
             model::cout<<magentaColor<<"Material is now: "<<IM::name<<defaultColor<<std::endl;
             model::cout<<greenColor<<"  units of stress (shear modulus): mu="<<IM::mu<<" [Pa]"<<std::endl;
             model::cout<<greenColor<<"  units of length (Burgers vector): b="<<IM::b<<" [m]"<<std::endl;
             model::cout<<greenColor<<"  units of speed (shear-wave speed): cs="<<IM::cs<<" [m/s]"<<std::endl;
-            
             model::cout<<greenColor<<"  units of time: b/cs="<<IM::b/IM::cs<<" [sec]"<<defaultColor<<std::endl;
         }
         
         
     public:
         
-//        enum{
-//            _Al=13,
-//            _Fe=26,
-//            _Ni=28,
-//            _Cu=29,
-//            _W=74
-//        };
         
         static double b;
         static double b_real;
@@ -112,7 +96,7 @@ namespace model
 
         
         
-        static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
+//        static Eigen::Matrix<double,Eigen::Dynamic,2> dH0;
         
         /**********************************************************************/
         static void select(const unsigned int& Z)
@@ -150,39 +134,6 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        template <int dim>
-//        static void rotateCrystal(const Eigen::Matrix<double,dim,dim>& C2G)
-//        {/*!\param[in] C2G the crystal-to-global rotation matrix
-//          *
-//          * Rotates the default plane normals in
-//          * PeriodicElement<Z,Isotropic>::CrystalStructure, where Z is the current
-//          * selected material.
-//          */
-//            
-//            switch (selectedMaterial)
-//            {
-//                case Al.Z:
-//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Al.Z,Isotropic>::CrystalStructure>(C2G);
-//                    break;
-//                case Ni.Z:
-//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Ni.Z,Isotropic>::CrystalStructure>(C2G);
-//                    break;
-//                case Cu.Z:
-//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<Cu.Z,Isotropic>::CrystalStructure>(C2G);
-//                    break;
-//                case W.Z:
-//                    CrystalOrientation<dim>::template rotate<typename PeriodicElement<W.Z,Isotropic>::CrystalStructure>(C2G);
-//                    break;
-//                    //                case Fe:
-//                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-//                    //                    break;
-//                default:
-//                    assert(0 && "Material not implemented.");
-//                    break;
-//            }
-//        }
-
         /**********************************************************************/
         static double velocity(const Eigen::Matrix<double,3,3>& S,
                                const Eigen::Matrix<double,3,1>& b,
@@ -225,33 +176,5 @@ namespace model
     double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
     double Material<Isotropic>::kB=1.38e-23/48.0e9/std::pow(0.2556e-9,3);  // Boltzmann constant
     
-    /**************************************************************************/
-    /**************************************************************************/
-} // namespace model
+}
 #endif
-
-
-//        /**********************************************************************/
-//        static double velocity(const Eigen::Matrix<double,3,3>& S,
-//                               const Eigen::Matrix<double,3,1>& b,
-//                               const Eigen::Matrix<double,3,1>& xi,
-//                               const Eigen::Matrix<double,3,1>& n)
-//        {
-//            switch (selectedMaterial)
-//            {
-//                case Al:
-//                    return PeriodicElement<Al,Isotropic>::dm.velocity(S,b,xi,n,T);
-//                case Ni:
-//                    return PeriodicElement<Ni,Isotropic>::dm.velocity(S,b,xi,n,T);
-//                case Cu:
-//                    return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
-//                    //              case Fe:
-//                    //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
-//                case W:
-//                    return PeriodicElement<W,Isotropic>::dm.velocity(S,b,xi,n,T);
-//
-//                default:
-//                    assert(0 && "velocity function not implemented.");
-//                    return 0.0;
-//            }
-//        }

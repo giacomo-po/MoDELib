@@ -30,11 +30,6 @@ namespace model
         
     public:
         
-        ~LoopObserver()
-        {
-            std::cout<<"Destroying LoopObserver"<<std::endl;
-        }
-        
         IsConstLoopType loop(const size_t& i)
         {
             typename LoopContainerType::const_iterator loopIter(this->find(i));

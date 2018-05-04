@@ -25,7 +25,6 @@ namespace model
     struct NetworkLinkObserver : public std::map<std::pair<size_t,size_t>,LinkType* const>
     {
         
-//    public:
         typedef std::pair<bool,LinkType* const>			IsNetworkLinkType;
         typedef std::pair<bool,const LinkType* const>	IsConstNetworkLinkType;
         
@@ -34,18 +33,6 @@ namespace model
         
         typedef std::pair<bool,LinkType* const>			IsNetworkEdgeType;
         typedef std::pair<bool,const LinkType* const>	IsConstNetworkEdgeType;
-        
-//    private:
-        
-//        static LinkContainerType linkMap;
-        
-//    public:
-        
-        ~NetworkLinkObserver()
-        {
-            std::cout<<"Destroying NetworkLinkObserver"<<std::endl;
-        }
-
         
         /**********************************************************************/
         IsNetworkEdgeType link(const size_t & i, const size_t & j)
@@ -62,22 +49,6 @@ namespace model
             return (edgeIter==this->end())?  std::make_pair(false,static_cast<const LinkType* const>(nullptr)) :
             /*                              */ std::make_pair(true,edgeIter->second);
         }
-        
-//        /**********************************************************************/
-//        static IsNetworkEdgeType link(const size_t & i, const size_t & j)
-//        {
-//            typename LinkContainerType::iterator edgeIter(this->find(std::make_pair(i,j)));
-//            return (edgeIter==this->end())?  std::make_pair(false,static_cast<LinkType* const>(nullptr)) :
-//            /*                              */ std::make_pair(true,edgeIter->second);
-//        }
-        
-//        /**********************************************************************/
-//        static IsConstNetworkEdgeType link(const size_t & i, const size_t & j)
-//        {
-//            typename LinkContainerType::const_iterator edgeIter(this->find(std::make_pair(i,j)));
-//            return (edgeIter==this->end())?  std::make_pair(false,static_cast<const LinkType* const>(nullptr)) :
-//            /*                              */ std::make_pair(true,edgeIter->second);
-//        }
         
         /**********************************************************************/
         const LinkContainerType& links() const
@@ -106,9 +77,25 @@ namespace model
         }
         
     };
-    
-//    template<typename LinkType>
-//    std::map<std::pair<size_t,size_t>,LinkType* const> NetworkLinkObserver<LinkType>::linkMap;
-    
+        
 }
 #endif
+
+
+//        /**********************************************************************/
+//        static IsNetworkEdgeType link(const size_t & i, const size_t & j)
+//        {
+//            typename LinkContainerType::iterator edgeIter(this->find(std::make_pair(i,j)));
+//            return (edgeIter==this->end())?  std::make_pair(false,static_cast<LinkType* const>(nullptr)) :
+//            /*                              */ std::make_pair(true,edgeIter->second);
+//        }
+
+//        /**********************************************************************/
+//        static IsConstNetworkEdgeType link(const size_t & i, const size_t & j)
+//        {
+//            typename LinkContainerType::const_iterator edgeIter(this->find(std::make_pair(i,j)));
+//            return (edgeIter==this->end())?  std::make_pair(false,static_cast<const LinkType* const>(nullptr)) :
+//            /*                              */ std::make_pair(true,edgeIter->second);
+//        }
+
+

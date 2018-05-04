@@ -31,6 +31,7 @@
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
+#include <model/DislocationDynamics/Materials/MaterialsLibrary.h>
 
 namespace model
 {
@@ -59,9 +60,14 @@ namespace model
         static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
         static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
         
+        
+
+        
         unsigned int materialZ;
         
     public:
+        
+        MaterialsLibrary materials;
         
         const SimplicialMeshType& mesh;
         

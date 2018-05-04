@@ -24,7 +24,7 @@
 namespace model
 {
     
-
+    
     
     template <typename CrystalStructure>
     struct DislocationMobility
@@ -122,7 +122,6 @@ namespace model
                                       const double& a2_in,
                                       const double& a3_in,
                                       const double& a4_in) :
-        //                                      const std::array<double,5>& A_in) :
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b
         /* init */ B0e(B0e_real*cs_real/(mu_real*b_real)),
@@ -135,7 +134,6 @@ namespace model
         /* init */ q(q_in),
         /* init */ T0(T0_in),
         /* init */ tauC(tauC_in/mu_real),
-        //        /* init */ A(A_in)
         /* init */ a0(a0_in),
         /* init */ a1(a1_in),
         /* init */ a2(a2_in),
@@ -164,7 +162,7 @@ namespace model
             const VectorDim s = b/bNorm;
             const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
             
-            //            // Compute components of non-Schmid model
+            // Compute components of non-Schmid model
             const double tau=std::fabs(s.transpose()*S*n); // magnitude of resolved shear stress
             const double tauOrt=n.cross(s).transpose()*S*n;
             const double tau1=std::fabs(s.transpose()*S*n1); // resolved schear stress on
@@ -172,16 +170,15 @@ namespace model
             
             const double num=tau+a1*tau1;
             //
-                        assert(num>=0.0 && "num must be >= 0.");
-//            const double den=(1.0+0.5*A[1])*tauC*(A[4]+A[0]*sigmoid(-(A[2]*tauOrt+A[3]*tauOrt1)/tauC));
+            assert(num>=0.0 && "num must be >= 0.");
             const double den=(1.0+0.5*a1)*tauC*(a4+a0*sigmoid(-(a2*tauOrt+a3*tauOrt1)/tauC));
             assert(den>0.0 && "den must be > 0.");
-
+            
             const double Theta=num/den;
             const double dg = (Theta<1.0)? (std::pow(1.0-std::pow(Theta,p),q)-T/T0) : 0.0;
             const double dg1 = (dg>0.0)? dg : 0.0;
             const double expCoeff = exp(-dH0*dg1/(2.0*kB*T));
-
+            
             // Compute screw drag coeff
             const double sgm=sigmoid((0.05-dg1)/0.05);
             const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm;

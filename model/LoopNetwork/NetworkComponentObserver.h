@@ -58,12 +58,6 @@ namespace model
 		
 	public:
         
-        
-        ~NetworkComponentObserver()
-        {
-            std::cout<<"Destroying NetworkComponentObserver"<<std::endl;
-        }
-        
         static void addComponent(NetworkComponentType* const pNC)
         {
             const bool success=networkComponentMap.insert(std::make_pair(pNC->sID,pNC)).second;

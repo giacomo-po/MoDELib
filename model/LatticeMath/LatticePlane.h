@@ -37,29 +37,29 @@ namespace model
             
             return  std::make_pair(fabs(hd-h)<FLT_EPSILON,h);
         }
-//
-//        /**********************************************************************/
-//        static long int height(const ReciprocalLatticeDirection<dim>& r,
-//                               const VectorDimD& P)
-//        {
-//            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
-//            const double hd(P.dot(r.cartesian()));
-//            const long int h(std::lround(hd));
-//            if(fabs(hd-h)>FLT_EPSILON)
-//            {
-//                model::cout<<"P="<<P.transpose()<<std::endl;
-//                model::cout<<"r="<<r.cartesian().transpose()<<std::endl;
-//                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
-//                model::cout<<"h="<<h<<std::endl;
-//                assert(0 && "P in not on a lattice plane.");
-//            }
-//            return h;
-//        }
+        //
+        //        /**********************************************************************/
+        //        static long int height(const ReciprocalLatticeDirection<dim>& r,
+        //                               const VectorDimD& P)
+        //        {
+        //            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
+        //            const double hd(P.dot(r.cartesian()));
+        //            const long int h(std::lround(hd));
+        //            if(fabs(hd-h)>FLT_EPSILON)
+        //            {
+        //                model::cout<<"P="<<P.transpose()<<std::endl;
+        //                model::cout<<"r="<<r.cartesian().transpose()<<std::endl;
+        //                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
+        //                model::cout<<"h="<<h<<std::endl;
+        //                assert(0 && "P in not on a lattice plane.");
+        //            }
+        //            return h;
+        //        }
         
         //        const LatticeVectorType P;
-//        const LatticePlaneBase n;
-//        const long int h;
-
+        //        const LatticePlaneBase n;
+        //        const long int h;
+        
         /**********************************************************************/
         static int sign(const long int& i)
         {
@@ -93,27 +93,50 @@ namespace model
                 model::cout<<"h="<<h<<std::endl;
                 assert(0 && "P in not on a lattice plane.");
             }
-//            const int signh(sign(h));
-            return std::pair<ReciprocalLatticeDirection<dim>,size_t>(r*sign(h),h*sign(h));
+            const int signh(sign(h));
+            if(signh==0)
+            {
+                int signr=1;
+                for(int d=0;d<dim;++d)
+                {
+                    if(r(d)>0)
+                    {
+                        break;
+                    }
+
+                    if(r(d)<0)
+                    {
+                        signr=-1;
+                        break;
+                    }
+                }
+                return std::pair<ReciprocalLatticeDirection<dim>,size_t>(r*signr,0);
+
+            }
+            else
+            {
+                return std::pair<ReciprocalLatticeDirection<dim>,size_t>(r*signh,h*signh);
+                
+            }
         }
         
         const std::pair<ReciprocalLatticeDirection<dim>,size_t> nh;
-        const ReciprocalLatticeDirection<dim> n;
+        const ReciprocalLatticeDirection<dim>& n;
         const size_t& h;
         //        const VectorDimD unitNormal;
-//        const VectorDimD P;
+        //        const VectorDimD P;
         
-//        /**********************************************************************/
-//        LatticePlane(const VectorDimD& P_in,
-//                     const LatticePlaneBase& n_in) :
-////        /* init */ Plane<3>(height(n_in,P_in)*n_in.planeSpacing()*n_in.cartesian().normalized(),n_in.cartesian()),
-//        /* init */ n(n_in),
-//        /* init */ h(height(n,P_in))
-//        ///* init */ unitNormal(n.cartesian().normalized()),
-////        /* init */ P(h*n.planeSpacing()*unitNormal)
-//        {
-//            //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
-//        }
+        //        /**********************************************************************/
+        //        LatticePlane(const VectorDimD& P_in,
+        //                     const LatticePlaneBase& n_in) :
+        ////        /* init */ Plane<3>(height(n_in,P_in)*n_in.planeSpacing()*n_in.cartesian().normalized(),n_in.cartesian()),
+        //        /* init */ n(n_in),
+        //        /* init */ h(height(n,P_in))
+        //        ///* init */ unitNormal(n.cartesian().normalized()),
+        ////        /* init */ P(h*n.planeSpacing()*unitNormal)
+        //        {
+        //            //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
+        //        }
         
         /**********************************************************************/
         LatticePlane(const VectorDimD& P,
@@ -134,18 +157,18 @@ namespace model
             return h*n.planeSpacing()*n.cartesian().normalized();
         }
         
-//        /**********************************************************************/
-//        VectorDimD snapToPlane(const VectorDimD& P0) const
-//        {
-//            return P+n.snapToPlane(P0-P);
-//        }
-//        
-//        /**********************************************************************/
-//        bool contains(const Eigen::Matrix<double,3,1>& P0) const
-//        {
-//            const double PP0((P-P0).norm());
-//            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
-//        }
+        //        /**********************************************************************/
+        //        VectorDimD snapToPlane(const VectorDimD& P0) const
+        //        {
+        //            return P+n.snapToPlane(P0-P);
+        //        }
+        //
+        //        /**********************************************************************/
+        //        bool contains(const Eigen::Matrix<double,3,1>& P0) const
+        //        {
+        //            const double PP0((P-P0).norm());
+        //            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
+        //        }
         
         //        /**********************************************************************/
         //        static long int height(const std::pair<bool,long int>& p)

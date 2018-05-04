@@ -14,6 +14,7 @@
 #include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
 #include <model/DislocationDynamics/Materials/FCCcrystal.h>
 #include <model/DislocationDynamics/Materials/BCCcrystal.h>
+#include <model/DislocationDynamics/Materials/MaterialBase.h>
 #include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
 

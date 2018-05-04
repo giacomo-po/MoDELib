@@ -17,27 +17,12 @@ namespace model
     template<typename NodeType>
     struct NodeObserver : public std::map<size_t,NodeType* const>
     {
-
-//    public:
         
         typedef std::map<size_t,NodeType* const> NodeContainerType;
         typedef std::pair<bool,NodeType* const> IsNodeType;
         typedef std::shared_ptr<NodeType> SharedNodePtrType;
         typedef std::pair<bool,SharedNodePtrType> IsSharedNodeType;
 
-        
-//    private:
-//        
-//        static NodeContainerType nodeMap;
-//        
-//    public:
-        
-        
-        ~NodeObserver()
-        {
-            std::cout<<"Destroying NodeObserver"<<std::endl;
-        }
-        
         /**********************************************************************/
         IsNodeType node(const size_t& i)
         {
@@ -102,8 +87,5 @@ namespace model
         
     };
     
-//    template<typename NodeType>
-//    std::map<size_t,NodeType* const> NodeObserver<NodeType>::nodeMap;
-
 }
 #endif
