@@ -73,7 +73,7 @@ namespace model
             const VectorDimD n2(N2/normN2);
             const VectorDimD D(n1.cross(n2));
             const double normD(D.norm());
-            
+              
             if(normD>tol)
             {
                 // Find the Cartesian point P which minimizes (C-p1)^2+(C-p2)^2 under

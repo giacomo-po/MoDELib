@@ -15,16 +15,11 @@
 
 namespace model
 {
-    //    template <int dim>
-    struct LatticePlane //: Plane<3>
+    struct LatticePlane
     {
         static constexpr int dim=3;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef LatticeVector<dim>    LatticeVectorType;
-        
-        
-        //    public:
-        
         
         /**********************************************************************/
         static std::pair<bool,long int> computeHeight(const ReciprocalLatticeDirection<dim>& r,
@@ -37,28 +32,6 @@ namespace model
             
             return  std::make_pair(fabs(hd-h)<FLT_EPSILON,h);
         }
-        //
-        //        /**********************************************************************/
-        //        static long int height(const ReciprocalLatticeDirection<dim>& r,
-        //                               const VectorDimD& P)
-        //        {
-        //            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
-        //            const double hd(P.dot(r.cartesian()));
-        //            const long int h(std::lround(hd));
-        //            if(fabs(hd-h)>FLT_EPSILON)
-        //            {
-        //                model::cout<<"P="<<P.transpose()<<std::endl;
-        //                model::cout<<"r="<<r.cartesian().transpose()<<std::endl;
-        //                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
-        //                model::cout<<"h="<<h<<std::endl;
-        //                assert(0 && "P in not on a lattice plane.");
-        //            }
-        //            return h;
-        //        }
-        
-        //        const LatticeVectorType P;
-        //        const LatticePlaneBase n;
-        //        const long int h;
         
         /**********************************************************************/
         static int sign(const long int& i)
@@ -123,32 +96,15 @@ namespace model
         const std::pair<ReciprocalLatticeDirection<dim>,size_t> nh;
         const ReciprocalLatticeDirection<dim>& n;
         const size_t& h;
-        //        const VectorDimD unitNormal;
-        //        const VectorDimD P;
-        
-        //        /**********************************************************************/
-        //        LatticePlane(const VectorDimD& P_in,
-        //                     const LatticePlaneBase& n_in) :
-        ////        /* init */ Plane<3>(height(n_in,P_in)*n_in.planeSpacing()*n_in.cartesian().normalized(),n_in.cartesian()),
-        //        /* init */ n(n_in),
-        //        /* init */ h(height(n,P_in))
-        //        ///* init */ unitNormal(n.cartesian().normalized()),
-        ////        /* init */ P(h*n.planeSpacing()*unitNormal)
-        //        {
-        //            //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
-        //        }
         
         /**********************************************************************/
         LatticePlane(const VectorDimD& P,
                      const ReciprocalLatticeDirection<dim>& r) :
-        //        /* init */ Plane<3>(height(n_in,P_in)*n_in.planeSpacing()*n_in.cartesian().normalized(),n_in.cartesian()),
         /* init */ nh(get_nh(r,P)),
         /* init */ n(nh.first),
         /* init */ h(nh.second)
-        ///* init */ unitNormal(n.cartesian().normalized()),
-        //        /* init */ P(h*n.planeSpacing()*unitNormal)
         {
-            //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
+
         }
         
         /**********************************************************************/
@@ -212,5 +168,5 @@ namespace model
         
     };
     
-} // end namespace
+}
 #endif

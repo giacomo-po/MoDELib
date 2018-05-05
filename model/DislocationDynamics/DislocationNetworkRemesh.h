@@ -81,7 +81,8 @@ namespace model
             {
 //                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
                 if(   node.second->isSimpleBoundaryNode()
-                   || node.second->isSimpleGrainBoundaryNode())
+                   || node.second->isSimpleGrainBoundaryNode()
+                   || node.second->isSimpleSessileNode())
                 {
                     toBeRemoved.push_back(node.second->sID);
                 }
@@ -94,7 +95,8 @@ namespace model
                 if(isNode.first)
                 {// Removing may have deleted the node, check that it exists
                     if(   isNode.second->isSimpleBoundaryNode()
-                       || isNode.second->isSimpleGrainBoundaryNode())
+                       || isNode.second->isSimpleGrainBoundaryNode()
+                       || isNode.second->isSimpleSessileNode())
                     {// Removing may have altered the isSimpleBoundaryNode, check again
                         Nremoved+=DN.remove(nodeID);
                     }

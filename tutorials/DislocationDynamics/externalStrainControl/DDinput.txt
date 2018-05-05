@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1;
+Nsteps=1000;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 

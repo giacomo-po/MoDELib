@@ -947,6 +947,28 @@ namespace model
             }
             return temp;
         }
+
+        /**********************************************************************/
+        bool isSessileNode() const
+        {
+            
+            bool temp=true;
+                for (const auto& neighborIter : this->neighbors())
+                {
+                    temp*=std::get<1>(neighborIter.second)->isSessile();
+                    if(!temp)
+                    {
+                        break;
+                    }
+                }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isSimpleSessileNode() const
+        {
+            return this->isSimple() && isSessileNode();
+        }
         
         /**********************************************************************/
         const double& velocityReduction() const

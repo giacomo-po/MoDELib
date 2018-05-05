@@ -172,11 +172,20 @@ $(straightOBJS):
 ##########################################################
 # MAKE straightGenerator
 ##########################################################
-pairOBJS = pairGenerator
+straightOBJS = straightGenerator
 
-$(pairOBJS):
-	@echo making pairGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/pairGenerator.cpp -o pairGenerator -O3 -std=c++14 $(IDIR)
+$(straightOBJS):
+	@echo making straightGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
+
+##########################################################
+# MAKE junctionGenerator
+##########################################################
+junctionOBJS = junctionGenerator
+
+$(junctionOBJS):
+	@echo making junctionGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/junctionGenerator.cpp -o junctionGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE DDCONVERTER
