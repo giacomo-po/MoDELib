@@ -62,7 +62,11 @@ namespace model
         constexpr double PeriodicElement<29,Isotropic>::rho;             // Mass density [kg/m^3]
         constexpr double PeriodicElement<29,Isotropic>::cs;        // Shear wave speed [m/s]
     
-    const DislocationMobility<FCC> PeriodicElement<29,Isotropic>::dm=DislocationMobility<FCC>(b,mu,cs,3.3333e-07,3.3333e-07);
+    const DislocationMobility<FCC> PeriodicElement<29,Isotropic>::dm=DislocationMobility<FCC>(PeriodicElement<29,Isotropic>::b,
+                                                                                              PeriodicElement<29,Isotropic>::mu,
+                                                                                              PeriodicElement<29,Isotropic>::cs,
+                                                                                              3.3333e-07,
+                                                                                              3.3333e-07);
     
     const std::deque<GrainBoundaryType<3>> PeriodicElement<29,Isotropic>::grainBoundaryTypes=
     {

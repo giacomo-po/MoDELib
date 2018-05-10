@@ -154,6 +154,10 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
 
+            
+            EDR.readScalarInFile(fullName.str(),"use_stochasticForce",DN.use_stochasticForce);
+
+            
             EDR.readScalarInFile(fullName.str(),"computeDDinteractions",DN.computeDDinteractions);
 
             

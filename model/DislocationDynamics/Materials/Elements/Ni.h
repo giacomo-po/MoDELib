@@ -37,7 +37,7 @@ static constexpr double rho=8908.0;             // Mass density [kg/m^3]
 static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
 
 //! FCC mobility law with data from Olmsted MSMSE 13(3), 2005.
-static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,5.0e-08,6.4e-08);
+static const DislocationMobility<FCC> dm;
 
 static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
 
@@ -50,7 +50,11 @@ constexpr double PeriodicElement<28,Isotropic>::mu;              // Shear modulu
 constexpr double PeriodicElement<28,Isotropic>::b;            // Burgers vector[m]
 constexpr double PeriodicElement<28,Isotropic>::rho;             // Mass density [kg/m^3]
 constexpr double PeriodicElement<28,Isotropic>::cs;        // Shear wave speed [m/s]
-constexpr DislocationMobility<FCC> PeriodicElement<28,Isotropic>::dm;
+const DislocationMobility<FCC> PeriodicElement<28,Isotropic>::dm=DislocationMobility<FCC>(PeriodicElement<28,Isotropic>::b,
+                                                                                          PeriodicElement<28,Isotropic>::mu,
+                                                                                          PeriodicElement<28,Isotropic>::cs,
+                                                                                          5.0e-08,
+                                                                                          6.4e-08);
 
 
 const std::deque<GrainBoundaryType<3>> PeriodicElement<28,Isotropic>::grainBoundaryTypes=

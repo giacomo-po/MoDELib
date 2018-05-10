@@ -12,6 +12,7 @@
 #define _model_DislocationMobility_h_
 
 #include <iostream>
+#include <random>
 #include <cmath>
 #include <assert.h>
 #include <Eigen/Dense>
@@ -25,6 +26,24 @@ namespace model
 {
     
     
+    struct StochasticForceGenerator
+    {
+        static std::default_random_engine generator;
+        static std::normal_distribution<double> distribution;
+        
+        static double velocity(const double& kB,
+                               const double& T,
+                               const double& B,
+                               const double& L,
+                               const double& dt)
+        {
+            return distribution(generator)*sqrt(2.0*kB*T/B/L/dt);
+        }
+        
+    };
+    
+    std::default_random_engine StochasticForceGenerator::generator;
+    std::normal_distribution<double> StochasticForceGenerator::distribution=std::normal_distribution<double>(0.0,1.0);
     
     template <typename CrystalStructure>
     struct DislocationMobility
@@ -41,18 +60,25 @@ namespace model
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
+        static constexpr double kB_real=1.38064852e-23; // [J/K]
+
         const double B0;
         const double B1;
+        const double kB;
+
+
         
         /**********************************************************************/
-        constexpr DislocationMobility(const double& b_real,
+        DislocationMobility(const double& b_real,
                                       const double& mu_real,
                                       const double& cs_real,
                                       const double& B1e_real,
                                       const double& B1s_real) :
         
         /* init */ B0(0.0),
-        /* init */ B1(0.5*(B1e_real+B1s_real)*cs_real/(mu_real*b_real))
+        /* init */ B1(0.5*(B1e_real+B1s_real)*cs_real/(mu_real*b_real)),
+        /* init */ kB(kB_real/mu_real/std::pow(b_real,3))
+
         {/*! Empty constructor is required by constexpr
           */
         }
@@ -62,9 +88,20 @@ namespace model
                         const VectorDim& b,
                         const VectorDim& , // xi
                         const VectorDim& n,
-                        const double& T) const
+                        const double& T,
+                        const double& dL,
+                        const double& dt,
+                        const bool& use_stochasticForce) const
         {
-            return std::fabs(b.transpose()*S*n)/(B0+B1*T);
+            
+            
+            double v=std::fabs(b.transpose()*S*n)/(B0+B1*T);
+            if(use_stochasticForce)
+            {
+                v+=StochasticForceGenerator::velocity(kB,T,B0+B1*T,dL,dt);
+            }
+            
+            return v;
         }
         
         
@@ -81,7 +118,9 @@ namespace model
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
         //! Boltzmann constant in [eV]
-        static constexpr double kB=8.617e-5;
+        static constexpr double kB_eV=8.617e-5;
+        static constexpr double kB_real=1.38064852e-23; // [J/K]
+
         
         const double h;
         const double w;
@@ -101,12 +140,14 @@ namespace model
         const double a2;
         const double a3;
         const double a4;
+        const double kB;
+
         //        const double a5;
         
         
         
         /**********************************************************************/
-        constexpr DislocationMobility(const double& b_real,
+        DislocationMobility(const double& b_real,
                                       const double& mu_real,
                                       const double& cs_real,
                                       const double& B0e_real, const double& B1e_real,
@@ -138,8 +179,8 @@ namespace model
         /* init */ a1(a1_in),
         /* init */ a2(a2_in),
         /* init */ a3(a3_in),
-        /* init */ a4(a4_in)
-        
+        /* init */ a4(a4_in),
+        /* init */ kB(kB_real/mu_real/std::pow(b_real,3))
         {/*! Empty constructor is required by constexpr
           */
         }
@@ -154,7 +195,10 @@ namespace model
                         const VectorDim& b,
                         const VectorDim& xi,
                         const VectorDim& n,
-                        const double& T) const
+                        const double& T,
+                        const double& dL,
+                        const double& dt,
+                        const bool& use_stochasticForce) const
         {
             
             
@@ -177,17 +221,24 @@ namespace model
             const double Theta=num/den;
             const double dg = (Theta<1.0)? (std::pow(1.0-std::pow(Theta,p),q)-T/T0) : 0.0;
             const double dg1 = (dg>0.0)? dg : 0.0;
-            const double expCoeff = exp(-dH0*dg1/(2.0*kB*T));
+            const double expCoeff = exp(-dH0*dg1/(2.0*kB_eV*T));
             
             // Compute screw drag coeff
             const double sgm=sigmoid((0.05-dg1)/0.05);
             const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm;
             
             // Compute screw velocity
-            const double vs=tau*bNorm/Bs*expCoeff;
+            double vs=tau*bNorm/Bs*expCoeff;
             
             // Compute edge velocity
-            const double ve=tau*bNorm/(B0e+B1e*T);
+            double ve=tau*bNorm/(B0e+B1e*T);
+
+            if(use_stochasticForce)
+            {
+                vs+=StochasticForceGenerator::velocity(kB,T,Bs,dL,dt);
+
+                ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
+            }
             
             // Interpolate ve and vs
             const double cos2=std::pow(b.normalized().dot(xi),2);

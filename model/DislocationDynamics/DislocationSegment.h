@@ -124,15 +124,26 @@ namespace model
         { /*! The force vector integrand evaluated at the k-th quadrature point.
            *  @param[in] k the current quadrature point
            */
-            const VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(glidePlaneNormal())*glidePlaneNormal();
-            const double glideForceNorm(glideForce.norm());
+            VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(glidePlaneNormal())*glidePlaneNormal();
+            double glideForceNorm(glideForce.norm());
+            
+            if(glideForceNorm<FLT_EPSILON && this->network().use_stochasticForce)
+            {
+                glideForce=this->chord().cross(glidePlaneNormal());
+                glideForceNorm=glideForce.norm();
+                if(glideForceNorm>FLT_EPSILON)
+                {
+                    glideForce/=glideForceNorm;
+                }
+            }
+            
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
                 //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
                 //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
-                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal());
-                assert(v>= 0.0 && "Velocity must be a positive scalar");
+                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+                assert((this->network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
                 {

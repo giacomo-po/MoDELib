@@ -49,7 +49,9 @@ namespace model
         constexpr double PeriodicElement<74,Isotropic>::Tm;              // melting temperature [K]
 
     
-    const DislocationMobility<BCC> PeriodicElement<74,Isotropic>::dm=DislocationMobility<BCC>(b,mu,cs,
+    const DislocationMobility<BCC> PeriodicElement<74,Isotropic>::dm=DislocationMobility<BCC>(PeriodicElement<74,Isotropic>::b,
+                                                                                              PeriodicElement<74,Isotropic>::mu,
+                                                                                              PeriodicElement<74,Isotropic>::cs,
                                                                                               4.26e-04,0.87e-06, // B0e [Pa*s], B1e [Pa*s/K]
                                                                                               9.8e-4,0.0,        // B0s [Pa*s], B1s [Pa*s/K]
                                                                                               8.3e-05,           // Bk [Pa*s]

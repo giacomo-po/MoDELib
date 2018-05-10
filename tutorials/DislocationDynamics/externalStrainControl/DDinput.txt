@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=10000;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 
@@ -8,9 +8,10 @@ quadPerLength=0.1;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=0;
-dxMax=10;
+dxMax=50;
 use_velocityFilter=0;
 velocityReductionFactor=0.75;
+use_stochasticForce=1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities

@@ -37,7 +37,7 @@ namespace model
         static constexpr double cs=sqrt(mu/rho);        // Shear wave speed [m/s]
         
         //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
-        static constexpr DislocationMobility<FCC> dm=DislocationMobility<FCC>(b,mu,cs,3.9e-08,7.5e-08);
+        static const DislocationMobility<FCC> dm;
 
         static const std::deque<GrainBoundaryType<3>> grainBoundaryTypes;
 
@@ -52,10 +52,14 @@ namespace model
         constexpr double PeriodicElement<13,Isotropic>::cs;        // Shear wave speed [m/s]
         
         //! FCC-mobility law with data from Olmsted MSMSE 13(3), 2005.
-        constexpr DislocationMobility<FCC> PeriodicElement<13,Isotropic>::dm;
+        const DislocationMobility<FCC> PeriodicElement<13,Isotropic>::dm=DislocationMobility<FCC>(PeriodicElement<13,Isotropic>::b,
+                                                                                                  PeriodicElement<13,Isotropic>::mu,
+                                                                                                  PeriodicElement<13,Isotropic>::cs,
+                                                                                                  3.9e-08,
+                                                                                                  7.5e-08);
 
     
-    const std::deque<GrainBoundaryType<3>> PeriodicElement<13,Isotropic>::grainBoundaryTypes=
+        const std::deque<GrainBoundaryType<3>> PeriodicElement<13,Isotropic>::grainBoundaryTypes=
     {
 
         

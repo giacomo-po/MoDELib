@@ -163,6 +163,7 @@ namespace model
         bool outputLoopLength;
         bool outputSegmentPairDistances;
         unsigned int _userOutputColumn;
+        bool use_stochasticForce;
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -366,7 +367,8 @@ namespace model
         /* init list  */ outputLinkingNumbers(false),
         /* init list  */ outputLoopLength(false),
         /* init list  */ outputSegmentPairDistances(false),
-        /* init list  */ _userOutputColumn(3)
+        /* init list  */ _userOutputColumn(3),
+        /* init list  */ use_stochasticForce(false)
         {
             ParticleSystemType::initMPI(argc,argv);
             io().read("./","DDinput.txt");

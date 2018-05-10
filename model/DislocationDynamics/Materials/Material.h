@@ -138,20 +138,23 @@ namespace model
         static double velocity(const Eigen::Matrix<double,3,3>& S,
                                const Eigen::Matrix<double,3,1>& b,
                                const Eigen::Matrix<double,3,1>& xi,
-                               const Eigen::Matrix<double,3,1>& n)
+                               const Eigen::Matrix<double,3,1>& n,
+                               const double& dL,
+                               const double& dt,
+                               const bool& use_stochasticForce)
         {
             switch (selectedMaterial)
             {
                 case Al.Z:
-                    return Al.dm.velocity(S,b,xi,n,T);
+                    return Al.dm.velocity(S,b,xi,n,T,dL,dt,use_stochasticForce);
                 case Ni.Z:
-                    return Ni.dm.velocity(S,b,xi,n,T);
+                    return Ni.dm.velocity(S,b,xi,n,T,dL,dt,use_stochasticForce);
                 case Cu.Z:
-                    return Cu.dm.velocity(S,b,xi,n,T);
+                    return Cu.dm.velocity(S,b,xi,n,T,dL,dt,use_stochasticForce);
                     //              case Fe:
                     //                  return PeriodicElement<Cu,Isotropic>::dm.velocity(S,b,xi,n,T);
                 case W.Z:
-                    return W.dm.velocity(S,b,xi,n,T);
+                    return W.dm.velocity(S,b,xi,n,T,dL,dt,use_stochasticForce);
                     
                 default:
                     assert(0 && "velocity function not implemented.");
