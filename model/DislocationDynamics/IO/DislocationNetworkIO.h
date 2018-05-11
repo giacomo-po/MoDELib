@@ -154,9 +154,17 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
             assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
 
-            
             EDR.readScalarInFile(fullName.str(),"use_stochasticForce",DN.use_stochasticForce);
-
+            int stochasticForceSeed=-1;
+            EDR.readScalarInFile(fullName.str(),"stochasticForceSeed",stochasticForceSeed);
+            if(stochasticForceSeed<0)
+            {
+                StochasticForceGenerator::init(std::chrono::system_clock::now().time_since_epoch().count());
+            }
+            else
+            {
+                StochasticForceGenerator::init(stochasticForceSeed);
+            }
             
             EDR.readScalarInFile(fullName.str(),"computeDDinteractions",DN.computeDDinteractions);
 

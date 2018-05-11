@@ -8,10 +8,11 @@ quadPerLength=0.1;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=0;
-dxMax=50;
+dxMax=10;
 use_velocityFilter=0;
 velocityReductionFactor=0.75;
-use_stochasticForce=1;
+use_stochasticForce=0;
+stochasticForceSeed=-1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -32,8 +33,8 @@ outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortion=0;
-outputPlasticDistortionRate=1;
-outputDislocationLength=1;
+outputPlasticDistortionRate=0;
+outputDislocationLength=0;
 outputQuadratureParticles=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;

@@ -453,7 +453,10 @@ namespace model
                     }
                 }
 #else
-                assert(0 && "FINISH HERE");
+                for (auto& linkIter : this->links())
+                {
+                    linkIter.second->assemble(straightSegmentsDeq);
+                }
 #endif
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
                 

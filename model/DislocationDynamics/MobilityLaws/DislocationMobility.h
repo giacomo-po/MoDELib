@@ -14,6 +14,7 @@
 #include <iostream>
 #include <random>
 #include <cmath>
+#include <vector>
 #include <assert.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -25,34 +26,53 @@
 namespace model
 {
     
-    
+    /**************************************************************************/
+    /**************************************************************************/
     struct StochasticForceGenerator
     {
-        static std::default_random_engine generator;
-        static std::normal_distribution<double> distribution;
+        typedef std::default_random_engine T;
+        static std::vector<T> generators;
+        static std::vector<std::normal_distribution<double>> distributions;
         
+        /**********************************************************************/
+        static void init(const int& seed)
+        {
+#ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+#else
+            const size_t nThreads = 1;
+#endif
+            generators.resize(nThreads,T(seed));
+            distributions.resize(nThreads,std::normal_distribution<double>(0.0,1.0));
+        }
+        
+        /**********************************************************************/
         static double velocity(const double& kB,
                                const double& T,
                                const double& B,
                                const double& L,
                                const double& dt)
         {
-            return distribution(generator)*sqrt(2.0*kB*T/B/L/dt);
+#ifdef _OPENMP
+            return distributions[omp_get_thread_num()](generators[omp_get_thread_num()])*sqrt(2.0*kB*T/B/L/dt);
+#else
+            return distribution[0](generators[0])*sqrt(2.0*kB*T/B/L/dt);
+#endif
         }
         
     };
     
-    std::default_random_engine StochasticForceGenerator::generator;
-    std::normal_distribution<double> StochasticForceGenerator::distribution=std::normal_distribution<double>(0.0,1.0);
-    
+    std::vector<std::default_random_engine> StochasticForceGenerator::generators;
+    std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
+
+    /**************************************************************************/
+    /**************************************************************************/
     template <typename CrystalStructure>
     struct DislocationMobility
     {
         //        static_assert(false, "CrystalStructure must be FCC or BCC");
     };
     
-    /**************************************************************************/
-    /**************************************************************************/
     template <>
     struct DislocationMobility<FCC>
     {
@@ -103,9 +123,6 @@ namespace model
             
             return v;
         }
-        
-        
-        
     };
     
     /**************************************************************************/
@@ -249,7 +266,4 @@ namespace model
     };
     
 }
-
 #endif
-
-

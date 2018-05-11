@@ -170,15 +170,6 @@ $(straightOBJS):
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
-# MAKE straightGenerator
-##########################################################
-straightOBJS = straightGenerator
-
-$(straightOBJS):
-	@echo making straightGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
 # MAKE junctionGenerator
 ##########################################################
 junctionOBJS = junctionGenerator
