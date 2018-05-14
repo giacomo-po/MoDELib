@@ -29,6 +29,8 @@
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 #include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
+//#include <model/DislocationDynamics/IO/EVLio.h>
+
 
 
 namespace model
@@ -648,6 +650,9 @@ namespace model
           * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
             model::cout<<"		Writing to "<<std::flush;
+            
+//            EVLio evl;
+//            evl.write(DN);
             
             if (DN.outputBinary)
             {

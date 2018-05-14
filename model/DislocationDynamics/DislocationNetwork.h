@@ -66,7 +66,7 @@ namespace model
     
     template <int dim>
     struct DislocationNetworkBase
-    {// Class that stores objects that need to be destroyed last
+    {// Class storing objects that need to be destroyed last
     
         SimplicialMesh<dim> mesh;
         Polycrystal<dim> poly;
@@ -78,7 +78,6 @@ namespace model
         {
         
         }
-
 
     };
     

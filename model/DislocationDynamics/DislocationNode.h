@@ -967,7 +967,14 @@ namespace model
         /**********************************************************************/
         bool isSimpleSessileNode() const
         {
-            return this->isSimple() && isSessileNode();
+            bool temp(this->isSimple() && isSessileNode());
+            if(temp)
+            {// make sure attached sessile segments are aligned
+                const LinkType* firstLink(std::get<1>(this->neighbors().begin()->second));
+                const LinkType* secondLink(std::get<1>(this->neighbors().rbegin()->second));
+                temp*=(firstLink->chord().normalized().cross(secondLink->chord().normalized()).norm()<FLT_EPSILON);
+            }
+            return temp;
         }
         
         /**********************************************************************/

@@ -57,6 +57,7 @@ NEW LOOP_NETWORK CODE
 Assertion failed: (success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER."), function removeGlidePlane, file ../../../model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h, line 185.
 - Add feature to perform alternating loads (ramp up-ramp down)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
+- binary evl_id.bin
 
 
 ERRORS
