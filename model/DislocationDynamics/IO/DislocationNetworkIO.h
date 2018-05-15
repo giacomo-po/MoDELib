@@ -571,7 +571,6 @@ namespace model
             
             
             std::map<size_t,std::map<size_t,size_t>> loopMap;
-            
             for(const auto& looplink : evl.links())
             {
                 loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);

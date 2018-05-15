@@ -77,8 +77,9 @@ namespace model
             
             bool frameLoaded=false;
             if(   currentFrameID!=frameID
-               && (DislocationSegmentActor::VertexReaderType().isGood(frameID,false) || DislocationSegmentActor::VertexReaderType().isGood(frameID,true))
-               && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
+               && EVLio<3>::isGood(frameID)
+//               (DislocationSegmentActor::VertexReaderType().isGood(frameID,false) || DislocationSegmentActor::VertexReaderType().isGood(frameID,true))
+//               && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
                )
             {
                 currentFrameID=frameID;

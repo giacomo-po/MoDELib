@@ -170,13 +170,22 @@ $(straightOBJS):
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
-# MAKE junctionGenerator
+# MAKE straightGenerator
 ##########################################################
-junctionOBJS = junctionGenerator
+straightOBJS = straightGenerator
 
-$(junctionOBJS):
-	@echo making junctionGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/junctionGenerator.cpp -o junctionGenerator -O3 -std=c++14 $(IDIR)
+$(straightOBJS):
+	@echo making straightGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
+
+##########################################################
+# MAKE singleArmGenerator
+##########################################################
+singleArmOBJS = singleArmGenerator
+
+$(singleArmOBJS):
+	@echo making singleArmGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/singleArmGenerator.cpp -o singleArmGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE DDCONVERTER

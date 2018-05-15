@@ -58,6 +58,12 @@ namespace model
         
     public:
         
+        static bool isGood(const size_t& frameID)
+        {
+            return std::ifstream(getBinFilename(frameID).c_str(), std::ios::in|std::ios::binary).good();
+
+        }
+        
         /**********************************************************************/
         const std::vector<DislocationNodeIO<dim>>& nodes() const
         {
@@ -303,26 +309,7 @@ namespace model
                 links().resize(sizeE);
                 infile.read (reinterpret_cast<char*>(links().data()),links().size()*sizeof(DislocationEdgeIO<dim>));
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
-                
-                
-                
-                //                size_t* sizeL;
-                //                binRead(infile,sizeL,1);
-                //                size_t* sizeE;
-                //                binRead(infile,sizeE,1);
-                //
-                
-                //                DislocationNodeIO<dim>* nodeMemblock;
-                //                binRead(infile,nodeMemblock,sizeV[0]);
-                //
-                //                // Read loops
-                //                DislocationLoopIO<dim>* loopMemblock;
-                //                binRead(infile,loopMemblock,sizeL[0]);
-                //
-                //                DislocationEdgeIO<dim>* edgeMemblock;
-                //                binRead(infile,edgeMemblock,sizeE[0]);
-                
-                
+
                 infile.close();
                 model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             }

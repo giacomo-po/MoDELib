@@ -11,7 +11,7 @@
 
 
 #include <iostream>
-#include <model/Utilities/SequentialOutputFile.h>
+#include <model/IO/SequentialOutputFile.h>
 #include <model/FEM/FiniteElement.h>
 #include <model/FEM/Boundaries/AtXmin.h>
 #include <model/FEM/Boundaries/AtXmax.h>
@@ -23,40 +23,40 @@ using namespace model;
 
 
 
-/**************************************************************************/
-/**************************************************************************/
-template <typename FiniteElementType, int dim>
-struct StiffnessMatrix : public EvalFunction<StiffnessMatrix<FiniteElementType,dim> >
-{
-    
-    constexpr static int rows=dim*(dim+1)/2;
-    constexpr static int cols=dim*(dim+1)/2;
-    
-    const Eigen::Matrix<double,rows,cols> C0;
-
-    const TrialFunction<FiniteElementType,'u',dim>& u;       // displacement field
-
-    
-    /**********************************************************************/
-    Constant(const T& c_in) : c(c_in)
-    {
-        //            std::cout<<"Constant Constructor 1"<<std::endl;
-        //            std::cout<<"c="<<c<<std::endl;
-    }
-    
-    
-    /**********************************************************************/
-    template<typename ElementType, typename BaryType>
-    const Eigen::Matrix<double,rows,cols>& operator() (const ElementType&, const BaryType&) const
-    {/*!@param[in] elem the element
-      * @param[in] bary the barycentric cooridinate
-      *\returns the current stiffness C, which in general is a funciton of C0 and grad(u)
-      */
-        
-        return C0;
-    }
-    
-};
+///**************************************************************************/
+///**************************************************************************/
+//template <typename FiniteElementType, int dim>
+//struct StiffnessMatrix : public EvalFunction<StiffnessMatrix<FiniteElementType,dim> >
+//{
+//    
+//    constexpr static int rows=dim*(dim+1)/2;
+//    constexpr static int cols=dim*(dim+1)/2;
+//    
+//    const Eigen::Matrix<double,rows,cols> C0;
+//
+////    const TrialFunction<FiniteElementType,'u',dim>& u;       // displacement field
+//
+//    
+//    /**********************************************************************/
+//    Constant(const T& c_in) : c(c_in)
+//    {
+//        //            std::cout<<"Constant Constructor 1"<<std::endl;
+//        //            std::cout<<"c="<<c<<std::endl;
+//    }
+//    
+//    
+//    /**********************************************************************/
+//    template<typename ElementType, typename BaryType>
+//    const Eigen::Matrix<double,rows,cols>& operator() (const ElementType&, const BaryType&) const
+//    {/*!@param[in] elem the element
+//      * @param[in] bary the barycentric cooridinate
+//      *\returns the current stiffness C, which in general is a funciton of C0 and grad(u)
+//      */
+//        
+//        return C0;
+//    }
+//    
+//};
 
 
 

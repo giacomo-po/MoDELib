@@ -33,6 +33,7 @@
 //#include <model/IO/vertexReader.h>
 #include <model/IO/IDreader.h>
 #include <model/Geometry/PlanarPolygon.h>
+#include <model/DislocationDynamics/IO/EVLio.h>
 
 // VTK documentation
 // http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine
@@ -40,11 +41,15 @@
 
 namespace model
 {
-    struct DislocationSegmentActor :
-    /* inherits from   */ public IDreader<'V',1,10, double>,
-    /* inherits from   */ public IDreader<'K',2,13,double>,
-    /* inherits from   */ IDreader<'E',3,0,double>,
-    /* inherits from   */ IDreader<'L',1,13,double>
+    struct DislocationSegmentActor : public EVLio<3>,
+    public std::map<size_t,const DislocationNodeIO<3>* const>,
+        public std::map<size_t,const DislocationLoopIO<3>* const>,
+    public std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>
+    //    :
+//    /* inherits from   */ public IDreader<'V',1,10, double>,
+//    /* inherits from   */ public IDreader<'K',2,13,double>,
+//    /* inherits from   */ IDreader<'E',3,0,double>,
+//    /* inherits from   */ IDreader<'L',1,13,double>
     {
         
         //    public:
@@ -90,7 +95,7 @@ namespace model
         
         //    private:
         
-        VectorDim planeNormal;
+//        VectorDim planeNormal;
         VectorDim burgers;
         VectorDim chord;
         Eigen::Matrix<int,dim,1> colorVector;
@@ -158,6 +163,37 @@ namespace model
         vtkSmartPointer<vtkActor> triangleActor;
         
         
+        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
+        {
+            return *this;
+        }
+
+        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
+        {
+            return *this;
+        }
+        
+        const std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap() const
+        {
+            return *this;
+        }
+        
+        std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap()
+        {
+            return *this;
+        }
+        
+        const std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>& edgeMap() const
+        {
+            return *this;
+        }
+
+        std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>& edgeMap()
+        {
+            return *this;
+        }
+
+        
         /*********************************************************************/
         void computeColor()
         {
@@ -172,10 +208,10 @@ namespace model
                     //                    colorVector(2)= isSessile? 0.0 : 0.9;
                     //                    break;
                     
-                case colorNormal:
-                    clrVector = planeNormal;
-                    //                    flipColor(colorVector);
-                    break;
+//                case colorNormal:
+//                    clrVector = planeNormal;
+//                    //                    flipColor(colorVector);
+//                    break;
                     
                     //                case colorComponent:
                     //                {
@@ -234,52 +270,60 @@ namespace model
         
         //    public:
         
-        /**********************************************************************/
-        VertexReaderType& vertexReader()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        VertexReaderType& vertexReader()
+//        {
+//            return *this;
+//        }
+//        
+//        /**********************************************************************/
+//        EdgeReaderType& edgeReader()
+//        {
+//            return *this;
+//        }
+//        
+//        /**********************************************************************/
+//        LoopLinkReaderType& loopLinkReader()
+//        {
+//            return *this;
+//        }
+//        
+//        LoopReaderType& loopReader()
+//        {
+//            return *this;
+//        }
+        
         
         /**********************************************************************/
-        EdgeReaderType& edgeReader()
+        void createNodes()
         {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        LoopLinkReaderType& loopLinkReader()
-        {
-            return *this;
-        }
-        
-        LoopReaderType& loopReader()
-        {
-            return *this;
-        }
-        
-        
-        /**********************************************************************/
-        void readNodes(const size_t& frameID)
-        {
-            if (vertexReader().isGood(frameID,false)) // bin format
-            {
-                vertexReader().read(frameID,false);
-            }
-            else // txt format
-            {
-                vertexReader().read(frameID,true);
-            }
+//            if (vertexReader().isGood(frameID,false)) // bin format
+//            {
+//                vertexReader().read(frameID,false);
+//            }
+//            else // txt format
+//            {
+//                vertexReader().read(frameID,true);
+//            }
             
             //            nodeLabels->SetNumberOfValues(vertexReader().size());
             //            size_t labelID=0;
-            for(const auto& node : vertexReader())
+            for(const auto& node : this->nodes())
             {
-                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
+                nodeMap().emplace(node.sID,&node);
+            }
+            
+            for(const auto& node : nodeMap())
+            {
                 
-                nodePoints->InsertNextPoint(row.template segment<dim>(0).data());
+//                nodeMap().emplace(node.sID,&node);
                 
-                const int& meshLocation(row(8));
-                switch (meshLocation)
+//                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
+//                std::cout<<node.second->P.transpose()<<std::endl;
+                nodePoints->InsertNextPoint(node.second->P.data());
+                
+//                const int& meshLocation(node.(8));
+                switch (node.second->meshLocation)
                 {
                     case 0:
                     {
@@ -311,20 +355,20 @@ namespace model
                 }
                 
                 // Velocity
-                velocityVectors->InsertNextTuple(row.template segment<dim>(dim).data()); // arrow vactor
+                velocityVectors->InsertNextTuple(node.second->V.data()); // arrow vactor
                 unsigned char velClr[3]={255,0,255};
                 velocityColors->InsertNextTypedTuple(velClr);
                 
                 
                 
                 // Labels
-                labelScalars->InsertNextTuple1(node.first);
+                labelScalars->InsertNextTuple1(node.second->sID);
                 
                 // Single node
-                if(node.first==singleNodeID)
+                if(node.second->sID==singleNodeID)
                 {
-                    singleNodePoint->InsertNextPoint(row.template segment<dim>(0).data());
-                    singleNodeLabelScalars->InsertNextTuple1(node.first);
+                    singleNodePoint->InsertNextPoint(node.second->P.data());
+                    singleNodeLabelScalars->InsertNextTuple1(node.second->sID);
                 }
                 
             }
@@ -355,29 +399,30 @@ namespace model
         
         
         /**********************************************************************/
-        void readSegments(const size_t& frameID)
+        void createSegments()
         {
-            if (edgeReader().isGood(frameID,false)) // bin format
-            {
-                edgeReader().read(frameID,false);
-            }
-            else // txt format
-            {
-                edgeReader().read(frameID,true);
-            }
+//            if (edgeReader().isGood(frameID,false)) // bin format
+//            {
+//                edgeReader().read(frameID,false);
+//            }
+//            else // txt format
+//            {
+//                edgeReader().read(frameID,true);
+//            }
             
             size_t ptID=0;
-            for (const auto& edge : edgeReader())
+            for (const auto& edge : edgeMap())
             {
+                assert(edge.first.second.size());
                 
-                VertexReaderType::const_iterator itSource(vertexReader().find(edge.first[0])); //source
-                assert(itSource!=vertexReader().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                VertexReaderType::const_iterator   itSink(vertexReader().find(edge.first[1])); //sink
-                assert(  itSink!=vertexReader().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+                auto itSource(nodeMap().find(edge.first.first)); //source
+                assert(itSource!=nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+                auto   itSink(nodeMap().find(edge.first.second)); //sink
+                assert(  itSink!=nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
                 
-                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
-                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
-                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
+//                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
+//                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
+//                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
                 
                 //                const int   snID(edgeRow(2*dim+2));
                 //                const bool sourceOnBoundary(sourceRow(2*dim+1));
@@ -386,21 +431,48 @@ namespace model
                 //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
                 //                {
                 
-                int meshLocation=edgeRow(12);
+                int meshLocation=(*edge.second.begin())->meshLocation;
                 
                 Eigen::Matrix<float,dim,6> P0T0P1T1BN;
                 
-                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+//                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+//                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+//                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+//                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+//                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+//                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+//                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+//                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                P0T0P1T1BN.col(0) = itSource->second->P.template cast<float>();	// source position
+                P0T0P1T1BN.col(2) = itSink->second->P.template cast<float>();	// sink position
                 //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
                 //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+//                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+//                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                P0T0P1T1BN.col(4).setZero();		// Burgers vector
+                for(auto& loopLink : edge.second)
+                {
+                    auto loopIter(loopMap().find(loopLink->loopID));
+                    assert(loopIter!=loopMap().end());
+                if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
+                {
+                    P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
+                }
+                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
+                    {
+                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
+                    }
+                    else
+                    {
+                        assert(0);
+                    }
+                }
+//                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                P0T0P1T1BN.col(5).setZero();		// plane normal
+
                 chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
                 burgers=P0T0P1T1BN.col(4);
-                planeNormal=P0T0P1T1BN.col(5);
+//                planeNormal=P0T0P1T1BN.col(5);
                 const float g = std::pow(chord.norm(),alpha);
                 
                 
@@ -513,52 +585,35 @@ namespace model
         }
         
         /**********************************************************************/
-        void readLoopLinks(const size_t& frameID)
+        void createLoopLinks()
         {
-            if (loopLinkReader().isGood(frameID,false)) // bin format
+            
+            std::map<size_t,std::map<size_t,size_t>> loopEdgeMap;
+            
+            for(const auto& looplink : this->links())
             {
-                loopLinkReader().read(frameID,false);
-                loopReader().read(frameID,false);
-            }
-            else // txt format
-            {
-                loopLinkReader().read(frameID,true);
-                loopReader().read(frameID,true);
+                loopEdgeMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
+                edgeMap()[std::make_pair(std::min(looplink.sourceID,looplink.sinkID),std::max(looplink.sourceID,looplink.sinkID))].insert(&looplink);
             }
             
-            std::map<size_t,std::map<size_t,size_t>> loopMap;
+            assert(loopEdgeMap.size()==this->links().size());
             
-            for(const auto& looplink : loopLinkReader())
-            {
-                loopMap[looplink.first[0]].emplace(looplink.first[1],looplink.first[2]);
-            }
-            
-            assert(loopMap.size()==loopReader.size());
-            
-            //            std::cout<<"here 0"<<std::endl;
             
             size_t loopLumber=1;
-            for(const auto& loop : loopReader())
+            for(const auto& loop : this->loops())
             {
-                //                                    std::cout<<"Loop"<<std::endl;
                 
-                Eigen::Map<const Eigen::Matrix<double,1,10>> row(loop.second.data());
+                loopMap().emplace(loop.sID,&loop);
                 
-                const size_t loopID=loop.first;
-                //                const size_t grainID=row(9);
-                
-                const auto loopFound=loopMap.find(loopID);
-                assert(loopFound!=loopMap.end());
-                
-                //                            std::cout<<"here 1"<<std::endl;
+                const auto loopFound=loopEdgeMap.find(loop.sID);
+                assert(loopFound!=loopEdgeMap.end());
                 
                 std::vector<size_t> nodeIDs;
                 nodeIDs.push_back(loopFound->second.begin()->first);
                 std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>> nodePositions;
-                VertexReaderType::const_iterator vIter0(vertexReader().find(loopFound->second.begin()->first)); //source
-                assert(vIter0!=vertexReader().end() && "VERTEX NOT FOUND IN V-FILE");
-                Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow0(vIter0->second.data());
-                nodePositions.push_back(vertexRow0.template segment<dim>(0));
+                auto vIter0(nodeMap().find(loopFound->second.begin()->first)); //source
+                assert(vIter0!=nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
+                nodePositions.push_back(vIter0->second->P);
                 for(size_t k=0;k<loopFound->second.size();++k)
                 {
                     const auto nodeFound=loopFound->second.find(*nodeIDs.rbegin());
@@ -566,10 +621,10 @@ namespace model
                     {
                         nodeIDs.push_back(nodeFound->second);
                         
-                        VertexReaderType::const_iterator vIter(vertexReader().find(nodeFound->second)); //source
-                        assert(vIter!=vertexReader().end() && "VERTEX NOT FOUND IN V-FILE");
-                        Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow(vIter->second.data());
-                        nodePositions.push_back(vertexRow.template segment<dim>(0));
+                        auto vIter(nodeMap().find(nodeFound->second)); //source
+                        assert(vIter!=nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
+                        //Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow(vIter->second.data());
+                        nodePositions.push_back(vIter->second->P);
                     }
                     else
                     {
@@ -577,17 +632,9 @@ namespace model
                     }
                 }
                 
-                //                            std::cout<<"here 2"<<std::endl;
-                
-                const Eigen::Vector3d B=row.template segment<dim>(0*dim).transpose();
-                const Eigen::Vector3d N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-                //const VectorDimD P=row.template segment<dim>(2*dim).transpose();
-                
-                PlanarPolygon pp(B,N);
+                PlanarPolygon pp(loop.B,loop.N);
                 pp.assignPoints(nodePositions);
                 std::deque<std::array<size_t, 3>> tri=pp.triangulate();
-                
-                //                            std::cout<<"here 3"<<std::endl;
                 
                 for(const auto& triID : tri)
                 {
@@ -596,41 +643,22 @@ namespace model
                     const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
                     const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
                     
-                    //                    std::cout<<"Triangle"<<std::endl;
-                    //                    std::cout<<nodeID0<<std::endl;
-                    //                    std::cout<<nodeID1<<std::endl;
-                    //                    std::cout<<nodeID2<<std::endl;
-                    
-                    const size_t ptID0=std::distance(vertexReader().begin(),vertexReader().find(nodeID0));
-                    const size_t ptID1=std::distance(vertexReader().begin(),vertexReader().find(nodeID1));
-                    const size_t ptID2=std::distance(vertexReader().begin(),vertexReader().find(nodeID2));
-                    
-                    //                    std::cout<<"here 5"<<std::endl;
-                    
+                    const size_t ptID0=std::distance(nodeMap().begin(),nodeMap().find(nodeID0));
+                    const size_t ptID1=std::distance(nodeMap().begin(),nodeMap().find(nodeID1));
+                    const size_t ptID2=std::distance(nodeMap().begin(),nodeMap().find(nodeID2));
                     
                     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
                     triangle->GetPointIds()->SetId ( 0, ptID0 );
                     triangle->GetPointIds()->SetId ( 1, ptID1 );
                     triangle->GetPointIds()->SetId ( 2, ptID2 );
                     triangles->InsertNextCell ( triangle );
-                    
-                    //                    std::cout<<"here 6"<<std::endl;
-                    
                 }
                 
-                //                            std::cout<<"here 7"<<std::endl;
-                
-                //                model::cout<<"Creating Dislocation Loop "<<loopID<<" ("<<loopLumber<<" of "<<vReader.size()<<")"<<std::endl;
-                //                const size_t newLoopID=DN.insertLoop(nodeIDs,B,N,P,grainID)->sID;
-                //                assert(loopID==newLoopID);
-                //                loopLumber++;
             }
             
             trianglePolyData->SetPoints ( nodePoints );
             trianglePolyData->SetPolys ( triangles );
             trianglePolyData->Modified();
-            
-            
         }
         
         /**********************************************************************/
@@ -706,12 +734,16 @@ namespace model
             
             //            nodeLabels->SetName("node IDs");
             
+            this->readBin(frameID);
             
-            readNodes(frameID);
-            readSegments(frameID);
-            //            if(showSlippedArea)
-            //            {
-            readLoopLinks(frameID);
+
+            createNodes();
+            createLoopLinks();
+            createSegments();
+//            readSegments(frameID);
+//            //            if(showSlippedArea)
+//            //            {
+//            readLoopLinks(frameID);
             //            }
             
             // Populate polyData
