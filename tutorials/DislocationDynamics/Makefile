@@ -207,15 +207,9 @@ TGAexists=$(shell test -d tga && echo 1)
 JPGexists=$(shell test -d jpg && echo 1)
 
 empty:
-	@echo emptying folder V
-	@find V/ -name V_\*.txt ! -name V_0.txt -exec rm {} +;
-	@find V/ -name V_\*.bin -exec rm {} +;
-	@echo emptying folder E
-	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} +;
-	@find E/ -name E_\*.bin -exec rm {} +;
-	@echo emptying folder L
-	@find L/ -name L_\*.txt ! -name L_0.txt -exec rm {} +;
-	@find L/ -name L_\*.bin -exec rm {} +;
+	@echo emptying folder evl
+	@find evl/ -name evl_\*.txt ! -name evl_0.txt -exec rm {} +;
+	@find evl/ -name evl_\*.bin ! -name evl_0.bin -exec rm {} +;
 ifeq ($(Fexists),1)
 	@echo emptying folder F
 	@find F/ -name F_\*.txt -exec rm {} +;

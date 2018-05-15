@@ -25,7 +25,7 @@ ddSolverType=0;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=0;
+outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;

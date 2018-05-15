@@ -24,6 +24,11 @@
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/DislocationDynamics/DislocationNetwork.h>
 #include <model/Mesh/PlaneMeshIntersection.h>
+#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
+#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
+#include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
+#include <model/DislocationDynamics/IO/EVLio.h>
+
 
 namespace model
 {
@@ -48,6 +53,8 @@ namespace model
         //std::uniform_real_distribution<double> sizeDistribution;
         double _minSize;
         double _maxSize;
+        
+        
         
         /**********************************************************************/
         VectorDimD randomPoint()
@@ -79,6 +86,24 @@ namespace model
         SimplicialMesh<dim> mesh;
         GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
+        bool outputBinary;
+        
+        std::vector<DislocationNodeIO<dim>> nodesIO;
+        std::vector<DislocationLoopIO<dim>> loopsIO;
+        std::vector<DislocationEdgeIO<dim>> edgesIO;
+        
+        /**********************************************************************/
+        void write()
+        {
+            if(outputBinary)
+            {
+                EVLio<dim>::writeBin(0,nodesIO,loopsIO,edgesIO);
+            }
+            else
+            {
+                EVLio<dim>::writeTxt(0,nodesIO,loopsIO,edgesIO);
+            }
+        }
         
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
@@ -87,7 +112,8 @@ namespace model
         //        /* init list */ sizeDistribution(0.1,0.5),
         /* init list */ _minSize(0.0),
         /* init list */ _maxSize(0.0),
-        /* init list */ poly(mesh)
+        /* init list */ poly(mesh),
+        outputBinary(true)
         {
             int meshID(0);
             EigenDataReader EDR;
@@ -115,6 +141,10 @@ namespace model
             unsigned int materialZ;
             EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
             Material<Isotropic>::select(materialZ);
+            
+            
+            EDR.readScalarInFile("./DDinput.txt","outputBinary",outputBinary);
+
             
             
         }

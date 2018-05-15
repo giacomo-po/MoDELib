@@ -14,9 +14,10 @@
 #include <model/DislocationDynamics/MicrostructureGeneration/MicrostructureGenerator.h>
 #include <model/LatticeMath/LatticeVector.h>
 #include <model/Mesh/PlaneMeshIntersection.h>
-#include <model/IO/SequentialOutputFile.h>
+//#include <model/IO/SequentialOutputFile.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/Geometry/SegmentSegmentDistance.h>
+
 
 
 namespace model
@@ -32,9 +33,10 @@ namespace model
         //std::default_random_engine generator;
         std::mt19937 generator;
         
-        SequentialOutputFile<'E',1> edgeFile;
-        SequentialOutputFile<'V',1> vertexFile;
-        SequentialOutputFile<'L',1> loopFile;
+//        SequentialOutputFile<'E',1> edgeFile;
+//        SequentialOutputFile<'V',1> vertexFile;
+//        SequentialOutputFile<'L',1> loopFile;
+        
         
     public:
         StraightMicrostructureGenerator(int argc, char* argv[]) :
@@ -147,20 +149,23 @@ namespace model
                     // write node and edge file
                     for(int k=0;k<nodePos.size();++k)
                     {
-                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        vertexFile<<dlIO<<"\n";
+                        this->nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                        vertexFile<<dlIO<<"\n";
 //                        vertexFile.write(dlIO);
 //                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                         
                         const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
+                        this->edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
                         
                     }
                     nodeID+=nodePos.size();
                     
                     // write loop file
-                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
-                    loopFile<< dlIO<<"\n";
+                    this->loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
+//                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
+//                    loopFile<< dlIO<<"\n";
                     
                     loopID+=1;
                     snID+=1;
@@ -172,6 +177,8 @@ namespace model
                     std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
                 }
             }
+            
+            this->write();
         }
         
     };

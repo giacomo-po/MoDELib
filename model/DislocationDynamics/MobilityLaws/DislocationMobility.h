@@ -56,7 +56,7 @@ namespace model
 #ifdef _OPENMP
             return distributions[omp_get_thread_num()](generators[omp_get_thread_num()])*sqrt(2.0*kB*T/B/L/dt);
 #else
-            return distribution[0](generators[0])*sqrt(2.0*kB*T/B/L/dt);
+            return distributions[0](generators[0])*sqrt(2.0*kB*T/B/L/dt);
 #endif
         }
         

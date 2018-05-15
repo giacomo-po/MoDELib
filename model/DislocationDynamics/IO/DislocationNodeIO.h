@@ -20,12 +20,12 @@ namespace model
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
-        const size_t sID;          // sID
-        const VectorDim P;          // position
-        const VectorDim V;          // velocity
-        const double velocityReduction;             // velocity reduction factor
-        const size_t snID;          // component ID
-        const int  meshLocation;    // mesh location
+        size_t sID;          // sID
+        VectorDim P;          // position
+        VectorDim V;          // velocity
+        double velocityReduction;             // velocity reduction factor
+        size_t snID;          // component ID
+        int  meshLocation;    // mesh location
         
         /**********************************************************************/
         template<typename DislocationNodeType>
@@ -55,6 +55,20 @@ namespace model
         /* init */ velocityReduction(velocityReduction_in),
         /* init */ snID(snID_in),
         /* init */ meshLocation(meshLocation_in)
+        {
+            
+            //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
+            
+        }
+        
+        /**********************************************************************/
+        DislocationNodeIO() :
+        /* init */ sID(0),
+        /* init */ P(VectorDim::Zero()),
+        /* init */ V(VectorDim::Zero()),
+        /* init */ velocityReduction(1.0),
+        /* init */ snID(0),
+        /* init */ meshLocation(0)
         {
             
             //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
