@@ -77,6 +77,33 @@ namespace model
 
         
         /**********************************************************************/
+        DislocationNodeIO(std::stringstream& ss) :
+        /* init */ sID(0),
+        /* init */ P(VectorDim::Zero()),
+        /* init */ V(VectorDim::Zero()),
+        /* init */ velocityReduction(1.0),
+        /* init */ snID(0),
+        /* init */ meshLocation(0)
+        {
+            
+            ss>>sID;
+            for(int d=0;d<dim;++d)
+            {
+                ss>>P(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
+                ss>>V(d);
+            }
+            ss>>velocityReduction;
+            ss>>snID;
+            ss>>meshLocation;
+
+            
+        }
+
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationNodeIO<dim>& ds)
         {

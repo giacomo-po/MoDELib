@@ -395,7 +395,15 @@ namespace model
             
             // Read Vertex and Edge information
             EVLio<dim> evl;
-            evl.readBin(DN.runID);
+            if(EVLio<dim>::isBinGood(DN.runID))
+            {
+                evl.readBin(DN.runID);
+            }
+            else
+            {
+                assert(EVLio<dim>::isTxtGood(DN.runID));
+                evl.readTxt(DN.runID);
+            }
             createVertices(evl);
             createEdges(evl);
 //            readVertices(DN.runID); // this requires mesh to be up-to-date

@@ -734,8 +734,16 @@ namespace model
             
             //            nodeLabels->SetName("node IDs");
             
-            this->readBin(frameID);
-            
+//            this->readBin(frameID);
+            if(EVLio<3>::isBinGood(frameID))
+            {
+                this->readBin(frameID);
+            }
+            else
+            {
+//                assert(EVLio<3>::isTxtGood(frameID));
+                this->readTxt(frameID);
+            }
 
             createNodes();
             createLoopLinks();

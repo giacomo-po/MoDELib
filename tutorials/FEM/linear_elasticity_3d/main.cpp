@@ -34,11 +34,11 @@ using namespace model;
 //    
 //    const Eigen::Matrix<double,rows,cols> C0;
 //
-////    const TrialFunction<FiniteElementType,'u',dim>& u;       // displacement field
+//    const TrialFunction<FiniteElementType,'u',dim>& u;       // displacement field
 //
 //    
 //    /**********************************************************************/
-//    Constant(const T& c_in) : c(c_in)
+//    StiffnessMatrix(const T& c_in) : c(c_in)
 //    {
 //        //            std::cout<<"Constant Constructor 1"<<std::endl;
 //        //            std::cout<<"c="<<c<<std::endl;

@@ -1,7 +1,7 @@
 ######################################
 # Number of simulation steps 
 Nsteps=10000;
-startAtTimeStep = -1;
+startAtTimeStep = 20;
 quadPerLength=0.1;
 
 ######################################
@@ -25,7 +25,7 @@ ddSolverType=0;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;

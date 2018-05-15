@@ -69,6 +69,34 @@ namespace model
         }
         
         /**********************************************************************/
+        DislocationLoopIO(std::stringstream& ss) :
+        /* init */ sID(0),
+        /* init */ B(VectorDim::Zero()),
+        /* init */ N(VectorDim::Zero()),
+        /* init */ P(VectorDim::Zero()),
+        /* init */ grainID(0),
+        /* init */ loopLength(std::make_tuple(0.0,0.0,0.0))
+        {
+            ss>>sID;
+            for(int d=0;d<dim;++d)
+            {
+                ss>>B(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
+                ss>>N(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
+                ss>>P(d);
+            }
+            ss>>grainID;
+            double l1,l2,l3;
+            ss>>l1>>l2>>l3;
+            loopLength=std::make_tuple(l1,l2,l3);
+        }
+        
+        /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationLoopIO<dim>& ds)
         {

@@ -58,11 +58,18 @@ namespace model
         
     public:
         
-        static bool isGood(const size_t& frameID)
+        static bool isBinGood(const size_t& frameID)
         {
             return std::ifstream(getBinFilename(frameID).c_str(), std::ios::in|std::ios::binary).good();
 
         }
+
+        static bool isTxtGood(const size_t& frameID)
+        {
+            return std::ifstream(getTxtFilename(frameID).c_str(), std::ios::in).good();
+            
+        }
+
         
         /**********************************************************************/
         const std::vector<DislocationNodeIO<dim>>& nodes() const
@@ -320,7 +327,81 @@ namespace model
             }
             
         }
+
         
+        /**********************************************************************/
+        void readTxt(const size_t& runID)
+        {
+            const std::string filename(getTxtFilename(runID));
+            
+            std::ifstream infile (filename.c_str(), std::ios::in);
+            if(infile.is_open())
+            {
+                const auto t0=std::chrono::system_clock::now();
+                model::cout<<"reading "<<filename<<std::endl;
+                
+                size_t sizeV;
+                size_t sizeL;
+                size_t sizeE;
+
+                std::string line;
+                std::stringstream ss;
+
+                
+                std::getline(infile, line);
+                ss<<line;
+                ss >> sizeV;
+                ss.clear();
+
+                std::getline(infile, line);
+                ss<<line;
+                ss >> sizeL;
+                ss.clear();
+
+                std::getline(infile, line);
+                ss<<line;
+                ss >> sizeE;
+                ss.clear();
+                
+                for(int k=0;k<sizeV;++k)
+                {
+                    std::getline(infile, line);
+                    ss<<line;
+                    nodes().emplace_back(ss);
+                    ss.clear();
+                }
+                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
+                
+                for(int k=0;k<sizeL;++k)
+                {
+                    std::getline(infile, line);
+                    ss<<line;
+                    loops().emplace_back(ss);
+                    ss.clear();
+                }
+                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
+
+                
+                for(int k=0;k<sizeE;++k)
+                {
+                    std::getline(infile, line);
+                    ss<<line;
+                    links().emplace_back(ss);
+                    ss.clear();
+                }
+                model::cout<<"  "<<links().size()<<" links "<<std::endl;
+
+                infile.close();
+                model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            }
+            else
+            {
+                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
+                assert(false && "CANNOT OPEN FILE.");
+            }
+            
+        }
+
         
         
     };

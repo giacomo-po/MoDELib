@@ -62,6 +62,19 @@ namespace model
             
             
         }
+        
+        /**********************************************************************/
+        DislocationEdgeIO(std::stringstream& ss) :
+        /* init */ loopID(0),
+        /* init */ sourceID(0),
+        /* init */ sinkID(0),
+        /* init */ meshLocation(0)
+        {
+            ss>>loopID;
+            ss>>sourceID;
+            ss>>sinkID;
+            ss>>meshLocation;
+        }
 
         
         /**********************************************************************/
