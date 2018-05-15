@@ -72,7 +72,8 @@ namespace model
                 if(   !nodeIter.second->isBoundaryNode()
                    && !nodeIter.second->isConnectedToBoundaryNodes()
                    &&  nodeIter.second->meshPlanes().size()<3
-                   && !nodeIter.second->isOscillating())
+//                   && !nodeIter.second->isOscillating()
+                   )
                 {
 //                    std::cout<<nodeIter.first<<" ";
                     const double vNorm(nodeIter.second->get_V().norm());

@@ -483,7 +483,8 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+//        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+        /* init list        */ velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
         {/*! Constructor from ExpandingEdge and DOF
@@ -714,6 +715,8 @@ namespace model
         /**********************************************************************/
         void set_V(const VectorDofType& vNew)
         {
+            vOld=velocity; // store current value of velocity before updating
+
             velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
             
             
@@ -745,7 +748,7 @@ namespace model
                 
             }
             
-            vOld=velocity; // store current value of velocity before updating
+//            vOld=velocity; // store current value of velocity before updating
             
             
         }
@@ -757,11 +760,11 @@ namespace model
             return velocity;
         }
         
-        /**********************************************************************/
-        bool isOscillating() const
-        {
-            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
-        }
+//        /**********************************************************************/
+//        bool isOscillating() const
+//        {
+//            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
+//        }
         
         /**********************************************************************/
         const Simplex<dim,dim>* includingSimplex() const

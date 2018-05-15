@@ -111,7 +111,7 @@ namespace model
             
             const std::string filename(getTxtFilename(dn.runningID()));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            std::cout<<"Writing to "<<filename<<std::endl;
+//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header
@@ -156,7 +156,7 @@ namespace model
             
             const std::string filename(getTxtFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            std::cout<<"Writing to "<<filename<<std::endl;
+//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header
@@ -198,7 +198,7 @@ namespace model
             
             const std::string filename(getBinFilename(dn.runningID()));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            std::cout<<"Writing to "<<filename<<std::endl;
+//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header
@@ -246,7 +246,7 @@ namespace model
             
             const std::string filename(getBinFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            std::cout<<"Writing to "<<filename<<std::endl;
+//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header
