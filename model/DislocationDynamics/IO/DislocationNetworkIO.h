@@ -505,6 +505,80 @@ namespace model
         }
         
         
+//        /**********************************************************************/
+//        void insertRandomStraightDislocation()
+//        {
+//            const std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+//            const int& grainID=rp.second;   // random grain ID
+//            const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+//            const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+//            std::uniform_int_distribution<> distribution(0,this->poly.grain(grainID).slipSystems().size()-1);
+//            const int rSS=distribution(generator); // a random SlipSystem ID
+//            const SlipSystem& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
+//            const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
+//            const VectorDimD n=slipSystem.n.cartesian().normalized(); // slip plane normal
+//
+//            const VectorDimD A=P0+3.0*this->maxSize()*d;
+//            const VectorDimD B=P0-3.0*this->maxSize()*d;
+//            
+//            // Compute interseciton between mesh and glide plane
+//            PlaneMeshIntersection<dim> pmi(this->mesh,P0,n,grainID);
+//            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
+//            
+//            for(int k=0;k<pmi.size();++k)
+//            {
+//                const int k1=(k+1)<pmi.size()? k+1 :0;
+//                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
+//            }
+//            
+//            std::deque<VectorDimD> nodePos;
+//            int nIntersections=0;
+//            for(const auto& pair : segDeq)
+//            {
+//                SegmentSegmentDistance<dim> ssi(A,B,pair.first,pair.second);
+//                
+//                if(nIntersections==0)
+//                {
+//                    if(ssi.dMin>FLT_EPSILON) // no intersection
+//                    {
+//                        
+//                    }
+//                    else //if(ssi.size==1)
+//                    {
+//                        nIntersections++;
+//                        nodePos.push_back((ssi.x0+ssi.x1)*0.5);
+//                    }
+//                }
+//                else if(nIntersections==1)
+//                {
+//                    if(ssi.dMin>FLT_EPSILON) // no intersection
+//                    {
+//                        nodePos.push_back(pair.first);
+//                    }
+//                    else //if(ssi.size==1)
+//                    {
+//                        nIntersections++;
+//                        nodePos.push_back(pair.first);
+//                        nodePos.push_back((ssi.x0+ssi.x1)*0.5);
+//                    }
+//                }
+//                else
+//                {
+//                    
+//                }
+//            }
+//            
+//            std::vector<size_t> nodeIDs;
+//            for (const auto& node : nodePos)
+//            {
+//                nodeIDs.push_back(DN.insertDanglingNode(node,VectorDimD::Zero(),1.0).first->first);
+//            }
+//            DN.insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID);
+//            DN.clearDanglingNodes();
+//            
+//            
+//        }
+        
         /**********************************************************************/
         void output(const size_t& runID)
         {
