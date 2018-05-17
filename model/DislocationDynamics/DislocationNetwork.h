@@ -60,6 +60,7 @@
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/ExternalStressFieldController.h>
+#include <model/DislocationDynamics/DislocationInjector.h>
 
 namespace model
 {
@@ -310,6 +311,9 @@ namespace model
             //! 13- Node redistribution
             DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
             
+            
+//            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
+            
             //! 9- Contract segments of zero-length
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
@@ -375,7 +379,7 @@ namespace model
             if(argc>1)
             {
                 folderSuffix=argv[1];
-                std:cout<<"folderSuffix="<<folderSuffix<<std::endl;
+                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
             }
             
             ParticleSystemType::initMPI(argc,argv);

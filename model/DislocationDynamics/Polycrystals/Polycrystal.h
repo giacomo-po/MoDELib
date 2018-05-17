@@ -18,6 +18,8 @@
 #include <vector>
 #include <deque>
 #include <tuple>
+#include <chrono>
+#include <random>
 #include <Eigen/Core>
 #include <model/MPI/MPIcout.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
@@ -64,6 +66,8 @@ namespace model
 
         
         unsigned int materialZ;
+        
+
         
     public:
         
@@ -287,6 +291,47 @@ namespace model
         const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
         {
             return *this;
+        }
+        
+        /**********************************************************************/
+        VectorDim randomPoint() const
+        {
+            std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
+            std::uniform_real_distribution<double> distribution(0.0,1.0);
+
+            VectorDim P0(VectorDim::Zero());
+            
+            P0 << mesh.xMin(0)+distribution(generator)*(mesh.xMax(0)-mesh.xMin(0)),
+            /* */ mesh.xMin(1)+distribution(generator)*(mesh.xMax(1)-mesh.xMin(1)),
+            /* */ mesh.xMin(2)+distribution(generator)*(mesh.xMax(2)-mesh.xMin(2));
+            
+            return P0;
+            
+        }
+        
+        /**********************************************************************/
+        std::pair<LatticeVector<dim>,int> randomLatticePointInMesh() const
+        {
+            const VectorDim P0=randomPoint();
+            auto searchResult=mesh.search(P0);
+            if(searchResult.first)
+            {// point inside
+                const LatticeVector<dim> L0 = grain(searchResult.second->region->regionID).snapToLattice(P0);
+                searchResult=mesh.searchRegionWithGuess(L0.cartesian(),searchResult.second);
+                if(searchResult.first)
+                {// point inside
+                    return std::make_pair(L0,searchResult.second->region->regionID);
+                }
+                else
+                {
+                    return randomLatticePointInMesh();
+                }
+            }
+            else
+            {
+                return randomLatticePointInMesh();
+            }
+            
         }
         
         //        /**********************************************************************/

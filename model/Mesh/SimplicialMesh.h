@@ -50,8 +50,7 @@ namespace model
     {
         
         Eigen::Matrix<double,_dim,1> _xMin;
-        Eigen::Matrix<double,_dim,1> _xMax;
-        
+        Eigen::Matrix<double,_dim,1> _xMax;        
         
         double vol0;
         

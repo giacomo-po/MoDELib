@@ -49,25 +49,25 @@ namespace model
         typedef DislocationNetwork<dim,1,Hermite> DislocationNetworkType;
         
         std::mt19937 generator;
-        std::uniform_real_distribution<double> distribution;
+//        std::uniform_real_distribution<double> distribution;
         //std::uniform_real_distribution<double> sizeDistribution;
         double _minSize;
         double _maxSize;
         
         
         
-        /**********************************************************************/
-        VectorDimD randomPoint()
-        {
-            VectorDimD P0;
-            
-            P0 << mesh.xMin(0)+distribution(generator)*(mesh.xMax(0)-mesh.xMin(0)),
-            /* */ mesh.xMin(1)+distribution(generator)*(mesh.xMax(1)-mesh.xMin(1)),
-            /* */ mesh.xMin(2)+distribution(generator)*(mesh.xMax(2)-mesh.xMin(2));
-            
-            return P0;
-            
-        }
+//        /**********************************************************************/
+//        VectorDimD randomPoint()
+//        {
+//            VectorDimD P0;
+//            
+//            P0 << mesh.xMin(0)+distribution(generator)*(mesh.xMax(0)-mesh.xMin(0)),
+//            /* */ mesh.xMin(1)+distribution(generator)*(mesh.xMax(1)-mesh.xMin(1)),
+//            /* */ mesh.xMin(2)+distribution(generator)*(mesh.xMax(2)-mesh.xMin(2));
+//            
+//            return P0;
+//            
+//        }
         
         /**********************************************************************/
         static double min(const double& a,const double& b)
@@ -108,7 +108,7 @@ namespace model
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
         /* init list */ generator(std::chrono::system_clock::now().time_since_epoch().count()),
-        /* init list */ distribution(0.0,1.0),
+//        /* init list */ distribution(0.0,1.0),
         //        /* init list */ sizeDistribution(0.1,0.5),
         /* init list */ _minSize(0.0),
         /* init list */ _maxSize(0.0),
@@ -150,27 +150,29 @@ namespace model
         }
         
         /**********************************************************************/
-        std::pair<LatticeVector<dim>,int> randomPointInMesh()
+        std::pair<LatticeVector<dim>,int> randomPointInMesh() const
         {
-            VectorDimD P0=randomPoint();
-            auto searchResult=mesh.search(P0);
-            if(searchResult.first)
-            {// point inside
-                LatticeVector<dim> L0 = poly.grain(searchResult.second->region->regionID).snapToLattice(P0);
-                searchResult=mesh.searchRegionWithGuess(L0.cartesian(),searchResult.second);
-                if(searchResult.first)
-                {// point inside
-                    return std::make_pair(L0,searchResult.second->region->regionID);
-                }
-                else
-                {
-                    return randomPointInMesh();
-                }
-            }
-            else
-            {
-                return randomPointInMesh();
-            }
+            return poly.randomLatticePointInMesh();
+            
+//            VectorDimD P0=randomPoint();
+//            auto searchResult=mesh.search(P0);
+//            if(searchResult.first)
+//            {// point inside
+//                LatticeVector<dim> L0 = poly.grain(searchResult.second->region->regionID).snapToLattice(P0);
+//                searchResult=mesh.searchRegionWithGuess(L0.cartesian(),searchResult.second);
+//                if(searchResult.first)
+//                {// point inside
+//                    return std::make_pair(L0,searchResult.second->region->regionID);
+//                }
+//                else
+//                {
+//                    return randomPointInMesh();
+//                }
+//            }
+//            else
+//            {
+//                return randomPointInMesh();
+//            }
             
         }
         
