@@ -180,6 +180,7 @@ namespace model
 	  
 					}
 			 }
+                std::cout<<"density="<<density<<std::endl;
             }
              this->write();
         

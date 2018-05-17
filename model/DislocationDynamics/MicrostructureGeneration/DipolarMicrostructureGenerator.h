@@ -31,9 +31,9 @@ namespace model
         std::random_device rd;
         std::mt19937 generator;
         
-        SequentialOutputFile<'E',1> edgeFile;
-        SequentialOutputFile<'V',1> vertexFile;
-        SequentialOutputFile<'L',1> loopFile;
+//        SequentialOutputFile<'E',1> edgeFile;
+//        SequentialOutputFile<'V',1> vertexFile;
+//        SequentialOutputFile<'L',1> loopFile;
         
     public:
         DipolarMicrostructureGenerator(int argc, char* argv[]) :
@@ -148,14 +148,22 @@ namespace model
                      * ID Px Py Pz Vx Vy Vz velReducCoeff snID meshLocation grainID
                      */
                     const size_t refNodeID=nodeID;
-                    vertexFile << refNodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<P0.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<P1.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<P2.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<P3.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<P4.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<P5.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<P6.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                    vertexFile << refNodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<P7.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+                    this->nodesIO.emplace_back(refNodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+6,P6,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(refNodeID+7,P7,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                    vertexFile << refNodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<P0.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+1<<"\t" << std::setprecision(15)<<std::scientific<<P1.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+2<<"\t" << std::setprecision(15)<<std::scientific<<P2.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+3<<"\t" << std::setprecision(15)<<std::scientific<<P3.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<P4.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<P5.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+6<<"\t" << std::setprecision(15)<<std::scientific<<P6.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                    vertexFile << refNodeID+7<<"\t" << std::setprecision(15)<<std::scientific<<P7.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                     nodeID+=8;
                     
                     
@@ -166,10 +174,10 @@ namespace model
                     
                     snID+=1;
                     density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
-                    
+                    std::cout<<"density="<<density<<std::endl;
                 }
             }
-            
+            this->write();
         }
         
         
@@ -190,23 +198,33 @@ namespace model
                        const size_t& snID)
         {
             // write Loop file
-            DislocationLoopIO<dim> dlIO(loopID+0, slipSystem.s.cartesian(),n,P0,grainID);
-            loopFile<< dlIO<<"\n";
+//            DislocationLoopIO<dim> dlIO(loopID+0, slipSystem.s.cartesian(),n,P0,grainID);
+            //loopFile<< dlIO<<"\n";
+            this->loopsIO.emplace_back(loopID+0, slipSystem.s.cartesian(),n,P0,grainID);
+
             
             // write to edge and node files
-            edgeFile << loopID<<"\t" << refNodeID+id0<<"\t"<< refNodeID+id1<<"\n";
-            edgeFile << loopID<<"\t" << refNodeID+id1<<"\t"<< refNodeID+id2<<"\n";
+            this->edgesIO.emplace_back(loopID,refNodeID+id0,refNodeID+id1,0);
+            this->edgesIO.emplace_back(loopID,refNodeID+id1,refNodeID+id2,0);
+
+//            edgeFile << loopID<<"\t" << refNodeID+id0<<"\t"<< refNodeID+id1<<"\n";
+//            edgeFile << loopID<<"\t" << refNodeID+id1<<"\t"<< refNodeID+id2<<"\n";
             
             size_t oldID=refNodeID+id2;
             for(const auto& pair : bndVtx)
             {
-                vertexFile << nodeID<<"\t" << std::setprecision(15)<<std::scientific<<pair.second.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-                edgeFile << loopID<<"\t" << oldID<<"\t"<< nodeID<<"\n"; // CHANGE THIS
+                this->nodesIO.emplace_back(nodeID,pair.second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                vertexFile << nodeID<<"\t" << std::setprecision(15)<<std::scientific<<pair.second.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
+//                edgeFile << loopID<<"\t" << oldID<<"\t"<< nodeID<<"\n"; // CHANGE THIS
+                this->edgesIO.emplace_back(loopID,oldID,nodeID,0);
                 oldID=nodeID;
                 nodeID++;
             }
-            edgeFile << loopID<<"\t" <<    oldID<<"\t"<< refNodeID+id3<<"\n"; // CHANGE THIS
-            edgeFile << loopID<<"\t" << refNodeID+id3<<"\t"<< refNodeID+id0<<"\n";
+            this->edgesIO.emplace_back(loopID,oldID,refNodeID+id3,0);
+            this->edgesIO.emplace_back(loopID,refNodeID+id3,refNodeID+id0,0);
+
+//            edgeFile << loopID<<"\t" <<    oldID<<"\t"<< refNodeID+id3<<"\n"; // CHANGE THIS
+//            edgeFile << loopID<<"\t" << refNodeID+id3<<"\t"<< refNodeID+id0<<"\n";
             
             loopID+=1;
             

@@ -45,28 +45,28 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::string getBinFilename(const size_t& runID)
+        static std::string getBinFilename(const size_t& runID,const std::string& suffix="")
         {
-            return "evl/evl_"+std::to_string(runID)+".bin";
+            return "evl"+suffix+"/evl_"+std::to_string(runID)+".bin";
         }
         
         /**********************************************************************/
-        static std::string getTxtFilename(const size_t& runID)
+        static std::string getTxtFilename(const size_t& runID,const std::string& suffix="")
         {
-            return "evl/evl_"+std::to_string(runID)+".txt";
+            return "evl"+suffix+"/evl_"+std::to_string(runID)+".txt";
         }
         
     public:
         
-        static bool isBinGood(const size_t& frameID)
+        static bool isBinGood(const size_t& frameID,const std::string& suffix="")
         {
-            return std::ifstream(getBinFilename(frameID).c_str(), std::ios::in|std::ios::binary).good();
+            return std::ifstream(getBinFilename(frameID,suffix).c_str(), std::ios::in|std::ios::binary).good();
 
         }
 
-        static bool isTxtGood(const size_t& frameID)
+        static bool isTxtGood(const size_t& frameID,const std::string& suffix="")
         {
-            return std::ifstream(getTxtFilename(frameID).c_str(), std::ios::in).good();
+            return std::ifstream(getTxtFilename(frameID,suffix).c_str(), std::ios::in).good();
             
         }
 
@@ -106,10 +106,11 @@ namespace model
         
         /**********************************************************************/
         template<typename DislocationNodeType>
-        static void writeTxt(const DislocationNodeType& dn)
+        static void writeTxt(const DislocationNodeType& dn,
+                             const std::string& suffix="")
         {
             
-            const std::string filename(getTxtFilename(dn.runningID()));
+            const std::string filename(getTxtFilename(dn.runningID(),suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
 //            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
@@ -150,11 +151,11 @@ namespace model
         static void writeTxt(const size_t& runID,
                              const std::vector<DislocationNodeIO<dim>> nodesIO,
                              const std::vector<DislocationLoopIO<dim>> loopsIO,
-                             const std::vector<DislocationEdgeIO<dim>> edgesIO
-                             )
+                             const std::vector<DislocationEdgeIO<dim>> edgesIO,
+                             const std::string& suffix="")
         {
             
-            const std::string filename(getTxtFilename(runID));
+            const std::string filename(getTxtFilename(runID,suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
 //            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
@@ -193,10 +194,11 @@ namespace model
         
         /**********************************************************************/
         template<typename DislocationNodeType>
-        static void writeBin(const DislocationNodeType& dn)
+        static void writeBin(const DislocationNodeType& dn,
+                             const std::string& suffix="")
         {
             
-            const std::string filename(getBinFilename(dn.runningID()));
+            const std::string filename(getBinFilename(dn.runningID(),suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
 //            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
@@ -240,11 +242,11 @@ namespace model
         static void writeBin(const size_t& runID,
                              const std::vector<DislocationNodeIO<dim>> nodesIO,
                              const std::vector<DislocationLoopIO<dim>> loopsIO,
-                             const std::vector<DislocationEdgeIO<dim>> edgesIO
-                             )
+                             const std::vector<DislocationEdgeIO<dim>> edgesIO,
+                             const std::string& suffix="")
         {
             
-            const std::string filename(getBinFilename(runID));
+            const std::string filename(getBinFilename(runID,suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
 //            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
@@ -286,9 +288,9 @@ namespace model
         
         
         /**********************************************************************/
-        void readBin(const size_t& runID)
+        void readBin(const size_t& runID,const std::string& suffix="")
         {
-            const std::string filename(getBinFilename(runID));
+            const std::string filename(getBinFilename(runID,suffix));
             
             std::ifstream infile (filename.c_str(), std::ios::in|std::ios::binary);
             if(infile.is_open())
@@ -330,9 +332,9 @@ namespace model
 
         
         /**********************************************************************/
-        void readTxt(const size_t& runID)
+        void readTxt(const size_t& runID,const std::string& suffix="")
         {
-            const std::string filename(getTxtFilename(runID));
+            const std::string filename(getTxtFilename(runID,suffix));
             
             std::ifstream infile (filename.c_str(), std::ios::in);
             if(infile.is_open())
@@ -363,7 +365,7 @@ namespace model
                 ss >> sizeE;
                 ss.clear();
                 
-                for(int k=0;k<sizeV;++k)
+                for(size_t k=0;k<sizeV;++k)
                 {
                     std::getline(infile, line);
                     ss<<line;
@@ -372,7 +374,7 @@ namespace model
                 }
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 
-                for(int k=0;k<sizeL;++k)
+                for(size_t k=0;k<sizeL;++k)
                 {
                     std::getline(infile, line);
                     ss<<line;
@@ -382,7 +384,7 @@ namespace model
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
 
                 
-                for(int k=0;k<sizeE;++k)
+                for(size_t k=0;k<sizeE;++k)
                 {
                     std::getline(infile, line);
                     ss<<line;

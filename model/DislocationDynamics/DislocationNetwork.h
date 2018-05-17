@@ -163,6 +163,7 @@ namespace model
         bool outputSegmentPairDistances;
         unsigned int _userOutputColumn;
         bool use_stochasticForce;
+        std::string folderSuffix;
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -367,8 +368,16 @@ namespace model
         /* init list  */ outputLoopLength(false),
         /* init list  */ outputSegmentPairDistances(false),
         /* init list  */ _userOutputColumn(3),
-        /* init list  */ use_stochasticForce(false)
+        /* init list  */ use_stochasticForce(false),
+        /* init list  */ folderSuffix("")
         {
+            
+            if(argc>1)
+            {
+                folderSuffix=argv[1];
+                std:cout<<"folderSuffix="<<folderSuffix<<std::endl;
+            }
+            
             ParticleSystemType::initMPI(argc,argv);
             io().read("./","DDinput.txt");
             
@@ -769,13 +778,13 @@ namespace model
         /**********************************************************************/
         DislocationNetworkIOType io()
         {
-            return DislocationNetworkIOType(*this);
+            return DislocationNetworkIOType(*this,folderSuffix);
         }
         
         /**********************************************************************/
         DislocationNetworkIOType io() const
         {
-            return DislocationNetworkIOType(*this);
+            return DislocationNetworkIOType(*this,folderSuffix);
         }
         
     };

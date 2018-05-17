@@ -32,9 +32,7 @@ namespace model
     template <>
     struct DDtimeIntegrator<0>
     {
-//        DislocationNetworkType& DN;
         static constexpr auto tag="vMax integrator";
-
         static double dxMax;
         static double shearWaveSpeedFraction;
         
@@ -75,7 +73,6 @@ namespace model
 //                   && !nodeIter.second->isOscillating()
                    )
                 {
-//                    std::cout<<nodeIter.first<<" ";
                     const double vNorm(nodeIter.second->get_V().norm());
                     vmean +=vNorm;
                     nVmean++;
@@ -86,26 +83,15 @@ namespace model
                     }
                 }
             }
-//            std::cout<<std::endl;
             vmean/=nVmean;
             
-//            std::cout<<"vMax="<<vmax<<", id="<<vMaxID<<std::endl;
-//            assert(vmax>0.0 && "vmax=0.0");
-            
-            //double shearWaveSpeedFraction(0.01);
-            //short unsigned int shearWaveExp=1;
             if (vmax > Material<Isotropic>::cs*shearWaveSpeedFraction)
             {
                 DN.set_dt(dxMax/vmax,vmax);
-                
             }
             else
             {
-                //dt=dx/std::pow(shared.material.cs*shearWaveSpeedFraction,shearWaveExp+1)*std::pow(vmax,shearWaveExp);
-                //dt=dx/(shared.material.cs*shearWaveSpeedFraction)*std::pow(vmax/(shared.material.cs*shearWaveSpeedFraction),1);
-                //dt=dx/(Material<Isotropic>::cs*shearWaveSpeedFraction);
                 DN.set_dt(dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction),vmax);
-
             }
             
             if (vmean > Material<Isotropic>::cs*shearWaveSpeedFraction)
@@ -117,18 +103,8 @@ namespace model
                 dt_mean=dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction);
             }
             
-//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax="<<vmax;
-//            model::cout<<std::setprecision(3)<<std::scientific<<" vmax/cs="<<vmax/Material<Isotropic>::cs;
             model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
-//            model::cout<<std::setprecision(3)<<std::scientific<<" eta_dt="<<dt/dt_mean;
-//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //}
-
-            
         }
-        
-
-        
         
     };
 
