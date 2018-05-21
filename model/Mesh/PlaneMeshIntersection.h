@@ -45,23 +45,15 @@ namespace model
         const VectorDim& P0,
         const VectorDim& nn,
         const int& rID) :
-//        /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(m,P0,nn,rID)),
         /* init */ PlaneMeshIntersectionContainerType(reducedPlaneMeshIntersection(planeMeshIntersection(m,P0,nn,rID))),
         /* init */ mesh(m)
         {
         
         }
 
-//        /**********************************************************************/
-//        static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const SimplicialMesh<dim>& m,
-//                                                                               const VectorDim& P0,
-//                                                                               const VectorDim& nn,
-//                                                                               const int& rID)
-//        {
-//            const PlaneMeshIntersectionContainerType mpi=planeMeshIntersection(m,P0,nn,rID);
+       /**********************************************************************/
         static PlaneMeshIntersectionContainerType reducedPlaneMeshIntersection(const PlaneMeshIntersectionContainerType& mpi)
         {
-//            model::cout<<"Reducing plane/mesh intersection points "<<std::flush;
             PlaneMeshIntersectionContainerType temp;
             
             size_t tailID=mpi.size()-1;
@@ -91,10 +83,6 @@ namespace model
                                                                         const VectorDim& nn,
                                                                         const int& rID)
         {
-            //std::cout<<"Computing plane/mesh intersection "<<std::flush;
-//            const auto t0=std::chrono::system_clock::now();
-            
-
             
             const double nNorm(nn.norm());
             assert(nNorm>FLT_EPSILON);
@@ -146,10 +134,7 @@ namespace model
                         assert(0 && "IMPOSSIBLE");
                         break;
                 }
-            
-//            model::cout<<" ("<<temp.size()<<" perimeter points)";
-//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
+                        
             return temp;
         }
         

@@ -21,7 +21,7 @@
 #ifndef NDEBUG
 #define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}
 #else
-#define VerboseNodeContraction(N,x) 
+#define VerboseNodeContraction(N,x)
 #endif
 
 namespace model
@@ -35,7 +35,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         static int verboseNodeContraction;
-
+        
         
         DislocationNetworkType& DN;
         
@@ -92,7 +92,7 @@ namespace model
                 
                 if(nA->isOnBoundingBox() || nB->isOnBoundingBox())
                 {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node
-                
+                    
                     BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                     VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
                     if(temp.size())
@@ -191,10 +191,10 @@ namespace model
                                                         nB->glidePlaneIntersections()[0].first,nB->glidePlaneIntersections()[0].second);
                         
                         
-//                        std::cout<<"nA->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].first.transpose()<<std::endl;
-//                        std::cout<<"nA->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].second.transpose()<<std::endl;
-//                        std::cout<<"nB->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].first.transpose()<<std::endl;
-//                        std::cout<<"nB->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+                        //                        std::cout<<"nA->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+                        //                        std::cout<<"nA->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nA->glidePlaneIntersections()[0].second.transpose()<<std::endl;
+                        //                        std::cout<<"nB->glidePlaneIntersections()[0].first "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].first.transpose()<<std::endl;
+                        //                        std::cout<<"nB->glidePlaneIntersections()[0].second "<<std::setprecision(15)<<std::scientific<<nB->glidePlaneIntersections()[0].second.transpose()<<std::endl;
                         
                         const auto iSeg=ssd.intersectionSegment();
                         if(iSeg.size()==1)
@@ -216,18 +216,18 @@ namespace model
                             return false;
                         }
                         
-//                        BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
-//                        if(temp.size())
-//                        {
-//                            std::cout<<"contractPoint case 8"<<std::endl;
-//                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
-//                            return DN.contractSecond(nA,nB);
-//                        }
-//                        else
-//                        {
-//                            std::cout<<"contractPoint case 9"<<std::endl;
-//                            return false;
-//                        }
+                        //                        BoundingLineSegments<dim> temp(nA->glidePlaneIntersections(),nB->glidePlaneIntersections());
+                        //                        if(temp.size())
+                        //                        {
+                        //                            std::cout<<"contractPoint case 8"<<std::endl;
+                        //                            nA->set_P(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P()))));
+                        //                            return DN.contractSecond(nA,nB);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            std::cout<<"contractPoint case 9"<<std::endl;
+                        //                            return false;
+                        //                        }
                     }
                     else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
                     {// nA confined by more then one plane, nB confined by only one plane
@@ -281,10 +281,10 @@ namespace model
                         assert(nA->meshPlanes().size()==1);
                         assert(nB->meshPlanes().size()==1);
                         
-//                        GlidePlaneObserver<dim>* const gpo(nA->meshPlane(0).glidePlaneObserver);
-//                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
+                        //                        GlidePlaneObserver<dim>* const gpo(nA->meshPlane(0).glidePlaneObserver);
+                        //                        const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
                         const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
-
+                        
                         //                        std::cout<<"gpA: "<<nA->meshPlane(0).P.cartesian().transpose()<<std::endl;
                         //                        std::cout<<"gpA: "<<nA->meshPlane(0).n.cartesian().normalized().transpose()<<std::endl;
                         //
@@ -302,17 +302,28 @@ namespace model
                         {
                             //                            std::cout<<nA->sID<<" "<<nB->sID<<std::endl;
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
-                            //                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
                             const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
+
+
                             
-//                            assert(nA->meshPlane(0).contains(ppi.P+u*ppi.d));
-//                            assert(nB->meshPlane(0).contains(ppi.P+u*ppi.d));
+                            //                            assert(nA->meshPlane(0).contains(ppi.P+u*ppi.d));
+                            //                            assert(nB->meshPlane(0).contains(ppi.P+u*ppi.d));
+                            
+//                            std::cout<<"nA="<<nA->get_P().transpose()<<std::endl;
+//                            std::cout<<"nB="<<nB->get_P().transpose()<<std::endl;
+
                             
                             const bool moved=nA->set_P(ppi.P+u*ppi.d);
+                            
+//                            std::cout<<"norm d="<<ppi.d.norm()<<std::endl;
+//                            std::cout<<"ppi.P+u*ppi.d="<<(ppi.P+u*ppi.d).transpose()<<std::endl;
+//                            std::cout<<"nA="<<nA->get_P().transpose()<<std::endl;
+
+                            
                             if(moved)
                             {
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 8b1"<<std::endl;);
-                            return DN.contractSecond(nA,nB);
+                                return DN.contractSecond(nA,nB);
                             }
                             else
                             {
@@ -364,7 +375,7 @@ namespace model
                         
                         bool found=false;
                         VectorDim Y(VectorDim::Zero());
-
+                        
                         for(const auto& pair : nB->neighbors())
                         {
                             PlaneSegmentIntersection<dim> psi(nA->meshPlane(0).P,
@@ -372,11 +383,11 @@ namespace model
                                                               std::get<1>(pair.second)->source->get_P(),
                                                               std::get<1>(pair.second)->sink->get_P()
                                                               );
-//                            std::cout<<"psi.type="<<psi.type<<std::endl;
+                            //                            std::cout<<"psi.type="<<psi.type<<std::endl;
                             Y=0.5*(psi.x0+psi.x1);
-//                            std::cout<<"movable="<<nB->isMovableTo(Y)<<std::endl;
-//                            std::cout<<"contains="<<nA->meshPlane(0).contains(Y)<<std::endl;
-
+                            //                            std::cout<<"movable="<<nB->isMovableTo(Y)<<std::endl;
+                            //                            std::cout<<"contains="<<nA->meshPlane(0).contains(Y)<<std::endl;
+                            
                             if(nB->isMovableTo(Y) && nA->meshPlane(0).contains(Y))
                             {
                                 found=true;
@@ -396,16 +407,16 @@ namespace model
                             return false;
                         }
                         
-//                        if(nA->meshPlane(0).contains(nB->get_P()))
-//                        {
-//                            VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
-//                            return DN.contractSecond(nB,nA);
-//                        }
-//                        else
-//                        {
-//                            VerboseNodeContraction(1,"DislocationNodeContraction case 9f"<<std::endl;);
-//                            return false;
-//                        }
+                        //                        if(nA->meshPlane(0).contains(nB->get_P()))
+                        //                        {
+                        //                            VerboseNodeContraction(1,"DislocationNodeContraction case 9e"<<std::endl;);
+                        //                            return DN.contractSecond(nB,nA);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            VerboseNodeContraction(1,"DislocationNodeContraction case 9f"<<std::endl;);
+                        //                            return false;
+                        //                        }
                     }
                 }
             }
@@ -435,7 +446,7 @@ namespace model
     // Static data
     template <typename DislocationNetworkType>
     int DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=0;
-
+    
     
 }
 #endif

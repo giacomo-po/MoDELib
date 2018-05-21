@@ -97,23 +97,24 @@ namespace model
                     
                 case 1:
                 {// if there is only one glide plane, then _glidePlaneIntersections must be empty
+                    VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 1"<<std::endl;);
                     _glidePlaneIntersections.clear();
                     break;
                 }
                     
                 case 2:
                 {// a second plane is being added, so we must have no _glidePlaneIntersections
+                    VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2"<<std::endl;);
                     assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                     
                     // Grab the infinite line of intersection between the two planes
-                    //GlidePlaneObserver<dim>* const gpo(meshPlane(0).glidePlaneObserver);
-                    //                    const PlanePlaneIntersection<dim>& ppi(gpo->glidePlaneIntersection(&glidePlane(0),&glidePlane(1)));
                     const PlanePlaneIntersection<dim>& ppi(this->network().glidePlaneIntersection(&meshPlane(0),&meshPlane(1)));
                     
                     if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                     {/* Two distinct glide planes can be coincident only if they belong to different grains
                       * In that case, the intersection of their bounding boxes should be one line segment
                       */
+                        VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2a"<<std::endl;);
                         if(boundingBoxSegments().size()!=1)
                         {
                             model::cout<<"DislocationNode "<<this->sID<<std::endl;
@@ -133,7 +134,11 @@ namespace model
                         {
                             case 1:
                             {// the bounding boxes of the two planes intersect on a boundary segment. Add end points to _glidePlaneIntersections
+                                VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2b"<<std::endl;);
                                 _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
+                                VerboseDislocationNode(4,"  boundingBoxSegments()[0].first="<<boundingBoxSegments()[0].first.transpose()<<std::endl;);
+                                VerboseDislocationNode(4,"  boundingBoxSegments()[0].second="<<boundingBoxSegments()[0].second.transpose()<<std::endl;);
+
                                 break;
                             }
                                 
@@ -143,7 +148,7 @@ namespace model
                                 //                                std::cout<<boundingBoxSegments()[0].second.transpose()<<std::endl;
                                 //                                std::cout<<boundingBoxSegments()[1].first.transpose()<<std::endl;
                                 //                                std::cout<<boundingBoxSegments()[1].second.transpose()<<std::endl;
-                                
+                                VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2c"<<std::endl;);
                                 assert((boundingBoxSegments()[0].first-boundingBoxSegments()[0].second).squaredNorm()<FLT_EPSILON);
                                 assert((boundingBoxSegments()[1].first-boundingBoxSegments()[1].second).squaredNorm()<FLT_EPSILON);
                                 _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[1].first);
@@ -219,9 +224,19 @@ namespace model
             if(success)
             {
                 VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" addGlidePlane. meshPlanes().size()="<<meshPlanes().size()<<std::endl;);
+                VerboseDislocationNode(4,"Current bounding box"<<std::endl;);
+                VerboseDislocationNode(4,boundingBoxSegments()<<std::endl;);
+                VerboseDislocationNode(4,"Plane bounding box"<<std::endl;);
+                VerboseDislocationNode(4,BoundingLineSegments<dim>(gp)<<std::endl;);
+                
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
                 updateMeshPlaneIntersections(gp);
+                
+                VerboseDislocationNode(4,"new bounding box"<<std::endl;);
+                VerboseDislocationNode(4,boundingBoxSegments()<<std::endl;);
+
+                
                 //                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
                 //                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
             }
@@ -247,7 +262,7 @@ namespace model
                     }
                 }
             }
-            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
+//            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
 
             
             //            for(const auto& gb : this->network().poly.grainBoundaries())
@@ -571,6 +586,7 @@ namespace model
                 case 0:
                 {
                     //                    assert(glidePlanes().size()>0);
+                    VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 0"<<std::endl;);
                     assert(meshPlanes().size()==1);
                     return meshPlane(0).snapToPlane(P);
                     break;
@@ -583,21 +599,27 @@ namespace model
                     if(normD2>FLT_EPSILON)
                     {
                         const double u=(P-_glidePlaneIntersections[0].first).dot(D)/normD2;
+                        VerboseDislocationNode(3,"u="<<u<<std::endl;);
+
                         if(u<0.0)
                         {
+                            VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 1a"<<std::endl;);
                             return _glidePlaneIntersections[0].first;
                         }
                         else if(u>1.0)
                         {
+                            VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 1b"<<std::endl;);
                             return _glidePlaneIntersections[0].second;
                         }
                         else
                         {
+                            VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 1c"<<std::endl;);
                             return _glidePlaneIntersections[0].first+u*D;
                         }
                     }
                     else
                     {
+                        VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 1d"<<std::endl;);
                         return _glidePlaneIntersections[0].first;
                     }
                     
@@ -606,6 +628,7 @@ namespace model
                     
                 default:
                 {
+                    VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 2"<<std::endl;);
                     assert(0 && "THERE CAN BE AT MOST ONE LINE OF INTERSECTION");
                     return VectorDim::Zero();
                     break;
@@ -1082,10 +1105,11 @@ namespace model
                         {
                             model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
                             model::cout<<"BoundingBox Lines:"<<std::endl;
-                            for (const auto& pair : boundingBoxSegments())
-                            {
-                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
-                            }
+                            model::cout<<boundingBoxSegments();
+//                            for (const auto& pair : boundingBoxSegments())
+//                            {
+//                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
+//                            }
                             std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
                             //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
                         }

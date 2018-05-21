@@ -54,6 +54,21 @@ namespace model
         }
         
         /**********************************************************************/
+        BoundingLineSegments(const MeshPlane<dim>& gp)
+        {/* Empty constructor
+          */
+            for(size_t k=0;k<gp.meshIntersections.size();++k)
+            {
+                const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
+                this->emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
+            }
+            
+//            USE THIS CONSTRUCTOR INSTEAD OF UPDATE;
+        }
+        
+        
+        
+        /**********************************************************************/
         BoundingLineSegments(const BoundingLineSegments<dim>& bls1,
                              const BoundingLineSegments<dim>& bls2)
         {/* Constructor from intersectin of BoundingLineSegments
@@ -426,7 +441,17 @@ namespace model
             
         }
         
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const BoundingLineSegments<dim>& bls)
+        {
+            for(const auto& pair : bls)
+            {
+                os<< pair.first.transpose()<<" "<<pair.second.transpose()<<std::endl;
 
+            }
+            return os;
+        }
         
     };
     

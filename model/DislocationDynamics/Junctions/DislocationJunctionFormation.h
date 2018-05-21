@@ -136,9 +136,9 @@ namespace model
                     }
                     
                     const bool intersectionIsSourceSource(linkA->source->sID==linkB->source->sID);
-                    const bool intersectionIsSourceSink(linkA->source->sID==linkB->sink->sID);
-                    const bool intersectionIsSinkSource(linkA->sink->sID==linkB->source->sID);
-                    const bool intersectionIsSinkSink(linkA->sink->sID==linkB->sink->sID);
+                    const bool intersectionIsSourceSink(  linkA->source->sID==linkB->  sink->sID);
+                    const bool intersectionIsSinkSource(  linkA->  sink->sID==linkB->source->sID);
+                    const bool intersectionIsSinkSink(    linkA->  sink->sID==linkB->  sink->sID);
                     
                     if(intersectionIsSourceSource)
                     {
@@ -212,8 +212,6 @@ namespace model
                                                          linkB->sink->get_P(),    // fake degenerete segment at sink of B
                                                          1.0);
                         insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdB,currentcCollisionTOL);
-                        
-                        
                     }
                     else if(intersectionIsSinkSink)
                     {
@@ -329,6 +327,7 @@ namespace model
                         
                         VerboseJunctions(1,"forming junction "<<key1.first<<"->"<<key1.second<<", "
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
+                                         /*                   */ <<"dMin="<<ssd.dMin<<", "
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "
                                          /*                   */ <<"contracting "<<Ni->sID<<" "<<Nj->sID<<std::endl;);
                         

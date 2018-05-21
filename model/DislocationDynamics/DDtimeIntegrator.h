@@ -67,9 +67,10 @@ namespace model
             std::cout<<"computing vMax for nodes: ";
             for (const auto& nodeIter : DN.nodes())
             {
-                if(   !nodeIter.second->isBoundaryNode()
-                   && !nodeIter.second->isConnectedToBoundaryNodes()
-                   &&  nodeIter.second->meshPlanes().size()<3
+                if(//   !nodeIter.second->isBoundaryNode()
+                   //&& !nodeIter.second->isConnectedToBoundaryNodes()
+                   //&&
+                   nodeIter.second->meshPlanes().size()<3
 //                   && !nodeIter.second->isOscillating()
                    )
                 {

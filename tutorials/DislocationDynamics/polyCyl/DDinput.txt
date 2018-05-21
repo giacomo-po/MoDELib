@@ -1,7 +1,7 @@
 ######################################
 # Number of simulation steps 
 Nsteps=20000;
-startAtTimeStep = 3080;
+startAtTimeStep = -1;
 quadPerLength=0.1;
 
 ######################################
@@ -11,6 +11,8 @@ timeIntegrationMethod=0;
 dxMax=10;
 use_velocityFilter=0;
 velocityReductionFactor=0.75;
+use_stochasticForce=0;
+stochasticForceSeed=-1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -24,7 +26,7 @@ ddSolverType=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
+outputGlidePlanes=0;
 outputSpatialCells=0;
 outputPKforce=0;
 outputElasticEnergy=0;
@@ -58,14 +60,14 @@ use_EnergyMultipole = 0;
 # remeshFrequency = 0 redistribution is disabled (not recommended)
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
-remeshFrequency=1;
+remeshFrequency=0;
 Lmax=0.04;
-Lmin=0.02;
+Lmin=0.01;
 
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=1;
+maxJunctionIterations=0;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -92,7 +94,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-use_crossSlip=0;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################
@@ -112,6 +114,6 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=5;
+verboseDislocationNode=4;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

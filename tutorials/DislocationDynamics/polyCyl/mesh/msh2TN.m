@@ -50,11 +50,12 @@ fclose(fid);
 %%
 if centerAndScale
     xyz=Nodes(:,2:4);
-    xyz=xyz-repmat(mean(xyz),size(xyz,1),1);
+    xyz=xyz-repmat(mean([min(xyz);max(xyz)]),size(xyz,1),1);
     xyz=xyz*scaleFactor;
     Nodes(:,2:4)=xyz;
 end
 
+%return
 %% Write N_meshID.txt
 nodeFile = fopen(['../N/N_' num2str(meshID) '.txt'],'w');
 nodeFormat='%i %.15e %.15e %.15e \n';
