@@ -60,14 +60,14 @@ use_EnergyMultipole = 0;
 # remeshFrequency = 0 redistribution is disabled (not recommended)
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
-remeshFrequency=0;
+remeshFrequency=1;
 Lmax=0.04;
 Lmin=0.01;
 
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=0;
+maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -114,6 +114,6 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=4;
+verboseDislocationNode=0;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

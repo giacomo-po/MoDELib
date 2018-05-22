@@ -31,7 +31,9 @@ namespace model
         typedef std::array<long int,dim+3> MeshPlaneKeyType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
-
+        typedef std::pair<VectorDim,const Simplex<dim,1>* const> RootType;
+        typedef std::deque<RootType> RootContainerType;
+        
         
         /**********************************************************************/
         static Plane<dim> getPlaneBetweenRegions(const SimplicialMesh<dim>& mesh,
@@ -62,15 +64,15 @@ namespace model
         
         /**********************************************************************/
         static PlaneMeshIntersectionContainerType getBoundaryBetweenRegions(const SimplicialMesh<dim>& mesh,
-                                                    const int& rID1,
-                                                    const int& rID2)
+                                                                            const int& rID1,
+                                                                            const int& rID2)
         {
             assert(dim==3 && "ALGORITHM ONLY VALID IN dim=3");
             // Normal to plane
             
             // Get unsorted boundary edges
             std::set<const Simplex<dim,dim-2>*> ub=mesh.regionBoundary(rID1,rID2).unsortedBoundary();
-
+            
             // Compute center of plane
             VectorDim c(VectorDim::Zero());
             for(const auto& edge : ub)
@@ -112,6 +114,117 @@ namespace model
             return PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(temp);
         }
         
+        /**********************************************************************/
+        static PlaneMeshIntersectionContainerType getPlaneIntersection(const SimplicialMesh<dim>& mesh,
+                                                                       const int& rID,
+                                                                       const VectorDim& P0,
+                                                                       const VectorDim& n)
+        {
+            
+            RootContainerType rootDeq;
+            for(const auto& edge : mesh.template observer<1>())
+            {
+                if(   edge.second->isBoundarySimplex()
+                   || edge.second->isRegionBoundarySimplex())
+                {
+                    if(edge.second->isInRegion(rID))
+                    {
+                        const VectorDim& v0(edge.second->child(0).P0);
+                        const VectorDim& v1(edge.second->child(1).P0);
+                        
+                        // check intersection of v0->v1 with plane
+                        // x=v0+u(v1-v0)
+                        // (x-P0).n=0
+                        // (v0+u(v1-v0)-P0).n=0
+                        // u=(P0-v0).n/(v1-v0).n;
+                        const double edgeNorm=(v1-v0).norm();
+                        assert(edgeNorm>FLT_EPSILON && "mesh edge has zero norm.");
+                        const double den=(v1-v0).dot(n);
+                        const double num=(P0-v0).dot(n);
+                        const double P0v0norm=(P0-v0).norm();
+                        
+                        const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
+                        
+                        if (fabs(den/edgeNorm)>FLT_EPSILON)
+                        {
+                            // edge intersects plane
+                            const double u=num/den;
+                            
+                            if(fabs(u)<FLT_EPSILON)
+                            {
+                                rootDeq.emplace_back(v0,edge.second);
+                            }
+                            else if (u>=FLT_EPSILON && u<=1.0-FLT_EPSILON)
+                            {
+                                rootDeq.emplace_back((1.0-u)*v0 + u*v1,edge.second);
+                            }
+                            else if (fabs(1.0-u)<FLT_EPSILON)
+                            {
+                                rootDeq.emplace_back(v1,edge.second);
+                            }
+                            else
+                            {// no roots
+                                
+                            }
+                            
+                        }
+                        else
+                        {
+                            if (fabs(numCheck)>FLT_EPSILON)
+                            {// edge is parallel to plane, no intersection
+                                
+                            }
+                            else
+                            {// edge is coplanar
+                                rootDeq.emplace_back(v0,edge.second);
+                                rootDeq.emplace_back(v1,edge.second);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            PlaneMeshIntersectionContainerType temp;
+
+            if(rootDeq.size())
+            {
+            
+                // compute center
+                VectorDim c(VectorDim::Zero());
+                for(const auto& pair : rootDeq)
+                {
+                    c+=pair.first;
+                }
+                c/=rootDeq.size(); //center of the plane
+                
+
+                // Local rotation matrix
+                Eigen::Matrix<double,dim,dim> R;
+                R.col(0)=rootDeq[0].first;
+                R.col(1)=n.cross(rootDeq[0].first);
+                R.col(2)=n;
+                
+                std::map<double,std::pair<const Simplex<dim,dim-2>* const,VectorDim>> sortedEdges;
+                
+                for(const auto& pair : rootDeq)
+                {
+                    const VectorDim x0=R.transpose()*(pair.first-c);
+                    const double angle0=atan2(x0(1),x0(0));
+                    sortedEdges.emplace(angle0,std::make_pair(pair.second,pair.first));
+                }
+                
+                for(const auto& pair : sortedEdges)
+                {
+                    temp.push_back(pair.second);
+                }
+                
+            }
+            
+
+            
+            return PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(temp);
+        }
+        
         const std::pair<int,int> regionIDs;
         const PlaneMeshIntersectionContainerType meshIntersections;
         
@@ -122,9 +235,10 @@ namespace model
                   const VectorDim& n) :
         /* init */ Plane<dim>(p,n),
         /* init */ regionIDs(rID,rID),
-//        /* init */ regionID(rID),
-        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->unitNormal,rID))
-
+        //        /* init */ regionID(rID),
+        meshIntersections(getPlaneIntersection(mesh,rID,p,this->unitNormal))
+        //        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->unitNormal,rID))
+        
         {/*!\param[in] mesh
           * \param[in] rID the region ID where the plane is defined
           * \param[in] p position of the plane
@@ -138,7 +252,7 @@ namespace model
                   const int& rID1,
                   const int& rID2) :
         /* init */ Plane<dim>(getPlaneBetweenRegions(mesh,rID1,rID2)),
-//        /* init */ regionID(rID),
+        //        /* init */ regionID(rID),
         /* init */ regionIDs(rID1,rID2),
         /* init */ meshIntersections(getBoundaryBetweenRegions(mesh,rID1,rID2)) // WARNING: CALLING meshIntersections with rID1
         
@@ -149,10 +263,10 @@ namespace model
           * Constructor for plane between two mesh regions
           */
         }
-
+        
         //         typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainerType;
-
-//        PlaneMeshIntersectionContainerType getRegionBndPerimeter
+        
+        //        PlaneMeshIntersectionContainerType getRegionBndPerimeter
         
     };
     
