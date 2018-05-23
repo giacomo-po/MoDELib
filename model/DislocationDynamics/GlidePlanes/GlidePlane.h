@@ -36,7 +36,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <int dim>
-    struct GlidePlane : //public StaticID<GlidePlane<dim> >,
+    struct GlidePlane :
     /* base class    */ public LatticePlane,
     /* base class    */ public MeshPlane<dim>,
     /* base class    */ private std::set<const std::shared_ptr<GlidePlane<dim>>*>
@@ -46,10 +46,6 @@ namespace model
         typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::array<long int,dim+3> GlidePlaneKeyType;
-
-//        typedef typename GlidePlaneObserverType::GlidePlaneKeyType GlidePlaneKeyType;
-//        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
-
         
         /**********************************************************************/
         static GlidePlaneKeyType getGlidePlaneKey(const int& grainID,
@@ -88,70 +84,22 @@ namespace model
         
         static int verboseGlidePlane;
         GlidePlaneObserverType* const glidePlaneObserver;
-//        const Grain<dim>& grain; // REMOVED TO ALLOW CONSTRUCTION FROM A GRAINBOUNDARY
-//        const std::pair<size_t,size_t> grainIDs;
         const GlidePlaneKeyType glidePlaneKey;
-        //const PlaneMeshIntersectionContainerType meshIntersections;
         
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
                    const Grain<dim>& grain,
-//                   const Lattice<dim>& lattice,
-//                   const int& grainID,
-//                   const int& grainID2,
                    const VectorDim& P,
                    const VectorDim& N) :
         /* init */ LatticePlane(P,grain.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-//        /* init */ MeshPlane<dim>(mesh,grain.grainID,P,N),
         /* init */ MeshPlane<dim>(mesh,grain.grainID,this->planeOrigin(),this->n.cartesian()),
         /* init */ glidePlaneObserver(gpo),
-        //        /* init */ grain(grain_in),
-//        /* init */ grainIDs(grainID1,grainID2)
         /* init */ glidePlaneKey(getGlidePlaneKey(grain.grainID,*this))
-//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grainID1)) // WARNING: CALLING meshIntersections with grainID1
         {
-//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
             VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<std::endl;);
             glidePlaneObserver->addGlidePlane(this);
-            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
         }
-        
-//        /**********************************************************************/
-//        GlidePlane(GlidePlaneObserverType* const gpo,
-//                   const SimplicialMesh<dim>& mesh,
-//                   const Grain<dim>& grain_in,
-//                   const VectorDim& P,
-//                   const VectorDim& N) :
-//        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-//        /* init */ glidePlaneObserver(gpo),
-////        /* init */ grain(grain_in),
-//        /* init */ grainIDs(grain_in.grainID,grain_in.grainID),
-//        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
-//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
-//        {
-//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
-//            glidePlaneObserver->addGlidePlane(this);
-//            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
-//        }
-        
-//        /**********************************************************************/
-//        GlidePlane(GlidePlaneObserverType* const gpo,
-//                   const SimplicialMesh<dim>& mesh,
-//                   const GrainBoundary<dim>& gb_in,
-//                   const VectorDim& P,
-//                   const VectorDim& N) :
-//        /* init */ LatticePlane(P,grain_in.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-//        /* init */ glidePlaneObserver(gpo),
-//        /* init */ grain(grain_in),
-//        /* init */ glidePlaneKey(GlidePlaneObserverType::getGlidePlaneKey(grain_in,P,N)),
-//        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->n.cartesian().normalized(),grain_in.grainID))
-//        {
-//            static_assert(false, "ALLOW CONSTRUCTOR FROM A GRAIN BOUNDARY AS OPPOSED TO A GRAIN. THIS WILL ALLOW GB PLANES FROM CSL AND DSCL");
-//            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<" ("<<glidePlaneKey.transpose()<<")"<<std::endl;);
-//            glidePlaneObserver->addGlidePlane(this);
-//            assert(fabs(this->unitNormal.norm()-1.0)<DBL_EPSILON && "GlidePlane has non-unit normal.");
-//        }
         
         /**********************************************************************/
         GlidePlane(const GlidePlane<dim>& other) = delete;
@@ -172,27 +120,7 @@ namespace model
             assert((*this->begin())->get()==this);
             return **this->begin();
         }
-        
-//        /**********************************************************************/
-//        template<typename LoopType>
-//        void addLoop(const LoopType* const pL)
-//        {/*!@\param[in] pS a row pointer to a DislocationSegment
-//          * Adds pS to *this GLidePlane
-//          */
-//            const bool success=this->insert(&pL->_glidePlane).second;
-//            assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
-//        }
-//        
-//        /**********************************************************************/
-//        template<typename LoopType>
-//        void removeLoop(const LoopType* const pL)
-//        {/*!@\param[in] pS a row pointer to a DislocationSegment
-//          * Removes pS from *this GLidePlane
-//          */
-//            const int success=this->erase(&pL->_glidePlane);
-//            assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
-//        }
-        
+
         /**********************************************************************/
         void addParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL,
                                 const bool& isGlissile,
@@ -256,3 +184,22 @@ namespace model
 }
 #endif
 
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void addLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Adds pS to *this GLidePlane
+//          */
+//            const bool success=this->insert(&pL->_glidePlane).second;
+//            assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
+//        }
+//
+//        /**********************************************************************/
+//        template<typename LoopType>
+//        void removeLoop(const LoopType* const pL)
+//        {/*!@\param[in] pS a row pointer to a DislocationSegment
+//          * Removes pS from *this GLidePlane
+//          */
+//            const int success=this->erase(&pL->_glidePlane);
+//            assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
+//        }

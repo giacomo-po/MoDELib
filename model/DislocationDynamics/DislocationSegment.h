@@ -337,7 +337,7 @@ namespace model
         }
         
         /**********************************************************************/
-        size_t addGrainBoundaryPlanes() //__attribute__ ((deprecated)) // HERE glidePlanes().begin() IS TEMPORARY, UNTIL WE STORE THE GLIDE PLANE OF THE CSL AND DSCL
+        size_t addGrainBoundaryPlanes() 
         {
             size_t addedGp=0;
             for(const auto& gb : this->source->grainBoundaries())
