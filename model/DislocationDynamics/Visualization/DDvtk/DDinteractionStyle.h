@@ -182,7 +182,7 @@ namespace model
         /**********************************************************************/
         DDinteractionStyle() :
         /* init list   */ xCol(0),
-        /* init list   */ yCol(0),
+        /* init list   */ yCol(2),
         /* init list   */ winFrac(0.5),
         /* init list   */ saveImage(false),
         /* init list   */ imageType(1),

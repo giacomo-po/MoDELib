@@ -134,12 +134,12 @@ namespace model
                 
                 vtkPlot *line = chart->AddPlot(vtkChart::LINE);
                 line->SetInputData(table, 0, 1);
-                line->SetColor(0, 0, 255, 255);
+                line->SetColor(0, 0, 0, 255);
                 line->SetWidth(1.0);
                 
                 line = chart->AddPlot(vtkChart::LINE);
                 line->SetInputData(table, 2, 3);
-                line->SetColor(0, 255, 0, 255);
+                line->SetColor(255, 0, 255, 255);
                 line->SetWidth(1.0);
                 
 //
