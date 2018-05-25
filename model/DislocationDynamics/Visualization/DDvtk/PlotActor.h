@@ -27,6 +27,8 @@ namespace model
         vtkRenderer* const renderer;
         vtkSmartPointer<vtkTable> table;
         vtkSmartPointer<vtkChartXY> chart;
+//        vtkSmartPointer<vtkTable> table2;
+//        vtkSmartPointer<vtkChartXY> chart2;
         vtkSmartPointer<vtkContextActor> actor;
         
         int xCol;
@@ -41,6 +43,8 @@ namespace model
         /* init */ renderer(ren),
         /* init */ table(vtkSmartPointer<vtkTable>::New()),
         chart(vtkSmartPointer<vtkChartXY>::New()),
+//        /* init */ table2(vtkSmartPointer<vtkTable>::New()),
+//        chart2(vtkSmartPointer<vtkChartXY>::New()),
         actor(vtkSmartPointer<vtkContextActor>::New())
         {
             
@@ -75,62 +79,102 @@ namespace model
             {
                 this->read(0,true);
                 
-                table->SetNumberOfRows(this->size());
-                int i=0;
+//                int rowsC=0;
+//                for (const auto& row : *this)
+//                {
+//                    if(row.first<=frameID)
+//                    {
+//                        rowsC++;
+//                    }
+//                }
                 
+                table->SetNumberOfRows(this->size());
+//                table2->SetNumberOfRows(rowsC);
+
+                int i=0;
+                double x,y,xc,yc;
                 for (const auto& row : *this)
                 {
-                    if(xCol==0)
-                    {
-                        table->SetValue(i, 0, row.first);
-                        if(row.first<=frameID)
-                        {
-                            table->SetValue(i,2, row.first);
-                        }
-                    }
-                    else
-                    {
-                        table->SetValue(i, 0, row.second[xCol-1]);
-                        if(row.first<=frameID)
-                        {
-                            table->SetValue(i,2, row.second[xCol-1]);
-                        }
-                    }
+//                    if(row.first<=frameID)
+//                    {
+//                        rowsC++;
+//                    }
                     
-                    if(yCol==0)
+                    x=(xCol==0)? row.first : row.second[xCol-1];
+                    y=(yCol==0)? row.first : row.second[yCol-1];
+                    if(row.first<=frameID)
                     {
-                        table->SetValue(i, 1, row.first);
-                        if(row.first<=frameID)
-                        {
-                            table->SetValue(i,3, row.first);
-                        }
+                        xc=x;
+                        yc=y;
+                    }
+                    table->SetValue(i, 0, x);
+                    table->SetValue(i, 1, y);
+                    table->SetValue(i, 2, xc);
+                    table->SetValue(i, 3, yc);
+                    
+//                    if(xCol==0)
+//                    {
+//                        table->SetValue(i, 0, row.first);
+//                        if(row.first<=frameID)
+//                        {
+//                            table->SetValue(i,2, row.first);
+//                        }
 //                        else
 //                        {
-//                            table->SetValue(i, 3, 0.0);
-//                            
+//                            table->SetValue(i,2, nan);
 //                        }
-
-                    }
-                    else
-                    {
-                        table->SetValue(i, 1, row.second[yCol-1]);
-                        if(row.first<=frameID)
-                        {
-                            table->SetValue(i,3, row.second[yCol-1]);
-                        }
+//                    }
+//                    else
+//                    {
+//                        table->SetValue(i, 0, row.second[xCol-1]);
+//                        if(row.first<=frameID)
+//                        {
+//                            table->SetValue(i,2, row.second[xCol-1]);
+//                        }
 //                        else
 //                        {
-//                            table->SetValue(i, 3, nan);
-//                            
+//                            table->SetValue(i,2, nan);
 //                        }
-
-                    }
+//                    }
+//                    
+//                    if(yCol==0)
+//                    {
+//                        table->SetValue(i, 1, row.first);
+//                        if(row.first<=frameID)
+//                        {
+//                            table->SetValue(i,3, row.first);
+//                        }
+//                        else
+//                        {
+//                            table->SetValue(i,3, nan);
+//                        }
+//
+//
+//                    }
+//                    else
+//                    {
+//                        table->SetValue(i, 1, row.second[yCol-1]);
+//                        if(row.first<=frameID)
+//                        {
+//                            table->SetValue(i,3, row.second[yCol-1]);
+//                        }
+//                        else
+//                        {
+//                            table->SetValue(i,3, nan);
+//                        }
+//
+//
+//
+//                    }
 //                    table->SetValue(i, 0, row.second[xCcol]);
 //                    table->SetValue(i, 0, row.first);
 //                    table->SetValue(i, 1, row.second[yCol]);
                     
                     i++;
                 }
+                
+                
+
                 
                 vtkPlot *line = chart->AddPlot(vtkChart::LINE);
                 line->SetInputData(table, 0, 1);
@@ -146,6 +190,7 @@ namespace model
 //                //            VTK_CREATE(vtkContextActor, actor);
 //                //            VTK_CREATE(APIDiagram, diagram);
                 actor->GetScene()->AddItem(chart);
+//                actor->GetScene()->AddItem(chart2);
                 renderer->AddActor(actor);
             }
             else
