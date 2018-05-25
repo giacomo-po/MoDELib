@@ -15,6 +15,7 @@
 #include <vtkContextActor.h>
 #include <vtkFloatArray.h>
 #include <vtkPlot.h>
+#include <vtkAxis.h>
 
 #include <model/IO/IDreader.h>
 
@@ -39,7 +40,8 @@ namespace model
         PlotActor(vtkRenderer* const ren,
                   const int& xCol,
                   const int& yCol,
-                  const int& frameID) :
+                  const int& frameID,
+                  const std::map<int,std::string>& FlabelsMap) :
         /* init */ renderer(ren),
         /* init */ table(vtkSmartPointer<vtkTable>::New()),
         chart(vtkSmartPointer<vtkChartXY>::New()),
@@ -184,7 +186,14 @@ namespace model
                 line = chart->AddPlot(vtkChart::LINE);
                 line->SetInputData(table, 2, 3);
                 line->SetColor(255, 0, 255, 255);
-                line->SetWidth(1.0);
+                line->SetWidth(2.0);
+                
+                chart->GetAxis(1)->SetTitle(FlabelsMap.at(xCol));
+                chart->GetAxis(0)->SetTitle(FlabelsMap.at(yCol));
+                
+                chart->GetAxis(1)->GetTitleProperties()->SetFontSize(20);
+                chart->GetAxis(0)->GetTitleProperties()->SetFontSize(20);
+
                 
 //
 //                //            VTK_CREATE(vtkContextActor, actor);

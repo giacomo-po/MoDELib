@@ -64,6 +64,8 @@ namespace model
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
         
+        std::map<int,std::string> FlabelsMap;
+        
     public:
         
         static DDinteractionStyle* New();
@@ -101,7 +103,7 @@ namespace model
                 ddSegments.reset(new DislocationSegmentActor(frameID,ddRenderer));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
-                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
 
                 
                 // Update renderer
@@ -199,7 +201,36 @@ namespace model
             
 //                        PlotActor pa(plotRenderer);
             
+            std::string filename("F/F_labels.txt");
+            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
+            if (ifs.is_open())
+            {
+                std::string line;
+                while (std::getline(ifs, line))
+                {
+                    std::stringstream ss(line);
+                    
+                    int colID;
+                    ss>>colID;
+                    std::string label;
+                    std::string temp;
+                    
+                    while (ss >> temp)
+                    {
+                        label+=" "+temp;
+                    }
+                    
+                    FlabelsMap.emplace(colID,label);
+                    
+                }
 
+            }
+            else
+            {
+                std::cout<<"CANNOT READ "<<filename<<std::endl;
+            }
+            
+            
         }
         
         
@@ -504,6 +535,10 @@ namespace model
             if(key == "x")
             {
                 std::cout<<"Enter column of x-axis data:"<<std::endl;
+                for(const auto& pair : FlabelsMap)
+                {
+                    std::cout<<pair.first<<"    "<<pair.second<<"\n";
+                }
                 std::cin>>xCol;
                 if(xCol<0)
                 {
@@ -511,13 +546,17 @@ namespace model
                     xCol=0;
                     std::cout<<". reverting to "<<xCol<<std::endl;
                 }
-                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
                 this->Interactor->Render();
             }
             
             if(key == "y")
             {
                 std::cout<<"Enter column of y-axis data:"<<std::endl;
+                for(const auto& pair : FlabelsMap)
+                {
+                    std::cout<<pair.first<<"    "<<pair.second<<"\n";
+                }
                 std::cin>>yCol;
                 if(yCol<0)
                 {
@@ -525,7 +564,7 @@ namespace model
                     yCol=1;
                     std::cout<<". reverting to "<<yCol<<std::endl;
                 }
-                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
                 this->Interactor->Render();
             }
             
