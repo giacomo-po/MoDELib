@@ -42,20 +42,42 @@ namespace model
         {
             
             const auto& regionBnd(mesh.regionBoundary(rID1,rID2));
-            const Simplex<dim,dim-1>& triangle(**regionBnd.begin());
-            const Simplex<dim,dim>& tet(**triangle.parents().begin());
-            const size_t faceID=tet.childOrder(triangle.xID);
-            const VectorDim N=tet.nda.col(faceID);
-            const VectorDim P=triangle.vertexPositionMatrix().col(0);
-            Plane<dim> plane(P,N);
+            
+            VectorDim N(VectorDim::Zero());
+            VectorDim P(VectorDim::Zero());
+            size_t k=0;
+            for(const auto& triangle : regionBnd)
+            {
+                
+                const Simplex<dim,dim>& tet(**triangle->parents().begin());
+                const size_t faceID=tet.childOrder(triangle->xID);
+                const VectorDim n=tet.nda.col(faceID);
+
+                if(n.dot(N)>=0.0)
+                {
+                    N+=n.normalized();
+                }
+                else
+                {
+                    N-=n.normalized();
+                }
+                
+                const auto vertices= triangle->vertices();
+                for(const auto& vertex :  vertices)
+                {
+                    P+=vertex->P0;
+                    k++;
+                }
+            }
+            Plane<dim> plane(P/k,N);
             
             // Check that all tringle vertices are contained by both GB planes
             for(const auto& triangle : regionBnd)
             {
-                const auto Ps=triangle->vertexPositionMatrix();
-                for(int j=0;j<Ps.cols();++j)
+                const auto vertices= triangle->vertices();
+                for(const auto& vertex :  vertices)
                 {
-                    assert(plane.contains(Ps.col(j)) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
+                    assert(plane.contains(vertex->P0) && "TRIANGLE VERTEX NOT CONTAINED IN GBPLANE");
                 }
             }
             

@@ -35,7 +35,10 @@ namespace model
                                              const VectorDimD& D)
         {
             
-            
+//            std::cout<<"pP="<<std::setprecision(15)<<std::scientific<<pP.transpose()<<std::endl;
+//            std::cout<<"pL="<<std::setprecision(15)<<std::scientific<<pL.transpose()<<std::endl;
+//            std::cout<<"D="<<std::setprecision(15)<<std::scientific<<D.transpose()<<std::endl;
+//            std::cout<<"fabs((pL-pP).dot(n))="<<fabs((pL-pP).dot(N.normalized()))<<std::endl;
             
             const double normN(N.norm());
             assert(normN>FLT_EPSILON && "PLANE MUST HAVE NON-ZERO NORMAL");

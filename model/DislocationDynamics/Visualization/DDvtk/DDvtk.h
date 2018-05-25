@@ -117,6 +117,8 @@ namespace model
 
 
             renderWindow->AddRenderer(ddRenderer);
+            renderWindow->AddRenderer(plotRenderer);
+
             renderWindowInteractor->SetInteractorStyle(style);
             style->SetDefaultRenderer(ddRenderer);
             style->ddRenderer=ddRenderer;
@@ -129,9 +131,8 @@ namespace model
             plotRenderer->SetBackground(1,1,1);
             plotRenderer->SetViewport(0.5,0,1.0,1);
             
-            PlotActor pa(plotRenderer);
+//            PlotActor pa(plotRenderer);
             
-            renderWindow->AddRenderer(plotRenderer);
             
 
             

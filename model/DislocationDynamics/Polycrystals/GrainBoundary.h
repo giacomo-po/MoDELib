@@ -456,8 +456,8 @@ namespace model
         }
         
         
-        CSL<dim> _csl;
-        DSCL<dim> _dscl;
+//        CSL<dim> _csl;
+//        DSCL<dim> _dscl;
         VectorDimD _crystallographicRotationAxis;
         VectorDimD _rotationAxis;
         
@@ -480,8 +480,8 @@ namespace model
                       const SimplicialMesh<dim>& mesh) :
 //        /* init */ MeshPlane<dim>(getMeshPlane(regionbnd_in)),
         /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
-        /* init */ _csl(grainFirst,grainSecond),
-        /* init */ _dscl(grainFirst,grainSecond),
+//        /* init */ _csl(grainFirst,grainSecond),
+//        /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
         /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
@@ -490,8 +490,8 @@ namespace model
         /* init */ grainBndID(regionBoundary.regionBndID)
         {
             model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
-            model::cout<<defaultColor<<"   CSL:  sigma= "<<_csl.sigma()<<std::endl;
-            model::cout<<defaultColor<<"   DSCL: sigma= "<<_dscl.sigma()<<std::endl;
+//            model::cout<<defaultColor<<"   CSL:  sigma= "<<_csl.sigma()<<std::endl;
+//            model::cout<<defaultColor<<"   DSCL: sigma= "<<_dscl.sigma()<<std::endl;
             
             // Populate pointers to parent Grains
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
@@ -558,8 +558,8 @@ namespace model
                                      const SimplicialMesh<dim>& mesh)
         {
 //            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
-            _csl.update(true);
-            _dscl.update(true);
+//            _csl.update(true);
+//            _dscl.update(true);
             computeCrystallographicRotationAxis();
 //            createLatticePlanes(dn,mesh);
 //            findGrainBoundaryType(poly.grainBoundaryTypes());
@@ -592,17 +592,17 @@ namespace model
             return *p_gbType;
         }
         
-        /**********************************************************************/
-        const CSL<dim>& csl() const
-        {
-            return _csl;
-        }
-        
-        /**********************************************************************/
-        const DSCL<dim>& dscl() const
-        {
-            return _dscl;
-        }
+//        /**********************************************************************/
+//        const CSL<dim>& csl() const
+//        {
+//            return _csl;
+//        }
+//        
+//        /**********************************************************************/
+//        const DSCL<dim>& dscl() const
+//        {
+//            return _dscl;
+//        }
         
         /**********************************************************************/
         std::string tag() const

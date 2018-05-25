@@ -30,6 +30,7 @@
 #include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/EigenDataReader.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
 
 
 namespace model
@@ -48,6 +49,8 @@ namespace model
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
         std::unique_ptr<GlidePlaneActor> ddGP;
+        std::unique_ptr<PlotActor> plot;
+        
         int xCol;
         int yCol;
         double winFrac;
@@ -98,7 +101,8 @@ namespace model
                 ddSegments.reset(new DislocationSegmentActor(frameID,ddRenderer));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
- 
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+
                 
                 // Update renderer
                 rwi->Render();
@@ -193,7 +197,9 @@ namespace model
             model::EigenDataReader EDR;
             EDR.readScalarInFile("./DDinput.txt","outputFrequency",frameIncrement);
             
+//                        PlotActor pa(plotRenderer);
             
+
         }
         
         
@@ -435,7 +441,6 @@ namespace model
                 }
             }
             
-            
             if(key == "l")
             {
                 std::cout<<"Enter frame# to load:"<<std::endl;
@@ -499,23 +504,29 @@ namespace model
             if(key == "x")
             {
                 std::cout<<"Enter column of x-axis data:"<<std::endl;
-                int temp;
-                std::cin>>temp;
-                if(temp>0)
+                std::cin>>xCol;
+                if(xCol<0)
                 {
-                    xCol=temp;
+                    std::cout<<"wrong column number "<<xCol<<std::flush;
+                    xCol=0;
+                    std::cout<<". reverting to "<<xCol<<std::endl;
                 }
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+                this->Interactor->Render();
             }
             
             if(key == "y")
             {
                 std::cout<<"Enter column of y-axis data:"<<std::endl;
-                int temp;
-                std::cin>>temp;
-                if(temp>0)
+                std::cin>>yCol;
+                if(yCol<0)
                 {
-                    yCol=temp;
+                    std::cout<<"wrong column number "<<yCol<<std::flush;
+                    yCol=1;
+                    std::cout<<". reverting to "<<yCol<<std::endl;
                 }
+                plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID));
+                this->Interactor->Render();
             }
             
             

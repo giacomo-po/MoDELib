@@ -80,8 +80,8 @@ for g=1:length(grainIDs)
     phi=rand(1)*2*pi;
     theta=rand(1)*pi;
     a=[sin(theta)*cos(phi) sin(theta)*sin(phi) cos(theta)]';
-    %R=angleAxis(a,rand(1)*2*pi);
-    R=eye(3);
+    R=angleAxis(a,rand(1)*2*pi);
+    %R=eye(3);
 fprintf(polyFile,['C2G' num2str(grainIDs(g)) '=']);
 fprintf(polyFile,[polyFormat '\n'],R(1,:));
 fprintf(polyFile,[polyFormat '\n'],R(2,:));

@@ -28,7 +28,7 @@ outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=0;
+outputPKforce=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -99,7 +99,7 @@ crossSlipDeg=2.0;
 
 ######################################
 # GRAIN-BOUNDARY MODEL
-grainBoundaryTransmissionModel=0;
+grainBoundaryTransmissionModel=1;
 
 ######################################
 parametrizationExponent=0.5;
@@ -114,6 +114,6 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=0;
+verboseDislocationNode=4;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

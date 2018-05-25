@@ -87,6 +87,10 @@ namespace model
         {
             BoundingLineSegments<dim> temp;
             
+            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" updateMeshPlaneIntersections"<<std::endl;);
+            VerboseDislocationNode(2,"  lastGlidePlane.P="<<std::setprecision(15)<<std::scientific<<lastGlidePlane.P.transpose()<<std::endl;);
+            VerboseDislocationNode(2,"  lastGlidePlane.unitNormal="<<std::setprecision(15)<<std::scientific<<lastGlidePlane.unitNormal.transpose()<<std::endl;);
+            
             switch (meshPlanes().size())
             {
                 case 0:
@@ -214,6 +218,15 @@ namespace model
                 }
                     
             }
+            
+            
+            VerboseDislocationNode(2,"  _glidePlaneIntersections are"<<std::endl;);
+            for(const auto& pair : _glidePlaneIntersections)
+            {
+                VerboseDislocationNode(2,"P1="<<std::setprecision(15)<<std::scientific<<pair.first.transpose()<<", P2="<<pair.second.transpose()<<std::endl;);
+
+            }
+            
             assert(_glidePlaneIntersections.size()<=1 && "_glidePlaneIntersections can have at the most size 1");
         }
         
@@ -231,6 +244,7 @@ namespace model
                 
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+                assert(boundingBoxSegments().size() && "EMPTY boundingBoxSegments");
                 updateMeshPlaneIntersections(gp);
                 
                 VerboseDislocationNode(4,"new bounding box"<<std::endl;);

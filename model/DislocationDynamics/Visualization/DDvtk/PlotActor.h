@@ -7,7 +7,7 @@
  */
 
 #ifndef model_PlotActor_H_
-#define model_PlaotActor_H_
+#define model_PlotActor_H_
 
 #include <vtkChartXY.h>
 #include <vtkTable.h>
@@ -29,8 +29,15 @@ namespace model
         vtkSmartPointer<vtkChartXY> chart;
         vtkSmartPointer<vtkContextActor> actor;
         
+        int xCol;
+        int yCol;
+
+        
         /**********************************************************************/
-        PlotActor(vtkRenderer* const ren) :
+        PlotActor(vtkRenderer* const ren,
+                  const int& xCol,
+                  const int& yCol,
+                  const int& frameID) :
         /* init */ renderer(ren),
         /* init */ table(vtkSmartPointer<vtkTable>::New()),
         chart(vtkSmartPointer<vtkChartXY>::New()),
@@ -40,12 +47,20 @@ namespace model
             //    vtkSmartPointer<vtkTable> table = vtkSmartPointer<vtkTable>::New();
             
             vtkSmartPointer<vtkFloatArray> arrX = vtkSmartPointer<vtkFloatArray>::New();
-            arrX->SetName("disp");
+            arrX->SetName("X");
             table->AddColumn(arrX);
             
-            vtkSmartPointer<vtkFloatArray> arrC = vtkSmartPointer<vtkFloatArray>::New();
-            arrC->SetName("stress");
-            table->AddColumn(arrC);
+            vtkSmartPointer<vtkFloatArray> arrY = vtkSmartPointer<vtkFloatArray>::New();
+            arrY->SetName("Y");
+            table->AddColumn(arrY);
+            
+            vtkSmartPointer<vtkFloatArray> arrXc = vtkSmartPointer<vtkFloatArray>::New();
+                        arrXc->SetName("Xc");
+            table->AddColumn(arrXc);
+            
+            vtkSmartPointer<vtkFloatArray> arrYc = vtkSmartPointer<vtkFloatArray>::New();
+                        arrYc->SetName("Yc");
+            table->AddColumn(arrYc);
             
             //    vtkSmartPointer<vtkFloatArray> arrS = vtkSmartPointer<vtkFloatArray>::New();
             //    arrS->SetName("Sine");
@@ -62,14 +77,57 @@ namespace model
                 
                 table->SetNumberOfRows(this->size());
                 int i=0;
-                int xCcol=0;
-                int yCol=1;
                 
                 for (const auto& row : *this)
                 {
+                    if(xCol==0)
+                    {
+                        table->SetValue(i, 0, row.first);
+                        if(row.first<=frameID)
+                        {
+                            table->SetValue(i,2, row.first);
+                        }
+                    }
+                    else
+                    {
+                        table->SetValue(i, 0, row.second[xCol-1]);
+                        if(row.first<=frameID)
+                        {
+                            table->SetValue(i,2, row.second[xCol-1]);
+                        }
+                    }
+                    
+                    if(yCol==0)
+                    {
+                        table->SetValue(i, 1, row.first);
+                        if(row.first<=frameID)
+                        {
+                            table->SetValue(i,3, row.first);
+                        }
+//                        else
+//                        {
+//                            table->SetValue(i, 3, 0.0);
+//                            
+//                        }
+
+                    }
+                    else
+                    {
+                        table->SetValue(i, 1, row.second[yCol-1]);
+                        if(row.first<=frameID)
+                        {
+                            table->SetValue(i,3, row.second[yCol-1]);
+                        }
+//                        else
+//                        {
+//                            table->SetValue(i, 3, nan);
+//                            
+//                        }
+
+                    }
 //                    table->SetValue(i, 0, row.second[xCcol]);
-                    table->SetValue(i, 0, row.first);
-                    table->SetValue(i, 1, row.second[yCol]);
+//                    table->SetValue(i, 0, row.first);
+//                    table->SetValue(i, 1, row.second[yCol]);
                     
                     i++;
                 }
@@ -79,8 +137,14 @@ namespace model
                 line->SetColor(0, 0, 255, 255);
                 line->SetWidth(1.0);
                 
-                //            VTK_CREATE(vtkContextActor, actor);
-                //            VTK_CREATE(APIDiagram, diagram);
+                line = chart->AddPlot(vtkChart::LINE);
+                line->SetInputData(table, 2, 3);
+                line->SetColor(0, 255, 0, 255);
+                line->SetWidth(1.0);
+                
+//
+//                //            VTK_CREATE(vtkContextActor, actor);
+//                //            VTK_CREATE(APIDiagram, diagram);
                 actor->GetScene()->AddItem(chart);
                 renderer->AddActor(actor);
             }
@@ -99,6 +163,12 @@ namespace model
             
             
             
+        }
+        
+        /**********************************************************************/
+        ~PlotActor()
+        {
+            renderer->RemoveActor(actor);
         }
     };
     

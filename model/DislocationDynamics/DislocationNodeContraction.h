@@ -161,7 +161,7 @@ namespace model
                         else
                         {// b is on box, a is not
                             const VectorDim X(std::get<0>(temp.snap(0.5*(nA->get_P()+nB->get_P())))); // point at which we should contract
-                            if(nB->isMovableTo(X) && && nA->isMovableTo(X))
+                            if(nB->isMovableTo(X) && nA->isMovableTo(X))
                             {// nA can be moved to X
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 3a"<<std::endl;);
                                 nB->set_P(X);
