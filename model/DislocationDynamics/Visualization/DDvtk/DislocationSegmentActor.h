@@ -662,7 +662,11 @@ namespace model
         }
         
         /**********************************************************************/
-        DislocationSegmentActor(const size_t& frameID,vtkRenderer* const ren) :
+        DislocationSegmentActor(const size_t& frameID,
+                                /*const size_t& lastFrameID,
+                                const float& anglePerStep,
+                                Eigen::Matrix<float,3,1> spinAxis,*/
+                                vtkRenderer* const ren) :
         /* init */ renderer(ren),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
@@ -779,7 +783,6 @@ namespace model
             tubeActor->SetMapper(tubeMapper);
             //tube->GetProperty()->SetColor(colorVector(0),colorVector(1),colorVector(2)); // Give some color to the tube
             lineActor->SetMapper(lineMapper);
-            renderer->AddActor(tubeActor);
             
             // Boundary segments
             tubeFilterBnd->SetInputData(polyDataBnd);
@@ -791,7 +794,6 @@ namespace model
             tubeActorBnd->SetMapper(tubeMapperBnd);
             //            tubeActorBnd->GetProperty()->SetColor(0.5, 0.0, 0.5); //(R,G,B)
             tubeActorBnd->GetProperty()->SetOpacity(0.3); //(R,G,B)
-            renderer->AddActor(tubeActorBnd);
             
             // Zero-Burgers Segments
             tubeFilter0->SetInputData(polyData0);
@@ -805,7 +807,7 @@ namespace model
             tubeActor0->GetProperty()->SetColor(0.5, 0.5, 0.5); //(R,G,B)
             tubeActor0->GetProperty()->SetOpacity(0.3); //(R,G,B)
             lineActor0->SetMapper(lineMapper0);
-            renderer->AddActor(tubeActor0);
+            
             
             // Nodes
             nodeGlyphs->SetSourceConnection(sphereSource->GetOutputPort());
@@ -823,8 +825,8 @@ namespace model
             nodeMapper->SetInputConnection(nodeGlyphs->GetOutputPort());
             //            nodeMapper->ScalarVisibilityOff();
             nodeActor->SetMapper(nodeMapper);
-            renderer->AddActor(nodeActor);
             
+
             // Velocities
             velocityGlyphs->SetSourceConnection(velocityArrowSource->GetOutputPort());
             velocityGlyphs->SetInputData(velocityPolyData);
@@ -842,7 +844,8 @@ namespace model
             velocityMapper->ScalarVisibilityOff();
             velocityActor->SetMapper(velocityMapper);
             velocityActor->GetProperty()->SetColor(1.0, 0.0, 1.0); //(R,G,B)
-            renderer->AddActor(velocityActor);
+            
+
             
             // Labels
             labelMapper->SetInputData(labelPolyData);
@@ -850,7 +853,8 @@ namespace model
             labelMapper->SetLabelFormat("%1.0f");
             labelActor->SetMapper(labelMapper);
             labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
-            renderer->AddActor(labelActor);
+            
+
             
             // Single node Label
             singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
@@ -859,12 +863,42 @@ namespace model
             singleNodeLabelActor->SetMapper(singleNodeLabelMapper);
             singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
             singleNodeLabelActor->VisibilityOff();
-            renderer->AddActor(singleNodeLabelActor);
+            
+
             
             
             // SlippedArea
             triangleMapper->SetInputData(trianglePolyData);
             triangleActor->SetMapper(triangleMapper);
+            
+
+            
+//            const double axisNorm(spinAxis.norm());
+//            if(anglePerStep && axisNorm>0.0)
+//            {
+//                spinAxis/=axisNorm;
+//                //                std::cout<<"rotating"<< frameID*anglePerStep<<std::endl;
+//                const double splinAngle((frameID-lastFrameID)*anglePerStep);
+//                std::cout<<"ddSegments "<<splinAngle<<std::endl;
+//
+//                lineActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                tubeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                tubeActorBnd->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                tubeActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                lineActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                nodeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                velocityActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                //labelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                //singleNodeLabelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                triangleActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//            }
+            renderer->AddActor(tubeActor);
+            renderer->AddActor(tubeActorBnd);
+            renderer->AddActor(tubeActor0);
+            renderer->AddActor(nodeActor);
+            renderer->AddActor(velocityActor);
+            renderer->AddActor(labelActor);
+            renderer->AddActor(singleNodeLabelActor);
             renderer->AddActor(triangleActor);
             
             

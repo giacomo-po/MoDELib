@@ -67,7 +67,7 @@ Lmin=0.01;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=1;
+maxJunctionIterations=0;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -114,6 +114,6 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=4;
+verboseDislocationNode=0;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

@@ -316,7 +316,7 @@ namespace model
             
             
             // Update
-            update(meshID);
+            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
             
             // Render
             renderer->AddActor(actor);
@@ -324,7 +324,9 @@ namespace model
         }
         
         /**************************************************************************/
-        void update(const long int& frameID)
+        void update(const long int& frameID
+                    /*,const long int& lastFrameID,const float& anglePerStep, Eigen::Matrix<float,3,1> spinAxis*/
+        )
         {
             
             if(DispContainerType::isGood(frameID,true))
@@ -340,6 +342,20 @@ namespace model
             {
                 dispFileIsGood=false;
             }
+            
+//            const double axisNorm(spinAxis.norm());
+//            if(anglePerStep && axisNorm>0.0)
+//            {
+//                spinAxis/=axisNorm;
+////                std::cout<<"rotating"<< frameID*anglePerStep<<std::endl;
+//                const double splinAngle((frameID-lastFrameID)*anglePerStep);
+//                std::cout<<"mesh "<<splinAngle<<std::endl;
+//
+//                actor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                gbActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//                clipActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+//
+//            }
             
             
         }

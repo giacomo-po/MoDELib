@@ -187,9 +187,28 @@ namespace model
                 line->SetInputData(table, 2, 3);
                 line->SetColor(255, 0, 255, 255);
                 line->SetWidth(2.0);
+        
+                const auto iterX=FlabelsMap.find(xCol);
                 
-                chart->GetAxis(1)->SetTitle(FlabelsMap.at(xCol));
-                chart->GetAxis(0)->SetTitle(FlabelsMap.at(yCol));
+                if (iterX!=FlabelsMap.end())
+                {
+                    chart->GetAxis(1)->SetTitle(FlabelsMap.at(xCol));
+                }
+                else
+                {
+                    std::cout<<"column "<<xCol<<" not found"<<std::endl;
+                }
+                
+                const auto iterY=FlabelsMap.find(yCol);
+                if (iterY!=FlabelsMap.end())
+                {
+                    chart->GetAxis(0)->SetTitle(FlabelsMap.at(yCol));
+                }
+                else
+                {
+                    std::cout<<"column "<<yCol<<" not found"<<std::endl;
+                }
+        
                 
                 chart->GetAxis(1)->GetTitleProperties()->SetFontSize(20);
                 chart->GetAxis(0)->GetTitleProperties()->SetFontSize(20);

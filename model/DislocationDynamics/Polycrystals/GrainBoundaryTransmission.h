@@ -162,6 +162,7 @@ namespace model
                     
                 default:
                     std::cout<<" Transmission Model not implemented. "<<std::flush;
+                
                     break;
             }
             
@@ -214,6 +215,7 @@ namespace model
                     
                     
                     const VectorDim chord(link.second->chord());
+                    const VectorDim glidePlaneNormal(link.second->glidePlaneNormal());
                     
                     if(   link.second->isGrainBoundarySegment()
                        && chord.norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
@@ -229,7 +231,9 @@ namespace model
                                 {
                                     const auto& slipSystem(grain.second->slipSystems()[ssID]);
 //                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
-                                        if(grainBoundary->outNormal(grain.second->grainID).cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
+                                        if(grainBoundary->outNormal(grain.second->grainID).cross(slipSystem.n.cartesian().normalized()).norm()>FLT_EPSILON // slip plane is not GB plane
+                                           //&& slipSystem.n.cartesian().normalized().cross(glidePlaneNormal).norm()>FLT_EPSILON
+                                           ) // NOT SAME PLANE, REMOVE THIS
 
                                     {
                                         if(fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON )

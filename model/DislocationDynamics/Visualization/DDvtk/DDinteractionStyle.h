@@ -61,10 +61,14 @@ namespace model
         bool imageTransparentBackground;
         long int frameIncrement;
         long int currentFrameID;
+        long int lastFrameID;
         vtkActor    *LastPickedActor;
         vtkProperty *LastPickedProperty;
         
         std::map<int,std::string> FlabelsMap;
+        bool autoSpin;
+        double degPerStep;
+        Eigen::Matrix<double,3,1> spinAxis;
         
     public:
         
@@ -87,6 +91,7 @@ namespace model
 //               && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
                )
             {
+                lastFrameID=currentFrameID;
                 currentFrameID=frameID;
                 std::cout<<greenBoldColor<<"Loading frame "<<currentFrameID<<defaultColor<<std::endl;
                 
@@ -99,12 +104,39 @@ namespace model
                 }
                 
                 // Update ddActors
-                meshActor.update(frameID);
-                ddSegments.reset(new DislocationSegmentActor(frameID,ddRenderer));
+                meshActor.update(frameID/*,lastFrameID,degPerStep,spinAxis*/);
+                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
 
+                const double spinAxisNorm(spinAxis.norm());
+                if(autoSpin && degPerStep && spinAxisNorm)
+                {
+                    spinAxis/=spinAxisNorm;
+                    
+                    Eigen::AngleAxisd R(degPerStep*M_PI/180.0,spinAxis);
+                    double viewUp[3];
+                    this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewUp( viewUp[0], viewUp[1], viewUp[2] );
+                    
+                    double focalPoint[3];
+                    this->GetDefaultRenderer( )->GetActiveCamera( )->GetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
+                    
+                    double cameraPosition[3];
+                    this->GetDefaultRenderer( )->GetActiveCamera( )->GetPosition( cameraPosition[0], cameraPosition[1], cameraPosition[2] );
+
+                    Eigen::Map<Eigen::Vector3d> ViewUp(viewUp);
+                    Eigen::Map<Eigen::Vector3d> FocalPoint(focalPoint);
+                    Eigen::Map<Eigen::Vector3d> CameraPosition(cameraPosition);
+                    
+                    const Eigen::Vector3d newPosition=FocalPoint+R*(CameraPosition-FocalPoint);
+                    const Eigen::Vector3d newViewUp=R*ViewUp;
+                    
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetViewUp( newViewUp(0), newViewUp(1), newViewUp(2) );
+//                    this->GetDefaultRenderer()->GetActiveCamera()->SetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetPosition( newPosition[0], newPosition[1], newPosition[2] );
+
+                }
                 
                 // Update renderer
                 rwi->Render();
@@ -118,7 +150,7 @@ namespace model
                     {
                         windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
                     }
-                    windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
+//                    windowToImageFilter->ReadFrontBufferOff(); // read from the back buffer
                     windowToImageFilter->Update();
                     
                     //                    int imageType=0;
@@ -191,7 +223,11 @@ namespace model
         /* init list   */ imageMagnification(1),
         /* init list   */ imageTransparentBackground(false),
         /* init list   */ frameIncrement(1),
-        /* init list   */ currentFrameID(-1)
+        /* init list   */ currentFrameID(-1),
+        /* init list   */ lastFrameID(currentFrameID),
+        /* init list   */ autoSpin(false),
+        /* init list   */ degPerStep(0.0),
+        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero())
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
@@ -250,8 +286,8 @@ namespace model
             double focalPoint[3];
             this->GetDefaultRenderer( )->GetActiveCamera( )->GetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
             
-            double camaraPosition[3];
-            this->GetDefaultRenderer( )->GetActiveCamera( )->GetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
+            double cameraPosition[3];
+            this->GetDefaultRenderer( )->GetActiveCamera( )->GetPosition( cameraPosition[0], cameraPosition[1], cameraPosition[2] );
             
             double viewAngle= this->GetDefaultRenderer( )->GetActiveCamera( )->GetViewAngle(  );
             
@@ -261,7 +297,7 @@ namespace model
             std::cout<<greenBoldColor<<"writing to cameraState.txt"<<defaultColor<<std::endl;
             std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
             std::cout<<"focalPoint="<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
-            std::cout<<"camaraPosition="<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+            std::cout<<"cameraPosition="<<cameraPosition[0]<<" "<<cameraPosition[1]<<" "<<cameraPosition[2]<<std::endl;
             std::cout<<"viewAngle="<<viewAngle<<std::endl;
             std::cout<<"parallelScale="<<parallelScale<<std::endl;
             
@@ -269,7 +305,7 @@ namespace model
             myfile.open ("cameraState.txt");
             myfile<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
             myfile<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
-            myfile<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+            myfile<<cameraPosition[0]<<" "<<cameraPosition[1]<<" "<<cameraPosition[2]<<std::endl;
             myfile<<viewAngle<<std::endl;
             myfile<<parallelScale<<std::endl;
             myfile.close();
@@ -281,6 +317,8 @@ namespace model
         /*************************************************************************/
         virtual void OnLeftButtonDown()
         {
+//            autoSpin=false;
+            
             int* clickPos = this->GetInteractor()->GetEventPosition();
             
             // Pick from this location.
@@ -331,6 +369,7 @@ namespace model
             
             if(key == "c")
             {
+                autoSpin=false;
                 
                 std::cout<<greenBoldColor<<"reading cameraState.txt"<<defaultColor<<std::endl;
                 std::ifstream ifs ( "cameraState.txt" , std::ifstream::in );
@@ -349,9 +388,9 @@ namespace model
                     focalPointss>>focalPoint[0]>>focalPoint[1]>>focalPoint[2];
                     
                     std::getline(ifs, line);
-                    double camaraPosition[3];
-                    std::stringstream camaraPositionss(line);
-                    camaraPositionss>>camaraPosition[0]>>camaraPosition[1]>>camaraPosition[2];
+                    double cameraPosition[3];
+                    std::stringstream cameraPositionss(line);
+                    cameraPositionss>>cameraPosition[0]>>cameraPosition[1]>>cameraPosition[2];
                     
                     std::getline(ifs, line);
                     double viewAngle;
@@ -366,13 +405,13 @@ namespace model
                     
                     std::cout<<"viewUp="<<viewUp[0]<<" "<<viewUp[1]<<" "<<viewUp[2]<<std::endl;
                     std::cout<<"focalPoint="<<focalPoint[0]<<" "<<focalPoint[1]<<" "<<focalPoint[2]<<std::endl;
-                    std::cout<<"camaraPosition="<<camaraPosition[0]<<" "<<camaraPosition[1]<<" "<<camaraPosition[2]<<std::endl;
+                    std::cout<<"cameraPosition="<<cameraPosition[0]<<" "<<cameraPosition[1]<<" "<<cameraPosition[2]<<std::endl;
                     std::cout<<"viewAngle="<<viewAngle<<std::endl;
                     std::cout<<"parallelScale="<<parallelScale<<std::endl;
                     
                     this->GetDefaultRenderer()->GetActiveCamera()->SetViewUp( viewUp[0], viewUp[1], viewUp[2] );
                     this->GetDefaultRenderer()->GetActiveCamera()->SetFocalPoint( focalPoint[0], focalPoint[1], focalPoint[2] );
-                    this->GetDefaultRenderer()->GetActiveCamera()->SetPosition( camaraPosition[0], camaraPosition[1], camaraPosition[2] );
+                    this->GetDefaultRenderer()->GetActiveCamera()->SetPosition( cameraPosition[0], cameraPosition[1], cameraPosition[2] );
                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetViewAngle( viewAngle );
                     this->GetDefaultRenderer( )->GetActiveCamera( )->SetParallelScale( parallelScale );
                     
@@ -446,6 +485,18 @@ namespace model
                 this->Interactor->Render();
             }
             
+            if(key == "a")
+            {
+                autoSpin=true;
+                selectedKey="a";
+                std::cout<<"Enter spin axis (x,y,z): "<<std::flush;
+                float x,y,z;
+                std::cin>>x>>y>>z;
+                spinAxis<<x,y,z;
+                std::cout<<"Enter spin angle per step (deg/step): "<<std::flush;
+                std::cin>>degPerStep;
+            }
+            
             if(key == "e")
             {
                 selectedKey="e";
@@ -473,10 +524,30 @@ namespace model
             }
             
             if(key == "l")
-            {
+            {// std::cin return the current element of the input buffer, if the buffer is empty it waits for user input
+                
+                autoSpin=false;
+                
                 std::cout<<"Enter frame# to load:"<<std::endl;
+
+                
+                cin.seekg( std::ios_base::seekdir::end);
                 long int frameID(0);
-                std::cin>>frameID;
+                while(!(std::cin>>frameID))
+                {
+//                    cin.seekg( std::ios_base::seekdir::end);
+                    std::cin.clear();
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+//                    std::cout <<"   invalid input, try again: "<<std::flush;
+                    //std::cin>>frameID;
+                    // code
+                }
+//                std::cout<<std::endl;
+//                std::cout<<"frameID="<<frameID<<std::endl;
+//                std::cin>>frameID;
+//                std::cin.clear();
+//                std::cin.ignore(1000000,'\n');
+
                 loadFrame(frameID);
             }
             
