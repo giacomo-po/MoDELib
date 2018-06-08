@@ -185,7 +185,7 @@ converterOBJS = DDconverter
 
 $(converterOBJS):
 	@echo making DDconverter
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/DDconverter/DDconverter.cpp -o DDconverter -O3 -std=c++14 $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/DDconverter/DDconverter.cpp -o DDconverter -O3 -std=c++17 -lstdc++fs $(IDIR)
 
 ##########################################################
 # MAKE EMPTY

@@ -10,6 +10,9 @@
 #define model_DislocationNodeIO_H_
 
 #include <tuple>
+#include <iomanip>
+#include <Eigen/Dense>
+
 
 namespace model
 {

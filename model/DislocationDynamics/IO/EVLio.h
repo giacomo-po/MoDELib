@@ -11,9 +11,12 @@
 
 #include <vector>
 #include <chrono>
+#include <iostream>     // std::cout
+#include <fstream>      // std::ifstream
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
+#include <model/MPI/MPIcout.h>
 
 
 namespace model
@@ -190,6 +193,13 @@ namespace model
                 model::cout<<"CANNOT OPEN "<<filename<<std::endl;
                 assert(false && "CANNOT OPEN FILE.");
             }
+        }
+        
+        /**********************************************************************/
+        void bin2txt(const size_t& runID,const std::string& suffix="")
+        {
+            readBin(runID,suffix);
+            writeTxt(runID,nodes(),loops(),links());
         }
         
         /**********************************************************************/
