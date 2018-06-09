@@ -46,6 +46,7 @@ namespace model
         
         typedef Derived NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
+        typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef NodeObserver<Derived> NodeObserverType;
         typedef LoopLink<LinkType> LoopLinkType;
@@ -185,6 +186,17 @@ namespace model
             for(const auto& link : loopLinks())
             {
                 temp[link->loop()->sID].insert(link);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::set<const LoopType*> loops() const
+        {
+            std::set<const LoopType*> temp;
+            for(const auto& link : loopLinks())
+            {
+                temp.insert(link->loop().get());
             }
             return temp;
         }

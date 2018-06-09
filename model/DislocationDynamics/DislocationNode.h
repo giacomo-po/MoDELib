@@ -432,37 +432,37 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        void make_projectionMatrix()
-        {
-            
-            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-            VectorOfNormalsType  CN;
-            for(const auto& plane : meshPlanes())
-            {
-                CN.push_back(plane->unitNormal);
-            }
-            
-            if(isBoundaryNode())
-            {
-                CN.push_back(boundaryNormal);
-                
-            }
-            
-            // Add normal to region boundary
-            //            CN.push_back(regionBndNormal);
-            
-            // Find independent vectors
-            GramSchmidt::orthoNormalize(CN);
-            
-            // Assemble projection matrix (prjM)
-            this->prjM.setIdentity();
-            for (size_t k=0;k<CN.size();++k)
-            {
-                this->prjM*=( I-CN[k]*CN[k].transpose() );
-            }
-            
-        }
+//        /**********************************************************************/
+//        void make_projectionMatrix()
+//        {
+//            
+//            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+//            VectorOfNormalsType  CN;
+//            for(const auto& plane : meshPlanes())
+//            {
+//                CN.push_back(plane->unitNormal);
+//            }
+//            
+//            if(isBoundaryNode())
+//            {
+//                CN.push_back(boundaryNormal);
+//                
+//            }
+//            
+//            // Add normal to region boundary
+//            //            CN.push_back(regionBndNormal);
+//            
+//            // Find independent vectors
+//            GramSchmidt::orthoNormalize(CN);
+//            
+//            // Assemble projection matrix (prjM)
+//            this->prjM.setIdentity();
+//            for (size_t k=0;k<CN.size();++k)
+//            {
+//                this->prjM*=( I-CN[k]*CN[k].transpose() );
+//            }
+//            
+//        }
         
         /**********************************************************************/
         BoundingLineSegments<dim> _glidePlaneIntersections; //
@@ -677,6 +677,7 @@ namespace model
             {
                 _isOnBoundingBox=true;
             }
+            
         }
         
         /**********************************************************************/
@@ -754,7 +755,21 @@ namespace model
         {
             vOld=velocity; // store current value of velocity before updating
 
-            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+//            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            velocity=vNew;
+            for(const auto& loop : this->loops())
+            {
+                if(loop->isGlissile)
+                {
+                    velocity-=velocity.dot(loop->glidePlane.unitNormal)*loop->glidePlane.unitNormal;
+                }
+                else
+                {
+                    velocity.setZero();
+                    break;
+                }
+
+            }
             
             
             if(use_velocityFilter)
@@ -1141,7 +1156,7 @@ namespace model
                 }
                 
                 
-                make_projectionMatrix();
+//                make_projectionMatrix();
             }
             else
             {
