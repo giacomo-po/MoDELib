@@ -768,7 +768,6 @@ namespace model
                     velocity.setZero();
                     break;
                 }
-
             }
             
             
