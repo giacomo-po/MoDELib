@@ -28,7 +28,9 @@ namespace model
     template <int dim>
     class EVLio : private std::vector<DislocationNodeIO<dim>>,
     /*         */ private std::vector<DislocationLoopIO<dim>>,
-    /*         */ private std::vector<DislocationEdgeIO<dim>>
+    /*         */ private std::vector<DislocationEdgeIO<dim>>,
+    /*         */ private std::map<size_t,const DislocationNodeIO<dim>* const>,
+    /*         */ private std::map<size_t, const DislocationLoopIO<dim>* const>
     
     {
         
@@ -61,6 +63,24 @@ namespace model
             return "evl"+suffix+"/evl_"+std::to_string(runID)+".txt";
         }
         
+        /**********************************************************************/
+        void make_maps()
+        {
+            // node map
+            for(const auto& node : nodes())
+            {
+                nodeMap().emplace(node.sID,&node);
+            }
+            
+            // loop map
+            for(const auto& loop : loops())
+            {
+                loopMap().emplace(loop.sID,&loop);
+            }
+
+        }
+
+        
     public:
         
         static bool isBinGood(const size_t& frameID,const std::string& suffix="")
@@ -88,6 +108,18 @@ namespace model
         }
         
         /**********************************************************************/
+        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
+        {
+            return *this;
+        }
+        
+        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
+        {
+            return *this;
+        }
+
+        
+        /**********************************************************************/
         const std::vector<DislocationLoopIO<dim>>& loops() const
         {
             return *this;
@@ -98,6 +130,18 @@ namespace model
             return *this;
         }
         
+        /**********************************************************************/
+        const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
+        {
+            return *this;
+        }
+
+        /**********************************************************************/
+        std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap()
+        {
+            return *this;
+        }
+
         /**********************************************************************/
         const std::vector<DislocationEdgeIO<dim>>& links() const
         {
@@ -113,34 +157,34 @@ namespace model
         std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments() const
         {
             
-            
-            std::map<size_t, const DislocationLoopIO<dim>* const> loopMap;
-            for(const auto& loop : loops())
-            {
-                loopMap.emplace(loop.sID,&loop);
-            }
-            
             std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> temp;
             
             for(const auto& link : links())
             {
             
                 
-                const auto loopIter=loopMap.find(link.loopID);
-                assert(loopIter!=loopMap.end());
+                const auto loopIter=loopMap().find(link.loopID);
+                assert(loopIter!=loopMap().end());
                 
                 const size_t sourceID(std::min(link.sourceID,link.sinkID));
                 const size_t sinkID(std::max(link.sourceID,link.sinkID));
                 const auto key=std::make_pair(sourceID,sinkID);
                 
-                const auto iter=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID))).first;
-//                
-//                //const auto iter=temp.find(key);
-//                
-//                if(iter==temp.end())
-//                {
-//                
-//                }
+                const auto insertPair=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID)));
+                const auto& iter=insertPair.first;
+                const bool& success=insertPair.second;
+                
+                if(success)
+                {
+                    iter->second.n=loopIter->second->N;
+                }
+                else
+                {
+                    if(iter->second.n.cross(loopIter->second->N).norm()>FLT_EPSILON)
+                    {
+                        iter->second.n.setZero();
+                    }
+                }
                 
                 if(link.sourceID<link.sinkID)
                 {
@@ -160,7 +204,21 @@ namespace model
                     assert(iter->second.meshLocation==link.meshLocation);
                 }
                 
+//                iter->second.loopCounter++;
+                
             }
+            
+//            for(const auto& seg : links())
+//            {
+//                
+//                
+//                const auto loopIter=loopMap().find(link.loopID);
+//                assert(loopIter!=loopMap().end());
+//                
+//                
+//                iter->second.isGlissile*=(iter->second.b.squaredNorm()>FLT_EPSILON);
+//                
+//            }
             
             return temp;
         }
@@ -388,6 +446,7 @@ namespace model
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
 
                 infile.close();
+                make_maps();
                 model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             }
             else
@@ -462,6 +521,7 @@ namespace model
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
 
                 infile.close();
+                make_maps();
                 model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             }
             else

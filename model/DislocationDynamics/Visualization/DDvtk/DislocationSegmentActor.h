@@ -42,8 +42,8 @@
 namespace model
 {
     struct DislocationSegmentActor : public EVLio<3>,
-    public std::map<size_t,const DislocationNodeIO<3>* const>,
-        public std::map<size_t,const DislocationLoopIO<3>* const>,
+//    public std::map<size_t,const DislocationNodeIO<3>* const>,
+//        public std::map<size_t,const DislocationLoopIO<3>* const>,
     public std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>
     //    :
 //    /* inherits from   */ public IDreader<'V',1,10, double>,
@@ -163,25 +163,25 @@ namespace model
         vtkSmartPointer<vtkActor> triangleActor;
         
         
-        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
-        {
-            return *this;
-        }
-
-        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
-        {
-            return *this;
-        }
-        
-        const std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap() const
-        {
-            return *this;
-        }
-        
-        std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap()
-        {
-            return *this;
-        }
+//        const std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap() const
+//        {
+//            return *this;
+//        }
+//
+//        std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap()
+//        {
+//            return *this;
+//        }
+//        
+//        const std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap() const
+//        {
+//            return *this;
+//        }
+//        
+//        std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap()
+//        {
+//            return *this;
+//        }
         
         const std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>& edgeMap() const
         {
@@ -308,15 +308,15 @@ namespace model
             
             //            nodeLabels->SetNumberOfValues(vertexReader().size());
             //            size_t labelID=0;
-            for(const auto& node : this->nodes())
-            {
-                nodeMap().emplace(node.sID,&node);
-            }
+//            for(const auto& node : this->nodes())
+//            {
+//                this->nodeMap().emplace(node.sID,&node);
+//            }
             
-            for(const auto& node : nodeMap())
+            for(const auto& node : this->nodeMap())
             {
                 
-//                nodeMap().emplace(node.sID,&node);
+//                this->nodeMap().emplace(node.sID,&node);
                 
 //                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
 //                std::cout<<node.second->P.transpose()<<std::endl;
@@ -415,10 +415,10 @@ namespace model
             {
                 assert(edge.first.second.size());
                 
-                auto itSource(nodeMap().find(edge.first.first)); //source
-                assert(itSource!=nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                auto   itSink(nodeMap().find(edge.first.second)); //sink
-                assert(  itSink!=nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+                auto itSource(this->nodeMap().find(edge.first.first)); //source
+                assert(itSource!=this->nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+                auto   itSink(this->nodeMap().find(edge.first.second)); //sink
+                assert(  itSink!=this->nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
                 
 //                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
 //                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
@@ -452,8 +452,8 @@ namespace model
                 P0T0P1T1BN.col(4).setZero();		// Burgers vector
                 for(auto& loopLink : edge.second)
                 {
-                    auto loopIter(loopMap().find(loopLink->loopID));
-                    assert(loopIter!=loopMap().end());
+                    auto loopIter(this->loopMap().find(loopLink->loopID));
+                    assert(loopIter!=this->loopMap().end());
                 if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
                 {
                     P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
@@ -603,7 +603,7 @@ namespace model
             for(const auto& loop : this->loops())
             {
                 
-                loopMap().emplace(loop.sID,&loop);
+//                loopMap().emplace(loop.sID,&loop);
                 
                 const auto loopFound=loopEdgeMap.find(loop.sID);
                 assert(loopFound!=loopEdgeMap.end());
@@ -611,8 +611,8 @@ namespace model
                 std::vector<size_t> nodeIDs;
                 nodeIDs.push_back(loopFound->second.begin()->first);
                 std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>> nodePositions;
-                auto vIter0(nodeMap().find(loopFound->second.begin()->first)); //source
-                assert(vIter0!=nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
+                auto vIter0(this->nodeMap().find(loopFound->second.begin()->first)); //source
+                assert(vIter0!=this->nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
                 nodePositions.push_back(vIter0->second->P);
                 for(size_t k=0;k<loopFound->second.size();++k)
                 {
@@ -621,8 +621,8 @@ namespace model
                     {
                         nodeIDs.push_back(nodeFound->second);
                         
-                        auto vIter(nodeMap().find(nodeFound->second)); //source
-                        assert(vIter!=nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
+                        auto vIter(this->nodeMap().find(nodeFound->second)); //source
+                        assert(vIter!=this->nodeMap().end() && "VERTEX NOT FOUND IN V-FILE");
                         //Eigen::Map<const Eigen::Matrix<double,1,10>> vertexRow(vIter->second.data());
                         nodePositions.push_back(vIter->second->P);
                     }
@@ -643,9 +643,9 @@ namespace model
                     const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
                     const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
                     
-                    const size_t ptID0=std::distance(nodeMap().begin(),nodeMap().find(nodeID0));
-                    const size_t ptID1=std::distance(nodeMap().begin(),nodeMap().find(nodeID1));
-                    const size_t ptID2=std::distance(nodeMap().begin(),nodeMap().find(nodeID2));
+                    const size_t ptID0=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID0));
+                    const size_t ptID1=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID1));
+                    const size_t ptID2=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID2));
                     
                     vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
                     triangle->GetPointIds()->SetId ( 0, ptID0 );

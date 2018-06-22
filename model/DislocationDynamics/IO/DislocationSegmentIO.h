@@ -25,7 +25,11 @@ namespace model
 //        int  meshLocation;    // mesh location
         
         VectorDim b;
+        VectorDim n;
+
         int  meshLocation;
+//        int loopCounter;
+//        bool isGlissile
         
 //        /**********************************************************************/
 //        template<typename LoopLinkType>
@@ -46,7 +50,10 @@ namespace model
         /* init */ sourceID(sourceID_in),
         /* init */ sinkID(sinkID_in),
         b(VectorDim::Zero()),
+        n(VectorDim::Zero()),
         meshLocation(-1)
+//        loopCounter(0),
+//        isGlissile(true)
 //        /* init */ meshLocation(meshLocation_in)
         {
             

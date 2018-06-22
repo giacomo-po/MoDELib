@@ -1029,7 +1029,8 @@ namespace model
         {
             return    !isGlissile()
             /*  */ && !isBoundarySegment()
-            /*  */ && !isGrainBoundarySegment();
+            /*  */ && !isGrainBoundarySegment()
+            /*  */ && !hasZeroBurgers();
         }
         
         /**********************************************************************/

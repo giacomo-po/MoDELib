@@ -57,11 +57,7 @@ int main(int argc, char** argv)
                 std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>> segmentMap=evlio.segments();
                 
                 
-                std::map<size_t,const DislocationNodeIO<3>* const> nodeMap;
-                for(const auto& node : evlio.nodes())
-                {
-                    nodeMap.emplace(node.sID,&node);
-                }
+                std::map<size_t,const DislocationNodeIO<3>* const> nodeMap=evlio.nodeMap();
                 
                 double screwLength=0.0;
                 double edgeLength=0.0;
@@ -72,8 +68,12 @@ int main(int argc, char** argv)
                 {
                     
                     const double bNorm(segmentPair.second.b.norm());
+                    const double nNorm(segmentPair.second.n.norm());
                     
-                    if(segmentPair.second.meshLocation==0 && bNorm>FLT_EPSILON)
+                    if(segmentPair.second.meshLocation==0
+                       && bNorm>FLT_EPSILON
+                       && nNorm>FLT_EPSILON
+                       && fabs(segmentPair.second.b.dot(segmentPair.second.n))<FLT_EPSILON*bNorm*nNorm)
                     {
                         const size_t& sourceID(segmentPair.first.first);
                         const size_t&   sinkID(segmentPair.first.second);
