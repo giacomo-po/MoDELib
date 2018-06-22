@@ -188,6 +188,13 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDimD interplaneVector() const
+        {
+            const VectorDimD c(cartesian());
+            return c/c.squaredNorm();
+        }
+        
+        /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d,
                                 const LatticeType& lat)
         {

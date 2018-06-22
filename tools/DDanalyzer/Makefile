@@ -25,12 +25,12 @@ endif
 ##########################################################
 # PROGRAM
 ##########################################################
-PROGRAM =	DDconverter
-OBJS 	= 	DDconverter
+PROGRAM =	DDanalyzer
+OBJS 	= 	DDanalyzer
 
 
 $(PROGRAM): 
-	$(CC) DDconverter.cpp -o $(OBJS) $(CFLAGS) $(IDIR)  $(LIBS) 
+	$(CC) DDanalyzer.cpp -o $(OBJS) $(CFLAGS) $(IDIR)  $(LIBS) 
 	
 clean:
 		rm -f $(OBJS)

@@ -233,7 +233,7 @@ namespace model
         /**********************************************************************/
         void computeCrystallographicRotationAxis()
         {
-            // Compute the relative rotation matrix between grains
+            // Compute the relative rotation matrix R such that C2G2=R*C2G1
             const MatrixDimD R(grain(grainBndID.first).get_C2G().transpose()*grain(grainBndID.second).get_C2G());
             
             // Eigen-decompose R

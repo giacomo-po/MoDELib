@@ -79,7 +79,7 @@ namespace model
                                  const Eigen::Matrix<double,SegmentType::dim,1>& n2)
         {
             
-            return 0.0;
+            return dGdirect(seg,grain2OutNormal,b2,n2);
         }
         
     };
@@ -154,6 +154,11 @@ namespace model
                         default:
                         {
                             std::cout<<" indirectTransmit "<<std::flush;
+                            dG=GrainBoundaryTransmissionEnergyModel<1>::dGindirect(seg,
+                                                                                 grainBoundary.outNormal(grain.grainID),
+                                                                                 slipSystem.s.cartesian(),
+                                                                                 slipSystem.n.cartesian().normalized()
+                                                                                 );
                             break;
                         }
                     }
@@ -203,7 +208,7 @@ namespace model
             size_t nTransmitted=0;
             if(grainBoundaryTransmissionModel)
             {
-                model::cout<<"		GrainBounTransmissionDataTypedaryTransmission... "<<std::flush;
+                model::cout<<"		GrainBounTransmission... "<<std::flush;
                 const auto t0=std::chrono::system_clock::now();
                 
                 
@@ -319,6 +324,7 @@ namespace model
                                 
                                 //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
                                 
+                                
                                 PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
                                                                 DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
                                                                 heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
@@ -339,16 +345,47 @@ namespace model
                                 const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID].n,
                                                                                                       0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
                                 
-                                //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().norm();
+                                const VectorDim newLoopP(heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.interplaneVector());
+                                const VectorDim newLoopN(DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized());
                                 
-                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
-                                                                heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().squaredNorm(),
-                                                                DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian());
-                                
-                                assert(0 && "FINISH HERE");
+//                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+//                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
+//                                                                newLoopP,
+//                                                                newLoopN);
                                 
                                 
+                                MeshPlane<dim> mp(DN.mesh,grainID,newLoopP,newLoopN);
+                                BoundingLineSegments<dim> bls(mp);
+                                
+                                const VectorDim newSourceP(std::get<0>(bls.snap(isLink.second->source->get_P())));
+                                const size_t newSourceID=DN.insertDanglingNode(newSourceP,VectorDim::Zero(),1.0).first->first;
+
+                                const VectorDim newSinkP(std::get<0>(bls.snap(isLink.second->sink->get_P())));
+                                const size_t newSinkID=DN.insertDanglingNode(newSinkP,VectorDim::Zero(),1.0).first->first;
+
+                                
+//                                assert(0 && "FINISH HERE");
+                                
+                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
+                                const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian().normalized()).normalized();
+                                
+                                const VectorDim newNodeP(0.5*(newSourceP+newSinkP)+dir*10.0);
+                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//                                
+                                std::vector<size_t> nodeIDs;
+                                
+                                nodeIDs.push_back(newSinkID);      // insert in reverse order, sink first, source second
+                                nodeIDs.push_back(newSourceID);    // insert in reverse order, sink first, source second
+                                nodeIDs.push_back(newNodeID);
+//
+                                DN.insertLoop(nodeIDs,
+                                              DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
+                                              DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
+                                              newLoopP,
+                                              grainID);
+                                
+                                nTransmitted++;
+
                                 
                                 
                                 break;

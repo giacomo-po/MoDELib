@@ -10,12 +10,14 @@
 #define model_EVLio_H_
 
 #include <vector>
+#include <map>
 #include <chrono>
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
+#include <model/DislocationDynamics/IO/DislocationSegmentIO.h>
 #include <model/MPI/MPIcout.h>
 
 
@@ -105,6 +107,62 @@ namespace model
         std::vector<DislocationEdgeIO<dim>>& links()
         {
             return *this;
+        }
+        
+        /**********************************************************************/
+        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments() const
+        {
+            
+            
+            std::map<size_t, const DislocationLoopIO<dim>* const> loopMap;
+            for(const auto& loop : loops())
+            {
+                loopMap.emplace(loop.sID,&loop);
+            }
+            
+            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> temp;
+            
+            for(const auto& link : links())
+            {
+            
+                
+                const auto loopIter=loopMap.find(link.loopID);
+                assert(loopIter!=loopMap.end());
+                
+                const size_t sourceID(std::min(link.sourceID,link.sinkID));
+                const size_t sinkID(std::max(link.sourceID,link.sinkID));
+                const auto key=std::make_pair(sourceID,sinkID);
+                
+                const auto iter=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID))).first;
+//                
+//                //const auto iter=temp.find(key);
+//                
+//                if(iter==temp.end())
+//                {
+//                
+//                }
+                
+                if(link.sourceID<link.sinkID)
+                {
+                    iter->second.b+=loopIter->second->B;
+                }
+                else
+                {
+                    iter->second.b-=loopIter->second->B;
+                }
+                
+                if(iter->second.meshLocation==-1)
+                {
+                    iter->second.meshLocation=link.meshLocation;
+                }
+                else
+                {
+                    assert(iter->second.meshLocation==link.meshLocation);
+                }
+                
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/

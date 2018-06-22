@@ -510,9 +510,6 @@ namespace model
         /**********************************************************************/
         bool contractSecond(const size_t& a,const size_t &b)
         {
-//            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
-//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
             bool success=false;
             const auto nA=this->sharedNode(a);
             const auto nB=this->sharedNode(b);
@@ -525,98 +522,17 @@ namespace model
             return success;
         }
 
-        
-//        /**********************************************************************/
-//        bool contractSecond(const size_t& a,const size_t &b)
-//        {
-//            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
-//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-//            
-//            bool success=false;
-//            const auto nA=this->sharedNode(a);
-//            const auto nB=this->sharedNode(b);
-//            
-//            if(nA.first && nB.first)
-//            {
-//                // Collect IDs of all loops passing through both a and b
-//                std::set<size_t> loopIDs;
-//                for(const auto& loopLinkA : nA.second->loopLinks())
-//                {
-//                    for(const auto& loopLinkB : nB.second->loopLinks())
-//                    {
-//                        if(loopLinkA->loop()->sID==loopLinkB->loop()->sID)
-//                        {
-//                            loopIDs.insert(loopLinkA->loop()->sID);
-//                        }
-//                    }
-//                }
-//                
-//                // Cut those loops
-//                for(const auto loopID : loopIDs)
-//                {
-//                    cutLoop(loopID,a,b);
-//                }
-//                
-//                // Store links connected to b
-//                typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;
-//                typedef std::deque<ContractTupleType> ContractDequeType;
-//                ContractDequeType contractDeq;
-//                
-//                for(const auto& loopLink : nB.second->loopLinks())
-//                {
-//                    if(loopLink->source()->sID==b)
-//                    {
-//                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),0);
-//                    }
-//                    else if(loopLink->sink()->sID==b)
-//                    {
-//                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),1);
-//                    }
-//                    else
-//                    {
-//                        assert(0 && "source or sink must be b.");
-//                    }
-//                }
-//                
-//                // Disconnect links from b
-//                for(const auto& tup : contractDeq)
-//                {
-//                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
-//                }
-//                
-//                // Re-connect replacing b with a
-//                for(const auto& tup : contractDeq)
-//                {
-//                    if(std::get<3>(tup))
-//                    {
-//                        connect(std::get<0>(tup),nA.second,std::get<2>(tup));
-//                    }
-//                    else
-//                    {
-//                        connect(nA.second,std::get<1>(tup),std::get<2>(tup));
-//                    }
-//                }
-//                
-//                success=true;
-//            }
-//            
-//            return success;
-//        }
-        
-        
         /**********************************************************************/
         bool remove(const size_t& nodeID)
         {/*!\param[in] nodeID the StaticID of the node to be removed
           * \returns true if the node is succesfully removed.
           */
-//            bool temp=false;
             const auto isNode=this->node(nodeID);
             if(isNode.first)
             {
                 const auto linkByLoopID=isNode.second->linksByLoopID();
                 for(auto& pair : linkByLoopID)
                 {
-//                    const auto& loopID(pair.first);
                     const auto& set(pair.second);
                     assert(set.size()==2 && "Not a Loop");
                     LoopLinkType* const link0(*set.begin());
@@ -708,7 +624,6 @@ namespace model
             {
                 assert(loop.second->isLoop() && "not a closed loop");
             }
-            
         }
         
         /**********************************************************************/
@@ -718,7 +633,6 @@ namespace model
             {
                 loop.second->printLoop();
             }
-            
         }
         
         /**********************************************************************/
@@ -748,3 +662,80 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        bool contractSecond(const size_t& a,const size_t &b)
+//        {
+//            VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
+//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//
+//            bool success=false;
+//            const auto nA=this->sharedNode(a);
+//            const auto nB=this->sharedNode(b);
+//
+//            if(nA.first && nB.first)
+//            {
+//                // Collect IDs of all loops passing through both a and b
+//                std::set<size_t> loopIDs;
+//                for(const auto& loopLinkA : nA.second->loopLinks())
+//                {
+//                    for(const auto& loopLinkB : nB.second->loopLinks())
+//                    {
+//                        if(loopLinkA->loop()->sID==loopLinkB->loop()->sID)
+//                        {
+//                            loopIDs.insert(loopLinkA->loop()->sID);
+//                        }
+//                    }
+//                }
+//
+//                // Cut those loops
+//                for(const auto loopID : loopIDs)
+//                {
+//                    cutLoop(loopID,a,b);
+//                }
+//
+//                // Store links connected to b
+//                typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;
+//                typedef std::deque<ContractTupleType> ContractDequeType;
+//                ContractDequeType contractDeq;
+//
+//                for(const auto& loopLink : nB.second->loopLinks())
+//                {
+//                    if(loopLink->source()->sID==b)
+//                    {
+//                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),0);
+//                    }
+//                    else if(loopLink->sink()->sID==b)
+//                    {
+//                        contractDeq.emplace_back(loopLink->source(),loopLink->sink(),loopLink->loop(),1);
+//                    }
+//                    else
+//                    {
+//                        assert(0 && "source or sink must be b.");
+//                    }
+//                }
+//
+//                // Disconnect links from b
+//                for(const auto& tup : contractDeq)
+//                {
+//                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+//                }
+//
+//                // Re-connect replacing b with a
+//                for(const auto& tup : contractDeq)
+//                {
+//                    if(std::get<3>(tup))
+//                    {
+//                        connect(std::get<0>(tup),nA.second,std::get<2>(tup));
+//                    }
+//                    else
+//                    {
+//                        connect(nA.second,std::get<1>(tup),std::get<2>(tup));
+//                    }
+//                }
+//
+//                success=true;
+//            }
+//
+//            return success;
+//        }
