@@ -529,19 +529,20 @@ namespace model
                 autoSpin=false;
                 
                 std::cout<<"Enter frame# to load:"<<std::endl;
-
+                long int frameID;
+                std::cin>>frameID;
                 
-                cin.seekg( std::ios_base::seekdir::end);
-                long int frameID(0);
-                while(!(std::cin>>frameID))
-                {
-//                    cin.seekg( std::ios_base::seekdir::end);
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-//                    std::cout <<"   invalid input, try again: "<<std::flush;
-                    //std::cin>>frameID;
-                    // code
-                }
+//                cin.seekg( std::ios_base::seekdir::end);
+//                long int frameID(0);
+//                while(!(std::cin>>frameID))
+//                {
+////                    cin.seekg( std::ios_base::seekdir::end);
+//                    std::cin.clear();
+//                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+////                    std::cout <<"   invalid input, try again: "<<std::flush;
+//                    //std::cin>>frameID;
+//                    // code
+//                }
 //                std::cout<<std::endl;
 //                std::cout<<"frameID="<<frameID<<std::endl;
 //                std::cin>>frameID;

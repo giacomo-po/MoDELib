@@ -1037,7 +1037,7 @@ namespace model
         bool isGlissile() const
         {
             bool temp=false;
-            if(meshPlanes().size()==1)
+            if(meshPlanes().size()==1 && !hasZeroBurgers())
             {
                 temp=(*this->loopLinks().begin())->loop()->isGlissile;
             }
