@@ -200,9 +200,9 @@ namespace model
         std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
         MatrixDimQorder pkGauss; //! PK force corrersponding to the quadrature points
         
-        //#ifdef UserStressFile
-        //#include UserStressFile
-        //#endif
+        #ifdef UserStressFile
+        #include UserStressFile
+        #endif
         
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -624,6 +624,10 @@ namespace model
                 temp+=sStraight.stress(rgauss.col(k));
             }
             
+#ifdef UserStressFile
+            temp+=userStress(rgauss.col(k));
+#endif
+            
             return temp;
         }
         
@@ -733,6 +737,10 @@ namespace model
                         {
                             stressGauss[k] += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
                         }
+                        
+#ifdef UserStressFile
+                        stressGauss[k]+=userStress(rgauss.col(k));
+#endif
                         
                         // Add GB stress
                         for(const auto& sStraight : this->network().poly.grainBoundaryDislocations() )

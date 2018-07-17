@@ -29,3 +29,8 @@ hg files "set:size('>1M')"
 7) Revert to a specific changeset
 hg log
 hg update <changeset number>
+
+8) Updating local repository
+hg pull
+hg update
+(this is to force remote files) hg update --clean

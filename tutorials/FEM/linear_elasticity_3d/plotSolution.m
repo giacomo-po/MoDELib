@@ -16,7 +16,7 @@ uMax=max(U(:,clrCol))
 uMin=min(U(:,clrCol))
 clrID=round((U(:,clrCol)-uMin)/(uMax-uMin)*size(colormap,1));
 
-def=100;
+def=0;
 
 for f=1:3:size(S,1)
     fill3(U(f:f+2,1)+def*U(f:f+2,4),U(f:f+2,2)+def*U(f:f+2,5),U(f:f+2,3)+def*U(f:f+2,6),clrID(f:f+2))

@@ -55,6 +55,8 @@ namespace model
             size_t loopID=0;
             size_t snID=0;
             
+            double helicity=0.0;
+            
             while(density<targetDensity)
             {
                 std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
@@ -118,12 +120,39 @@ namespace model
                 const VectorDimD P2=L2.cartesian();
                 const VectorDimD P3=L3.cartesian();
                 
+                bool useHelicity=false;
+                double deltaHelicity=0.0;
+                std::deque<VectorDimD> tempPoints;
+                if(useHelicity)
+                {
+                    
+                    tempPoints.push_back(P0);
+                    tempPoints.push_back(P1);
+                    tempPoints.push_back(P2);
+                    tempPoints.push_back(P3);
+//                    this->loopPoints.emplace_back({P0,P1,P2,P3});
+//                    this->loopBurgers.push_back(slipSystem.s.cartesian());
+                    
+                     deltaHelicity=this->deltaHelicity(tempPoints,slipSystem.s.cartesian());
+                    
+                }
+                
                 
                 if(   mesh.searchRegion(grainID,P1).first
                    && mesh.searchRegion(grainID,P2).first
                    && mesh.searchRegion(grainID,P3).first
+                   && fabs(helicity+deltaHelicity)>=fabs(helicity)
                    )
                 {
+                    
+                    if(useHelicity)
+                    {
+
+                                            this->loopPoints.emplace_back(tempPoints);
+                                            this->loopBurgers.push_back(slipSystem.s.cartesian());
+                        helicity+=deltaHelicity;
+                        
+                    }
                     
                     const VectorDimD n1=d1.cross(slipSystem.s).cartesian().normalized();
                     const VectorDimD n2=d2.cross(slipSystem.s).cartesian().normalized();
@@ -175,6 +204,11 @@ namespace model
                     snID+=1;
                     density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                     std::cout<<"density="<<density<<std::endl;
+                    if(useHelicity)
+                    {
+                        std::cout<<"helicity="<<helicity<<std::endl;
+
+                    }
                 }
             }
             this->write();

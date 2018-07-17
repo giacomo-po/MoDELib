@@ -12,6 +12,7 @@
  * _MODEL_NON_SINGULAR_DD_ = 2 Lazar's regularization method
  */
 #define _MODEL_NON_SINGULAR_DD_ 1
+//#define UserStressFile "./userStress.h"
 #include <model/DislocationDynamics/DislocationNetwork.h>
 
 using namespace model;

@@ -28,6 +28,7 @@
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
 #include <model/DislocationDynamics/IO/EVLio.h>
+#include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
 
 
 namespace model
@@ -92,6 +93,10 @@ namespace model
         std::vector<DislocationLoopIO<dim>> loopsIO;
         std::vector<DislocationEdgeIO<dim>> edgesIO;
         
+        
+        std::deque<std::deque<VectorDimD>> loopPoints;
+        std::deque<VectorDimD> loopBurgers;
+        
         /**********************************************************************/
         void write()
         {
@@ -147,6 +152,21 @@ namespace model
 
             
             
+        }
+        
+        
+        double deltaHelicity(const std::deque<VectorDimD>& newPoints,
+                             const VectorDimD& newBurgers) const
+        {
+        
+            double h(0.0);
+            assert(loopPoints.size()==loopBurgers.size());
+            for(int k=0;k<loopPoints.size(); ++k)
+            {
+                h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
+            }
+
+            return h;
         }
         
         /**********************************************************************/
