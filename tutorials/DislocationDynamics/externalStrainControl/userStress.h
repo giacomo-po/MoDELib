@@ -39,9 +39,7 @@ MatrixDim userStress(const VectorDim& x) const
     temp(0,2)=temp(2,0);
     temp(1,2)=temp(2,1);
     
-//    std::cout<<"User Stress="<<temp<<std::endl;
-    
-//    gerlgfwreklg
+
     
     return temp;
     

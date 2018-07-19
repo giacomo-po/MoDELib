@@ -56,9 +56,9 @@ namespace model
             // init counters
             double density=0.0;
             double sessileDensity=0.0;
-            size_t nodeID=0;
-            size_t loopID=0;
-            size_t snID=0;
+            //size_t nodeID=0;
+//            size_t loopID=0;
+//            size_t snID=0;
             
             std::cout<<"Generating straight lines..."<<std::endl;
             while(density<targetDensity)
@@ -149,26 +149,26 @@ namespace model
                     // write node and edge file
                     for(int k=0;k<nodePos.size();++k)
                     {
-                        this->nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        this->nodesIO.emplace_back(this->nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
 //                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 //                        vertexFile<<dlIO<<"\n";
 //                        vertexFile.write(dlIO);
 //                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                         
-                        const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                        this->edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                        const int nextNodeID=(k+1)<nodePos.size()? this->nodeID+k+1 : this->nodeID;
+                        this->edgesIO.emplace_back(this->loopID,this->nodeID+k,nextNodeID,0);
 //                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
                         
                     }
-                    nodeID+=nodePos.size();
+                    this->nodeID+=nodePos.size();
                     
                     // write loop file
-                    this->loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
+                    this->loopsIO.emplace_back(this->loopID+0, b,n,P0,grainID);
 //                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
 //                    loopFile<< dlIO<<"\n";
                     
-                    loopID+=1;
-                    snID+=1;
+                    this->loopID+=1;
+                    this->snID+=1;
                     density += lineLength/this->mesh.volume()/std::pow(Material<Isotropic>::b_real,2);
                     if(isSessile)
                     {

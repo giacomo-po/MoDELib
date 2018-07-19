@@ -30,6 +30,7 @@ namespace model
         
         typedef std::array<long int,dim+3> MeshPlaneKeyType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
         typedef std::pair<VectorDim,const Simplex<dim,1>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
@@ -140,8 +141,12 @@ namespace model
         static PlaneMeshIntersectionContainerType getPlaneIntersection(const SimplicialMesh<dim>& mesh,
                                                                        const int& rID,
                                                                        const VectorDim& P0,
-                                                                       const VectorDim& n)
+                                                                       const VectorDim& N)
         {
+            
+            const double nNorm(N.norm());
+            assert(nNorm>FLT_EPSILON);
+            const VectorDim n(N/nNorm);
             
             RootContainerType rootDeq;
             for(const auto& edge : mesh.template observer<1>())
@@ -205,6 +210,7 @@ namespace model
                     }
                 }
             }
+//            std::cout<<"MeshPlane rootDeq: "<<rootDeq.size()<<std::endl;
             
             PlaneMeshIntersectionContainerType temp;
 
@@ -219,12 +225,25 @@ namespace model
                 }
                 c/=rootDeq.size(); //center of the plane
                 
+                // Check that points belong to a plane
+                for(const auto& pair : rootDeq)
+                {
+                    assert(fabs(n.dot(c-pair.first))<FLT_EPSILON);
+                }
+                
+                const VectorDim refDir(rootDeq[0].first-c);
+                const double refDirNorm(refDir.norm());
+                assert(refDirNorm>FLT_EPSILON);
 
                 // Local rotation matrix
                 Eigen::Matrix<double,dim,dim> R;
-                R.col(0)=rootDeq[0].first;
-                R.col(1)=n.cross(rootDeq[0].first);
+                R.col(0)=refDir/refDirNorm;
                 R.col(2)=n;
+                R.col(1)=R.col(2).cross(R.col(0));
+                
+                
+                assert((R*R.transpose()-MatrixDim::Identity()).norm()<FLT_EPSILON);
+                assert(fabs(R.determinant()-1.0)<FLT_EPSILON);
                 
                 std::map<double,std::pair<const Simplex<dim,dim-2>* const,VectorDim>> sortedEdges;
                 
@@ -242,7 +261,6 @@ namespace model
                 
             }
             
-
             
             return PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(temp);
         }

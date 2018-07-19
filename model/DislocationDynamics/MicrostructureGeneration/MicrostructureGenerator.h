@@ -84,6 +84,10 @@ namespace model
         
     public:
         
+        size_t nodeID;
+        size_t snID;
+        size_t loopID;
+        
         SimplicialMesh<dim> mesh;
         GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
@@ -97,9 +101,84 @@ namespace model
         std::deque<std::deque<VectorDimD>> loopPoints;
         std::deque<VectorDimD> loopBurgers;
         
+        double targetIrradiationLoopDensity;
+        double averageLoopSize;
+        
+        
+        /**********************************************************************/
+        void addIrradiationLoops()
+        {
+        
+            std::mt19937 generator;
+
+            
+            size_t ndefects=0;
+            double defectsDensity=ndefects/mesh.volume()/std::pow(Material<Isotropic>::b_real,3);
+            while(defectsDensity<targetIrradiationLoopDensity)
+            {
+                
+                
+                const std::pair<LatticeVector<dim>,int> rp=this->randomPointInMesh();
+                const int& grainID=rp.second;   // random grain ID
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                
+                std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
+                const int rSS=distribution(generator); // a random SlipSystem ID
+                const SlipSystem& slipSystem=this->poly.grain(grainID).slipSystems()[rSS];
+                const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
+                const VectorDimD a(b.normalized());
+                //const VectorDimD c(slipSystem.s.cartesian());
+                
+                std::vector<VectorDimD> points;
+                
+                const int NP=6;
+                for(int k=0;k<NP;++k)
+                {
+                    points.push_back(P0+Eigen::AngleAxis<double>(k*2.0*M_PI/NP,a)*slipSystem.unitNormal*0.5*averageLoopSize/Material<Isotropic>::b_real);
+                }
+                
+                bool pointsIncluded=true;
+                for(const auto& point : points)
+                {
+                    pointsIncluded*=mesh.searchRegion(grainID,point).first;
+                }
+                
+                if(pointsIncluded)
+                {
+                    
+                    for(int k=0;k<NP;++k)
+                    {
+                        nodesIO.emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        
+                        const int nextNodeID=(k+1)<NP? this->nodeID+k+1 : this->nodeID;
+                        edgesIO.emplace_back(this->loopID,this->nodeID+k,nextNodeID,0);
+
+                    }
+                    
+                    loopsIO.emplace_back(this->loopID+0, b,a,P0,grainID);
+
+
+                    snID++;
+                    loopID++;
+                    nodeID+=NP;
+                    ndefects++;
+                    defectsDensity=ndefects/mesh.volume()/std::pow(Material<Isotropic>::b_real,3);
+                    std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
+                }
+            }
+        }
+        
         /**********************************************************************/
         void write()
         {
+            
+            if(targetIrradiationLoopDensity>0.0)
+            {
+                addIrradiationLoops();
+            }
+            
+            
             if(outputBinary)
             {
                 EVLio<dim>::writeBin(0,nodesIO,loopsIO,edgesIO);
@@ -118,7 +197,10 @@ namespace model
         /* init list */ _minSize(0.0),
         /* init list */ _maxSize(0.0),
         /* init list */ poly(mesh),
-        outputBinary(true)
+        outputBinary(true),
+        nodeID(0),
+        snID(0),
+        loopID(0)
         {
             int meshID(0);
             EigenDataReader EDR;
@@ -150,6 +232,8 @@ namespace model
             
             EDR.readScalarInFile("./DDinput.txt","outputBinary",outputBinary);
 
+            EDR.readScalarInFile("./microstructureInput.txt","targetIrradiationLoopDensity",targetIrradiationLoopDensity);
+            EDR.readScalarInFile("./microstructureInput.txt","averageLoopSize",averageLoopSize);
             
             
         }

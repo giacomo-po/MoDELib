@@ -241,6 +241,10 @@ namespace model
                 VerboseDislocationNode(4,boundingBoxSegments()<<std::endl;);
                 VerboseDislocationNode(4,"Plane bounding box"<<std::endl;);
                 VerboseDislocationNode(4,BoundingLineSegments<dim>(gp)<<std::endl;);
+                VerboseDislocationNode(4,"Plane meshIntersections: "<<gp.meshIntersections.size()<<std::endl;);
+                //VerboseDislocationNode(4,BoundingLineSegments<dim>(gp)<<std::endl;);
+                
+                
                 
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
