@@ -53,9 +53,9 @@ namespace model
             double density=0.0;
             double edgeDensity=0.0;
             
-            size_t nodeID=0;
-            size_t loopID=0;
-            size_t snID=0;
+//            size_t nodeID=0;
+//            size_t loopID=0;
+//            size_t snID=0;
 
             while(density<targetDensity)
             {
@@ -126,12 +126,12 @@ namespace model
                     const VectorDimD n1=slipSystem.n.cartesian().normalized();
                     const VectorDimD n2=d2.cross(d1).cartesian().normalized();
 
-                    this->nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    this->nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    this->nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    this->nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    this->nodesIO.emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    this->nodesIO.emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
+                    this->nodesIO.emplace_back(this->nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,this->snID,0);
 
                     
 //                    vertexFile << nodeID+0<<"\t" << std::setprecision(15)<<std::scientific<<P0.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
@@ -141,22 +141,22 @@ namespace model
 //                    vertexFile << nodeID+4<<"\t" << std::setprecision(15)<<std::scientific<<P4.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
 //                    vertexFile << nodeID+5<<"\t" << std::setprecision(15)<<std::scientific<<P5.transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
                     
-                    this->loopsIO.emplace_back(loopID+0,slipSystem.s.cartesian(),n1,P0,grainID);
-                    this->loopsIO.emplace_back(loopID+1,slipSystem.s.cartesian(),n2,P0,grainID);
-                    this->loopsIO.emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID);
+                    this->loopsIO.emplace_back(this->loopID+0,slipSystem.s.cartesian(),n1,P0,grainID);
+                    this->loopsIO.emplace_back(this->loopID+1,slipSystem.s.cartesian(),n2,P0,grainID);
+                    this->loopsIO.emplace_back(this->loopID+2,slipSystem.s.cartesian(),n1,P3,grainID);
 
-                    this->edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+1,0);
-                    this->edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+4,0);
-                    this->edgesIO.emplace_back(loopID+0,nodeID+4,nodeID+0,0);
+                    this->edgesIO.emplace_back(this->loopID+0,this->nodeID+0,this->nodeID+1,0);
+                    this->edgesIO.emplace_back(this->loopID+0,this->nodeID+1,this->nodeID+4,0);
+                    this->edgesIO.emplace_back(this->loopID+0,this->nodeID+4,this->nodeID+0,0);
 
-                    this->edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+3,0);
-                    this->edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+2,0);
-                    this->edgesIO.emplace_back(loopID+1,nodeID+2,nodeID+1,0);
-                    this->edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+0,0);
+                    this->edgesIO.emplace_back(this->loopID+1,this->nodeID+0,this->nodeID+3,0);
+                    this->edgesIO.emplace_back(this->loopID+1,this->nodeID+3,this->nodeID+2,0);
+                    this->edgesIO.emplace_back(this->loopID+1,this->nodeID+2,this->nodeID+1,0);
+                    this->edgesIO.emplace_back(this->loopID+1,this->nodeID+1,this->nodeID+0,0);
                     
-                    this->edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+5,0);
-                    this->edgesIO.emplace_back(loopID+2,nodeID+5,nodeID+2,0);
-                    this->edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+3,0);
+                    this->edgesIO.emplace_back(this->loopID+2,this->nodeID+3,this->nodeID+5,0);
+                    this->edgesIO.emplace_back(this->loopID+2,this->nodeID+5,this->nodeID+2,0);
+                    this->edgesIO.emplace_back(this->loopID+2,this->nodeID+2,this->nodeID+3,0);
 
                     
 ////                    loopFile <<loopID+0<<"\t"<< std::setprecision(15)<<std::scientific<<slipSystem.s.cartesian().transpose()<<"\t"<< n1.transpose()<<"\t"<<P0.transpose()<<"\t"<<grainID<<"\n";
@@ -176,9 +176,9 @@ namespace model
 //                    edgeFile << loopID+2<<"\t" << nodeID+2<<"\t"<< nodeID+3<<"\n";
 
                     
-                    nodeID+=6;
-                    loopID+=3;
-                    snID++;
+                    this->nodeID+=6;
+                    this->loopID+=3;
+                    this->snID++;
                     
                 }
             }
