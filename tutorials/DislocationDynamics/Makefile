@@ -143,6 +143,15 @@ $(dipoleOBJS):
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
+# MAKE SINGLEEDGEGENERATOR
+##########################################################
+dipoleOBJS = singleEdgeGenerator
+
+$(dipoleOBJS):
+	@echo making singleEdgeGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/singleEdgeGenerator.cpp -o singleEdgeGenerator -O3 -std=c++14 $(IDIR)
+
+##########################################################
 # MAKE DIPOLEGENERATOR
 ##########################################################
 piOBJS = piGenerator
