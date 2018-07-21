@@ -182,6 +182,11 @@ namespace model
             {
                 DN._userOutputColumn+=18;  //put here in order for right bvp restart
             }
+            
+            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_userStress);
+
+            
+            
             // Use Changing external stress field induced by straight dislocations.
             EDR.readScalarInFile("./loadInput.txt","use_externaldislocationstressfield",DN.use_externaldislocationstressfield);
             if (DN.use_externaldislocationstressfield)
@@ -282,6 +287,7 @@ namespace model
             
             //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
             EDR.readScalarInFile(fullName.str(),"ddSolverType",DN.ddSolverType);
+            EDR.readScalarInFile(fullName.str(),"outputDislocationStiffnessAndForce",DislocationNetworkComponentType::outputKF);
             
             
             EDR.readScalarInFile(fullName.str(),"Nsteps",DN.Nsteps);
@@ -317,6 +323,11 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",DN.use_boundary);
             if (DN.use_boundary)
             {
+                
+                EDR.readScalarInFile(fullName.str(),"dislocationImages_x",DN.dislocationImages_x);
+                EDR.readScalarInFile(fullName.str(),"dislocationImages_y",DN.dislocationImages_y);
+                EDR.readScalarInFile(fullName.str(),"dislocationImages_z",DN.dislocationImages_z);
+                
                 //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",use_meshRegions);
                 
                 int meshID(0);

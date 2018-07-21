@@ -48,6 +48,8 @@ namespace model
         enum {dim=NodeType::dim};
         
         
+        
+        
         //! A reference to a NetworkComponentType
         NetworkComponentType& NC;
         
@@ -214,6 +216,8 @@ namespace model
         //		EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         enum {NdofXnode=NodeType::NdofXnode};
+        
+        static bool outputKF;
         //        bool solvable;
         //       static bool useSchurComplementSolver;
         
@@ -271,7 +275,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void lumpedSolve()
+        void lumpedSolve(const size_t& runID)
         {
             TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
             Eigen::VectorXd Fq; // the vector of nodal forces
@@ -296,6 +300,14 @@ namespace model
             kqq.setFromTriplets(lumpedTriplets.begin(),lumpedTriplets.end());
             Eigen::VectorXd Kd(kqq.diagonal());
             Eigen::VectorXd x(Eigen::VectorXd::Zero(Ndof));
+            
+            if(outputKF)
+            {
+                std::ofstream fileK("K_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");
+                fileK<<Kd;
+                std::ofstream fileF("F_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");
+                fileF<<Fq;
+            }
             
             // Check diagonal and force
             for (int k=0;k<Kd.size();++k)
@@ -551,6 +563,9 @@ namespace model
         //        }
         
     };
+    
+    template <typename NodeType,typename LinkType>
+    bool DislocationNetworkComponent<NodeType,LinkType>::outputKF=false;
     
     //    //Static data
     //    template <typename NodeType,typename LinkType>

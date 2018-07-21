@@ -143,6 +143,7 @@ namespace model
 //        BvpSolverType bvpSolver;
         // MatrixDimD externalStress;
         bool use_externalStress;
+        bool use_userStress;
         bool use_externaldislocationstressfield;
         ExternalStressFieldControllerType extStressController;
         std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
@@ -164,6 +165,9 @@ namespace model
         bool outputSegmentPairDistances;
         unsigned int _userOutputColumn;
         bool use_stochasticForce;
+        int dislocationImages_x;
+                int dislocationImages_y;
+                int dislocationImages_z;
         std::string folderSuffix;
         
 #ifdef DislocationNucleationFile
@@ -373,6 +377,7 @@ namespace model
         /* init list  */ outputSegmentPairDistances(false),
         /* init list  */ _userOutputColumn(3),
         /* init list  */ use_stochasticForce(false),
+        /* init list  */ use_userStress(false),
         /* init list  */ folderSuffix("")
         {
             
@@ -440,15 +445,49 @@ namespace model
                 model::cout<<"		Collecting StressStraight objects: "<<std::flush;
                 
                 std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-                
+                size_t currentSize=0;
                 if(computeDDinteractions)
                 {
                     for(const auto& link : this->networkLinks())
                     {
                         link.second->addToStressStraight(straightSegmentsDeq);
                     }
+                    
+                    
+
+                        currentSize=straightSegmentsDeq.size();
+                    
+                    const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+                    
+                        for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+                        {
+                            for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+                            {
+                                for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+                                {
+                                    
+                                    const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+                                    
+                                    if( cellID.squaredNorm()!=0) //skip current cell
+                                    {
+                                        for (size_t c=0;c<currentSize;++c)
+                                        {
+                                            const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                            const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                            
+                                            straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
+                                        }
+                                    }
+                                    
+                                    
+                                    
+                                }
+                            }
+                        }
+                    
+                    
                 }
-                model::cout<< straightSegmentsDeq.size()<<" straight segments"<<std::flush;
+                model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                 
                 const auto t1= std::chrono::system_clock::now();
@@ -496,6 +535,12 @@ namespace model
                 
                 if(computeDDinteractions)
                 {
+                    
+                    if(dislocationImages_x!=0 || dislocationImages_y!=0 || dislocationImages_z!=0)
+                    {
+                        assert(0 && "FINISH HERE");
+                    }
+                    
                     model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
                     if (use_externaldislocationstressfield)
                     {
@@ -584,12 +629,12 @@ namespace model
                     {
                         auto snIter(this->components().begin());
                         std::advance(snIter,k);
-                        DislocationNetworkComponentType(*snIter->second).lumpedSolve();
+                        DislocationNetworkComponentType(*snIter->second).lumpedSolve(runID);
                     }
 #else
                     for (const auto& networkComponent : this->components())
                     {
-                        DislocationNetworkComponentType(*networkComponent.second).lumpedSolve();
+                        DislocationNetworkComponentType(*networkComponent.second).lumpedSolve(runID);
                     }
 #endif
                     break;

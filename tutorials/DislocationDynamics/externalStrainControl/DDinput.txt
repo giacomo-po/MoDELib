@@ -117,3 +117,4 @@ verboseNodeContraction=0;
 verboseDislocationNode=0;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;
+outputDislocationStiffnessAndForce=0;

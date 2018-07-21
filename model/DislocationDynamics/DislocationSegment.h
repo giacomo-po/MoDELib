@@ -625,7 +625,10 @@ namespace model
             }
             
 #ifdef UserStressFile
-            temp+=userStress(rgauss.col(k));
+            if(this->network().use_userStress)
+            {
+                temp+=userStress(rgauss.col(k));
+            }
 #endif
             
             return temp;
@@ -726,6 +729,7 @@ namespace model
                         }
                     }
                     
+                    
                     // Add other stress contributions, and compute PK force
                     for (unsigned int k=0;k<qOrder;++k)
                     {
@@ -739,7 +743,10 @@ namespace model
                         }
                         
 #ifdef UserStressFile
-                        stressGauss[k]+=userStress(rgauss.col(k));
+                        if(this->network().use_userStress)
+                        {
+                            stressGauss[k]+=userStress(rgauss.col(k));
+                        }
 #endif
                         
                         // Add GB stress
