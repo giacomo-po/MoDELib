@@ -1,7 +1,5 @@
 
 
-
-
 MatrixDim userStress(const VectorDim& x) const
 {
     

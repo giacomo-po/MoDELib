@@ -200,9 +200,9 @@ namespace model
         std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
         MatrixDimQorder pkGauss; //! PK force corrersponding to the quadrature points
         
-        #ifdef UserStressFile
-        #include UserStressFile
-        #endif
+//        #ifdef UserStressFile
+//        #include UserStressFile
+//        #endif
         
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -613,7 +613,7 @@ namespace model
           *\returns the stress field at the k-th quandrature point
           */
             
-            MatrixDim temp(quadratureParticleContainer[k]->stress()+this->network().extStressController.externalStress());
+            MatrixDim temp(quadratureParticleContainer[k]->stress()+this->network().extStressController.externalStress(rgauss.col(k)));
             if(this->network().use_bvp)
             {
                 temp += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
@@ -624,12 +624,12 @@ namespace model
                 temp+=sStraight.stress(rgauss.col(k));
             }
             
-#ifdef UserStressFile
-            if(this->network().use_userStress)
-            {
-                temp+=userStress(rgauss.col(k));
-            }
-#endif
+//#ifdef UserStressFile
+//            if(this->network().use_userStress)
+//            {
+//                temp+=userStress(rgauss.col(k));
+//            }
+//#endif
             
             return temp;
         }
@@ -734,7 +734,7 @@ namespace model
                     for (unsigned int k=0;k<qOrder;++k)
                     {
                         // Add stress of ExternalLoadController
-                        stressGauss[k]+=this->network().extStressController.externalStress();
+                        stressGauss[k]+=this->network().extStressController.externalStress(rgauss.col(k));
                         
                         // Add BVP stress
                         if(this->network().use_bvp)
@@ -742,12 +742,12 @@ namespace model
                             stressGauss[k] += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
                         }
                         
-#ifdef UserStressFile
-                        if(this->network().use_userStress)
-                        {
-                            stressGauss[k]+=userStress(rgauss.col(k));
-                        }
-#endif
+//#ifdef UserStressFile
+//                        if(this->network().use_userStress)
+//                        {
+//                            stressGauss[k]+=userStress(rgauss.col(k));
+//                        }
+//#endif
                         
                         // Add GB stress
                         for(const auto& sStraight : this->network().poly.grainBoundaryDislocations() )

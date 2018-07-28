@@ -59,7 +59,13 @@
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
-#include <model/DislocationDynamics/ExternalStressFieldController.h>
+
+#ifndef ExternalLoadControllerFile
+#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/DummyExternalLoadController.h>
+#endif
+#include ExternalLoadControllerFile
+
+//#include <model/DislocationDynamics/ExternalLoadController.h>
 #include <model/DislocationDynamics/DislocationInjector.h>
 
 namespace model
@@ -114,7 +120,7 @@ namespace model
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
         typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
         typedef Polycrystal<dim> PolycrystalType;
-        typedef ExternalStressFieldController<dim> ExternalStressFieldControllerType;
+        typedef ExternalLoadController<dim> ExternalLoadControllerType;
         //        enum {NdofXnode=NodeType::NdofXnode};
         
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
@@ -143,9 +149,9 @@ namespace model
 //        BvpSolverType bvpSolver;
         // MatrixDimD externalStress;
         bool use_externalStress;
-        bool use_userStress;
-        bool use_externaldislocationstressfield;
-        ExternalStressFieldControllerType extStressController;
+//        bool use_userStress;
+        bool use_extraStraightSegments;
+        ExternalLoadControllerType extStressController;
         std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
         
         int  outputFrequency;
@@ -177,7 +183,7 @@ namespace model
     private:
         
         /**********************************************************************/
-        void update_BVP_Solution()
+        void updateLoadControllers()
         {/*! Updates bvpSolver using the stress and displacement fields of the
           *  current DD configuration.
           */
@@ -248,7 +254,7 @@ namespace model
             updateQuadraturePoints();
             
             //! 3- Calculate BVP correction
-            update_BVP_Solution();
+            updateLoadControllers();
             
 #ifdef DislocationNucleationFile
             if(use_bvp && !(runID%use_bvp))
@@ -357,7 +363,7 @@ namespace model
 //        /* init list  */ poly(mesh),
 //        /* init list  */ bvpSolver(mesh),
         /* init list  */ use_externalStress(false),
-        /* init list  */ use_externaldislocationstressfield(false),
+        /* init list  */ use_extraStraightSegments(false),
         /* init list  */ extStressController(),
         /* init list  */ ssdeq(),
         /* init list  */ outputFrequency(1),
@@ -377,7 +383,7 @@ namespace model
         /* init list  */ outputSegmentPairDistances(false),
         /* init list  */ _userOutputColumn(3),
         /* init list  */ use_stochasticForce(false),
-        /* init list  */ use_userStress(false),
+//        /* init list  */ use_userStress(false),
         /* init list  */ folderSuffix("")
         {
             
@@ -542,7 +548,7 @@ namespace model
                     }
                     
                     model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-                    if (use_externaldislocationstressfield)
+                    if (use_extraStraightSegments)
                     {
                         this->template computeNeighborField<StressField>(ssdeq);
                     }

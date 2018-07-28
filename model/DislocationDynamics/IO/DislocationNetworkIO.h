@@ -17,7 +17,6 @@
 #include <model/IO/UniqueOutputFile.h>
 #include <model/IO/SequentialOutputFile.h>
 #include <model/IO/SequentialBinFile.h>
-
 #include <model/Utilities/TerminalColors.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/MPI/MPIcout.h>
@@ -76,7 +75,7 @@ namespace model
         
         /**********************************************************************/
         void read(const std::string& inputDirectoryName_in, std::string inputFileName)
-        { // TO DO: move this to DislocationNetworkIO.h
+        { //
             
             std::ostringstream fullName;
             fullName<<inputDirectoryName_in<<inputFileName;
@@ -177,40 +176,40 @@ namespace model
             
             // Eternal Stress
             // EDR.readMatrixInFile(fullName.str(),"externalStress",DN.externalStress);
-            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_externalStress);
-            if (DN.use_externalStress)
-            {
-                DN._userOutputColumn+=18;  //put here in order for right bvp restart
-            }
+//            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_externalStress);
+//            if (DN.use_externalStress)
+//            {
+//                DN._userOutputColumn+=18;  //put here in order for right bvp restart
+//            }
             
-            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_userStress);
+//            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_userStress);
 
             
             
             // Use Changing external stress field induced by straight dislocations.
-            EDR.readScalarInFile("./loadInput.txt","use_externaldislocationstressfield",DN.use_externaldislocationstressfield);
-            if (DN.use_externaldislocationstressfield)
-            {
-                DN.ssdeq.clear();
-                typedef IDreader<'B',1,10,double> IDreaderType;
-                IDreaderType vReader;
-                if (vReader.isGood(0,true))
-                {
-                    vReader.read(0,true);
-                    for (const auto& vIter : vReader)
-                    {
-                        Eigen::Map<const Eigen::Matrix<double,1,9>> row(vIter.second.data());
-                        VectorDimD P0(row.template segment<dim>(0));// P0 position
-                        VectorDimD P1(row.template segment<dim>(dim)); // P1 position
-                        VectorDimD B(row.template segment<dim>(dim*2));  // Burgers vector
-                        DN.ssdeq.emplace_back(StressStraight<dim>(P0,P1,B));
-                    }
-                }
-                else
-                {
-                    model::cout<<"could not read runID from B/B_0.txt"<<std::endl;
-                }
-            }
+//            EDR.readScalarInFile("./loadInput.txt","use_externaldislocationstressfield",DN.use_externaldislocationstressfield);
+//            if (DN.use_externaldislocationstressfield)
+//            {
+//                DN.ssdeq.clear();
+//                typedef IDreader<'B',1,10,double> IDreaderType;
+//                IDreaderType vReader;
+//                if (vReader.isGood(0,true))
+//                {
+//                    vReader.read(0,true);
+//                    for (const auto& vIter : vReader)
+//                    {
+//                        Eigen::Map<const Eigen::Matrix<double,1,9>> row(vIter.second.data());
+//                        VectorDimD P0(row.template segment<dim>(0));// P0 position
+//                        VectorDimD P1(row.template segment<dim>(dim)); // P1 position
+//                        VectorDimD B(row.template segment<dim>(dim*2));  // Burgers vector
+//                        DN.ssdeq.emplace_back(StressStraight<dim>(P0,P1,B));
+//                    }
+//                }
+//                else
+//                {
+//                    model::cout<<"could not read runID from B/B_0.txt"<<std::endl;
+//                }
+//            }
             
             // Restart
             EDR.readScalarInFile(fullName.str(),"startAtTimeStep",DN.runID);
@@ -356,10 +355,12 @@ namespace model
                 DN.use_bvp=0;	// never comupute boundary correction
             }
             
-            if (DN.use_externalStress)
-            {
-                DN.extStressController.init(DN);  // have to initialize it after mesh!
-            }
+            DN.extStressController.init(DN);  // have to initialize it after mesh!
+
+//            if (DN.use_externalStress)
+//            {
+//                DN.extStressController.init(DN);  // have to initialize it after mesh!
+//            }
             
             // VERTEX REDISTRIBUTION
             EDR.readScalarInFile(fullName.str(),"remeshFrequency",DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency);
@@ -415,8 +416,15 @@ namespace model
             }
             else
             {
-                assert(EVLio<dim>::isTxtGood(DN.runID,suffix));
-                evl.readTxt(DN.runID,suffix);
+                if(EVLio<dim>::isTxtGood(DN.runID,suffix))
+                {
+                    evl.readTxt(DN.runID,suffix);
+                }
+                else
+                {
+                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<DN.runID<<".bin or evl/evl_"<<DN.runID<<".txt"<<std::endl;
+                    assert(0 && "COULD NOT FIND INPUT FILEs.");
+                }
             }
             createVertices(evl);
             createEdges(evl);
@@ -885,32 +893,10 @@ namespace model
                 }
                 
             }
+            
             if (DN.use_externalStress)
             {
-                f_file<<DN.extStressController.output();
-                if(DN.runningID()==0)
-                {
-                    F_labels<<labelCol+0<<"    e_11\n";
-                    F_labels<<labelCol+1<<"    e_12\n";
-                    F_labels<<labelCol+2<<"    e_13\n";
-                    F_labels<<labelCol+3<<"    e_21\n";
-                    F_labels<<labelCol+4<<"    e_22\n";
-                    F_labels<<labelCol+5<<"    e_23\n";
-                    F_labels<<labelCol+6<<"    e_31\n";
-                    F_labels<<labelCol+7<<"    e_32\n";
-                    F_labels<<labelCol+8<<"    e_33\n";
-                    labelCol+=9;
-                    F_labels<<labelCol+0<<"    s_11 [mu]\n";
-                    F_labels<<labelCol+1<<"    s_12 [mu]\n";
-                    F_labels<<labelCol+2<<"    s_13 [mu]\n";
-                    F_labels<<labelCol+3<<"    s_21 [mu]\n";
-                    F_labels<<labelCol+4<<"    s_22 [mu]\n";
-                    F_labels<<labelCol+5<<"    s_23 [mu]\n";
-                    F_labels<<labelCol+6<<"    s_31 [mu]\n";
-                    F_labels<<labelCol+7<<"    s_32 [mu]\n";
-                    F_labels<<labelCol+8<<"    s_33 [mu]\n";
-                    labelCol+=9;
-                }
+                DN.extStressController.output(DN.runningID(),f_file,F_labels,labelCol);
             }
             
             if(DN.use_bvp)

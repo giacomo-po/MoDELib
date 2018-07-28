@@ -142,7 +142,7 @@ namespace model
                                 _glidePlaneIntersections.emplace_back(boundingBoxSegments()[0].first,boundingBoxSegments()[0].second);
                                 VerboseDislocationNode(4,"  boundingBoxSegments()[0].first="<<boundingBoxSegments()[0].first.transpose()<<std::endl;);
                                 VerboseDislocationNode(4,"  boundingBoxSegments()[0].second="<<boundingBoxSegments()[0].second.transpose()<<std::endl;);
-
+                                
                                 break;
                             }
                                 
@@ -224,7 +224,7 @@ namespace model
             for(const auto& pair : _glidePlaneIntersections)
             {
                 VerboseDislocationNode(2,"P1="<<std::setprecision(15)<<std::scientific<<pair.first.transpose()<<", P2="<<pair.second.transpose()<<std::endl;);
-
+                
             }
             
             assert(_glidePlaneIntersections.size()<=1 && "_glidePlaneIntersections can have at the most size 1");
@@ -253,7 +253,7 @@ namespace model
                 
                 VerboseDislocationNode(4,"new bounding box"<<std::endl;);
                 VerboseDislocationNode(4,boundingBoxSegments()<<std::endl;);
-
+                
                 
                 //                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
                 //                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
@@ -280,8 +280,8 @@ namespace model
                     }
                 }
             }
-//            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
-
+            //            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
+            
             
             //            for(const auto& gb : this->network().poly.grainBoundaries())
             //            {
@@ -314,7 +314,7 @@ namespace model
           */
             
             VerboseDislocationNode(4,"snapping P="<<P.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-
+            
             
             const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
             const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
@@ -364,7 +364,7 @@ namespace model
             
             if(pLcontained && parallelBndChords)
             {
-                    VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                 return pL;
             }
             else
@@ -436,37 +436,37 @@ namespace model
         }
         
         
-//        /**********************************************************************/
-//        void make_projectionMatrix()
-//        {
-//            
-//            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-//            VectorOfNormalsType  CN;
-//            for(const auto& plane : meshPlanes())
-//            {
-//                CN.push_back(plane->unitNormal);
-//            }
-//            
-//            if(isBoundaryNode())
-//            {
-//                CN.push_back(boundaryNormal);
-//                
-//            }
-//            
-//            // Add normal to region boundary
-//            //            CN.push_back(regionBndNormal);
-//            
-//            // Find independent vectors
-//            GramSchmidt::orthoNormalize(CN);
-//            
-//            // Assemble projection matrix (prjM)
-//            this->prjM.setIdentity();
-//            for (size_t k=0;k<CN.size();++k)
-//            {
-//                this->prjM*=( I-CN[k]*CN[k].transpose() );
-//            }
-//            
-//        }
+        //        /**********************************************************************/
+        //        void make_projectionMatrix()
+        //        {
+        //
+        //            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
+        //            VectorOfNormalsType  CN;
+        //            for(const auto& plane : meshPlanes())
+        //            {
+        //                CN.push_back(plane->unitNormal);
+        //            }
+        //
+        //            if(isBoundaryNode())
+        //            {
+        //                CN.push_back(boundaryNormal);
+        //
+        //            }
+        //
+        //            // Add normal to region boundary
+        //            //            CN.push_back(regionBndNormal);
+        //
+        //            // Find independent vectors
+        //            GramSchmidt::orthoNormalize(CN);
+        //
+        //            // Assemble projection matrix (prjM)
+        //            this->prjM.setIdentity();
+        //            for (size_t k=0;k<CN.size();++k)
+        //            {
+        //                this->prjM*=( I-CN[k]*CN[k].transpose() );
+        //            }
+        //
+        //        }
         
         /**********************************************************************/
         BoundingLineSegments<dim> _glidePlaneIntersections; //
@@ -516,7 +516,7 @@ namespace model
         /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
         /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init list        */ vOld(velocity),
-//        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
+        //        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
         /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
@@ -618,7 +618,7 @@ namespace model
                     {
                         const double u=(P-_glidePlaneIntersections[0].first).dot(D)/normD2;
                         VerboseDislocationNode(3,"u="<<u<<std::endl;);
-
+                        
                         if(u<0.0)
                         {
                             VerboseDislocationNode(3,"DislocationNode "<<this->sID<<" snapToMeshPlaneIntersection, case 1a"<<std::endl;);
@@ -748,32 +748,55 @@ namespace model
         }
         
         
-//        /**********************************************************************/
-//        void set_V(const VectorDofType& vNew)
-//        {
-//            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
-//        }
-
+        //        /**********************************************************************/
+        //        void set_V(const VectorDofType& vNew)
+        //        {
+        //            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+        //        }
+        
+        /**********************************************************************/
+        void projectVelocity()
+        {
+            if(velocity.squaredNorm()>FLT_EPSILON)
+            {
+                VectorOfNormalsType temp;
+                
+                for(const auto& loop : this->loops())
+                {
+                    if(loop->isGlissile)
+                    {
+                        temp.push_back(loop->glidePlane.unitNormal);
+                    }
+                    else
+                    {
+                        velocity.setZero();
+                        break;
+                    }
+                }
+                temp.push_back(boundaryNormal);
+                
+                if(velocity.squaredNorm()>FLT_EPSILON)
+                {
+                    GramSchmidt::orthoNormalize(temp);
+                    
+                    for(const auto& vec : temp)
+                    {
+                        velocity-=velocity.dot(vec)*vec;
+                    }
+                    
+                }
+            }
+        }
+        
+        
         /**********************************************************************/
         void set_V(const VectorDofType& vNew)
         {
             vOld=velocity; // store current value of velocity before updating
-
-//            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
-            velocity=vNew;
-            for(const auto& loop : this->loops())
-            {
-                if(loop->isGlissile)
-                {
-                    velocity-=velocity.dot(loop->glidePlane.unitNormal)*loop->glidePlane.unitNormal;
-                }
-                else
-                {
-                    velocity.setZero();
-                    break;
-                }
-            }
             
+            //            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
+            velocity=vNew;
+            projectVelocity();
             
             if(use_velocityFilter)
             {
@@ -800,12 +823,7 @@ namespace model
                     velocityReductionCoeff=0.005;
                 }
                 velocity*=velocityReductionCoeff;
-                
             }
-            
-//            vOld=velocity; // store current value of velocity before updating
-            
-            
         }
         
         /**********************************************************************/
@@ -815,11 +833,11 @@ namespace model
             return velocity;
         }
         
-//        /**********************************************************************/
-//        bool isOscillating() const
-//        {
-//            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
-//        }
+        //        /**********************************************************************/
+        //        bool isOscillating() const
+        //        {
+        //            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
+        //        }
         
         /**********************************************************************/
         const Simplex<dim,dim>* includingSimplex() const
@@ -880,7 +898,7 @@ namespace model
                     model::cout<<"_isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
                     model::cout<<"isGrainBoundaryNode()="<<isGrainBoundaryNode()<<std::endl;
                     model::cout<<"NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE"<<std::endl;
-//                    assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
+                    //                    assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
                 }
             }
             return isBndNode ;
@@ -892,12 +910,12 @@ namespace model
             return grainBoundaries().size();
         }
         
-//        /**********************************************************************/
-//        bool isPureBoundaryNode() const
-//        {
-//            return isBoundaryNode() && isConnectedToBoundaryNodes();
-//        }
-
+        //        /**********************************************************************/
+        //        bool isPureBoundaryNode() const
+        //        {
+        //            return isBoundaryNode() && isConnectedToBoundaryNodes();
+        //        }
+        
         /**********************************************************************/
         bool isPureBoundaryNode() const
         {
@@ -1005,20 +1023,20 @@ namespace model
             }
             return temp;
         }
-
+        
         /**********************************************************************/
         bool isSessileNode() const
         {
             
             bool temp=true;
-                for (const auto& neighborIter : this->neighbors())
+            for (const auto& neighborIter : this->neighbors())
+            {
+                temp*=std::get<1>(neighborIter.second)->isSessile();
+                if(!temp)
                 {
-                    temp*=std::get<1>(neighborIter.second)->isSessile();
-                    if(!temp)
-                    {
-                        break;
-                    }
+                    break;
                 }
+            }
             return temp;
         }
         
@@ -1138,10 +1156,10 @@ namespace model
                             model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
                             model::cout<<"BoundingBox Lines:"<<std::endl;
                             model::cout<<boundingBoxSegments();
-//                            for (const auto& pair : boundingBoxSegments())
-//                            {
-//                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
-//                            }
+                            //                            for (const auto& pair : boundingBoxSegments())
+                            //                            {
+                            //                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
+                            //                            }
                             std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
                             //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
                         }
@@ -1159,7 +1177,7 @@ namespace model
                 }
                 
                 
-//                make_projectionMatrix();
+                //                make_projectionMatrix();
             }
             else
             {
@@ -1178,7 +1196,7 @@ namespace model
             bool isMovable=true;
             
             VerboseDislocationNode(4,"checking if DislocationNode "<<this->sID<< " isMovable:"<<std::endl;);
-
+            
             for(const auto& gp : meshPlanes())
             {// X must be contained by all glidePlanes
                 isMovable*=gp->contains(X);
@@ -1284,7 +1302,7 @@ namespace model
                 velocity=(this->get_P()-P_old)/dt;
             }
             
-//            vOld=velocity; // store current value of velocity before updating
+            //            vOld=velocity; // store current value of velocity before updating
         }
         
         /**********************************************************************/
