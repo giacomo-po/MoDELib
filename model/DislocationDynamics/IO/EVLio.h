@@ -14,6 +14,7 @@
 #include <chrono>
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
+#include <cfloat>      // std::ifstream
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/DislocationDynamics/IO/DislocationEdgeIO.h>

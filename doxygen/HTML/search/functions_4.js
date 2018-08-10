@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['d',['d',['../external_strain_control_2plot_distance_distribution_8m.html#a961e53e8f409724ec036fd1403da9383',1,'d():&#160;plotDistanceDistribution.m'],['../user_stress_2plot_distance_distribution_8m.html#a961e53e8f409724ec036fd1403da9383',1,'d():&#160;plotDistanceDistribution.m']]],
+  ['d',['d',['../external_load_control_2plot_distance_distribution_8m.html#a961e53e8f409724ec036fd1403da9383',1,'d():&#160;plotDistanceDistribution.m'],['../user_stress_2plot_distance_distribution_8m.html#a961e53e8f409724ec036fd1403da9383',1,'d():&#160;plotDistanceDistribution.m']]],
   ['d2contra',['d2contra',['../classmodel_1_1_lattice_vector.html#aa8b0ea644e6502e316be5f2f13277355',1,'model::LatticeVector']]],
   ['d2cov',['d2cov',['../classmodel_1_1_reciprocal_lattice_vector.html#a910ea7602170d5f95d7ecf64f0b4eb21',1,'model::ReciprocalLatticeVector']]],
   ['da',['Da',['../plot_displacement_8m.html#a69a06bd75068fb3907a4ce09e24446d3',1,'plotDisplacement.m']]],
@@ -70,5 +70,6 @@ var searchData=
   ['domain',['domain',['../structmodel_1_1_entire_domain.html#a83d2ca53ce02da7fe967c2daf7a112c2',1,'model::EntireDomain::domain()'],['../classmodel_1_1_finite_element.html#aefa7e3fbff7e731fc21a150d6dee65a4',1,'model::FiniteElement::domain()']]],
   ['dot',['dot',['../classmodel_1_1_lattice_vector.html#ab23ad726a52dfb206f285ec130bac020',1,'model::LatticeVector::dot()'],['../classmodel_1_1_reciprocal_lattice_vector.html#ad3aed75a681b162fb9176f844dc95e78',1,'model::ReciprocalLatticeVector::dot()'],['../namespacemodel.html#a00fc09950d0c3da7d156009fd45e3af0',1,'model::dot()'],['../run_multipole_8m.html#ac7419b2c6cf5dd3a865f4d042e9e7778',1,'dot(P1, d1)&lt; 0 d1:&#160;runMultipole.m'],['../run_multipole_8m.html#ac47c4c050972197e549869617c7551ed',1,'dot(P1, d2)&lt; 0 d2:&#160;runMultipole.m']]],
   ['dscl',['DSCL',['../classmodel_1_1_d_s_c_l.html#a31ae2aaf1090aaa811af309157592c2c',1,'model::DSCL']]],
+  ['dummyexternalloadcontroller',['DummyExternalLoadController',['../classmodel_1_1_dummy_external_load_controller.html#a90fe9f06817cb3e5b0e99f13a2946ffb',1,'model::DummyExternalLoadController']]],
   ['dupow',['duPow',['../structmodel_1_1_quad_pow_dynamic_3_01p_order_00_01_quadrature_rule_00_01q_order_00_01other_orders_8_8_8_01_4.html#a890ef12c0145f0985b638aefd0166dc0',1,'model::QuadPowDynamic&lt; pOrder, QuadratureRule, qOrder, otherOrders... &gt;::duPow()'],['../structmodel_1_1_quad_pow_dynamic_3_01p_order_00_01_quadrature_rule_00_01q_order_01_4.html#a897b3a066b8c3502c5f0abbe6257c36d',1,'model::QuadPowDynamic&lt; pOrder, QuadratureRule, qOrder &gt;::duPow()']]]
 ];

@@ -36,5 +36,5 @@ var searchData=
   ['expressionref_3c_20testtype_20_3e',['ExpressionRef&lt; TestType &gt;',['../classmodel_1_1_expression_ref.html',1,'model']]],
   ['expressionref_3c_20trialexpressiontype_20_3e',['ExpressionRef&lt; TrialExpressionType &gt;',['../classmodel_1_1_expression_ref.html',1,'model']]],
   ['externalboundary',['ExternalBoundary',['../structmodel_1_1_external_boundary.html',1,'model']]],
-  ['externalstressfieldcontroller',['ExternalStressFieldController',['../class_external_stress_field_controller.html',1,'']]]
+  ['extrastraightsegmentscontroller',['ExtraStraightSegmentsController',['../classmodel_1_1_extra_straight_segments_controller.html',1,'model']]]
 ];

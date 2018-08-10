@@ -101,8 +101,47 @@ namespace model
             {
                 
                 // Read grain orientation
+                
+                int C2GfromSlipSystem=-1;
+                EDR.readScalarInFile(fullName,"C2G"+std::to_string(rIter.second->regionID)+"fromSlipSystem",C2GfromSlipSystem);
+                
                 Eigen::Matrix<double,dim,dim> C2Gtemp(Eigen::Matrix<double,dim,dim>::Identity());
-                EDR.readMatrixInFile(fullName,"C2G"+std::to_string(rIter.second->regionID),C2Gtemp); // crystal-to-global orientation
+                
+                if(C2GfromSlipSystem>=0)
+                {
+                
+                    grains().emplace(std::piecewise_construct,
+                                     std::forward_as_tuple(rIter.second->regionID),
+                                     std::forward_as_tuple(*(rIter.second),
+                                                           materialZ,
+                                                           C2Gtemp));
+                    
+                    if(C2GfromSlipSystem<grains().at(rIter.second->regionID).slipSystems().size())
+                    {
+                        const SlipSystem& slipSystem(grains().at(rIter.second->regionID).slipSystems()[C2GfromSlipSystem]);
+                        C2Gtemp.row(2)=slipSystem.unitNormal;
+                        C2Gtemp.row(0)=slipSystem.s.cartesian().normalized();
+                        C2Gtemp.row(1)=C2Gtemp.row(2).cross(C2Gtemp.row(0));
+                        grains().at(rIter.second->regionID).rotate(C2Gtemp);
+                    }
+                    else
+                    {
+                        model::cout<<"C2G"+std::to_string(rIter.second->regionID)+"fromSlipSystem"<<" exceedes the number of SlipSystems in Grain "<<rIter.second->regionID<<" ("<<grains().at(rIter.second->regionID).slipSystems().size()<<")."<<std::endl;
+                        assert(0 && "WRONG SLIPSYSTEM ID");
+                    }
+                    
+                }
+                else
+                {
+                    EDR.readMatrixInFile(fullName,"C2G"+std::to_string(rIter.second->regionID),C2Gtemp); // crystal-to-global orientation
+                    
+                    grains().emplace(std::piecewise_construct,
+                                     std::forward_as_tuple(rIter.second->regionID),
+                                     std::forward_as_tuple(*(rIter.second),
+                                                           materialZ,
+                                                           C2Gtemp));
+                }
+                
                 
 //                if()
 //                {
@@ -119,11 +158,7 @@ namespace model
 //                    }
 //                }
                 
-                grains().emplace(std::piecewise_construct,
-                                 std::forward_as_tuple(rIter.second->regionID),
-                                 std::forward_as_tuple(*(rIter.second),
-                                                       materialZ,
-                                                       C2Gtemp));
+
                 
             }
             

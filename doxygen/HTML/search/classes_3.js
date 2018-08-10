@@ -54,5 +54,6 @@ var searchData=
   ['dnetwork',['Dnetwork',['../structmodel_1_1_dnetwork.html',1,'model']]],
   ['dnode',['Dnode',['../structmodel_1_1_dnode.html',1,'model']]],
   ['dscl',['DSCL',['../classmodel_1_1_d_s_c_l.html',1,'model']]],
-  ['dummy',['Dummy',['../struct_dummy.html',1,'']]]
+  ['dummy',['Dummy',['../struct_dummy.html',1,'']]],
+  ['dummyexternalloadcontroller',['DummyExternalLoadController',['../classmodel_1_1_dummy_external_load_controller.html',1,'model']]]
 ];

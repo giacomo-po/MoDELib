@@ -100,7 +100,7 @@ $(function() {
 : <a class="el" href="structmodel_1_1_dislocation_particle.html#acb452e4510d2079aa300effcf6829e6f">model::DislocationParticle&lt; _dim &gt;</a>
 </li>
 <li>elasticstrain()
-: <a class="el" href="class_external_stress_field_controller.html#aadb55b01f303bcfbc414068e7dc688c0">ExternalStressFieldController&lt; dim &gt;</a>
+: <a class="el" href="classmodel_1_1_uniform_external_load_controller.html#ac3c220a72942171875ba0dbcc7713b39">model::UniformExternalLoadController&lt; dim &gt;</a>
 </li>
 <li>ele
 : <a class="el" href="structmodel_1_1_boundary_integration_point.html#a69c5801f95a18a2c3c9bc21bff580a56">model::BoundaryIntegrationPoint&lt; ElementType &gt;</a>
@@ -210,7 +210,7 @@ $(function() {
 , <a class="el" href="structmodel_1_1_trial_domain_view.html#a79a5a1395782d9a79523f48c8ada6493">model::TrialDomainView&lt; EvalType, DimMinusDomainDim &gt;</a>
 </li>
 <li>EvalExpression()
-: <a class="el" href="structmodel_1_1_eval_expression.html#ab61fa2cfaf2ae993627ea696d8f12928">model::EvalExpression&lt; TrialExpressionType &gt;</a>
+: <a class="el" href="structmodel_1_1_eval_expression.html#a4bd4c72dddcc651292c62fea2fd43c77">model::EvalExpression&lt; TrialExpressionType &gt;</a>
 </li>
 <li>EvalMatrixType
 : <a class="el" href="structmodel_1_1_eval_expression.html#a1a143b3e78854903fdbe1d27cb188621">model::EvalExpression&lt; TrialExpressionType &gt;</a>
@@ -229,7 +229,7 @@ $(function() {
 </li>
 <li>execute()
 : <a class="el" href="structmodel_1_1_quadrature.html#ab96947496c79a63095e52e70b2cce24b">model::Quadrature&lt; dim, qOrder, QuadratureRule &gt;</a>
-, <a class="el" href="structmodel_1_1_quadrature_dynamic_3_01dim_00_01_quadrature_rule_00_01order_01_4.html#a1318206bdc8c49c82d6406bc9ef34109">model::QuadratureDynamic&lt; dim, QuadratureRule, order &gt;</a>
+, <a class="el" href="structmodel_1_1_quadrature_dynamic_3_01dim_00_01_quadrature_rule_00_01order_01_4.html#a2c96eedd87d1759461e488874bb07b4d">model::QuadratureDynamic&lt; dim, QuadratureRule, order &gt;</a>
 , <a class="el" href="structmodel_1_1_quadrature_dynamic_3_01dim_00_01_quadrature_rule_00_01order_00_01other_orders_8_8_8_01_4.html#a2fcdfd8633fa198f503b7f4d9e948064">model::QuadratureDynamic&lt; dim, QuadratureRule, order, otherOrders... &gt;</a>
 </li>
 <li>expand()
@@ -251,25 +251,29 @@ $(function() {
 : <a class="el" href="classmodel_1_1_loop_network.html#a9a29e7da4316abb7f28f09e3f155c11f">model::LoopNetwork&lt; Derived &gt;</a>
 </li>
 <li>ExpressionRef()
-: <a class="el" href="classmodel_1_1_expression_ref.html#a97e67f73fc16b15ee5fa84555df81e14">model::ExpressionRef&lt; T &gt;</a>
+: <a class="el" href="classmodel_1_1_expression_ref.html#a5234063fb1c829b436c1b4c97688d6d0">model::ExpressionRef&lt; T &gt;</a>
+</li>
+<li>ExternalLoadControllerType
+: <a class="el" href="classmodel_1_1_dislocation_network.html#adf37ef7fdf51a5c97318ecac1e17d7b1">model::DislocationNetwork&lt; _dim, corder, InterpolationType &gt;</a>
 </li>
 <li>externalStress()
-: <a class="el" href="class_external_stress_field_controller.html#aafa81e31b32000bdec7f1e64ac7e6eae">ExternalStressFieldController&lt; dim &gt;</a>
+: <a class="el" href="classmodel_1_1_dummy_external_load_controller.html#a9825f97a52a3d02625a32829f8c2db0b">model::DummyExternalLoadController&lt; dim &gt;</a>
+, <a class="el" href="classmodel_1_1_extra_straight_segments_controller.html#a3b4d54ac56d8469a02348ba67f514115">model::ExtraStraightSegmentsController&lt; dim &gt;</a>
+, <a class="el" href="classmodel_1_1_sample_user_stress_controller.html#ab117ede21e886bddb57cca9529da5ecc">model::SampleUserStressController&lt; dim &gt;</a>
+, <a class="el" href="classmodel_1_1_sequential_torsion_tension_controller.html#a97edf2b62747dc1e541c070515cb7618">model::SequentialTorsionTensionController&lt; dim &gt;</a>
+, <a class="el" href="classmodel_1_1_uniform_external_load_controller.html#afb46959e017f5ddde3eeb11de6a64471">model::UniformExternalLoadController&lt; dim &gt;</a>
 </li>
-<li>ExternalStressFieldController()
-: <a class="el" href="class_external_stress_field_controller.html#acdb695ebd975d1d3e695aadba4ea662f">ExternalStressFieldController&lt; dim &gt;</a>
-</li>
-<li>ExternalStressFieldControllerType
-: <a class="el" href="classmodel_1_1_dislocation_network.html#a3b018d7cbdcb334f2b1ce09259e7ac94">model::DislocationNetwork&lt; _dim, corder, InterpolationType &gt;</a>
+<li>ExtraStraightSegmentsController()
+: <a class="el" href="classmodel_1_1_extra_straight_segments_controller.html#a431f3e46bc6d8418d6dfffcc22728513">model::ExtraStraightSegmentsController&lt; dim &gt;</a>
 </li>
 <li>extStressController
-: <a class="el" href="classmodel_1_1_dislocation_network.html#af2de60d1cee6c15978cf4fec00ba6760">model::DislocationNetwork&lt; _dim, corder, InterpolationType &gt;</a>
+: <a class="el" href="classmodel_1_1_dislocation_network.html#afd4a9c3d865787e130c441da16539c79">model::DislocationNetwork&lt; _dim, corder, InterpolationType &gt;</a>
 </li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Jul 22 2018 20:03:15 for Mechanics of Defect Evolution Library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Jul 30 2018 00:13:18 for Mechanics of Defect Evolution Library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.13
 </small></address>

@@ -73,7 +73,8 @@ namespace model
         vtkSmartPointer<vtkRenderer> plotRenderer;
         vtkSmartPointer<model::DDinteractionStyle> style;
 
-
+//        vtkSmartPointer<vtkAxesActor> axes;
+        
         
         /**********************************************************************/
         DDvtk() :
@@ -82,6 +83,7 @@ namespace model
         /* init */ ddRenderer(vtkSmartPointer<vtkRenderer>::New()),
         /* init */ style(vtkSmartPointer<model::DDinteractionStyle>::New()),
         /* init */ plotRenderer(vtkSmartPointer<vtkRenderer>::New())
+//        axes(vtkSmartPointer<vtkAxesActor>::New())
         {
             
             int meshID(0);
@@ -121,23 +123,39 @@ namespace model
 
             renderWindowInteractor->SetInteractorStyle(style);
             style->SetDefaultRenderer(ddRenderer);
-            style->ddRenderer=ddRenderer;
-            style->plotRenderer=plotRenderer;
-
-
-            style->meshActor.init(meshID,ddRenderer);
-            style->loadFrame(0);
             
-            plotRenderer->SetBackground(1,1,1);
-            plotRenderer->SetViewport(0.5,0,1.0,1);
+            style->init(ddRenderer,plotRenderer,meshID);
+//            style->ddRenderer=ddRenderer;
+//            style->plotRenderer=plotRenderer;
+//
+//
+//            style->meshActor.init(meshID,ddRenderer);
+//            style->loadFrame(0);
+//            
+//            plotRenderer->SetBackground(1,1,1);
+//            plotRenderer->SetViewport(0.5,0,1.0,1);
             
 //            PlotActor pa(plotRenderer);
             
-            
+            // The axes are positioned with a user transform
+//            axes->SetUserTransform(transform);
 
+//            axes->SetTotalLength(1000,1000,1000);
+//            ddRenderer->AddActor(axes);
+
+//            vtkSmartPointer<vtkOrientationMarkerWidget> widget =
+//            vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+//            widget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+//            widget->SetOrientationMarker( axes );
+//            widget->SetInteractor( renderWindowInteractor );
+//            widget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
+//            widget->SetEnabled( 1 );
+//            widget->InteractiveOn();
             
+//            renderWindow->Render();
             
             // Start
+            ddRenderer->ResetCamera();
             renderWindow->LineSmoothingOn();
             renderWindow->PolygonSmoothingOn();
             renderWindow->PointSmoothingOn();

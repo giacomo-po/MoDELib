@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['sampleuserstresscontroller_2eh',['SampleUserStressController.h',['../_sample_user_stress_controller_8h.html',1,'']]],
   ['scalar2color_2em',['scalar2color.m',['../scalar2color_8m.html',1,'']]],
   ['scalardatareader_2eh',['ScalarDataReader.h',['../_scalar_data_reader_8h.html',1,'']]],
   ['schurcomplementsolver_2eh',['SchurComplementSolver.h',['../_schur_complement_solver_8h.html',1,'']]],
@@ -7,6 +8,7 @@ var searchData=
   ['segmentsegmentintersection_5fold_2eh',['SegmentSegmentIntersection_OLD.h',['../_segment_segment_intersection___o_l_d_8h.html',1,'']]],
   ['sequentialbinfile_2eh',['SequentialBinFile.h',['../_sequential_bin_file_8h.html',1,'']]],
   ['sequentialoutputfile_2eh',['SequentialOutputFile.h',['../_sequential_output_file_8h.html',1,'']]],
+  ['sequentialtorsiontensioncontroller_2eh',['SequentialTorsionTensionController.h',['../_sequential_torsion_tension_controller_8h.html',1,'']]],
   ['simple_5fpolygon_2em',['simple_polygon.m',['../simple__polygon_8m.html',1,'']]],
   ['simplecubiccrystal_2eh',['SimpleCubicCrystal.h',['../_simple_cubic_crystal_8h.html',1,'']]],
   ['simplex_2eh',['Simplex.h',['../_simplex_8h.html',1,'']]],

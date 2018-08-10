@@ -27,11 +27,11 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -70,7 +70,7 @@ Lmin=0.02;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=0;
+maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -80,7 +80,7 @@ collisionTol=3;
 # If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
 # T/T_meshID.txt must be present in the working directory.
 use_boundary =1;
-meshID=1;
+meshID=0;
 use_directSolver_FEM=0;
 use_meshRegions=0;
 

@@ -50,6 +50,9 @@ namespace model
         std::unique_ptr<PKActor> ddPK;
         std::unique_ptr<GlidePlaneActor> ddGP;
         std::unique_ptr<PlotActor> plot;
+        vtkSmartPointer<vtkAxesActor> axes;
+        vtkSmartPointer<vtkOrientationMarkerWidget> widget;
+
         
         int xCol;
         int yCol;
@@ -70,6 +73,7 @@ namespace model
         double degPerStep;
         Eigen::Matrix<double,3,1> spinAxis;
         
+        bool axisWidgetEnabled;
     public:
         
         static DDinteractionStyle* New();
@@ -78,6 +82,34 @@ namespace model
         SimplicialMeshActor meshActor;
         vtkRenderer* ddRenderer;
         vtkRenderer* plotRenderer;
+        
+        void init(vtkRenderer* _ddRenderer,vtkRenderer* _plotRenderer,const int& meshID)
+        {
+        
+            ddRenderer=_ddRenderer;
+            plotRenderer=_plotRenderer;
+            
+            meshActor.init(meshID,ddRenderer);
+            
+            loadFrame(0);
+            
+            plotRenderer->SetBackground(1,1,1);
+            plotRenderer->SetViewport(0.5,0,1.0,1);
+            
+            widget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+            widget->SetOrientationMarker( axes );
+            widget->SetInteractor( this->Interactor );
+            widget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
+            widget->SetEnabled( axisWidgetEnabled );
+            widget->InteractiveOn();
+
+            
+            plotRenderer->SetBackground(1,1,1);
+            plotRenderer->SetViewport(0.5,0,1.0,1);
+            
+//            ddRenderer->ResetCamera();
+//            renderWindow->Render();
+        }
         
         
         /**********************************************************************/
@@ -215,6 +247,8 @@ namespace model
         
         /**********************************************************************/
         DDinteractionStyle() :
+                axes(vtkSmartPointer<vtkAxesActor>::New()),
+        widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
         /* init list   */ xCol(0),
         /* init list   */ yCol(2),
         /* init list   */ winFrac(0.5),
@@ -227,7 +261,8 @@ namespace model
         /* init list   */ lastFrameID(currentFrameID),
         /* init list   */ autoSpin(false),
         /* init list   */ degPerStep(0.0),
-        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero())
+        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero()),
+        /* init list   */ axisWidgetEnabled(true)
         {
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
@@ -485,16 +520,16 @@ namespace model
                 this->Interactor->Render();
             }
             
+
+
             if(key == "a")
             {
-                autoSpin=true;
                 selectedKey="a";
-                std::cout<<"Enter spin axis (x,y,z): "<<std::flush;
-                float x,y,z;
-                std::cin>>x>>y>>z;
-                spinAxis<<x,y,z;
-                std::cout<<"Enter spin angle per step (deg/step): "<<std::flush;
-                std::cin>>degPerStep;
+                std::cout<<"selecting objects: axis"<<std::endl;
+                axisWidgetEnabled=!axisWidgetEnabled;
+                widget->SetEnabled( axisWidgetEnabled );
+                ddRenderer->Render();
+                this->Interactor->Render();
             }
             
             if(key == "e")
@@ -531,6 +566,7 @@ namespace model
                 std::cout<<"Enter frame# to load:"<<std::endl;
                 long int frameID;
                 std::cin>>frameID;
+                std::cout<<"entered "<<frameID<<std::endl;
                 
 //                cin.seekg( std::ios_base::seekdir::end);
 //                long int frameID(0);
@@ -587,6 +623,17 @@ namespace model
                 }
             }
             
+            if(key == "r")
+            {
+                autoSpin=true;
+                selectedKey="a";
+                std::cout<<"Enter spin axis x y z: "<<std::flush;
+                float x,y,z;
+                std::cin>>x>>y>>z;
+                spinAxis<<x,y,z;
+                std::cout<<"Enter spin angle per step (deg/step): "<<std::flush;
+                std::cin>>degPerStep;
+            }
             
             if(key == "s")
             {

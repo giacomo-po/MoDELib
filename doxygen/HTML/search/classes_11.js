@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['sampleuserstresscontroller',['SampleUserStressController',['../classmodel_1_1_sample_user_stress_controller.html',1,'model']]],
   ['scalardatareader',['ScalarDataReader',['../classmodel_1_1_scalar_data_reader.html',1,'model']]],
   ['schurcomplementsolver',['SchurComplementSolver',['../classmodel_1_1_schur_complement_solver.html',1,'model']]],
   ['segmentsegmentdistance',['SegmentSegmentDistance',['../structmodel_1_1_segment_segment_distance.html',1,'model']]],
@@ -9,6 +10,7 @@ var searchData=
   ['sequentialoutputfile_3c_20_27e_27_2c_201_20_3e',['SequentialOutputFile&lt; &apos;E&apos;, 1 &gt;',['../classmodel_1_1_sequential_output_file.html',1,'model']]],
   ['sequentialoutputfile_3c_20_27l_27_2c_201_20_3e',['SequentialOutputFile&lt; &apos;L&apos;, 1 &gt;',['../classmodel_1_1_sequential_output_file.html',1,'model']]],
   ['sequentialoutputfile_3c_20_27v_27_2c_201_20_3e',['SequentialOutputFile&lt; &apos;V&apos;, 1 &gt;',['../classmodel_1_1_sequential_output_file.html',1,'model']]],
+  ['sequentialtorsiontensioncontroller',['SequentialTorsionTensionController',['../classmodel_1_1_sequential_torsion_tension_controller.html',1,'model']]],
   ['simplecubic',['SimpleCubic',['../structmodel_1_1_simple_cubic.html',1,'model']]],
   ['simpleline',['SimpleLine',['../struct_simple_line.html',1,'']]],
   ['simplex',['Simplex',['../classmodel_1_1_simplex.html',1,'model']]],

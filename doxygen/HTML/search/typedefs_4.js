@@ -15,5 +15,6 @@ var searchData=
   ['eventcontainertype',['EventContainerType',['../structmodel_1_1_sweep_plane.html#a33eb87de08ac336a2a5af136c727ef35',1,'model::SweepPlane']]],
   ['eventsettype',['EventSetType',['../structmodel_1_1_sweep_plane.html#a8abd38c6ca7ddd052cd08a95fff5cc07',1,'model::SweepPlane']]],
   ['expandtupletype',['ExpandTupleType',['../classmodel_1_1_loop_network.html#a9a29e7da4316abb7f28f09e3f155c11f',1,'model::LoopNetwork']]],
-  ['externalstressfieldcontrollertype',['ExternalStressFieldControllerType',['../classmodel_1_1_dislocation_network.html#a3b018d7cbdcb334f2b1ce09259e7ac94',1,'model::DislocationNetwork']]]
+  ['externalloadcontroller',['ExternalLoadController',['../namespacemodel.html#abf63da9bfbb299919d4d8614bb07604e',1,'model']]],
+  ['externalloadcontrollertype',['ExternalLoadControllerType',['../classmodel_1_1_dislocation_network.html#adf37ef7fdf51a5c97318ecac1e17d7b1',1,'model::DislocationNetwork']]]
 ];

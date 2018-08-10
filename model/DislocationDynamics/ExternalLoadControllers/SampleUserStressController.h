@@ -28,12 +28,10 @@ namespace model
     template <int dim>
     using ExternalLoadController=SampleUserStressController<dim>;
 
-    
     template <int dim>
     class SampleUserStressController
     {
         
-//        static constexpr int voigtSize=dim*(dim+1)/2;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
@@ -41,92 +39,101 @@ namespace model
         MatrixDim _externalStress;
         VectorDim P0;
         int relaxSteps;
-
-//        //External stress control parameter
-//        MatrixDim _externalStress0;
-//        MatrixDim _externalStressRate;
-//        
-//        MatrixDim ExternalStrain;
-//        //External strain control parameter
-//        MatrixDim ExternalStrain0;
-//        MatrixDim ExternalStrainRate;
-//        MatrixDim plasticStrain;
-//        //finite machine stiffness effect
-//        Eigen::Matrix<double,1,voigtSize> MachineStiffnessRatio;    //0 is stress control; infinity is pure strain control.
-//        Eigen::Matrix<size_t,voigtSize,2>     voigtorder;
-//        Eigen::Matrix<double,voigtSize,voigtSize> stressmultimachinestiffness;
-//        Eigen::Matrix<double,voigtSize,voigtSize> strainmultimachinestiffness;
-//        double last_update_time;
         double nu;  //unit is mu, lambda=2*v/(1-2*v)
         double lambda;  //unit is mu, lambda=2*v/(1-2*v)
-//        // Number of DD steps before applying strain.
-//        double nu_use;
-//        double sample_volume;
-        
+        VectorDim meshSize;
+        double tau_xz;
+        size_t dislocationImages_x;
+        size_t dislocationImages_y;
+                size_t dislocationImages_z;
         
     public:
+        
         /**************************************************************************/
         SampleUserStressController():
         /* init list */ inputFileName("./externalLoadControl/SampleUserStressController.txt")
         /* init list */,_externalStress(MatrixDim::Zero())
         /* init list */,P0(VectorDim::Zero())
-//        /* init list */ _externalStress0(MatrixDim::Zero()),
-//        /* init list */ _externalStressRate(MatrixDim::Zero()),
-//        /* init list */ ExternalStrain(MatrixDim::Zero()),
-//        /* init list */ ExternalStrain0(MatrixDim::Zero()),
-//        /* init list */ ExternalStrainRate(MatrixDim::Zero()),
-//        /* init list */ plasticStrain(MatrixDim::Zero()),
-//        /* init list */ MachineStiffnessRatio(Eigen::Matrix<double,1,voigtSize>::Zero()),
-//        /* init list */ voigtorder(Eigen::Matrix<size_t,voigtSize,2>::Zero()),
-//        /* init list */ stressmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero()),
-//        /* init list */ strainmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero()),
-//        /* init list */ last_update_time(0.0),
-//        /* init list */ lambda(1.0),
-//        /* init list */ nu_use(0.12),
-//        /* init list */ sample_volume(1.0),
         /* init list */,relaxSteps(0)
         /* init list */,nu(0.33)
         /* init list */,lambda(2.0*nu/(1.0-2.0*nu))
-
+        /* init list */,meshSize(VectorDim::Zero())
+        /* init list */,tau_xz(0.0)
+        /* init list */,dislocationImages_x(0)
+        /* init list */,dislocationImages_y(0)
+        /* init list */,dislocationImages_z(0)
         {
             
         }
         
         /**************************************************************************/
         template <typename DislocationNetworkType>
-        void init(const DislocationNetworkType& DN)
+        void init(DislocationNetworkType& DN)
         {
             const long int runID=DN.runningID();
             const unsigned int userOutputColumn=DN.userOutputColumn();
-            model::cout<<greenColor<<"Initializing External Stress Field Controller at runID="<<runID<<defaultColor<<std::endl;
+            model::cout<<greenColor<<"Initializing SampleUserStressController at runID="<<runID<<defaultColor<<std::endl;
             
-            
-            
-            model::EigenDataReader EDR;
-            EDR.readMatrixInFile(inputFileName,"externalStress",_externalStress);
-            assert((_externalStress-_externalStress.transpose()).norm()<DBL_EPSILON && "externalStress is not symmetric.");
-            
-            EDR.readMatrixInFile(inputFileName,"P0",P0);
-            EDR.readScalarInFile(inputFileName"relaxSteps",relaxSteps);
-            
+                        model::EigenDataReader EDR;
             EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
-            if (DN.use_externalStress)
+            if(DN.use_externalStress)
             {
-                DN._userOutputColumn+=0; 
+                EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
+
+                EDR.readMatrixInFile(inputFileName,"externalStress",_externalStress);
+                assert((_externalStress-_externalStress.transpose()).norm()<DBL_EPSILON && "externalStress is not symmetric.");
+                
+                EDR.readMatrixInFile(inputFileName,"P0",P0);
+
+                EDR.readScalarInFile(inputFileName,"tau_xz",tau_xz);
+
+                
+                DN._userOutputColumn+=0;
+
+                meshSize=DN.mesh.xMax()-DN.mesh.xMin();
+                          std::cout<<"meshSize="<<meshSize.transpose()<<std::endl;
+                          
+                          nu=Material<Isotropic>::nu;
+                          lambda=2.0*nu/(1.0-2.0*nu);
+
+                          std::cout<<"nu="<<nu<<std::endl;
+                          std::cout<<"lambda="<<lambda<<std::endl;
+                
+                dislocationImages_x=DN.dislocationImages_x;
+                dislocationImages_y=DN.dislocationImages_y;
+                dislocationImages_z=DN.dislocationImages_z;
+
             }
             
-            
-            nu=Material<Isotropic>::nu;
-//            std::cout<<" nu="<<nu<<std::endl;
-            lambda=2.0*nu/(1.0-2.0*nu);
-
         }
         
 
         /**************************************************************************/
-        const MatrixDim& externalStress(const VectorDim& x) const
+        MatrixDim externalStress(const VectorDim& x) const
         {
-            return _externalStress;
+            
+            double tau_13=0.0;
+            
+            // Consider stress of images
+            for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+            {
+                for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+                {
+                    for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+                    {
+                        const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+                        const VectorDim P=P0+(meshSize.array()*cellID.cast<double>().array()).matrix(); // image of P0 in cell (i,j,k)
+                        tau_13+=tau_xz/(x-P).norm(); // dummy stress using x and P
+                    }
+                }
+            }
+            
+            
+            MatrixDim temp(MatrixDim::Zero());
+            temp(0,2)=tau_13;
+            temp(2,0)=temp(0,2);
+            
+            return _externalStress+temp;
         }
         /*************************************************************************/
         template <typename DislocationNetworkType>
@@ -136,9 +143,13 @@ namespace model
         }
         
         /**************************************************************************/
-        std::string output() const
+        void output(const long int& ,
+                    UniqueOutputFile<'F'>& ,
+                    std::ofstream& ,
+                    int& ) const
         {
-            return std::string();
+            
+
         }
         
     };

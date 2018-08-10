@@ -2694,6 +2694,17 @@
   </Token>
   <Token>
     <TokenIdentifier>
+      <Name>ExternalLoadController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>tdef</Type>
+      <Scope>model</Scope>
+    </TokenIdentifier>
+    <Path>namespacemodel.html</Path>
+    <Anchor>abf63da9bfbb299919d4d8614bb07604e</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
       <Name>earcut</Name>
       <APILanguage>cpp</APILanguage>
       <Type>func</Type>
@@ -12069,9 +12080,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12079,9 +12090,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
-    <Anchor>acdd7224ce33a225c4dc060e67983ce97</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Anchor>afa3193ec324c4e85dc7e2217a740a7ec</Anchor>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12089,9 +12100,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a992b7d0fef1f97eafd314ebd9fb0f1dc</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12099,9 +12110,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a00e602d6b27af3ec98b79f353c3cb102</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12109,9 +12120,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12119,9 +12130,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12129,9 +12140,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a9c47546e45fd563fbe7435b6d145a810</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12139,9 +12150,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a0f92106618c9b43390e4d8c99f5a8433</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12149,19 +12160,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a2443005685f8d2ba818b6de6b18f75c6</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>R</Name>
-      <APILanguage>c</APILanguage>
-      <Type>data</Type>
-    </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
-    <Anchor>a57f6e3492bcb786d162155cedaaae6de</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12169,9 +12170,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>aa48da42c617fdb7cf84e9a3f80aa04e8</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12179,9 +12180,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>ad991b0dca987a65b2e99f7bb5693daa6</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12189,9 +12190,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>aecaed974d76601c5f3f90e5b2b60294b</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12199,9 +12200,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a6f6e2fe71b05c4c2f2d967ce9ca02dfd</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12209,9 +12210,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>ab1b6e1983896a4c4e23aa7eeb0093eee</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12219,9 +12220,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a9336ebf25087d91c818ee6e9ec29f8c1</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12229,9 +12230,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a2fb1c5cf58867b5bbc9a1b145a86f3a0</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12239,9 +12240,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12249,9 +12250,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a1c73327b2882639bc9f5e416bb3cc7ac</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12259,9 +12260,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12269,9 +12270,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -12279,9 +12280,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
     <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14539,9 +14540,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14549,9 +14550,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a52fb51622d569b334494f6e482fa8bd8</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14559,9 +14560,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a20046530a9fd9b07d2c74d69d928587f</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14569,9 +14570,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14579,9 +14580,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a68f7df2cd6173587c0d1617daac60e83</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14589,9 +14590,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14599,9 +14600,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>ae101fd8867dd1bced48a505d7be86ca1</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14609,9 +14610,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a30509e34850523a3a2f088b6bbdb60e0</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14619,9 +14620,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>ad2af587f1b8838b8bffc0348624811c9</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14629,9 +14630,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a668e910da2f51a4064f83005d88f5df0</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14639,9 +14640,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a6508f776f8fa7e09f230dc45bd54545c</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14649,9 +14650,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a8fdf83cf9528464dbe2e5983a27cf101</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14659,9 +14660,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a6fabd5b00ec85923507568e88f895d53</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14669,9 +14670,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>ac16448e120d0de2e516f8337c5a409a6</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14679,9 +14680,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14689,9 +14690,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14699,9 +14700,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14709,9 +14710,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>aaa05ec51c2d691a0b7560a330374e1c4</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14719,9 +14720,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>af4cc1b4cce031f2daf22087d1f6a8428</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14729,9 +14730,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a59dd33f2aa8046ea67bba3fad7a09e8e</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14739,9 +14740,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>abe8ab832aba74defd63c869bc9968962</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14749,9 +14750,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a2b6b88559f2fcc19c8129d5bd1e7cc28</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14759,9 +14760,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>aa67e929ffcb4617cf48a2bfa0cedcef6</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14769,9 +14770,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a3b2a174cf0a8c08cff663c5819e5b732</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14779,9 +14780,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>abc87e3411955553b45f9edf1b8e360b9</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14789,9 +14790,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a6af0122d9b9466fbf89baf7137b028b4</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14799,9 +14800,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>a72dc56784b513a674c88e303dbeb3df3</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -14809,9 +14810,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
     <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15939,9 +15940,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15949,9 +15950,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a794fe25ff06da35b31c1835e87b492ea</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15959,9 +15960,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a20046530a9fd9b07d2c74d69d928587f</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15969,9 +15970,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15979,9 +15980,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a68f7df2cd6173587c0d1617daac60e83</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15989,9 +15990,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -15999,9 +16000,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>ae101fd8867dd1bced48a505d7be86ca1</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16009,9 +16010,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a30509e34850523a3a2f088b6bbdb60e0</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16019,9 +16020,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>ad2af587f1b8838b8bffc0348624811c9</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16029,9 +16030,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a668e910da2f51a4064f83005d88f5df0</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16039,9 +16040,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a6508f776f8fa7e09f230dc45bd54545c</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16049,9 +16050,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a8fdf83cf9528464dbe2e5983a27cf101</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16059,9 +16060,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a6fabd5b00ec85923507568e88f895d53</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16069,9 +16070,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>ac16448e120d0de2e516f8337c5a409a6</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16079,9 +16080,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16089,9 +16090,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16099,9 +16100,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16109,9 +16110,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>aaa05ec51c2d691a0b7560a330374e1c4</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16119,9 +16120,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>af4cc1b4cce031f2daf22087d1f6a8428</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16129,9 +16130,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>a59dd33f2aa8046ea67bba3fad7a09e8e</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16139,9 +16140,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>abe8ab832aba74defd63c869bc9968962</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -16149,9 +16150,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+    <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
     <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
-    <DeclaredIn>externalStrainControl/mesh/generateSTLprism_bk.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/mesh/generateSTLprism_bk.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -19156,9 +19157,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2main_8cpp.html</Path>
+    <Path>tutorials_2_dislocation_dynamics_2external_load_control_2main_8cpp.html</Path>
     <Anchor>a0ddf1224851353fc92bfbff6f499fa97</Anchor>
-    <DeclaredIn>tutorials/DislocationDynamics/externalStrainControl/main.cpp</DeclaredIn>
+    <DeclaredIn>tutorials/DislocationDynamics/externalLoadControl/main.cpp</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20317,9 +20318,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>abc43b2c538bdbafc55bf98dff87df742</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20327,9 +20328,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a0a9fa016fa21e5f5566f0d7da6af6b25</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20337,9 +20338,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a961e53e8f409724ec036fd1403da9383</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20347,9 +20348,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a0859bf71ff590c6a1f4068eec89a6d2f</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20357,9 +20358,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a895f1d2d89c473ee9327241b8b396e55</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20367,9 +20368,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>ab3865628c6671f9ae4637a47c20dcdf2</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20377,9 +20378,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a1aabac6d068eef6a7bad3fdf50a05cc8</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20387,9 +20388,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a9336ebf25087d91c818ee6e9ec29f8c1</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20397,9 +20398,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>ae0f5e82ee31a657ad8312b0ed1851438</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20407,9 +20408,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a0a9b879f29cc1e1e03ffc7851f7c19b9</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20417,9 +20418,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>ac39b33361203e68d7820336db48d45e6</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20427,9 +20428,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>aaf0cfdbe36f1b784e1e860f2d6004c81</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20437,9 +20438,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>ae9ec2aa77283f48e4f2b4b6f51cefe0e</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20447,9 +20448,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>aab2463cd078f7c5368f6eb80f5a549b8</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20457,9 +20458,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>ae88e5b1fe36abdd78145a50d55209d8b</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20467,9 +20468,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>afa284900fd07a4339c5f5e38e1353e98</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20477,9 +20478,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a969fd1158d2138fb1cf939d32f447be6</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20487,9 +20488,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a6f6f1357e5a7fb658e3e9c999886ce83</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -20497,9 +20498,9 @@
       <APILanguage>c</APILanguage>
       <Type>data</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+    <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
     <Anchor>a6f6ccfcf58b31cb6412107d9d5281426</Anchor>
-    <DeclaredIn>externalStrainControl/plotDistanceDistribution.m</DeclaredIn>
+    <DeclaredIn>externalLoadControl/plotDistanceDistribution.m</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -26510,7 +26511,7 @@
     </TokenIdentifier>
     <Path>namespaceplot_stress_strain.html</Path>
     <Anchor>ac9b00a9930e817322b5e2d30c4b8cb93</Anchor>
-    <DeclaredIn>externalStrainControl/F/plotStressStrain.py</DeclaredIn>
+    <DeclaredIn>externalLoadControl/F/plotStressStrain.py</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -29975,19 +29976,9 @@
       <APILanguage>c</APILanguage>
       <Type>func</Type>
     </TokenIdentifier>
-    <Path>external_strain_control_2user_stress_8h.html</Path>
+    <Path>user_stress_8h.html</Path>
     <Anchor>a4293ec0c3aa9d494d005362be5874fc1</Anchor>
-    <DeclaredIn>externalStrainControl/userStress.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>userStress</Name>
-      <APILanguage>c</APILanguage>
-      <Type>func</Type>
-    </TokenIdentifier>
-    <Path>user_stress_2user_stress_8h.html</Path>
-    <Anchor>a4293ec0c3aa9d494d005362be5874fc1</Anchor>
-    <DeclaredIn>userStress/userStress.h</DeclaredIn>
+    <DeclaredIn>userStress.h</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -31985,126 +31976,6 @@
     </TokenIdentifier>
     <Path>struct_elastic_deformation.html</Path>
     <Anchor>a81c26817eeea5134f47439ae8fc956f6</Anchor>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>ExternalStressFieldController</Name>
-      <APILanguage>c</APILanguage>
-      <Type>tmplt</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>ExternalStressFieldController</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>acdb695ebd975d1d3e695aadba4ea662f</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>init</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a1f88c228c22bb1b1e919ee0ca7afd7eb</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>v2m</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a03e7daf3d7fec5d03ddbad95224dabf7</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>m2v</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a0bd0053e45f94c28ed17a6e24661a1b8</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>stressconsidermachinestiffness</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a777a06d2fd649b594a39203e1b693c3a</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>straininducedStress</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a15db2d8a1b0aa51d75105e7babd79b44</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>elasticstrain</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>aadb55b01f303bcfbc414068e7dc688c0</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>externalStress</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>aafa81e31b32000bdec7f1e64ac7e6eae</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>update</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a241bd1a4628c757bde7975c17ff8a7b5</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>output</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>instm</Type>
-      <Scope>ExternalStressFieldController</Scope>
-    </TokenIdentifier>
-    <Path>class_external_stress_field_controller.html</Path>
-    <Anchor>a8bf342548c93221ccc9674cdfe8be415</Anchor>
-    <DeclaredIn>ExternalStressFieldController.h</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -34742,6 +34613,17 @@
       <Scope>model</Scope>
     </TokenIdentifier>
     <Path>namespacemodel.html</Path>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>ExternalLoadController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>tdef</Type>
+      <Scope>model</Scope>
+    </TokenIdentifier>
+    <Path>namespacemodel.html</Path>
+    <Anchor>abf63da9bfbb299919d4d8614bb07604e</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -42721,13 +42603,13 @@
   </Token>
   <Token>
     <TokenIdentifier>
-      <Name>ExternalStressFieldControllerType</Name>
+      <Name>ExternalLoadControllerType</Name>
       <APILanguage>cpp</APILanguage>
       <Type>tdef</Type>
       <Scope>model::DislocationNetwork</Scope>
     </TokenIdentifier>
     <Path>classmodel_1_1_dislocation_network.html</Path>
-    <Anchor>a3b018d7cbdcb334f2b1ce09259e7ac94</Anchor>
+    <Anchor>adf37ef7fdf51a5c97318ecac1e17d7b1</Anchor>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -44014,23 +43896,13 @@
   </Token>
   <Token>
     <TokenIdentifier>
-      <Name>use_userStress</Name>
+      <Name>use_extraStraightSegments</Name>
       <APILanguage>cpp</APILanguage>
       <Type>data</Type>
       <Scope>model::DislocationNetwork</Scope>
     </TokenIdentifier>
     <Path>classmodel_1_1_dislocation_network.html</Path>
-    <Anchor>aa0d06a16eac41e298cab5072273aea01</Anchor>
-  </Token>
-  <Token>
-    <TokenIdentifier>
-      <Name>use_externaldislocationstressfield</Name>
-      <APILanguage>cpp</APILanguage>
-      <Type>data</Type>
-      <Scope>model::DislocationNetwork</Scope>
-    </TokenIdentifier>
-    <Path>classmodel_1_1_dislocation_network.html</Path>
-    <Anchor>ab6b15080dbbc4ccd275971b4eeced1b9</Anchor>
+    <Anchor>afb35f1ea906363119565629afb8d63ec</Anchor>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -44040,7 +43912,7 @@
       <Scope>model::DislocationNetwork</Scope>
     </TokenIdentifier>
     <Path>classmodel_1_1_dislocation_network.html</Path>
-    <Anchor>af2de60d1cee6c15978cf4fec00ba6760</Anchor>
+    <Anchor>afd4a9c3d865787e130c441da16539c79</Anchor>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -45367,6 +45239,17 @@
     </TokenIdentifier>
     <Path>classmodel_1_1_dislocation_node.html</Path>
     <Anchor>a68290e482ef2e06046c8d1a1372495cb</Anchor>
+    <DeclaredIn>DislocationNode.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>projectVelocity</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::DislocationNode</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dislocation_node.html</Path>
+    <Anchor>aa0768e529b505d53f995a93621b5e374</Anchor>
     <DeclaredIn>DislocationNode.h</DeclaredIn>
   </Token>
   <Token>
@@ -52540,6 +52423,71 @@
   </Token>
   <Token>
     <TokenIdentifier>
+      <Name>model::DummyExternalLoadController</Name>
+      <APILanguage>c</APILanguage>
+      <Type>tmplt</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>DummyExternalLoadController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <Anchor>a90fe9f06817cb3e5b0e99f13a2946ffb</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>init</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <Anchor>aee3d024f07d5e6f8aca5cdad68be30c9</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>update</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <Anchor>ae2879309aa9958822b1f83374565e704</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>output</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <Anchor>a6ea571fac431148f55286f40360cac54</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>externalStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>clm</Type>
+      <Scope>model::DummyExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+    <Anchor>a9825f97a52a3d02625a32829f8c2db0b</Anchor>
+    <DeclaredIn>DummyExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
       <Name>model::EigenDataReader</Name>
       <APILanguage>c</APILanguage>
       <Type>cl</Type>
@@ -53398,6 +53346,71 @@
     <Path>structmodel_1_1_external_boundary.html</Path>
     <Anchor>a49668ba156b7905e7a11da6de578422e</Anchor>
     <DeclaredIn>ExternalBoundary.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>model::ExtraStraightSegmentsController</Name>
+      <APILanguage>c</APILanguage>
+      <Type>tmplt</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>ExtraStraightSegmentsController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <Anchor>a431f3e46bc6d8418d6dfffcc22728513</Anchor>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>init</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <Anchor>a0c1db9ae672bda083e413f3364451f22</Anchor>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>externalStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <Anchor>a3b4d54ac56d8469a02348ba67f514115</Anchor>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>update</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <Anchor>a7e00caaf88e44953b5cd7be2a6d91f1f</Anchor>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>output</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::ExtraStraightSegmentsController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+    <Anchor>a9cc668be81f7461270d4bbf07c4f1660</Anchor>
+    <DeclaredIn>ExtraStraightSegmentsController.h</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -73515,6 +73528,71 @@
   </Token>
   <Token>
     <TokenIdentifier>
+      <Name>model::SampleUserStressController</Name>
+      <APILanguage>c</APILanguage>
+      <Type>tmplt</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>SampleUserStressController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <Anchor>a5f9e136094d9b970f6317fb3bbbe4418</Anchor>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>init</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <Anchor>acdff649c6100f2b21cdb0893ca2ad55e</Anchor>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>externalStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <Anchor>ab117ede21e886bddb57cca9529da5ecc</Anchor>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>update</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <Anchor>a531ce49a5ef8564dabf8e7e69ac3187a</Anchor>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>output</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SampleUserStressController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+    <Anchor>aaf9955f481fbd49961293f426588fc7f</Anchor>
+    <DeclaredIn>SampleUserStressController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
       <Name>model::ScalarDataReader</Name>
       <APILanguage>c</APILanguage>
       <Type>cl</Type>
@@ -74295,6 +74373,71 @@
     </TokenIdentifier>
     <Path>classmodel_1_1_static_i_d.html</Path>
     <Anchor>acd49bc4989b27476d325cb6bc53def6d</Anchor>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>model::SequentialTorsionTensionController</Name>
+      <APILanguage>c</APILanguage>
+      <Type>tmplt</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>SequentialTorsionTensionController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <Anchor>a60ae21373aab10b0e483254845727f07</Anchor>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>init</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <Anchor>a241001d5e14ff1575787e3aa7e1b6cb7</Anchor>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>externalStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <Anchor>a97edf2b62747dc1e541c070515cb7618</Anchor>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>update</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <Anchor>a8160e6daf41011ae5420da39436dcc7f</Anchor>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>output</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::SequentialTorsionTensionController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+    <Anchor>ae0346599da1a13a1b6139412affa29a8</Anchor>
+    <DeclaredIn>SequentialTorsionTensionController.h</DeclaredIn>
   </Token>
   <Token>
     <TokenIdentifier>
@@ -87553,6 +87696,126 @@
   </Token>
   <Token>
     <TokenIdentifier>
+      <Name>model::UniformExternalLoadController</Name>
+      <APILanguage>c</APILanguage>
+      <Type>tmplt</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>UniformExternalLoadController</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>acc7720e3ed440e445fcecbb1203692dc</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>init</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>aeeb37aeac5c6cf39128f3610b41a3aa3</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>v2m</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>a6a29accb4b36ec02d868d267101aff7e</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>m2v</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>ac0d0809d99c2783c139b6ecaada039ab</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>stressconsidermachinestiffness</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>aa2ca80f80ad7352e900a31c9c8950aaf</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>straininducedStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>a9956ca89a59ff7202defe32415ec9dec</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>elasticstrain</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>ac3c220a72942171875ba0dbcc7713b39</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>externalStress</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>afb46959e017f5ddde3eeb11de6a64471</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>update</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>a7094df496a306f60146f88f404e37b1e</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
+      <Name>output</Name>
+      <APILanguage>cpp</APILanguage>
+      <Type>instm</Type>
+      <Scope>model::UniformExternalLoadController</Scope>
+    </TokenIdentifier>
+    <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+    <Anchor>a17c760baecb8e5d98db40cb08f6356f6</Anchor>
+    <DeclaredIn>UniformExternalLoadController.h</DeclaredIn>
+  </Token>
+  <Token>
+    <TokenIdentifier>
       <Name>model::UniformOpen</Name>
       <APILanguage>c</APILanguage>
       <Type>tmplt</Type>
@@ -87932,6 +88195,6 @@
     </TokenIdentifier>
     <Path>namespaceplot_stress_strain.html</Path>
     <Anchor>ac9b00a9930e817322b5e2d30c4b8cb93</Anchor>
-    <DeclaredIn>externalStrainControl/F/plotStressStrain.py</DeclaredIn>
+    <DeclaredIn>externalLoadControl/F/plotStressStrain.py</DeclaredIn>
   </Token>
 </Tokens>

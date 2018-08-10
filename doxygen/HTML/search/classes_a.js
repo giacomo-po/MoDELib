@@ -39,7 +39,7 @@ var searchData=
   ['loop',['Loop',['../classmodel_1_1_loop.html',1,'model']]],
   ['loop_3c_20dislocationloop_3c_20_5fdim_2c_20corder_2c_20interpolationtype_20_3e_20_3e',['Loop&lt; DislocationLoop&lt; _dim, corder, InterpolationType &gt; &gt;',['../classmodel_1_1_loop.html',1,'model']]],
   ['loop_3c_20dloop_20_3e',['Loop&lt; Dloop &gt;',['../classmodel_1_1_loop.html',1,'model']]],
-  ['looplink',['LoopLink',['../class_loop_link.html',1,'LoopLink&lt; T &gt;'],['../classmodel_1_1_loop_link.html',1,'model::LoopLink&lt; LinkType &gt;']]],
+  ['looplink',['LoopLink',['../classmodel_1_1_loop_link.html',1,'model::LoopLink&lt; LinkType &gt;'],['../class_loop_link.html',1,'LoopLink&lt; T &gt;']]],
   ['looplink_3c_20derived_20_3e',['LoopLink&lt; Derived &gt;',['../classmodel_1_1_loop_link.html',1,'model']]],
   ['looplink_3c_20dislocationsegment_3c_20_5fdim_2c_20_5fcorder_2c_20interpolationtype_20_3e_20_3e',['LoopLink&lt; DislocationSegment&lt; _dim, _corder, InterpolationType &gt; &gt;',['../classmodel_1_1_loop_link.html',1,'model']]],
   ['looplink_3c_20dlink_20_3e',['LoopLink&lt; Dlink &gt;',['../classmodel_1_1_loop_link.html',1,'model']]],

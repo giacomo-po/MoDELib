@@ -11,9 +11,8 @@ var searchData=
   ['evlio_2eh',['EVLio.h',['../_e_v_lio_8h.html',1,'']]],
   ['expressionref_2eh',['ExpressionRef.h',['../_expression_ref_8h.html',1,'']]],
   ['externalboundary_2eh',['ExternalBoundary.h',['../_external_boundary_8h.html',1,'']]],
-  ['externalstressfieldcontroller_2eh',['ExternalStressFieldController.h',['../_external_stress_field_controller_8h.html',1,'']]],
-  ['generatestlprism_5fbk_2em',['generateSTLprism_bk.m',['../external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html',1,'']]],
-  ['plotdistancedistribution_2em',['plotDistanceDistribution.m',['../external_strain_control_2plot_distance_distribution_8m.html',1,'']]],
-  ['plotstressstrain_2epy',['plotStressStrain.py',['../external_strain_control_2_f_2plot_stress_strain_8py.html',1,'']]],
-  ['userstress_2eh',['userStress.h',['../external_strain_control_2user_stress_8h.html',1,'']]]
+  ['extrastraightsegmentscontroller_2eh',['ExtraStraightSegmentsController.h',['../_extra_straight_segments_controller_8h.html',1,'']]],
+  ['generatestlprism_5fbk_2em',['generateSTLprism_bk.m',['../external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html',1,'']]],
+  ['plotdistancedistribution_2em',['plotDistanceDistribution.m',['../external_load_control_2plot_distance_distribution_8m.html',1,'']]],
+  ['plotstressstrain_2epy',['plotStressStrain.py',['../external_load_control_2_f_2plot_stress_strain_8py.html',1,'']]]
 ];

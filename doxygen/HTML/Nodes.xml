@@ -306,6 +306,10 @@
             <Name>Variables</Name>
             <Path>namespacemembers_vars.html</Path>
            </Node>
+           <Node>
+            <Name>Typedefs</Name>
+            <Path>namespacemembers_type.html</Path>
+           </Node>
           </Subnodes>
          </Node>
         </Subnodes>
@@ -3417,9 +3421,9 @@
                 <Anchor>a22731bc2043f75a2b28951646687fcb5</Anchor>
                </Node>
                <Node>
-                <Name>ExternalStressFieldControllerType</Name>
+                <Name>ExternalLoadControllerType</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>a3b018d7cbdcb334f2b1ce09259e7ac94</Anchor>
+                <Anchor>adf37ef7fdf51a5c97318ecac1e17d7b1</Anchor>
                </Node>
                <Node>
                 <Name>FiniteElementType</Name>
@@ -3674,7 +3678,7 @@
                <Node>
                 <Name>extStressController</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>af2de60d1cee6c15978cf4fec00ba6760</Anchor>
+                <Anchor>afd4a9c3d865787e130c441da16539c79</Anchor>
                </Node>
                <Node>
                 <Name>folderSuffix</Name>
@@ -3797,24 +3801,19 @@
                 <Anchor>aa9c9781db3abc2e1f3cfd21499267e41</Anchor>
                </Node>
                <Node>
-                <Name>use_externaldislocationstressfield</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>ab6b15080dbbc4ccd275971b4eeced1b9</Anchor>
-               </Node>
-               <Node>
                 <Name>use_externalStress</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>a59bb44eb853ea20cd0c97a626a7b9b28</Anchor>
                </Node>
                <Node>
+                <Name>use_extraStraightSegments</Name>
+                <Path>classmodel_1_1_dislocation_network.html</Path>
+                <Anchor>afb35f1ea906363119565629afb8d63ec</Anchor>
+               </Node>
+               <Node>
                 <Name>use_stochasticForce</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>ab79735eb713cc1f1d0874780599d295d</Anchor>
-               </Node>
-               <Node>
-                <Name>use_userStress</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>aa0d06a16eac41e298cab5072273aea01</Anchor>
                </Node>
                <Node>
                 <Name>use_virtualSegments</Name>
@@ -4378,6 +4377,11 @@
                 <Name>move</Name>
                 <Path>classmodel_1_1_dislocation_node.html</Path>
                 <Anchor>a17f2d69b87d9e5985a5fdd5c6bcef1f8</Anchor>
+               </Node>
+               <Node>
+                <Name>projectVelocity</Name>
+                <Path>classmodel_1_1_dislocation_node.html</Path>
+                <Anchor>aa0768e529b505d53f995a93621b5e374</Anchor>
                </Node>
                <Node>
                 <Name>removeLoopLink</Name>
@@ -5972,6 +5976,37 @@
               </Subnodes>
              </Node>
              <Node>
+              <Name>DummyExternalLoadController</Name>
+              <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>DummyExternalLoadController</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a90fe9f06817cb3e5b0e99f13a2946ffb</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a9825f97a52a3d02625a32829f8c2db0b</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>aee3d024f07d5e6f8aca5cdad68be30c9</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a6ea571fac431148f55286f40360cac54</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>ae2879309aa9958822b1f83374565e704</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
               <Name>EigenDataReader</Name>
               <Path>classmodel_1_1_eigen_data_reader.html</Path>
               <Subnodes>
@@ -6318,6 +6353,37 @@
                 <Name>boundary</Name>
                 <Path>structmodel_1_1_external_boundary.html</Path>
                 <Anchor>a49668ba156b7905e7a11da6de578422e</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>ExtraStraightSegmentsController</Name>
+              <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>ExtraStraightSegmentsController</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a431f3e46bc6d8418d6dfffcc22728513</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a3b4d54ac56d8469a02348ba67f514115</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a0c1db9ae672bda083e413f3364451f22</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a9cc668be81f7461270d4bbf07c4f1660</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a7e00caaf88e44953b5cd7be2a6d91f1f</Anchor>
                </Node>
               </Subnodes>
              </Node>
@@ -13590,6 +13656,37 @@
               </Subnodes>
              </Node>
              <Node>
+              <Name>SampleUserStressController</Name>
+              <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SampleUserStressController</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a5f9e136094d9b970f6317fb3bbbe4418</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>ab117ede21e886bddb57cca9529da5ecc</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>acdff649c6100f2b21cdb0893ca2ad55e</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>aaf9955f481fbd49961293f426588fc7f</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a531ce49a5ef8564dabf8e7e69ac3187a</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
               <Name>ScalarDataReader</Name>
               <Path>classmodel_1_1_scalar_data_reader.html</Path>
               <Subnodes>
@@ -13892,6 +13989,37 @@
                 <Name>mpiRank</Name>
                 <Path>classmodel_1_1_sequential_output_file.html</Path>
                 <Anchor>a64750e7b97623991408225aabaef179f</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>SequentialTorsionTensionController</Name>
+              <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SequentialTorsionTensionController</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a60ae21373aab10b0e483254845727f07</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a97edf2b62747dc1e541c070515cb7618</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a241001d5e14ff1575787e3aa7e1b6cb7</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>ae0346599da1a13a1b6139412affa29a8</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a8160e6daf41011ae5420da39436dcc7f</Anchor>
                </Node>
               </Subnodes>
              </Node>
@@ -17685,6 +17813,62 @@
               </Subnodes>
              </Node>
              <Node>
+              <Name>UniformExternalLoadController</Name>
+              <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>UniformExternalLoadController</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>acc7720e3ed440e445fcecbb1203692dc</Anchor>
+               </Node>
+               <Node>
+                <Name>elasticstrain</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac3c220a72942171875ba0dbcc7713b39</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>afb46959e017f5ddde3eeb11de6a64471</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aeeb37aeac5c6cf39128f3610b41a3aa3</Anchor>
+               </Node>
+               <Node>
+                <Name>m2v</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac0d0809d99c2783c139b6ecaada039ab</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a17c760baecb8e5d98db40cb08f6356f6</Anchor>
+               </Node>
+               <Node>
+                <Name>straininducedStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a9956ca89a59ff7202defe32415ec9dec</Anchor>
+               </Node>
+               <Node>
+                <Name>stressconsidermachinestiffness</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aa2ca80f80ad7352e900a31c9c8950aaf</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a7094df496a306f60146f88f404e37b1e</Anchor>
+               </Node>
+               <Node>
+                <Name>v2m</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a6a29accb4b36ec02d868d267101aff7e</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
               <Name>UniformOpen</Name>
               <Path>structmodel_1_1_uniform_open.html</Path>
               <Subnodes>
@@ -18054,62 +18238,6 @@
               <Name>rows</Name>
               <Path>struct_elastic_deformation.html</Path>
               <Anchor>a2946682931c2aef2b92223326c57cd35</Anchor>
-             </Node>
-            </Subnodes>
-           </Node>
-           <Node>
-            <Name>ExternalStressFieldController</Name>
-            <Path>class_external_stress_field_controller.html</Path>
-            <Subnodes>
-             <Node>
-              <Name>ExternalStressFieldController</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>acdb695ebd975d1d3e695aadba4ea662f</Anchor>
-             </Node>
-             <Node>
-              <Name>elasticstrain</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>aadb55b01f303bcfbc414068e7dc688c0</Anchor>
-             </Node>
-             <Node>
-              <Name>externalStress</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>aafa81e31b32000bdec7f1e64ac7e6eae</Anchor>
-             </Node>
-             <Node>
-              <Name>init</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a1f88c228c22bb1b1e919ee0ca7afd7eb</Anchor>
-             </Node>
-             <Node>
-              <Name>m2v</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a0bd0053e45f94c28ed17a6e24661a1b8</Anchor>
-             </Node>
-             <Node>
-              <Name>output</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a8bf342548c93221ccc9674cdfe8be415</Anchor>
-             </Node>
-             <Node>
-              <Name>straininducedStress</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a15db2d8a1b0aa51d75105e7babd79b44</Anchor>
-             </Node>
-             <Node>
-              <Name>stressconsidermachinestiffness</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a777a06d2fd649b594a39203e1b693c3a</Anchor>
-             </Node>
-             <Node>
-              <Name>update</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a241bd1a4628c757bde7975c17ff8a7b5</Anchor>
-             </Node>
-             <Node>
-              <Name>v2m</Name>
-              <Path>class_external_stress_field_controller.html</Path>
-              <Anchor>a03e7daf3d7fec5d03ddbad95224dabf7</Anchor>
              </Node>
             </Subnodes>
            </Node>
@@ -19713,6 +19841,10 @@
             <Path>struct_dummy.html</Path>
            </Node>
            <Node>
+            <Name>model::DummyExternalLoadController&lt; dim &gt;</Name>
+            <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+           </Node>
+           <Node>
             <Name>mapbox::detail::Earcut&lt; N &gt;</Name>
             <Path>classmapbox_1_1detail_1_1_earcut.html</Path>
            </Node>
@@ -19879,8 +20011,8 @@
             <Path>structmodel_1_1_external_boundary.html</Path>
            </Node>
            <Node>
-            <Name>ExternalStressFieldController&lt; dim &gt;</Name>
-            <Path>class_external_stress_field_controller.html</Path>
+            <Name>model::ExtraStraightSegmentsController&lt; dim &gt;</Name>
+            <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
            </Node>
            <Node>
             <Name>model::FCC</Name>
@@ -20617,12 +20749,12 @@
             <Path>structmodel_1_1_load_controller.html</Path>
            </Node>
            <Node>
-            <Name>LoopLink&lt; T &gt;</Name>
-            <Path>class_loop_link.html</Path>
-           </Node>
-           <Node>
             <Name>model::LoopLink&lt; LinkType &gt;</Name>
             <Path>classmodel_1_1_loop_link.html</Path>
+           </Node>
+           <Node>
+            <Name>LoopLink&lt; T &gt;</Name>
+            <Path>class_loop_link.html</Path>
            </Node>
            <Node>
             <Name>model::LoopLink&lt; Derived &gt;</Name>
@@ -21631,6 +21763,10 @@
             <Path>structmodel_1_1_round_eigen_3_01_t_00_011_01_4.html</Path>
            </Node>
            <Node>
+            <Name>model::SampleUserStressController&lt; dim &gt;</Name>
+            <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+           </Node>
+           <Node>
             <Name>model::SchurComplementSolver</Name>
             <Path>classmodel_1_1_schur_complement_solver.html</Path>
            </Node>
@@ -21641,6 +21777,10 @@
            <Node>
             <Name>model::SegmentSegmentIntersection&lt; dim &gt;</Name>
             <Path>classmodel_1_1_segment_segment_intersection.html</Path>
+           </Node>
+           <Node>
+            <Name>model::SequentialTorsionTensionController&lt; dim &gt;</Name>
+            <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
            </Node>
            <Node>
             <Name>std::set&lt; K &gt;</Name>
@@ -22289,6 +22429,10 @@
            <Node>
             <Name>model::TypeTraits&lt; TrialFunction&lt; _name, _nComponents, _FiniteElementType &gt; &gt;</Name>
             <Path>structmodel_1_1_type_traits_3_01_trial_function_3_01__name_00_01__n_components_00_01___finite_element_type_01_4_01_4.html</Path>
+           </Node>
+           <Node>
+            <Name>model::UniformExternalLoadController&lt; dim &gt;</Name>
+            <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
            </Node>
            <Node>
             <Name>model::UniformOpen&lt; dim, qOrder &gt;</Name>
@@ -28362,9 +28506,9 @@
                 <Anchor>a22731bc2043f75a2b28951646687fcb5</Anchor>
                </Node>
                <Node>
-                <Name>ExternalStressFieldControllerType</Name>
+                <Name>ExternalLoadControllerType</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>a3b018d7cbdcb334f2b1ce09259e7ac94</Anchor>
+                <Anchor>adf37ef7fdf51a5c97318ecac1e17d7b1</Anchor>
                </Node>
                <Node>
                 <Name>FiniteElementType</Name>
@@ -28619,7 +28763,7 @@
                <Node>
                 <Name>extStressController</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>af2de60d1cee6c15978cf4fec00ba6760</Anchor>
+                <Anchor>afd4a9c3d865787e130c441da16539c79</Anchor>
                </Node>
                <Node>
                 <Name>folderSuffix</Name>
@@ -28742,24 +28886,19 @@
                 <Anchor>aa9c9781db3abc2e1f3cfd21499267e41</Anchor>
                </Node>
                <Node>
-                <Name>use_externaldislocationstressfield</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>ab6b15080dbbc4ccd275971b4eeced1b9</Anchor>
-               </Node>
-               <Node>
                 <Name>use_externalStress</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>a59bb44eb853ea20cd0c97a626a7b9b28</Anchor>
                </Node>
                <Node>
+                <Name>use_extraStraightSegments</Name>
+                <Path>classmodel_1_1_dislocation_network.html</Path>
+                <Anchor>afb35f1ea906363119565629afb8d63ec</Anchor>
+               </Node>
+               <Node>
                 <Name>use_stochasticForce</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>ab79735eb713cc1f1d0874780599d295d</Anchor>
-               </Node>
-               <Node>
-                <Name>use_userStress</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>aa0d06a16eac41e298cab5072273aea01</Anchor>
                </Node>
                <Node>
                 <Name>use_virtualSegments</Name>
@@ -29040,9 +29179,9 @@
                 <Anchor>a22731bc2043f75a2b28951646687fcb5</Anchor>
                </Node>
                <Node>
-                <Name>ExternalStressFieldControllerType</Name>
+                <Name>ExternalLoadControllerType</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>a3b018d7cbdcb334f2b1ce09259e7ac94</Anchor>
+                <Anchor>adf37ef7fdf51a5c97318ecac1e17d7b1</Anchor>
                </Node>
                <Node>
                 <Name>FiniteElementType</Name>
@@ -29297,7 +29436,7 @@
                <Node>
                 <Name>extStressController</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>af2de60d1cee6c15978cf4fec00ba6760</Anchor>
+                <Anchor>afd4a9c3d865787e130c441da16539c79</Anchor>
                </Node>
                <Node>
                 <Name>folderSuffix</Name>
@@ -29420,24 +29559,19 @@
                 <Anchor>aa9c9781db3abc2e1f3cfd21499267e41</Anchor>
                </Node>
                <Node>
-                <Name>use_externaldislocationstressfield</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>ab6b15080dbbc4ccd275971b4eeced1b9</Anchor>
-               </Node>
-               <Node>
                 <Name>use_externalStress</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>a59bb44eb853ea20cd0c97a626a7b9b28</Anchor>
                </Node>
                <Node>
+                <Name>use_extraStraightSegments</Name>
+                <Path>classmodel_1_1_dislocation_network.html</Path>
+                <Anchor>afb35f1ea906363119565629afb8d63ec</Anchor>
+               </Node>
+               <Node>
                 <Name>use_stochasticForce</Name>
                 <Path>classmodel_1_1_dislocation_network.html</Path>
                 <Anchor>ab79735eb713cc1f1d0874780599d295d</Anchor>
-               </Node>
-               <Node>
-                <Name>use_userStress</Name>
-                <Path>classmodel_1_1_dislocation_network.html</Path>
-                <Anchor>aa0d06a16eac41e298cab5072273aea01</Anchor>
                </Node>
                <Node>
                 <Name>use_virtualSegments</Name>
@@ -29699,6 +29833,11 @@
                 <Name>move</Name>
                 <Path>classmodel_1_1_dislocation_node.html</Path>
                 <Anchor>a17f2d69b87d9e5985a5fdd5c6bcef1f8</Anchor>
+               </Node>
+               <Node>
+                <Name>projectVelocity</Name>
+                <Path>classmodel_1_1_dislocation_node.html</Path>
+                <Anchor>aa0768e529b505d53f995a93621b5e374</Anchor>
                </Node>
                <Node>
                 <Name>removeLoopLink</Name>
@@ -30657,6 +30796,11 @@
                 <Name>move</Name>
                 <Path>classmodel_1_1_dislocation_node.html</Path>
                 <Anchor>a17f2d69b87d9e5985a5fdd5c6bcef1f8</Anchor>
+               </Node>
+               <Node>
+                <Name>projectVelocity</Name>
+                <Path>classmodel_1_1_dislocation_node.html</Path>
+                <Anchor>aa0768e529b505d53f995a93621b5e374</Anchor>
                </Node>
                <Node>
                 <Name>removeLoopLink</Name>
@@ -32449,6 +32593,79 @@
             </Subnodes>
            </Node>
            <Node>
+            <Name>DummyExternalLoadController.h</Name>
+            <Path>_dummy_external_load_controller_8h.html</Path>
+            <Subnodes>
+             <Node>
+              <Name>DummyExternalLoadController</Name>
+              <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>DummyExternalLoadController</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a90fe9f06817cb3e5b0e99f13a2946ffb</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a9825f97a52a3d02625a32829f8c2db0b</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>aee3d024f07d5e6f8aca5cdad68be30c9</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a6ea571fac431148f55286f40360cac54</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>ae2879309aa9958822b1f83374565e704</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>DummyExternalLoadController</Name>
+              <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>DummyExternalLoadController</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a90fe9f06817cb3e5b0e99f13a2946ffb</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a9825f97a52a3d02625a32829f8c2db0b</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>aee3d024f07d5e6f8aca5cdad68be30c9</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>a6ea571fac431148f55286f40360cac54</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_dummy_external_load_controller.html</Path>
+                <Anchor>ae2879309aa9958822b1f83374565e704</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>ExternalLoadController</Name>
+              <Path>_dummy_external_load_controller_8h.html</Path>
+              <Anchor>abf63da9bfbb299919d4d8614bb07604e</Anchor>
+             </Node>
+            </Subnodes>
+           </Node>
+           <Node>
             <Name>DummyLoadController.h</Name>
             <Path>_dummy_load_controller_8h.html</Path>
             <Subnodes>
@@ -32944,62 +33161,68 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>ExternalStressFieldController.h</Name>
-            <Path>_external_stress_field_controller_8h.html</Path>
+            <Name>ExtraStraightSegmentsController.h</Name>
+            <Path>_extra_straight_segments_controller_8h.html</Path>
             <Subnodes>
              <Node>
-              <Name>ExternalStressFieldController</Name>
-              <Path>class_external_stress_field_controller.html</Path>
+              <Name>ExtraStraightSegmentsController</Name>
+              <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
               <Subnodes>
                <Node>
-                <Name>ExternalStressFieldController</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>acdb695ebd975d1d3e695aadba4ea662f</Anchor>
-               </Node>
-               <Node>
-                <Name>elasticstrain</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>aadb55b01f303bcfbc414068e7dc688c0</Anchor>
+                <Name>ExtraStraightSegmentsController</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a431f3e46bc6d8418d6dfffcc22728513</Anchor>
                </Node>
                <Node>
                 <Name>externalStress</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>aafa81e31b32000bdec7f1e64ac7e6eae</Anchor>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a3b4d54ac56d8469a02348ba67f514115</Anchor>
                </Node>
                <Node>
                 <Name>init</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a1f88c228c22bb1b1e919ee0ca7afd7eb</Anchor>
-               </Node>
-               <Node>
-                <Name>m2v</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a0bd0053e45f94c28ed17a6e24661a1b8</Anchor>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a0c1db9ae672bda083e413f3364451f22</Anchor>
                </Node>
                <Node>
                 <Name>output</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a8bf342548c93221ccc9674cdfe8be415</Anchor>
-               </Node>
-               <Node>
-                <Name>straininducedStress</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a15db2d8a1b0aa51d75105e7babd79b44</Anchor>
-               </Node>
-               <Node>
-                <Name>stressconsidermachinestiffness</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a777a06d2fd649b594a39203e1b693c3a</Anchor>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a9cc668be81f7461270d4bbf07c4f1660</Anchor>
                </Node>
                <Node>
                 <Name>update</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a241bd1a4628c757bde7975c17ff8a7b5</Anchor>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a7e00caaf88e44953b5cd7be2a6d91f1f</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>ExtraStraightSegmentsController</Name>
+              <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>ExtraStraightSegmentsController</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a431f3e46bc6d8418d6dfffcc22728513</Anchor>
                </Node>
                <Node>
-                <Name>v2m</Name>
-                <Path>class_external_stress_field_controller.html</Path>
-                <Anchor>a03e7daf3d7fec5d03ddbad95224dabf7</Anchor>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a3b4d54ac56d8469a02348ba67f514115</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a0c1db9ae672bda083e413f3364451f22</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a9cc668be81f7461270d4bbf07c4f1660</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_extra_straight_segments_controller.html</Path>
+                <Anchor>a7e00caaf88e44953b5cd7be2a6d91f1f</Anchor>
                </Node>
               </Subnodes>
              </Node>
@@ -39199,117 +39422,112 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLcyl.m</Name>
-            <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+            <Name>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLcyl.m</Name>
+            <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
             <Subnodes>
              <Node>
               <Name>addpath</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
              </Node>
              <Node>
               <Name>cylinder</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
-              <Anchor>acdd7224ce33a225c4dc060e67983ce97</Anchor>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Anchor>afa3193ec324c4e85dc7e2217a740a7ec</Anchor>
              </Node>
              <Node>
               <Name>plotFacets</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a992b7d0fef1f97eafd314ebd9fb0f1dc</Anchor>
              </Node>
              <Node>
               <Name>system</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a00e602d6b27af3ec98b79f353c3cb102</Anchor>
              </Node>
              <Node>
               <Name>averageElementVolume</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>aecaed974d76601c5f3f90e5b2b60294b</Anchor>
              </Node>
              <Node>
               <Name>Facets</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
              </Node>
              <Node>
               <Name>filename</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
              </Node>
              <Node>
               <Name>k</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a1c73327b2882639bc9f5e416bb3cc7ac</Anchor>
              </Node>
              <Node>
               <Name>l</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a2443005685f8d2ba818b6de6b18f75c6</Anchor>
              </Node>
              <Node>
               <Name>meshID</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a9c47546e45fd563fbe7435b6d145a810</Anchor>
              </Node>
              <Node>
               <Name>MODEL</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
              </Node>
              <Node>
               <Name>np</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a6f6e2fe71b05c4c2f2d967ce9ca02dfd</Anchor>
              </Node>
              <Node>
-              <Name>R</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
-              <Anchor>a57f6e3492bcb786d162155cedaaae6de</Anchor>
-             </Node>
-             <Node>
               <Name>targetElements</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a0f92106618c9b43390e4d8c99f5a8433</Anchor>
              </Node>
              <Node>
               <Name>theta</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>ab1b6e1983896a4c4e23aa7eeb0093eee</Anchor>
              </Node>
              <Node>
               <Name>v1</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
              </Node>
              <Node>
               <Name>v2</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
              </Node>
              <Node>
               <Name>v3</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
              </Node>
              <Node>
               <Name>x</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a9336ebf25087d91c818ee6e9ec29f8c1</Anchor>
              </Node>
              <Node>
               <Name>x0</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>aa48da42c617fdb7cf84e9a3f80aa04e8</Anchor>
              </Node>
              <Node>
               <Name>y</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>a2fb1c5cf58867b5bbc9a1b145a86f3a0</Anchor>
              </Node>
              <Node>
               <Name>y0</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lcyl_8m.html</Path>
               <Anchor>ad991b0dca987a65b2e99f7bb5693daa6</Anchor>
              </Node>
             </Subnodes>
@@ -40494,147 +40712,147 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>tutorials/DislocationDynamics/externalStrainControl/mesh/generateSTLprism.m</Name>
-            <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+            <Name>tutorials/DislocationDynamics/externalLoadControl/mesh/generateSTLprism.m</Name>
+            <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
             <Subnodes>
              <Node>
               <Name>addpath</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
              </Node>
              <Node>
               <Name>figure</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a52fb51622d569b334494f6e482fa8bd8</Anchor>
              </Node>
              <Node>
               <Name>system</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a20046530a9fd9b07d2c74d69d928587f</Anchor>
              </Node>
              <Node>
               <Name>averageElementVolume</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a6fabd5b00ec85923507568e88f895d53</Anchor>
              </Node>
              <Node>
               <Name>cube</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>ad2af587f1b8838b8bffc0348624811c9</Anchor>
              </Node>
              <Node>
               <Name>Facets</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
              </Node>
              <Node>
               <Name>filename</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
              </Node>
              <Node>
               <Name>L1</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a30509e34850523a3a2f088b6bbdb60e0</Anchor>
              </Node>
              <Node>
               <Name>L2</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a668e910da2f51a4064f83005d88f5df0</Anchor>
              </Node>
              <Node>
               <Name>L3</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a6508f776f8fa7e09f230dc45bd54545c</Anchor>
              </Node>
              <Node>
               <Name>meshID</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a68f7df2cd6173587c0d1617daac60e83</Anchor>
              </Node>
              <Node>
               <Name>MODEL</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
              </Node>
              <Node>
               <Name>nElements</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>ae101fd8867dd1bced48a505d7be86ca1</Anchor>
              </Node>
              <Node>
               <Name>V</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a8fdf83cf9528464dbe2e5983a27cf101</Anchor>
              </Node>
              <Node>
               <Name>v1</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
              </Node>
              <Node>
               <Name>v10</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a3b2a174cf0a8c08cff663c5819e5b732</Anchor>
              </Node>
              <Node>
               <Name>v11</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>abc87e3411955553b45f9edf1b8e360b9</Anchor>
              </Node>
              <Node>
               <Name>v12</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a6af0122d9b9466fbf89baf7137b028b4</Anchor>
              </Node>
              <Node>
               <Name>v13</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a72dc56784b513a674c88e303dbeb3df3</Anchor>
              </Node>
              <Node>
               <Name>v2</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
              </Node>
              <Node>
               <Name>v3</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
              </Node>
              <Node>
               <Name>v4</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>aaa05ec51c2d691a0b7560a330374e1c4</Anchor>
              </Node>
              <Node>
               <Name>v5</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>af4cc1b4cce031f2daf22087d1f6a8428</Anchor>
              </Node>
              <Node>
               <Name>v6</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a59dd33f2aa8046ea67bba3fad7a09e8e</Anchor>
              </Node>
              <Node>
               <Name>v7</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>abe8ab832aba74defd63c869bc9968962</Anchor>
              </Node>
              <Node>
               <Name>v8</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>a2b6b88559f2fcc19c8129d5bd1e7cc28</Anchor>
              </Node>
              <Node>
               <Name>v9</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>aa67e929ffcb4617cf48a2bfa0cedcef6</Anchor>
              </Node>
              <Node>
               <Name>z</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2mesh_2generate_s_t_lprism_8m.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2mesh_2generate_s_t_lprism_8m.html</Path>
               <Anchor>ac16448e120d0de2e516f8337c5a409a6</Anchor>
              </Node>
             </Subnodes>
@@ -41224,117 +41442,117 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>externalStrainControl/mesh/generateSTLprism_bk.m</Name>
-            <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+            <Name>externalLoadControl/mesh/generateSTLprism_bk.m</Name>
+            <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
             <Subnodes>
              <Node>
               <Name>addpath</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a579b7d99461fb7e78f4e1edbea2ab3db</Anchor>
              </Node>
              <Node>
               <Name>figure</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a794fe25ff06da35b31c1835e87b492ea</Anchor>
              </Node>
              <Node>
               <Name>system</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a20046530a9fd9b07d2c74d69d928587f</Anchor>
              </Node>
              <Node>
               <Name>averageElementVolume</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a6fabd5b00ec85923507568e88f895d53</Anchor>
              </Node>
              <Node>
               <Name>cube</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>ad2af587f1b8838b8bffc0348624811c9</Anchor>
              </Node>
              <Node>
               <Name>Facets</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>aff228d3ebbe6e38065d8cf53a00fb5ab</Anchor>
              </Node>
              <Node>
               <Name>filename</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a2ff994e16bf9521154de4cf659a3b689</Anchor>
              </Node>
              <Node>
               <Name>L1</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a30509e34850523a3a2f088b6bbdb60e0</Anchor>
              </Node>
              <Node>
               <Name>L2</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a668e910da2f51a4064f83005d88f5df0</Anchor>
              </Node>
              <Node>
               <Name>L3</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a6508f776f8fa7e09f230dc45bd54545c</Anchor>
              </Node>
              <Node>
               <Name>meshID</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a68f7df2cd6173587c0d1617daac60e83</Anchor>
              </Node>
              <Node>
               <Name>MODEL</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a24761b2a0a1ce10e27c26bd04ff6eade</Anchor>
              </Node>
              <Node>
               <Name>nElements</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>ae101fd8867dd1bced48a505d7be86ca1</Anchor>
              </Node>
              <Node>
               <Name>V</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a8fdf83cf9528464dbe2e5983a27cf101</Anchor>
              </Node>
              <Node>
               <Name>v1</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a8d8c0fbcc72788904c802dbb5430b657</Anchor>
              </Node>
              <Node>
               <Name>v2</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>ab67228b8fa7f3169c3dc47e49373c570</Anchor>
              </Node>
              <Node>
               <Name>v3</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a3a3e850fb405026b319fae4bf5794c12</Anchor>
              </Node>
              <Node>
               <Name>v4</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>aaa05ec51c2d691a0b7560a330374e1c4</Anchor>
              </Node>
              <Node>
               <Name>v5</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>af4cc1b4cce031f2daf22087d1f6a8428</Anchor>
              </Node>
              <Node>
               <Name>v6</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>a59dd33f2aa8046ea67bba3fad7a09e8e</Anchor>
              </Node>
              <Node>
               <Name>v7</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>abe8ab832aba74defd63c869bc9968962</Anchor>
              </Node>
              <Node>
               <Name>z</Name>
-              <Path>external_strain_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
+              <Path>external_load_control_2mesh_2generate_s_t_lprism__bk_8m.html</Path>
               <Anchor>ac16448e120d0de2e516f8337c5a409a6</Anchor>
              </Node>
             </Subnodes>
@@ -50239,12 +50457,12 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>tutorials/DislocationDynamics/externalStrainControl/main.cpp</Name>
-            <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2main_8cpp.html</Path>
+            <Name>tutorials/DislocationDynamics/externalLoadControl/main.cpp</Name>
+            <Path>tutorials_2_dislocation_dynamics_2external_load_control_2main_8cpp.html</Path>
             <Subnodes>
              <Node>
               <Name>main</Name>
-              <Path>tutorials_2_dislocation_dynamics_2external_strain_control_2main_8cpp.html</Path>
+              <Path>tutorials_2_dislocation_dynamics_2external_load_control_2main_8cpp.html</Path>
               <Anchor>a0ddf1224851353fc92bfbff6f499fa97</Anchor>
              </Node>
             </Subnodes>
@@ -53850,102 +54068,102 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>externalStrainControl/plotDistanceDistribution.m</Name>
-            <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+            <Name>externalLoadControl/plotDistanceDistribution.m</Name>
+            <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
             <Subnodes>
              <Node>
               <Name>d</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a961e53e8f409724ec036fd1403da9383</Anchor>
              </Node>
              <Node>
               <Name>length</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a0a9fa016fa21e5f5566f0d7da6af6b25</Anchor>
              </Node>
              <Node>
               <Name>length</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a895f1d2d89c473ee9327241b8b396e55</Anchor>
              </Node>
              <Node>
               <Name>plot</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>abc43b2c538bdbafc55bf98dff87df742</Anchor>
              </Node>
              <Node>
               <Name>plot</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a0859bf71ff590c6a1f4068eec89a6d2f</Anchor>
              </Node>
              <Node>
               <Name>d</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a1aabac6d068eef6a7bad3fdf50a05cc8</Anchor>
              </Node>
              <Node>
               <Name>frameID</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>ab3865628c6671f9ae4637a47c20dcdf2</Anchor>
              </Node>
              <Node>
               <Name>i</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a6f6ccfcf58b31cb6412107d9d5281426</Anchor>
              </Node>
              <Node>
               <Name>ids</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a0a9b879f29cc1e1e03ffc7851f7c19b9</Anchor>
              </Node>
              <Node>
               <Name>ids1</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>ae9ec2aa77283f48e4f2b4b6f51cefe0e</Anchor>
              </Node>
              <Node>
               <Name>ids2</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>afa284900fd07a4339c5f5e38e1353e98</Anchor>
              </Node>
              <Node>
               <Name>Lu</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a6f6f1357e5a7fb658e3e9c999886ce83</Anchor>
              </Node>
              <Node>
               <Name>x</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a9336ebf25087d91c818ee6e9ec29f8c1</Anchor>
              </Node>
              <Node>
               <Name>x1</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>ac39b33361203e68d7820336db48d45e6</Anchor>
              </Node>
              <Node>
               <Name>x1s</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>aaf0cfdbe36f1b784e1e860f2d6004c81</Anchor>
              </Node>
              <Node>
               <Name>x2</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>aab2463cd078f7c5368f6eb80f5a549b8</Anchor>
              </Node>
              <Node>
               <Name>x2s</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>ae88e5b1fe36abdd78145a50d55209d8b</Anchor>
              </Node>
              <Node>
               <Name>xs</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>ae0f5e82ee31a657ad8312b0ed1851438</Anchor>
              </Node>
              <Node>
               <Name>Xu</Name>
-              <Path>external_strain_control_2plot_distance_distribution_8m.html</Path>
+              <Path>external_load_control_2plot_distance_distribution_8m.html</Path>
               <Anchor>a969fd1158d2138fb1cf939d32f447be6</Anchor>
              </Node>
             </Subnodes>
@@ -57173,12 +57391,12 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>externalStrainControl/F/plotStressStrain.py</Name>
-            <Path>external_strain_control_2_f_2plot_stress_strain_8py.html</Path>
+            <Name>externalLoadControl/F/plotStressStrain.py</Name>
+            <Path>external_load_control_2_f_2plot_stress_strain_8py.html</Path>
             <Subnodes>
              <Node>
               <Name>data</Name>
-              <Path>external_strain_control_2_f_2plot_stress_strain_8py.html</Path>
+              <Path>external_load_control_2_f_2plot_stress_strain_8py.html</Path>
               <Anchor>ac9b00a9930e817322b5e2d30c4b8cb93</Anchor>
              </Node>
             </Subnodes>
@@ -58987,6 +59205,74 @@
             </Subnodes>
            </Node>
            <Node>
+            <Name>SampleUserStressController.h</Name>
+            <Path>_sample_user_stress_controller_8h.html</Path>
+            <Subnodes>
+             <Node>
+              <Name>SampleUserStressController</Name>
+              <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SampleUserStressController</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a5f9e136094d9b970f6317fb3bbbe4418</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>ab117ede21e886bddb57cca9529da5ecc</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>acdff649c6100f2b21cdb0893ca2ad55e</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>aaf9955f481fbd49961293f426588fc7f</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a531ce49a5ef8564dabf8e7e69ac3187a</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>SampleUserStressController</Name>
+              <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SampleUserStressController</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a5f9e136094d9b970f6317fb3bbbe4418</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>ab117ede21e886bddb57cca9529da5ecc</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>acdff649c6100f2b21cdb0893ca2ad55e</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>aaf9955f481fbd49961293f426588fc7f</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sample_user_stress_controller.html</Path>
+                <Anchor>a531ce49a5ef8564dabf8e7e69ac3187a</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+            </Subnodes>
+           </Node>
+           <Node>
             <Name>scalar2color.m</Name>
             <Path>scalar2color_8m.html</Path>
             <Subnodes>
@@ -59409,6 +59695,74 @@
                 <Name>mpiRank</Name>
                 <Path>classmodel_1_1_sequential_output_file.html</Path>
                 <Anchor>a64750e7b97623991408225aabaef179f</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+            </Subnodes>
+           </Node>
+           <Node>
+            <Name>SequentialTorsionTensionController.h</Name>
+            <Path>_sequential_torsion_tension_controller_8h.html</Path>
+            <Subnodes>
+             <Node>
+              <Name>SequentialTorsionTensionController</Name>
+              <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SequentialTorsionTensionController</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a60ae21373aab10b0e483254845727f07</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a97edf2b62747dc1e541c070515cb7618</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a241001d5e14ff1575787e3aa7e1b6cb7</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>ae0346599da1a13a1b6139412affa29a8</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a8160e6daf41011ae5420da39436dcc7f</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>SequentialTorsionTensionController</Name>
+              <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>SequentialTorsionTensionController</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a60ae21373aab10b0e483254845727f07</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a97edf2b62747dc1e541c070515cb7618</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a241001d5e14ff1575787e3aa7e1b6cb7</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>ae0346599da1a13a1b6139412affa29a8</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_sequential_torsion_tension_controller.html</Path>
+                <Anchor>a8160e6daf41011ae5420da39436dcc7f</Anchor>
                </Node>
               </Subnodes>
              </Node>
@@ -65825,6 +66179,124 @@
             </Subnodes>
            </Node>
            <Node>
+            <Name>UniformExternalLoadController.h</Name>
+            <Path>_uniform_external_load_controller_8h.html</Path>
+            <Subnodes>
+             <Node>
+              <Name>UniformExternalLoadController</Name>
+              <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>UniformExternalLoadController</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>acc7720e3ed440e445fcecbb1203692dc</Anchor>
+               </Node>
+               <Node>
+                <Name>elasticstrain</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac3c220a72942171875ba0dbcc7713b39</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>afb46959e017f5ddde3eeb11de6a64471</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aeeb37aeac5c6cf39128f3610b41a3aa3</Anchor>
+               </Node>
+               <Node>
+                <Name>m2v</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac0d0809d99c2783c139b6ecaada039ab</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a17c760baecb8e5d98db40cb08f6356f6</Anchor>
+               </Node>
+               <Node>
+                <Name>straininducedStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a9956ca89a59ff7202defe32415ec9dec</Anchor>
+               </Node>
+               <Node>
+                <Name>stressconsidermachinestiffness</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aa2ca80f80ad7352e900a31c9c8950aaf</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a7094df496a306f60146f88f404e37b1e</Anchor>
+               </Node>
+               <Node>
+                <Name>v2m</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a6a29accb4b36ec02d868d267101aff7e</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+             <Node>
+              <Name>UniformExternalLoadController</Name>
+              <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+              <Subnodes>
+               <Node>
+                <Name>UniformExternalLoadController</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>acc7720e3ed440e445fcecbb1203692dc</Anchor>
+               </Node>
+               <Node>
+                <Name>elasticstrain</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac3c220a72942171875ba0dbcc7713b39</Anchor>
+               </Node>
+               <Node>
+                <Name>externalStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>afb46959e017f5ddde3eeb11de6a64471</Anchor>
+               </Node>
+               <Node>
+                <Name>init</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aeeb37aeac5c6cf39128f3610b41a3aa3</Anchor>
+               </Node>
+               <Node>
+                <Name>m2v</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>ac0d0809d99c2783c139b6ecaada039ab</Anchor>
+               </Node>
+               <Node>
+                <Name>output</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a17c760baecb8e5d98db40cb08f6356f6</Anchor>
+               </Node>
+               <Node>
+                <Name>straininducedStress</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a9956ca89a59ff7202defe32415ec9dec</Anchor>
+               </Node>
+               <Node>
+                <Name>stressconsidermachinestiffness</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>aa2ca80f80ad7352e900a31c9c8950aaf</Anchor>
+               </Node>
+               <Node>
+                <Name>update</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a7094df496a306f60146f88f404e37b1e</Anchor>
+               </Node>
+               <Node>
+                <Name>v2m</Name>
+                <Path>classmodel_1_1_uniform_external_load_controller.html</Path>
+                <Anchor>a6a29accb4b36ec02d868d267101aff7e</Anchor>
+               </Node>
+              </Subnodes>
+             </Node>
+            </Subnodes>
+           </Node>
+           <Node>
             <Name>UniformOpen.h</Name>
             <Path>_uniform_open_8h.html</Path>
             <Subnodes>
@@ -65937,23 +66409,12 @@
             </Subnodes>
            </Node>
            <Node>
-            <Name>externalStrainControl/userStress.h</Name>
-            <Path>external_strain_control_2user_stress_8h.html</Path>
+            <Name>userStress.h</Name>
+            <Path>user_stress_8h.html</Path>
             <Subnodes>
              <Node>
               <Name>userStress</Name>
-              <Path>external_strain_control_2user_stress_8h.html</Path>
-              <Anchor>a4293ec0c3aa9d494d005362be5874fc1</Anchor>
-             </Node>
-            </Subnodes>
-           </Node>
-           <Node>
-            <Name>userStress/userStress.h</Name>
-            <Path>user_stress_2user_stress_8h.html</Path>
-            <Subnodes>
-             <Node>
-              <Name>userStress</Name>
-              <Path>user_stress_2user_stress_8h.html</Path>
+              <Path>user_stress_8h.html</Path>
               <Anchor>a4293ec0c3aa9d494d005362be5874fc1</Anchor>
              </Node>
             </Subnodes>

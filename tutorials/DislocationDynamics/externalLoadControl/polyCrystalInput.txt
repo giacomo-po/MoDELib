@@ -2,6 +2,7 @@
 material=29;
 
 # Grain orientation matrices (the i-th row of C2G-j is the crystallographic direction of grain j which becomes the i-th global axis):
+C2G1fromSlipSystem=-1;
 C2G1= 1 0 0
       0 1 0
       0 0 1;
