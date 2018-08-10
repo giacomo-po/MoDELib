@@ -42,14 +42,14 @@
 namespace model
 {
     struct DislocationSegmentActor : public EVLio<3>,
-//    public std::map<size_t,const DislocationNodeIO<3>* const>,
-//        public std::map<size_t,const DislocationLoopIO<3>* const>,
+    //    public std::map<size_t,const DislocationNodeIO<3>* const>,
+    //        public std::map<size_t,const DislocationLoopIO<3>* const>,
     public std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>
     //    :
-//    /* inherits from   */ public IDreader<'V',1,10, double>,
-//    /* inherits from   */ public IDreader<'K',2,13,double>,
-//    /* inherits from   */ IDreader<'E',3,0,double>,
-//    /* inherits from   */ IDreader<'L',1,13,double>
+    //    /* inherits from   */ public IDreader<'V',1,10, double>,
+    //    /* inherits from   */ public IDreader<'K',2,13,double>,
+    //    /* inherits from   */ IDreader<'E',3,0,double>,
+    //    /* inherits from   */ IDreader<'L',1,13,double>
     {
         
         //    public:
@@ -95,10 +95,10 @@ namespace model
         
         //    private:
         
-//        VectorDim planeNormal;
-        VectorDim burgers;
-        VectorDim chord;
-        Eigen::Matrix<int,dim,1> colorVector;
+        //        VectorDim planeNormal;
+        //        VectorDim burgers;
+        //        VectorDim chord;
+        //        Eigen::Matrix<int,dim,1> colorVector;
         
         
         // segments objects
@@ -163,55 +163,55 @@ namespace model
         vtkSmartPointer<vtkActor> triangleActor;
         
         
-//        const std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap() const
-//        {
-//            return *this;
-//        }
-//
-//        std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap()
-//        {
-//            return *this;
-//        }
-//        
-//        const std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap() const
-//        {
-//            return *this;
-//        }
-//        
-//        std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap()
-//        {
-//            return *this;
-//        }
+        //        const std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap() const
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap()
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        const std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap() const
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        std::map<size_t,const DislocationLoopIO<dim>* const>& loopMap()
+        //        {
+        //            return *this;
+        //        }
         
         const std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>& edgeMap() const
         {
             return *this;
         }
-
+        
         std::map<std::pair<size_t,size_t>,std::set<const DislocationEdgeIO<3>*>>& edgeMap()
         {
             return *this;
         }
-
+        
         
         /*********************************************************************/
-        void computeColor()
+        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal)
         {
             
-            VectorDim clrVector;
+            VectorDim clrVector(VectorDim::Zero());
             
             switch (clr)
             {
-                    //                case colorSessile:
-                    //                    colorVector(0)= isSessile? 1.0 : 0.1;
-                    //                    colorVector(1)= isSessile? 0.5 : 0.4;
-                    //                    colorVector(2)= isSessile? 0.0 : 0.9;
-                    //                    break;
+
                     
-//                case colorNormal:
-//                    clrVector = planeNormal;
-//                    //                    flipColor(colorVector);
-//                    break;
+                case colorSessile:
+                {
+                    const bool isSessile=fabs(burgers.dot(planeNormal))>FLT_EPSILON;
+                    clrVector(0)= isSessile? 1.0 : 0.1;
+                    clrVector(1)= isSessile? 0.5 : 0.4;
+                    clrVector(2)= isSessile? 0.0 : 0.9;
+                    break;
+                }
                     
                     //                case colorComponent:
                     //                {
@@ -220,13 +220,13 @@ namespace model
                     //                }
                     //                    break;
                     
-                    //                case colorEdgeScrew:
-                    //                {
-                    //                    const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
-                    //                    //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-                    //                    //                            colorVector << rgb.r, rgb.g, rgb.b;
-                    //                    colorVector=screwColor*u+edgeColor*(1-u);
-                    //                }
+//                                    case colorEdgeScrew:
+//                                    {
+//                                        const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
+//                                        //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+//                                        //                            colorVector << rgb.r, rgb.g, rgb.b;
+//                                        colorVector=screwColor*u+edgeColor*(1-u);
+//                                    }
                     //                    break;
                     
                 default:
@@ -261,68 +261,68 @@ namespace model
             //		colorVector << 0.0f,0.6f,0.4f;
             clrVector.normalize();
             
-            colorVector=(clrVector*255).cast<int>();
+//            colorVector=(clrVector*255).cast<int>();
             
-            
+            return (clrVector*255).cast<int>();
         }
         
         
         
         //    public:
         
-//        /**********************************************************************/
-//        VertexReaderType& vertexReader()
-//        {
-//            return *this;
-//        }
-//        
-//        /**********************************************************************/
-//        EdgeReaderType& edgeReader()
-//        {
-//            return *this;
-//        }
-//        
-//        /**********************************************************************/
-//        LoopLinkReaderType& loopLinkReader()
-//        {
-//            return *this;
-//        }
-//        
-//        LoopReaderType& loopReader()
-//        {
-//            return *this;
-//        }
+        //        /**********************************************************************/
+        //        VertexReaderType& vertexReader()
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        /**********************************************************************/
+        //        EdgeReaderType& edgeReader()
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        /**********************************************************************/
+        //        LoopLinkReaderType& loopLinkReader()
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        LoopReaderType& loopReader()
+        //        {
+        //            return *this;
+        //        }
         
         
         /**********************************************************************/
         void createNodes()
         {
-//            if (vertexReader().isGood(frameID,false)) // bin format
-//            {
-//                vertexReader().read(frameID,false);
-//            }
-//            else // txt format
-//            {
-//                vertexReader().read(frameID,true);
-//            }
+            //            if (vertexReader().isGood(frameID,false)) // bin format
+            //            {
+            //                vertexReader().read(frameID,false);
+            //            }
+            //            else // txt format
+            //            {
+            //                vertexReader().read(frameID,true);
+            //            }
             
             //            nodeLabels->SetNumberOfValues(vertexReader().size());
             //            size_t labelID=0;
-//            for(const auto& node : this->nodes())
-//            {
-//                this->nodeMap().emplace(node.sID,&node);
-//            }
+            //            for(const auto& node : this->nodes())
+            //            {
+            //                this->nodeMap().emplace(node.sID,&node);
+            //            }
             
             for(const auto& node : this->nodeMap())
             {
                 
-//                this->nodeMap().emplace(node.sID,&node);
+                //                this->nodeMap().emplace(node.sID,&node);
                 
-//                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
-//                std::cout<<node.second->P.transpose()<<std::endl;
+                //                Eigen::Map<const Eigen::Matrix<double,1,10>> row(node.second.data());
+                //                std::cout<<node.second->P.transpose()<<std::endl;
                 nodePoints->InsertNextPoint(node.second->P.data());
                 
-//                const int& meshLocation(node.(8));
+                //                const int& meshLocation(node.(8));
                 switch (node.second->meshLocation)
                 {
                     case 0:
@@ -397,32 +397,27 @@ namespace model
             singleNodeLabelPolyData->GetPointData()->SetScalars(singleNodeLabelScalars);
         }
         
-        
+
         /**********************************************************************/
         void createSegments()
         {
-//            if (edgeReader().isGood(frameID,false)) // bin format
-//            {
-//                edgeReader().read(frameID,false);
-//            }
-//            else // txt format
-//            {
-//                edgeReader().read(frameID,true);
-//            }
+            
+            
+                        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
             
             size_t ptID=0;
-            for (const auto& edge : edgeMap())
+            for (const auto& segment : segments)
             {
-                assert(edge.first.second.size());
+//                assert(edge.first.second.size());
                 
-                auto itSource(this->nodeMap().find(edge.first.first)); //source
+                auto itSource(this->nodeMap().find(segment.second.sourceID)); //source
                 assert(itSource!=this->nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                auto   itSink(this->nodeMap().find(edge.first.second)); //sink
+                auto   itSink(this->nodeMap().find(segment.second.sinkID)); //sink
                 assert(  itSink!=this->nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
                 
-//                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
-//                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
-//                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
+                //                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
+                //                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
+                //                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
                 
                 //                const int   snID(edgeRow(2*dim+2));
                 //                const bool sourceOnBoundary(sourceRow(2*dim+1));
@@ -431,48 +426,49 @@ namespace model
                 //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
                 //                {
                 
-                int meshLocation=(*edge.second.begin())->meshLocation;
+//                int meshLocation=(*edge.second.begin())->meshLocation;
                 
                 Eigen::Matrix<float,dim,6> P0T0P1T1BN;
                 
-//                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-//                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-//                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-//                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-//                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-//                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-//                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-//                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                //                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+                //                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+                //                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+                //                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                //                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
                 P0T0P1T1BN.col(0) = itSource->second->P.template cast<float>();	// source position
                 P0T0P1T1BN.col(2) = itSink->second->P.template cast<float>();	// sink position
                 //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
                 //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-//                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-//                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-                P0T0P1T1BN.col(4).setZero();		// Burgers vector
-                for(auto& loopLink : edge.second)
-                {
-                    auto loopIter(this->loopMap().find(loopLink->loopID));
-                    assert(loopIter!=this->loopMap().end());
-                if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
-                {
-                    P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
-                }
-                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
-                    {
-                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
-                    }
-                    else
-                    {
-                        assert(0);
-                    }
-                }
-//                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-                P0T0P1T1BN.col(5).setZero();		// plane normal
-
-                chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
-                burgers=P0T0P1T1BN.col(4);
-//                planeNormal=P0T0P1T1BN.col(5);
+                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+                P0T0P1T1BN.col(4)=segment.second.b.template cast<float>();		// Burgers vector
+//                for(auto& loopLink : edge.second)
+//                {
+//                    auto loopIter(this->loopMap().find(loopLink->loopID));
+//                    assert(loopIter!=this->loopMap().end());
+//                    if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
+//                    {
+//                        P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
+//                    }
+//                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
+//                    {
+//                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
+//                    }
+//                    else
+//                    {
+//                        assert(0);
+//                    }
+//                }
+                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+                P0T0P1T1BN.col(5)=segment.second.n.template cast<float>();		// plane normal
+                
+                VectorDim chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+                const VectorDim burgers=segment.second.b.template cast<float>();
+                const VectorDim planeNormal=segment.second.n.template cast<float>();
+                
                 const float g = std::pow(chord.norm(),alpha);
                 
                 
@@ -508,11 +504,12 @@ namespace model
                 if(burgers.squaredNorm()>FLT_EPSILON)
                 {
                     
-                    computeColor();
+                    Eigen::Matrix<int,3,1> colorVector=computeColor(burgers,chord,planeNormal);
+                    
                     //                    unsigned char lineClr[3]={51,153,255};
                     unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
                     
-                    if(meshLocation>=1)
+                    if(segment.second.meshLocation>=1)
                     {
                         cellsBnd->InsertNextCell(line);
                         colorsBnd->InsertNextTypedTuple(lineClr);
@@ -522,7 +519,7 @@ namespace model
                     {
                         cells->InsertNextCell(line);
                         
-                        if(meshLocation==2 && blackGrainBoundarySegments)
+                        if(segment.second.meshLocation==2 && blackGrainBoundarySegments)
                         {
                             unsigned char lineClr1[3]={1,1,1};
                             colors->InsertNextTypedTuple(lineClr1);
@@ -584,6 +581,197 @@ namespace model
             
         }
         
+//        /**********************************************************************/
+//        void createSegments()
+//        {
+//            //            if (edgeReader().isGood(frameID,false)) // bin format
+//            //            {
+//            //                edgeReader().read(frameID,false);
+//            //            }
+//            //            else // txt format
+//            //            {
+//            //                edgeReader().read(frameID,true);
+//            //            }
+//            
+//            
+////            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
+//            
+//            size_t ptID=0;
+//            for (const auto& edge : edgeMap())
+//            {
+//                assert(edge.first.second.size());
+//                
+//                auto itSource(this->nodeMap().find(edge.first.first)); //source
+//                assert(itSource!=this->nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+//                auto   itSink(this->nodeMap().find(edge.first.second)); //sink
+//                assert(  itSink!=this->nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+//                
+//                //                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
+//                //                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
+//                //                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
+//                
+//                //                const int   snID(edgeRow(2*dim+2));
+//                //                const bool sourceOnBoundary(sourceRow(2*dim+1));
+//                //                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
+//                //
+//                //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
+//                //                {
+//                
+//                int meshLocation=(*edge.second.begin())->meshLocation;
+//                
+//                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
+//                
+//                //                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
+//                //                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
+//                //                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+//                //                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+//                //                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
+//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+//                P0T0P1T1BN.col(0) = itSource->second->P.template cast<float>();	// source position
+//                P0T0P1T1BN.col(2) = itSink->second->P.template cast<float>();	// sink position
+//                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
+//                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
+//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
+//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
+//                P0T0P1T1BN.col(4).setZero();		// Burgers vector
+//                for(auto& loopLink : edge.second)
+//                {
+//                    auto loopIter(this->loopMap().find(loopLink->loopID));
+//                    assert(loopIter!=this->loopMap().end());
+//                    if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
+//                    {
+//                        P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
+//                    }
+//                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
+//                    {
+//                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
+//                    }
+//                    else
+//                    {
+//                        assert(0);
+//                    }
+//                }
+//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
+//                P0T0P1T1BN.col(5).setZero();		// plane normal
+//                
+//                VectorDim chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+//                VectorDim burgers=P0T0P1T1BN.col(4);
+//                VectorDim planeNormal=P0T0P1T1BN.col(5);
+//                
+//                const float g = std::pow(chord.norm(),alpha);
+//                
+//                
+//                //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
+//                //                    auto& line(*lines.rbegin());
+//                vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
+//                line->GetPointIds()->SetNumberOfIds(Np);
+//                
+//                //                    unsigned char clr0[3]={255,255,255};
+//                
+//                const float burgersNorm(burgers.norm());
+//                
+//                for (int k=0;k<Np;++k) // this may have to go to Np+1
+//                {
+//                    const float u1=k*1.0/(Np-1);
+//                    const float u2=u1*u1;
+//                    const float u3=u2*u1;
+//                    
+//                    // Compute positions along axis
+//                    VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
+//                    /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
+//                    /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
+//                    /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+//                    
+//                    points->InsertNextPoint(P.data());
+//                    radii->InsertNextValue(burgersNorm*tubeRadius);
+//                    line->GetPointIds()->SetId(k,ptID);
+//                    
+//                    ptID++;
+//                }
+//                
+//                
+//                if(burgers.squaredNorm()>FLT_EPSILON)
+//                {
+//                    
+//                    Eigen::Matrix<int,3,1> colorVector=computeColor(burgers,chord,planeNormal);
+//                    
+//                    //                    unsigned char lineClr[3]={51,153,255};
+//                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+//                    
+//                    if(meshLocation>=1)
+//                    {
+//                        cellsBnd->InsertNextCell(line);
+//                        colorsBnd->InsertNextTypedTuple(lineClr);
+//                        
+//                    }
+//                    else
+//                    {
+//                        cells->InsertNextCell(line);
+//                        
+//                        if(meshLocation==2 && blackGrainBoundarySegments)
+//                        {
+//                            unsigned char lineClr1[3]={1,1,1};
+//                            colors->InsertNextTypedTuple(lineClr1);
+//                        }
+//                        else
+//                        {
+//                            colors->InsertNextTypedTuple(lineClr);
+//                        }
+//                    }
+//                    
+//                    //                        if(meshLocation==1)
+//                    //                        {
+//                    //                            cellsBnd->InsertNextCell(line);
+//                    //                            colorsBnd->InsertNextTypedTuple(lineClr);
+//                    //
+//                    //                        }
+//                    //                        else
+//                    //                        {
+//                    //                            cells->InsertNextCell(line);
+//                    //
+//                    //                            if(meshLocation==2 && blackGrainBoundarySegments)
+//                    //                            {
+//                    //                                unsigned char lineClr1[3]={1,1,1};
+//                    //                                colors->InsertNextTypedTuple(lineClr1);
+//                    //                            }
+//                    //                            else
+//                    //                            {
+//                    //                                colors->InsertNextTypedTuple(lineClr);
+//                    //                            }
+//                    //                        }
+//                }
+//                else
+//                {
+//                    cells0->InsertNextCell(line);
+//                }
+//                
+//                //                }
+//            }
+//            
+//            polyData->SetPoints(points);
+//            polyData->SetLines(cells);
+//            //            polyData->GetCellData()->SetScalars(colors);
+//            
+//            //            polyData->GetPointData()->SetScalars(radii);
+//            //            polyData->GetCellData()->SetScalars(radii);
+//            polyData->GetCellData()->AddArray(colors);
+//            polyData->GetPointData()->AddArray(radii);
+//            polyData->GetPointData()->SetActiveScalars("TubeRadius");
+//            
+//            
+//            polyDataBnd->SetPoints(points);
+//            polyDataBnd->SetLines(cellsBnd);
+//            polyDataBnd->GetCellData()->SetScalars(colorsBnd);
+//            
+//            
+//            polyData0->SetPoints(points);
+//            polyData0->SetLines(cells0);
+//            //            polyData0->GetCellData()->SetScalars(colors);
+//            
+//        }
+        
         /**********************************************************************/
         void createLoopLinks()
         {
@@ -603,7 +791,7 @@ namespace model
             for(const auto& loop : this->loops())
             {
                 
-//                loopMap().emplace(loop.sID,&loop);
+                //                loopMap().emplace(loop.sID,&loop);
                 
                 const auto loopFound=loopEdgeMap.find(loop.sID);
                 assert(loopFound!=loopEdgeMap.end());
@@ -664,8 +852,8 @@ namespace model
         /**********************************************************************/
         DislocationSegmentActor(const size_t& frameID,
                                 /*const size_t& lastFrameID,
-                                const float& anglePerStep,
-                                Eigen::Matrix<float,3,1> spinAxis,*/
+                                 const float& anglePerStep,
+                                 Eigen::Matrix<float,3,1> spinAxis,*/
                                 vtkRenderer* const ren) :
         /* init */ renderer(ren),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
@@ -738,24 +926,24 @@ namespace model
             
             //            nodeLabels->SetName("node IDs");
             
-//            this->readBin(frameID);
+            //            this->readBin(frameID);
             if(EVLio<3>::isBinGood(frameID))
             {
                 this->readBin(frameID);
             }
             else
             {
-//                assert(EVLio<3>::isTxtGood(frameID));
+                //                assert(EVLio<3>::isTxtGood(frameID));
                 this->readTxt(frameID);
             }
-
+            
             createNodes();
             createLoopLinks();
             createSegments();
-//            readSegments(frameID);
-//            //            if(showSlippedArea)
-//            //            {
-//            readLoopLinks(frameID);
+            //            readSegments(frameID);
+            //            //            if(showSlippedArea)
+            //            //            {
+            //            readLoopLinks(frameID);
             //            }
             
             // Populate polyData
@@ -826,7 +1014,7 @@ namespace model
             //            nodeMapper->ScalarVisibilityOff();
             nodeActor->SetMapper(nodeMapper);
             
-
+            
             // Velocities
             velocityGlyphs->SetSourceConnection(velocityArrowSource->GetOutputPort());
             velocityGlyphs->SetInputData(velocityPolyData);
@@ -845,7 +1033,7 @@ namespace model
             velocityActor->SetMapper(velocityMapper);
             velocityActor->GetProperty()->SetColor(1.0, 0.0, 1.0); //(R,G,B)
             
-
+            
             
             // Labels
             labelMapper->SetInputData(labelPolyData);
@@ -854,7 +1042,7 @@ namespace model
             labelActor->SetMapper(labelMapper);
             labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
             
-
+            
             
             // Single node Label
             singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
@@ -864,34 +1052,34 @@ namespace model
             singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
             singleNodeLabelActor->VisibilityOff();
             
-
+            
             
             
             // SlippedArea
             triangleMapper->SetInputData(trianglePolyData);
             triangleActor->SetMapper(triangleMapper);
             
-
             
-//            const double axisNorm(spinAxis.norm());
-//            if(anglePerStep && axisNorm>0.0)
-//            {
-//                spinAxis/=axisNorm;
-//                //                std::cout<<"rotating"<< frameID*anglePerStep<<std::endl;
-//                const double splinAngle((frameID-lastFrameID)*anglePerStep);
-//                std::cout<<"ddSegments "<<splinAngle<<std::endl;
-//
-//                lineActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                tubeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                tubeActorBnd->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                tubeActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                lineActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                nodeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                velocityActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                //labelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                //singleNodeLabelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//                triangleActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-//            }
+            
+            //            const double axisNorm(spinAxis.norm());
+            //            if(anglePerStep && axisNorm>0.0)
+            //            {
+            //                spinAxis/=axisNorm;
+            //                //                std::cout<<"rotating"<< frameID*anglePerStep<<std::endl;
+            //                const double splinAngle((frameID-lastFrameID)*anglePerStep);
+            //                std::cout<<"ddSegments "<<splinAngle<<std::endl;
+            //
+            //                lineActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                tubeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                tubeActorBnd->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                tubeActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                lineActor0->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                nodeActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                velocityActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                //labelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                //singleNodeLabelActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //                triangleActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
+            //            }
             renderer->AddActor(tubeActor);
             renderer->AddActor(tubeActorBnd);
             renderer->AddActor(tubeActor0);

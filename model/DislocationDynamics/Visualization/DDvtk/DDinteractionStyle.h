@@ -541,6 +541,9 @@ namespace model
                 std::cout<<"      1 to show/hide boundary segments"<<std::endl;
                 std::cout<<"      2 to turn on/off segment radii scaled by Burgers norm"<<std::endl;
                 std::cout<<"      3 to color grain-boundary segments in black "<<std::endl;
+                std::cout<<"      4 to color segments by Burgers vector "<<std::endl;
+                std::cout<<"      5 to color segments by glissile/sessile "<<std::endl;
+
             }
             
             if(key == "i")
@@ -845,6 +848,21 @@ namespace model
                     ddSegments->modify();
                     this->Interactor->Render();
                 }
+                if(key == "4")
+                {
+                    DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
+                    std::cout<<"DislocationSegment color scheme = Burgers. Reload frame to update colors."<<std::endl;
+//                    ddSegments->modify();
+//                    this->Interactor->Render();
+                }
+                if(key == "5")
+                {
+                    DislocationSegmentActor::clr=DislocationSegmentActor::colorSessile;
+                    std::cout<<"DislocationSegment color scheme = Glissile/Sessile. Reload frame to update colors."<<std::endl;
+                    //                    ddSegments->modify();
+                    //                    this->Interactor->Render();
+                }
+                
                 
             }
             
