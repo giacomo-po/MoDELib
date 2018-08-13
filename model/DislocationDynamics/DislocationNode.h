@@ -248,7 +248,7 @@ namespace model
                 
                 assert(gp.contains(this->get_P()) && "Glide Plane does not contain DislocationNode");
                 boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                assert(boundingBoxSegments().size() && "EMPTY boundingBoxSegments");
+                assert((boundingBoxSegments().size() || !_isOnBoundingBox) && "EMPTY boundingBoxSegments");
                 updateMeshPlaneIntersections(gp);
                 
                 VerboseDislocationNode(4,"new bounding box"<<std::endl;);

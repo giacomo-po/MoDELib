@@ -1,14 +1,10 @@
 NEW LOOP_NETWORK CODE
 - Mobility specific to slip system
 - Make Loops with |Burgers|>1 sessile
-- Finish IO in bin format
 - Rework crossslip
-- Use StressStright for straight segments
-- New external stress load controller
 - Microstructure generator with different distributions
 - DDvtk movies
 - DDvtk cannot interrupt autoplay
-- DDvtk plots
 - New time integrator
 - DipolarMicrostructureGenerator for Bcc/Hcp
 - Natural Cubic Splines
@@ -28,7 +24,6 @@ NEW LOOP_NETWORK CODE
 - DislocationSegment::is_boundarySegment() must use mid point (not normals) to push segments to corners
 - Assemble and solve is taking too long (> particle interaction). Can we assemble scalar system of equations? Null-space solver?
 - display help in DDvtk
-- re-enable moving plot panel in DDvtk
 - Convex decomposition of Mesh (http://masc.cs.gmu.edu/wiki/ACD)
 - Non convex domains changes: barycentric search algorithm, PlaneMeshIntersection::planeMeshIntersection, virtual segments, initial microstructure
 - Use CGAL
@@ -38,7 +33,6 @@ NEW LOOP_NETWORK CODE
 - Implement operator << SpatialCell
 - iterate on JunctionFormation until no junctions if found
 - iterate on Remesh
-- DislocationJunction: take care of source-source, source-sink, and sink-sink cases
 - Optimize Remesh
 - clean up BoundingLineSegments. Use LineSegment class instead of pair<VectorDim,VectorDim>
 - DislocationJunctions: IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOV

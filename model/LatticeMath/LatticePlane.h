@@ -113,60 +113,62 @@ namespace model
             return h*n.planeSpacing()*n.cartesian().normalized();
         }
         
-        //        /**********************************************************************/
-        //        VectorDimD snapToPlane(const VectorDimD& P0) const
-        //        {
-        //            return P+n.snapToPlane(P0-P);
-        //        }
-        //
-        //        /**********************************************************************/
-        //        bool contains(const Eigen::Matrix<double,3,1>& P0) const
-        //        {
-        //            const double PP0((P-P0).norm());
-        //            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
-        //        }
-        
-        //        /**********************************************************************/
-        //        static long int height(const std::pair<bool,long int>& p)
-        //        {
-        //            assert(p.first);
-        //            return p.second;
-        //        }
-        
-        //        /**********************************************************************/
-        //        LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
-        //        /* init */ P(P_in),
-        //        /* init */ n(n_in)
-        //        {
-        //            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
-        //        }
-        
-        //        /**********************************************************************/
-        //        LatticeVectorType snapToLattice(const VectorDimD& P0) const
-        //        {
-        //            return P+n.snapToLattice(P0-P.cartesian());
-        //        }
-        //
-        //        /**********************************************************************/
-        //        VectorDimD snapToPlane(const VectorDimD& P0) const
-        //        {
-        //            return P.cartesian()+n.snapToPlane(P0-P.cartesian());
-        //        }
-        //
-        //        /**********************************************************************/
-        //        bool contains(const LatticeVectorType& L) const
-        //        {
-        //            assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
-        //            return (L-P).dot(n)==0;
-        //        }
-        //
-        //        /**********************************************************************/
-        //        bool contains(const Eigen::Matrix<double,3,1>& P0) const
-        //        {
-        //            return fabs((P0-P.cartesian()).dot(n.cartesian()))<FLT_EPSILON;
-        //        }
-        
     };
     
 }
 #endif
+
+
+
+//        /**********************************************************************/
+//        VectorDimD snapToPlane(const VectorDimD& P0) const
+//        {
+//            return P+n.snapToPlane(P0-P);
+//        }
+//
+//        /**********************************************************************/
+//        bool contains(const Eigen::Matrix<double,3,1>& P0) const
+//        {
+//            const double PP0((P-P0).norm());
+//            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
+//        }
+
+//        /**********************************************************************/
+//        static long int height(const std::pair<bool,long int>& p)
+//        {
+//            assert(p.first);
+//            return p.second;
+//        }
+
+//        /**********************************************************************/
+//        LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
+//        /* init */ P(P_in),
+//        /* init */ n(n_in)
+//        {
+//            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
+//        }
+
+//        /**********************************************************************/
+//        LatticeVectorType snapToLattice(const VectorDimD& P0) const
+//        {
+//            return P+n.snapToLattice(P0-P.cartesian());
+//        }
+//
+//        /**********************************************************************/
+//        VectorDimD snapToPlane(const VectorDimD& P0) const
+//        {
+//            return P.cartesian()+n.snapToPlane(P0-P.cartesian());
+//        }
+//
+//        /**********************************************************************/
+//        bool contains(const LatticeVectorType& L) const
+//        {
+//            assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
+//            return (L-P).dot(n)==0;
+//        }
+//
+//        /**********************************************************************/
+//        bool contains(const Eigen::Matrix<double,3,1>& P0) const
+//        {
+//            return fabs((P0-P.cartesian()).dot(n.cartesian()))<FLT_EPSILON;
+//        }

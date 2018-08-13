@@ -285,6 +285,14 @@ namespace model
           * \param[in] n normal to the plane
           * Constructor for plane internal to a mesh region
           */
+            if(meshIntersections.size()<3)
+            {
+                std::cout<<"p="<<p.transpose()<<std::endl;
+                std::cout<<"n="<<n.transpose()<<std::endl;
+                std::cout<<"meshIntersections.size()="<<meshIntersections.size()<<std::endl;
+                assert(false && "meshIntersections FAILED");
+            }
+
         }
         
         /**********************************************************************/
@@ -302,6 +310,15 @@ namespace model
           * \param[in] n normal to the plane
           * Constructor for plane between two mesh regions
           */
+            
+            if(meshIntersections.size()<3)
+            {
+                std::cout<<"rID1="<<rID1<<std::endl;
+                std::cout<<"rID2="<<rID2<<std::endl;
+                std::cout<<"meshIntersections.size()="<<meshIntersections.size()<<std::endl;
+                assert(false && "meshIntersections FAILED");
+            }
+            
         }
         
         //         typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainerType;

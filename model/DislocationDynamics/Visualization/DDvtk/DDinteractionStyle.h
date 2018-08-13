@@ -28,6 +28,7 @@
 #include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/PKActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
+#include <model/DislocationDynamics/Visualization/DDvtk/InclusionActor.h>
 #include <model/Utilities/TerminalColors.h>
 #include <model/IO/EigenDataReader.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
@@ -49,6 +50,7 @@ namespace model
         std::unique_ptr<DislocationSegmentActor> ddSegments;
         std::unique_ptr<PKActor> ddPK;
         std::unique_ptr<GlidePlaneActor> ddGP;
+        std::unique_ptr<InclusionActor> inclusions;
         std::unique_ptr<PlotActor> plot;
         vtkSmartPointer<vtkAxesActor> axes;
         vtkSmartPointer<vtkOrientationMarkerWidget> widget;
@@ -140,7 +142,9 @@ namespace model
                 ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
+                inclusions.reset(new InclusionActor(0,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
+                
 
                 const double spinAxisNorm(spinAxis.norm());
                 if(autoSpin && degPerStep && spinAxisNorm)
