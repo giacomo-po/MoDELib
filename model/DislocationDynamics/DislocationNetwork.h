@@ -174,6 +174,7 @@ namespace model
         int dislocationImages_x;
                 int dislocationImages_y;
                 int dislocationImages_z;
+        double surfaceAttractionDistance;
         std::string folderSuffix;
         
 #ifdef DislocationNucleationFile
@@ -383,6 +384,7 @@ namespace model
         /* init list  */ outputSegmentPairDistances(false),
         /* init list  */ _userOutputColumn(3),
         /* init list  */ use_stochasticForce(false),
+        /* init list  */ surfaceAttractionDistance(0.0),
 //        /* init list  */ use_userStress(false),
         /* init list  */ folderSuffix("")
         {

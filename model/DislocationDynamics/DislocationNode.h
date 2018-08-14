@@ -940,7 +940,7 @@ namespace model
             bool temp(true);
             for (const auto& neighborIter : this->neighbors())
             {
-                temp*=std::get<0>(neighborIter.second)->isBoundaryNode();
+                temp*=(std::get<0>(neighborIter.second)->isBoundaryNode() || std::get<1>(neighborIter.second)->hasZeroBurgers());
                 if(!temp)
                 {
                     break;
@@ -1053,6 +1053,35 @@ namespace model
             return temp;
         }
         
+//        /**********************************************************************/
+//        bool isSimpleZeroNode() const
+//        {
+//            std::set<const LinkType*> zeroLinks;
+//            std::set<const LinkType*> nonZeroLinks;
+//            
+//            for (const auto& neighborIter : this->neighbors())
+//            {
+//                if(std::get<1>(neighborIter.second)->hasZeroBurgers())
+//                {
+//                    zeroLinks.insert(std::get<1>(neighborIter.second));
+//                }
+//                else
+//                {
+//                    nonZeroLinks.insert(std::get<1>(neighborIter.second));
+//                }
+//            }
+//            
+//            bool temp=false;
+//            if(zeroLinks.size()==2 && nonZeroLinks.size()==2)
+//            {
+//            
+//                
+//            
+//            }
+//            
+//            return temp;
+//        }
+        
         /**********************************************************************/
         const double& velocityReduction() const
         {
@@ -1094,7 +1123,27 @@ namespace model
                         else
                         {// node was internal to the grain and remains internal
                             VerboseDislocationNode(3,"case 2"<<std::endl;);
-                            NodeBaseType::set_P(newP);
+                            if(   isConnectedToBoundaryNodes()
+                               && boundingBoxSegments().size()==2
+                               && glidePlaneIntersections().size()==1)
+                            {
+                                if((newP-glidePlaneIntersections()[0].first).norm()<this->network().surfaceAttractionDistance)
+                                {
+                                    NodeBaseType::set_P(glidePlaneIntersections()[0].first);
+                                }
+                                else if((newP-glidePlaneIntersections()[0].second).norm()<this->network().surfaceAttractionDistance)
+                                {
+                                    NodeBaseType::set_P(glidePlaneIntersections()[0].second);
+                                }
+                                else
+                                {
+                                    NodeBaseType::set_P(newP);
+                                }
+                            }
+                            else
+                            {
+                                NodeBaseType::set_P(newP);
+                            }
                             if(boundingBoxSegments().contains(this->get_P()).first)
                             {// there is a chance that newP is exactly on the bounding box
                                 _isOnBoundingBox=true;

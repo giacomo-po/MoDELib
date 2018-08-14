@@ -322,6 +322,7 @@ namespace model
             EDR.readScalarInFile(fullName.str(),"use_boundary",DN.use_boundary);
             if (DN.use_boundary)
             {
+                EDR.readScalarInFile(fullName.str(),"surfaceAttractionDistance",DN.surfaceAttractionDistance);
                 
                 EDR.readScalarInFile(fullName.str(),"dislocationImages_x",DN.dislocationImages_x);
                 EDR.readScalarInFile(fullName.str(),"dislocationImages_y",DN.dislocationImages_y);
