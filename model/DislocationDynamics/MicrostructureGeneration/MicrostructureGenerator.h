@@ -104,6 +104,11 @@ namespace model
         double targetIrradiationLoopDensity;
         double averageLoopSize;
         
+        Eigen::Matrix<double,1,Eigen::Dynamic> targetInclusionDensities;
+        Eigen::Matrix<double,1,Eigen::Dynamic> inclusionsDistribution_alpha;
+        Eigen::Matrix<double,1,Eigen::Dynamic> inclusionsDistribution_beta;
+        Eigen::Matrix<double,1,Eigen::Dynamic> inclusionsDistribution_gamma;
+        Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         
         /**********************************************************************/
         void addIrradiationLoops()
@@ -170,6 +175,73 @@ namespace model
         }
         
         /**********************************************************************/
+        void addEshelbyInclusions()
+        {
+        
+            std::cout<<"Generating Inclusions"<<std::endl;
+
+            std::ofstream inclusionsfile("E/E_0.txt");
+            
+            
+            std::deque<std::pair<double,VectorDimD>> existingPrecipitates;
+            
+            size_t inclusionID=0;
+            for(int f=0;f<targetInclusionDensities.cols();++f)
+            {
+                if(   targetInclusionDensities(f)>0.0)
+                {
+                    assert(inclusionsDistribution_alpha(f)>0.0);
+                    assert(inclusionsDistribution_beta(f)>0.0);
+                    assert(inclusionsDistribution_gamma(f)>0.0);
+                    
+                    double numberDensity=0.0;
+                    
+                    while(numberDensity<targetInclusionDensities(f))
+                    {
+                        
+                        std::default_random_engine generator;
+                        std::gamma_distribution<double> distribution(inclusionsDistribution_alpha(f),inclusionsDistribution_beta(f));
+                        
+                        const double size = distribution(generator)*inclusionsDistribution_gamma(f)/Material<Isotropic>::b_real;
+                        const VectorDimD P=randomPointInMesh().first.cartesian();
+                        
+                        bool isOutside=true;
+                        for(const auto& pair : existingPrecipitates)
+                        {
+                            isOutside *= (P-pair.second).norm()>pair.first+size;
+                        }
+                        
+                        if(isOutside)
+                        {
+                            inclusionsfile<<inclusionID
+                            /*          */<<" "<<P.transpose()
+                            /*          */<<" "<<size
+                            /*          */<<" "<<inclusionsTransformationStrains.row(f)
+                            /*          */<<" "<<f
+                            /*          */<<"\n";
+                            
+                            numberDensity+=1.0/mesh.volume()/std::pow(Material<Isotropic>::b_real,3);
+                            inclusionID++;
+                            existingPrecipitates.emplace_back(size,P);
+                            
+                            std::cout<<"inclusions density="<<numberDensity<<std::endl;
+                            
+                        }
+
+                    }
+                    
+                    
+                    
+                }
+            }
+            
+
+            inclusionsfile.close();
+
+            
+        }
+        
+        /**********************************************************************/
         void write()
         {
             
@@ -187,6 +259,10 @@ namespace model
             {
                 EVLio<dim>::writeTxt(0,nodesIO,loopsIO,edgesIO);
             }
+            
+            
+            addEshelbyInclusions();
+            
         }
         
         /**********************************************************************/
@@ -235,6 +311,16 @@ namespace model
             EDR.readScalarInFile("./microstructureInput.txt","targetIrradiationLoopDensity",targetIrradiationLoopDensity);
             EDR.readScalarInFile("./microstructureInput.txt","averageLoopSize",averageLoopSize);
             
+            
+            EDR.readVectorInFile("./microstructureInput.txt","targetInclusionDensities",targetInclusionDensities);
+            EDR.readVectorInFile("./microstructureInput.txt","inclusionsDistribution_alpha",inclusionsDistribution_alpha);
+            EDR.readVectorInFile("./microstructureInput.txt","inclusionsDistribution_beta",inclusionsDistribution_beta);
+            EDR.readVectorInFile("./microstructureInput.txt","inclusionsDistribution_gamma",inclusionsDistribution_gamma);
+            assert(targetInclusionDensities.cols()==inclusionsDistribution_alpha.cols());
+            assert(targetInclusionDensities.cols()==inclusionsDistribution_beta.cols());
+            assert(targetInclusionDensities.cols()==inclusionsDistribution_gamma.cols());
+            EDR.readMatrixInFile("./microstructureInput.txt","inclusionsTransformationStrains",inclusionsTransformationStrains);
+            assert(targetInclusionDensities.cols()==inclusionsTransformationStrains.rows());
             
         }
         

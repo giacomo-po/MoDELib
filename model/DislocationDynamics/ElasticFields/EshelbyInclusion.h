@@ -36,6 +36,7 @@ namespace model
         MatrixDim eT;
         const double nu;
         const double mu;
+        const int typeID;
         const double L;
         const double M;
         const double K;
@@ -49,18 +50,20 @@ namespace model
                          const double& _a,
                          const MatrixDim& _eT,
                          const double& _nu,
-                         const double& _mu) :
+                         const double& _mu,
+                         const int& _type) :
         /* init */ C(_C)
         /* init */,a(_a)
         /* init */,eT(_eT)
         /* init */,nu(_nu)
         /* init */,mu(_mu)
+        /* init */,typeID(_type)
         /* init */,L((5.0*nu-1.0)/15.0/(1.0-nu))
         /* init */,M((4.0-5.0*nu)/15.0/(1.0-nu))
         /* init */,K((3.0*L+2.0*M)/3.0)
         /* init */,pT(2.0*mu*(eT+nu/(1.0-2.0*nu)*eT.trace()*MatrixDim::Identity()))
         {
-            model::cout<<"Creating EshelbyInclusion "<<this->sID<<":\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<eT<<std::endl;
+            model::cout<<"Creating EshelbyInclusion "<<this->sID<<" (type "<<typeID<<"):\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<eT<<std::endl;
             assert((_eT-_eT.transpose()).norm()<FLT_EPSILON && "eT is not symmetric.");
         }
         

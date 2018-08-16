@@ -742,13 +742,6 @@ namespace model
                             stressGauss[k] += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());
                         }
                         
-//#ifdef UserStressFile
-//                        if(this->network().use_userStress)
-//                        {
-//                            stressGauss[k]+=userStress(rgauss.col(k));
-//                        }
-//#endif
-                        
                         // Add GB stress
                         for(const auto& sStraight : this->network().poly.grainBoundaryDislocations() )
                         {
@@ -758,8 +751,17 @@ namespace model
                         // Add EshelbyInclusions stress
                         for(const auto& inclusion : this->network().eshelbyInclusions() )
                         {
-                            stressGauss[k] +=inclusion.second.stress(rgauss.col(k));
+                            
+                            for(const auto& shift : this->network().periodicShifts)
+                            {
+                                stressGauss[k] +=inclusion.second.stress(rgauss.col(k)-shift);
+
+                            }
                         }
+                        
+//                        const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+                        
+
 
                         
                         

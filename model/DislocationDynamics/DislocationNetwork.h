@@ -82,8 +82,8 @@ namespace model
         BVPsolver<dim,2> bvpSolver;
         
         DislocationNetworkBase() :
-        /* init list  */ poly(mesh),
-        /* init list  */ bvpSolver(mesh)
+        /* init */ poly(mesh),
+        /* init */ bvpSolver(mesh)
         {
             
         }
@@ -179,6 +179,8 @@ namespace model
         int dislocationImages_y;
         int dislocationImages_z;
         double surfaceAttractionDistance;
+//        const VectorDim meshDimensions;
+        std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
         std::string folderSuffix;
         
 #ifdef DislocationNucleationFile
@@ -348,50 +350,48 @@ namespace model
         
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
-        /* init list  */ timeIntegrationMethod(0),
-        //        /* init list  */ use_analyticalStraightStress(true),
-        //        /* init list  */ use_junctions(false),
+        /* init */ timeIntegrationMethod(0),
+        //        /* init */ use_analyticalStraightStress(true),
+        //        /* init */ use_junctions(false),
         maxJunctionIterations(1),
-        /* init list  */ runID(0),
-        /* init list  */ totalTime(0.0),
-        /* init list  */ dt(0.0),
-        /* init list  */ vMax(0.0),
-        /* init list  */ Nsteps(0),
-        /* init list  */ _plasticDistortion(MatrixDimD::Zero()),
-        /* init list  */ _plasticDistortionRate(MatrixDimD::Zero()),
-        ///* init list  */ externalStress(MatrixDimD::Zero()),
-        /* init list  */ ddSolverType(0),
-        /* init list  */ computeDDinteractions(true),
-        /* init list  */ crossSlipModel(0),
-        /* init list  */ use_boundary(false),
-        /* init list  */ use_bvp(0),
-        /* init list  */ use_virtualSegments(true),
-        //        /* init list  */ poly(mesh),
-        //        /* init list  */ bvpSolver(mesh),
-        /* init list  */ use_externalStress(false),
-        /* init list  */ use_extraStraightSegments(false),
-        /* init list  */ extStressController(),
-        /* init list  */ ssdeq(),
-        /* init list  */ outputFrequency(1),
-        /* init list  */ outputBinary(0),
-        /* init list  */ outputGlidePlanes(false),
-        /* init list  */ outputSpatialCells(false),
-        /* init list  */ outputPKforce(false),
-        /* init list  */ outputElasticEnergy(false),
-        /* init list  */ outputMeshDisplacement(false),
-        /* init list  */ outputFEMsolution(false),
-        /* init list  */ outputDislocationLength(false),
-        /* init list  */ outputPlasticDistortion(false),
-        /* init list  */ outputPlasticDistortionRate(false),
-        /* init list  */ outputQuadratureParticles(false),
-        /* init list  */ outputLinkingNumbers(false),
-        /* init list  */ outputLoopLength(false),
-        /* init list  */ outputSegmentPairDistances(false),
-        /* init list  */ _userOutputColumn(3),
-        /* init list  */ use_stochasticForce(false),
-        /* init list  */ surfaceAttractionDistance(0.0),
-        //        /* init list  */ use_userStress(false),
-        /* init list  */ folderSuffix("")
+        /* init */ runID(0),
+        /* init */ totalTime(0.0),
+        /* init */ dt(0.0),
+        /* init */ vMax(0.0),
+        /* init */ Nsteps(0),
+        /* init */ _plasticDistortion(MatrixDimD::Zero()),
+        /* init */ _plasticDistortionRate(MatrixDimD::Zero()),
+        ///* init */ externalStress(MatrixDimD::Zero()),
+        /* init */ ddSolverType(0),
+        /* init */ computeDDinteractions(true),
+        /* init */ crossSlipModel(0),
+        /* init */ use_boundary(false),
+        /* init */ use_bvp(0),
+        /* init */ use_virtualSegments(true),
+        /* init */ use_externalStress(false),
+        /* init */ use_extraStraightSegments(false),
+        /* init */ extStressController(),
+        /* init */ ssdeq(),
+        /* init */ outputFrequency(1),
+        /* init */ outputBinary(0),
+        /* init */ outputGlidePlanes(false),
+        /* init */ outputSpatialCells(false),
+        /* init */ outputPKforce(false),
+        /* init */ outputElasticEnergy(false),
+        /* init */ outputMeshDisplacement(false),
+        /* init */ outputFEMsolution(false),
+        /* init */ outputDislocationLength(false),
+        /* init */ outputPlasticDistortion(false),
+        /* init */ outputPlasticDistortionRate(false),
+        /* init */ outputQuadratureParticles(false),
+        /* init */ outputLinkingNumbers(false),
+        /* init */ outputLoopLength(false),
+        /* init */ outputSegmentPairDistances(false),
+        /* init */ _userOutputColumn(3),
+        /* init */ use_stochasticForce(false),
+        /* init */ surfaceAttractionDistance(0.0),
+//        /* init */ meshDimensions(use_boundary? (this->mesh.xMax()-this->mesh.xMin()).eval() : VectorDim::Zero()),
+        /* init */ folderSuffix("")
         {
             
             if(argc>1)
@@ -403,9 +403,37 @@ namespace model
             ParticleSystemType::initMPI(argc,argv);
             io().read("./","DDinput.txt");
             
+            // Set up periodic shifts
+            const VectorDim meshDimensions(use_boundary? (this->mesh.xMax()-this->mesh.xMin()).eval() : VectorDim::Zero());
+            model::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
+            for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+            {
+                for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+                {
+                    for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+                    {
+                        const Eigen::Array<int,dim,1> cellID((Eigen::Array<int,dim,1>()<<i,j,k).finished());
+                        periodicShifts.push_back((meshDimensions.array()*cellID.template cast<double>()).matrix());
+                        
+                    }
+                }
+            }
+            model::cout<<"periodic shift vectors:"<<std::endl;
+            for(const auto& shift : periodicShifts)
+            {
+                model::cout<<shift.transpose()<<std::endl;
+                
+            }
+            
+            
             // Initializing configuration
             move(0.0);	// initial configuration
         }
+        
+//        const VectorDim periodicVector(const Eigen::Array<int,dim,1>& cellID) const
+//        {
+//            return (meshDimensions.array()*cellID.template cast<double>()).matrix();
+//        }
         
         /**********************************************************************/
         const EshelbyInclusionContainerType& eshelbyInclusions() const

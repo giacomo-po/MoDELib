@@ -433,18 +433,19 @@ namespace model
             createEdges(evl);
             
             
-            IDreader<'E',1,13,double> inclusionsReader;
+            IDreader<'E',1,14,double> inclusionsReader;
             inclusionsReader.read(0,true);
             
             for(const auto& pair : inclusionsReader)
             {
                 
                 const size_t& inclusionID(pair.first);
-                Eigen::Map<const Eigen::Matrix<double,1,13>> row(pair.second.data());
+                Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
                 
                 const VectorDimD C(row.template segment<dim>(0));
                 const double a(row(dim+0));
                 MatrixDimD eT(MatrixDimD::Zero());
+                const int typeID(row(13));
                 int k=dim+1;
                 for(int i=0;i<dim;++i)
                 {
@@ -460,7 +461,7 @@ namespace model
                 EshelbyInclusion<dim>::set_count(inclusionID);
                 DN.eshelbyInclusions().emplace(std::piecewise_construct,
                                                std::make_tuple(inclusionID),
-                                        std::make_tuple(C,a,eT,Material<Isotropic>::nu,Material<Isotropic>::mu) );
+                                        std::make_tuple(C,a,eT,Material<Isotropic>::nu,Material<Isotropic>::mu,typeID) );
             }
             
             //            readVertices(DN.runID); // this requires mesh to be up-to-date

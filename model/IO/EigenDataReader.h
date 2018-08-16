@@ -114,6 +114,8 @@ namespace model {
         {
 			if(get_table()[k].size()!=Ncols)
             {
+                model::cout<<"Ncols="<<Ncols<<std::endl;
+                                model::cout<<"get_table()[k].size()="<<get_table()[k].size()<<std::endl;
 				model::cout<<"Number of rows mismatch"<<std::endl;
 				exit(1);
             }
