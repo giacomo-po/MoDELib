@@ -754,6 +754,14 @@ namespace model
                         {
                             stressGauss[k] +=sStraight.stress(rgauss.col(k));
                         }
+
+                        // Add EshelbyInclusions stress
+                        for(const auto& inclusion : this->network().eshelbyInclusions() )
+                        {
+                            stressGauss[k] +=inclusion.second.stress(rgauss.col(k));
+                        }
+
+                        
                         
                         // compute PK force
                         pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));

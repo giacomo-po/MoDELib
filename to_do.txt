@@ -47,11 +47,7 @@ NEW LOOP_NETWORK CODE
 - RELATED TO THIS, WE NEED TO MERGE LOOPS ON THE SAME PLANE
 -THERE IS ALSO A PROBLEM WITH THE TRIANGULATION FOR CROSSING LOOPS
 - We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
-- deg fault at end of simulation may be due to
-Assertion failed: (success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER."), function removeGlidePlane, file ../../../model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h, line 185.
-- Add feature to perform alternating loads (ramp up-ramp down)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
-- binary evl_id.bin
 
 
 ERRORS

@@ -354,6 +354,9 @@ namespace model
                         
                         os  <<loopIter1->first<<" "<<loopIter2->first;
                         os  <<" "<<Ln.second<<" "<<Ln.first;
+                        os  <<" "<<loopIter1->second->Burgers().dot(loopIter2->second->Burgers());
+//                        os  <<" "<<loopIter1->second->Burgers().transpose();
+//                        os  <<" "<<loopIter2->second->Burgers().transpose();
                         os  <<"\n";
                     }
                 }

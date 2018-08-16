@@ -29,6 +29,7 @@
 #include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
 #include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
 #include <model/DislocationDynamics/IO/EVLio.h>
+#include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
 
 
 
@@ -45,6 +46,7 @@ namespace model
         
         //    public:
         typedef typename DislocationNetworkType::VectorDimD VectorDimD;
+        typedef typename DislocationNetworkType::MatrixDimD MatrixDimD;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
         typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
@@ -429,6 +431,38 @@ namespace model
             }
             createVertices(evl);
             createEdges(evl);
+            
+            
+            IDreader<'E',1,13,double> inclusionsReader;
+            inclusionsReader.read(0,true);
+            
+            for(const auto& pair : inclusionsReader)
+            {
+                
+                const size_t& inclusionID(pair.first);
+                Eigen::Map<const Eigen::Matrix<double,1,13>> row(pair.second.data());
+                
+                const VectorDimD C(row.template segment<dim>(0));
+                const double a(row(dim+0));
+                MatrixDimD eT(MatrixDimD::Zero());
+                int k=dim+1;
+                for(int i=0;i<dim;++i)
+                {
+                    for(int j=0;j<dim;++j)
+                    {
+                        eT(i,j)=row(k);
+                        k++;
+                    }
+                }
+                
+                
+                
+                EshelbyInclusion<dim>::set_count(inclusionID);
+                DN.eshelbyInclusions().emplace(std::piecewise_construct,
+                                               std::make_tuple(inclusionID),
+                                        std::make_tuple(C,a,eT,Material<Isotropic>::nu,Material<Isotropic>::mu) );
+            }
+            
             //            readVertices(DN.runID); // this requires mesh to be up-to-date
             //            readEdges(DN.runID);    // this requires mesh to be up-to-date
             //#ifdef DislocationNucleationFile

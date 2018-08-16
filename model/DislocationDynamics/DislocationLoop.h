@@ -118,6 +118,11 @@ namespace model
             _glidePlane->removeParentSharedPtr(&_glidePlane,isGlissile,this->sID);
         }
         
+        /**********************************************************************/
+        VectorDim Burgers() const
+        {
+            return this->flow().cartesian();
+        }
         
         /**********************************************************************/
         std::tuple<double,double,double> loopLength() const

@@ -59,6 +59,8 @@
 #include <model/DislocationDynamics/BVP/BVPsolver.h>
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
+#include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
+
 
 #ifndef ExternalLoadControllerFile
 #define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/DummyExternalLoadController.h>
@@ -74,7 +76,7 @@ namespace model
     template <int dim>
     struct DislocationNetworkBase
     {// Class storing objects that need to be destroyed last
-    
+        
         SimplicialMesh<dim> mesh;
         Polycrystal<dim> poly;
         BVPsolver<dim,2> bvpSolver;
@@ -83,16 +85,17 @@ namespace model
         /* init list  */ poly(mesh),
         /* init list  */ bvpSolver(mesh)
         {
-        
+            
         }
-
+        
     };
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNetwork : public DislocationNetworkBase<_dim>, // must be first in inheritance tree
     /* base                 */ public GlidePlaneObserver<_dim>,
     /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
-    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >
+    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
+    /* base                 */ public std::map<size_t,EshelbyInclusion<_dim>>
     {
         
     public:
@@ -122,6 +125,7 @@ namespace model
         typedef Polycrystal<dim> PolycrystalType;
         typedef ExternalLoadController<dim> ExternalLoadControllerType;
         //        enum {NdofXnode=NodeType::NdofXnode};
+        typedef std::map<size_t,EshelbyInclusion<_dim>> EshelbyInclusionContainerType;
         
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
@@ -144,12 +148,12 @@ namespace model
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
-//        SimplicialMesh<dim> mesh;
-//        PolycrystalType poly;
-//        BvpSolverType bvpSolver;
+        //        SimplicialMesh<dim> mesh;
+        //        PolycrystalType poly;
+        //        BvpSolverType bvpSolver;
         // MatrixDimD externalStress;
         bool use_externalStress;
-//        bool use_userStress;
+        //        bool use_userStress;
         bool use_extraStraightSegments;
         ExternalLoadControllerType extStressController;
         std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
@@ -172,8 +176,8 @@ namespace model
         unsigned int _userOutputColumn;
         bool use_stochasticForce;
         int dislocationImages_x;
-                int dislocationImages_y;
-                int dislocationImages_z;
+        int dislocationImages_y;
+        int dislocationImages_z;
         double surfaceAttractionDistance;
         std::string folderSuffix;
         
@@ -222,14 +226,14 @@ namespace model
                     break;
             }
             
-//            if(NodeType::use_velocityFilter)
-//            {
-//                assert(0 && "velocityFilter not implemented yet.");
-//                //            for(auto& node : this->nodes())
-//                //            {
-//                //                node.second->applyVelocityFilter(vMax);
-//                //            }
-//            }
+            //            if(NodeType::use_velocityFilter)
+            //            {
+            //                assert(0 && "velocityFilter not implemented yet.");
+            //                //            for(auto& node : this->nodes())
+            //                //            {
+            //                //                node.second->applyVelocityFilter(vMax);
+            //                //            }
+            //            }
             
             
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
@@ -322,8 +326,9 @@ namespace model
             //! 13- Node redistribution
             DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
             
+//            mergeLoopsAtNodes();
             
-//            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
+            //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
             
             //! 9- Contract segments of zero-length
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
@@ -361,8 +366,8 @@ namespace model
         /* init list  */ use_boundary(false),
         /* init list  */ use_bvp(0),
         /* init list  */ use_virtualSegments(true),
-//        /* init list  */ poly(mesh),
-//        /* init list  */ bvpSolver(mesh),
+        //        /* init list  */ poly(mesh),
+        //        /* init list  */ bvpSolver(mesh),
         /* init list  */ use_externalStress(false),
         /* init list  */ use_extraStraightSegments(false),
         /* init list  */ extStressController(),
@@ -385,7 +390,7 @@ namespace model
         /* init list  */ _userOutputColumn(3),
         /* init list  */ use_stochasticForce(false),
         /* init list  */ surfaceAttractionDistance(0.0),
-//        /* init list  */ use_userStress(false),
+        //        /* init list  */ use_userStress(false),
         /* init list  */ folderSuffix("")
         {
             
@@ -402,7 +407,17 @@ namespace model
             move(0.0);	// initial configuration
         }
         
-        
+        /**********************************************************************/
+        const EshelbyInclusionContainerType& eshelbyInclusions() const
+        {
+            return *this;
+        }
+
+        EshelbyInclusionContainerType& eshelbyInclusions()
+        {
+            return *this;
+        }
+
         
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
@@ -462,36 +477,36 @@ namespace model
                     }
                     
                     
-
-                        currentSize=straightSegmentsDeq.size();
+                    
+                    currentSize=straightSegmentsDeq.size();
                     
                     const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
                     
-                        for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+                    for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+                    {
+                        for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
                         {
-                            for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+                            for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
                             {
-                                for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+                                
+                                const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+                                
+                                if( cellID.squaredNorm()!=0) //skip current cell
                                 {
-                                    
-                                    const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-                                    
-                                    if( cellID.squaredNorm()!=0) //skip current cell
+                                    for (size_t c=0;c<currentSize;++c)
                                     {
-                                        for (size_t c=0;c<currentSize;++c)
-                                        {
-                                            const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                            const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                            
-                                            straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
-                                        }
+                                        const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                        const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                        
+                                        straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
                                     }
-                                    
-                                    
-                                    
                                 }
+                                
+                                
+                                
                             }
                         }
+                    }
                     
                     
                 }
@@ -568,7 +583,7 @@ namespace model
                 LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
                 this->parallelExecute(Lmfp);
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-
+                
                 
             }
             
@@ -776,6 +791,51 @@ namespace model
             }
             return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength);
         }
+        
+//        /**********************************************************************/
+//        void mergeLoopsAtNodes()
+//        {
+//            
+//            std::map<std::pair<size_t,size_t>,std::set<size_t>> loopPairMap;
+//            
+//            for(const auto& node : this->nodes())
+//            {
+//                const auto nodeLoops=node.second->loops();
+//                
+//                for(const auto& loop1 : nodeLoops)
+//                {
+//                    for(const auto& loop2 : nodeLoops)
+//                    {
+//                        if(loop1!=loop2)
+//                        {
+//                            if(   ((loop1->Burgers()+loop2->Burgers()).norm()<FLT_EPSILON || (loop1->Burgers()-loop2->Burgers()).norm()<FLT_EPSILON)
+//                               && ((loop1->glidePlane.unitNormal+loop2->glidePlane.unitNormal).norm()<FLT_EPSILON || (loop1->glidePlane.unitNormal-loop2->glidePlane.unitNormal).norm()<FLT_EPSILON)
+//                               && (loop1->grain.grainID==loop2->grain.grainID)
+//                               )
+//                            {
+//                                
+//                                std::pair<size_t,size_t> key=std::make_pair(std::min(loop1->sID,loop2->sID),std::max(loop1->sID,loop2->sID));
+//                                
+//                                loopPairMap[key].insert(node.second->sID);
+//                            }
+//                            
+//                        }
+//                    }
+//                }
+//                
+//            }
+//            
+//            
+//            for(const auto& pair : loopPairMap)
+//            {
+//                std::cout<<"loops "<<pair.first.first<<" "<<pair.first.second<<" meet at:"<<std::endl;
+//                for(const int& nodeID : pair.second)
+//                {
+//                    std::cout<<"meetNode "<<nodeID<<std::endl;
+//                }
+//            }
+//            
+//        }
         
         /**********************************************************************/
         const long int& runningID() const

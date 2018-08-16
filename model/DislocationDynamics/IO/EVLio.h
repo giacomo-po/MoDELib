@@ -423,7 +423,7 @@ namespace model
             if(infile.is_open())
             {
                 const auto t0=std::chrono::system_clock::now();
-                model::cout<<"reading "<<filename<<std::endl;
+                model::cout<<"reading "<<filename<<std::flush;
                 
                 // Read header
                 size_t sizeV;
@@ -436,19 +436,20 @@ namespace model
                 // Read vertices
                 nodes().resize(sizeV);
                 infile.read (reinterpret_cast<char*>(nodes().data()),nodes().size()*sizeof(DislocationNodeIO<dim>));
-                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 // Read loops
                 loops().resize(sizeL);
                 infile.read (reinterpret_cast<char*>(loops().data()),loops().size()*sizeof(DislocationLoopIO<dim>));
-                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 // Read links
                 links().resize(sizeE);
                 infile.read (reinterpret_cast<char*>(links().data()),links().size()*sizeof(DislocationEdgeIO<dim>));
-                model::cout<<"  "<<links().size()<<" links "<<std::endl;
 
                 infile.close();
                 make_maps();
-                model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
+                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
+                model::cout<<"  "<<links().size()<<" links "<<std::endl;
+
             }
             else
             {
@@ -468,7 +469,7 @@ namespace model
             if(infile.is_open())
             {
                 const auto t0=std::chrono::system_clock::now();
-                model::cout<<"reading "<<filename<<std::endl;
+                model::cout<<"reading "<<filename<<std::flush;
                 
                 size_t sizeV;
                 size_t sizeL;
@@ -500,7 +501,6 @@ namespace model
                     nodes().emplace_back(ss);
                     ss.clear();
                 }
-                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 
                 for(size_t k=0;k<sizeL;++k)
                 {
@@ -509,7 +509,6 @@ namespace model
                     loops().emplace_back(ss);
                     ss.clear();
                 }
-                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
 
                 
                 for(size_t k=0;k<sizeE;++k)
@@ -519,11 +518,14 @@ namespace model
                     links().emplace_back(ss);
                     ss.clear();
                 }
-                model::cout<<"  "<<links().size()<<" links "<<std::endl;
 
                 infile.close();
                 make_maps();
-                model::cout<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
+                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
+                model::cout<<"  "<<links().size()<<" links "<<std::endl;
+
             }
             else
             {

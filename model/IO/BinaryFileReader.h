@@ -26,27 +26,33 @@ namespace model
      * then sizeof(fnum) is 32
      */
     template <typename DataType>
-    class BinaryFileReader
+    class BinaryFileReader : public std::vector<DataType>
     {
         
-        DataType* memblock;
+        static constexpr size_t _bytes_in_Type=sizeof (DataType);
+
+        
+//        DataType* memblock;
         std::ifstream::pos_type _bytes_in_file;
-        size_t _array_size;
-        const size_t _bytes_in_Type;
+//        size_t _array_size;
+//        const size_t _bytes_in_Type;
         bool _success;
         
     public:
         
         /**********************************************************************/
         BinaryFileReader(const std::string& filename) :
-        /* init list */ memblock(NULL),
-        /* init list */ _array_size(0),
-        /* init list */ _bytes_in_Type( sizeof (DataType) ),
-        /* init list */ _success(false)
+//        /* init list */ memblock(NULL),
+//        /* init list */ _array_size(0),
+//        /* init list */ _bytes_in_Type( sizeof (DataType) ),
+        /* init list */ _bytes_in_file(0)
+        /* init list */,_success(false)
         {/*! @param[in] filename The name of the file to be read
           *  The constructor reads the file filename and stores DataType elements
           *  in its internal array.
           */
+            
+//            this->clear();
             
             // open file with the ios::ate flag in order to set the get pointer at the end of the file.
             std::ifstream file (filename.c_str(), std::ios::in|std::ios::binary|std::ios::ate);
@@ -61,17 +67,21 @@ namespace model
                 assert((_bytes_in_file%_bytes_in_Type)==0 && " Incorrect format.");
                 
                 // Calculate how many element of type Type are in the file
-                _array_size = _bytes_in_file/_bytes_in_Type;
+                const size_t _array_size = _bytes_in_file/_bytes_in_Type;
+                this->resize(_array_size);
+
                 //			std::cout << "	array size:  "<< _array_size  <<std::endl;
                 
                 // resize memblock with _array_size
-                memblock = new DataType [_array_size];
+//                memblock = new DataType [_array_size];
                 
                 // bring back the get pointer to the beginning of the file
                 file.seekg (0, std::ios::beg);
                 
                 // read the file into memblock
-                file.read (reinterpret_cast<char*>(memblock), _bytes_in_file);
+//                file.read (reinterpret_cast<char*>(memblock), _bytes_in_file);
+                file.read (reinterpret_cast<char*>(this->data()), _bytes_in_file);
+
                 
                 // close the file
                 file.close();
@@ -85,20 +95,20 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        ~BinaryFileReader()
-        {/*! Destructor 
-          */
-            //		delete[] memblock;
-            		delete memblock;
-        }
+//        /**********************************************************************/
+//        ~BinaryFileReader()
+//        {/*! Destructor 
+//          */
+//            //		delete[] memblock;
+//            		delete memblock;
+//        }
         
-        /**********************************************************************/
-        const size_t& size() const
-        {/*! The number of DataType(s) elements read and stored in this
-          */
-            return _array_size;
-        }
+//        /**********************************************************************/
+//        const size_t& size() const
+//        {/*! The number of DataType(s) elements read and stored in this
+//          */
+//            return _array_size;
+//        }
 
         /**********************************************************************/
         const size_t& bytes() const
@@ -114,14 +124,14 @@ namespace model
             return _success;
         }
         
-        /**********************************************************************/
-        const DataType& operator[](const size_t& k) const
-        {/*! @param[in] k the position in the BinaryFileReader container
-          *  \returns the k-th DataType element in the BinaryFileReader container
-          */
-            assert( k<_array_size && "Index out of bound.");
-            return memblock[k];
-        }
+//        /**********************************************************************/
+//        const DataType& operator[](const size_t& k) const
+//        {/*! @param[in] k the position in the BinaryFileReader container
+//          *  \returns the k-th DataType element in the BinaryFileReader container
+//          */
+//            assert( k<_array_size && "Index out of bound.");
+//            return memblock[k];
+//        }
 
     };
     

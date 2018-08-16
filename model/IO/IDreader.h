@@ -27,9 +27,10 @@ namespace model
     struct IDreaderKeySelector
     {
         static_assert(keySize>0,"keySize must be >0");
-        typedef std::array<int, keySize> KeyType;
+        typedef long long int SingleKeyType;
+        typedef std::array<SingleKeyType, keySize> KeyType;
         
-        static int& keyElement(KeyType& key,const size_t& k)
+        static SingleKeyType& keyElement(KeyType& key,const size_t& k)
         {
             return key[k];
         }
@@ -38,9 +39,10 @@ namespace model
     template <>
     struct IDreaderKeySelector<1>
     {
-        typedef int KeyType;
+        typedef long long int SingleKeyType;
+        typedef SingleKeyType KeyType;
         
-        static int& keyElement(KeyType& key,const size_t&)
+        static SingleKeyType& keyElement(KeyType& key,const size_t&)
         {
             return key;
         }
@@ -54,11 +56,12 @@ namespace model
     {
         static_assert(valueSize>=0,"valueSize must be >0");
 
+        typedef typename IDreaderKeySelector<keySize>::SingleKeyType SingleKeyType;
         typedef typename IDreaderKeySelector<keySize>::KeyType KeyType;
         typedef std::array<T, valueSize> ValueType;
         typedef std::pair<KeyType, ValueType > BinType;
 
-		int currentFrame;
+		long long int currentFrame;
 		
         /**********************************************************************/
 		bool readTXT(const std::string& filename)
@@ -75,7 +78,7 @@ namespace model
                 std::string line;
 
 
-				int row = 0;
+				size_t row = 0;
 				while (std::getline(ifs, line))
                 {
 					std::stringstream ss(line);
@@ -89,7 +92,8 @@ namespace model
                     {
 						if(col<keySize)
                         {
-                            IDreaderKeySelector<keySize>::keyElement(key,col)=static_cast<int>(temp);
+                            assert(temp==std::round(temp) && "key must be an integer");
+                            IDreaderKeySelector<keySize>::keyElement(key,col)=static_cast<SingleKeyType>(temp);
 //                            key[col]=static_cast<int>(temp);
                         }
                         else
@@ -127,12 +131,18 @@ namespace model
             std::cout<<"Reading: "<<filename<<std::flush<<" (";
             const auto t0=std::chrono::system_clock::now();
 			BinaryFileReader<BinType> rE(filename);
-			for (unsigned int k=0;k<rE.size();++k)
+//			for (unsigned int k=0;k<rE.size();++k)
+//            {
+////				this->insert(std::make_pair(rE[k].first,rE[k].second));
+//                const bool success=this->emplace(rE[k].first,rE[k].second).second;
+//				assert(success && "COULD NOT INSERT AFTER BINARY READ.");
+//			}
+            for (const auto& pair : rE)
             {
-//				this->insert(std::make_pair(rE[k].first,rE[k].second));
-                const bool success=this->emplace(rE[k].first,rE[k].second).second;
-				assert(success && "COULD NOT INSERT AFTER BINARY READ.");
-			}
+                //				this->insert(std::make_pair(rE[k].first,rE[k].second));
+                const bool success=this->emplace(pair.first,pair.second).second;
+                assert(success && "COULD NOT INSERT AFTER BINARY READ.");
+            }
             std::cout<<this->size()<<"elements in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec)"<<std::endl;
             return rE.success();
 		}
@@ -161,7 +171,7 @@ namespace model
         }
 		
         /**********************************************************************/
-		std::string getFilename(const int& frameN, const bool& useTXT) const
+		std::string getFilename(const long long int& frameN, const bool& useTXT) const
         {
 			std::stringstream filename;
 			if(useTXT){
@@ -174,7 +184,7 @@ namespace model
 		}
 		
         /**********************************************************************/
-		bool isGood(const int& frameN, const bool& useTXT) const
+		bool isGood(const long long int& frameN, const bool& useTXT) const
         {
 			/*!	Checks whether the file named "E/E_ \param[frameN] .txt" is good for reading.
 			 */
@@ -183,7 +193,7 @@ namespace model
 		}
 		
 		/**********************************************************************/
-		bool read(const int& frameN, const bool& useTXT)
+		bool read(const long long int& frameN, const bool& useTXT)
         {/*! @param[in] frameN the frame number to be read
           *  @param[in] useTXT if true text files (.txt) are read, 
           *  otherwise binary files (.bin) are read
