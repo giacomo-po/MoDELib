@@ -268,7 +268,8 @@ namespace model
             {
                 std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<NC.nodeOrder()<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
                 std::ofstream KQQfile("KQQfailed.txt");
-                KQQfile<<KQQ.toDense()<<std::endl;
+//                KQQfile<<KQQ.toDense()<<std::endl;
+                assert(0 && "RE-ENABLE OUTPUT);
                 assert(0 && "LDLT DECOMPOSITION FAILED.");
             }
             
@@ -303,10 +304,11 @@ namespace model
             
             if(outputKF)
             {
+                assert(0 && "RE-ENABLE OUTPUT);
                 std::ofstream fileK("K_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");
-                fileK<<Kd;
+//                fileK<<Kd;
                 std::ofstream fileF("F_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");
-                fileF<<Fq;
+//                fileF<<Fq;
             }
             
             // Check diagonal and force

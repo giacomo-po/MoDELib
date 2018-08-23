@@ -11,14 +11,17 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Core>
-#include <model/Math/RoundEigen.h>
+//#include <model/Math/RoundEigen.h>
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/Mesh/MeshRegionObserver.h>
+#include <model/Mesh/MeshRegion.h>
 #include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <model/DislocationDynamics/Materials/FCCcrystal.h>
-#include <model/DislocationDynamics/Materials/BCCcrystal.h>
+//#include <model/DislocationDynamics/Materials/PeriodicElement.h>
+#include <model/DislocationDynamics/Materials/FCClattice.h>
+#include <model/DislocationDynamics/Materials/BCClattice.h>
 #include <model/DislocationDynamics/Materials/SlipSystem.h>
+#include <model/DislocationDynamics/Materials/SingleCrystal.h>
+
 //#include <model/Math/BestRationalApproximation.h>
 
 namespace model
@@ -28,13 +31,14 @@ namespace model
     class GrainBoundary;
     
     template <int dim>
-    class Grain : public Lattice<dim>,
+    class Grain : public SingleCrystal<dim>,
     /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
         //typedef Simplex<dim,dim> SimplexType;
 //        static constexpr int dim=NetworkType::dim;
         typedef Lattice<dim> LatticeType;
+        typedef SingleCrystal<dim> SingleCrystalType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
@@ -47,56 +51,57 @@ namespace model
         typedef LatticeDirection<dim> LatticeDirectionType;
         
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+        typedef std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> GrainBoundaryContainerType;
         
-        typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
-        typedef std::vector<SlipSystem> SlipSystemContainerType;
-        typedef std::vector<unsigned int> PlaneNormalIDContainerType;
+//        typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
+//        typedef std::vector<SlipSystem> SlipSystemContainerType;
+//        typedef std::vector<unsigned int> PlaneNormalIDContainerType;
         
-        /**********************************************************************/
-        void setLatticeBasis()
-        {
-            
-            Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
-            
-            switch (materialZ)
-            {
-                case Al.Z:
-                    A=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-                    break;
-                case Ni.Z:
-                    A=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-                    break;
-                case Cu.Z:
-                    A=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-                    break;
-                case W.Z:
-                    A=PeriodicElement<W.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-                    break;
-                    //                case Fe:
-                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-                    //                    break;
-                default:
-                    assert(0 && "Material not implemented.");
-                    break;
-            }
-            
-            Lattice<dim>::setLatticeBasis(C2G*A);
-        }
+//        /**********************************************************************/
+//        void setLatticeBasis()
+//        {
+//            
+//            Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
+//            
+//            switch (materialZ)
+//            {
+//                case Al.Z:
+//                    A=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+//                    break;
+//                case Ni.Z:
+//                    A=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+//                    break;
+//                case Cu.Z:
+//                    A=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+//                    break;
+//                case W.Z:
+//                    A=PeriodicElement<W.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
+//                    break;
+//                    //                case Fe:
+//                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+//                    //                    break;
+//                default:
+//                    assert(0 && "Material not implemented.");
+//                    break;
+//            }
+//            
+//            Lattice<dim>::setLatticeBasis(C2G*A);
+//        }
         
-        PlaneNormalContainerType planeNormalContainer;
-        SlipSystemContainerType slipSystemContainer;
+//        PlaneNormalContainerType planeNormalContainer;
+//        SlipSystemContainerType slipSystemContainer;
         
         Eigen::Matrix<double,dim,dim> C2G;
         
-        int materialZ;
+//        int materialZ;
         
     public:
         
         
-        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
-        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
-        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
-        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
+//        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
+//        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
+//        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
+//        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
 
         
         static constexpr double roundTol=FLT_EPSILON;
@@ -106,162 +111,86 @@ namespace model
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
-              const int& Z,
+              const std::string& materialFile,
               const Eigen::Matrix<double,dim,dim>& C2G_in) :
-        /* init */ C2G(C2G_in),
-        /* init */ materialZ(Z),
-        /* init */ region(region_in),
-        /* init */ grainID(region.regionID)
+        /* init */ SingleCrystalType(materialFile)
+        /* init */,C2G(C2G_in)
+        /* init */,region(region_in)
+        /* init */,grainID(region.regionID)
         {
             model::cout<<greenBoldColor<<"Creating Grain "<<grainID<<defaultColor<<std::endl;
-            selectMaterial(materialZ);
-            rotate(C2G);
+  //          selectMaterial(materialZ);
+//            this->rotate(C2G);
         }
         
+//        /**********************************************************************/
+//        const LatticeType& lattice() const
+//        {
+//            return *this;
+//        }
+        
         /**********************************************************************/
-        const LatticeType& lattice() const
+        const GrainBoundaryContainerType& grainBoundaries() const
         {
             return *this;
         }
         
         /**********************************************************************/
-        const std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> grainBoundaries() const
+        GrainBoundaryContainerType& grainBoundaries()
         {
             return *this;
         }
         
-        /**********************************************************************/
-        void selectMaterial(const int& Z)
-        {
-            model::cout<<"  grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
-            
-            materialZ=Z;
-            setLatticeBasis();
-            
-            switch (materialZ)
-            {
-                case Al.Z:
-                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
-                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
-                    break;
-                case Ni.Z:
-                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
-                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
-                    break;
-                case Cu.Z:
-                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
-                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
-                    break;
-                case W.Z:
-                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
-                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
-                    break;
-                    //                case Fe:
-                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-                    //                    break;
-                default:
-                    assert(0 && "Material not implemented.");
-                    break;
-            }
-            
-        }
+//        /**********************************************************************/
+//        void selectMaterial(const int& Z)
+//        {
+//            model::cout<<"  grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
+//            
+//            materialZ=Z;
+//            setLatticeBasis();
+//            
+//            switch (materialZ)
+//            {
+//                case Al.Z:
+//                    planeNormalContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+//                    slipSystemContainer=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
+//                    break;
+//                case Ni.Z:
+//                    planeNormalContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+//                    slipSystemContainer=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
+//                    break;
+//                case Cu.Z:
+//                    planeNormalContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+//                    slipSystemContainer=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
+//                    break;
+//                case W.Z:
+//                    planeNormalContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::reciprocalPlaneNormals(lattice());
+//                    slipSystemContainer=PeriodicElement<W.Z,Isotropic>::CrystalStructure::slipSystems(lattice());
+//                    break;
+//                    //                case Fe:
+//                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
+//                    //                    break;
+//                default:
+//                    assert(0 && "Material not implemented.");
+//                    break;
+//            }
+//            
+//        }
         
-        /**********************************************************************/
-        void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
-        {/*! Z is atomic number
-          */
-            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
-            
-            assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
-            // make sure that C2G is proper
-            assert(std::fabs(C2G_in.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
-            // store C2G
-            C2G=C2G_in;
-            setLatticeBasis();
-        }
+//        /**********************************************************************/
+//        void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
+//        {/*! Z is atomic number
+//          */
+//            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
+//            
+//            assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
+//            // make sure that C2G is proper
+//            assert(std::fabs(C2G_in.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
+//            // store C2G
+//            C2G=C2G_in;
+//            setLatticeBasis();
+//        }
         
-        /**********************************************************************/
-        std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
-                                                                  const LatticeVectorType& sinkL,
-                                                                  const LatticeVectorType& Burgers) const
-        {
-            
-            const LatticeVectorType chord(sinkL-sourceL);
-            
-            bool isOnGB=false;
-            const GrainBoundary<dim>* p_GB=NULL;
-            for(const auto& gb : grainBoundaries())
-            {
-                if(   gb.second->latticePlane(grainID).contains(sourceL)
-                   && gb.second->latticePlane(grainID).contains(sinkL)
-                   )
-                {
-                    isOnGB=true;
-                    p_GB=gb.second;
-                    break;
-                }
-            }
-            
-            
-            // Find the crystallographic planes which may contain chord and Burgers
-            PlaneNormalContainerType allowedGLidePlanes;
-            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
-            {
-                if(planeBase.dot(chord)==0
-                   && planeBase.dot(Burgers)==0)
-                {
-                    allowedGLidePlanes.push_back(planeBase);
-                }
-            }
-            if(isOnGB)
-            {
-                if(   p_GB->latticePlane(grainID).n.dot(chord)==0
-                   && p_GB->latticePlane(grainID).n.dot(Burgers)==0
-                   )
-                {
-                    allowedGLidePlanes.push_back(p_GB->latticePlane(grainID).n);
-                }
-            }
-            
-            // Find the crystallographic planes which may contain chord and Burgers
-            PlaneNormalContainerType allowedSessilePlanes;
-            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
-            {
-                if(planeBase.dot(chord)==0)
-                {
-                    allowedSessilePlanes.push_back(planeBase);
-                }
-            }
-            if(isOnGB)
-            {
-                allowedSessilePlanes.push_back(p_GB->latticePlane(grainID).n);
-            }
-            
-            // Return the two planes based on the following conditions:
-            if(allowedGLidePlanes.size()) // At least glide plane found
-            {
-                if(isOnGB) // possibly glissile segmento on GB, or sessile at the intersection of GP and GB
-                {
-                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(p_GB->latticePlane(grainID)));
-                }
-                else // bulk segment, purely glissile
-                {
-                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(sourceL,allowedGLidePlanes[0]));
-                }
-            }
-            else // No glide planes found. Check for possibly sessile segment
-            {
-                if(allowedSessilePlanes.size()>=2)
-                {
-                    return std::make_pair(LatticePlane(sourceL,allowedSessilePlanes[0]),LatticePlane(sourceL,allowedSessilePlanes[1]));
-                }
-                else
-                {
-                    assert(0 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO PLANES.");
-                }
-            }
-            
-        }
 
         /**********************************************************************/
         std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
@@ -270,7 +199,7 @@ namespace model
             std::deque<const LatticePlaneBase*> temp;
             if(B.dot(N)==0) // not sessile
             {
-                for (const auto& planeNormal : planeNormalContainer)
+                for (const auto& planeNormal : this->planeNormals())
                 {
                     if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
                     {
@@ -281,11 +210,11 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-        const int& material() const
-        {
-            return materialZ;
-        }
+//        /**********************************************************************/
+//        const int& material() const
+//        {
+//            return materialZ;
+//        }
         
         /**********************************************************************/
         const MatrixDimD& get_C2G() const
@@ -293,19 +222,103 @@ namespace model
             return C2G;
         }
         
-        /**********************************************************************/
-        const PlaneNormalContainerType& planeNormals() const
-        {
-            return planeNormalContainer;
-        }
-        
-        /**********************************************************************/
-        const SlipSystemContainerType& slipSystems() const
-        {
-            return slipSystemContainer;
-        }
+//        /**********************************************************************/
+//        const PlaneNormalContainerType& planeNormals() const
+//        {
+//            return planeNormalContainer;
+//        }
+//        
+//        /**********************************************************************/
+//        const SlipSystemContainerType& slipSystems() const
+//        {
+//            return slipSystemContainer;
+//        }
         
     };
     
 }
 #endif
+
+//        /**********************************************************************/
+//        std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,
+//                                                                  const LatticeVectorType& sinkL,
+//                                                                  const LatticeVectorType& Burgers) const
+//        {
+//
+//            const LatticeVectorType chord(sinkL-sourceL);
+//
+//            bool isOnGB=false;
+//            const GrainBoundary<dim>* p_GB=NULL;
+//            for(const auto& gb : grainBoundaries())
+//            {
+//                if(   gb.second->latticePlane(grainID).contains(sourceL)
+//                   && gb.second->latticePlane(grainID).contains(sinkL)
+//                   )
+//                {
+//                    isOnGB=true;
+//                    p_GB=gb.second;
+//                    break;
+//                }
+//            }
+//
+//
+//            // Find the crystallographic planes which may contain chord and Burgers
+//            PlaneNormalContainerType allowedGLidePlanes;
+//            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
+//            {
+//                if(planeBase.dot(chord)==0
+//                   && planeBase.dot(Burgers)==0)
+//                {
+//                    allowedGLidePlanes.push_back(planeBase);
+//                }
+//            }
+//            if(isOnGB)
+//            {
+//                if(   p_GB->latticePlane(grainID).n.dot(chord)==0
+//                   && p_GB->latticePlane(grainID).n.dot(Burgers)==0
+//                   )
+//                {
+//                    allowedGLidePlanes.push_back(p_GB->latticePlane(grainID).n);
+//                }
+//            }
+//
+//            // Find the crystallographic planes which may contain chord and Burgers
+//            PlaneNormalContainerType allowedSessilePlanes;
+//            for (const auto& planeBase : planeNormals()) // Loop over crystal planes
+//            {
+//                if(planeBase.dot(chord)==0)
+//                {
+//                    allowedSessilePlanes.push_back(planeBase);
+//                }
+//            }
+//            if(isOnGB)
+//            {
+//                allowedSessilePlanes.push_back(p_GB->latticePlane(grainID).n);
+//            }
+//
+//            // Return the two planes based on the following conditions:
+//            if(allowedGLidePlanes.size()) // At least glide plane found
+//            {
+//                if(isOnGB) // possibly glissile segmento on GB, or sessile at the intersection of GP and GB
+//                {
+//                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(p_GB->latticePlane(grainID)));
+//                }
+//                else // bulk segment, purely glissile
+//                {
+//                    return std::make_pair(LatticePlane(sourceL,allowedGLidePlanes[0]),LatticePlane(sourceL,allowedGLidePlanes[0]));
+//                }
+//            }
+//            else // No glide planes found. Check for possibly sessile segment
+//            {
+//                if(allowedSessilePlanes.size()>=2)
+//                {
+//                    return std::make_pair(LatticePlane(sourceL,allowedSessilePlanes[0]),LatticePlane(sourceL,allowedSessilePlanes[1]));
+//                }
+//                else
+//                {
+//                    assert(0 && "SESSILE SEGMENTS MUST FORM ON THE INTERSECTION OF TWO PLANES.");
+//                }
+//            }
+//
+//        }
+

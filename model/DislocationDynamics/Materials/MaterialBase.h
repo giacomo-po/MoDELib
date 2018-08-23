@@ -12,17 +12,22 @@
 
 #include <string>
 
-
 namespace model
 {
-    
-
     
     struct MaterialBase
     {
         
-        virtual std::string name() const =0;
+        static constexpr double kB_SI=1.38064852e-23; // Boltzmann constant [J/K]
+        const std::string materialFile;
         
+        /**************************************************************************/
+        MaterialBase(const std::string& fileName) :
+        /* init */ materialFile(fileName)
+        {
+            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
+
+        }
         
     };
 }

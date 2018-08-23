@@ -15,8 +15,8 @@
 #include <tuple>
 #include <Eigen/Dense>
 #include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/Materials/BCCcrystal.h>
-#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCClattice.h>
+#include <model/DislocationDynamics/Materials/FCClattice.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
 
 namespace model
@@ -30,7 +30,7 @@ namespace model
     
 
     template<>
-    struct CrossSlipModels<FCC>
+    struct CrossSlipModels<FCClattice<3>>
     {
         typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
         typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
@@ -98,7 +98,7 @@ namespace model
     };
     
     template<>
-    struct CrossSlipModels<BCC>
+    struct CrossSlipModels<BCClattice<3>>
     {
         
         typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;

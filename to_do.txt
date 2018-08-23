@@ -48,7 +48,19 @@ NEW LOOP_NETWORK CODE
 -THERE IS ALSO A PROBLEM WITH THE TRIANGULATION FOR CROSSING LOOPS
 - We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
+- Simplify adding a new material. Should just be a text file, once added everything must work
 
+- DDinput defines materialFile=
+- We have some default material files with the headers
+- Right adding a material requires switching in: 
+* Polycrystal::grainBoundaryTypes()
+* Material::velocity()
+* Material::select()
+* Grain::selectMaterial
+* Grain::setLatticeBasis
+- Remove PeriodicElement
+
+- We should have a template FCC, BCC, HCP material that we popolate from input files. Input files define crystal structure as string
 
 ERRORS
 1) FIXED 

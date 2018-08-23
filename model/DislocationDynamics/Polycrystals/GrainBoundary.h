@@ -512,8 +512,8 @@ namespace model
 
             // Initialize
             initializeGrainBoundary(dn,mesh);
-            grainFirst.emplace(grainBndID,this);
-            grainSecond.emplace(grainBndID,this);
+            grainFirst.grainBoundaries().emplace(grainBndID,this);
+            grainSecond.grainBoundaries().emplace(grainBndID,this);
 
         }
         

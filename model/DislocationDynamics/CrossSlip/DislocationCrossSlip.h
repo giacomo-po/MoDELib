@@ -22,8 +22,8 @@
 #include <model/MPI/MPIcout.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/Threads/N2IteratorRange.h>
-#include <model/DislocationDynamics/Materials/BCCcrystal.h>
-#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCClattice.h>
+#include <model/DislocationDynamics/Materials/FCClattice.h>
 
 
 #ifndef NDEBUG
@@ -72,25 +72,27 @@ namespace model
                    )
                 {
                     const auto& grain(**link.second->grains().begin());
-                    const int& materialZ(grain.material());
-                    switch (materialZ)
-                    {
-                        case Grain<dim>::Al.Z:
-                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Al.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-                            break;
-                        case Grain<dim>::Ni.Z:
-                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Ni.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-                            break;
-                        case Grain<dim>::Cu.Z:
-                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Cu.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-                            break;
-                        case Grain<dim>::W.Z:
-                            CrossSlipModels<typename PeriodicElement<Grain<dim>::W.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-                            break;
-                        default:
-                            assert(0 && "DislocationCrossSlip: Material not implemented.");
-                            break;
-                    }
+                    assert(0 && "FINISH CROSS-SLIP FOR NEW MATERIALS IMPLEMENTATION");
+
+//                    const int& materialZ(grain.material());
+//                    switch (materialZ)
+//                    {
+//                        case Grain<dim>::Al.Z:
+//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Al.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+//                            break;
+//                        case Grain<dim>::Ni.Z:
+//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Ni.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+//                            break;
+//                        case Grain<dim>::Cu.Z:
+//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Cu.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+//                            break;
+//                        case Grain<dim>::W.Z:
+//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::W.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+//                            break;
+//                        default:
+//                            assert(0 && "DislocationCrossSlip: Material not implemented.");
+//                            break;
+//                    }
 
                 }
             }

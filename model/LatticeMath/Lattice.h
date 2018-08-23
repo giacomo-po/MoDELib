@@ -36,20 +36,20 @@ namespace model
 //        
 //        typedef Eigen::Matrix<double,dim,dim> MatrixDimK;
 //
-//        MatrixDimK    _covBasis;
+//        MatrixDimK    latticeBasis;
 //        
 //    public:
 //        
 //        /**********************************************************************/
 //        LatticeBase() :
-//        /* init */ _covBasis(MatrixDimK::Identity())
+//        /* init */ latticeBasis(MatrixDimK::Identity())
 //        {
 //            
 //        }
 //        
 //        /**********************************************************************/
 //        LatticeBase(const MatrixDimK& cov) :
-//        /* init */ _covBasis(cov)
+//        /* init */ latticeBasis(cov)
 //        {
 //            
 //        }
@@ -57,14 +57,14 @@ namespace model
 //        /**********************************************************************/
 //        void setLatticeBasis(const MatrixDimK& A)
 //        {
-//            _covBasis=A;
-//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
+//            latticeBasis=A;
+//            std::cout<<"Lattice basis (in columns) =\n"<<latticeBasis<<std::endl;
 //        }
 //        
 //        /**********************************************************************/
-//        const MatrixDimK& covBasis() const
+//        const MatrixDimK& latticeBasis() const
 //        {
-//            return _covBasis;
+//            return latticeBasis;
 //        }
 //    };
 //    
@@ -104,51 +104,74 @@ namespace model
         }
 
         
-        std::pair<MatrixDimD,MatrixDimD> latticeBases;
-        MatrixDimD&    _covBasis;
-        MatrixDimD& _contraBasis;
 
-        /**********************************************************************/
-        Lattice(const MatrixDimD& A,const MatrixDimD& invAT) :
-        /* init */ latticeBases(std::make_pair(A,invAT)),
-        /* init */ _covBasis(latticeBases.first),
-        /* init */ _contraBasis(latticeBases.second)
-        {
-            
-        }
+//        /**********************************************************************/
+//        Lattice(const MatrixDimD& A,const MatrixDimD& invAT) :
+//        /* init */ latticeBases(std::make_pair(A,invAT)),
+//        /* init */ latticeBasis(latticeBases.first),
+//        /* init */ reciprocalBasis(latticeBases.second)
+//        {
+//            
+//        }
+        
+        std::pair<MatrixDimD,MatrixDimD> latticeBases;
+
         
     public:
         
-        /**********************************************************************/
-        Lattice() :
-        /* init */ latticeBases(getLatticeBases(MatrixDimD::Identity())),
-        /* init */ _covBasis(latticeBases.first),
-        /* init */ _contraBasis(latticeBases.second)
-        {
+        const MatrixDimD&    latticeBasis;
+        const MatrixDimD& reciprocalBasis;
 
-        }
+        
+//        /**********************************************************************/
+//        Lattice() :
+//        /* init */ latticeBases(getLatticeBases(MatrixDimD::Identity())),
+//        /* init */ latticeBasis(latticeBases.first),
+//        /* init */ reciprocalBasis(latticeBases.second)
+//        {
+//
+//        }
         
         /**********************************************************************/
         Lattice(const MatrixDimD& A) :
-        /* init */ latticeBases(getLatticeBases(A)),
-        /* init */ _covBasis(latticeBases.first),
-        /* init */ _contraBasis(latticeBases.second)
+        /* init */ latticeBases(getLatticeBases(A))
+        /* init */,latticeBasis(latticeBases.first)
+        /* init */,reciprocalBasis(latticeBases.second)
         {
             
         }
         
         /**********************************************************************/
-        void setLatticeBasis(const MatrixDimD& A)
-        {
-            latticeBases=getLatticeBases(A);
-//            _covBasis=A;
-//            LatticeBaseType::setLatticeBasis(A);
-//            _contraBasis=covBasis().inverse().transpose();
-//            _contraBasis=_covBasis.inverse().transpose();
-//            std::cout<<"Lattice basis (in columns) =\n"<<_covBasis<<std::endl;
-//            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<_contraBasis<<std::endl;
+        Lattice(const Lattice& other) :
+        /* init */ latticeBases(other.latticeBases)
+        /* init */,latticeBasis(latticeBases.first)
+        /* init */,reciprocalBasis(latticeBases.second)
+        {/*!The copy contructor initializes latticeBases to other.latticeBases,
+          * and then the references latticeBasis and reciprocalBasis to the local matrices
+          * Note that this allows to wite:
+          * Lattice L1(A); // ok
+          * Lattice L2(L1); // ok, copy contructor
+          * Lattice L3=L1;  // ok, assignemt operator here works as copy contructor
+          * Lattice L4(A);  
+          * L4=L1;          // ERROR: const references latticeBasis and reciprocalBasis cannot be assigned
+          */
+            
         }
         
+        /**********************************************************************/
+        void rotate(const MatrixDimD& Q)
+        {/*! Z is atomic number
+          */
+//            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
+            
+            assert((Q*Q.transpose()-MatrixDimD::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+            // make sure that C2G is proper
+            assert(std::fabs(Q.determinant()-1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
+//            setLatticeBasis();
+            latticeBases=getLatticeBases((Q*latticeBasis).eval());
+
+        }
+
         /**********************************************************************/
         static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)
         {
@@ -180,15 +203,13 @@ namespace model
                 }
             }
             
-
-            
             return nums.matrix();
         }
         
         /**********************************************************************/
         LatticeVectorType snapToLattice(const VectorDimD& d) const
         {
-            VectorDimD nd(_contraBasis.transpose()*d);
+            VectorDimD nd(reciprocalBasis.transpose()*d);
             return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),*this);
         }
         
@@ -196,8 +217,7 @@ namespace model
         LatticeDirectionType latticeDirection(const VectorDimD& d) const
         {
             
-            const VectorDimD nd(_contraBasis.transpose()*d);
-//            const LatticeVectorType temp(rationalApproximation(nd),covBasis(),contraBasis());
+            const VectorDimD nd(reciprocalBasis.transpose()*d);
             const LatticeVectorType temp(rationalApproximation(nd),*this);
             
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
@@ -214,7 +234,7 @@ namespace model
         ReciprocalLatticeDirectionType reciprocalLatticeDirection(const VectorDimD& d) const
         {
             
-            const VectorDimD nd(covBasis().transpose()*d);
+            const VectorDimD nd(latticeBasis.transpose()*d);
             const ReciprocalLatticeVectorType temp(rationalApproximation(nd),*this);
             
             if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
@@ -228,49 +248,56 @@ namespace model
         }
         
         /**********************************************************************/
-        const MatrixDimD& covBasis() const
-        {
-            return _covBasis;
-        }
-        
-        const VectorDimD basisVector(const size_t& c) const
-        {
-            assert(c<dim);
-            return covBasis().col(c);
-        }
-        
-        /**********************************************************************/
-        const MatrixDimD& contraBasis() const
-        {
-            return _contraBasis;
-        }
-        
-        /**********************************************************************/
         LatticeVectorType latticeVector(const VectorDimD& p) const
         {
-//            return LatticeVectorType(p,covBasis(),contraBasis());
             return LatticeVectorType(p,*this);
-
         }
         
         /**********************************************************************/
         ReciprocalLatticeVectorType reciprocalLatticeVector(const VectorDimD& p) const
         {
-//            return ReciprocalLatticeVectorType(p,covBasis(),contraBasis());
             return ReciprocalLatticeVectorType(p,*this);
-
         }
-        
-//        /**********************************************************************/
-//        Lattice<dim,dim> reciprocal() const
-//        {
-//            return Lattice<dim,dim>(contraBasis(),covBasis());
-//        }
         
     };
 
     
-} // end namespace
+}
 #endif
 
+//        /**********************************************************************/
+//        Lattice<dim,dim> reciprocal() const
+//        {
+//            return Lattice<dim,dim>(reciprocalBasis(),latticeBasis());
+//        }
+
+//        /**********************************************************************/
+//        const MatrixDimD& latticeBasis() const __attribute__ ((deprecated)) // make latticeBasis public since it is const
+//        {
+//            return latticeBasis;
+//        }
+//
+//        /**********************************************************************/
+//        const MatrixDimD& reciprocalBasis() const __attribute__ ((deprecated)) // make reciprocalBasis public since it is const
+//        {
+//            return reciprocalBasis;
+//        }
+//
+//        const VectorDimD basisVector(const size_t& c) const
+//        {
+//            assert(c<dim);
+//            return latticeBasis().col(c);
+//        }
+
+//        /**********************************************************************/
+//        void setLatticeBasis(const MatrixDimD& A)
+//        {
+//            latticeBases=getLatticeBases(A);
+////            latticeBasis=A;
+////            LatticeBaseType::setLatticeBasis(A);
+////            reciprocalBasis=latticeBasis().inverse().transpose();
+////            reciprocalBasis=latticeBasis.inverse().transpose();
+////            std::cout<<"Lattice basis (in columns) =\n"<<latticeBasis<<std::endl;
+////            std::cout<<"Lattice reciprocal basis (in columns) =\n"<<reciprocalBasis<<std::endl;
+//        }
 

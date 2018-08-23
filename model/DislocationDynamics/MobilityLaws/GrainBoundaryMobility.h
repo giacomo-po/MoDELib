@@ -16,8 +16,8 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <model/DislocationDynamics/Materials/BCCcrystal.h>
-#include <model/DislocationDynamics/Materials/FCCcrystal.h>
+#include <model/DislocationDynamics/Materials/BCClattice.h>
+#include <model/DislocationDynamics/Materials/FCClattice.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Utilities/TerminalColors.h> // defines mode::cout
 #include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>

@@ -15,7 +15,8 @@
 #include <cmath>
 #include <cfloat>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/IO/EigenDataReader.h>
+//#include <model/IO/EigenDataReader.h>
+#include <model/IO/TextFileParser.h>
 #include <model/IO/IDreader.h>
 #include <model/IO/UniqueOutputFile.h>
 
@@ -71,13 +72,13 @@ namespace model
         UniformExternalLoadController():
         /* init list */ inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
         /* init list */,ExternalStress(MatrixDim::Zero()),
-        /* init list */ ExternalStress0(MatrixDim::Zero()),
-        /* init list */ ExternalStressRate(MatrixDim::Zero()),
+        /* init list */ ExternalStress0(TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true)),
+        /* init list */ ExternalStressRate(TextFileParser(inputFileName).readMatrix<double>("ExternalStressRate",dim,dim,true)),
         /* init list */ ExternalStrain(MatrixDim::Zero()),
-        /* init list */ ExternalStrain0(MatrixDim::Zero()),
-        /* init list */ ExternalStrainRate(MatrixDim::Zero()),
+        /* init list */ ExternalStrain0(TextFileParser(inputFileName).readMatrix<double>("ExternalStrain0",dim,dim,true)),
+        /* init list */ ExternalStrainRate(TextFileParser(inputFileName).readMatrix<double>("ExternalStrainRate",dim,dim,true)),
         /* init list */ plasticStrain(MatrixDim::Zero()),
-        /* init list */ MachineStiffnessRatio(Eigen::Matrix<double,1,voigtSize>::Zero()),
+        /* init list */ MachineStiffnessRatio(TextFileParser(inputFileName).readMatrix<double>("MachineStiffnessRatio",1,voigtSize,true)),
         /* init list */ voigtorder(Eigen::Matrix<size_t,voigtSize,2>::Zero()),
         /* init list */ stressmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero()),
         /* init list */ strainmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero()),
@@ -105,17 +106,21 @@ namespace model
             nu_use=nu/(1.0+nu)/2.0;
             lambda=2.0*nu/(1.0-2.0*nu);
             
-            model::EigenDataReader EDR;
-            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
-            EDR.readMatrixInFile(inputFileName,"ExternalStress0",ExternalStress0);
+//            model::EigenDataReader EDR;
+            TextFileParser parser(inputFileName);
+            //TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
+            
+            DN.use_externalStress=parser.readScalar<int>("UniformExternalLoadController",true);
+//            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
+//            EDR.readMatrixInFile(inputFileName,"ExternalStress0",ExternalStress0);
             assert((ExternalStress0-ExternalStress0.transpose()).norm()<DBL_EPSILON && "ExternalStress0 is not symmetric.");
-            EDR.readMatrixInFile(inputFileName,"ExternalStressRate",ExternalStressRate);
+ //           EDR.readMatrixInFile(inputFileName,"ExternalStressRate",ExternalStressRate);
             assert((ExternalStressRate-ExternalStressRate.transpose()).norm()<DBL_EPSILON && "ExternalStressRate is not symmetric.");
-            EDR.readMatrixInFile(inputFileName,"ExternalStrain0",ExternalStrain0);
+ //           EDR.readMatrixInFile(inputFileName,"ExternalStrain0",ExternalStrain0);
             assert((ExternalStrain0-ExternalStrain0.transpose()).norm()<DBL_EPSILON && "ExternalStrain0 is not symmetric.");
-            EDR.readMatrixInFile(inputFileName,"ExternalStrainRate",ExternalStrainRate);
+ //           EDR.readMatrixInFile(inputFileName,"ExternalStrainRate",ExternalStrainRate);
             assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
-            EDR.readMatrixInFile(inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
+//            EDR.readMatrixInFile(inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
             EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
             
             if (DN.use_externalStress)

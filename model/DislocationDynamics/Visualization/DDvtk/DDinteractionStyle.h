@@ -30,7 +30,8 @@
 #include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/InclusionActor.h>
 #include <model/Utilities/TerminalColors.h>
-#include <model/IO/EigenDataReader.h>
+//#include <model/IO/EigenDataReader.h>
+#include <model/IO/TextFileParser.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
 
 
@@ -84,6 +85,66 @@ namespace model
         SimplicialMeshActor meshActor;
         vtkRenderer* ddRenderer;
         vtkRenderer* plotRenderer;
+        
+        /**********************************************************************/
+        DDinteractionStyle() :
+        axes(vtkSmartPointer<vtkAxesActor>::New()),
+        widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
+        /* init list   */ xCol(0),
+        /* init list   */ yCol(2),
+        /* init list   */ winFrac(0.5),
+        /* init list   */ saveImage(false),
+        /* init list   */ imageType(1),
+        /* init list   */ imageMagnification(1),
+        /* init list   */ imageTransparentBackground(false),
+        /* init list   */ frameIncrement(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputFrequency",false)),
+        /* init list   */ currentFrameID(-1),
+        /* init list   */ lastFrameID(currentFrameID),
+        /* init list   */ autoSpin(false),
+        /* init list   */ degPerStep(0.0),
+        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero()),
+        /* init list   */ axisWidgetEnabled(true)
+        {
+            LastPickedActor = NULL;
+            LastPickedProperty = vtkProperty::New();
+            
+//            model::EigenDataReader EDR;
+//            EDR.readScalarInFile("./DDinput.txt","outputFrequency",frameIncrement);
+            
+            //                        PlotActor pa(plotRenderer);
+            
+            std::string filename("F/F_labels.txt");
+            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
+            if (ifs.is_open())
+            {
+                std::string line;
+                while (std::getline(ifs, line))
+                {
+                    std::stringstream ss(line);
+                    
+                    int colID;
+                    ss>>colID;
+                    std::string label;
+                    std::string temp;
+                    
+                    while (ss >> temp)
+                    {
+                        label+=" "+temp;
+                    }
+                    
+                    FlabelsMap.emplace(colID,label);
+                    
+                }
+                
+            }
+            else
+            {
+                std::cout<<"CANNOT READ "<<filename<<std::endl;
+            }
+            
+            
+        }
+        
         
         void init(vtkRenderer* _ddRenderer,vtkRenderer* _plotRenderer,const int& meshID)
         {
@@ -249,64 +310,7 @@ namespace model
         
         
         
-        /**********************************************************************/
-        DDinteractionStyle() :
-                axes(vtkSmartPointer<vtkAxesActor>::New()),
-        widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
-        /* init list   */ xCol(0),
-        /* init list   */ yCol(2),
-        /* init list   */ winFrac(0.5),
-        /* init list   */ saveImage(false),
-        /* init list   */ imageType(1),
-        /* init list   */ imageMagnification(1),
-        /* init list   */ imageTransparentBackground(false),
-        /* init list   */ frameIncrement(1),
-        /* init list   */ currentFrameID(-1),
-        /* init list   */ lastFrameID(currentFrameID),
-        /* init list   */ autoSpin(false),
-        /* init list   */ degPerStep(0.0),
-        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero()),
-        /* init list   */ axisWidgetEnabled(true)
-        {
-            LastPickedActor = NULL;
-            LastPickedProperty = vtkProperty::New();
-            
-            model::EigenDataReader EDR;
-            EDR.readScalarInFile("./DDinput.txt","outputFrequency",frameIncrement);
-            
-//                        PlotActor pa(plotRenderer);
-            
-            std::string filename("F/F_labels.txt");
-            std::ifstream ifs ( filename.c_str() , std::ifstream::in );
-            if (ifs.is_open())
-            {
-                std::string line;
-                while (std::getline(ifs, line))
-                {
-                    std::stringstream ss(line);
-                    
-                    int colID;
-                    ss>>colID;
-                    std::string label;
-                    std::string temp;
-                    
-                    while (ss >> temp)
-                    {
-                        label+=" "+temp;
-                    }
-                    
-                    FlabelsMap.emplace(colID,label);
-                    
-                }
 
-            }
-            else
-            {
-                std::cout<<"CANNOT READ "<<filename<<std::endl;
-            }
-            
-            
-        }
         
         
         /**********************************************************************/

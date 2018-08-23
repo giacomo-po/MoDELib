@@ -33,6 +33,8 @@ namespace model
         typedef DislocationStress<_dim> DislocationStressType;
         typedef FieldBase<double,_dim,_dim> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
+        typedef Material<dim,Isotropic> MaterialType;
+
         
 #if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
         
@@ -89,13 +91,13 @@ namespace model
             Eigen::Matrix<double,_dim,1> r(field.P-source.P);
             const double R2(r.squaredNorm()+StressBaseType::a2);
             r/=sqrt(R2); // normalize r
-            return (-Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()
+            return (-MaterialType::C1*source.T*(r.cross(source.B)).transpose()
                     /*  */  -r*(source.B.cross(source.T)).transpose() // the factor 2.0 takes care of the C2 term in DislocationParticle::stress
                     /*  */  +0.5*r.dot(source.B.cross(source.T)) * (3.0*r*r.transpose() + StressBaseType::I))/R2*source.quadWeight;
 
 //            Eigen::Matrix<double,_dim,1> R(field.P-source.P);
 //            double RaSquared (R.squaredNorm() + a2);
-//            return   (Material<Isotropic>::C1*(1.0+1.5*a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
+//            return   (MaterialType::C1*(1.0+1.5*a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
 //                      + 	R*(source.T.cross(source.B)).transpose()
 //                      +   0.5* R.cross(source.B).dot(source.T) * (I*(1.0+3.0*a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
 //                      )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
@@ -137,7 +139,7 @@ namespace model
             
             Eigen::Matrix<double,_dim,1> R(field.P-source.P);
             double RaSquared (R.squaredNorm() + StressBaseType::a2);
-            return   (Material<Isotropic>::C1*(1.0+1.5*StressBaseType::a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
+            return   (MaterialType::C1*(1.0+1.5*StressBaseType::a2/RaSquared)*source.T*(source.B.cross(R)).transpose()
                       + 	R*(source.T.cross(source.B)).transpose()
                       +   0.5* R.cross(source.B).dot(source.T) * (StressBaseType::I*(1.0+3.0*StressBaseType::a2/RaSquared) + 3.0/RaSquared*R*R.transpose())
                       )/std::pow(sqrt(RaSquared),3)*source.quadWeight;
@@ -212,7 +214,7 @@ namespace model
                 const double f4 = ((1.0+x)*ex-1.0)/x2; // as in Po et at 2014
                 const double f5 = (3.0*(1.0-(1.0+x)*ex)-x2*(0.5+ex))/std::pow(x2,2);
                 r/=R; // normalize r
-                temp = Material<Isotropic>::C1*source.T*(r.cross(source.B)).transpose()*f4
+                temp = MaterialType::C1*source.T*(r.cross(source.B)).transpose()*f4
                 /*  */ +r*(source.B.cross(source.T)).transpose()*2.0*f5
                 /*  */ +r.dot(source.B.cross(source.T)) * (r*r.transpose()*(f4-5.0*f5) + I*(f5-f4));
             }

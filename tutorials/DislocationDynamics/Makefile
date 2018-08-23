@@ -134,6 +134,15 @@ DDviewer:
 	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++14 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
+# MAKE MICROSTRUCTUREGENERATOR
+##########################################################
+generatorOBJS = microstructureGenerator
+
+$(generatorOBJS):
+	@echo making microstructureGenerator
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++14 -Wall $(IDIR)
+
+##########################################################
 # MAKE DIPOLEGENERATOR
 ##########################################################
 dipoleOBJS = dipoleGenerator

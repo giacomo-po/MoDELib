@@ -1,0 +1,3 @@
+crystalStructure=FCC;
+
+a=3.14;

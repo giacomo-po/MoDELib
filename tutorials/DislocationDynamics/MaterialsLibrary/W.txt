@@ -1,0 +1,7 @@
+crystalStructure=BCC;
+T=300;
+mu0_SI=161.0e9;
+mu1_SI=0.0;
+nu=0.28;
+rho_SI=19250.0;
+b_SI=0.2722e-9;

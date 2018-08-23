@@ -80,14 +80,17 @@ namespace model
         
         /**********************************************************************/
         SimplicialMesh() :
-        /* init list */ _xMin(Eigen::Matrix<double,dim,1>::Zero()),
-        /* init list */ _xMax(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,vol0(0.0)
         {
         }
         
         /**********************************************************************/
         SimplicialMesh(const int& meshID) :
-        /* init */ vol0(0.0)
+        /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,vol0(0.0)
         {
             readMesh(meshID);
         }
@@ -111,7 +114,7 @@ namespace model
             
             vol0=0.0;
             
-            model::cout<<greenColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
             simplices().clear();
             
             SimplexReader<dim>::nodeReader.read(meshID,true);
@@ -201,8 +204,8 @@ namespace model
             
             
             
-            model::cout<<"mesh xMin="<<_xMin.transpose()<<std::endl;
-            model::cout<<"mesh xMax="<<_xMax.transpose()<<std::endl;
+            model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
+            model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
             //            model::cout<<"mesh volume="<<volume()<<std::endl;
             
             for(auto rIter : MeshRegionObserverType::regions())

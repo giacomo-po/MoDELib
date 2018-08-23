@@ -1,8 +1,0 @@
-# Choose material by atomic number (e.g. material=29 for Cu):
-material=29;
-
-# Grain orientation matrices (the i-th row of C2G-j is the crystallographic direction of grain j which becomes the i-th global axis):
-C2G1=                    0   0.707106781186547   0.707106781186547
-   0.816496580927726   0.408248290463863  -0.408248290463863
-  -0.577350269189626   0.577350269189626  -0.577350269189626;
-

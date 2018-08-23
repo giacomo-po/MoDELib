@@ -39,7 +39,7 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
-        
+        typedef Material<dim,Isotropic> MaterialType;
         
         static bool use_multipole;
         
@@ -70,7 +70,7 @@ namespace model
         /**********************************************************************/
         static MatrixType get(const MatrixType& temp)
         {
-            return Material<Isotropic>::C2 * (temp+temp.transpose());
+            return MaterialType::C2 * (temp+temp.transpose());
         }
         
         /**********************************************************************/
@@ -191,7 +191,7 @@ namespace model
                     const MatrixDim& alpha(std::get<0>(*cell.second)[v]);
                     const VectorDim a(axialVector(alpha));
                     const MatrixDim S(skewMatrix(R));
-                    temp += (Material<Isotropic>::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+                    temp += (MaterialType::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
                     
                 }
 #else
@@ -201,7 +201,7 @@ namespace model
                 const MatrixDim& alpha(std::get<0>(*cell.second));
                 const VectorDim a(axialVector(alpha));
                 const MatrixDim S(skewMatrix(R));
-                temp += (Material<Isotropic>::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
+                temp += (MaterialType::C1*S*alpha-a*R.transpose()+0.5*R.dot(a)*(3.0*R*R.transpose()+I))/R2;
 #endif
             }
             return temp;

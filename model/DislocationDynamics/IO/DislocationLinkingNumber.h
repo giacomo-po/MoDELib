@@ -15,6 +15,7 @@
 #include <cfloat>
 #include <math.h>       /* asin */
 
+#include <model/Geometry/SegmentSegmentDistance.h>
 
 namespace model
 {
@@ -131,15 +132,15 @@ namespace model
             
             bool temp(0.0);
             
-            for(int i=0;i<loop1.size();++i)
+            for(size_t i=0;i<loop1.size();++i)
             {
             
-                const int i1(i==loop1.size()-1? 0 : i+1);
+                const size_t i1(i==loop1.size()-1? 0 : i+1);
 
-                for(int j=0;j<loop2.size();++j)
+                for(size_t j=0;j<loop2.size();++j)
                 {
                     
-                    const int j1(j==loop2.size()-1? 0 : j+1);
+                    const size_t j1(j==loop2.size()-1? 0 : j+1);
                     
                     temp+=segmentPairLN(loop1[i],
                                         loop1[i1],

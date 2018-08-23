@@ -1,0 +1,44 @@
+#######################################
+# Straight dislocations from boundary to boundary
+targetStraightDislocationDensity=0e14;
+fractionSessileStraightDislocationDensity=0.0;
+
+#######################################
+# Frank-Read sources
+targetFrankReadDislocationDensity=0e12;
+
+#######################################
+# Single-arm sources
+targetSingleArmDislocationDensity=0e12;
+
+#######################################
+# Prismatic loops
+targetPrismaticLoopDensity=0e12;
+
+#######################################
+# Individual straight dislocations
+straightDislocationsSlipSystemIDs=0 -1;
+straightDislocationsAngleFromScrewOrientation=90.0 90.0;
+pointsAlongStraightDislocations=0.0 0.0 0.0
+						   		0.0 0.0 0.0;
+
+#######################################
+# Irradiation loops
+targetIrradiationLoopDensity=0e20;
+averageLoopSize=6.1e-9;
+
+#######################################
+# Eshelby Inclusions parameters
+# vector of densities, one value per family
+targetInclusionDensities=0e20 0e19;
+# vector of Gamma-distribution parameter alpha (dimensionless), one value per family
+inclusionsDistribution_alpha=4.159 4.416;
+# vector of Gamma-distribution parameter beta (dimensionless), one value per family
+inclusionsDistribution_beta=1.943 0.565;
+# vector distribution scaling factors (meters), one value per family
+inclusionsDistribution_lambda=10.166e-9 9.700e-9;
+# Array inclusion transformation strains (dimensionless), one row per family with format (exx exy exz eyx eyy eyz ezx exy ezz)
+inclusionsTransformationStrains = 0.56 0.0 0.0 0.0 0.56 0.0 0.0 0.0 0.56
+                                  2.74 0.0 0.0 0.0 2.74 0.0 0.0 0.0 2.74;                          
+inclusionsPatterns = 0 0 0
+                     0 0 0;

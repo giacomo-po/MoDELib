@@ -1,0 +1,3 @@
+crystalStructure=BCC;
+
+a=3.14;

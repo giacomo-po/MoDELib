@@ -95,20 +95,6 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        ~BinaryFileReader()
-//        {/*! Destructor 
-//          */
-//            //		delete[] memblock;
-//            		delete memblock;
-//        }
-        
-//        /**********************************************************************/
-//        const size_t& size() const
-//        {/*! The number of DataType(s) elements read and stored in this
-//          */
-//            return _array_size;
-//        }
 
         /**********************************************************************/
         const size_t& bytes() const
@@ -123,7 +109,28 @@ namespace model
           */
             return _success;
         }
-        
+
+    };
+    
+} // namespace model
+#endif
+
+//        /**********************************************************************/
+//        ~BinaryFileReader()
+//        {/*! Destructor
+//          */
+//            //		delete[] memblock;
+//            		delete memblock;
+//        }
+
+//        /**********************************************************************/
+//        const size_t& size() const
+//        {/*! The number of DataType(s) elements read and stored in this
+//          */
+//            return _array_size;
+//        }
+
+
 //        /**********************************************************************/
 //        const DataType& operator[](const size_t& k) const
 //        {/*! @param[in] k the position in the BinaryFileReader container
@@ -132,8 +139,3 @@ namespace model
 //            assert( k<_array_size && "Index out of bound.");
 //            return memblock[k];
 //        }
-
-    };
-    
-} // namespace model
-#endif

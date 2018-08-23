@@ -14,6 +14,8 @@
 #include <assert.h>
 #include <model/MPI/MPIcout.h>
 #include <model/Mesh/MeshRegionObserver.h>
+#include <model/Mesh/Simplex.h>
+
 //#include <model/Mesh/PlanarMeshFacet.h>
 
 namespace model

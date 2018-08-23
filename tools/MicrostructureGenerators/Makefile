@@ -10,15 +10,17 @@ CC	= g++
 
 ifeq ($(CC),g++)
 	CFLAGS	 = -O3
-#	CFLAGS	+= -fopenmp
-	CFLAGS	+= -std=c++11
+	CFLAGS	+= -fopenmp
+	CFLAGS	+= -std=c++14
+	CFLAGS  += -Wall
 endif
 
 
 ifeq ($(CC),icc)
 	CFLAGS	 = -O3
 #	CFLAGS	+= -openmp
-	CFLAGS	+= -std=c++11
+	CFLAGS	+= -std=c++14
+	CFLAGS  += -Wall
 endif
 
 
@@ -26,15 +28,8 @@ endif
 ##########################################################
 # PROGRAM
 ##########################################################
-PROGRAM =	dipoleGenerator
-OBJS 	= 	dipoleGenerator
-
-
-$(PROGRAM): 
-	$(CC) dipoleGenerator.cpp -o $(OBJS) $(CFLAGS) $(IDIR)  
+microstructureGenerator: 
+	$(CC) microstructureGenerator.cpp -o microstructureGenerator $(CFLAGS) $(IDIR)  
 	
 clean:
-		rm -f $(OBJS)
-
-#	
-#	
+		rm -f microstructureGenerator

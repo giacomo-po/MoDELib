@@ -171,14 +171,14 @@ namespace model
         /**********************************************************************/
         VectorDimD cartesian() const
         {
-            return lattice.covBasis()*this->template cast<double>();
+            return lattice.latticeBasis*this->template cast<double>();
         }
         
         /**********************************************************************/
         static VectorDimI d2contra(const VectorDimD& d,
                                    const LatticeType& lat)
         {
-            const VectorDimD nd(lat.contraBasis().transpose()*d);
+            const VectorDimD nd(lat.reciprocalBasis.transpose()*d);
             const VectorDimD rd(RoundEigen<double,dim>::round(nd));
             if((nd-rd).norm()>roundTol)
             {
@@ -205,16 +205,16 @@ namespace model
 //        LatticeVector(const LatticeVectorType& other) :
 //        /* base copy */ BaseType(static_cast<VectorDimI>(other))
 //        {
-//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+//            assert(&latticeBasis==&other.latticeBasis && "LatticeVectors have different bases.");
+//            assert(&reciprocalBasis==&other.reciprocalBasis && "LatticeVectors have different bases.");
 //        }
 //
 //        /**********************************************************************/
 //        LatticeVector(LatticeVectorType&& other) :
 //        /* base copy */ BaseType(std::move(static_cast<VectorDimI>(other)))
 //        {
-//            assert(&covBasis==&other.covBasis && "LatticeVectors have different bases.");
-//            assert(&contraBasis==&other.contraBasis && "LatticeVectors have different bases.");
+//            assert(&latticeBasis==&other.latticeBasis && "LatticeVectors have different bases.");
+//            assert(&reciprocalBasis==&other.reciprocalBasis && "LatticeVectors have different bases.");
 //        }
 
 
@@ -235,5 +235,5 @@ namespace model
 
 //        VectorDimD cartesian() const
 //        {
-//            return LatticeBaseType::covBasis()*this->template cast<double>();
+//            return LatticeBaseType::latticeBasis*this->template cast<double>();
 //        }

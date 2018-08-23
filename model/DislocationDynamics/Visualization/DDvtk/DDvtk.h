@@ -54,7 +54,9 @@
 #include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
 #include <model/DislocationDynamics/Visualization/DDvtk/DDinteractionStyle.h>
 
-#include <model/IO/EigenDataReader.h>
+//#include <model/IO/EigenDataReader.h>
+#include <model/IO/TextFileParser.h>
+
 //#include <model/IO/VertexReader.h>
 #include <model/IO/IDreader.h>
 
@@ -86,14 +88,14 @@ namespace model
 //        axes(vtkSmartPointer<vtkAxesActor>::New())
         {
             
-            int meshID(0);
-            model::EigenDataReader EDR;
-            bool use_boundary=false;
-            EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
-            if (use_boundary)
-            {
-                EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
-            }
+            int meshID=TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",false);
+//            model::EigenDataReader EDR;
+//            bool use_boundary=false;
+//            EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
+//            if (use_boundary)
+//            {
+//                EDR.readScalarInFile("./DDinput.txt","meshID",meshID);
+//            }
 
             // https://en.wikipedia.org/wiki/Computer_display_standard
 //            renderWindow->SetSize(1024,768); // XGA (width, height)

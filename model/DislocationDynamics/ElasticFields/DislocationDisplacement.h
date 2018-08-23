@@ -154,6 +154,8 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
+        typedef Material<dim,Isotropic> MaterialType;
+
 
         static bool use_multipole;
         
@@ -186,8 +188,8 @@ namespace model
                 r/=R; // normalize R;
                 const MatrixDim& alpha(std::get<1>(*cell.second)[v]);
                 const VectorDim a(DislocationStress<dim>::axialVector(alpha));
-                temp += (+2.0*Material<Isotropic>::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
-                         /*    */ - Material<Isotropic>::C3*a
+                temp += (+2.0*MaterialType::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
+                         /*    */ - MaterialType::C3*a
                          /*    */ - a.dot(r)*r)/R;
                 }
 #else
@@ -196,12 +198,12 @@ namespace model
                 r/=R; // normalize R;
                 const MatrixDim& alpha(std::get<1>(*cell.second));
                 const VectorDim a(DislocationStress<dim>::axialVector(alpha));
-                temp += (+2.0*Material<Isotropic>::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
-                         /*    */ - Material<Isotropic>::C3*a
+                temp += (+2.0*MaterialType::C1/(1.0+r.dot(field.S))*alpha*(field.S.cross(r))
+                         /*    */ - MaterialType::C3*a
                          /*    */ - a.dot(r)*r)/R;
 #endif
             }
-            return Material<Isotropic>::C4*temp; // C4=1/(8*pi*(1-nu))
+            return MaterialType::C4*temp; // C4=1/(8*pi*(1-nu))
         }
         
 #if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.
@@ -216,9 +218,9 @@ namespace model
             MatrixType R(field.P-source.P);
 			const double Ra=sqrt(R.squaredNorm()+DislocationStress<_dim>::a2);
             R/=Ra; // normalize R
-			return (Material<Isotropic>::C4*source.quadWeight/Ra) *
-            /*  */ (+ 2.0*Material<Isotropic>::C1/(1.0+R.dot(field.S))*(field.S.cross(R)).dot(source.T)*source.B
-                    /*  */  + Material<Isotropic>::C3*source.T.cross(source.B)
+			return (MaterialType::C4*source.quadWeight/Ra) *
+            /*  */ (+ 2.0*MaterialType::C1/(1.0+R.dot(field.S))*(field.S.cross(R)).dot(source.T)*source.B
+                    /*  */  + MaterialType::C3*source.T.cross(source.B)
                     /*  */  + (source.T.cross(source.B)).dot(R)*R
                     /*  */ );
         }

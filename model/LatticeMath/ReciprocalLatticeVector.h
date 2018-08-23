@@ -178,7 +178,7 @@ namespace model
         /**********************************************************************/
         VectorDimD cartesian() const
         {
-            return lattice.contraBasis()*this->template cast<double>();
+            return lattice.reciprocalBasis*this->template cast<double>();
         }
         
         /**********************************************************************/
@@ -198,7 +198,7 @@ namespace model
         static VectorDimI d2cov(const VectorDimD& d,
                                 const LatticeType& lat)
         {
-            const VectorDimD nd(lat.covBasis().transpose()*d);
+            const VectorDimD nd(lat.latticeBasis.transpose()*d);
             const VectorDimD rd(RoundEigen<double,dim>::round(nd));
             if((nd-rd).norm()>roundTol)
             {

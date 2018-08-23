@@ -64,7 +64,7 @@ namespace model
             double vmean=0.0;
             double dt_mean=0.0;
             
-            std::cout<<"computing vMax for nodes: ";
+//            std::cout<<"computing vMax for nodes: ";
             for (const auto& nodeIter : DN.nodes())
             {
                 if(//   !nodeIter.second->isBoundaryNode()
@@ -86,22 +86,22 @@ namespace model
             }
             vmean/=nVmean;
             
-            if (vmax > Material<Isotropic>::cs*shearWaveSpeedFraction)
+            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
             {
                 DN.set_dt(dxMax/vmax,vmax);
             }
             else
             {
-                DN.set_dt(dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction),vmax);
+                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
             }
             
-            if (vmean > Material<Isotropic>::cs*shearWaveSpeedFraction)
+            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
             {
                 dt_mean=dxMax/vmean;
             }
             else
             {
-                dt_mean=dxMax/(Material<Isotropic>::cs*shearWaveSpeedFraction);
+                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
             }
             
             model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;

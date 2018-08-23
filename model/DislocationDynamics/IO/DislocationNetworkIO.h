@@ -76,7 +76,7 @@ namespace model
         
         
         /**********************************************************************/
-        void read(const std::string& inputDirectoryName_in, std::string inputFileName)
+        void read(const std::string& inputDirectoryName_in, std::string inputFileName) __attribute__ ((deprecated))
         { //
             
             std::ostringstream fullName;
@@ -151,7 +151,6 @@ namespace model
             
             
             //dt=0.0;
-            EDR.readScalarInFile(fullName.str(),"timeIntegrationMethod",DN.timeIntegrationMethod);
             EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
             assert(DDtimeIntegrator<0>::dxMax>0.0);
             //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
@@ -172,20 +171,6 @@ namespace model
                 StochasticForceGenerator::init(stochasticForceSeed);
             }
             
-            EDR.readScalarInFile(fullName.str(),"computeDDinteractions",DN.computeDDinteractions);
-            
-            
-            
-            // Eternal Stress
-            // EDR.readMatrixInFile(fullName.str(),"externalStress",DN.externalStress);
-//            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_externalStress);
-//            if (DN.use_externalStress)
-//            {
-//                DN._userOutputColumn+=18;  //put here in order for right bvp restart
-//            }
-            
-//            EDR.readScalarInFile("./loadInput.txt","use_externalStress",DN.use_userStress);
-
             
             
             // Use Changing external stress field induced by straight dislocations.
@@ -214,8 +199,6 @@ namespace model
 //            }
             
             // Restart
-            EDR.readScalarInFile(fullName.str(),"startAtTimeStep",DN.runID);
-            //            VertexReader<'F',201,double> vReader;
             IDreader<'F',1,200,double> vReader;
             Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
             
@@ -286,13 +269,9 @@ namespace model
             
             // time-stepping
             
-            //            EDR.readScalarInFile(fullName.str(),"useImplicitTimeIntegration",useImplicitTimeIntegration);
-            EDR.readScalarInFile(fullName.str(),"ddSolverType",DN.ddSolverType);
             EDR.readScalarInFile(fullName.str(),"outputDislocationStiffnessAndForce",DislocationNetworkComponentType::outputKF);
             
             
-            EDR.readScalarInFile(fullName.str(),"Nsteps",DN.Nsteps);
-            assert(DN.Nsteps>=0 && "Nsteps MUST BE >= 0");
             
             //            EDR.readScalarInFile(fullName.str(),"timeWindow",timeWindow);
             //            assert(timeWindow>=0.0 && "timeWindow MUST BE >= 0");
@@ -300,8 +279,6 @@ namespace model
             // Check balance
             //            EDR.readScalarInFile(fullName.str(),"check_balance",check_balance);
             
-            // JUNCTION FORMATION
-            EDR.readScalarInFile(fullName.str(),"maxJunctionIterations",DN.maxJunctionIterations);
             
             
             
@@ -309,7 +286,7 @@ namespace model
             
             
             // Cross-Slip
-            EDR.readScalarInFile(fullName.str(),"crossSlipModel",DN.crossSlipModel);
+//            EDR.readScalarInFile(fullName.str(),"crossSlipModel",DN.crossSlipModel);
             if(DN.crossSlipModel)
             {
                 EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
@@ -321,7 +298,6 @@ namespace model
             }
             
             // Mesh and BVP
-            EDR.readScalarInFile(fullName.str(),"use_boundary",DN.use_boundary);
             if (DN.use_boundary)
             {
                 EDR.readScalarInFile(fullName.str(),"surfaceAttractionDistance",DN.surfaceAttractionDistance);
@@ -340,13 +316,12 @@ namespace model
                 // Initialize Polycrystal
                 DN.poly.init(DN,"./polyCrystalInput.txt");
                 
-                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",DN.use_virtualSegments);
+//                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",DN.use_virtualSegments);
                 if(DN.use_virtualSegments)
                 {
                     EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
                 }
                 
-                EDR.readScalarInFile(fullName.str(),"use_bvp",DN.use_bvp);
                 if(DN.use_bvp)
                 {
                     EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver.use_directSolver);
@@ -360,10 +335,7 @@ namespace model
             
             DN.extStressController.init(DN);  // have to initialize it after mesh!
 
-//            if (DN.use_externalStress)
-//            {
-//                DN.extStressController.init(DN);  // have to initialize it after mesh!
-//            }
+
             
             // VERTEX REDISTRIBUTION
             EDR.readScalarInFile(fullName.str(),"remeshFrequency",DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency);

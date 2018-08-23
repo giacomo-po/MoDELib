@@ -34,7 +34,7 @@
 
 #include <model/LoopNetwork/LoopNetwork.h>
 #include <model/Utilities/TerminalColors.h>
-#include <model/IO/EigenDataReader.h>
+//#include <model/IO/EigenDataReader.h>
 #include <model/DislocationDynamics/DislocationNetworkTraits.h>
 #include <model/DislocationDynamics/DislocationNetworkComponent.h>
 #include <model/DislocationDynamics/DislocationNode.h>
@@ -60,6 +60,7 @@
 #include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
+#include <model/IO/TextFileParser.h>
 
 
 #ifndef ExternalLoadControllerFile
@@ -124,64 +125,9 @@ namespace model
         typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
         typedef Polycrystal<dim> PolycrystalType;
         typedef ExternalLoadController<dim> ExternalLoadControllerType;
-        //        enum {NdofXnode=NodeType::NdofXnode};
         typedef std::map<size_t,EshelbyInclusion<_dim>> EshelbyInclusionContainerType;
-        
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
-        
-        
-        int timeIntegrationMethod;
-        //        bool use_analyticalStraightStress;
-        //        bool use_junctions;
-        int maxJunctionIterations;
-        long int runID;
-        double totalTime;
-        double dt;
-        double vMax;
-        int Nsteps;
-        MatrixDimD _plasticDistortion;
-        MatrixDimD _plasticDistortionRate;
-        int ddSolverType;
-        bool computeDDinteractions;
-        int crossSlipModel;
-        bool use_boundary;
-        unsigned int use_bvp;
-        bool use_virtualSegments;
-        //        SimplicialMesh<dim> mesh;
-        //        PolycrystalType poly;
-        //        BvpSolverType bvpSolver;
-        // MatrixDimD externalStress;
-        bool use_externalStress;
-        //        bool use_userStress;
-        bool use_extraStraightSegments;
-        ExternalLoadControllerType extStressController;
-        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
-        
-        int  outputFrequency;
-        bool outputBinary;
-        bool outputGlidePlanes;
-        bool outputSpatialCells;
-        bool outputPKforce;
-        bool outputElasticEnergy;
-        bool outputMeshDisplacement;
-        bool outputFEMsolution;
-        bool outputDislocationLength;
-        bool outputPlasticDistortion;
-        bool outputPlasticDistortionRate;
-        bool outputQuadratureParticles;
-        bool outputLinkingNumbers;
-        bool outputLoopLength;
-        bool outputSegmentPairDistances;
-        unsigned int _userOutputColumn;
-        bool use_stochasticForce;
-        int dislocationImages_x;
-        int dislocationImages_y;
-        int dislocationImages_z;
-        double surfaceAttractionDistance;
-//        const VectorDim meshDimensions;
-        std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
-        std::string folderSuffix;
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
@@ -348,30 +294,79 @@ namespace model
         
     public:
         
+        int timeIntegrationMethod;
+        //        bool use_analyticalStraightStress;
+        //        bool use_junctions;
+        int maxJunctionIterations;
+        long int runID;
+        double totalTime;
+        double dt;
+        double vMax;
+        size_t Nsteps;
+        MatrixDimD _plasticDistortion;
+        MatrixDimD _plasticDistortionRate;
+        int ddSolverType;
+        bool computeDDinteractions;
+        int crossSlipModel;
+        bool use_boundary;
+        unsigned int use_bvp;
+        bool use_virtualSegments;
+        //        SimplicialMesh<dim> mesh;
+        //        PolycrystalType poly;
+        //        BvpSolverType bvpSolver;
+        // MatrixDimD externalStress;
+        bool use_externalStress;
+        //        bool use_userStress;
+        bool use_extraStraightSegments;
+        ExternalLoadControllerType extStressController;
+        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
+        
+        int  outputFrequency;
+        bool outputBinary;
+        bool outputGlidePlanes;
+        bool outputSpatialCells;
+        bool outputPKforce;
+        bool outputElasticEnergy;
+        bool outputMeshDisplacement;
+        bool outputFEMsolution;
+        bool outputDislocationLength;
+        bool outputPlasticDistortion;
+        bool outputPlasticDistortionRate;
+        bool outputQuadratureParticles;
+        bool outputLinkingNumbers;
+        bool outputLoopLength;
+        bool outputSegmentPairDistances;
+        unsigned int _userOutputColumn;
+        bool use_stochasticForce;
+        int dislocationImages_x;
+        int dislocationImages_y;
+        int dislocationImages_z;
+        double surfaceAttractionDistance;
+        //        const VectorDim meshDimensions;
+        std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
+        std::string folderSuffix;
+        
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[]) :
-        /* init */ timeIntegrationMethod(0),
-        //        /* init */ use_analyticalStraightStress(true),
-        //        /* init */ use_junctions(false),
-        maxJunctionIterations(1),
-        /* init */ runID(0),
+        /* init */ timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
+        /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
+        /* init */ runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
         /* init */ totalTime(0.0),
         /* init */ dt(0.0),
         /* init */ vMax(0.0),
-        /* init */ Nsteps(0),
+        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
         /* init */ _plasticDistortion(MatrixDimD::Zero()),
         /* init */ _plasticDistortionRate(MatrixDimD::Zero()),
-        ///* init */ externalStress(MatrixDimD::Zero()),
-        /* init */ ddSolverType(0),
-        /* init */ computeDDinteractions(true),
-        /* init */ crossSlipModel(0),
-        /* init */ use_boundary(false),
-        /* init */ use_bvp(0),
-        /* init */ use_virtualSegments(true),
+        /* init */ ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true)),
+        /* init */ computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true)),
+        /* init */ crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true)),
+        /* init */ use_boundary(true),
+        /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
+        /* init */ use_virtualSegments(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_virtualSegments",true)),
         /* init */ use_externalStress(false),
         /* init */ use_extraStraightSegments(false),
-        /* init */ extStressController(),
-        /* init */ ssdeq(),
+//        /* init */ extStressController(),
+//        /* init */ ssdeq(),
         /* init */ outputFrequency(1),
         /* init */ outputBinary(0),
         /* init */ outputGlidePlanes(false),
@@ -401,6 +396,12 @@ namespace model
             }
             
             ParticleSystemType::initMPI(argc,argv);
+            
+            // Sanity checks
+            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
+
+            
+            // IO
             io().read("./","DDinput.txt");
             
             // Set up periodic shifts

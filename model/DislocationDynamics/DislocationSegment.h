@@ -52,7 +52,6 @@ namespace model
     /*                      */ private std::set<const GrainBoundary<_dim>*>,
     /*                      */ private std::set<const Grain<_dim>*>,
     /*                      */ private BoundingLineSegments<_dim>
-    //    /*                                              */ private std::set<const GrainBoundary<dim>*>
     {
         
         
@@ -142,7 +141,7 @@ namespace model
             {
                 //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
                 //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
-                double v =  Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+                double v =  Material<dim,Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
                 assert((this->network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -183,13 +182,9 @@ namespace model
         VectorNdof Fq; //! Segment Nodal Force Vector
         VectorDim Burgers; //! The Burgers vector
         
-        /******************************************************************/
-    public: //  data members
-        /******************************************************************/
+    public:
         
         
-        //        std::unique_ptr<LatticePlane> glidePlane;
-        //        const std::deque<const LatticePlaneBase*> conjugatePlaneNormals;
         static const Eigen::Matrix<double,_dim,_dim> I;
         static const Eigen::Matrix<double,_dim,1> zeroVector;
         static double quadPerLength;
@@ -200,19 +195,15 @@ namespace model
         std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
         MatrixDimQorder pkGauss; //! PK force corrersponding to the quadrature points
         
-//        #ifdef UserStressFile
-//        #include UserStressFile
-//        #endif
-        
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /******************************************************************/
         DislocationSegment(const std::shared_ptr<NodeType>& nI,
                            const std::shared_ptr<NodeType>& nJ) :
-        /* base class initialization */ SplineSegmentType(nI,nJ),
-        /* init list       */ Burgers(VectorDim::Zero()),
-        /* init list       */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
+        /* init */ SplineSegmentType(nI,nJ),
+        /* init */ Burgers(VectorDim::Zero()),
+        /* init */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -623,13 +614,6 @@ namespace model
             {
                 temp+=sStraight.stress(rgauss.col(k));
             }
-            
-//#ifdef UserStressFile
-//            if(this->network().use_userStress)
-//            {
-//                temp+=userStress(rgauss.col(k));
-//            }
-//#endif
             
             return temp;
         }
@@ -1058,13 +1042,31 @@ namespace model
             /*  */ && !hasZeroBurgers();
         }
         
+//        /**********************************************************************/
+//        bool isGlissile() const
+//        {
+//            bool temp=false;
+//            if(meshPlanes().size()==1 && !hasZeroBurgers())
+//            {
+//                temp=(*this->loopLinks().begin())->loop()->isGlissile;
+//            }
+//            return temp;
+//        }
+        
         /**********************************************************************/
         bool isGlissile() const
-        {
-            bool temp=false;
-            if(meshPlanes().size()==1 && !hasZeroBurgers())
+        {/*\returns true if ALL the following conditions are met
+          * - the segment is confined by only one plane
+          * - its Burgers vector is non-zero
+          * - all loops containing this segment are glissile
+          */
+            bool temp(meshPlanes().size()==1 && !hasZeroBurgers());
+            if(temp)
             {
-                temp=(*this->loopLinks().begin())->loop()->isGlissile;
+                for(const auto& loopLink : this->loopLinks())
+                {
+                    temp*=loopLink->loop()->isGlissile;
+                }
             }
             return temp;
         }
@@ -1155,7 +1157,7 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.glidePlaneNormal().transpose()<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sourceT(ds).transpose()<<"\t"
             /**/<<SplineSegmentBase<dim,corder>::sinkT(ds).transpose()<<"\t"
-            <<ds.meshLocation();
+            /**/<<ds.meshLocation();
             return os;
         }
         

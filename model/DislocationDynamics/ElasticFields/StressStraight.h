@@ -29,6 +29,7 @@ namespace model
     {
         typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
         typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
+        typedef Material<dim,Isotropic> MaterialType;
         
         /**********************************************************************/
         template<typename Derived>
@@ -48,7 +49,7 @@ namespace model
 //            const VectorDim Y((L+R)*t+rho); // = R*t + r
 //            // Y2=R^2+R^2+2R*(r*t)=2R*(R+L)
 ////            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
-////            return (Material<Isotropic>::C1* b.cross(Y)*t.transpose()
+////            return (MaterialType::C1* b.cross(Y)*t.transpose()
 ////            /*                 */ -b.cross(t)*Y.transpose()
 ////            /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
 ////                    )*2.0/Y2;
@@ -59,7 +60,7 @@ namespace model
 //
 ////            const Scalar f1(2.0/(Y.squaredNorm()+DislocationStress<dim>::a2));
 ////            const Scalar f1(2.0/Y2);
-//            const Scalar f2(Material<Isotropic>::C1*f1);
+//            const Scalar f2(MaterialType::C1*f1);
 //            const Scalar bDotYcrosst(b.dot(Y.cross(t)));
 //            const Scalar f3(bDotYcrosst*f1*f1);
 //            const Scalar f4(0.5*f1*bDotYcrosst);
@@ -85,7 +86,7 @@ namespace model
             const Scalar f1(2.0/Y2);
             
             
-            return  f1*Material<Isotropic>::C1*t*(b.cross(Y)).transpose()
+            return  f1*MaterialType::C1*t*(b.cross(Y)).transpose()
             /*   */-f1*Y*(b.cross(t)).transpose()
             /*   */-f1*bYt/Yta*t*r.transpose()
             /*   */-0.5*f1*bYt*MatrixDim::Identity()
@@ -105,8 +106,8 @@ namespace model
 //            const double A6=-rdt/((Ra2-rdt2)*Ra);
 //            const double A3=-rdt/Ra3+A6+rdt2*A1;
 //            const double A4=A6+DislocationStress<dim>::a2*A1;
-//            const double A5=-Material<Isotropic>::C1*A6-0.5*DislocationStress<dim>::a2*Material<Isotropic>::C1*A1;
-//            const double A7=Material<Isotropic>::nu/Ra-rdt*A6-0.5*DislocationStress<dim>::a2*Material<Isotropic>::C1*A2;
+//            const double A5=-MaterialType::C1*A6-0.5*DislocationStress<dim>::a2*MaterialType::C1*A1;
+//            const double A7=MaterialType::nu/Ra-rdt*A6-0.5*DislocationStress<dim>::a2*MaterialType::C1*A2;
 //            
 //            const double rbt(r.cross(b).dot(t));
 //            
@@ -128,8 +129,8 @@ namespace model
             
             const Scalar f1(2.0/Ya2a2);
             
-            return f1*Material<Isotropic>::C1*(1.0+DislocationStress<dim>::a2/Ya2a2)*t*(b.cross(Ya)).transpose()
-            /*  */+f1*Material<Isotropic>::C1*0.5*DislocationStress<dim>::a2/Ra2*t*(b.cross(r)).transpose()
+            return f1*MaterialType::C1*(1.0+DislocationStress<dim>::a2/Ya2a2)*t*(b.cross(Ya)).transpose()
+            /*  */+f1*MaterialType::C1*0.5*DislocationStress<dim>::a2/Ra2*t*(b.cross(r)).transpose()
             /*  */-f1*Ya*(b.cross(t)).transpose()
             /*  */-f1*bYat/Yat*t*r.transpose()
             /*  */-0.5*f1*bYat*(1.0+2.0*DislocationStress<dim>::a2/Ya2a2+DislocationStress<dim>::a2/Ra2)*MatrixDim::Identity()
@@ -185,11 +186,11 @@ namespace model
         MatrixDim stress(const VectorDim& x) const
         {
             const MatrixDim temp = nonSymmStress(x);
-            return Material<Isotropic>::C2*(temp+temp.transpose());
+            return MaterialType::C2*(temp+temp.transpose());
         }
         
 	};	
 	
-} // end namespace
+}
 #endif
 
