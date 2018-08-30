@@ -31,7 +31,7 @@ outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
 outputSpatialCells=0;
-outputPKforce=1;
+outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
@@ -42,9 +42,6 @@ outputQuadratureParticles=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 
-######################################
-# TEMPERATURE in [K]
-temperature = 300.0;
 
 
 ######################################

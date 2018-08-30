@@ -64,14 +64,15 @@ namespace model
     
     std::vector<std::default_random_engine> StochasticForceGenerator::generators;
     std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
-
     
+    /**************************************************************************/
+    /**************************************************************************/
     struct DislocationMobilityBase
     {
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
-
-    
+        
+        
         virtual double velocity(const MatrixDim& S,
                                 const VectorDim& b,
                                 const VectorDim& , // xi
@@ -80,6 +81,8 @@ namespace model
                                 const double& dL,
                                 const double& dt,
                                 const bool& use_stochasticForce) const=0 ;
+        
+        //        virtual ~DislocationMobilityBase(){};
     };
     
     /**************************************************************************/
@@ -98,29 +101,29 @@ namespace model
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
         static constexpr double kB_SI=1.38064852e-23; // [J/K]
-
+        
         const double B0;
         const double B1;
         const double kB;
-
-
+        
+        
         
         /**********************************************************************/
-        DislocationMobility(const double& b_real,
-                                      const double& mu_real,
-                                      const double& cs_real,
-                                      const double& B1e_real,
-                                      const double& B1s_real) :
+        DislocationMobility(const double& b_SI,
+                            const double& mu_SI,
+                            const double& cs_SI,
+                            const double& B1e_SI,
+                            const double& B1s_SI) :
         
         /* init */ B0(0.0),
-        /* init */ B1(0.5*(B1e_real+B1s_real)*cs_real/(mu_real*b_real)),
-        /* init */ kB(kB_SI/mu_real/std::pow(b_real,3))
-
+        /* init */ B1(0.5*(B1e_SI+B1s_SI)*cs_SI/(mu_SI*b_SI)),
+        /* init */ kB(kB_SI/mu_SI/std::pow(b_SI,3))
+        
         {/*! Empty constructor is required by constexpr
           */
             
             model::cout<<greenBoldColor<<"Creating DislocationMobility FCC"<<defaultColor<<std::endl;
-
+            
             
         }
         
@@ -134,9 +137,6 @@ namespace model
                         const double& dt,
                         const bool& use_stochasticForce) const override
         {
-            
-            std::cout<<"this is FCC mobility"<<std::endl;
-            
             double v=std::fabs(b.transpose()*S*n)/(B0+B1*T);
             if(use_stochasticForce)
             {
@@ -159,7 +159,7 @@ namespace model
         //! Boltzmann constant in [eV]
         static constexpr double kB_eV=8.617e-5;
         static constexpr double kB_SI=1.38064852e-23; // [J/K]
-
+        
         
         const double h;
         const double w;
@@ -180,46 +180,46 @@ namespace model
         const double a3;
         const double a4;
         const double kB;
-
+        
         //        const double a5;
         
         
         
         /**********************************************************************/
-        DislocationMobility(const double& b_real,
-                                      const double& mu_real,
-                                      const double& cs_real,
-                                      const double& B0e_real, const double& B1e_real,
-                                      const double& B0s_real, const double& B1s_real,
-                                      const double& Bk_real,
-                                      const double& dH0_real,
-                                      const double& p_in,
-                                      const double& q_in,
-                                      const double& T0_in,
-                                      const double& tauC_in,
-                                      const double& a0_in,
-                                      const double& a1_in,
-                                      const double& a2_in,
-                                      const double& a3_in,
-                                      const double& a4_in) :
+        DislocationMobility(const double& b_SI,
+                            const double& mu_SI,
+                            const double& cs_SI,
+                            const double& B0e_SI, const double& B1e_SI,
+                            const double& B0s_SI, const double& B1s_SI,
+                            const double& Bk_SI,
+                            const double& dH0_SI,
+                            const double& p_in,
+                            const double& q_in,
+                            const double& T0_in,
+                            const double& tauC_in,
+                            const double& a0_in,
+                            const double& a1_in,
+                            const double& a2_in,
+                            const double& a3_in,
+                            const double& a4_in) :
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b
-        /* init */ B0e(B0e_real*cs_real/(mu_real*b_real)),
-        /* init */ B1e(B1e_real*cs_real/(mu_real*b_real)),
-        /* init */ B0s(B0s_real*cs_real/(mu_real*b_real)),
-        /* init */ B1s(B1s_real*cs_real/(mu_real*b_real)),
-        /* init */ Bk(  Bk_real*cs_real/(mu_real*b_real)),
-        /* init */ dH0(dH0_real),
+        /* init */ B0e(B0e_SI*cs_SI/(mu_SI*b_SI)),
+        /* init */ B1e(B1e_SI*cs_SI/(mu_SI*b_SI)),
+        /* init */ B0s(B0s_SI*cs_SI/(mu_SI*b_SI)),
+        /* init */ B1s(B1s_SI*cs_SI/(mu_SI*b_SI)),
+        /* init */ Bk(  Bk_SI*cs_SI/(mu_SI*b_SI)),
+        /* init */ dH0(dH0_SI),
         /* init */ p(p_in),
         /* init */ q(q_in),
         /* init */ T0(T0_in),
-        /* init */ tauC(tauC_in/mu_real),
+        /* init */ tauC(tauC_in/mu_SI),
         /* init */ a0(a0_in),
         /* init */ a1(a1_in),
         /* init */ a2(a2_in),
         /* init */ a3(a3_in),
         /* init */ a4(a4_in),
-        /* init */ kB(kB_SI/mu_real/std::pow(b_real,3))
+        /* init */ kB(kB_SI/mu_SI/std::pow(b_SI,3))
         {/*! Empty constructor is required by constexpr
           */
         }
@@ -239,9 +239,7 @@ namespace model
                         const double& dt,
                         const bool& use_stochasticForce) const
         {
-            
-                        std::cout<<"this is BCC mobility"<<std::endl;
-            
+                        
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;
             const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
@@ -272,11 +270,11 @@ namespace model
             
             // Compute edge velocity
             double ve=tau*bNorm/(B0e+B1e*T);
-
+            
             if(use_stochasticForce)
             {
                 vs+=StochasticForceGenerator::velocity(kB,T,Bs,dL,dt);
-
+                
                 ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
             }
             

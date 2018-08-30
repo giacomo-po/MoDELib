@@ -35,8 +35,6 @@ namespace model
     /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
     {
         
-        //typedef Simplex<dim,dim> SimplexType;
-//        static constexpr int dim=NetworkType::dim;
         typedef Lattice<dim> LatticeType;
         typedef SingleCrystal<dim> SingleCrystalType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
@@ -53,55 +51,13 @@ namespace model
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> GrainBoundaryContainerType;
         
-//        typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
-//        typedef std::vector<SlipSystem> SlipSystemContainerType;
-//        typedef std::vector<unsigned int> PlaneNormalIDContainerType;
-        
-//        /**********************************************************************/
-//        void setLatticeBasis()
-//        {
-//            
-//            Eigen::Matrix<double,dim,dim,1> A(Eigen::Matrix<double,dim,dim,1>::Identity());
-//            
-//            switch (materialZ)
-//            {
-//                case Al.Z:
-//                    A=PeriodicElement<Al.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-//                    break;
-//                case Ni.Z:
-//                    A=PeriodicElement<Ni.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-//                    break;
-//                case Cu.Z:
-//                    A=PeriodicElement<Cu.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-//                    break;
-//                case W.Z:
-//                    A=PeriodicElement<W.Z,Isotropic>::CrystalStructure::template getLatticeBasis<dim>();
-//                    break;
-//                    //                case Fe:
-//                    //                    CrystalOrientation<dim>::template rotate<PeriodicElement<Fe,Isotropic>::CrystalStructure>(C2G);
-//                    //                    break;
-//                default:
-//                    assert(0 && "Material not implemented.");
-//                    break;
-//            }
-//            
-//            Lattice<dim>::setLatticeBasis(C2G*A);
-//        }
-        
-//        PlaneNormalContainerType planeNormalContainer;
-//        SlipSystemContainerType slipSystemContainer;
+
         
         Eigen::Matrix<double,dim,dim> C2G;
-        
-//        int materialZ;
         
     public:
         
         
-//        static constexpr PeriodicElement<13,Isotropic> Al=PeriodicElement<13,Isotropic>();
-//        static constexpr PeriodicElement<28,Isotropic> Ni=PeriodicElement<28,Isotropic>();
-//        static constexpr PeriodicElement<29,Isotropic> Cu=PeriodicElement<29,Isotropic>();
-//        static constexpr PeriodicElement<74,Isotropic>  W=PeriodicElement<74,Isotropic>();
 
         
         static constexpr double roundTol=FLT_EPSILON;
@@ -119,15 +75,12 @@ namespace model
         /* init */,grainID(region.regionID)
         {
             model::cout<<greenBoldColor<<"Creating Grain "<<grainID<<defaultColor<<std::endl;
-  //          selectMaterial(materialZ);
-//            this->rotate(C2G);
+            this->rotate(C2G);
+            model::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
+
+            model::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;
+            model::cout<<"  # slip systems="<<this->slipSystems().size()<<std::endl;            
         }
-        
-//        /**********************************************************************/
-//        const LatticeType& lattice() const
-//        {
-//            return *this;
-//        }
         
         /**********************************************************************/
         const GrainBoundaryContainerType& grainBoundaries() const
@@ -141,14 +94,68 @@ namespace model
             return *this;
         }
         
+        /**********************************************************************/
+        std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
+                                                                 const ReciprocalLatticeDirectionType& N) const
+        {
+            std::deque<const LatticePlaneBase*> temp;
+            if(B.dot(N)==0) // not sessile
+            {
+                for (const auto& planeNormal : this->planeNormals())
+                {
+                    if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
+                    {
+                        temp.push_back(&planeNormal);
+                    }
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        const MatrixDimD& get_C2G() const
+        {
+            return C2G;
+        }
+        
+    };
+    
+}
+#endif
+
+
+//        /**********************************************************************/
+//        const int& material() const
+//        {
+//            return materialZ;
+//        }
+
+//        /**********************************************************************/
+//        const PlaneNormalContainerType& planeNormals() const
+//        {
+//            return planeNormalContainer;
+//        }
+//
+//        /**********************************************************************/
+//        const SlipSystemContainerType& slipSystems() const
+//        {
+//            return slipSystemContainer;
+//        }
+
+//        /**********************************************************************/
+//        const LatticeType& lattice() const
+//        {
+//            return *this;
+//        }
+
 //        /**********************************************************************/
 //        void selectMaterial(const int& Z)
 //        {
 //            model::cout<<"  grain "<<grainID<<", selecting material"<<defaultColor<<std::endl;
-//            
+//
 //            materialZ=Z;
 //            setLatticeBasis();
-//            
+//
 //            switch (materialZ)
 //            {
 //                case Al.Z:
@@ -174,15 +181,15 @@ namespace model
 //                    assert(0 && "Material not implemented.");
 //                    break;
 //            }
-//            
+//
 //        }
-        
+
 //        /**********************************************************************/
 //        void rotate(const Eigen::Matrix<double,dim,dim>& C2G_in)
 //        {/*! Z is atomic number
 //          */
 //            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
-//            
+//
 //            assert((C2G_in*C2G_in.transpose()-Eigen::Matrix<double,dim,dim>::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "CRYSTAL TO GLOBAL ROTATION MATRIX IS NOT ORTHOGONAL.");
 //            // make sure that C2G is proper
 //            assert(std::fabs(C2G_in.determinant()-1.0) < FLT_EPSILON && "C2G IS NOT PROPER.");
@@ -190,54 +197,6 @@ namespace model
 //            C2G=C2G_in;
 //            setLatticeBasis();
 //        }
-        
-
-        /**********************************************************************/
-        std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
-                                                                 const ReciprocalLatticeDirectionType& N) const
-        {
-            std::deque<const LatticePlaneBase*> temp;
-            if(B.dot(N)==0) // not sessile
-            {
-                for (const auto& planeNormal : this->planeNormals())
-                {
-                    if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
-                    {
-                        temp.push_back(&planeNormal);
-                    }
-                }
-            }
-            return temp;
-        }
-        
-//        /**********************************************************************/
-//        const int& material() const
-//        {
-//            return materialZ;
-//        }
-        
-        /**********************************************************************/
-        const MatrixDimD& get_C2G() const
-        {
-            return C2G;
-        }
-        
-//        /**********************************************************************/
-//        const PlaneNormalContainerType& planeNormals() const
-//        {
-//            return planeNormalContainer;
-//        }
-//        
-//        /**********************************************************************/
-//        const SlipSystemContainerType& slipSystems() const
-//        {
-//            return slipSystemContainer;
-//        }
-        
-    };
-    
-}
-#endif
 
 //        /**********************************************************************/
 //        std::pair<LatticePlane,LatticePlane> find_confiningPlanes(const LatticeVectorType& sourceL,

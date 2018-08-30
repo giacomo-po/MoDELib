@@ -550,9 +550,7 @@ namespace model
                         link.second->addToStressStraight(straightSegmentsDeq);
                     }
                     
-                    
-                    
-                    const size_t currentSize=straightSegmentsDeq.size();
+                    currentSize=straightSegmentsDeq.size();
                     
                     const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
                     
@@ -575,9 +573,6 @@ namespace model
                                         straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
                                     }
                                 }
-                                
-                                
-                                
                             }
                         }
                     }

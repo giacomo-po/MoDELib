@@ -1,6 +1,6 @@
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=0e14;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -17,7 +17,7 @@ targetPrismaticLoopDensity=0e12;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=0 -1;
+straightDislocationsSlipSystemIDs=-1 -1;
 straightDislocationsAngleFromScrewOrientation=90.0 90.0;
 pointsAlongStraightDislocations=0.0 0.0 0.0
 						   		0.0 0.0 0.0;
