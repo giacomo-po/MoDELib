@@ -54,6 +54,8 @@ namespace model
         DislocationNetworkType& DN;
         
         
+
+        
         /**********************************************************************/
         CrossSlipContainerType findCrossSlipSegments(const int& crossSlipModel) const
         {
@@ -104,6 +106,19 @@ namespace model
         
         static int verboseCrossSlip;
         static double crossSlipDeg;
+        
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+            crossSlipDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true);
+            //                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
+            assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+            //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+            //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+            //                EDR.readScalarInFile(fullName.str(),"verboseCrossSlip",DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip);
+            verboseCrossSlip=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseCrossSlip",true);
+            
+        }
         
         /**********************************************************************/
         DislocationCrossSlip(DislocationNetworkType& DN_in) :

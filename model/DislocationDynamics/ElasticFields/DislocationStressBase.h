@@ -53,6 +53,15 @@ namespace model
         static const Eigen::Matrix<double,_dim,_dim> I;
         
         
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+            
+            a=TextFileParser(fileName).readScalar<double>("coreSize",true);
+            assert(a>0.0 && "coreSize MUST BE > 0.");
+            a2=a*a;
+        }
+        
         /* axialVector ******************************************/
         static VectorDim axialVector(const MatrixDim& M)
         {

@@ -141,7 +141,29 @@ namespace model
             {
                 //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
                 //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
-                double v =  Material<dim,Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+                double v =this->network().poly.mobility->velocity(stressGauss[k],
+                                                                 Burgers,
+                                                                 rlgauss.col(k),
+                                                                 glidePlaneNormal(),
+                                                                 this->network().poly.T,
+                                                                 jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
+                                                                 this->network().get_dt(),
+                                                                 this->network().use_stochasticForce);
+//                if(grainBoundaries().size()==0)
+//                {
+//                    assert(grains().size()==1);
+//                    (*grains().begin())->mobility->velocity(stressGauss[k],
+//                                                            Burgers,
+//                                                            rlgauss.col(k),
+//                                                            glidePlaneNormal(),
+//                                                            jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
+//                                                            this->network().get_dt(),
+//                                                            this->network().use_stochasticForce);
+//                }
+//                Material<dim,Isotropic>::
+//                velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+                
+                
                 assert((this->network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -197,6 +219,21 @@ namespace model
         
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+        
+            LinkType::alpha=TextFileParser(fileName).readScalar<double>("parametrizationExponent",true);
+            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
+            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
+            
+            quadPerLength=TextFileParser(fileName).readScalar<double>("quadPerLength",true);
+            assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
+            
+            virtualSegmentDistance=TextFileParser(fileName).readScalar<double>("virtualSegmentDistance",true);
+            
+        }
         
         /******************************************************************/
         DislocationSegment(const std::shared_ptr<NodeType>& nI,

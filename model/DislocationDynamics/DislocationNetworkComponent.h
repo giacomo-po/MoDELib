@@ -15,6 +15,7 @@
 #include <float.h>
 #include <Eigen/Dense>
 #include <model/LoopNetwork/NetworkComponent.h>
+#include <model/IO/TextFileParser.h>
 
 //#include <model/Math/SchurComplementSolver.h>
 #include <Eigen/Sparse>
@@ -223,6 +224,13 @@ namespace model
         
         //        static bool use_directSolver;
         
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+//            EDR.readScalarInFile(fullName.str(),"outputDislocationStiffnessAndForce",DislocationNetworkComponentType::outputKF);
+            outputKF=TextFileParser(fileName).readScalar<int>("outputDislocationStiffnessAndForce",true);            
+        }
+        
         /************************************************************/
         DislocationNetworkComponent(NetworkComponentType& NCin) :
         /* init list */ NC(NCin)
@@ -269,7 +277,7 @@ namespace model
                 std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<NC.nodeOrder()<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
                 std::ofstream KQQfile("KQQfailed.txt");
 //                KQQfile<<KQQ.toDense()<<std::endl;
-                assert(0 && "RE-ENABLE OUTPUT);
+                assert(0 && "RE-ENABLE OUTPUT");
                 assert(0 && "LDLT DECOMPOSITION FAILED.");
             }
             
@@ -304,7 +312,7 @@ namespace model
             
             if(outputKF)
             {
-                assert(0 && "RE-ENABLE OUTPUT);
+                assert(0 && "RE-ENABLE OUTPUT");
                 std::ofstream fileK("K_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");
 //                fileK<<Kd;
                 std::ofstream fileF("F_"+std::to_string(runID)+"_"+std::to_string(NC.sID)+".txt");

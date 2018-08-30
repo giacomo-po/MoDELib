@@ -65,22 +65,39 @@ namespace model
     std::vector<std::default_random_engine> StochasticForceGenerator::generators;
     std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
 
+    
+    struct DislocationMobilityBase
+    {
+        typedef Eigen::Matrix<double,3,3> MatrixDim;
+        typedef Eigen::Matrix<double,3,1> VectorDim;
+
+    
+        virtual double velocity(const MatrixDim& S,
+                                const VectorDim& b,
+                                const VectorDim& , // xi
+                                const VectorDim& n,
+                                const double& T,
+                                const double& dL,
+                                const double& dt,
+                                const bool& use_stochasticForce) const=0 ;
+    };
+    
     /**************************************************************************/
     /**************************************************************************/
     template <typename CrystalStructure>
-    struct DislocationMobility
+    struct DislocationMobility : DislocationMobilityBase
     {
         //        static_assert(false, "CrystalStructure must be FCC or BCC");
     };
     
     template <>
-    struct DislocationMobility<FCClattice<3>>
+    struct DislocationMobility<FCClattice<3>> : DislocationMobilityBase
     {
         
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
-        static constexpr double kB_real=1.38064852e-23; // [J/K]
+        static constexpr double kB_SI=1.38064852e-23; // [J/K]
 
         const double B0;
         const double B1;
@@ -97,10 +114,14 @@ namespace model
         
         /* init */ B0(0.0),
         /* init */ B1(0.5*(B1e_real+B1s_real)*cs_real/(mu_real*b_real)),
-        /* init */ kB(kB_real/mu_real/std::pow(b_real,3))
+        /* init */ kB(kB_SI/mu_real/std::pow(b_real,3))
 
         {/*! Empty constructor is required by constexpr
           */
+            
+            model::cout<<greenBoldColor<<"Creating DislocationMobility FCC"<<defaultColor<<std::endl;
+
+            
         }
         
         /**********************************************************************/
@@ -111,9 +132,10 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) const
+                        const bool& use_stochasticForce) const override
         {
             
+            std::cout<<"this is FCC mobility"<<std::endl;
             
             double v=std::fabs(b.transpose()*S*n)/(B0+B1*T);
             if(use_stochasticForce)
@@ -128,7 +150,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <>
-    struct DislocationMobility<BCClattice<3>>
+    struct DislocationMobility<BCClattice<3>> : DislocationMobilityBase
     {
         
         typedef Eigen::Matrix<double,3,3> MatrixDim;
@@ -136,7 +158,7 @@ namespace model
         
         //! Boltzmann constant in [eV]
         static constexpr double kB_eV=8.617e-5;
-        static constexpr double kB_real=1.38064852e-23; // [J/K]
+        static constexpr double kB_SI=1.38064852e-23; // [J/K]
 
         
         const double h;
@@ -197,7 +219,7 @@ namespace model
         /* init */ a2(a2_in),
         /* init */ a3(a3_in),
         /* init */ a4(a4_in),
-        /* init */ kB(kB_real/mu_real/std::pow(b_real,3))
+        /* init */ kB(kB_SI/mu_real/std::pow(b_real,3))
         {/*! Empty constructor is required by constexpr
           */
         }
@@ -218,6 +240,7 @@ namespace model
                         const bool& use_stochasticForce) const
         {
             
+                        std::cout<<"this is BCC mobility"<<std::endl;
             
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;

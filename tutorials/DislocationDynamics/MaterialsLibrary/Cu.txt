@@ -1,3 +1,9 @@
 crystalStructure=FCC;
-
-a=3.14;
+b_SI=0.2556e-9;
+mu0_SI=48e9;
+mu1_SI=48e9;
+nu=0.34;
+rho_SI=8940.0;
+B1e=3.3333e-07;
+B1s=3.3333e-07;
+T=300;

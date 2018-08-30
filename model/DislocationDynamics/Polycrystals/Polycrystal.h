@@ -36,6 +36,7 @@
 //#include <model/DislocationDynamics/Materials/MaterialsLibrary.h>
 #include <model/IO/TextFileParser.h>
 #include <model/DislocationDynamics/Materials/Material.h>
+#include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
 
 
 namespace model
@@ -59,16 +60,51 @@ namespace model
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
         
+        /**********************************************************************/
+        static std::unique_ptr<DislocationMobilityBase> getMobility(const Material<dim,Isotropic>& material)
+        {
+            //            if(material.crystalStructure=="BCC")
+            //            {
+            //                return BCClattice<dim>::slipSystems(lat);
+            //            }
+            if(material.crystalStructure=="FCC")
+            {
+                TextFileParser parser(material.materialFile);
+                const double B1e=parser.readScalar<double>("B1e",true);
+                const double B1s=parser.readScalar<double>("B1s",true);
+                return std::unique_ptr<DislocationMobilityBase>(new DislocationMobility<FCClattice<dim>>(material.b_SI,
+                                                                                                         material.mu_SI,
+                                                                                                         material.cs_SI,
+                                                                                                         B1e,
+                                                                                                         B1s));
+            }
+            else
+            {
+                std::cout<<"Unknown mobility for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+        }
+
+        
     public:
         
         const SimplicialMeshType& mesh;
+        const std::unique_ptr<DislocationMobilityBase> mobility;
+//        DislocationMobilityBase*  mobility;
         
         /**********************************************************************/
         Polycrystal(const std::string& polyFile,
                     const SimplicialMeshType& mesh_in,
                     GlidePlaneObserver<dim>& dn) :
-        /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",true))
+        /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
         /* init */,mesh(mesh_in)
+        /* init */,mobility(getMobility(*this))
+//        /* init */,mobility(new DislocationMobility<FCClattice<dim>>(this->b_SI,
+//                                                                 this->mu_SI,
+//                                                                 this->cs_SI,
+//                                                                 0.0,
+//                                                                 0.0))
+
         {
             model::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
             TextFileParser polyParser(polyFile);

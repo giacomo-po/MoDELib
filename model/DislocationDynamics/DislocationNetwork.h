@@ -75,7 +75,7 @@ namespace model
 {
     
     template <int dim>
-    struct DislocationNetworkBase
+    struct DislocationNetworkBase : public GlidePlaneObserver<dim>
     {// Class storing objects that need to be destroyed last
         
         SimplicialMesh<dim> mesh;
@@ -83,17 +83,18 @@ namespace model
         BVPsolver<dim,2> bvpSolver;
         
         DislocationNetworkBase() :
-        /* init */ poly(mesh),
+        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
+        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
         /* init */ bvpSolver(mesh)
         {
-            
+                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
         }
         
     };
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationNetwork : public DislocationNetworkBase<_dim>, // must be first in inheritance tree
-    /* base                 */ public GlidePlaneObserver<_dim>,
+//    /* base                 */ public GlidePlaneObserver<_dim>,
     /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
     /* base                 */ public std::map<size_t,EshelbyInclusion<_dim>>
@@ -295,8 +296,6 @@ namespace model
     public:
         
         int timeIntegrationMethod;
-        //        bool use_analyticalStraightStress;
-        //        bool use_junctions;
         int maxJunctionIterations;
         long int runID;
         double totalTime;
@@ -311,16 +310,10 @@ namespace model
         bool use_boundary;
         unsigned int use_bvp;
         bool use_virtualSegments;
-        //        SimplicialMesh<dim> mesh;
-        //        PolycrystalType poly;
-        //        BvpSolverType bvpSolver;
-        // MatrixDimD externalStress;
         bool use_externalStress;
-        //        bool use_userStress;
         bool use_extraStraightSegments;
         ExternalLoadControllerType extStressController;
         std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
-        
         int  outputFrequency;
         bool outputBinary;
         bool outputGlidePlanes;
@@ -342,7 +335,6 @@ namespace model
         int dislocationImages_y;
         int dislocationImages_z;
         double surfaceAttractionDistance;
-        //        const VectorDim meshDimensions;
         std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
         std::string folderSuffix;
         
@@ -350,7 +342,7 @@ namespace model
         DislocationNetwork(int& argc, char* argv[]) :
         /* init */ timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
-        /* init */ runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
+        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
         /* init */ totalTime(0.0),
         /* init */ dt(0.0),
         /* init */ vMax(0.0),
@@ -365,29 +357,68 @@ namespace model
         /* init */ use_virtualSegments(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_virtualSegments",true)),
         /* init */ use_externalStress(false),
         /* init */ use_extraStraightSegments(false),
-//        /* init */ extStressController(),
-//        /* init */ ssdeq(),
-        /* init */ outputFrequency(1),
-        /* init */ outputBinary(0),
-        /* init */ outputGlidePlanes(false),
-        /* init */ outputSpatialCells(false),
-        /* init */ outputPKforce(false),
-        /* init */ outputElasticEnergy(false),
-        /* init */ outputMeshDisplacement(false),
-        /* init */ outputFEMsolution(false),
-        /* init */ outputDislocationLength(false),
-        /* init */ outputPlasticDistortion(false),
-        /* init */ outputPlasticDistortionRate(false),
-        /* init */ outputQuadratureParticles(false),
-        /* init */ outputLinkingNumbers(false),
-        /* init */ outputLoopLength(false),
-        /* init */ outputSegmentPairDistances(false),
+        /* init */ outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true)),
+        /* init */ outputBinary(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputBinary",true)),
+        /* init */ outputGlidePlanes(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true)),
+        /* init */ outputSpatialCells(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSpatialCells",true)),
+        /* init */ outputPKforce(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPKforce",true)),
+        /* init */ outputElasticEnergy(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true)),
+        /* init */ outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true)),
+        /* init */ outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true)),
+        /* init */ outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true)),
+        /* init */ outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true)),
+        /* init */ outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true)),
+        /* init */ outputQuadratureParticles(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadratureParticles",true)),
+        /* init */ outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true)),
+        /* init */ outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true)),
+        /* init */ outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true)),
         /* init */ _userOutputColumn(3),
-        /* init */ use_stochasticForce(false),
-        /* init */ surfaceAttractionDistance(0.0),
-//        /* init */ meshDimensions(use_boundary? (this->mesh.xMax()-this->mesh.xMin()).eval() : VectorDim::Zero()),
+        /* init */ use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true)),
+        /* init */ dislocationImages_x(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_x",true) : 0),
+        /* init */ dislocationImages_y(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_y",true) : 0),
+        /* init */ dislocationImages_z(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_z",true) : 0),
+        /* init */ surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true)),
         /* init */ folderSuffix("")
         {
+            
+            // Some sanity checks
+            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
+
+            // Initialize static variables
+            LinkType::initFromFile("inputFiles/DD.txt");
+            NodeType::initFromFile("inputFiles/DD.txt");
+            DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
+            DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
+            DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
+            DislocationCrossSlip<DislocationNetworkType>::initFromFile("inputFiles/DD.txt");
+            SpatialCellObserverType::setCellSize(TextFileParser("inputFiles/DD.txt").readScalar<double>("dislocationCellSize",true));
+            DislocationDisplacement<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_DisplacementMultipole",true);
+            DislocationStress<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_StressMultipole",true);
+            DislocationEnergy<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_EnergyMultipole",true);
+            
+            
+//            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
+            //            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
+//            LinkType::quadPerLength=TextFileParser("inputFiles/DD.txt").readScalar<double>("quadPerLength",true);
+//            assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
+
+//                        EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
+//            StressField::a=TextFileParser("inputFiles/DD.txt").readScalar<double>("coreSize",true)
+//            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
+//            StressField::a2=StressField::a*StressField::a;
+
+            //            EDR.readScalarInFile(fullName.str(),"stochasticForceSeed",stochasticForceSeed);
+            int stochasticForceSeed=TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true);
+            if(stochasticForceSeed<0)
+            {
+                StochasticForceGenerator::init(std::chrono::system_clock::now().time_since_epoch().count());
+            }
+            else
+            {
+                StochasticForceGenerator::init(stochasticForceSeed);
+            }
             
             if(argc>1)
             {
@@ -397,9 +428,23 @@ namespace model
             
             ParticleSystemType::initMPI(argc,argv);
             
-            // Sanity checks
-            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
 
+            
+            
+            
+            if(outputPlasticDistortion)
+            {
+                _userOutputColumn+=9;
+            }
+            if(outputPlasticDistortionRate)
+            {
+                _userOutputColumn+=9;
+            }
+            
+            if(outputDislocationLength)
+            {
+                _userOutputColumn+=3;
+            }
             
             // IO
             io().read("./","DDinput.txt");
@@ -507,7 +552,7 @@ namespace model
                     
                     
                     
-                    currentSize=straightSegmentsDeq.size();
+                    const size_t currentSize=straightSegmentsDeq.size();
                     
                     const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
                     
@@ -582,6 +627,7 @@ namespace model
             }
             else
             {// For curved segments use quandrature integration of stress field
+//                assert(0 && "RE-ENABLE THIS. New Material class is incompatible with old implmentation using static objects");
                 
                 const auto t0= std::chrono::system_clock::now();
                 

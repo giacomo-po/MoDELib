@@ -111,9 +111,9 @@ namespace model
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
-              const std::string& materialFile,
+              const Material<dim,Isotropic>& material,
               const Eigen::Matrix<double,dim,dim>& C2G_in) :
-        /* init */ SingleCrystalType(materialFile)
+        /* init */ SingleCrystalType(material)
         /* init */,C2G(C2G_in)
         /* init */,region(region_in)
         /* init */,grainID(region.regionID)

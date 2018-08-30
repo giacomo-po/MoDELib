@@ -86,7 +86,7 @@ namespace model
         /* init list */ lambda(1.0),
         /* init list */ nu_use(0.12),
         /* init list */ sample_volume(1.0),
-        /* init list */ relaxSteps(0)
+        /* init list */ relaxSteps(TextFileParser(inputFileName).readScalar<int>("relaxSteps",true))
         {
             
         }
@@ -101,7 +101,7 @@ namespace model
 
 
             
-            double nu=Material<Isotropic>::nu;
+            double nu=DN.poly.nu;
             std::cout<<" nu="<<nu<<std::endl;
             nu_use=nu/(1.0+nu)/2.0;
             lambda=2.0*nu/(1.0-2.0*nu);
@@ -110,7 +110,7 @@ namespace model
             TextFileParser parser(inputFileName);
             //TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
             
-            DN.use_externalStress=parser.readScalar<int>("UniformExternalLoadController",true);
+            DN.use_externalStress=parser.readScalar<int>("use_externalStress",true);
 //            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
 //            EDR.readMatrixInFile(inputFileName,"ExternalStress0",ExternalStress0);
             assert((ExternalStress0-ExternalStress0.transpose()).norm()<DBL_EPSILON && "ExternalStress0 is not symmetric.");
@@ -121,7 +121,7 @@ namespace model
  //           EDR.readMatrixInFile(inputFileName,"ExternalStrainRate",ExternalStrainRate);
             assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
 //            EDR.readMatrixInFile(inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
-            EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
+//            EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
             
             if (DN.use_externalStress)
             {

@@ -114,10 +114,10 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,6,6> get_C() const
+        Eigen::Matrix<double,6,6> get_C(const double& mu, const double& nu) const
         {
-            const double  mu=1.0;  // dimensionless
-            const double  nu=Material<Isotropic>::nu;
+//            const double  mu=1.0;  // dimensionless
+//            const double  nu=Material<dim,Isotropic>::nu;
             const double lam=2.0*mu*nu/(1.0-2.0*nu);
             const double C11(lam+2.0*mu);
             const double C12(lam);
@@ -292,7 +292,7 @@ namespace model
         BVPsolver(const SimplicialMesh<dim>& mesh_in) :
         /* init  */ mesh(mesh_in),
         /* init  */ gSize(0),
-        /* init  */ C(get_C()),
+        /* init  */ C(get_C(1.0,0.33)),
         /* init  */ tolerance(0.0001)
         {
             
@@ -344,7 +344,7 @@ namespace model
             u  = new TrialFunctionType(fe->template trial<'u',dim>());
             b  = new TrialGradType(grad(*u));
             e  = new TrialDefType(def(*u));
-            C=get_C(); // Material<Isotropic>  may have changed since construction
+            C=get_C(DN.poly.mu,DN.poly.nu); // Material<Isotropic>  may have changed since construction
             s  = new TrialStressType(C**e);
             dV = fe->template domain<EntireDomain,4,GaussLegendre>();
             bWF = new BilinearWeakFormType((test(*e),*s),dV);

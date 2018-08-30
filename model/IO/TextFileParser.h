@@ -138,12 +138,15 @@ namespace model
                 const std::size_t foundKey=line.find(key);
                 const std::size_t foundEqual=line.find("=");
                 const std::size_t foundSemiCol=line.find(";");
+                const std::size_t foundPound=line.find("#");
+
                 
                 if(   foundKey!=std::string::npos
                    && foundEqual!=std::string::npos
                    && foundSemiCol!=std::string::npos
                    && foundKey<foundEqual
                    && foundEqual<foundSemiCol
+                   && foundSemiCol<foundPound
                    )
                 {
                     read=line.substr(foundEqual+1,foundSemiCol-foundEqual-1);
@@ -219,16 +222,19 @@ namespace model
                 
                 const std::size_t foundKey=line.find(key);
                 const std::size_t foundEqual=line.find("=");
+                const std::size_t foundPound=line.find("#");
                 
                 if(   foundKey!=std::string::npos
                    && foundEqual!=std::string::npos
                    && foundKey<foundEqual
+                   && foundPound==std::string::npos
                    )
                 {
                     lines+=line;
                     std::size_t foundSemiCol=line.find(";");
                     
-                    if(foundSemiCol!=std::string::npos && foundEqual<foundSemiCol)
+                    if(   foundSemiCol!=std::string::npos
+                       && foundEqual<foundSemiCol)
                     {
                         success=true;
                     }
@@ -245,7 +251,7 @@ namespace model
                             }
                         }
                     }
-                    
+                                        
                     if(success)
                     {
                         Scalar temp(0.0);
@@ -288,6 +294,7 @@ namespace model
             const std::vector<Scalar> array=readArray<Scalar>(key,false);
             if(array.size()!=rows*cols)
             {
+                std::cout<<"Error in reading matrix "<<key<<std::endl;
                 std::cout<<"array.size="<<array.size()<<", is not equal to rows x cols ("<<rows<<"x"<<cols<<"). EXITING"<<std::endl;
                 exit(EXIT_FAILURE);
             }

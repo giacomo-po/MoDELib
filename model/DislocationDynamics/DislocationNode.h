@@ -490,6 +490,17 @@ namespace model
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+            use_velocityFilter=TextFileParser(fileName).readScalar<double>("use_velocityFilter",true);
+            velocityReductionFactor=TextFileParser(fileName).readScalar<double>("velocityReductionFactor",true);
+            assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
+//            EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
+            verboseDislocationNode=TextFileParser(fileName).readScalar<int>("verboseDislocationNode",true);
+        }
+
+        
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
                         const VectorDim& Pin,

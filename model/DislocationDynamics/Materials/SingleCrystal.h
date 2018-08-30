@@ -27,6 +27,8 @@
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/DislocationDynamics/Materials/SlipSystem.h>
 #include <model/IO/TextFileParser.h>
+#include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
+#include <model/DislocationDynamics/Materials/Material.h>
 
 
 
@@ -38,39 +40,39 @@ namespace model
 {
     
     
-    class SingleCrystalBase : private std::tuple<std::string
-    /*                                        */,std::string>
-    {
-        
-        typedef std::tuple<std::string
-        /*              */,std::string> BaseType;
-        
-        static BaseType init(const std::string& fileName)
-        {
-            TextFileParser parser(fileName);
-            return std::make_tuple(fileName
-                                   ,parser.readString("crystalStructure")
-                                   );
-            
-        }
-        
-    public:
-        const std::string& materialFile;
-        const std::string& crystalStructure;
-        
-        SingleCrystalBase(const std::string& fileName) :
-        /* init */ BaseType(init(fileName))
-        /* init */,materialFile(std::get<0>(*this))
-        /* init */,crystalStructure(std::get<1>(*this))
-        {
-            
-        }
-        
-    };
+//    class SingleCrystalBase : private std::tuple<std::string
+//    /*                                        */,std::string>
+//    {
+//        
+//        typedef std::tuple<std::string
+//        /*              */,std::string> BaseType;
+//        
+//        static BaseType init(const std::string& fileName)
+//        {
+//            TextFileParser parser(fileName);
+//            return std::make_tuple(fileName
+//                                   ,parser.readString("crystalStructure")
+//                                   );
+//            
+//        }
+//        
+//    public:
+//        const std::string& materialFile;
+//        const std::string& crystalStructure;
+//        
+//        SingleCrystalBase(const std::string& fileName) :
+//        /* init */ BaseType(init(fileName))
+//        /* init */,materialFile(std::get<0>(*this))
+//        /* init */,crystalStructure(std::get<1>(*this))
+//        {
+//            
+//        }
+//        
+//    };
     
     template<int dim>
-    class SingleCrystal : public SingleCrystalBase
-    /*                 */,public Lattice<dim>
+    class SingleCrystal : //public SingleCrystalBase
+    /*                 */ public Lattice<dim>
     /*                 */,private std::vector<LatticePlaneBase>
     /*                 */,private std::vector<SlipSystem>
     {
@@ -135,19 +137,49 @@ namespace model
             }
         }
         
+//        /**********************************************************************/
+//        static std::unique_ptr<DislocationMobilityBase> getMobility(const Material<dim,Isotropic>& material)
+//        {
+////            if(material.crystalStructure=="BCC")
+////            {
+////                return BCClattice<dim>::slipSystems(lat);
+////            }
+//            if(material.crystalStructure=="FCC")
+//            {
+//                TextFileParser parser(material.materialFile);
+//                const double B1e=parser.readScalar<double>("B1e",true);
+//                const double B1s=parser.readScalar<double>("B1s",true);
+//                return std::unique_ptr<DislocationMobilityBase>(new DislocationMobility<FCClattice<dim>>(material.b_SI,
+//                                                                                                         material.mu_SI,
+//                                                                                                         material.cs_SI,
+//                                                                                                         B1e,
+//                                                                                                         B1s));
+//            }
+//            else
+//            {
+//                std::cout<<"Unknown mobility for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
+//                exit(EXIT_FAILURE);
+//            }
+//        }
+        
+        
     public:
         
+//        const std::unique_ptr<const DislocationMobilityBase> mobility;
+
+        
         /**********************************************************************/
-        SingleCrystal(const std::string& materialName) :
-        /* init */ SingleCrystalBase(materialName)
-        /* init */,LatticeType(getLattice(this->crystalStructure))
-        /* init */,PlaneNormalContainerType(getPlaneNormals(this->crystalStructure,*this))
-        /* init */,SlipSystemContainerType(getSlipSystems(this->crystalStructure,*this))
+        SingleCrystal(const Material<dim,Isotropic>& material) :
+//        /* init */ SingleCrystalBase(materialName)
+        /* init */ LatticeType(getLattice(material.crystalStructure))
+        /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
+        /* init */,SlipSystemContainerType(getSlipSystems(material.crystalStructure,*this))
+//        /* init */,mobility(getMobility(material))
         {
             
-            model::cout<<greenColor<<"Creating SingleCrystal:"<<defaultColor<<std::endl;
-            model::cout<<"  material="<<this->materialFile<<std::endl;
-            model::cout<<"  crystal structure="<<this->crystalStructure<<std::endl;
+//            model::cout<<greenColor<<"Creating SingleCrystal:"<<defaultColor<<std::endl;
+//            model::cout<<"  material="<<this->materialFile<<std::endl;
+//            model::cout<<"  crystal structure="<<this->crystalStructure<<std::endl;
             model::cout<<"  # plane normals="<<planeNormals().size()<<std::endl;
             model::cout<<"  # slip systems="<<slipSystems().size()<<std::endl;
             
@@ -172,6 +204,11 @@ namespace model
         {
             return *this;
         }
+        
+//        const DislocationMobilityBase& mobility() const
+//        {
+//            return *_mobility;
+//        }
         
         
     };

@@ -86,90 +86,87 @@ namespace model
             
             
             // Create a file-reader object
-            EigenDataReader EDR;
+//            EigenDataReader EDR;
             
             // IO
-            EDR.readScalarInFile(fullName.str(),"outputFrequency",DN.outputFrequency);
-            EDR.readScalarInFile(fullName.str(),"outputBinary",DN.outputBinary);
-            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DN.outputGlidePlanes);
-            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DN.outputSpatialCells);
-            EDR.readScalarInFile(fullName.str(),"outputPKforce",DN.outputPKforce);
-            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DN.outputMeshDisplacement);
-            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DN.outputElasticEnergy);
-            EDR.readScalarInFile(fullName.str(),"outputLinkingNumbers",DN.outputLinkingNumbers);
-            EDR.readScalarInFile(fullName.str(),"outputLoopLength",DN.outputLoopLength);
+//            EDR.readScalarInFile(fullName.str(),"outputFrequency",DN.outputFrequency);
+//            EDR.readScalarInFile(fullName.str(),"outputBinary",DN.outputBinary);
+//            EDR.readScalarInFile(fullName.str(),"outputGlidePlanes",DN.outputGlidePlanes);
+//            EDR.readScalarInFile(fullName.str(),"outputSpatialCells",DN.outputSpatialCells);
+//            EDR.readScalarInFile(fullName.str(),"outputPKforce",DN.outputPKforce);
+//            EDR.readScalarInFile(fullName.str(),"outputMeshDisplacement",DN.outputMeshDisplacement);
+//            EDR.readScalarInFile(fullName.str(),"outputElasticEnergy",DN.outputElasticEnergy);
+//            EDR.readScalarInFile(fullName.str(),"outputLinkingNumbers",DN.outputLinkingNumbers);
+//            EDR.readScalarInFile(fullName.str(),"outputLoopLength",DN.outputLoopLength);
             
             
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DN.outputPlasticDistortion);
-            if(DN.outputPlasticDistortion)
-            {
-                DN._userOutputColumn+=9;
-            }
-            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DN.outputPlasticDistortionRate);
-            if(DN.outputPlasticDistortionRate)
-            {
-                DN._userOutputColumn+=9;
-            }
+//            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortion",DN.outputPlasticDistortion);
+//            if(DN.outputPlasticDistortion)
+//            {
+//                DN._userOutputColumn+=9;
+//            }
+//            EDR.readScalarInFile(fullName.str(),"outputPlasticDistortionRate",DN.outputPlasticDistortionRate);
+//            if(DN.outputPlasticDistortionRate)
+//            {
+//                DN._userOutputColumn+=9;
+//            }
+//            
+//            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DN.outputDislocationLength);
+//            if(DN.outputDislocationLength)
+//            {
+//                DN._userOutputColumn+=3;
+//            }
             
-            EDR.readScalarInFile(fullName.str(),"outputDislocationLength",DN.outputDislocationLength);
-            if(DN.outputDislocationLength)
-            {
-                DN._userOutputColumn+=3;
-            }
-            
-            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DN.outputQuadratureParticles);
+//            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DN.outputQuadratureParticles);
             
             // Parametrization exponent
-            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
-            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
-            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
+//            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
+//            assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
+//            assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
             
-            // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
-            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
+//            // Temperature. Make sure you initialize before calling Material<Isotropic>::select()
+//            EDR.readScalarInFile(fullName.str(),"temperature",Material<Isotropic>::T); // temperature
             
-            // Material and crystal orientation
-            unsigned int materialZ;
-            EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
-            Material<Isotropic>::select(materialZ);
+//            // Material and crystal orientation
+//            unsigned int materialZ;
+//            EDR.readScalarInFile("./polyCrystalInput.txt","material",materialZ); // material by atomic number Z
+//            Material<Isotropic>::select(materialZ);
             
             // quadPerLength
-            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
+//            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
             
             // core size
-            EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
-            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
-            StressField::a2=StressField::a*StressField::a;
+//            EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
+//            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
+//            StressField::a2=StressField::a*StressField::a;
             
             
             // multipole expansion
-            double cellSize(0.0);
-            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
-            SpatialCellObserverType::setCellSize(cellSize);
-            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
-            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
-            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
+//            double cellSize(0.0);
+//            EDR.readScalarInFile(fullName.str(),"dislocationCellSize",cellSize);
+//            SpatialCellObserverType::setCellSize(cellSize);
+//            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
+//            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
             
             
             //dt=0.0;
-            EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
-            assert(DDtimeIntegrator<0>::dxMax>0.0);
+//            EDR.readScalarInFile(fullName.str(),"dxMax",DDtimeIntegrator<0>::dxMax);
+//            assert(DDtimeIntegrator<0>::dxMax>0.0);
             //            EDR.readScalarInFile(fullName.str(),"shearWaveSpeedFraction",shearWaveSpeedFraction);
             //            assert(shearWaveSpeedFraction>=0.0);
-            EDR.readScalarInFile(fullName.str(),"use_velocityFilter",NodeType::use_velocityFilter);
-            EDR.readScalarInFile(fullName.str(),"velocityReductionFactor",NodeType::velocityReductionFactor);
-            assert(NodeType::velocityReductionFactor>0.0 && NodeType::velocityReductionFactor<=1.0);
             
-            EDR.readScalarInFile(fullName.str(),"use_stochasticForce",DN.use_stochasticForce);
-            int stochasticForceSeed=-1;
-            EDR.readScalarInFile(fullName.str(),"stochasticForceSeed",stochasticForceSeed);
-            if(stochasticForceSeed<0)
-            {
-                StochasticForceGenerator::init(std::chrono::system_clock::now().time_since_epoch().count());
-            }
-            else
-            {
-                StochasticForceGenerator::init(stochasticForceSeed);
-            }
+//            EDR.readScalarInFile(fullName.str(),"use_stochasticForce",DN.use_stochasticForce);
+//            int stochasticForceSeed=-1;
+//            EDR.readScalarInFile(fullName.str(),"stochasticForceSeed",stochasticForceSeed);
+//            if(stochasticForceSeed<0)
+//            {
+//                StochasticForceGenerator::init(std::chrono::system_clock::now().time_since_epoch().count());
+//            }
+//            else
+//            {
+//                StochasticForceGenerator::init(stochasticForceSeed);
+//            }
             
             
             
@@ -269,7 +266,7 @@ namespace model
             
             // time-stepping
             
-            EDR.readScalarInFile(fullName.str(),"outputDislocationStiffnessAndForce",DislocationNetworkComponentType::outputKF);
+//            EDR.readScalarInFile(fullName.str(),"outputDislocationStiffnessAndForce",DislocationNetworkComponentType::outputKF);
             
             
             
@@ -287,45 +284,49 @@ namespace model
             
             // Cross-Slip
 //            EDR.readScalarInFile(fullName.str(),"crossSlipModel",DN.crossSlipModel);
-            if(DN.crossSlipModel)
-            {
-                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
-                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
-                EDR.readScalarInFile(fullName.str(),"verboseCrossSlip",DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip);
-                
-            }
+//            if(DN.crossSlipModel)
+//            {
+//                DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true);
+////                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
+//                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+//                //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
+//                //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
+////                EDR.readScalarInFile(fullName.str(),"verboseCrossSlip",DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip);
+//                DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseCrossSlip",true);
+//            }
             
             // Mesh and BVP
             if (DN.use_boundary)
             {
-                EDR.readScalarInFile(fullName.str(),"surfaceAttractionDistance",DN.surfaceAttractionDistance);
+//                EDR.readScalarInFile(fullName.str(),"surfaceAttractionDistance",DN.surfaceAttractionDistance);
                 
-                EDR.readScalarInFile(fullName.str(),"dislocationImages_x",DN.dislocationImages_x);
-                EDR.readScalarInFile(fullName.str(),"dislocationImages_y",DN.dislocationImages_y);
-                EDR.readScalarInFile(fullName.str(),"dislocationImages_z",DN.dislocationImages_z);
+//                EDR.readScalarInFile(fullName.str(),"dislocationImages_x",DN.dislocationImages_x);
+//                EDR.readScalarInFile(fullName.str(),"dislocationImages_y",DN.dislocationImages_y);
+//                EDR.readScalarInFile(fullName.str(),"dislocationImages_z",DN.dislocationImages_z);
                 
                 //                EDR.readScalarInFile(fullName.str(),"use_meshRegions",use_meshRegions);
                 
-                int meshID(0);
-                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
-                DN.mesh.readMesh(meshID);
-                assert(DN.mesh.simplices().size() && "MESH IS EMPTY.");
+//                int meshID(0);
+//                EDR.readScalarInFile(fullName.str(),"meshID",meshID);
+//                DN.mesh.readMesh(meshID);
+//                assert(DN.mesh.simplices().size() && "MESH IS EMPTY.");
                 
                 // Initialize Polycrystal
-                DN.poly.init(DN,"./polyCrystalInput.txt");
+//                DN.poly.init(DN,"./polyCrystalInput.txt");
                 
 //                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",DN.use_virtualSegments);
-                if(DN.use_virtualSegments)
-                {
-                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
-                }
+//                if(DN.use_virtualSegments)
+//                {
+//                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
+//                }
                 
                 if(DN.use_bvp)
                 {
-                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver.use_directSolver);
-                    EDR.readScalarInFile(fullName.str(),"solverTolerance",DN.bvpSolver.tolerance);
+                    DN.bvpSolver.use_directSolver=TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true);
+                    DN.bvpSolver.tolerance=TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true);
+//                    
+//                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver.use_directSolver);
+//                    EDR.readScalarInFile(fullName.str(),"solverTolerance",DN.bvpSolver.tolerance);
                     DN.bvpSolver.init(DN);
                 }
             }
@@ -338,11 +339,12 @@ namespace model
 
             
             // VERTEX REDISTRIBUTION
-            EDR.readScalarInFile(fullName.str(),"remeshFrequency",DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency);
-            double Lmin=0.0;
-            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
-            double Lmax=0.0;
-            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
+            DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency=TextFileParser("inputFiles/DD.txt").readScalar<int>("remeshFrequency",true);
+//            EDR.readScalarInFile(fullName.str(),"remeshFrequency",DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency);
+            double Lmin=TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmin",true);
+//            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
+            double Lmax=TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmax",true);
+//            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
             if(DN.use_boundary)
             {
                 const double minMeshSize=std::min(DN.mesh.xMax(0)-DN.mesh.xMin(0),std::min(DN.mesh.xMax(1)-DN.mesh.xMin(1),DN.mesh.xMax(2)-DN.mesh.xMin(2)));
@@ -365,16 +367,19 @@ namespace model
             // Verbose levels
             if(DN.maxJunctionIterations>0)
             {
-                EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
+//                EDR.readScalarInFile(fullName.str(),"verboseJunctions",DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions);
+                DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true);
             }
             
-            EDR.readScalarInFile(fullName.str(),"verboseNodeContraction",DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction);
-            EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
+//            EDR.readScalarInFile(fullName.str(),"verboseNodeContraction",DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction);
+//            EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
+            DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseNodeContraction",true);
             
             // GrainBoundary model
-            EDR.readScalarInFile(fullName.str(),"grainBoundaryTransmissionModel",GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel);
-            
-            EDR.readScalarInFile(fullName.str(),"outputSegmentPairDistances",DN.outputSegmentPairDistances);
+//            EDR.readScalarInFile(fullName.str(),"grainBoundaryTransmissionModel",GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel);
+            GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel=TextFileParser("inputFiles/DD.txt").readScalar<int>("grainBoundaryTransmissionModel",true);
+
+//            EDR.readScalarInFile(fullName.str(),"outputSegmentPairDistances",DN.outputSegmentPairDistances);
             
             
             
@@ -433,7 +438,7 @@ namespace model
                 EshelbyInclusion<dim>::set_count(inclusionID);
                 DN.eshelbyInclusions().emplace(std::piecewise_construct,
                                                std::make_tuple(inclusionID),
-                                        std::make_tuple(C,a,eT,Material<Isotropic>::nu,Material<Isotropic>::mu,typeID) );
+                                        std::make_tuple(C,a,eT,DN.poly.nu,DN.poly.mu,typeID) );
             }
             
             //            readVertices(DN.runID); // this requires mesh to be up-to-date

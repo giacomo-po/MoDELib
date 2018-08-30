@@ -46,7 +46,7 @@ namespace model
         
         // Universal constants
 
-        
+        const std::string crystalStructure;
         
         // Material constants in SI units
         const double T;         // Absolute temparature [K]
@@ -63,14 +63,15 @@ namespace model
         const double mu;        // shear modulus [-]
         const double b;         // Burgers vector [-]
         const double cs;        // Boltzmann constant [-]
-        const double C1;        // 1-nu
-        const double C2;        // 1.0/(4.0*M_PI*C1)
-        const double C3;        // 1.0-2.0*nu;
-        const double C4;        // 0.5*C2;
+        static double C1;        // 1-nu
+        static double C2;        // 1.0/(4.0*M_PI*C1)
+        static double C3;        // 1.0-2.0*nu;
+        static double C4;        // 0.5*C2;
         
         /**********************************************************************/
         Material(const std::string& fileName) :
         /* init */ MaterialBase(fileName)
+        /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
         /* init */,T(TextFileParser(materialFile).readScalar<double>("T",true))
         /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))
         /* init */,mu1_SI(TextFileParser(materialFile).readScalar<double>("mu1_SI",true))
@@ -83,32 +84,51 @@ namespace model
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-        /* init */,C1(1-nu)
-        /* init */,C2(1.0/(4.0*M_PI*C1))
-        /* init */,C3(1.0-2.0*nu)
-        /* init */,C4(0.5*C2)
+//        /* init */,C1(1-nu)
+//        /* init */,C2(1.0/(4.0*M_PI*C1))
+//        /* init */,C3(1.0-2.0*nu)
+//        /* init */,C4(0.5*C2)
         {
             model::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
             model::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
             model::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
             model::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
 
+            C1=1.0-nu;
+            C2=1.0/(4.0*M_PI*C1);
+            C3=1.0-2.0*nu;
+            C4=0.5*C2;
+
+            
         }
         
-        /**********************************************************************/
-        static double velocity(const Eigen::Matrix<double,3,3>& S,
-                               const Eigen::Matrix<double,3,1>& b,
-                               const Eigen::Matrix<double,3,1>& xi,
-                               const Eigen::Matrix<double,3,1>& n,
-                               const double& dL,
-                               const double& dt,
-                               const bool& use_stochasticForce)
-        {
-            
-            assert(0 && "FINISH VELOCITY");
-        }
+//        /**********************************************************************/
+//        static double velocity(const Eigen::Matrix<double,3,3>& S,
+//                               const Eigen::Matrix<double,3,1>& b,
+//                               const Eigen::Matrix<double,3,1>& xi,
+//                               const Eigen::Matrix<double,3,1>& n,
+//                               const double& dL,
+//                               const double& dt,
+//                               const bool& use_stochasticForce)
+//        {
+//            
+//            assert(0 && "FINISH VELOCITY");
+//        }
         
     };
+    
+    template<int dim>
+    double Material<dim,Isotropic>::C1=1.0-0.34;    // 1-nu
+    
+    template<int dim>
+    double Material<dim,Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+
+    template<int dim>
+    double Material<dim,Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
+    
+    template<int dim>
+    double Material<dim,Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+    
 }
 #endif
 

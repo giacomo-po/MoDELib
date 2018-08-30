@@ -23,7 +23,6 @@ namespace model
 	struct DDtimeIntegrator
     {
 		
-
 		
 	};
     
@@ -35,6 +34,16 @@ namespace model
         static constexpr auto tag="vMax integrator";
         static double dxMax;
         static double shearWaveSpeedFraction;
+        
+        
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+            
+            dxMax=TextFileParser(fileName).readScalar<double>("dxMax",true);
+            assert(dxMax>0.0);
+            
+        }
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
