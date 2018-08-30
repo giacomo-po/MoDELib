@@ -57,7 +57,8 @@ namespace model
 
         
         /**********************************************************************/
-        CrossSlipContainerType findCrossSlipSegments(const int& crossSlipModel) const
+        CrossSlipContainerType findCrossSlipSegments(const Material<dim,Isotropic>& material,
+                                                     const int& crossSlipModel) const
         {
             
             const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
@@ -74,7 +75,23 @@ namespace model
                    )
                 {
                     const auto& grain(**link.second->grains().begin());
-                    assert(0 && "FINISH CROSS-SLIP FOR NEW MATERIALS IMPLEMENTATION");
+                    
+                    
+                    if(material.crystalStructure=="BCC")
+                    {
+                       CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                    }
+                    else if(material.crystalStructure=="FCC")
+                    {
+                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
+                    }
+                    else
+                    {
+                        std::cout<<"Unknown cross-slip model for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
+                        exit(EXIT_FAILURE);
+                    }
+                    
+//                    assert(0 && "FINISH CROSS-SLIP FOR NEW MATERIALS IMPLEMENTATION");
 
 //                    const int& materialZ(grain.material());
 //                    switch (materialZ)
@@ -129,7 +146,7 @@ namespace model
                 const auto t0= std::chrono::system_clock::now();
                 model::cout<<"		CrossSlip "<<std::flush;
                 
-                const CrossSlipContainerType crossSlipDeq=findCrossSlipSegments(DN.crossSlipModel);
+                const CrossSlipContainerType crossSlipDeq=findCrossSlipSegments(DN.poly,DN.crossSlipModel);
                 VerboseCrossSlip(1,"crossSlipDeq.size()="<<crossSlipDeq.size()<<std::endl;);
                 
                 for(const auto& tup : crossSlipDeq)
