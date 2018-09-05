@@ -304,6 +304,8 @@ namespace model
             return addedGp;
         }
         
+
+
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P) const
         {/*!\param[in] P position to be snapped to the bounding box
@@ -314,75 +316,199 @@ namespace model
           */
             
             VerboseDislocationNode(4,"snapping P="<<P.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+
             
+            std::multimap<double,VectorDim> snapMap;
             
-            const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
-            const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
-            
-            
-            bool pLcontained=true;
-            bool pVcontained=true;
-            
-            std::deque<VectorDim> bndChords;
-            
-            for(const auto& pair : this->neighbors())
+            // Collect possible snap points, sorted by distance to P
+            for(size_t k=0;k<boundingBoxSegments().size();++k)
             {
-                VerboseDislocationNode(3,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
-                
-                if(std::get<1>(pair.second)->isBoundarySegment())
-                {// boundary segments must not become internal
-                    VerboseDislocationNode(3,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
+                const std::pair<VectorDim,VectorDim>& vertexPair(boundingBoxSegments()[k]);
+                const VectorDim segm(vertexPair.second-vertexPair.first);
+                const double segmNorm2(segm.squaredNorm());
+                if(segmNorm2>FLT_EPSILON)
+                {
+                    snapMap.emplace((P-vertexPair.first).squaredNorm(),vertexPair.first);
+                    snapMap.emplace((P-vertexPair.second).squaredNorm(),vertexPair.second);
                     
-                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
-                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
-                    VerboseDislocationNode(3,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-                    VerboseDislocationNode(3,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
-                    
-                    bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
-                }
-                
-                if(std::get<1>(pair.second)->isGrainBoundarySegment())
-                {// grainBoundary segments must not become internal
-                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
+                    if(u>0.0 && u<1.0)
                     {
-                        pLcontained*=gb->contains(pL);
-                        pVcontained*=gb->contains(pV);
-                        
-                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+                        const VectorDim x(vertexPair.first+u*segm);
+                        snapMap.emplace((P-x).squaredNorm(),x);
                     }
-                }
-            }
-            
-            bool parallelBndChords=true;
-            for(size_t i=0;i<bndChords.size();++i)
-            {
-                for(size_t j=i+1;j<bndChords.size();++j)
-                {
-                    parallelBndChords*=(bndChords[i].cross(bndChords[j]).norm()<FLT_EPSILON);
-                }
-            }
-            
-            if(pLcontained && parallelBndChords)
-            {
-                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-                return pL;
-            }
-            else
-            {
-                if(pVcontained)
-                {
-                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-                    return pV;
                 }
                 else
                 {
-                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
-                    assert(false && "snapToBoundingBox FAILED.");
-                    return VectorDim::Zero();
+                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
+                    snapMap.emplace((P-x).squaredNorm(),x);
                 }
             }
             
+            VerboseDislocationNode(4,"there are "<<snapMap.size()<<" possible snap points."<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+
+            
+            // Return the first point to which we can snap
+            for(const auto& pair : snapMap)
+            {
+                if(isMovableTo(pair.second))
+                {
+                    return pair.second;
+                }
+            }
+            
+                                assert(false && "snapToBoundingBox FAILED.");
+
+            
+//
+//            
+//            const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
+//            const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
+//            
+//            
+//            bool pLcontained=true;
+//            bool pVcontained=true;
+//            
+//            std::deque<VectorDim> bndChords;
+//            
+//            for(const auto& pair : this->neighbors())
+//            {
+//                VerboseDislocationNode(3,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
+//                
+//                if(std::get<1>(pair.second)->isBoundarySegment())
+//                {// boundary segments must not become internal
+//                    VerboseDislocationNode(3,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
+//                    
+//                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
+//                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
+//                    VerboseDislocationNode(3,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                    VerboseDislocationNode(3,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
+//                    
+//                    bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+//                }
+//                
+//                if(std::get<1>(pair.second)->isGrainBoundarySegment())
+//                {// grainBoundary segments must not become internal
+//                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+//                    {
+//                        pLcontained*=gb->contains(pL);
+//                        pVcontained*=gb->contains(pV);
+//                        
+//                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+//                    }
+//                }
+//            }
+//            
+//            bool parallelBndChords=true;
+//            for(size_t i=0;i<bndChords.size();++i)
+//            {
+//                for(size_t j=i+1;j<bndChords.size();++j)
+//                {
+//                    parallelBndChords*=(bndChords[i].cross(bndChords[j]).norm()<FLT_EPSILON);
+//                }
+//            }
+//            
+//            if(pLcontained && parallelBndChords)
+//            {
+//                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                return pL;
+//            }
+//            else
+//            {
+//                if(pVcontained)
+//                {
+//                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                    return pV;
+//                }
+//                else
+//                {
+//                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
+//                    assert(false && "snapToBoundingBox FAILED.");
+//                    return VectorDim::Zero();
+//                }
+//            }
+            
         }
+        
+//        /**********************************************************************/
+//        VectorDim snapToBoundingBox(const VectorDim& P) const
+//        {/*!\param[in] P position to be snapped to the bounding box
+//          * \returns a point on the bounding box close to P. The returned point
+//          * is the closest to the bounding box, unless the closest point causes
+//          * boundarySegments to become interior. In that case the closest boundary
+//          * vertex is returned.
+//          */
+//            
+//            VerboseDislocationNode(4,"snapping P="<<P.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//            
+//            
+//            const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
+//            const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
+//            
+//            
+//            bool pLcontained=true;
+//            bool pVcontained=true;
+//            
+//            std::deque<VectorDim> bndChords;
+//            
+//            for(const auto& pair : this->neighbors())
+//            {
+//                VerboseDislocationNode(3,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
+//                
+//                if(std::get<1>(pair.second)->isBoundarySegment())
+//                {// boundary segments must not become internal
+//                    VerboseDislocationNode(3,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
+//                    
+//                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
+//                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
+//                    VerboseDislocationNode(3,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                    VerboseDislocationNode(3,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
+//                    
+//                    bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+//                }
+//                
+//                if(std::get<1>(pair.second)->isGrainBoundarySegment())
+//                {// grainBoundary segments must not become internal
+//                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+//                    {
+//                        pLcontained*=gb->contains(pL);
+//                        pVcontained*=gb->contains(pV);
+//                        
+//                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
+//                    }
+//                }
+//            }
+//            
+//            bool parallelBndChords=true;
+//            for(size_t i=0;i<bndChords.size();++i)
+//            {
+//                for(size_t j=i+1;j<bndChords.size();++j)
+//                {
+//                    parallelBndChords*=(bndChords[i].cross(bndChords[j]).norm()<FLT_EPSILON);
+//                }
+//            }
+//            
+//            if(pLcontained && parallelBndChords)
+//            {
+//                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                return pL;
+//            }
+//            else
+//            {
+//                if(pVcontained)
+//                {
+//                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
+//                    return pV;
+//                }
+//                else
+//                {
+//                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
+//                    assert(false && "snapToBoundingBox FAILED.");
+//                    return VectorDim::Zero();
+//                }
+//            }
+//            
+//        }
         
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const

@@ -4,9 +4,9 @@ use_externalStress=1;
 
 relaxSteps=0;
 
-ExternalStress0 = -0.1 0.0 0.0
-		  		  0.0 -0.1 0.01
-		  		  0.0 0.01 -0.1;
+ExternalStress0 = 0.0 0.0 0.0
+		  		  0.0 0.0 0.0
+		  		  0.0 0.0 0.03;
 
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0

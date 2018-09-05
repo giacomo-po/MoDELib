@@ -374,7 +374,7 @@ namespace model
         }
         
         /**********************************************************************/
-        SnapReturnType snap(const VectorDim& P) const
+        SnapReturnType snap(const VectorDim& P) const __attribute__ ((deprecated))
         {
             
             assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
@@ -425,7 +425,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::pair<double,VectorDim> snapToVertex(const VectorDim& P) const
+        std::pair<double,VectorDim> snapToVertex(const VectorDim& P) const __attribute__ ((deprecated))
         {
             
             assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");

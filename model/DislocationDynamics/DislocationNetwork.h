@@ -587,6 +587,8 @@ namespace model
 #ifdef _OPENMP
                 //                const size_t nThreads = omp_get_max_threads();
                 EqualIteratorRange<typename NetworkLinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
+//                SOMETHING WRONG HERE? CPU USE SAYS 100% ONLY?
+                
 #pragma omp parallel for
                 for(size_t thread=0;thread<eir.size();thread++)
                 {
