@@ -128,12 +128,6 @@ namespace model
         /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
         /* init */,mesh(mesh_in)
         /* init */,mobility(getMobility(*this))
-        //        /* init */,mobility(new DislocationMobility<FCClattice<dim>>(this->b_SI,
-        //                                                                 this->mu_SI,
-        //                                                                 this->cs_SI,
-        //                                                                 0.0,
-        //                                                                 0.0))
-        
         {
             model::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
             TextFileParser polyParser(polyFile);
@@ -142,14 +136,20 @@ namespace model
             for(const auto& rIter : mesh.regions())
             {
                 
-                const Eigen::Matrix<double,dim,dim> C2G=polyParser.readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,false);
+//                const Eigen::Matrix<double,dim,dim> C2G=polyParser.readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,false);
                 
                 
+//                grains().emplace(std::piecewise_construct,
+//                                 std::forward_as_tuple(rIter.second->regionID),
+//                                 std::forward_as_tuple(*(rIter.second),
+//                                                       *this,
+//                                                       C2G));
+
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),
                                                        *this,
-                                                       C2G));
+                                                       polyFile));
                 
             }
             
@@ -340,149 +340,8 @@ namespace model
             
         }
         
-        
-        
     };
-    
     
 }
 #endif
-
-
-
-//        /**********************************************************************/
-//        void init(GlidePlaneObserver<dim>& dn,
-//                  const std::string& polyFile)
-//        {
-//            TextFileParser polyParser(polyFile);
-//            const bool readVerbose=true;
-//
-////            std::string materialFile=polyParser.readString("materialFile",readVerbose); // material by atomic number Z
-//
-//            // Construct Grains
-//            model::cout<<"Creating Grains"<<std::endl;
-//            for(const auto& rIter : mesh.regions())
-//            {
-//
-//                const Eigen::Matrix<double,dim,dim> C2G(polyParser.readMatrix<double>("C2G"+std::to_string(rIter.second->regionID,dim,dim,readVerbose)));
-//
-//
-//                grains().emplace(std::piecewise_construct,
-//                                 std::forward_as_tuple(rIter.second->regionID),
-//                                 std::forward_as_tuple(*(rIter.second),
-//                                                       this->materialFile,
-//                                                       C2G));
-//
-//
-//
-//
-//            }
-//
-//            // Construct GrainsBoundaries
-//            model::cout<<"Creating GrainsBoundaries"<<std::endl;
-//            grainBoundaryDislocations().clear();
-//            //            int fileID=1;
-//            for(const auto& rgnBnd : mesh.regionBoundaries())
-//            {
-//
-//                //                const auto pr=rgnBnd.second.unsortedBoundary();
-//                //                std::ofstream myfile1;
-//                //                myfile1.open ("rb"+std::to_string(fileID)+".txt");
-//                //                //myfile << "Writing this to a file.\n";
-//                //                for(const auto& edge : pr)
-//                //                {
-//                //                    myfile1<<edge->child(0).P0.transpose()<<" "<<edge->child(1).P0.transpose()<<"\n";
-//                //                }
-//                //                myfile1.close();
-//
-//
-//                grainBoundaries().emplace(std::piecewise_construct,
-//                                          std::forward_as_tuple(rgnBnd.first),
-//                                          std::forward_as_tuple(rgnBnd.second,
-//                                                                grain(rgnBnd.first.first),
-//                                                                grain(rgnBnd.first.second),
-//                                                                dn,
-//                                                                mesh));
-//
-//                //                std::ofstream myfile;
-//                //                myfile.open ("gb"+std::to_string(fileID)+".txt");
-//                //                //myfile << "Writing this to a file.\n";
-//                //                for(const auto& pair : grainBoundary(rgnBnd.first.first,rgnBnd.first.second).meshIntersections)
-//                //                {
-//                //                    myfile<<" "<<pair.second.transpose()<<"\n";
-//                //                }
-//                //                myfile.close();
-//                //                fileID++;
-//            }
-//
-//
-//            if(grainBoundaryDislocations().size())
-//            {
-//                model::SequentialOutputFile<'B',1>::set_count(0);
-//                model::SequentialOutputFile<'B',1>::set_increment(1);
-//                model::SequentialOutputFile<'B',true> stressStraightFile;
-//                size_t n=0;
-//                for(const auto& sStraight : grainBoundaryDislocations())
-//                {
-//                    stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
-//                    n++;
-//                }
-//            }
-//        }
-
-//        /**********************************************************************/
-//        const std::deque<GrainBoundaryType>& grainBoundaryTypes() const
-//        {
-//            switch (materialZ)
-//            {
-//                case Al.Z:
-//                    return PeriodicElement<Al.Z,Isotropic>::grainBoundaryTypes;
-//                    break;
-//                case Ni.Z:
-//                    return PeriodicElement<Ni.Z,Isotropic>::grainBoundaryTypes;
-//                    break;
-//                case Cu.Z:
-//                    return PeriodicElement<Cu.Z,Isotropic>::grainBoundaryTypes;
-//                    break;
-//                default:
-//                    assert(0 && "grainBoundaryTypes not implemented.");
-//                    break;
-//            }
-//        }
-
-
-
-//        /**********************************************************************/
-//        template <typename DislocationNetworkType>
-//        void reConnectGrainBoundarySegments(DislocationNetworkType& DN) const
-//        {
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"		re-connecting GrainBoundarySegments ("<<std::flush;
-//            std::map<std::pair<size_t,size_t>,LatticeVectorType> disconnectMap;
-//            for (const auto& link : DN.links())
-//            {
-////                if(link.second->source->isGrainBoundaryNode() && link.second->sink->isGrainBoundaryNode())
-////                {
-//                    if(link.second->source->rID2()>=0 &&
-//                       link.second->sink->rID2()>=0 &&
-//                       link.second->source->rID2()==link.second->sink->rID2())
-//                    {
-//                        disconnectMap.emplace(std::piecewise_construct,
-//                                              std::forward_as_tuple(link.second->source->sID,link.second->sink->sID),
-//                                              std::forward_as_tuple(link.second->flow));
-//                    }
-////                }
-//            }
-//
-//            model::cout<<disconnectMap.size()<<std::flush;
-//
-//            for(const auto& segment : disconnectMap)
-//            {
-//                DN.template disconnect<false>(segment.first.first,segment.first.second);
-//                DN.template connect(segment.first.first,segment.first.second,segment.second);
-////                assert(DN.link(std::get<0>(tuple),std::get<1>(tuple)).second->isGrainBoundarySegment() && "SEGMENT IS NOT A GB SEGMENT");
-//            }
-//
-//            model::cout<<std::setprecision(3)<<magentaColor<<" reconnected) ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//        }
 
