@@ -755,7 +755,10 @@ namespace model
                     for (unsigned int k=0;k<qOrder;++k)
                     {
                         // Add stress of ExternalLoadController
-                        stressGauss[k]+=this->network().extStressController.externalStress(rgauss.col(k));
+                        if(this->network().use_externalStress)
+                        {
+                            stressGauss[k]+=this->network().extStressController.externalStress(rgauss.col(k));
+                        }
                         
                         // Add BVP stress
                         if(this->network().use_bvp)
