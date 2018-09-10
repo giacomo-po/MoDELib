@@ -288,7 +288,7 @@ namespace model
         
         /**********************************************************************/
         template<typename Scalar>
-        EigenMapType<Scalar> readMatrix(const std::string& key,const size_t& rows,const size_t& cols,const bool&verbose=false)
+         Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrix(const std::string& key,const size_t& rows,const size_t& cols,const bool&verbose=false)
         {
 
             const std::vector<Scalar> array=readArray<Scalar>(key,false);
@@ -301,7 +301,7 @@ namespace model
             
             EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
             if(verbose) std::cout<<key<<"=\n"<<em<<std::endl;
-            return em;
+            return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
         }
         
         

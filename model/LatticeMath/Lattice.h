@@ -25,62 +25,9 @@
 namespace model
 {
 
-//    /**************************************************************************/
-//    /**************************************************************************/
-//    template <int dim,int k>
-//    class LatticeBase : public StaticID<LatticeBase<dim,k>>
-//    {
-//        static_assert(dim>0,"dim must be > 0.");
-//        static_assert(k>0,"k must be > 0.");
-//        static_assert(k<=dim,"k must be <= dim.");
-//        
-//        typedef Eigen::Matrix<double,dim,dim> MatrixDimK;
-//
-//        MatrixDimK    latticeBasis;
-//        
-//    public:
-//        
-//        /**********************************************************************/
-//        LatticeBase() :
-//        /* init */ latticeBasis(MatrixDimK::Identity())
-//        {
-//            
-//        }
-//        
-//        /**********************************************************************/
-//        LatticeBase(const MatrixDimK& cov) :
-//        /* init */ latticeBasis(cov)
-//        {
-//            
-//        }
-//        
-//        /**********************************************************************/
-//        void setLatticeBasis(const MatrixDimK& A)
-//        {
-//            latticeBasis=A;
-//            std::cout<<"Lattice basis (in columns) =\n"<<latticeBasis<<std::endl;
-//        }
-//        
-//        /**********************************************************************/
-//        const MatrixDimK& latticeBasis() const
-//        {
-//            return latticeBasis;
-//        }
-//    };
-//    
-//    /**************************************************************************/
-//    /**************************************************************************/
-//    template <int dim,int k>
-//    class Lattice : public LatticeBase<dim,k>
-//    {
-//
-//        public:
-//    };
-
     /**************************************************************************/
     /**************************************************************************/
     template <int dim>
-//    class Lattice<dim,dim> : public LatticeBase<dim,dim>
     class Lattice
     {
         static constexpr double roundTol=FLT_EPSILON;
@@ -162,9 +109,14 @@ namespace model
         void rotate(const MatrixDimD& Q)
         {/*! Z is atomic number
           */
-//            model::cout<<"  grain "<<grainID<<", rotating"<<defaultColor<<std::endl;
-            
-            assert((Q*Q.transpose()-MatrixDimD::Identity()).norm()<2.0*DBL_EPSILON*dim*dim && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+
+            const MatrixDimD QQT(Q*Q.transpose());
+            if((QQT-MatrixDimD::Identity()).norm()<2.0*DBL_EPSILON*dim*dim)
+            {
+                std::cout<<"Q=\n"<<Q<<std::endl;
+                std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
+                assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+            }
             // make sure that C2G is proper
             assert(std::fabs(Q.determinant()-1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
 //            setLatticeBasis();
