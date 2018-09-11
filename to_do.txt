@@ -49,6 +49,9 @@ NEW LOOP_NETWORK CODE
 - We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
 
+ISSUES:
+- Should form finite length junctions
+- When remesh removes a node, part of the slipped area is removed. This should be accounted in the plastic strain rate, but is is not. As a consequence, when a new node is added, plastic strain rate oscillates about a non-zero mean value.
 
 ERRORS
 1) FIXED 

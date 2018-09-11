@@ -1,12 +1,12 @@
 # Settings for  UniformExternalStressController (a uniform stress felt by dislocations)
 
-use_externalStress=1; 
+use_externalStress=0; 
 
 relaxSteps=0;
 
 ExternalStress0 = 0.0 0.0 0.0
 		  		  0.0 0.0 0.0
-		  		  0.0 0.0 0.03;
+		  		  0.0 0.0 0.0;
 
 ExternalStressRate = 0.0 0.0 0.0
 		 0.0 0.0 0.0

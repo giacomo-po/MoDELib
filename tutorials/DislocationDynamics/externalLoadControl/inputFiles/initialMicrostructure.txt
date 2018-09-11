@@ -24,7 +24,7 @@ pointsAlongStraightDislocations=0.0 0.0 0.0
 
 #######################################
 # Irradiation loops
-targetIrradiationLoopDensity=1e21;
+targetIrradiationLoopDensity=0e21;
 fraction111Loops=0.5;
 averageLoopSize=6.1e-9;
 

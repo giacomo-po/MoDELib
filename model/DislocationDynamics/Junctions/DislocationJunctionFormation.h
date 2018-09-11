@@ -52,24 +52,60 @@ namespace model
         //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         typedef std::deque<IntersectionType,Eigen::aligned_allocator<IntersectionType>> IntersectionTypeContainerType;
         
+        
+        
         /**********************************************************************/
         void insertIntersection(std::deque<IntersectionTypeContainerType>& intersectionContainer,
-                                const std::pair<size_t,size_t>& linkApair,
-                                const std::pair<size_t,size_t>& linkBpair,
+                                const LinkType* const linkA,
+                                const LinkType* const linkB,
                                 const SegmentSegmentDistance<dim>& ssd,
-                                const double& currentcCollisionTOL)
+                                const double& currentcCollisionTOL,
+                                const bool& bndJunction,const bool& gbndJunction)
         {
             if(ssd.dMin<currentcCollisionTOL)
             {
+                bool isValidJunction(bndJunction || gbndJunction);
+                if(!isValidJunction)
+                {
+                
+                    const VectorDim chordA(linkA->sink->get_P()-linkA->source->get_P());
+                    const double LA(chordA.norm());
+                    const VectorDim chordB(linkB->sink->get_P()-linkB->source->get_P());
+                    const double LB(chordB.norm());
+                    
+                    if(LA>FLT_EPSILON && LB>FLT_EPSILON)
+                    {
+                        StressStraight<dim> stressA(ssd.x0-infiniteLineLength/LA*chordA,
+                                                    ssd.x0+infiniteLineLength/LA*chordA,
+                                                    linkA->burgers());
+
+                        StressStraight<dim> stressB(ssd.x1-infiniteLineLength/LB*chordB,
+                                                    ssd.x1+infiniteLineLength/LB*chordB,
+                                                    linkB->burgers());
+                        
+                        const VectorDim forceOnA=(stressB.stress(ssd.x0)*linkA->burgers()).cross(chordA);
+                        const VectorDim forceOnB=(stressA.stress(ssd.x1)*linkB->burgers()).cross(chordB);
+                        
+                        if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
+                        {
+                                            VerboseJunctions(3,"attractive pair"<<std::endl;);
+                            isValidJunction=true;
+                        }
+                    }
+                }
+                
+                if(isValidJunction)
+                {
 #ifdef _OPENMP
-                intersectionContainer[omp_get_thread_num()].emplace_back(linkApair,
-                                                                         linkBpair,
-                                                                         ssd);
+                    intersectionContainer[omp_get_thread_num()].emplace_back(linkA->nodeIDPair,
+                                                                             linkB->nodeIDPair,
+                                                                             ssd);
 #else
-                intersectionContainer[0].emplace_back(linkApair,
-                                                      linkBpair,
-                                                      ssd);
+                    intersectionContainer[0].emplace_back(linkA->nodeIDPair,
+                                                          linkB->nodeIDPair,
+                                                          ssd);
 #endif
+                }
             }
         }
         
@@ -82,7 +118,7 @@ namespace model
           */
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Finding Junctions ("<<nThreads<<" threads)... "<<std::flush;
+            model::cout<<"		Finding Junctions: sweep-line "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
             SweepPlane<LinkType,dim> swp;
@@ -90,26 +126,60 @@ namespace model
             {
                 if(!link.second->hasZeroBurgers())
                 {
-                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
+//                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
+                    swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);
                 }
             }
             swp.computeIntersectionPairs();
+            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" pairs)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::flush;
+
+            
+            const auto t1= std::chrono::system_clock::now();
+            std::deque<std::pair<const LinkType*,const LinkType*>> reducedIntersectionPairs;
+            for(size_t k=0;k<swp.potentialIntersectionPairs().size();++k)
+            {
+                const auto& linkA(swp.potentialIntersectionPair(k).first);
+                const auto& linkB(swp.potentialIntersectionPair(k).second);
+                
+                const VectorDim& sourceA(linkA->source->get_P());
+                const VectorDim&   sinkA(linkA->sink->get_P());
+                const VectorDim& sourceB(linkB->source->get_P());
+                const VectorDim&   sinkB(linkB->sink->get_P());
+                
+                // SweepPlane sweeps along x direction, so now check possible overlap in y and z direction
+                bool yDontOverlap((std::min(sourceA(1),sinkA(1))>std::max(sourceB(1),sinkB(1))+collisionTol) || (std::max(sourceA(1),sinkA(1))<std::min(sourceB(1),sinkB(1))-collisionTol));
+                bool zDontOverlap((std::min(sourceA(2),sinkA(2))>std::max(sourceB(2),sinkB(2))+collisionTol) || (std::max(sourceA(2),sinkA(2))<std::min(sourceB(2),sinkB(2))-collisionTol));
+                
+                if(!yDontOverlap && !zDontOverlap)
+                {
+                    reducedIntersectionPairs.emplace_back(linkA,linkB);
+                }
+            }
+
+
+            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs). Pair-intersections  ("<<nThreads<<" threads) "<<std::flush;
 
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
-            for(size_t k=0;k<swp.potentialIntersectionPairs().size();++k)
+            for(size_t k=0;k<reducedIntersectionPairs.size();++k)
             {
-                const auto& linkA(swp.potentialIntersectionPair(k).first);
-                const auto& linkB(swp.potentialIntersectionPair(k).second);
+                
+                
+                
+                const auto& linkA(reducedIntersectionPairs[k].first);
+                const auto& linkB(reducedIntersectionPairs[k].second);
+                
+                VerboseJunctions(2,"checking intersection "<<linkA->source->sID<<"->"<<linkA->sink->sID
+                                 /*                   */ <<" "<<linkB->source->sID<<"->"<<linkB->sink->sID<<std::endl;);
+
                 
                 const bool linkAisBnd(linkA->isBoundarySegment());
                 const bool linkBisBnd(linkB->isBoundarySegment());
                 const bool linkAisGBnd(linkA->grainBoundaries().size());
                 const bool linkBisGBnd(linkB->grainBoundaries().size());
                 
-                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
                 
                 const bool bndJunction(   (linkAisBnd || linkBisBnd)
                                        &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON);
@@ -117,15 +187,35 @@ namespace model
                 const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
                                         &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON);
                 
+//                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
+//
+//                
+//                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
+//                                           || bndJunction   // junciton between parallel boundary segments
+//                                           || gbndJunction  // junciton between parallel grain-boundary segments
+//                                           );
                 
-                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
-                                           || bndJunction   // junciton between parallel boundary segments
-                                           || gbndJunction  // junciton between parallel grain-boundary segments
-                                           );
+//                bool isValidJunction(bndJunction || gbndJunction);
+//                if(!isValidJunction)
+//                {
+//                
+//                    SegmentSegmentDistance<dim> ssd();
+//                
+//                
+//                
+//                }
                 
-                if(isValidJunction)
-                {
-                    
+                VerboseJunctions(2,"links are bnd: "<<linkAisBnd<<" "<<linkBisBnd<<std::endl;);
+                VerboseJunctions(2,"links are grainBnd: "<<linkAisGBnd<<" "<<linkBisGBnd<<std::endl;);
+                VerboseJunctions(2,"bndJunction: "<<bndJunction<<std::endl;);
+                VerboseJunctions(2,"gbndJunction: "<<gbndJunction<<std::endl;);
+//                VerboseJunctions(2,"isValidJunction: "<<isValidJunction<<std::endl;);
+
+                
+                
+//                if(isValidJunction)
+//                {
+                
                     
                     double currentcCollisionTOL=collisionTol;
                     if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
@@ -153,7 +243,7 @@ namespace model
                                                          linkB->source->get_P(),
                                                          linkB->sink->get_P(),
                                                          1.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdA,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                         // intersect sink of B with link A
                         SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
@@ -161,7 +251,7 @@ namespace model
                                                          linkB->sink->get_P(),    // fake degenerete segment at sink of B
                                                          linkB->sink->get_P(),    // fake degenerete segment at sink of B
                                                          1.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdB,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                     }
                     else if(intersectionIsSourceSink)
@@ -177,7 +267,7 @@ namespace model
                                                          linkB->source->get_P(),
                                                          linkB->sink->get_P(),
                                                          1.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdA,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                         // intersect source of B with link A
                         SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
@@ -185,7 +275,7 @@ namespace model
                                                          linkB->source->get_P(),    // fake degenerete segment at source of B
                                                          linkB->source->get_P(),    // fake degenerete segment at source of B
                                                          0.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdB,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                         
                     }
@@ -202,7 +292,7 @@ namespace model
                                                          linkB->source->get_P(),
                                                          linkB->sink->get_P(),
                                                          0.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdA,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                         
                         // intersect sink of B with link A
@@ -211,7 +301,7 @@ namespace model
                                                          linkB->sink->get_P(),    // fake degenerete segment at sink of B
                                                          linkB->sink->get_P(),    // fake degenerete segment at sink of B
                                                          1.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdB,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
                     }
                     else if(intersectionIsSinkSink)
                     {
@@ -227,7 +317,7 @@ namespace model
                                                          linkB->source->get_P(),
                                                          linkB->sink->get_P(),
                                                          0.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdA,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                         
                         // intersect source of B with link A
@@ -236,7 +326,7 @@ namespace model
                                                          linkB->source->get_P(),    // fake degenerete segment at source of B
                                                          linkB->source->get_P(),    // fake degenerete segment at source of B
                                                          0.0);
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssdB,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
                         
                     }
                     else
@@ -247,9 +337,9 @@ namespace model
                                                         linkB->source->get_P(),
                                                         linkB->sink->get_P()
                                                         );
-                        insertIntersection(intersectionContainer,linkA->nodeIDPair,linkB->nodeIDPair,ssd,currentcCollisionTOL);
+                        insertIntersection(intersectionContainer,linkA,linkB,ssd,currentcCollisionTOL,bndJunction,gbndJunction);
                     }
-                }
+//                }
                 
             }
             
@@ -259,7 +349,7 @@ namespace model
                 nIntersections+=intersectionByThreadContainer.size();
             }
             model::cout<<nIntersections<<" physical intersections. "<<std::flush;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
         
@@ -461,11 +551,13 @@ namespace model
         
         static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
         static int verboseJunctions;
+        const double infiniteLineLength;
 //        static size_t maxJunctionIterations;
         
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init list */ DN(DN_in)
+        /* init list */,infiniteLineLength(10000.0)
         {
             
         }

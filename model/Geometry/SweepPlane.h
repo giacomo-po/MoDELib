@@ -56,11 +56,11 @@ namespace model
         }
         
         /**********************************************************************/
-        void addSegment(const double& x0,const double& x1,const LineType& line)
+        void addSegment(const double& xStart,const double& xEnd,const LineType& line)
         {
             
-            const bool success1=events()[std::min(x0,x1)].first.insert(&line).second;     // line starts at x0
-            const bool success2=events()[std::max(x0,x1)].second.insert(&line).second;    // line ends at x1
+            const bool success1=events()[std::min(xStart,xEnd)].first.insert(&line).second;     // line starts at xStart
+            const bool success2=events()[std::max(xStart,xEnd)].second.insert(&line).second;    // line ends at xEnd
             assert(success1==success2);
         }
         
