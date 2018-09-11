@@ -24,13 +24,14 @@ pointsAlongStraightDislocations=0.0 0.0 0.0
 
 #######################################
 # Irradiation loops
-targetIrradiationLoopDensity=0e22;
+targetIrradiationLoopDensity=1e21;
+fraction111Loops=0.5;
 averageLoopSize=6.1e-9;
 
 #######################################
 # Eshelby Inclusions parameters
 # vector of densities, one value per family
-targetInclusionDensities=0e20 1e19;
+targetInclusionDensities=0e20 0e19;
 # vector of Gamma-distribution parameter alpha (dimensionless), one value per family
 inclusionsDistribution_alpha=4.159 4.416;
 # vector of Gamma-distribution parameter beta (dimensionless), one value per family

@@ -641,7 +641,13 @@ namespace model
           *\returns the stress field at the k-th quandrature point
           */
             
-            MatrixDim temp(quadratureParticleContainer[k]->stress()+this->network().extStressController.externalStress(rgauss.col(k)));
+            MatrixDim temp(quadratureParticleContainer[k]->stress());
+            
+            if(this->network().use_externalStress)
+            {
+                temp+=this->network().extStressController.externalStress(rgauss.col(k));
+            }
+            
             if(this->network().use_bvp)
             {
                 temp += this->network().bvpSolver.stress(rgauss.col(k),this->source->includingSimplex());

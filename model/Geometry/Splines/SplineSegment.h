@@ -98,18 +98,10 @@ namespace model
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         typedef Eigen::Matrix<double, dim, Ndof> MatrixDimNdof;
         typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
-
         typedef Eigen::Matrix<double,Ndof,Ndof>	MatrixNdof;
-        
-        
         typedef typename NetworkLink<Derived>::NodeType NodeType;
         typedef typename NetworkLink<Derived>::LinkType LinkType;
         typedef typename NetworkLink<Derived>::FlowType FlowType;
-        
-        //typedef SplineSegment<Derived,dim,corder,alpha,qOrder,QuadratureRule> SplineSegmentType;
-        //typedef SplineSegment<Derived,dim,corder,alpha> SplineSegmentType;
-        //typedef SplineSegment<Derived,dim,corder> SplineSegmentType;
-        
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef ParametricCurve<Derived,dim> ParametricCurveType;
         
@@ -121,12 +113,10 @@ namespace model
         static double alpha;
         
         
-        /******************************************************************************/
+        /**********************************************************************/
         SplineSegment(const std::shared_ptr<NodeType>& nI,
                       const std::shared_ptr<NodeType>& nJ) :
         NetworkLink<Derived>(nI,nJ)
-//        sourceTfactor(1),
-//        sinkTfactor(-1)
         {/*! Constructor with Nodes and flow
           */
             
@@ -137,13 +127,6 @@ namespace model
         {
             return SplineSegmentBaseType::hermiteDofs(*this);
         }
-        
-//        /**********************************************************************/
-//        Eigen::Matrix<double,Eigen::Dynamic,dim> positionDofs() const
-//        {
-//            return SplineSegmentBaseType::positionDofs(*this);
-//
-//        }
         
         /**********************************************************************/
         std::pair<Eigen::Matrix<double,Ncoeff,Eigen::Dynamic>,Eigen::Matrix<double,Eigen::Dynamic,dim>> hermite2posMatrix() const
@@ -157,12 +140,13 @@ namespace model
             return SplineSegmentBaseType::hermite2posMap(*this);
         }
 
+        /**********************************************************************/
         Eigen::Matrix<double,dim,Ncoeff> hermiteCoefficients() const
         {
             return SplineSegmentBaseType::hermiteCoefficients(*this);
         }
         
-        /************************************************************************/
+        /**********************************************************************/
         Eigen::Matrix<double,dim,Ncoeff> polynomialCoeff() const
         {/*! The matrix of coefficients of the polynomial associated to this
           *  SplineSegmentBase. If C=polynomialCoeff() then the polynomial is:
@@ -177,14 +161,14 @@ namespace model
             return SplineSegmentBaseType::sfCoeffs(parametricChordLength());
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim chord() const
         {/*!\returns the chord vector (source -> sink)
           */
             return this->sink->get_P()-this->source->get_P();
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         double chordLength() const
         {/*!\returns the length of the chord vector
           */
@@ -197,7 +181,7 @@ namespace model
             return std::pow(chordLength(),alpha);
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim get_r(const double & u) const
         {/*!\returns The position vector at parameter u
           *  @param[in] u the parametrization variable in [0:1]
@@ -219,67 +203,31 @@ namespace model
             return SplineSegmentBaseType::sf(u,parametricChordLength());
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim get_ru(const double & uin) const
         {
             return SplineSegmentBaseType::sfDiff1(uin,parametricChordLength())*hermiteDofs();
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim get_rmu(const double & uin) const
         {
             return this->get_ru(uin)/parametricChordLength();
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim get_ruu(const double & uin) const
         {
             return SplineSegmentBaseType::sfDiff2(uin,parametricChordLength())*hermiteDofs();
         }
         
-        /******************************************************************************/
+        /**********************************************************************/
         VectorDim get_rmumu(const double & uin) const
         {
             return this->get_ruu(uin)/std::pow(parametricChordLength(),2);
         }
         
-
-        
-        //        /******************************************************************************/
-        //        Eigen::Matrix<double, Ndof, Eigen::Dynamic>  get_G2H() const
-        //        {
-        //            //make_G2H();
-        //
-        //            size_t gDof(this->pSN()->nodeOrder()*this->source->NdofXnode); // CHANGE HERE, NdofXnode should be available directly
-        //
-        //            Eigen::Matrix<double, Ndof, Eigen::Dynamic> G2H(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ndof,gDof));
-        //
-        //            //G2H.setZero(Ndof,gDof);
-        //
-        //            Eigen::VectorXi dofid(this->source->dofID());
-        //            Eigen::Matrix<double, Ndof/2, Eigen::Dynamic> M(this->source->W2H());
-        //            M.block(dim,0,dim,M.cols())*=sourceTfactor;
-        //            //	std::cout<<"M source=\n"<<M<<std::endl;
-        //
-        //            for (int k=0;k<dofid.size();++k)
-        //            {
-        //                G2H.template block<Ndof/2,1>(0,dofid(k))=M.col(k);
-        //            }
-        //
-        //            dofid=this->sink->dofID();
-        //            M=this->sink->W2H();
-        //            M.block(dim,0,dim,M.cols())*=(-sinkTfactor);
-        //            //	std::cout<<"M sink=\n"<<M<<std::endl;
-        //
-        //            for (int k=0;k<dofid.size();++k)
-        //            {
-        //                G2H.template block<Ndof/2,1>(Ndof/2,dofid(k))=M.col(k);
-        //            }
-        //
-        //            return G2H;
-        //        }
-        
-        /******************************************************************************/
+        /**********************************************************************/
         std::pair<double,std::pair<double,VectorDim> > closestPoint(const VectorDim& P0) const
         {/*!@param[in] P0 reference point
           * \returns The closesest point to P0 along this segment. The return value is a

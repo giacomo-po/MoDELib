@@ -68,7 +68,7 @@ namespace model
             {
                 if(   !link.second->isBoundarySegment()
                    && !link.second->isGrainBoundarySegment()
-                   && !link.second->isGrainBoundarySegment()
+//                   && !link.second->isGrainBoundarySegment()
                    && !link.second->hasZeroBurgers()
                    && link.second->isGlissile()
                    && link.second->chord().normalized().cross(link.second->burgers().normalized()).norm()<=sinCrossSlipRad
@@ -91,28 +91,6 @@ namespace model
                         exit(EXIT_FAILURE);
                     }
                     
-//                    assert(0 && "FINISH CROSS-SLIP FOR NEW MATERIALS IMPLEMENTATION");
-
-//                    const int& materialZ(grain.material());
-//                    switch (materialZ)
-//                    {
-//                        case Grain<dim>::Al.Z:
-//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Al.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-//                            break;
-//                        case Grain<dim>::Ni.Z:
-//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Ni.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-//                            break;
-//                        case Grain<dim>::Cu.Z:
-//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::Cu.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-//                            break;
-//                        case Grain<dim>::W.Z:
-//                            CrossSlipModels<typename PeriodicElement<Grain<dim>::W.Z,Isotropic>::CrystalStructure>::addToCrossSlip(*link.second,crossSlipDeq,crossSlipModel);
-//                            break;
-//                        default:
-//                            assert(0 && "DislocationCrossSlip: Material not implemented.");
-//                            break;
-//                    }
-
                 }
             }
             
@@ -128,13 +106,8 @@ namespace model
         static void initFromFile(const std::string& fileName)
         {
             crossSlipDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true);
-            //                EDR.readScalarInFile(fullName.str(),"crossSlipDeg",DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg);
             assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-            //                EDR.readScalarInFile(fullName.str(),"crossSlipLength",DislocationCrossSlip<DislocationNetworkType>::crossSlipLength);
-            //                assert(DislocationCrossSlip<DislocationNetworkType>::crossSlipLength>=DislocationNetworkRemesh<DislocationNetworkType>::Lmin && "YOU MUST CHOOSE crossSlipLength>=Lmin.");
-            //                EDR.readScalarInFile(fullName.str(),"verboseCrossSlip",DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip);
-            verboseCrossSlip=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseCrossSlip",true);
-            
+            verboseCrossSlip=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseCrossSlip",true);            
         }
         
         /**********************************************************************/

@@ -111,7 +111,7 @@ namespace model
           */
 
             const MatrixDimD QQT(Q*Q.transpose());
-            if((QQT-MatrixDimD::Identity()).norm()<2.0*DBL_EPSILON*dim*dim)
+            if((QQT-MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
             {
                 std::cout<<"Q=\n"<<Q<<std::endl;
                 std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;

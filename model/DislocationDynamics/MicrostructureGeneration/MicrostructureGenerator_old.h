@@ -744,7 +744,6 @@ namespace model
         // Defects
         const double targetIrradiationLoopDensity;
         const double averageLoopSize;
-        const double fraction111Loops;  // fraction of [111] glissile loop;
         const std::vector<double> targetInclusionDensities;
         const std::vector<double> inclusionsDistribution_alpha;
         const std::vector<double> inclusionsDistribution_beta;
@@ -780,7 +779,6 @@ namespace model
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
         /* init*/,averageLoopSize(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true))
-        /* init*/,fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true)) 
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
         /* init*/,inclusionsDistribution_alpha(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_alpha",true))
@@ -821,145 +819,65 @@ namespace model
         /**********************************************************************/
         void addIrradiationLoops()
         {
-            
-            if(poly.crystalStructure=="BCC")
+            if(targetIrradiationLoopDensity>0.0)
             {
                 
-                if(targetIrradiationLoopDensity>0.0)
+                size_t ndefects=0;
+                double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                while(defectsDensity<targetIrradiationLoopDensity)
                 {
                     
-                    size_t ndefects=0;
-                    double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                    int NP=6;
+                    
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const int& grainID=rp.second;   // random grain ID
+                    const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                    const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                    
+                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
+                    const int rSS=distribution(generator); // a random SlipSystem ID
+                    const SlipSystem& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
+                    const VectorDimD a(b.normalized());
+                    //const VectorDimD c(slipSystem.s.cartesian());
+                    
                     std::vector<VectorDimD> points;
                     
-                    while(defectsDensity<targetIrradiationLoopDensity)
+                    const int NP=6;
+                    for(int k=0;k<NP;++k)
+                    {
+                        points.push_back(P0+Eigen::AngleAxis<double>(k*2.0*M_PI/NP,a)*slipSystem.unitNormal*0.5*averageLoopSize/poly.b_SI);
+                    }
+                    
+                    bool pointsIncluded=true;
+                    for(const auto& point : points)
+                    {
+                        pointsIncluded*=mesh.searchRegion(grainID,point).first;
+                    }
+                    
+                    if(pointsIncluded)
                     {
                         
-                        
-                        const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
-                        const int& grainID=rp.second;   // random grain ID
-                        const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
-                        const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-                        VectorDimD b;
-                        VectorDimD a;
-                        
-                        
-                        ////////////////////adding non-glide sessile [001] loop for irradiation cases./////////////////
-                        typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-                        typedef LatticeDirection<dim> LatticeDirectionType;
-                        std::vector<LatticeDirectionType> sessileb;
-                        sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
-                        sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
-                        sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
-                        
-                        
-                        std::uniform_int_distribution<> dist(0,2);
-                        
-                        typedef Eigen::Matrix<long int,2,1> Vector2I;
-                        std::vector<Vector2I> sslinedirection;
-                        sslinedirection.emplace_back(Vector2I(1,2));
-                        sslinedirection.emplace_back(Vector2I(0,2));
-                        sslinedirection.emplace_back(Vector2I(0,1));
-                        
-                        
-                        if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops) // add [111] loop
+                        for(int k=0;k<NP;++k)
                         {
+                            nodesIO.emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             
-                            std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
-                            const int rSS=distribution(generator); // a random SlipSystem ID
-                            const SlipSystem& slipSystem=poly.grain(grainID).slipSystems()[rSS];
-                            b=slipSystem.s.cartesian();    // Burgers vector
-                            a=b.normalized();
-                            //const VectorDimD c(slipSystem.s.cartesian());
-                            points.clear();
-                            for(int k=0;k<NP;++k)
-                            {
-                                points.push_back(P0+Eigen::AngleAxis<double>(k*2.0*M_PI/NP,a)*slipSystem.unitNormal*0.5*averageLoopSize/poly.b_SI);
-                            }
-                        }
-                        else                                   // add [100] loop
-                        {
-//                            std::cout<<" generate 001"<<std::endl;
-                            NP=4;
-                            const int rSS_sessile=dist(generator); // a random sessile plane
-                            LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
-                            LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
-                            const double d1cNorm(d1.cartesian().norm());
-                            const double d2cNorm(d2.cartesian().norm());
-                            
-                            
-                            double a1=0.5*averageLoopSize/poly.b_SI;
-                            double a2=0.5*averageLoopSize/poly.b_SI;
-                            //double a1=randomLoopSize(averageLoopSize,sizeDistributeType,paramA,paramB)/Material<Isotropic>::b_real/d1cNorm;
-                            //double a2=randomLoopSize(averageLoopSize,sizeDistributeType,paramA,paramB)/Material<Isotropic>::b_real/d2cNorm;
-                            //int a1=averageLoopSize/d1cNorm;
-                            //int a2=averageLoopSize/d2cNorm;
-                            
-                            //std::cout<<"rSS_sessile="<<rSS_sessile<<std::endl;
-                            // std::cout<<" d1="<<d1.cartesian().transpose()<<" a1="<<a1<<std::endl;
-                            // std::cout<<" d2="<<d1.cartesian().transpose()<<" a2="<<a2<<std::endl;
-                            
-                            //LatticeVector<dim> L1=L0+d1*a1;
-                            //LatticeVector<dim> L2=L1+d2*a2;
-                            //LatticeVector<dim> L3=L2-d1*a1;
-                            
-                            points.clear();
-                            points.push_back(P0);
-                            points.push_back(P0+d1.cartesian()*a1);
-                            points.push_back(P0+d1.cartesian()*a1+d2.cartesian()*a2);
-                            points.push_back(P0+d2.cartesian()*a2);
-                            
-                            // make sure it is interstitial
-                            VectorDimD Cycle_plane=d1.cartesian().cross(d2.cartesian());
-                            b=sessileb[rSS_sessile].cartesian();
-                            if (b.dot(Cycle_plane)<0)
-                            {
-                                b*=-1.0;
-                            }
-                            a=(b.normalized());
-                            
+                            const int nextNodeID=(k+1)<NP? nodeID+k+1 : nodeID;
+                            edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
                             
                         }
                         
+                        loopsIO.emplace_back(loopID+0, b,a,P0,grainID);
                         
-                        bool pointsIncluded=true;
-                        for(const auto& point : points)
-                        {
-                            pointsIncluded*=mesh.searchRegion(grainID,point).first;
-                        }
                         
-                        if(pointsIncluded)
-                        {
-                            
-                            for(int k=0;k<NP;++k)
-                            {
-                                nodesIO.emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                
-                                const int nextNodeID=(k+1)<NP? nodeID+k+1 : nodeID;
-                                edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
-                                
-                            }
-                            
-                            loopsIO.emplace_back(loopID+0, b,a,P0,grainID);
-                            
-                            
-                            snID++;
-                            loopID++;
-                            nodeID+=NP;
-                            ndefects++;
-                            defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                            std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
-                        }
+                        snID++;
+                        loopID++;
+                        nodeID+=NP;
+                        ndefects++;
+                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
                     }
                 }
             }
-            else
-            {
-                std::cout<<"irradiationLoops implemented only for BCC"<<std::endl;
-            
-            }
-            
         }
         
         /**********************************************************************/
