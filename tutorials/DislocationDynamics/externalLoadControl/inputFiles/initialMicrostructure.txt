@@ -33,13 +33,13 @@ averageLoopSize=6.1e-9;
 # vector of densities, one value per family
 targetInclusionDensities=0e20 0e19;
 # vector of Gamma-distribution parameter alpha (dimensionless), one value per family
-inclusionsDistribution_alpha=4.159 4.416;
+inclusionsDistribution_alpha=4.159 4.159;
 # vector of Gamma-distribution parameter beta (dimensionless), one value per family
-inclusionsDistribution_beta=1.943 0.565;
+inclusionsDistribution_beta=1.943 1.943;
 # vector distribution scaling factors (meters), one value per family
-inclusionsDistribution_lambda=2.166e-9 15.700e-9;
+inclusionsDistribution_lambda=2.166e-9 10.17e-9;
 # Array inclusion transformation strains (dimensionless), one row per family with format (exx exy exz eyx eyy eyz ezx exy ezz)
 inclusionsTransformationStrains = 0.56 0.0 0.0 0.0 0.56 0.0 0.0 0.0 0.56
-                                  2.74 0.0 0.0 0.0 2.74 0.0 0.0 0.0 2.74;                          
+                                  0.56 0.0 0.0 0.0 0.56 0.0 0.0 0.0 0.56;                          
 inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
                      0 0 0;

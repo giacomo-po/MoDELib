@@ -15,12 +15,12 @@
 namespace model
 {
     template<typename LoopType>
-    class LoopObserver : public std::map<size_t,const LoopType* const>
+    class LoopObserver : public std::map<size_t,LoopType* const>
     {
 
     public:
         
-        typedef std::map<size_t,const LoopType* const> LoopContainerType;
+        typedef std::map<size_t,LoopType* const> LoopContainerType;
         
         typedef std::pair<bool, const LoopType* const> IsConstLoopType;
         
@@ -52,7 +52,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void addLoop(const LoopType* const pL)
+        void addLoop(LoopType* const pL)
         {
             const bool success=this->insert(std::make_pair(pL->sID,pL)).second;
             assert(success && "Could not insert in loop");

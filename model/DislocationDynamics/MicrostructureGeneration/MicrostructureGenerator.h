@@ -95,18 +95,24 @@ namespace model
                 }
                 else if(nIntersections==1)
                 {
-                    const VectorDimD X((ssi.x0+ssi.x1)*0.5);
-                    if((X-nodePos.back()).norm()>FLT_EPSILON)
-                    {
-                        if(ssi.dMin>FLT_EPSILON) // no intersection
+                    if(ssi.dMin>FLT_EPSILON)
+                    {// no intersection
+                        if((pair.first-nodePos.back()).norm()>FLT_EPSILON)
                         {
                             nodePos.push_back(pair.first);
                         }
-                        else //if(ssi.size==1)
+                    }
+                    else
+                    {// intersection
+                        const VectorDimD X((ssi.x0+ssi.x1)*0.5);
+                        if((X-nodePos.back()).norm()>FLT_EPSILON)
                         {
                             nIntersections++;
                             nodePos.push_back(pair.first);
-                            nodePos.push_back(X);
+                            if((X-pair.first).norm()>FLT_EPSILON)
+                            {
+                                nodePos.push_back(X);
+                            }
                         }
                     }
                 }
@@ -531,6 +537,8 @@ namespace model
                     
                     if(rSS>=0)
                     {
+                        std::cout<<"generating individual straight dislocation "<<k<<defaultColor<<std::endl;
+
                         
                         if(rSS>=int(poly.grain(grainID).slipSystems().size()))
                         {
@@ -552,7 +560,6 @@ namespace model
                         const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
                         const std::deque<VectorDimD> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
 
-                        
                         const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
                         
                         // Write files
@@ -594,18 +601,18 @@ namespace model
                             //                        }
                             //                        std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
                         }
+                        else
+                        {
+                            std::cout<<"nodePos.size="<<nodePos.size()<<std::endl;
+                            assert(false && "LOOP DOES NOT HAVE ENOUGH POINTS");
+                        }
                     
                     }
                     else
                     {
                         std::cout<<"negative slip system ID. Skipping entries."<<std::endl;
                     }
-                    
-
-                    
-                    
                 }
-                
                 
             }
             
@@ -660,8 +667,8 @@ namespace model
                             
                             if(applyPattern)
                             {
-                                const VectorDimD globalVector(poly.grain(grainID).get_C2G()*currentPattern);
-                                const VectorDimD globalDir(poly.grain(grainID).get_C2G()*patternDir);
+                                const VectorDimD globalVector(poly.grain(grainID).C2G*currentPattern);
+                                const VectorDimD globalDir(poly.grain(grainID).C2G*patternDir);
                                 
                                 
                                 const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
@@ -821,11 +828,14 @@ namespace model
         /**********************************************************************/
         void addIrradiationLoops()
         {
+
             
-            if(poly.crystalStructure=="BCC")
+            if(targetIrradiationLoopDensity>0.0)
             {
+                std::cout<<greenBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
+
                 
-                if(targetIrradiationLoopDensity>0.0)
+                if(poly.crystalStructure=="BCC")
                 {
                     
                     size_t ndefects=0;
@@ -953,13 +963,12 @@ namespace model
                         }
                     }
                 }
+                else
+                {
+                    std::cout<<"irradiationLoops implemented only for BCC"<<std::endl;
+                    
+                }
             }
-            else
-            {
-                std::cout<<"irradiationLoops implemented only for BCC"<<std::endl;
-            
-            }
-            
         }
         
         /**********************************************************************/

@@ -79,10 +79,10 @@ namespace model
         void read(const std::string& inputDirectoryName_in, std::string inputFileName) __attribute__ ((deprecated))
         { //
             
-            std::ostringstream fullName;
-            fullName<<inputDirectoryName_in<<inputFileName;
+//            std::ostringstream fullName;
+//            fullName<<inputDirectoryName_in<<inputFileName;
             
-            model::cout<<greenBoldColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
+//            model::cout<<greenBoldColor<<"Reading "<<fullName.str()<<"..."<<defaultColor<<std::endl;
             
             
             // Create a file-reader object
@@ -254,15 +254,16 @@ namespace model
                 {
                     for(int c=0;c<3;++c)
                     {
-                        DN._plasticDistortion(r,c)=temp(curCol);
+                        DN._plasticDistortionFromVelocities(r,c)=temp(curCol);
                         curCol+=1;
                     }
                 }
             }
             
+
             model::cout<<"starting at time step "<<DN.runID<<std::endl;
             model::cout<<"totalTime= "<<DN.totalTime<<std::endl;
-            model::cout<<"plasticDistortion=\n "<<DN._plasticDistortion<<std::endl;
+            model::cout<<"plasticDistortionFromVelocities=\n "<<DN._plasticDistortionFromVelocities<<std::endl;
             
             // time-stepping
             
@@ -408,7 +409,7 @@ namespace model
             }
             createVertices(evl);
             createEdges(evl);
-            
+            DN.updatePlasticDistortionFromAreas();
             
             IDreader<'E',1,14,double> inclusionsReader;
             inclusionsReader.read(0,true);
@@ -859,15 +860,15 @@ namespace model
                 f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
                 if(DN.runningID()==0)
                 {
-                    F_labels<<labelCol+0<<"    betaP_11*V\n";
-                    F_labels<<labelCol+1<<"    betaP_12*V\n";
-                    F_labels<<labelCol+2<<"    betaP_13*V\n";
-                    F_labels<<labelCol+3<<"    betaP_21*V\n";
-                    F_labels<<labelCol+4<<"    betaP_22*V\n";
-                    F_labels<<labelCol+5<<"    betaP_23*V\n";
-                    F_labels<<labelCol+6<<"    betaP_31*V\n";
-                    F_labels<<labelCol+7<<"    betaP_32*V\n";
-                    F_labels<<labelCol+8<<"    betaP_33*V\n";
+                    F_labels<<labelCol+0<<"    betaP_11\n";
+                    F_labels<<labelCol+1<<"    betaP_12\n";
+                    F_labels<<labelCol+2<<"    betaP_13\n";
+                    F_labels<<labelCol+3<<"    betaP_21\n";
+                    F_labels<<labelCol+4<<"    betaP_22\n";
+                    F_labels<<labelCol+5<<"    betaP_23\n";
+                    F_labels<<labelCol+6<<"    betaP_31\n";
+                    F_labels<<labelCol+7<<"    betaP_32\n";
+                    F_labels<<labelCol+8<<"    betaP_33\n";
                     labelCol+=9;
                 }
             }
@@ -878,15 +879,15 @@ namespace model
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
                 if(DN.runningID()==0)
                 {
-                    F_labels<<labelCol+0<<"    dotBetaP_11*V [cs/b]\n";
-                    F_labels<<labelCol+1<<"    dotBetaP_12*V [cs/b]\n";
-                    F_labels<<labelCol+2<<"    dotBetaP_13*V [cs/b]\n";
-                    F_labels<<labelCol+3<<"    dotBetaP_21*V [cs/b]\n";
-                    F_labels<<labelCol+4<<"    dotBetaP_22*V [cs/b]\n";
-                    F_labels<<labelCol+5<<"    dotBetaP_23*V [cs/b]\n";
-                    F_labels<<labelCol+6<<"    dotBetaP_31*V [cs/b]\n";
-                    F_labels<<labelCol+7<<"    dotBetaP_32*V [cs/b]\n";
-                    F_labels<<labelCol+8<<"    dotBetaP_33*V [cs/b]\n";
+                    F_labels<<labelCol+0<<"    dotBetaP_11 [cs/b]\n";
+                    F_labels<<labelCol+1<<"    dotBetaP_12 [cs/b]\n";
+                    F_labels<<labelCol+2<<"    dotBetaP_13 [cs/b]\n";
+                    F_labels<<labelCol+3<<"    dotBetaP_21 [cs/b]\n";
+                    F_labels<<labelCol+4<<"    dotBetaP_22 [cs/b]\n";
+                    F_labels<<labelCol+5<<"    dotBetaP_23 [cs/b]\n";
+                    F_labels<<labelCol+6<<"    dotBetaP_31 [cs/b]\n";
+                    F_labels<<labelCol+7<<"    dotBetaP_32 [cs/b]\n";
+                    F_labels<<labelCol+8<<"    dotBetaP_33 [cs/b]\n";
                     labelCol+=9;
                 }
             }

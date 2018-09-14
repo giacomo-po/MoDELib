@@ -188,6 +188,8 @@ namespace model
             model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
         }
         
+
+        
         /**********************************************************************/
         void singleStep()
         {
@@ -206,6 +208,8 @@ namespace model
             
             //! 2 - Update quadrature points
             updateQuadraturePoints();
+            
+            updatePlasticDistortionFromAreas();
             
             //! 3- Calculate BVP correction
             updateLoadControllers();
@@ -243,8 +247,7 @@ namespace model
             
             //! 8- Update accumulated quantities (totalTime and plasticDistortion)
             totalTime+=dt;
-            computePlasticDistortionRate();
-            _plasticDistortion += _plasticDistortionRate*dt;
+            updatePlasticDistortionRateFromVelocities();
             
             
             //! 9- Contract segments of zero-length
@@ -302,8 +305,10 @@ namespace model
         double dt;
         double vMax;
         size_t Nsteps;
-        MatrixDimD _plasticDistortion;
-        MatrixDimD _plasticDistortionRate;
+        MatrixDimD _plasticDistortionFromVelocities;
+        MatrixDimD _plasticDistortionFromAreas;
+        MatrixDimD _plasticDistortionRateFromVelocities;
+        MatrixDimD _plasticDistortionRateFromAreas;
         int ddSolverType;
         bool computeDDinteractions;
         int crossSlipModel;
@@ -336,6 +341,7 @@ namespace model
         int dislocationImages_z;
         double surfaceAttractionDistance;
         std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
+        bool computePlasticDistortionIncrementally;
         std::string folderSuffix;
         
         /**********************************************************************/
@@ -347,8 +353,10 @@ namespace model
         /* init */ dt(0.0),
         /* init */ vMax(0.0),
         /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
-        /* init */ _plasticDistortion(MatrixDimD::Zero()),
-        /* init */ _plasticDistortionRate(MatrixDimD::Zero()),
+        /* init */ _plasticDistortionFromVelocities(MatrixDimD::Zero()),
+        /* init */ _plasticDistortionFromAreas(MatrixDimD::Zero()),
+        /* init */ _plasticDistortionRateFromVelocities(MatrixDimD::Zero()),
+        /* init */ _plasticDistortionRateFromAreas(MatrixDimD::Zero()),
         /* init */ ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true)),
         /* init */ computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true)),
         /* init */ crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true)),
@@ -378,6 +386,7 @@ namespace model
         /* init */ dislocationImages_y(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_y",true) : 0),
         /* init */ dislocationImages_z(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_z",true) : 0),
         /* init */ surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true)),
+        /* init */ computePlasticDistortionIncrementally(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionIncrementally",true)),
         /* init */ folderSuffix("")
         {
             
@@ -798,25 +807,46 @@ namespace model
         }
         
         /**********************************************************************/
-        void computePlasticDistortionRate()
+        void updatePlasticDistortionRateFromVelocities()
         {
-            _plasticDistortionRate.setZero();
-            for (const auto& linkIter : this->links())
+            if(computePlasticDistortionIncrementally)
             {
-                _plasticDistortionRate+= linkIter.second->plasticDistortionRate();
+                _plasticDistortionRateFromVelocities.setZero();
+                for (const auto& linkIter : this->links())
+                {
+                    _plasticDistortionRateFromVelocities+= linkIter.second->plasticDistortionRate();
+                }
+                _plasticDistortionFromVelocities += _plasticDistortionRateFromVelocities*dt;
+            }
+        }
+        
+        /**********************************************************************/
+        void updatePlasticDistortionFromAreas()
+        {
+            if(!computePlasticDistortionIncrementally)
+            {
+                const MatrixDimD old(_plasticDistortionFromAreas);
+                _plasticDistortionFromAreas.setZero();
+                for(auto& loop : this->loops())
+                {
+                    loop.second->update();
+                    _plasticDistortionFromAreas+= loop.second->plasticDistortion();
+//                    std::cout<<"area="<<loop.second->slippedArea()<<std::endl;
+                }
+                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
             }
         }
         
         /**********************************************************************/
         const MatrixDimD& plasticDistortionRate() const
         {
-            return _plasticDistortionRate;
+            return computePlasticDistortionIncrementally? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
         }
         
         /**********************************************************************/
         const MatrixDimD& plasticDistortion() const
         {
-            return _plasticDistortion;
+            return computePlasticDistortionIncrementally? _plasticDistortionFromVelocities : _plasticDistortionFromAreas;
         }
         
         /**********************************************************************/
@@ -825,7 +855,7 @@ namespace model
           * DislocaitonNetwork.
           */
             //const MatrixDimD temp(plasticDistortionRate());
-            return (_plasticDistortionRate+_plasticDistortionRate.transpose())*0.5;
+            return (plasticDistortionRate()+plasticDistortionRate().transpose())*0.5;
         }
         
         /**********************************************************************/
@@ -863,51 +893,6 @@ namespace model
             }
             return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength);
         }
-        
-//        /**********************************************************************/
-//        void mergeLoopsAtNodes()
-//        {
-//            
-//            std::map<std::pair<size_t,size_t>,std::set<size_t>> loopPairMap;
-//            
-//            for(const auto& node : this->nodes())
-//            {
-//                const auto nodeLoops=node.second->loops();
-//                
-//                for(const auto& loop1 : nodeLoops)
-//                {
-//                    for(const auto& loop2 : nodeLoops)
-//                    {
-//                        if(loop1!=loop2)
-//                        {
-//                            if(   ((loop1->Burgers()+loop2->Burgers()).norm()<FLT_EPSILON || (loop1->Burgers()-loop2->Burgers()).norm()<FLT_EPSILON)
-//                               && ((loop1->glidePlane.unitNormal+loop2->glidePlane.unitNormal).norm()<FLT_EPSILON || (loop1->glidePlane.unitNormal-loop2->glidePlane.unitNormal).norm()<FLT_EPSILON)
-//                               && (loop1->grain.grainID==loop2->grain.grainID)
-//                               )
-//                            {
-//                                
-//                                std::pair<size_t,size_t> key=std::make_pair(std::min(loop1->sID,loop2->sID),std::max(loop1->sID,loop2->sID));
-//                                
-//                                loopPairMap[key].insert(node.second->sID);
-//                            }
-//                            
-//                        }
-//                    }
-//                }
-//                
-//            }
-//            
-//            
-//            for(const auto& pair : loopPairMap)
-//            {
-//                std::cout<<"loops "<<pair.first.first<<" "<<pair.first.second<<" meet at:"<<std::endl;
-//                for(const int& nodeID : pair.second)
-//                {
-//                    std::cout<<"meetNode "<<nodeID<<std::endl;
-//                }
-//            }
-//            
-//        }
         
         /**********************************************************************/
         const long int& runningID() const

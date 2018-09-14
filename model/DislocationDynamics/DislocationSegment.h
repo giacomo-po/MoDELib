@@ -1009,7 +1009,7 @@ namespace model
             //\todo this integral should be calculated using shape functions
             
             const VectorDim V((this->source->get_V().template segment<dim>(0)+this->sink->get_V().template segment<dim>(0))*0.5);
-            return -Burgers*V.cross(this->chord()).transpose()*(!isBoundarySegment());
+            return -Burgers*V.cross(this->chord()).transpose()*(!isBoundarySegment())/this->network().mesh.volume();
         }
         
         /**********************************************************************/

@@ -30,13 +30,14 @@ namespace model
     {
         static constexpr int dim=3;
         static constexpr auto name="FCC";
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         static constexpr bool enable111planes=true;
         static constexpr bool enable110planes=false;
         
         
-        FCClattice() :
-        /* init */ Lattice<dim>(getLatticeBasis())
+        FCClattice(const MatrixDim& Q) :
+        /* init */ Lattice<dim>(getLatticeBasis(),Q)
         {
             
         }

@@ -44,17 +44,19 @@ namespace model
         typedef Lattice<dim> LatticeType;
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
         typedef std::vector<SlipSystem> SlipSystemContainerType;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         /**********************************************************************/
-        static Lattice<dim> getLattice(const std::string& crystalStructure)
+        static Lattice<dim> getLattice(const std::string& crystalStructure,
+                                       const MatrixDim& C2G)
         {
             if(crystalStructure=="BCC")
             {
-                return BCClattice<dim>();
+                return BCClattice<dim>(C2G);
             }
             else if(crystalStructure=="FCC")
             {
-                return FCClattice<dim>();
+                return FCClattice<dim>(C2G);
             }
             else
             {
@@ -105,8 +107,8 @@ namespace model
         
 
         /**********************************************************************/
-        SingleCrystal(const Material<dim,Isotropic>& material) :
-        /* init */ LatticeType(getLattice(material.crystalStructure))
+        SingleCrystal(const Material<dim,Isotropic>& material,const MatrixDim& C2G) :
+        /* init */ LatticeType(getLattice(material.crystalStructure,C2G))
         /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
         /* init */,SlipSystemContainerType(getSlipSystems(material.crystalStructure,*this))
         {

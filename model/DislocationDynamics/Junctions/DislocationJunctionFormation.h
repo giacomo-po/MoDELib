@@ -91,6 +91,11 @@ namespace model
                                             VerboseJunctions(3,"attractive pair"<<std::endl;);
                             isValidJunction=true;
                         }
+                        else
+                        {
+                            VerboseJunctions(3,"non-attractive pair"<<std::endl;);
+
+                        }
                     }
                 }
                 
@@ -106,6 +111,10 @@ namespace model
                                                           ssd);
 #endif
                 }
+            }
+            else
+            {
+                VerboseJunctions(3,"dMin="<<ssd.dMin<<", collisionTol="<<currentcCollisionTOL<<std::endl;);
             }
         }
         
@@ -216,20 +225,32 @@ namespace model
 //                if(isValidJunction)
 //                {
                 
-                    
+                const bool intersectionIsSourceSource(linkA->source->sID==linkB->source->sID);
+                const bool intersectionIsSourceSink(  linkA->source->sID==linkB->  sink->sID);
+                const bool intersectionIsSinkSource(  linkA->  sink->sID==linkB->source->sID);
+                const bool intersectionIsSinkSink(    linkA->  sink->sID==linkB->  sink->sID);
+
+                
+                
                     double currentcCollisionTOL=collisionTol;
                     if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
                        && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
                        && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
                     {// segments on parallel or coincident planes, reduce tolerance
-                        currentcCollisionTOL=FLT_EPSILON;
+                        
+                        
+                        
+                        
+                        const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+                        
+                        if(cosTheta<0.7)
+                        {
+                            currentcCollisionTOL=FLT_EPSILON;
+                        }
+                        
                     }
                     
-                    const bool intersectionIsSourceSource(linkA->source->sID==linkB->source->sID);
-                    const bool intersectionIsSourceSink(  linkA->source->sID==linkB->  sink->sID);
-                    const bool intersectionIsSinkSource(  linkA->  sink->sID==linkB->source->sID);
-                    const bool intersectionIsSinkSink(    linkA->  sink->sID==linkB->  sink->sID);
-                    
+                
                     if(intersectionIsSourceSource)
                     {
                         if(!linkA->source->isSimple())

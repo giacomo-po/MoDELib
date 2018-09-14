@@ -2,7 +2,7 @@
 materialFile=../MaterialsLibrary/W.txt;
 
 # Grain orientation matrices (the i-th row of C2G-j is the crystallographic direction of grain j which becomes the i-th global axis):
-C2G1= 1 0 0
-      0 1 0
-      0 0 1;
+C2G1=   -0.408248290463863  -0.408248290463863   0.816496580927726
+   0.707106781186548  -0.707106781186548                   0
+   0.577350269189626   0.577350269189626   0.577350269189626;
 

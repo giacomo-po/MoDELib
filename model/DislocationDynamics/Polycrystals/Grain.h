@@ -63,23 +63,17 @@ namespace model
         
         const MeshRegionType& region;
         const int& grainID;
-        const Eigen::Matrix<double,dim,dim> C2G;
-
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
               const Material<dim,Isotropic>& material,
-//              const Eigen::Matrix<double,dim,dim>& C2G_in
               const std::string& polyFile
               ) :
-        /* init */ SingleCrystalType(material)
-//        /* init */,C2G(C2G_in)
+        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))
         /* init */,region(region_in)
         /* init */,grainID(region.regionID)
-        /* init */,C2G(TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(grainID),dim,dim,true))
         {
             model::cout<<greenBoldColor<<"Creating Grain "<<grainID<<defaultColor<<std::endl;
-            this->rotate(C2G);
             model::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
             model::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;
             model::cout<<"  # slip systems="<<this->slipSystems().size()<<std::endl;            
@@ -113,12 +107,6 @@ namespace model
                 }
             }
             return temp;
-        }
-        
-        /**********************************************************************/
-        const MatrixDimD& get_C2G() const
-        {
-            return C2G;
         }
         
     };

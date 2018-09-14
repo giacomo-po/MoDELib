@@ -63,7 +63,7 @@ namespace model
         double lambda;  //unit is mu, lambda=2*v/(1-2*v)
         // Number of DD steps before applying strain.
         double nu_use;
-        double sample_volume;
+//        double sample_volume;
         int relaxSteps;
         
         
@@ -85,7 +85,7 @@ namespace model
         /* init list */ last_update_time(0.0),
         /* init list */ lambda(1.0),
         /* init list */ nu_use(0.12),
-        /* init list */ sample_volume(1.0),
+//        /* init list */ sample_volume(1.0),
         /* init list */ relaxSteps(TextFileParser(inputFileName).readScalar<int>("relaxSteps",true))
         {
             
@@ -132,7 +132,7 @@ namespace model
                 
                 if (DN.use_boundary)
                 {
-                    sample_volume=DN.mesh.volume();
+//                    sample_volume=DN.mesh.volume();
                 }
                 else
                 {
@@ -233,7 +233,7 @@ namespace model
                 {
                     MatrixDim pdr(DN.plasticDistortion());
                     // MatrixDim pdr(MatrixDim::Zero());
-                    plasticStrain=(pdr+pdr.transpose())*0.5/sample_volume;
+                    plasticStrain=(pdr+pdr.transpose())*0.5;
                     MatrixDim dstrain(ExternalStrain0+ExternalStrainRate*last_update_time-plasticStrain);
                     //MatrixDim S_strain(straininducedStress(dstrain,lambda));
                     MatrixDim S_stress(ExternalStress0+ExternalStressRate*last_update_time);
@@ -315,7 +315,7 @@ namespace model
             {
                 const double deltaT = DN.get_totalTime() - last_update_time;
                 last_update_time += deltaT;
-                MatrixDim PSR=DN.plasticStrainRate()/sample_volume;
+                MatrixDim PSR=DN.plasticStrainRate();
                 ExternalStress+=stressconsidermachinestiffness(ExternalStrainRate*deltaT-PSR*deltaT,ExternalStressRate*deltaT);  //2017-12-7
                 // MatrixDim S_Strain(straininducedStress(ExternalStrainRate*deltaT-PSR*deltaT,lambda));
                 //ExternalStress+=stressconsidermachinestiffness(S_Strain,ExternalStressRate*deltaT);

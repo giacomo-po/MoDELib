@@ -29,9 +29,6 @@ namespace model
                             public PlanarPolygon
     {
     
-//        std::deque<std::array<size_t, 3>> triangleIDs;
-        
-//        double _slippedArea;
         Eigen::Matrix<double,_dim,1> nA;
         
     public:
@@ -119,7 +116,7 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorDim Burgers() const
+        VectorDim burgers() const
         {
             return this->flow().cartesian();
         }
@@ -156,27 +153,11 @@ namespace model
         /**********************************************************************/
         void update()
         {
-            // Collect node positions along loop
-            std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> nodePos;
-            std::deque<size_t> nodeIDs;
-            for(const auto& nodePair : this->nodeSequence)
-            {
-                nodePos.push_baack(nodePair.first->get_P());
-                nodeIDs.push_back(nodePair.first->sID);
-            }
-            
-            // Call PlanarPolygon
-            this->assignPoints(nodePos);
-            std::deque<std::array<size_t, 3>> triangles=this->triangulate();
-            
             nA.setZero();
-            for(const auto& triIDs : triangles)
+            for(const auto& loopLink : this->links())
             {
-                const VectorDim ndA=(nodePos[std::get<0>(triIDs)]-nodePos[std::get<2>(triIDs)]).cross(nodePos[std::get<1>(triIDs)]-nodePos[std::get<0>(triIDs)]);
-                assert(nA.dot(ndA)>=0.0 && "Tringles must all be right-handed");
-                nA+=ndA;
+                nA+= 0.5*(loopLink.second->source()->get_P()-glidePlane.P).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
             }
-            
         }
         
         /**********************************************************************/
@@ -186,18 +167,17 @@ namespace model
         }
         
         /**********************************************************************/
-        MatrixDim plasticDistortion() const
-        {
-            return -this->flow().cartesian()*nA.transpose();
-        }
-        
-        /**********************************************************************/
         VectorDim rightHandedNormal() const
         {
             return nA.normalized();
         }
         
-                                                                                                                           
+        /**********************************************************************/
+        MatrixDim plasticDistortion() const
+        {
+            return -burgers()*nA.transpose()/this->network().mesh.volume();
+        }
+        
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationLoopType& dL)
@@ -210,6 +190,13 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        MatrixDim plasticDistortion() const
+//        {
+//            return -this->flow().cartesian()*nA.transpose();
+//        }
+
 
 //        static chordInPlane(LoopLinkType* const pL,)
 
@@ -237,3 +224,31 @@ namespace model
 
 //    template <int _dim, short unsigned int corder, typename InterpolationType>
 //    bool DislocationLoop<_dim,corder,InterpolationType>::outputLoopLength=false;
+
+///**********************************************************************/
+//void update()
+//{
+//    // Collect node positions along loop
+//    //            std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> nodePos;
+//    //            std::deque<size_t> nodeIDs;
+//    //            for(const auto& nodePair : this->nodeSequence)
+//    //            {
+//    //                nodePos.push_baack(nodePair.first->get_P());
+//    //                nodeIDs.push_back(nodePair.first->sID);
+//    //            }
+//    //
+//    //            // Call PlanarPolygon
+//    //            this->assignPoints(nodePos);
+//    //            std::deque<std::array<size_t, 3>> triangles=this->triangulate();
+//    //
+//    //            nA.setZero();
+//    //            for(const auto& triIDs : triangles)
+//    //            {
+//    //                const VectorDim ndA=(nodePos[std::get<0>(triIDs)]-nodePos[std::get<2>(triIDs)]).cross(nodePos[std::get<1>(triIDs)]-nodePos[std::get<0>(triIDs)]);
+//    //                assert(nA.dot(ndA)>=0.0 && "Tringles must all be right-handed");
+//    //                nA+=ndA;
+//    //            }
+//    
+//
+//    
+//}

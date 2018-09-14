@@ -75,8 +75,8 @@ namespace model
 //            
 //            model::cout<<"   GB plane normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
 //            model::cout<<"      cartesian components="<<R.cartesian().normalized().transpose()<<defaultColor<<std::endl;
-//            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.get_C2G().transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
-////            model::cout<<"   crystallographic components="<<(grain.get_C2G().transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
+//            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.C2G.transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
+////            model::cout<<"   crystallographic components="<<(grain.C2G.transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
 //            model::cout<<"      interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
 //            
 ////            LatticeVectorType L0(grain.lattice());
@@ -234,7 +234,7 @@ namespace model
         void computeCrystallographicRotationAxis()
         {
             // Compute the relative rotation matrix R such that C2G2=R*C2G1
-            const MatrixDimD R(grain(grainBndID.first).get_C2G().transpose()*grain(grainBndID.second).get_C2G());
+            const MatrixDimD R(grain(grainBndID.first).C2G.transpose()*grain(grainBndID.second).C2G);
             
             // Eigen-decompose R
             Eigen::EigenSolver<MatrixDimD> es(R);
@@ -255,8 +255,8 @@ namespace model
             assert(axisNorm>FLT_EPSILON);
             _crystallographicRotationAxis/=axisNorm;
             
-            _rotationAxis=grain(grainBndID.first).get_C2G()*_crystallographicRotationAxis;
-            assert((_rotationAxis-grain(grainBndID.second).get_C2G()*_crystallographicRotationAxis).norm()<FLT_EPSILON && "rotationAxis inconsistency.");
+            _rotationAxis=grain(grainBndID.first).C2G*_crystallographicRotationAxis;
+            assert((_rotationAxis-grain(grainBndID.second).C2G*_crystallographicRotationAxis).norm()<FLT_EPSILON && "rotationAxis inconsistency.");
             
             cosTheta=0.5*(R.trace()-1.0);
             
@@ -269,8 +269,8 @@ namespace model
 //        {
 //            //std::cout<<"findGrainBoundaryType"<<std::endl;
 //            
-//            const VectorDimD n1=(grain(grainBndID.first).get_C2G().transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
-//            const VectorDimD n2=(grain(grainBndID.second).get_C2G().transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
+//            const VectorDimD n1=(grain(grainBndID.first).C2G.transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
+//            const VectorDimD n2=(grain(grainBndID.second).C2G.transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
 //            
 //            
 //            for (const auto& gbt : bgTypes)

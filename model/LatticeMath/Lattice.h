@@ -43,11 +43,26 @@ namespace model
         //! The static column matrix of lattice vectors
  
         /**********************************************************************/
-        std::pair<MatrixDimD,MatrixDimD> getLatticeBases(const MatrixDimD& A)
+        std::tuple<MatrixDimD,MatrixDimD,MatrixDimD> getLatticeBases(const MatrixDimD& A,const MatrixDimD& Q)
         {
+
+            // Check that Q is orthogonal
+            const MatrixDimD QQT(Q*Q.transpose());
+            if((QQT-MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
+            {
+                std::cout<<"Q=\n"<<Q<<std::endl;
+                std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
+                assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+            }
+            
+            // Check sure that C2G is proper
+            assert(std::fabs(Q.determinant()-1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
+
+            // Check that A is full rank
             assert(std::fabs(A.determinant())>FLT_EPSILON && "A matrix is singular");
             
-            return std::pair<MatrixDimD,MatrixDimD>(A,A.inverse().transpose());
+            const MatrixDimD QA(Q*A);
+            return std::make_tuple(QA,QA.inverse().transpose(),Q);
         }
 
         
@@ -61,38 +76,31 @@ namespace model
 //            
 //        }
         
-        std::pair<MatrixDimD,MatrixDimD> latticeBases;
+        std::tuple<MatrixDimD,MatrixDimD,MatrixDimD> latticeBases;
 
         
     public:
         
         const MatrixDimD&    latticeBasis;
         const MatrixDimD& reciprocalBasis;
-
-        
-//        /**********************************************************************/
-//        Lattice() :
-//        /* init */ latticeBases(getLatticeBases(MatrixDimD::Identity())),
-//        /* init */ latticeBasis(latticeBases.first),
-//        /* init */ reciprocalBasis(latticeBases.second)
-//        {
-//
-//        }
+        const MatrixDimD& C2G;
         
         /**********************************************************************/
-        Lattice(const MatrixDimD& A) :
-        /* init */ latticeBases(getLatticeBases(A))
-        /* init */,latticeBasis(latticeBases.first)
-        /* init */,reciprocalBasis(latticeBases.second)
+        Lattice(const MatrixDimD& A,const MatrixDimD& Q) :
+        /* init */ latticeBases(getLatticeBases(A,Q))
+        /* init */,latticeBasis(std::get<0>(latticeBases))
+        /* init */,reciprocalBasis(std::get<1>(latticeBases))
+        /* init */,C2G(std::get<2>(latticeBases))
         {
-            
+
         }
         
         /**********************************************************************/
         Lattice(const Lattice& other) :
         /* init */ latticeBases(other.latticeBases)
-        /* init */,latticeBasis(latticeBases.first)
-        /* init */,reciprocalBasis(latticeBases.second)
+        /* init */,latticeBasis(std::get<0>(latticeBases))
+        /* init */,reciprocalBasis(std::get<1>(latticeBases))
+        /* init */,C2G(std::get<2>(latticeBases))
         {/*!The copy contructor initializes latticeBases to other.latticeBases,
           * and then the references latticeBasis and reciprocalBasis to the local matrices
           * Note that this allows to wite:
@@ -105,24 +113,24 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        void rotate(const MatrixDimD& Q)
-        {/*! Z is atomic number
-          */
-
-            const MatrixDimD QQT(Q*Q.transpose());
-            if((QQT-MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
-            {
-                std::cout<<"Q=\n"<<Q<<std::endl;
-                std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
-                assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
-            }
-            // make sure that C2G is proper
-            assert(std::fabs(Q.determinant()-1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
-//            setLatticeBasis();
-            latticeBases=getLatticeBases((Q*latticeBasis).eval());
-
-        }
+//        /**********************************************************************/
+//        void rotate(const MatrixDimD& Q)
+//        {/*! Z is atomic number
+//          */
+//
+//            const MatrixDimD QQT(Q*Q.transpose());
+//            if((QQT-MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
+//            {
+//                std::cout<<"Q=\n"<<Q<<std::endl;
+//                std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
+//                assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+//            }
+//            // make sure that C2G is proper
+//            assert(std::fabs(Q.determinant()-1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
+////            setLatticeBasis();
+//            latticeBases=getLatticeBases((Q*latticeBasis).eval());
+//
+//        }
 
         /**********************************************************************/
         static Eigen::Matrix<long int,dim,1> rationalApproximation(VectorDimD nd)

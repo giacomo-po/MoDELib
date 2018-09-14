@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=10000;
+Nsteps=1000;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 
@@ -16,6 +16,7 @@ stochasticForceSeed=-1;
 dislocationImages_x=0;
 dislocationImages_y=0;
 dislocationImages_z=0;
+computePlasticDistortionIncrementally=0;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -35,8 +36,8 @@ outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortion=0;
-outputPlasticDistortionRate=0;
+outputPlasticDistortion=1;
+outputPlasticDistortionRate=1;
 outputDislocationLength=1;
 outputQuadratureParticles=0;
 outputLinkingNumbers=0;
@@ -95,7 +96,7 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=0;
+crossSlipModel=1;
 crossSlipDeg=2.0;
 
 ######################################
@@ -112,7 +113,7 @@ surfaceNucleationModel=0;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-verboseJunctions=0;
+verboseJunctions=5;
 verboseRemesh=0;
 verboseNodeContraction=0;
 verboseDislocationNode=0;

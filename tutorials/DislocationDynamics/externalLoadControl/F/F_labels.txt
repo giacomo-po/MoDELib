@@ -1,6 +1,24 @@
 0    step #
 1    time [b/cs]
 2    dt [b/cs]
-3    glissile length [b]
-4    sessile length [b]
-5    boundary length [b]
+3    betaP_11
+4    betaP_12
+5    betaP_13
+6    betaP_21
+7    betaP_22
+8    betaP_23
+9    betaP_31
+10    betaP_32
+11    betaP_33
+12    dotBetaP_11 [cs/b]
+13    dotBetaP_12 [cs/b]
+14    dotBetaP_13 [cs/b]
+15    dotBetaP_21 [cs/b]
+16    dotBetaP_22 [cs/b]
+17    dotBetaP_23 [cs/b]
+18    dotBetaP_31 [cs/b]
+19    dotBetaP_32 [cs/b]
+20    dotBetaP_33 [cs/b]
+21    glissile length [b]
+22    sessile length [b]
+23    boundary length [b]

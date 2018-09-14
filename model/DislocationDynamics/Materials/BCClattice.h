@@ -31,10 +31,11 @@ namespace model
         
         static constexpr int dim=3;
         static constexpr auto name="BCC";
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 
         
-        BCClattice() :
-        /* init */ Lattice<dim>(getLatticeBasis())
+        BCClattice(const MatrixDim& Q) :
+        /* init */ Lattice<dim>(getLatticeBasis(),Q)
         {
         
         }

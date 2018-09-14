@@ -1,0 +1,84 @@
+0    step #
+1    time [b/cs]
+2    dt [b/cs]
+3    betaP_11*V
+4    betaP_12*V
+5    betaP_13*V
+6    betaP_21*V
+7    betaP_22*V
+8    betaP_23*V
+9    betaP_31*V
+10    betaP_32*V
+11    betaP_33*V
+12    dotBetaP_11*V [cs/b]
+13    dotBetaP_12*V [cs/b]
+14    dotBetaP_13*V [cs/b]
+15    dotBetaP_21*V [cs/b]
+16    dotBetaP_22*V [cs/b]
+17    dotBetaP_23*V [cs/b]
+18    dotBetaP_31*V [cs/b]
+19    dotBetaP_32*V [cs/b]
+20    dotBetaP_33*V [cs/b]
+21    glissile length [b]
+22    sessile length [b]
+23    boundary length [b]
+24    e_11
+25    e_12
+26    e_13
+27    e_21
+28    e_22
+29    e_23
+30    e_31
+31    e_32
+32    e_33
+33    s_11 [mu]
+34    s_12 [mu]
+35    s_13 [mu]
+36    s_21 [mu]
+37    s_22 [mu]
+38    s_23 [mu]
+39    s_31 [mu]
+40    s_32 [mu]
+41    s_33 [mu]
+0    step #
+1    time [b/cs]
+2    dt [b/cs]
+3    betaP_11*V
+4    betaP_12*V
+5    betaP_13*V
+6    betaP_21*V
+7    betaP_22*V
+8    betaP_23*V
+9    betaP_31*V
+10    betaP_32*V
+11    betaP_33*V
+12    dotBetaP_11*V [cs/b]
+13    dotBetaP_12*V [cs/b]
+14    dotBetaP_13*V [cs/b]
+15    dotBetaP_21*V [cs/b]
+16    dotBetaP_22*V [cs/b]
+17    dotBetaP_23*V [cs/b]
+18    dotBetaP_31*V [cs/b]
+19    dotBetaP_32*V [cs/b]
+20    dotBetaP_33*V [cs/b]
+21    glissile length [b]
+22    sessile length [b]
+23    boundary length [b]
+24    e_11
+25    e_12
+26    e_13
+27    e_21
+28    e_22
+29    e_23
+30    e_31
+31    e_32
+32    e_33
+33    s_11 [mu]
+34    s_12 [mu]
+35    s_13 [mu]
+36    s_21 [mu]
+37    s_22 [mu]
+38    s_23 [mu]
+39    s_31 [mu]
+40    s_32 [mu]
+41    s_33 [mu]

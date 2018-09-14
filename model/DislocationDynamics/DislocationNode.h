@@ -74,6 +74,8 @@ namespace model
         typedef std::set<const MeshPlaneType*> MeshPlaneContainerType;
         typedef std::set<const Grain<dim>*> GrainContainerType;
         typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
+        typedef typename NodeBaseType::NeighborContainerType NeighborContainerType;
+        typedef typename NodeBaseType::LoopLinkContainerType LoopLinkContainerType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
@@ -1190,34 +1192,57 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        bool isSimpleZeroNode() const
-//        {
-//            std::set<const LinkType*> zeroLinks;
-//            std::set<const LinkType*> nonZeroLinks;
-//            
-//            for (const auto& neighborIter : this->neighbors())
-//            {
-//                if(std::get<1>(neighborIter.second)->hasZeroBurgers())
-//                {
-//                    zeroLinks.insert(std::get<1>(neighborIter.second));
-//                }
-//                else
-//                {
-//                    nonZeroLinks.insert(std::get<1>(neighborIter.second));
-//                }
-//            }
-//            
-//            bool temp=false;
-//            if(zeroLinks.size()==2 && nonZeroLinks.size()==2)
-//            {
-//            
-//                
-//            
-//            }
-//            
-//            return temp;
-//        }
+        /**********************************************************************/
+        NeighborContainerType nonZeroNeighbors() const
+        {
+            NeighborContainerType temp;
+            for (const auto& neighborIter : this->neighbors())
+            {
+                if(!std::get<1>(neighborIter.second)->hasZeroBurgers())
+                {
+                    temp.emplace(neighborIter.first,neighborIter.second);
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isRemovable(const double& Lmin) const
+        {
+            bool temp=false;
+            const auto linksMap=this->linksByLoopID();
+            if(linksMap.size()==1)
+            {
+                const LoopLinkContainerType& linkSet(linksMap.begin()->second);
+                assert(linkSet.size()==2);
+                const LoopLinkType& link0(**linkSet. begin());
+                const LoopLinkType& link1(**linkSet.rbegin());
+                
+                if(link0.loop()->isGlissile)
+                {
+                    const VectorDim chord0(link0.sink()->get_P()-link0.source()->get_P());
+                    const VectorDim chord1(link1.sink()->get_P()-link1.source()->get_P());
+                    const double chord0Norm(chord0.norm());
+                    const double chord1Norm(chord1.norm());
+                    
+                    if(chord0Norm<Lmin && chord1Norm<Lmin)
+                    {
+                        const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
+                        const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
+                        if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter
+                        {
+                            temp=true;
+//                            if(chord0.dot(chord1)<fdsfsd)
+//                            //double A=0.5*chord0.cross(chord1).norm();
+//                            const double cosTheta=chord0.dot(chord1)/
+                        }
+                    }
+                }
+            }
+
+            return temp;
+        }
+        
         
         /**********************************************************************/
         const double& velocityReduction() const
