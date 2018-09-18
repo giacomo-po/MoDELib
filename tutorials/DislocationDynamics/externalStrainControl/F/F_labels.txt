@@ -1,0 +1,48 @@
+0    step #
+1    time [b/cs]
+2    dt [b/cs]
+3    glissile length [b]
+4    sessile length [b]
+5    boundary length [b]
+6    e_11
+7    e_12
+8    e_13
+9    e_21
+10    e_22
+11    e_23
+12    e_31
+13    e_32
+14    e_33
+15    s_11 [mu]
+16    s_12 [mu]
+17    s_13 [mu]
+18    s_21 [mu]
+19    s_22 [mu]
+20    s_23 [mu]
+21    s_31 [mu]
+22    s_32 [mu]
+23    s_33 [mu]
+0    step #
+1    time [b/cs]
+2    dt [b/cs]
+3    glissile length [b]
+4    sessile length [b]
+5    boundary length [b]
+6    e_11
+7    e_12
+8    e_13
+9    e_21
+10    e_22
+11    e_23
+12    e_31
+13    e_32
+14    e_33
+15    s_11 [mu]
+16    s_12 [mu]
+17    s_13 [mu]
+18    s_21 [mu]
+19    s_22 [mu]
+20    s_23 [mu]
+21    s_31 [mu]
+22    s_32 [mu]
+23    s_33 [mu]

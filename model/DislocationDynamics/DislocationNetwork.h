@@ -831,7 +831,6 @@ namespace model
                 {
                     loop.second->update();
                     _plasticDistortionFromAreas+= loop.second->plasticDistortion();
-//                    std::cout<<"area="<<loop.second->slippedArea()<<std::endl;
                 }
                 _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
             }

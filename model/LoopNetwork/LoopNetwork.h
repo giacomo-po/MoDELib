@@ -349,14 +349,28 @@ namespace model
         }
         
         /**********************************************************************/
+	void deleteLoop(const size_t& loopID)
+	{
+            for(const auto& loopLink : this->loopLinks())
+            {
+                if(loopLink.second.loop()->sID==loopID)
+                {
+                    const std::shared_ptr<LoopType> pL(loopLink.second.loop());
+		    deleteLoop(pL);
+                    break;
+                }
+            }()
+	}
+
+        /**********************************************************************/
         void deleteLoop(const std::shared_ptr<LoopType>& pL)
         {/*!\param[in] pL a shared_ptr to the loop to be removed
           *
           * Disconnects all segments in loop pL, therefore removing the loop itself.
           */
-            for(const auto& lLink : pL->linkSequence())
+            for(const auto& loopLink : pL->linkSequence())
             {
-                disconnect(pL->source,pL->sink,pL);
+                disconnect(loopLink->source(),loopLink->sink(),pL);
             }
         }
         
