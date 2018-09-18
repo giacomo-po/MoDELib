@@ -1,6 +1,6 @@
 ######################################
 # Number of simulation steps 
-Nsteps=1000;
+Nsteps=100000;
 startAtTimeStep = -1;
 quadPerLength=0.1;
 
@@ -9,14 +9,14 @@ quadPerLength=0.1;
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=0;
 dxMax=10;
-use_velocityFilter=0;
+use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
 dislocationImages_x=0;
 dislocationImages_y=0;
 dislocationImages_z=0;
-computePlasticDistortionIncrementally=0;
+computePlasticDistortionIncrementally=1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -36,9 +36,9 @@ outputPKforce=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortion=1;
-outputPlasticDistortionRate=1;
-outputDislocationLength=1;
+outputPlasticDistortion=0;
+outputPlasticDistortionRate=0;
+outputDislocationLength=0;
 outputQuadratureParticles=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
@@ -62,8 +62,9 @@ use_EnergyMultipole = 0;
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
-Lmin=0.02;
-Lmax=0.04;
+Lmin=0.025;
+Lmax=0.080;
+nodeRemoveAngleDeg=60;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -96,12 +97,12 @@ solverTolerance=0.0001;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################
 # GRAIN-BOUNDARY MODEL
-grainBoundaryTransmissionModel=1;
+grainBoundaryTransmissionModel=0;
 
 ######################################
 parametrizationExponent=0.5;
@@ -113,7 +114,7 @@ surfaceNucleationModel=0;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-verboseJunctions=5;
+verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
 verboseDislocationNode=0;

@@ -859,7 +859,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::tuple<double,double,double> networkLength() const
+        std::tuple<double,double,double,double> networkLength() const
         {/*!\returns the total line length of the DislocationNetwork. The return
           * value is a tuple, where the first value is the length of bulk glissile
           * dislocations, the second value is the length of bulk sessile
@@ -869,29 +869,61 @@ namespace model
             double bulkGlissileLength(0.0);
             double bulkSessileLength(0.0);
             double boundaryLength(0.0);
+            double grainBoundaryLength(0.0);
             
-            for (const auto& linkIter : this->links())
+            for(auto& loop : this->loops())
             {
-                const double temp(linkIter.second->arcLength());
-                if(linkIter.second->isBoundarySegment())
+                for(const auto& loopLink : loop.second->links())
                 {
-                    boundaryLength+=temp;
-                }
-                else
-                {
-                    if(linkIter.second->isSessile())
+                    if(!loopLink.second->pLink->hasZeroBurgers())
                     {
-                        bulkSessileLength+=temp;
-                    }
-                    else
-                    {
-                        bulkGlissileLength+=temp;
-                        
+                        if(loopLink.second->pLink->isBoundarySegment())
+                        {
+                            boundaryLength+=loopLink.second->pLink->chord().norm();
+                        }
+                        else if(loopLink.second->pLink->isGrainBoundarySegment())
+                        {
+                            grainBoundaryLength+=loopLink.second->pLink->chord().norm();
+                        }
+                        else
+                        {
+                            if(loopLink.second->pLink->isSessile())
+                            {
+                                bulkSessileLength+=loopLink.second->pLink->chord().norm()/loopLink.second->pLink->loopLinks().size();
+                            }
+                            else
+                            {
+                                bulkGlissileLength+=loopLink.second->pLink->chord().norm()/loopLink.second->pLink->loopLinks().size();
+                            }
+                        }
                     }
                 }
-                
             }
-            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength);
+            
+//
+//            
+//            for (const auto& linkIter : this->links())
+//            {
+//                const double temp(linkIter.second->arcLength());
+//                if(linkIter.second->isBoundarySegment())
+//                {
+//                    boundaryLength+=temp;
+//                }
+//                else
+//                {
+//                    if(linkIter.second->isSessile())
+//                    {
+//                        bulkSessileLength+=temp;
+//                    }
+//                    else
+//                    {
+//                        bulkGlissileLength+=temp;
+//                        
+//                    }
+//                }
+//                
+//            }
+            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
         }
         
         /**********************************************************************/

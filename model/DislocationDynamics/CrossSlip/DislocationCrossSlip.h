@@ -72,6 +72,7 @@ namespace model
                    && !link.second->hasZeroBurgers()
                    && link.second->isGlissile()
                    && link.second->chord().normalized().cross(link.second->burgers().normalized()).norm()<=sinCrossSlipRad
+                   && link.second->chord().norm()>2.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
                    )
                 {
                     const auto& grain(**link.second->grains().begin());

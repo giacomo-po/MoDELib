@@ -1207,7 +1207,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isRemovable(const double& Lmin) const
+        bool isRemovable(const double& Lmin,const double& cosRemove) const
         {
             bool temp=false;
             const auto linksMap=this->linksByLoopID();
@@ -1225,17 +1225,22 @@ namespace model
                     const double chord0Norm(chord0.norm());
                     const double chord1Norm(chord1.norm());
                     
-                    if(chord0Norm<Lmin && chord1Norm<Lmin)
+                    if(chord0Norm<Lmin || chord1Norm<Lmin)
                     {
-                        const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
-                        const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
-                        if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter
+                        if(chord0.dot(chord1)>cosRemove*chord0Norm*chord1Norm)
                         {
-                            temp=true;
-//                            if(chord0.dot(chord1)<fdsfsd)
-//                            //double A=0.5*chord0.cross(chord1).norm();
-//                            const double cosTheta=chord0.dot(chord1)/
+                            const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
+                            const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
+                            if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter
+                            {
+                                temp=true;
+                            }
                         }
+                    }
+                    
+                    if(chord0Norm+chord1Norm<Lmin)
+                    {
+                        temp=true;
                     }
                 }
             }

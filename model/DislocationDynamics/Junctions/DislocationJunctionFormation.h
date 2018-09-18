@@ -67,7 +67,7 @@ namespace model
                 bool isValidJunction(bndJunction || gbndJunction);
                 if(!isValidJunction)
                 {
-                
+                    
                     const VectorDim chordA(linkA->sink->get_P()-linkA->source->get_P());
                     const double LA(chordA.norm());
                     const VectorDim chordB(linkB->sink->get_P()-linkB->source->get_P());
@@ -78,7 +78,7 @@ namespace model
                         StressStraight<dim> stressA(ssd.x0-infiniteLineLength/LA*chordA,
                                                     ssd.x0+infiniteLineLength/LA*chordA,
                                                     linkA->burgers());
-
+                        
                         StressStraight<dim> stressB(ssd.x1-infiniteLineLength/LB*chordB,
                                                     ssd.x1+infiniteLineLength/LB*chordB,
                                                     linkB->burgers());
@@ -88,13 +88,13 @@ namespace model
                         
                         if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
                         {
-                                            VerboseJunctions(3,"attractive pair"<<std::endl;);
+                            VerboseJunctions(3,"attractive pair"<<std::endl;);
                             isValidJunction=true;
                         }
                         else
                         {
                             VerboseJunctions(3,"non-attractive pair"<<std::endl;);
-
+                            
                         }
                     }
                 }
@@ -135,13 +135,13 @@ namespace model
             {
                 if(!link.second->hasZeroBurgers())
                 {
-//                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
+                    //                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
                     swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);
                 }
             }
             swp.computeIntersectionPairs();
             model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" pairs)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::flush;
-
+            
             
             const auto t1= std::chrono::system_clock::now();
             std::deque<std::pair<const LinkType*,const LinkType*>> reducedIntersectionPairs;
@@ -164,10 +164,10 @@ namespace model
                     reducedIntersectionPairs.emplace_back(linkA,linkB);
                 }
             }
-
-
+            
+            
             model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs). Pair-intersections  ("<<nThreads<<" threads) "<<std::flush;
-
+            
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -182,7 +182,7 @@ namespace model
                 
                 VerboseJunctions(2,"checking intersection "<<linkA->source->sID<<"->"<<linkA->sink->sID
                                  /*                   */ <<" "<<linkB->source->sID<<"->"<<linkB->sink->sID<<std::endl;);
-
+                
                 
                 const bool linkAisBnd(linkA->isBoundarySegment());
                 const bool linkBisBnd(linkB->isBoundarySegment());
@@ -196,171 +196,171 @@ namespace model
                 const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
                                         &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON);
                 
-//                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
-//
-//                
-//                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
-//                                           || bndJunction   // junciton between parallel boundary segments
-//                                           || gbndJunction  // junciton between parallel grain-boundary segments
-//                                           );
+                //                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
+                //
+                //
+                //                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
+                //                                           || bndJunction   // junciton between parallel boundary segments
+                //                                           || gbndJunction  // junciton between parallel grain-boundary segments
+                //                                           );
                 
-//                bool isValidJunction(bndJunction || gbndJunction);
-//                if(!isValidJunction)
-//                {
-//                
-//                    SegmentSegmentDistance<dim> ssd();
-//                
-//                
-//                
-//                }
+                //                bool isValidJunction(bndJunction || gbndJunction);
+                //                if(!isValidJunction)
+                //                {
+                //
+                //                    SegmentSegmentDistance<dim> ssd();
+                //
+                //
+                //
+                //                }
                 
                 VerboseJunctions(2,"links are bnd: "<<linkAisBnd<<" "<<linkBisBnd<<std::endl;);
                 VerboseJunctions(2,"links are grainBnd: "<<linkAisGBnd<<" "<<linkBisGBnd<<std::endl;);
                 VerboseJunctions(2,"bndJunction: "<<bndJunction<<std::endl;);
                 VerboseJunctions(2,"gbndJunction: "<<gbndJunction<<std::endl;);
-//                VerboseJunctions(2,"isValidJunction: "<<isValidJunction<<std::endl;);
-
+                //                VerboseJunctions(2,"isValidJunction: "<<isValidJunction<<std::endl;);
                 
                 
-//                if(isValidJunction)
-//                {
+                
+                //                if(isValidJunction)
+                //                {
                 
                 const bool intersectionIsSourceSource(linkA->source->sID==linkB->source->sID);
                 const bool intersectionIsSourceSink(  linkA->source->sID==linkB->  sink->sID);
                 const bool intersectionIsSinkSource(  linkA->  sink->sID==linkB->source->sID);
                 const bool intersectionIsSinkSink(    linkA->  sink->sID==linkB->  sink->sID);
-
                 
                 
-                    double currentcCollisionTOL=collisionTol;
-                    if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-                       && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-                       && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
-                    {// segments on parallel or coincident planes, reduce tolerance
-                        
-                        
-                        
-                        
-                        const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
-                        
-                        if(cosTheta<0.7)
-                        {
-                            currentcCollisionTOL=FLT_EPSILON;
-                        }
-                        
+                
+                double currentcCollisionTOL=collisionTol;
+                if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                   && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                   && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
+                {// segments on parallel or coincident planes, reduce tolerance
+                    
+                    
+                    
+                    
+                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+                    
+                    if(cosTheta<0.7)
+                    {
+                        currentcCollisionTOL=FLT_EPSILON;
                     }
                     
+                }
                 
-                    if(intersectionIsSourceSource)
-                    {
-                        if(!linkA->source->isSimple())
-                        {// non-simple common node, increase tolerance
-                            currentcCollisionTOL=0.5*collisionTol;
-                        }
-                        
-                        // intersect sink of A with link B
-                        SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
-                                                         linkA->sink->get_P(),  // fake degenerete segment at sink of A
-                                                         linkB->source->get_P(),
-                                                         linkB->sink->get_P(),
-                                                         1.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
-                        // intersect sink of B with link A
-                        SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
-                                                         linkA->sink->get_P(),
-                                                         linkB->sink->get_P(),    // fake degenerete segment at sink of B
-                                                         linkB->sink->get_P(),    // fake degenerete segment at sink of B
-                                                         1.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
+                
+                if(intersectionIsSourceSource)
+                {
+                    if(!linkA->source->isSimple())
+                    {// non-simple common node, increase tolerance
+                        currentcCollisionTOL=0.5*collisionTol;
                     }
-                    else if(intersectionIsSourceSink)
-                    {
-                        if(!linkA->source->isSimple())
-                        {// non-simple common node, increase tolerance
-                            currentcCollisionTOL=0.5*collisionTol;
-                        }
-                        
-                        // intersect sink of A with link B
-                        SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
-                                                         linkA->sink->get_P(),  // fake degenerete segment at sink of A
-                                                         linkB->source->get_P(),
-                                                         linkB->sink->get_P(),
-                                                         1.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
-                        // intersect source of B with link A
-                        SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
-                                                         linkA->sink->get_P(),
-                                                         linkB->source->get_P(),    // fake degenerete segment at source of B
-                                                         linkB->source->get_P(),    // fake degenerete segment at source of B
-                                                         0.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
-                        
+                    
+                    // intersect sink of A with link B
+                    SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
+                                                     linkA->sink->get_P(),  // fake degenerete segment at sink of A
+                                                     linkB->source->get_P(),
+                                                     linkB->sink->get_P(),
+                                                     1.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    // intersect sink of B with link A
+                    SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
+                                                     linkA->sink->get_P(),
+                                                     linkB->sink->get_P(),    // fake degenerete segment at sink of B
+                                                     linkB->sink->get_P(),    // fake degenerete segment at sink of B
+                                                     1.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                }
+                else if(intersectionIsSourceSink)
+                {
+                    if(!linkA->source->isSimple())
+                    {// non-simple common node, increase tolerance
+                        currentcCollisionTOL=0.5*collisionTol;
                     }
-                    else if(intersectionIsSinkSource)
-                    {
-                        if(!linkA->sink->isSimple())
-                        {// non-simple common node, increase tolerance
-                            currentcCollisionTOL=0.5*collisionTol;
-                        }
-                        
-                        // intersect source of A with link B
-                        SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
-                                                         linkA->source->get_P(),  // fake degenerete segment at source of A
-                                                         linkB->source->get_P(),
-                                                         linkB->sink->get_P(),
-                                                         0.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
-                        
-                        // intersect sink of B with link A
-                        SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
-                                                         linkA->sink->get_P(),
-                                                         linkB->sink->get_P(),    // fake degenerete segment at sink of B
-                                                         linkB->sink->get_P(),    // fake degenerete segment at sink of B
-                                                         1.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    // intersect sink of A with link B
+                    SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
+                                                     linkA->sink->get_P(),  // fake degenerete segment at sink of A
+                                                     linkB->source->get_P(),
+                                                     linkB->sink->get_P(),
+                                                     1.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    // intersect source of B with link A
+                    SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
+                                                     linkA->sink->get_P(),
+                                                     linkB->source->get_P(),    // fake degenerete segment at source of B
+                                                     linkB->source->get_P(),    // fake degenerete segment at source of B
+                                                     0.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    
+                }
+                else if(intersectionIsSinkSource)
+                {
+                    if(!linkA->sink->isSimple())
+                    {// non-simple common node, increase tolerance
+                        currentcCollisionTOL=0.5*collisionTol;
                     }
-                    else if(intersectionIsSinkSink)
-                    {
-                        
-                        if(!linkA->sink->isSimple())
-                        {// non-simple common node, increase tolerance
-                            currentcCollisionTOL=0.5*collisionTol;
-                        }
-                        
-                        // intersect source of A with link B
-                        SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
-                                                         linkA->source->get_P(),  // fake degenerete segment at source of A
-                                                         linkB->source->get_P(),
-                                                         linkB->sink->get_P(),
-                                                         0.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
-                        
-                        // intersect source of B with link A
-                        SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
-                                                         linkA->sink->get_P(),
-                                                         linkB->source->get_P(),    // fake degenerete segment at source of B
-                                                         linkB->source->get_P(),    // fake degenerete segment at source of B
-                                                         0.0);
-                        insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
-                        
+                    
+                    // intersect source of A with link B
+                    SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
+                                                     linkA->source->get_P(),  // fake degenerete segment at source of A
+                                                     linkB->source->get_P(),
+                                                     linkB->sink->get_P(),
+                                                     0.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    
+                    // intersect sink of B with link A
+                    SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
+                                                     linkA->sink->get_P(),
+                                                     linkB->sink->get_P(),    // fake degenerete segment at sink of B
+                                                     linkB->sink->get_P(),    // fake degenerete segment at sink of B
+                                                     1.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
+                }
+                else if(intersectionIsSinkSink)
+                {
+                    
+                    if(!linkA->sink->isSimple())
+                    {// non-simple common node, increase tolerance
+                        currentcCollisionTOL=0.5*collisionTol;
                     }
-                    else
-                    {// segments don't share vertices
-                        
-                        SegmentSegmentDistance<dim> ssd(linkA->source->get_P(),
-                                                        linkA->sink->get_P(),
-                                                        linkB->source->get_P(),
-                                                        linkB->sink->get_P()
-                                                        );
-                        insertIntersection(intersectionContainer,linkA,linkB,ssd,currentcCollisionTOL,bndJunction,gbndJunction);
-                    }
-//                }
+                    
+                    // intersect source of A with link B
+                    SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
+                                                     linkA->source->get_P(),  // fake degenerete segment at source of A
+                                                     linkB->source->get_P(),
+                                                     linkB->sink->get_P(),
+                                                     0.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdA,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                    
+                    // intersect source of B with link A
+                    SegmentSegmentDistance<dim> ssdB(linkA->source->get_P(),
+                                                     linkA->sink->get_P(),
+                                                     linkB->source->get_P(),    // fake degenerete segment at source of B
+                                                     linkB->source->get_P(),    // fake degenerete segment at source of B
+                                                     0.0);
+                    insertIntersection(intersectionContainer,linkA,linkB,ssdB,currentcCollisionTOL,bndJunction,gbndJunction);
+                    
+                }
+                else
+                {// segments don't share vertices
+                    
+                    SegmentSegmentDistance<dim> ssd(linkA->source->get_P(),
+                                                    linkA->sink->get_P(),
+                                                    linkB->source->get_P(),
+                                                    linkB->sink->get_P()
+                                                    );
+                    insertIntersection(intersectionContainer,linkA,linkB,ssd,currentcCollisionTOL,bndJunction,gbndJunction);
+                }
+                //                }
                 
             }
             
@@ -374,7 +374,7 @@ namespace model
             
         }
         
-
+        
         
         /**********************************************************************/
         size_t junctionStep(const double& dx)
@@ -410,29 +410,33 @@ namespace model
                     if(L1.first && L2.first) // Links exist
                     {
                         
-                        auto  Ni=L1.second->source;
-                        if((ssd.x0-L1.second->source->get_P()).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        auto  Ni= t<0.5? L1.second->source : L1.second->sink;
+                        bool NiIsNew=false;
+                        if((ssd.x0-(t<0.5? L1.second->source->get_P() : L1.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                         {
-                            if((ssd.x0-L1.second->sink->get_P()).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                            if((ssd.x0-(t<0.5? L1.second->sink->get_P() : L1.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                             {
                                 Ni=DN.expand(key1.first,key1.second,ssd.x0);
+                                NiIsNew=true;
                             }
                             else
                             {
-                                Ni=L1.second->sink;
+                                Ni=t<0.5? L1.second->sink : L1.second->source;
                             }
                         }
                         
-                        auto Nj=L2.second->source;
-                        if((ssd.x1-L2.second->source->get_P()).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        auto Nj=u<0.5? L2.second->source : L2.second->sink;
+                        bool NjIsNew=false;
+                        if((ssd.x1-(u<0.5? L2.second->source->get_P() : L2.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                         {
-                            if((ssd.x1-L2.second->sink->get_P()).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                            if((ssd.x1-(u<0.5? L2.second->sink->get_P() : L2.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                             {
                                 Nj=DN.expand(key2.first,key2.second,ssd.x1);
+                                NjIsNew=true;
                             }
                             else
                             {
-                                Nj=L2.second->sink;
+                                Nj=u<0.5? L2.second->sink : L2.second->source;;
                             }
                         }
                         
@@ -442,11 +446,26 @@ namespace model
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "
                                          /*                   */ <<"contracting "<<Ni->sID<<" "<<Nj->sID<<std::endl;);
                         
-                        const bool success=DN.contract(Ni,Nj);
-                        nContracted+=success;
-                        if(!success)
+                        if(Ni->sID!=Nj->sID)
                         {
-                            //                            std::cout<<"IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOVE"<<std::endl;
+                            const bool success=DN.contract(Ni,Nj);
+                            nContracted+=success;
+                            if(!success)
+                            {
+                                if(NiIsNew)
+                                {
+                                    DN.remove(Ni->sID);
+                                }
+                                if(NjIsNew)
+                                {
+                                    DN.remove(Nj->sID);
+                                }
+                            }
+                            else
+                            {// first contraction happended. We want to generate a finite-length junction
+                                
+                                
+                            }
                         }
                     }
                 }
@@ -573,7 +592,7 @@ namespace model
         static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
         static int verboseJunctions;
         const double infiniteLineLength;
-//        static size_t maxJunctionIterations;
+        //        static size_t maxJunctionIterations;
         
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
@@ -586,14 +605,14 @@ namespace model
         /**********************************************************************/
         void formJunctions(const bool& maxJunctionIterations, const double& dx)
         {
-                size_t nContracted=1;
-                size_t iterations=0;
-                while(nContracted && iterations<maxJunctionIterations)
-                {
-                    nContracted=junctionStep(dx);
-                    glissileJunctions(dx);
-                    iterations++;
-                }
+            size_t nContracted=1;
+            size_t iterations=0;
+            while(nContracted && iterations<maxJunctionIterations)
+            {
+                nContracted=junctionStep(dx);
+                glissileJunctions(dx);
+                iterations++;
+            }
         }
         
     };

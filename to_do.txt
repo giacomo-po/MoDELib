@@ -52,6 +52,7 @@ NEW LOOP_NETWORK CODE
 ISSUES:
 - Should form finite length junctions
 - When remesh removes a node, part of the slipped area is removed. This should be accounted in the plastic strain rate, but is is not. As a consequence, when a new node is added, plastic strain rate oscillates about a non-zero mean value.
+- Boundary length does not account for overlapping loops on the bonudary. We should use Loops objects to compute length
 
 ERRORS
 1) FIXED 

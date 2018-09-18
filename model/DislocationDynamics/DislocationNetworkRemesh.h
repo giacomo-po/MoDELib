@@ -106,7 +106,7 @@ namespace model
                     if(   isNode.second->isSimpleBoundaryNode()
                        || isNode.second->isSimpleGrainBoundaryNode()
                        || isNode.second->isSimpleSessileNode()
-                       || isNode.second->isRemovable(Lmin)
+                       || isNode.second->isRemovable(Lmin,cosRemove)
                        )
                     {// Removing may have altered the isSimpleBoundaryNode, check again
                         Nremoved+=DN.remove(nodeID);
@@ -384,6 +384,7 @@ namespace model
         
         static double Lmax;
         static double Lmin;
+        static double cosRemove;
         static double thetaDeg;
         static double neighborRadius;
         static short unsigned int remeshFrequency;
@@ -455,6 +456,9 @@ namespace model
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::Lmax=100.0;
+    
+    template <typename DislocationNetworkType>
+    double DislocationNetworkRemesh<DislocationNetworkType>::cosRemove=0.7071;
     
     template <typename DislocationNetworkType>
     double DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg=45.0;

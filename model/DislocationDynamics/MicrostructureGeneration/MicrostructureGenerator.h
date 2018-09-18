@@ -321,7 +321,7 @@ namespace model
         /**********************************************************************/
         void addSingleArmDislocations()
         {
-            if(targetFrankReadDislocationDensity>0.0)
+            if(targetSingleArmDislocationDensity>0.0)
             {
                 std::cout<<greenBoldColor<<"Generating single-arm sources"<<defaultColor<<std::endl;
                 
@@ -330,7 +330,7 @@ namespace model
                 double density=0.0;
                 double edgeDensity=0.0;
                 
-                while(density<targetFrankReadDislocationDensity)
+                while(density<targetSingleArmDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;

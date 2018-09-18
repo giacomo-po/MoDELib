@@ -345,7 +345,9 @@ namespace model
             double Lmin=TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmin",true);
 //            EDR.readScalarInFile(fullName.str(),"Lmin",Lmin);
             double Lmax=TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmax",true);
-//            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
+            double nodeRemoveAngleDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("nodeRemoveAngleDeg",true);
+
+            //            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
             if(DN.use_boundary)
             {
                 const double minMeshSize=std::min(DN.mesh.xMax(0)-DN.mesh.xMin(0),std::min(DN.mesh.xMax(1)-DN.mesh.xMin(1),DN.mesh.xMax(2)-DN.mesh.xMin(2)));
@@ -353,13 +355,15 @@ namespace model
                 assert(Lmin<=Lmax);
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax*minMeshSize;
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin*minMeshSize;
+                DislocationNetworkRemesh<DislocationNetworkType>::cosRemove=cos(nodeRemoveAngleDeg*M_PI/180.0);
+
             }
             else
             {
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax;
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin;
             }
-            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
+            assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>3.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
             
@@ -894,18 +898,16 @@ namespace model
             
             if(DN.outputDislocationLength)
             {
-                const std::tuple<double,double,double> length=DN.networkLength();
-                //                const auto length=DN.networkLength();
-                //                f_file<<length.first<<" "<<length.second<<" ";
-                f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" ";
+                const std::tuple<double,double,double,double> length=DN.networkLength();
+                f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" "<<std::get<3>(length)<<" ";
                 if(DN.runningID()==0)
                 {
                     F_labels<<labelCol+0<<"    glissile length [b]\n";
                     F_labels<<labelCol+1<<"    sessile length [b]\n";
                     F_labels<<labelCol+2<<"    boundary length [b]\n";
-                    labelCol+=3;
+                    F_labels<<labelCol+3<<"    grain boundary length [b]\n";
+                    labelCol+=4;
                 }
-                
             }
             
             if (DN.use_externalStress)
@@ -931,46 +933,6 @@ namespace model
         }
         
     };
-    
-    // Declare static data
-    /*  template <typename DislocationNetworkType>
-     int DislocationNetworkIO<DislocationNetworkType>::outputFrequency=1;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputBinary=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputGlidePlanes=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputSpatialCells=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputPKforce=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputElasticEnergy=true;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputMeshDisplacement=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputFEMsolution=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputDislocationLength=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortion=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputPlasticDistortionRate=false;
-     
-     template <typename DislocationNetworkType>
-     bool DislocationNetworkIO<DislocationNetworkType>::outputQuadratureParticles=false;
-     
-     template <typename DislocationNetworkType>
-     unsigned int DislocationNetworkIO<DislocationNetworkType>::_userOutputColumn=3;*/
     
 }
 #endif

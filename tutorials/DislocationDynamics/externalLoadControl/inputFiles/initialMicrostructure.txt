@@ -1,6 +1,6 @@
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=0e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -9,7 +9,7 @@ targetFrankReadDislocationDensity=0e12;
 
 #######################################
 # Single-arm sources
-targetSingleArmDislocationDensity=0e12;
+targetSingleArmDislocationDensity=1e13;
 
 #######################################
 # Prismatic loops
@@ -39,7 +39,7 @@ inclusionsDistribution_beta=1.943 1.943;
 # vector distribution scaling factors (meters), one value per family
 inclusionsDistribution_lambda=2.166e-9 10.17e-9;
 # Array inclusion transformation strains (dimensionless), one row per family with format (exx exy exz eyx eyy eyz ezx exy ezz)
-inclusionsTransformationStrains = 0.56 0.0 0.0 0.0 0.56 0.0 0.0 0.0 0.56
-                                  0.56 0.0 0.0 0.0 0.56 0.0 0.0 0.0 0.56;                          
+inclusionsTransformationStrains = 0.06 0.0 0.0 0.0 0.06 0.0 0.0 0.0 0.06
+                                  0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03;                          
 inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
                      0 0 0;

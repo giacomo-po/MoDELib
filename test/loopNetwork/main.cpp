@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-//#include <Eigen/Dense>
+#include <Eigen/Dense>
 #include <model/Utilities/TypeTraits.h>
 #include <model/Utilities/StaticID.h>
 
@@ -72,20 +72,14 @@ namespace model
     struct Dnode : public LoopNode<Dnode>
     {
     
-//    Node(const int& a)
-//        {
-//        }
+        Dnode(Dnetwork* const net) :
+        /* init */LoopNode<Dnode>(net)
+        {
+            
+        }
         
     };
     
-//    struct DLnode : public LoopNode<DLnode>
-//    {
-//        
-//        //    Node(const int& a)
-//        //        {
-//        //        }
-//        
-//    };
     
     struct Dlink : public NetworkLink<Dlink>
     {
@@ -99,7 +93,7 @@ namespace model
     struct Dloop : public Loop<Dloop>
     {
     
-        Dloop(const Dnetwork& net, const double& flow) : Loop<Dloop>(net,flow){}
+        Dloop(Dnetwork* const net, const double& flow) : Loop<Dloop>(net,flow){}
     };
 
 
@@ -111,20 +105,21 @@ using namespace model;
 int main()
 {
 
+    // Create the network
     Dnetwork DN;
     
+    // Create the nodes
     int nNodes=20;
     for(int i=0;i<nNodes;++i)
     {
         DN.insertDanglingNode();
-//        nodeIDs.push_back(id);
     }
     
     
 //    std::vector<size_t> loop0={0,1,2,3,4,5,6,7};
     std::vector<size_t> loop0={0,1,2,3,4,5,6,7,8,9,10,11};
         std::vector<size_t> loop1={1,2,12,13,7,8,14,15};
-    std::vector<size_t> loop2={8,7,16,17,18,19};
+//    std::vector<size_t> loop2={8,7,16,17,18,19};
 
     //  std::vector<size_t> loop1={};
 
@@ -167,7 +162,10 @@ int main()
     std::cout<<"# nodes="<<DN.nodes().size()<<std::endl;
     std::cout<<"# loopLinks="<<DN.loopLinks().size()<<std::endl;
     std::cout<<"# networkLinks="<<DN.links().size()<<std::endl;
-//
+
+    
+    
+    
 //    std::cout<<"Expanding"<<std::endl;
 //    DN.expand(3,4);
 //    

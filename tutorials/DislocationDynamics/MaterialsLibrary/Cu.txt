@@ -1,11 +1,11 @@
 crystalStructure=FCC;
 b_SI=0.2556e-9; # [m] 		Burgers vector magnitude 
-mu0_SI=48e9;	# [Pa] 		Temperature-independent shear modulus coeff in mu=mu0+mu1*T
-mu1_SI=0.0;		# [Pa/K] 	Temperature-dependent shear modulus coeff in mu=mu0+mu1*T
-nu=0.34;
-rho_SI=8940.0;
-T=300;
+mu0_SI=48e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
+mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
+nu=0.34;		# [-]		Poisson's ratio
+rho_SI=8940.0;	# [kg/m^3]	mass density
+T=300;			# [K]		temperature
 
 # Mobility parameters
-B1e_SI=3.3333e-07;
-B1s_SI=3.3333e-07;
+B1e_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for edge  dislocations			
+B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations	
