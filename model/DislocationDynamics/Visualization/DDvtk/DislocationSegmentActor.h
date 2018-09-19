@@ -820,28 +820,31 @@ namespace model
                     }
                 }
                 
-                PlanarPolygon pp(loop.B,loop.N);
-                pp.assignPoints(nodePositions);
-                std::deque<std::array<size_t, 3>> tri=pp.triangulate();
-                
-                for(const auto& triID : tri)
+                if(fabs(loop.B.dot(loop.N))<FLT_EPSILON)
                 {
+                    PlanarPolygon pp(loop.B,loop.N);
+                    pp.assignPoints(nodePositions);
+                    std::deque<std::array<size_t, 3>> tri=pp.triangulate();
                     
-                    const size_t& nodeID0(nodeIDs[std::get<0>(triID)]);
-                    const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
-                    const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
-                    
-                    const size_t ptID0=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID0));
-                    const size_t ptID1=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID1));
-                    const size_t ptID2=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID2));
-                    
-                    vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
-                    triangle->GetPointIds()->SetId ( 0, ptID0 );
-                    triangle->GetPointIds()->SetId ( 1, ptID1 );
-                    triangle->GetPointIds()->SetId ( 2, ptID2 );
-                    triangles->InsertNextCell ( triangle );
+                    for(const auto& triID : tri)
+                    {
+                        
+                        const size_t& nodeID0(nodeIDs[std::get<0>(triID)]);
+                        const size_t& nodeID1(nodeIDs[std::get<1>(triID)]);
+                        const size_t& nodeID2(nodeIDs[std::get<2>(triID)]);
+                        
+                        const size_t ptID0=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID0));
+                        const size_t ptID1=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID1));
+                        const size_t ptID2=std::distance(this->nodeMap().begin(),this->nodeMap().find(nodeID2));
+                        
+                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+                        triangle->GetPointIds()->SetId ( 0, ptID0 );
+                        triangle->GetPointIds()->SetId ( 1, ptID1 );
+                        triangle->GetPointIds()->SetId ( 2, ptID2 );
+                        triangles->InsertNextCell ( triangle );
+                    }
                 }
-                
+
             }
             
             trianglePolyData->SetPoints ( nodePoints );

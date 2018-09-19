@@ -158,10 +158,10 @@ namespace model
                         isSessile=true;
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
-
+                    
                     
                     std::deque<VectorDimD> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
-
+                    
                     
                     const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
@@ -472,17 +472,18 @@ namespace model
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const VectorDimD b(slipSystem.s.cartesian());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
-                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
+                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
                     
                     // find prismatic planes
-                    std::set<int> normalIDs;
+                    std::vector<int> normalIDs;
                     for(size_t k=0;k<poly.grain(grainID).planeNormals().size();++k)
                     {
                         if(slipSystem.s.dot(poly.grain(grainID).planeNormals()[k])==0)
                         {
-                            normalIDs.insert(k);
+                            normalIDs.push_back(k);
                         }
                     }
                     if(normalIDs.size()<2)
@@ -492,7 +493,97 @@ namespace model
                         exit(EXIT_FAILURE);
                     }
                     
-                    assert(0 && "FINISH DIPOLE GENERATOR");
+                    std::vector<LatticeDirection<dim>> dirVector;
+                    std::vector<int> sizeVector;
+                    for(const int& normalID : normalIDs)
+                    {
+                        dirVector.emplace_back(sr,poly.grain(grainID).planeNormals()[normalID]);
+                        sizeVector.emplace_back(randomSize()*randomSign()/dirVector.back().cartesian().norm());
+                        //                        sizeVector.emplace_back(10000);
+                    }
+                    
+                    std::vector<VectorDimD> posVector;
+                    std::vector<VectorDimD> normalsVector;
+
+                    posVector.push_back(L0.cartesian());
+                    for(size_t k=0;k<dirVector.size();++k)
+                    {
+                        posVector.push_back(posVector[k]+dirVector[k].cartesian()*sizeVector[k]);
+                        normalsVector.push_back(poly.grain(grainID).planeNormals()[normalIDs[k]].cartesian().normalized());
+                    }
+                    for(size_t k=0;k<dirVector.size();++k)
+                    {
+                        posVector.push_back(posVector[k+dirVector.size()]-dirVector[k].cartesian()*sizeVector[k]);
+                        normalsVector.push_back(-poly.grain(grainID).planeNormals()[normalIDs[k]].cartesian().normalized());
+                    }
+                    posVector.pop_back();
+                    //                    std::cout<<"posVector.size()="<<posVector.size()<<std::endl;
+                    //                    for(const auto& pos : posVector)
+                    //                    {
+                    //                        std::cout<<pos.cartesian().transpose()<<std::endl;
+                    //                    }
+                    
+                    bool allInside=true;
+                    for(const auto& pos : posVector)
+                    {
+                        allInside*=mesh.searchRegion(grainID,pos).first;
+                        if(!allInside)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    
+                    if(allInside)
+                    {
+                        
+                        // Add nodes (two for-loops are needed)
+                        for(size_t k=0;k<posVector.size();++k)
+                        {
+                            nodesIO.emplace_back(nodeID+k,posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        }
+                        for(size_t k=0;k<posVector.size();++k)
+                        {
+                            nodesIO.emplace_back(nodeID+k+posVector.size(),posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        }
+                        
+                        
+                        // Add lateral loops
+                        for(size_t k=0;k<posVector.size();++k)
+                        {
+                            const int nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
+                            edgesIO.emplace_back(loopID+k,nodeID+k,nextNodeID,0);
+                            edgesIO.emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
+                            edgesIO.emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
+                            edgesIO.emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
+
+                            loopsIO.emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID);
+
+                        }
+                        
+                        
+                        // Add back loop (sessile)
+                        for(size_t k=0;k<posVector.size();++k)
+                        {
+                            const size_t nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
+                            edgesIO.emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
+                        }
+                        loopsIO.emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID);
+                        
+                        
+                        
+                        for(size_t k=0;k<dirVector.size();++k)
+                        {
+                            density+=2.0*(dirVector[k]*sizeVector[k]).cartesian().norm()/mesh.volume()/std::pow(poly.b_SI,2);
+                        }
+                        
+                        std::cout<<"density="<<density<<std::endl;
+                        
+                        nodeID+=2*posVector.size();
+                        snID+=1;
+                        loopID+=posVector.size()+1;
+
+                    }
                 }
                 
             }
@@ -533,12 +624,12 @@ namespace model
                     
                     
                     const int& rSS(straightDislocationsSlipSystemIDs[k]);
-
+                    
                     
                     if(rSS>=0)
                     {
                         std::cout<<"generating individual straight dislocation "<<k<<defaultColor<<std::endl;
-
+                        
                         
                         if(rSS>=int(poly.grain(grainID).slipSystems().size()))
                         {
@@ -559,7 +650,7 @@ namespace model
                         
                         const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
                         const std::deque<VectorDimD> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
-
+                        
                         const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
                         
                         // Write files
@@ -606,7 +697,7 @@ namespace model
                             std::cout<<"nodePos.size="<<nodePos.size()<<std::endl;
                             assert(false && "LOOP DOES NOT HAVE ENOUGH POINTS");
                         }
-                    
+                        
                     }
                     else
                     {
@@ -787,7 +878,7 @@ namespace model
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
         /* init*/,averageLoopSize(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true))
-        /* init*/,fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true)) 
+        /* init*/,fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true))
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
         /* init*/,inclusionsDistribution_alpha(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_alpha",true))
@@ -828,12 +919,12 @@ namespace model
         /**********************************************************************/
         void addIrradiationLoops()
         {
-
+            
             
             if(targetIrradiationLoopDensity>0.0)
             {
                 std::cout<<greenBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
-
+                
                 
                 if(poly.crystalStructure=="BCC")
                 {
@@ -890,13 +981,13 @@ namespace model
                         }
                         else                                   // add [100] loop
                         {
-//                            std::cout<<" generate 001"<<std::endl;
+                            //                            std::cout<<" generate 001"<<std::endl;
                             NP=4;
                             const int rSS_sessile=dist(generator); // a random sessile plane
                             LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
                             LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
-                            const double d1cNorm(d1.cartesian().norm());
-                            const double d2cNorm(d2.cartesian().norm());
+//                            const double d1cNorm(d1.cartesian().norm());
+//                            const double d2cNorm(d2.cartesian().norm());
                             
                             
                             double a1=0.5*averageLoopSize/poly.b_SI;

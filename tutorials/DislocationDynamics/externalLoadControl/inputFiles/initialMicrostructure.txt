@@ -9,11 +9,11 @@ targetFrankReadDislocationDensity=0e12;
 
 #######################################
 # Single-arm sources
-targetSingleArmDislocationDensity=1e13;
+targetSingleArmDislocationDensity=0e13;
 
 #######################################
-# Prismatic loops
-targetPrismaticLoopDensity=0e12;
+# Prismatic loops (dipolar glissile loops)
+targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
