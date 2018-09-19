@@ -1,6 +1,6 @@
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=0e13;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -13,7 +13,7 @@ targetSingleArmDislocationDensity=0e13;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=0e13;
+targetPrismaticLoopDensity=1e13;
 
 #######################################
 # Individual straight dislocations

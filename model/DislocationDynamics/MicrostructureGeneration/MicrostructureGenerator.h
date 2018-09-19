@@ -167,8 +167,15 @@ namespace model
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+2.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
                     
+                    double dh=0.0;
+                    if(enforceMonotonicHelicity)
+                    {
+                        dh=deltaHelicity(nodePos,b);
+                    }
+                    
                     // Write files
-                    if(nodePos.size()>=3)
+                    if(   nodePos.size()>=3
+                       && fabs(helicity+dh)>=fabs(helicity))
                     {
                         // write node and edge file
                         for(size_t k=0;k<nodePos.size();++k)
@@ -188,8 +195,12 @@ namespace model
                         
                         // write loop file
                         loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
-                        //                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
-                        //                    loopFile<< dlIO<<"\n";
+
+                        if(enforceMonotonicHelicity)
+                        {
+                            loopPoints.push_back(nodePos);
+                            loopBurgers.push_back(b);
+                        }
                         
                         loopID+=1;
                         snID+=1;
@@ -199,6 +210,13 @@ namespace model
                             sessileDensity += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
                         }
                         std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
+                        if(enforceMonotonicHelicity)
+                        {
+                            loopPoints.push_back(nodePos);
+                            loopBurgers.push_back(b);
+                            helicity+=dh;
+                            std::cout<<"helicity="<<helicity<<std::endl;
+                        }
                     }
                 }
             }
@@ -262,6 +280,11 @@ namespace model
                     const auto search1(mesh.search(L1.cartesian()));
                     const auto search2(mesh.search(L2.cartesian()));
                     const auto search3(mesh.search(L3.cartesian()));
+                    
+                    if(enforceMonotonicHelicity)
+                    {
+                        assert(false && "enforceMonotonicHelicity NOT YET IMPLEMENTED FOR FR SOURCES");
+                    }
                     
                     if(   search1.first && search1.second->region->regionID==grainID
                        && search2.first && search2.second->region->regionID==grainID
@@ -360,6 +383,11 @@ namespace model
                     
                     
                     const auto search2(mesh.search(L3.cartesian()));
+                    
+                    if(enforceMonotonicHelicity)
+                    {
+                        assert(false && "enforceMonotonicHelicity NOT YET IMPLEMENTED FOR SINGLE-ARM SOURCES");
+                    }
                     
                     if(  search2.first && search2.second->region->regionID==grainID)
                     {
@@ -502,8 +530,8 @@ namespace model
                         //                        sizeVector.emplace_back(10000);
                     }
                     
-                    std::vector<VectorDimD> posVector;
-                    std::vector<VectorDimD> normalsVector;
+                    std::deque<VectorDimD> posVector;
+                    std::deque<VectorDimD> normalsVector;
 
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
@@ -532,9 +560,15 @@ namespace model
                             break;
                         }
                     }
+
+                    double dh=0.0;
+                    if(enforceMonotonicHelicity)
+                    {
+                        dh=deltaHelicity(posVector,-b);
+                    }
                     
-                    
-                    if(allInside)
+                    if(allInside
+                       && fabs(helicity+dh)>=fabs(helicity))
                     {
                         
                         // Add nodes (two for-loops are needed)
@@ -583,6 +617,14 @@ namespace model
                         snID+=1;
                         loopID+=posVector.size()+1;
 
+                        if(enforceMonotonicHelicity)
+                        {
+                            loopPoints.push_back(posVector);
+                            loopBurgers.push_back(-b);
+                            helicity+=dh;
+                            std::cout<<"helicity="<<helicity<<std::endl;
+                        }
+                        
                     }
                 }
                 
@@ -809,6 +851,8 @@ namespace model
         std::vector<DislocationEdgeIO<dim>> edgesIO;
         std::deque<std::deque<VectorDimD>> loopPoints;
         std::deque<VectorDimD> loopBurgers;
+        const bool enforceMonotonicHelicity;
+        double helicity;
         
     public:
         
@@ -856,6 +900,8 @@ namespace model
         /* init*/,nodeID(0)
         /* init*/,snID(0)
         /* init*/,loopID(0)
+        /* init*/,enforceMonotonicHelicity(false)
+        /* init*/,helicity(0.0)
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
         /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
         /* init*/,mesh(meshID)
