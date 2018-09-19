@@ -1,11 +1,15 @@
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=0e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
 targetFrankReadDislocationDensity=1e13;
+FrankReadSizeMean=0.5e-6;
+FrankReadSizeStd=0.25e-6;
+FrankReadAspectRatioMean=2.0;
+FrankReadAspectRatioStd=1.0;
 
 #######################################
 # Single-arm sources
@@ -13,7 +17,7 @@ targetSingleArmDislocationDensity=0e13;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=1e13;
+targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations

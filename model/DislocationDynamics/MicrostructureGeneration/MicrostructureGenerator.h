@@ -234,7 +234,9 @@ namespace model
                 
                 const double fractionEdge=1.0; // TEMPORARY
                 
-                
+                std::normal_distribution<double> sizeDistribution(FrankReadSizeMean/poly.b_SI,FrankReadSizeStd/poly.b_SI);
+                std::normal_distribution<double> aspectRatioDistribution(FrankReadAspectRatioMean,FrankReadAspectRatioStd);
+
                 while(density<targetFrankReadDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -257,103 +259,109 @@ namespace model
                     
                     LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));
                     double d1cNorm(d1.cartesian().norm());
-                    int a1=randomSize()/d1cNorm;
-                    LatticeVector<dim> L1=L0+d1*a1;
-                    
-                    
-                    if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
+//                    const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
+
+                    int a1=sizeDistribution(generator)/d1cNorm;
+                    if(a1>0)
                     {
-                        isEdge=false;
-                        d1cNorm=b.norm();
-                        a1=randomSize()/d1cNorm;
-                        L1=L0+slipSystem.s*a1;
-                    }
-                    
-                    // Compute the LatticeDireciton corresponding to -n
-                    LatticeDirection<3> d2(poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()*randomSign()));
-                    double d2cNorm(d2.cartesian().norm());
-                    
-                    const int a2=2*a1; // aspect ratio of double FR source
-                    LatticeVector<dim> L2=L1+d2*a2;
-                    LatticeVector<dim> L3=L0+d2*a2;
-                    
-                    const VectorDimD P0=L0.cartesian();
-                    const VectorDimD P1=L1.cartesian();
-                    const VectorDimD P2=L2.cartesian();
-                    const VectorDimD P3=L3.cartesian();
-                    const auto search1(mesh.search(P1));
-                    const auto search2(mesh.search(P2));
-                    const auto search3(mesh.search(P3));
-                    
-                    double dh=0.0;
-                    std::deque<VectorDimD> nodePos;
-                    if(enforceMonotonicHelicity)
-                    {
-                        nodePos.push_back(P0);
-                        nodePos.push_back(P1);
-                                                nodePos.push_back(P2);
-                                                nodePos.push_back(P3);
-                        dh=deltaHelicity(nodePos,-b); // central loop is opposite direction
-                    }
-                    
-                    if(   search1.first && search1.second->region->regionID==grainID
-                       && search2.first && search2.second->region->regionID==grainID
-                       && search3.first && search3.second->region->regionID==grainID
-                       && fabs(helicity+dh)>=fabs(helicity)
-                       )
-                    {
-                        density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
-                        if(isEdge)
+                        LatticeVector<dim> L1=L0+d1*a1;
+                        
+                        
+                        if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                         {
-                            edgeDensity+=2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
-                        }
-                        std::cout<<"density="<<density<<" (edge density="<<edgeDensity<<")"<<std::endl;
-                        
-                        const VectorDimD P4=0.5*(P0+P1);
-                        const VectorDimD P5=0.5*(P2+P3);
-                        
-                        const VectorDimD n1=slipSystem.unitNormal;
-                        const VectorDimD n2=d2.cross(d1).cartesian().normalized();
-                        
-                        nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        
-                        loopsIO.emplace_back(loopID+0,b,n1,P0,grainID);
-                        loopsIO.emplace_back(loopID+1,b,n2,P0,grainID);
-                        loopsIO.emplace_back(loopID+2,b,n1,P3,grainID);
-                        
-                        edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+1,0);
-                        edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+4,0);
-                        edgesIO.emplace_back(loopID+0,nodeID+4,nodeID+0,0);
-                        
-                        edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+3,0);
-                        edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+2,0);
-                        edgesIO.emplace_back(loopID+1,nodeID+2,nodeID+1,0);
-                        edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+0,0);
-                        
-                        edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+5,0);
-                        edgesIO.emplace_back(loopID+2,nodeID+5,nodeID+2,0);
-                        edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+3,0);
-                        
-                        nodeID+=6;
-                        loopID+=3;
-                        snID++;
-                        
-                        if(enforceMonotonicHelicity)
-                        {
-                            loopPoints.push_back(nodePos);
-                            loopBurgers.push_back(-b);
-                            helicity+=dh;
-                            std::cout<<"helicity="<<helicity<<std::endl;
+                            isEdge=false;
+                            d1cNorm=b.norm();
+                            a1=randomSize()/d1cNorm;
+                            L1=L0+slipSystem.s*a1;
                         }
                         
+                        // Compute the LatticeDireciton corresponding to -n
+                        LatticeDirection<3> d2(poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()*randomSign()));
+                        double d2cNorm(d2.cartesian().norm());
+                        
+                        const int a2=aspectRatioDistribution(generator)*a1; // aspect ratio of double FR source
+                        if(a2>0)
+                        {
+                            LatticeVector<dim> L2=L1+d2*a2;
+                            LatticeVector<dim> L3=L0+d2*a2;
+                            
+                            const VectorDimD P0=L0.cartesian();
+                            const VectorDimD P1=L1.cartesian();
+                            const VectorDimD P2=L2.cartesian();
+                            const VectorDimD P3=L3.cartesian();
+                            const auto search1(mesh.search(P1));
+                            const auto search2(mesh.search(P2));
+                            const auto search3(mesh.search(P3));
+                            
+                            double dh=0.0;
+                            std::deque<VectorDimD> nodePos;
+                            if(enforceMonotonicHelicity)
+                            {
+                                nodePos.push_back(P0);
+                                nodePos.push_back(P1);
+                                nodePos.push_back(P2);
+                                nodePos.push_back(P3);
+                                dh=deltaHelicity(nodePos,-b); // central loop is opposite direction
+                            }
+                            
+                            if(   search1.first && search1.second->region->regionID==grainID
+                               && search2.first && search2.second->region->regionID==grainID
+                               && search3.first && search3.second->region->regionID==grainID
+                               && fabs(helicity+dh)>=fabs(helicity)
+                               )
+                            {
+                                density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
+                                if(isEdge)
+                                {
+                                    edgeDensity+=2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
+                                }
+                                std::cout<<"density="<<density<<" (edge density="<<edgeDensity<<")"<<std::endl;
+                                
+                                const VectorDimD P4=0.5*(P0+P1);
+                                const VectorDimD P5=0.5*(P2+P3);
+                                
+                                const VectorDimD n1=slipSystem.unitNormal;
+                                const VectorDimD n2=d2.cross(d1).cartesian().normalized();
+                                
+                                nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                nodesIO.emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                nodesIO.emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                
+                                loopsIO.emplace_back(loopID+0,b,n1,P0,grainID);
+                                loopsIO.emplace_back(loopID+1,b,n2,P0,grainID);
+                                loopsIO.emplace_back(loopID+2,b,n1,P3,grainID);
+                                
+                                edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+1,0);
+                                edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+4,0);
+                                edgesIO.emplace_back(loopID+0,nodeID+4,nodeID+0,0);
+                                
+                                edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+3,0);
+                                edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+2,0);
+                                edgesIO.emplace_back(loopID+1,nodeID+2,nodeID+1,0);
+                                edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+0,0);
+                                
+                                edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+5,0);
+                                edgesIO.emplace_back(loopID+2,nodeID+5,nodeID+2,0);
+                                edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+3,0);
+                                
+                                nodeID+=6;
+                                loopID+=3;
+                                snID++;
+                                
+                                if(enforceMonotonicHelicity)
+                                {
+                                    loopPoints.push_back(nodePos);
+                                    loopBurgers.push_back(-b);
+                                    helicity+=dh;
+                                    std::cout<<"helicity="<<helicity<<std::endl;
+                                }                                
+                            }
+                        }
                     }
                 }
-                
             }
         }
         
@@ -886,6 +894,10 @@ namespace model
         
         // Frank-Read sources
         const double targetFrankReadDislocationDensity;
+        const double FrankReadSizeMean;
+        const double FrankReadSizeStd;
+        const double FrankReadAspectRatioMean;
+        const double FrankReadAspectRatioStd;
         
         // Single-arm sources
         const double targetSingleArmDislocationDensity;
@@ -929,6 +941,11 @@ namespace model
         /* init*/,fractionSessileStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true))
         /* Frank-Read sources */
         /* init*/,targetFrankReadDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetFrankReadDislocationDensity",true))
+        /* init*/,FrankReadSizeMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeMean",true))
+        /* init*/,FrankReadSizeStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeStd",true))
+        /* init*/,FrankReadAspectRatioMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioMean",true))
+        /* init*/,FrankReadAspectRatioStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioStd",true))
+
         /* Single-arm sources */
         /* init*/,targetSingleArmDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSingleArmDislocationDensity",true))
         /* Prismatic loops */
