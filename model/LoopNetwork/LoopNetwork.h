@@ -117,7 +117,7 @@ namespace model
     private:
         
         
-
+        
         
         /**********************************************************************/
         DanglingNodeContainerType& danglingNodes()
@@ -235,7 +235,7 @@ namespace model
     public:
         
         static int verboseLevel;
-                
+        
         /**********************************************************************/
         void clearDanglingNodes()
         {
@@ -349,19 +349,19 @@ namespace model
         }
         
         /**********************************************************************/
-	void deleteLoop(const size_t& loopID)
-	{
+        void deleteLoop(const size_t& loopID)
+        {
             for(const auto& loopLink : this->loopLinks())
             {
                 if(loopLink.second.loop()->sID==loopID)
                 {
                     const std::shared_ptr<LoopType> pL(loopLink.second.loop());
-		    deleteLoop(pL);
+                    deleteLoop(pL);
                     break;
                 }
-            }()
-	}
-
+            }
+        }
+        
         /**********************************************************************/
         void deleteLoop(const std::shared_ptr<LoopType>& pL)
         {/*!\param[in] pL a shared_ptr to the loop to be removed
@@ -448,12 +448,12 @@ namespace model
             
             
         }
-
+        
         /**********************************************************************/
         bool contractSecond(const SharedNodePtrType& nA,const SharedNodePtrType& nB)
         {
             assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-
+            
             const size_t a(nA->sID);
             const size_t b(nB->sID);
             VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
@@ -519,8 +519,8 @@ namespace model
             
             return true;
         }
-
-
+        
+        
         /**********************************************************************/
         bool contractSecond(const size_t& a,const size_t &b)
         {
@@ -535,7 +535,7 @@ namespace model
             
             return success;
         }
-
+        
         /**********************************************************************/
         bool remove(const size_t& nodeID)
         {/*!\param[in] nodeID the StaticID of the node to be removed
