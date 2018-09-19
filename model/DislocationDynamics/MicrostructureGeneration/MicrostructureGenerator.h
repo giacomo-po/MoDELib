@@ -246,9 +246,10 @@ namespace model
                     const int rSS=distribution(generator); // a random SlipSystem
                     
                     const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const VectorDimD b(slipSystem.s.cartesian());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
-                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
+                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
                     
                     bool isEdge=true;
                     
@@ -263,7 +264,7 @@ namespace model
                     if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                     {
                         isEdge=false;
-                        d1cNorm=slipSystem.s.cartesian().norm();
+                        d1cNorm=b.norm();
                         a1=randomSize()/d1cNorm;
                         L1=L0+slipSystem.s*a1;
                     }
@@ -276,19 +277,30 @@ namespace model
                     LatticeVector<dim> L2=L1+d2*a2;
                     LatticeVector<dim> L3=L0+d2*a2;
                     
+                    const VectorDimD P0=L0.cartesian();
+                    const VectorDimD P1=L1.cartesian();
+                    const VectorDimD P2=L2.cartesian();
+                    const VectorDimD P3=L3.cartesian();
+                    const auto search1(mesh.search(P1));
+                    const auto search2(mesh.search(P2));
+                    const auto search3(mesh.search(P3));
                     
-                    const auto search1(mesh.search(L1.cartesian()));
-                    const auto search2(mesh.search(L2.cartesian()));
-                    const auto search3(mesh.search(L3.cartesian()));
-                    
+                    double dh=0.0;
+                    std::deque<VectorDimD> nodePos;
                     if(enforceMonotonicHelicity)
                     {
-                        assert(false && "enforceMonotonicHelicity NOT YET IMPLEMENTED FOR FR SOURCES");
+                        nodePos.push_back(P0);
+                        nodePos.push_back(P1);
+                                                nodePos.push_back(P2);
+                                                nodePos.push_back(P3);
+                        dh=deltaHelicity(nodePos,-b); // central loop is opposite direction
                     }
                     
                     if(   search1.first && search1.second->region->regionID==grainID
                        && search2.first && search2.second->region->regionID==grainID
-                       && search3.first && search3.second->region->regionID==grainID)
+                       && search3.first && search3.second->region->regionID==grainID
+                       && fabs(helicity+dh)>=fabs(helicity)
+                       )
                     {
                         density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
                         if(isEdge)
@@ -297,10 +309,6 @@ namespace model
                         }
                         std::cout<<"density="<<density<<" (edge density="<<edgeDensity<<")"<<std::endl;
                         
-                        const VectorDimD P0=L0.cartesian();
-                        const VectorDimD P1=L1.cartesian();
-                        const VectorDimD P2=L2.cartesian();
-                        const VectorDimD P3=L3.cartesian();
                         const VectorDimD P4=0.5*(P0+P1);
                         const VectorDimD P5=0.5*(P2+P3);
                         
@@ -314,9 +322,9 @@ namespace model
                         nodesIO.emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         nodesIO.emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         
-                        loopsIO.emplace_back(loopID+0,slipSystem.s.cartesian(),n1,P0,grainID);
-                        loopsIO.emplace_back(loopID+1,slipSystem.s.cartesian(),n2,P0,grainID);
-                        loopsIO.emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID);
+                        loopsIO.emplace_back(loopID+0,b,n1,P0,grainID);
+                        loopsIO.emplace_back(loopID+1,b,n2,P0,grainID);
+                        loopsIO.emplace_back(loopID+2,b,n1,P3,grainID);
                         
                         edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+1,0);
                         edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+4,0);
@@ -334,6 +342,14 @@ namespace model
                         nodeID+=6;
                         loopID+=3;
                         snID++;
+                        
+                        if(enforceMonotonicHelicity)
+                        {
+                            loopPoints.push_back(nodePos);
+                            loopBurgers.push_back(-b);
+                            helicity+=dh;
+                            std::cout<<"helicity="<<helicity<<std::endl;
+                        }
                         
                     }
                 }

@@ -5,7 +5,7 @@ fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=0e12;
+targetFrankReadDislocationDensity=1e13;
 
 #######################################
 # Single-arm sources
