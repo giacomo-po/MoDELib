@@ -32,7 +32,7 @@ else
 	CC= g++
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
-#	CFLAGS += -fopenmp
+	CFLAGS += -fopenmp
 	CFLAGS += -std=c++14
 
 	ifeq ($(OS),Darwin)

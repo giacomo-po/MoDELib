@@ -263,7 +263,7 @@ namespace model
             
             // Compute screw drag coeff
             const double sgm=sigmoid((0.05-dg1)/0.05);
-            const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm;
+            const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm; //kink-dominated to drag-dominated interpolation
             
             // Compute screw velocity
             double vs=tau*bNorm/Bs*expCoeff;

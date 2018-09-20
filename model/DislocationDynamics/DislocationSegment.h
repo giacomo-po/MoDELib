@@ -119,10 +119,8 @@ namespace model
         }
         
         /**********************************************************************/
-        VectorNdof velocityIntegrand(const int& k) const
-        { /*! The force vector integrand evaluated at the k-th quadrature point.
-           *  @param[in] k the current quadrature point
-           */
+        VectorDim  getVelocity(const int& k)
+        {
             VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(glidePlaneNormal())*glidePlaneNormal();
             double glideForceNorm(glideForce.norm());
             
@@ -139,29 +137,14 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
-                //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
                 double v =this->network().poly.mobility->velocity(stressGauss[k],
-                                                                 Burgers,
-                                                                 rlgauss.col(k),
-                                                                 glidePlaneNormal(),
-                                                                 this->network().poly.T,
-                                                                 jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
-                                                                 this->network().get_dt(),
-                                                                 this->network().use_stochasticForce);
-//                if(grainBoundaries().size()==0)
-//                {
-//                    assert(grains().size()==1);
-//                    (*grains().begin())->mobility->velocity(stressGauss[k],
-//                                                            Burgers,
-//                                                            rlgauss.col(k),
-//                                                            glidePlaneNormal(),
-//                                                            jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
-//                                                            this->network().get_dt(),
-//                                                            this->network().use_stochasticForce);
-//                }
-//                Material<dim,Isotropic>::
-//                velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+                                                                  Burgers,
+                                                                  rlgauss.col(k),
+                                                                  glidePlaneNormal(),
+                                                                  this->network().poly.T,
+                                                                  jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
+                                                                  this->network().get_dt(),
+                                                                  this->network().use_stochasticForce);
                 
                 
                 assert((this->network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
@@ -173,11 +156,68 @@ namespace model
                 
                 vv= v * glideForce/glideForceNorm;
             }
-            //return temp.transpose()*pkGauss.col(k)*jgauss(k);
-            return SFgaussEx(k).transpose()*vv*jgauss(k); // inverse mobility law
-            //            return SFgaussEx(k).transpose()*radiativeVel(pkGauss.col(k))*jgauss(k); // inverse mobility law
-            //            return temp.transpose()*dm.getVelocity(stressGauss[k],rlgauss.col(k))*jgauss(k); // inverse mobility law
+            return vv;
         }
+        
+        /**********************************************************************/
+        VectorNdof velocityIntegrand(const int& k) const
+        { /*! The force vector integrand evaluated at the k-th quadrature point.
+           *  @param[in] k the current quadrature point
+           */
+            return SFgaussEx(k).transpose()*vGauss.col(k)*jgauss(k); // inverse mobility law
+        }
+        //            VectorDim glideForce = pkGauss.col(k)-pkGauss.col(k).dot(glidePlaneNormal())*glidePlaneNormal();
+        //            double glideForceNorm(glideForce.norm());
+        //
+        //            if(glideForceNorm<FLT_EPSILON && this->network().use_stochasticForce)
+        //            {
+        //                glideForce=this->chord().cross(glidePlaneNormal());
+        //                glideForceNorm=glideForce.norm();
+        //                if(glideForceNorm>FLT_EPSILON)
+        //                {
+        //                    glideForce/=glideForceNorm;
+        //                }
+        //            }
+        //
+        //            VectorDim vv=VectorDim::Zero();
+        //            if(glideForceNorm>FLT_EPSILON)
+        //            {
+        //                //                double v =  (this->grainBoundarySet.size()==1) ? (*(this->grainBoundarySet.begin()))->grainBoundaryType().gbMobility.velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal,Material<Isotropic>::T) :
+        //                //                /*                                              */ Material<Isotropic>::velocity(stressGauss[k],Burgers,rlgauss.col(k),_glidePlaneNormal);
+        //                double v =this->network().poly.mobility->velocity(stressGauss[k],
+        //                                                                 Burgers,
+        //                                                                 rlgauss.col(k),
+        //                                                                 glidePlaneNormal(),
+        //                                                                 this->network().poly.T,
+        //                                                                 jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
+        //                                                                 this->network().get_dt(),
+        //                                                                 this->network().use_stochasticForce);
+        ////                if(grainBoundaries().size()==0)
+        ////                {
+        ////                    assert(grains().size()==1);
+        ////                    (*grains().begin())->mobility->velocity(stressGauss[k],
+        ////                                                            Burgers,
+        ////                                                            rlgauss.col(k),
+        ////                                                            glidePlaneNormal(),
+        ////                                                            jgauss(k)*QuadratureDynamicType::weight(qOrder,k),
+        ////                                                            this->network().get_dt(),
+        ////                                                            this->network().use_stochasticForce);
+        ////                }
+        ////                Material<dim,Isotropic>::
+        ////                velocity(stressGauss[k],Burgers,rlgauss.col(k),glidePlaneNormal(),jgauss(k)*QuadratureDynamicType::weight(qOrder,k),this->network().get_dt(),this->network().use_stochasticForce);
+        //
+        //
+        //                assert((this->network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
+        //                const bool useNonLinearVelocity=true;
+        //                if(useNonLinearVelocity && v>FLT_EPSILON)
+        //                {
+        //                    v= 1.0-std::exp(-v);
+        //                }
+        //                
+        //                vv= v * glideForce/glideForceNorm;
+        //            }
+        //            return temp.transpose()*pkGauss.col(k)*jgauss(k);
+
         
         /**********************************************************************/
         VectorDim pkIntegrand(const int& k) const
@@ -216,6 +256,7 @@ namespace model
         MatrixDimQorder rgauss; //! Positions corrersponding to the quadrature points
         std::deque<MatrixDim,Eigen::aligned_allocator<MatrixDim>> stressGauss;
         MatrixDimQorder pkGauss; //! PK force corrersponding to the quadrature points
+        MatrixDimQorder vGauss;
         
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -426,6 +467,7 @@ namespace model
             jgauss.setZero(qOrder);
             rlgauss.setZero(dim,qOrder);
             pkGauss.setZero(dim,qOrder);
+            vGauss.setZero(dim,qOrder);
             
             if(!hasZeroBurgers())
             {
@@ -684,7 +726,8 @@ namespace model
             rlgauss.setZero(dim,qOrder);
             pkGauss.setZero(dim,qOrder);
             stressGauss.clear();
-            
+            vGauss.setZero(dim,qOrder);
+
             
             Fq.setZero();
             Kqq.setZero();
@@ -797,6 +840,7 @@ namespace model
                         
                         // compute PK force
                         pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                        vGauss.col(k)=getVelocity(k);
                     }
                 }
                 
@@ -875,6 +919,7 @@ namespace model
                     {
                         stressGauss.push_back(stressAtQuadrature(k));
                         pkGauss.col(k)=(stressGauss[k]*Burgers).cross(rlgauss.col(k));
+                        vGauss.col(k)=getVelocity(k);
                     }
                 }
                 
@@ -1139,14 +1184,14 @@ namespace model
         VectorDim integratedVelocity() const
         {
             VectorDim temp(VectorDim::Zero());
-            Quadrature<1,16,UniformOpen>::integrate(this,temp,&LinkType::rm_integrand);
+            QuadratureDynamicType::integrate(qOrder,this,temp,&LinkType::integratedVelocityKernel);
             return temp;
         }
         
         /**********************************************************************/
-        VectorDim integratedVelocityKernel(const double& u) const
+        VectorDim integratedVelocityKernel(const int& k) const
         {
-            return velocity(u)*this->get_j(u);
+            return vGauss.col(k)*this->jgauss(k);
         }
         
         /**********************************************************************/

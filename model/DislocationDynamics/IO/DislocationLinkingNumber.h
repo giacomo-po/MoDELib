@@ -199,7 +199,15 @@ namespace model
             const VectorDim& R3(link2.source()->get_P());
             const VectorDim& R4(link2.  sink()->get_P());
             
-            return LinkingNumber<dim>::segmentPairLN(R1,R2,R3,R4);
+            if(   (link1.source()->sID==link2.source()->sID && link1.sink()->sID==link2.sink()->sID)
+               || (link1.source()->sID==link2.sink()->sID && link1.sink()->sID==link2.source()->sID))
+            {
+                return 0.0;
+            }
+            else
+            {
+                return LinkingNumber<dim>::segmentPairLN(R1,R2,R3,R4);
+            }
         }
         
         

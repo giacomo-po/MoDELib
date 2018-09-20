@@ -928,7 +928,7 @@ namespace model
         /* init*/,nodeID(0)
         /* init*/,snID(0)
         /* init*/,loopID(0)
-        /* init*/,enforceMonotonicHelicity(false)
+        /* init*/,enforceMonotonicHelicity(true)
         /* init*/,helicity(0.0)
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
         /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
