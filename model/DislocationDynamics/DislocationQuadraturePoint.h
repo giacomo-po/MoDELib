@@ -375,6 +375,13 @@ namespace model
             return F;
         }
         
+//        /**********************************************************************/
+//        double arcLength() const
+//        {
+//            return SplineSegmentType::template arcLength<16,UniformOpen>();
+//        }
+
+        
     };
     
 }
