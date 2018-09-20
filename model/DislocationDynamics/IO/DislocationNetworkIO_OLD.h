@@ -679,43 +679,41 @@ namespace model
             
             if(DN.outputPKforce)
             {
-                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
-//                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
-//                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
-//                SequentialOutputFile<'P',1> p_file;
-//                for (const auto& linkIter : DN.links())
-//                {
-//                    const int qOrder(linkIter.second->rgauss.cols());
-//                    for (int q=0;q<qOrder;++q)
-//                    {
-//                        p_file << linkIter.second->source->sID<<" "
-//                        /*  */ << linkIter.second->sink->sID<<" "
-//                        /*  */ <<q<<" "
-//                        /*  */ << linkIter.second->rgauss.col(q).transpose()<<" "
-//                        /*  */ <<linkIter.second->pkGauss.col(q).transpose()<<"\n";
-//                    }
-//                }
-//                model::cout<<", P/P_"<<p_file.sID<<std::flush;
+                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
+                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
+                SequentialOutputFile<'P',1> p_file;
+                for (const auto& linkIter : DN.links())
+                {
+                    const int qOrder(linkIter.second->rgauss.cols());
+                    for (int q=0;q<qOrder;++q)
+                    {
+                        p_file << linkIter.second->source->sID<<" "
+                        /*  */ << linkIter.second->sink->sID<<" "
+                        /*  */ <<q<<" "
+                        /*  */ << linkIter.second->rgauss.col(q).transpose()<<" "
+                        /*  */ <<linkIter.second->pkGauss.col(q).transpose()<<"\n";
+                    }
+                }
+                model::cout<<", P/P_"<<p_file.sID<<std::flush;
             }
             
             if(DN.outputElasticEnergy)
             {
-                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
-//                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
-//                SequentialOutputFile<'W',1>::set_count(runID);
-//                SequentialOutputFile<'W',1>::set_increment(DN.outputFrequency);
-//                SequentialOutputFile<'W',1> w_file; //energy_file
-//                int ll=0;
-//                for (const auto& linkIter : DN.links())
-//                {
-//                    const int qOrder(linkIter.second->rgauss.cols());
-//                    for (size_t q=0;q<linkIter.second->quadratureParticleContainer.size();++q)
-//                    {
-//                        w_file << ll*qOrder+q<<" "<< linkIter.second->rgauss.col(q).transpose()<<" "<< linkIter.second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
-//                    }
-//                    ll++;
-//                }
-//                model::cout<<", W/W_"<<w_file.sID<<std::flush;
+                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
+                SequentialOutputFile<'W',1>::set_count(runID);
+                SequentialOutputFile<'W',1>::set_increment(DN.outputFrequency);
+                SequentialOutputFile<'W',1> w_file; //energy_file
+                int ll=0;
+                for (const auto& linkIter : DN.links())
+                {
+                    const int qOrder(linkIter.second->rgauss.cols());
+                    for (size_t q=0;q<linkIter.second->quadratureParticleContainer.size();++q)
+                    {
+                        w_file << ll*qOrder+q<<" "<< linkIter.second->rgauss.col(q).transpose()<<" "<< linkIter.second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
+                    }
+                    ll++;
+                }
+                model::cout<<", W/W_"<<w_file.sID<<std::flush;
             }
             
             typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;

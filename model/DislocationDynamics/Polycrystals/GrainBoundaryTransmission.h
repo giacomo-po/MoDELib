@@ -45,10 +45,10 @@ namespace model
             
             double temp=0.0;
             
-            const size_t q=seg.qOrder/2;
-            if(seg.stressGauss.size()>q)
+            const size_t q=seg.quadraturePoints().size()/2;
+            if(seg.quadraturePoints().size()>q)
             {
-                const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.stressGauss[q]*b2).cross(seg.chord().normalized()));
+                const Eigen::Matrix<double,SegmentType::dim,1> pk((seg.quadraturePoint(q).stress*b2).cross(seg.chord().normalized()));
                 
                 //		 std::cout<<"here 1"<<std::endl;
                 
@@ -58,7 +58,7 @@ namespace model
                    )
                 {// pk force on segment must be pushing into new grain
                     const Eigen::Matrix<double,SegmentType::dim,1>& b1(seg.burgers());
-                    const double tau=fabs((seg.stressGauss[q]*b2.normalized()).dot(n2));
+                    const double tau=fabs((seg.quadraturePoint(q).stress*b2.normalized()).dot(n2));
                     
                     temp=0.5*alpha*((b1-b2).squaredNorm()+b2.squaredNorm()-b1.squaredNorm())-tau*b2.norm()*lambda;
                 }

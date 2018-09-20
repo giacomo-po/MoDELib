@@ -56,7 +56,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::deque<VectorDimD> straightLineBoundaryClosure(const VectorDimD& P0,
+        std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> straightLineBoundaryClosure(const VectorDimD& P0,
                                                            const VectorDimD& d,
                                                            const VectorDimD& n,
                                                            const int& grainID)
@@ -75,7 +75,7 @@ namespace model
                 segDeq.emplace_back(pmi[k].second,pmi[k1].second);
             }
             
-            std::deque<VectorDimD> nodePos;
+            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
             int nIntersections=0;
             for(const auto& pair : segDeq)
             {
@@ -160,7 +160,7 @@ namespace model
                     }
                     
                     
-                    std::deque<VectorDimD> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
+                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
                     
                     
                     const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
@@ -175,7 +175,7 @@ namespace model
                     
                     // Write files
                     if(   nodePos.size()>=3
-                       && fabs(helicity+dh)>=fabs(helicity))
+                       && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity))
                     {
                         // write node and edge file
                         for(size_t k=0;k<nodePos.size();++k)
@@ -294,7 +294,7 @@ namespace model
                             const auto search3(mesh.search(P3));
                             
                             double dh=0.0;
-                            std::deque<VectorDimD> nodePos;
+                            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
                             if(enforceMonotonicHelicity)
                             {
                                 nodePos.push_back(P0);
@@ -307,7 +307,7 @@ namespace model
                             if(   search1.first && search1.second->region->regionID==grainID
                                && search2.first && search2.second->region->regionID==grainID
                                && search3.first && search3.second->region->regionID==grainID
-                               && fabs(helicity+dh)>=fabs(helicity)
+                               && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity)
                                )
                             {
                                 density += 2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
@@ -554,8 +554,8 @@ namespace model
                         //                        sizeVector.emplace_back(10000);
                     }
                     
-                    std::deque<VectorDimD> posVector;
-                    std::deque<VectorDimD> normalsVector;
+                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> posVector;
+                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> normalsVector;
 
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
@@ -592,7 +592,7 @@ namespace model
                     }
                     
                     if(allInside
-                       && fabs(helicity+dh)>=fabs(helicity))
+                       && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity))
                     {
                         
                         // Add nodes (two for-loops are needed)
@@ -715,7 +715,7 @@ namespace model
                         const VectorDimD b(slipSystem.s.cartesian());
                         
                         const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
-                        const std::deque<VectorDimD> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
+                        const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
                         
                         const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
                         
@@ -873,8 +873,8 @@ namespace model
         std::vector<DislocationNodeIO<dim>> nodesIO;
         std::vector<DislocationLoopIO<dim>> loopsIO;
         std::vector<DislocationEdgeIO<dim>> edgesIO;
-        std::deque<std::deque<VectorDimD>> loopPoints;
-        std::deque<VectorDimD> loopBurgers;
+        std::deque<std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>>> loopPoints;
+        std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> loopBurgers;
         const bool enforceMonotonicHelicity;
         double helicity;
         
@@ -928,7 +928,7 @@ namespace model
         /* init*/,nodeID(0)
         /* init*/,snID(0)
         /* init*/,loopID(0)
-        /* init*/,enforceMonotonicHelicity(true)
+        /* init*/,enforceMonotonicHelicity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("enforceMonotonicHelicity",true))
         /* init*/,helicity(0.0)
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
         /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
@@ -1142,7 +1142,7 @@ namespace model
         }
         
         /**********************************************************************/
-        double deltaHelicity(const std::deque<VectorDimD>& newPoints,
+        double deltaHelicity(const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>>& newPoints,
                              const VectorDimD& newBurgers) const
         {
             
@@ -1150,6 +1150,21 @@ namespace model
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
+//                std::cout<<"newPoints=["<<std::endl;
+//                for(const auto& newPoint : newPoints)
+//                {
+//                    std::cout<<newPoint.transpose()<<std::endl;
+//                }
+//                std::cout<<"];"<<std::endl;
+//                
+//                std::cout<<"oldPoints=["<<std::endl;
+//                for(const auto& oldPoint : loopPoints[k])
+//                {
+//                    std::cout<<oldPoint.transpose()<<std::endl;
+//                }
+//                std::cout<<"];"<<std::endl;
+//                std::cout<<"h="<<LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers)<<std::endl;
+
                 h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
             
