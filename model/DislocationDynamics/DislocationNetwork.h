@@ -452,7 +452,7 @@ namespace model
             
             if(outputDislocationLength)
             {
-                _userOutputColumn+=3;
+                _userOutputColumn+=4;
             }
             
             // IO

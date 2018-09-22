@@ -13,7 +13,6 @@
 #include <Eigen/Dense>
 #include <model/Utilities/TypeTraits.h>
 #include <model/MPI/MPIcout.h>
-//#include <model/Geometry/Splines/SplineConsts.h>
 #include <model/Quadrature/Quadrature.h>
 #include <model/Quadrature/QuadratureDynamic.h>
 #include <model/Quadrature/QuadPowDynamic.h>
@@ -50,9 +49,9 @@ namespace model
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
         typedef LatticeVector<3>                                                            FlowType;
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
-        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
-        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
-            
+//        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+//        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+        
         enum MeshLocation{outsideMesh=-1, insideMesh=0, onMeshBoundary=1, onRegionBoundary=2};
 
     

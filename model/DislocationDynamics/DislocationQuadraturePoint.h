@@ -28,7 +28,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,Ndof> MatrixDimNdof;
         typedef Eigen::Matrix<double,Ncoeff,Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double,Ncoeff,dim> MatrixNcoeffDim;
-        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+        typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
         typedef QuadPowDynamic<pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
         
         const size_t sourceID;
@@ -131,7 +131,6 @@ namespace model
         template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& seg)
         {
-            
             pkForce=(stress*seg.burgers()).cross(rl);
             glideVelocity=getGlideVelocity(seg,pkForce,stress,rl,dL);
         }
@@ -157,8 +156,6 @@ namespace model
         typedef Eigen::Matrix<double,Ncoeff,dim> MatrixNcoeffDim;
         typedef typename DislocationQuadraturePointType::QuadratureDynamicType QuadratureDynamicType;
         typedef typename DislocationQuadraturePointType::QuadPowDynamicType QuadPowDynamicType;
-
-
         
         /**********************************************************************/
         VectorNdof nodalVelocityLinearKernel(const int& k) const
@@ -177,7 +174,6 @@ namespace model
            *	\f]
            */
             const MatrixDimNdof SFEx(quadraturePoint(k).SFgaussEx());
-            //			return temp.transpose()*Material<Isotropic>::B*temp*this->quadraturePoint(k).j;
             return SFEx.transpose()*SFEx*quadraturePoint(k).j;
         }
         
@@ -195,8 +191,6 @@ namespace model
         {
             return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
         }
-
-
         
     public:
         
@@ -205,7 +199,7 @@ namespace model
         void updateGeometry(const LinkType& seg,
                             const double& quadPerLength)
         {
-            
+    
             this->clear();
             
             if(    !seg.hasZeroBurgers()
@@ -265,7 +259,7 @@ namespace model
                     {// full interaction
                         for (auto& qPoint : quadraturePoints())
                         {
-                            qPoint.stress+=ss.stress(qPoint.r);
+                            qPoint.stress += ss.stress(qPoint.r);
                         }
                     }
                     else if(dr<100.0)
@@ -275,7 +269,7 @@ namespace model
                         for (auto& qPoint : quadraturePoints())
                         {
                             const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-                            qPoint.stress+=(1.0-u)*stressSource+u*stressSink;
+                            qPoint.stress += (1.0-u)*stressSource+u*stressSink;
                         }
                     }
                     else
@@ -283,19 +277,18 @@ namespace model
                         const MatrixDim stressC(ss.stress(c));
                         for (auto& qPoint : quadraturePoints())
                         {
-                            qPoint.stress+=stressC;
+                            qPoint.stress += stressC;
                         }
                     }
                 }
                 
-                // Add other stress contributions
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())
                 {
                     // Add stress of ExternalLoadController
                     if(seg.network().use_externalStress)
                     {
-                        qPoint.stress+=seg.network().extStressController.externalStress(qPoint.r);
+                        qPoint.stress += seg.network().extStressController.externalStress(qPoint.r);
                     }
                     
                     // Add BVP stress
@@ -307,7 +300,7 @@ namespace model
                     // Add GB stress
                     for(const auto& sStraight : seg.network().poly.grainBoundaryDislocations() )
                     {
-                        qPoint.stress +=sStraight.stress(qPoint.r);
+                        qPoint.stress += sStraight.stress(qPoint.r);
                     }
                     
                     // Add EshelbyInclusions stress
@@ -315,13 +308,12 @@ namespace model
                     {
                         for(const auto& shift : seg.network().periodicShifts)
                         {
-                            qPoint.stress +=inclusion.second.stress(qPoint.r-shift);
+                            qPoint.stress += inclusion.second.stress(qPoint.r-shift);
                         }
                     }
                     
                     qPoint.updateForcesAndVelocities(seg);
                 }
-                
             }
         }
         
@@ -340,17 +332,17 @@ namespace model
         {
             MatrixNdof Kqq(MatrixNdof::Zero());
             if(corder==0)
-            {
-                Kqq<<1.0/3.0,    0.0,    0.0, 1.0/6.0,    0.0,    0.0,
-                /**/     0.0,1.0/3.0,    0.0,     0.0,1.0/6.0,    0.0,
-                /**/     0.0,    0.0,1.0/3.0,     0.0,    0.0,1.0/6.0,
-                /**/     1.0/6.0,0.0,    0.0, 1.0/3.0,    0.0,    0.0,
-                /**/     0.0,1.0/6.0,    0.0,     0.0,1.0/3.0,    0.0,
-                /**/     0.0,    0.0,1.0/6.0,     0.0,    0.0,1.0/3.0;
-                Kqq*=seg.chord().norm();
+            {// Analytical integral can be performed
+                const double L(seg.chord().norm());
+                Kqq<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
+                /**/   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
+                /**/   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,
+                /**/ L/6.0,  0.0,  0.0, L/3.0,  0.0,  0.0,
+                /**/   0.0,L/6.0,  0.0,   0.0,L/3.0,  0.0,
+                /**/   0.0,  0.0,L/6.0,   0.0,  0.0,L/3.0;
             }
             else
-            {
+            {// Numerical integral must be performed
                 assert(0 && "WE NEED TO INCREASE qOrder FOR THE FOLLOWING INTEGRATION, SINCE EVEN FOR LINEAR SEGMENTS Kqq IS NOT INTEGRATED CORRECLTY FOR SMALL qOrder");
                 QuadratureDynamicType::integrate(this->size(),this,Kqq,&DislocationQuadraturePointContainerType::nodalVelocityBilinearKernel);
             }
@@ -375,12 +367,12 @@ namespace model
             return F;
         }
         
-//        /**********************************************************************/
-//        double arcLength() const
-//        {
-//            return SplineSegmentType::template arcLength<16,UniformOpen>();
-//        }
-
+        //        /**********************************************************************/
+        //        double arcLength() const
+        //        {
+        //            return SplineSegmentType::template arcLength<16,UniformOpen>();
+        //        }
+        
         
     };
     

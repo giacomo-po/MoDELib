@@ -78,10 +78,9 @@ namespace model
         typedef typename SplineSegmentType::MatrixNcoeffDim MatrixNcoeffDim;
         static constexpr int pOrder=SplineSegmentType::pOrder;
         typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
-        typedef Eigen::Matrix<double,dim,Eigen::Dynamic>	MatrixDimQorder;
-        typedef Eigen::Matrix<double, 1, Eigen::Dynamic>	VectorQorder;
-        typedef typename TypeTraits<LinkType>::QuadPowDynamicType QuadPowDynamicType;
-        typedef typename TypeTraits<LinkType>::QuadratureDynamicType QuadratureDynamicType;
+        typedef DislocationQuadraturePoint<_dim,_corder> DislocationQuadraturePointType;
+        typedef typename DislocationQuadraturePointType::QuadPowDynamicType QuadPowDynamicType;
+        typedef typename DislocationQuadraturePointType::QuadratureDynamicType QuadratureDynamicType;
         typedef DislocationParticle<dim> DislocationParticleType;
         typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
