@@ -122,7 +122,7 @@ namespace model
         using EigenMapType=Eigen::Map<const Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>, 0, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> >;
         
         /**********************************************************************/
-        std::string readKey( const std::string& key
+        std::pair<std::string,std::string> readKey( const std::string& key
         //                               ,const bool& removeWitespaces=true
         )
         {
@@ -130,6 +130,7 @@ namespace model
 
             std::string line;
             std::string read;
+            std::string comment;
             bool success=false;
             
             while (std::getline(*this, line))
@@ -150,6 +151,10 @@ namespace model
                    )
                 {
                     read=line.substr(foundEqual+1,foundSemiCol-foundEqual-1);
+                    if(foundPound!=std::string::npos)
+                    {
+                        comment=line.substr(foundPound,line.size()-foundPound);
+                    }
                     success=true;
                     break;
                 }
@@ -168,7 +173,7 @@ namespace model
             //            }
             //            std::cout<<key<<"="<<read<<std::endl;
             
-            return read;
+            return std::make_pair(read,comment);
         }
         
     public:
@@ -190,9 +195,10 @@ namespace model
         /**********************************************************************/
         std::string readString(const std::string& key,const bool&verbose=false)
         {
-            const std::string read(readKey(key));
-            if(verbose) std::cout<<key<<"="<<read<<std::endl;
-            return read;
+            const std::pair<std::string,std::string> strPair(readKey(key));
+            //const std::string& read(readKey(key));
+            if(verbose) std::cout<<key<<"="<<strPair.first<<" "<<strPair.second<<std::endl;
+            return strPair.first;
         }
         
         /**********************************************************************/
@@ -200,9 +206,10 @@ namespace model
         Scalar readScalar(const std::string& key,const bool&verbose=false)
         {
             if(verbose) std::cout<<key<<"="<<std::flush;
-            const std::string str(readKey(key));
-            const Scalar read(StringToScalar<Scalar>::toScalar(str));
-            if(verbose) std::cout<<read<<std::endl;
+//            const std::string str(readKey(key));
+            const std::pair<std::string,std::string> strPair(readKey(key));
+            const Scalar read(StringToScalar<Scalar>::toScalar(strPair.first));
+            if(verbose) std::cout<<read<<" "<<strPair.second<<std::endl;
             return read;
         }
         

@@ -11,6 +11,7 @@
 #define model_MaterialBase_H_
 
 #include <string>
+#include <model/Utilities/TerminalColors.h> // defines mode::cout
 
 namespace model
 {
@@ -20,12 +21,20 @@ namespace model
         
         static constexpr double kB_SI=1.38064852e-23; // Boltzmann constant [J/K]
         const std::string materialFile;
+        const std::string materialName;
+        
+        static const std::string& getMaterialFile(const std::string& fileName)
+        {
+            model::cout<<greenBoldColor<<"Reading material file: "<<fileName<<defaultColor<<std::endl;
+            return fileName;
+        }
         
         /**************************************************************************/
         MaterialBase(const std::string& fileName) :
-        /* init */ materialFile(fileName)
+        /* init */ materialFile(getMaterialFile(fileName)),
+        /* init */ materialName(TextFileParser(materialFile).readString("materialName",true))
         {
-            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
+//            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 
         }
         

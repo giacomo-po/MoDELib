@@ -50,6 +50,7 @@ namespace model
         
         // Material constants in SI units
         const double T;         // Absolute temparature [K]
+        const double Tm;        // Melting temparature [K]
         const double mu0_SI;    // [Pa]
         const double mu1_SI;    // [Pa/K]
         const double mu_SI;     // temperature-dependent shear modulus mu=m0+m1*T [Pa]
@@ -73,6 +74,7 @@ namespace model
         /* init */ MaterialBase(fileName)
         /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
         /* init */,T(TextFileParser(materialFile).readScalar<double>("T",true))
+        /* init */,Tm(TextFileParser(materialFile).readScalar<double>("Tm",true))
         /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))
         /* init */,mu1_SI(TextFileParser(materialFile).readScalar<double>("mu1_SI",true))
         /* init */,mu_SI(mu0_SI+mu1_SI*T)
