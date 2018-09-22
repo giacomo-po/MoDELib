@@ -30,3 +30,5 @@ end
 %isolevels=[0.05:0.05:1]*cs
 [C1,h1]=contour(T,log10(S),V,isolevels,'k','Linewidth',1);
 clabel(C1,h1,'FontSize',fontSize,'Color','k','labelspacing', 700)
+xlabel('T/Tm','FontSize',fontSize)
+ylabel('log_{10}(\tau/\mu)','FontSize',fontSize)

@@ -178,7 +178,7 @@ namespace model
         const double a1;
         const double a2;
         const double a3;
-        const double a4;
+//        const double a4;
         const double kB;
         
         //        const double a5;
@@ -200,8 +200,9 @@ namespace model
                             const double& a0_in,
                             const double& a1_in,
                             const double& a2_in,
-                            const double& a3_in,
-                            const double& a4_in) :
+                            const double& a3_in
+//                            const double& a4_in
+                            ) :
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b
         /* init */ B0e(B0e_SI*cs_SI/(mu_SI*b_SI)),
@@ -218,15 +219,75 @@ namespace model
         /* init */ a1(a1_in),
         /* init */ a2(a2_in),
         /* init */ a3(a3_in),
-        /* init */ a4(a4_in),
+//        /* init */ a4(a4_in),
         /* init */ kB(kB_SI/mu_SI/std::pow(b_SI,3))
         {/*! Empty constructor is required by constexpr
           */
         }
         
+//        static double sigmoid(const double & x)
+//        {
+//            return 1.0/(1.0+exp(-x));
+//        }
+//        
+//        /**********************************************************************/
+//        double velocity(const MatrixDim& S,
+//                        const VectorDim& b,
+//                        const VectorDim& xi,
+//                        const VectorDim& n,
+//                        const double& T,
+//                        const double& dL,
+//                        const double& dt,
+//                        const bool& use_stochasticForce) const
+//        {
+//                        
+//            const double bNorm=b.norm();
+//            const VectorDim s = b/bNorm;
+//            const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
+//            
+//            // Compute components of non-Schmid model
+//            const double tau=std::fabs(s.transpose()*S*n); // magnitude of resolved shear stress
+//            const double tauOrt=n.cross(s).transpose()*S*n;
+//            const double tau1=std::fabs(s.transpose()*S*n1); // resolved schear stress on
+//            const double tauOrt1=n1.cross(s).transpose()*S*n1;
+//            
+//            const double num=tau+a1*tau1;
+//            //
+//            assert(num>=0.0 && "num must be >= 0.");
+//            const double den=(1.0+0.5*a1)*tauC*(a4+a0*sigmoid(-(a2*tauOrt+a3*tauOrt1)/tauC));
+//            assert(den>0.0 && "den must be > 0.");
+//            
+//            const double Theta=num/den;
+//            const double dg = (Theta<1.0)? (std::pow(1.0-std::pow(Theta,p),q)-T/T0) : 0.0;
+//            const double dg1 = (dg>0.0)? dg : 0.0;
+//            const double expCoeff = exp(-dH0*dg1/(2.0*kB_eV*T));
+//            
+//            // Compute screw drag coeff
+//            const double sgm=sigmoid((0.05-dg1)/0.05);
+//            const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm; //kink-dominated to drag-dominated interpolation
+//            
+//            // Compute screw velocity
+//            double vs=tau*bNorm/Bs*expCoeff;
+//            
+//            // Compute edge velocity
+//            double ve=tau*bNorm/(B0e+B1e*T);
+//            
+//            if(use_stochasticForce)
+//            {
+//                vs+=StochasticForceGenerator::velocity(kB,T,Bs,dL,dt);
+//                
+//                ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
+//            }
+//            
+//            // Interpolate ve and vs
+//            const double cos2=std::pow(b.normalized().dot(xi),2);
+//            const double sin2=1.0-cos2;
+//            return vs*cos2+ve*sin2;
+//        }
+        
         static double sigmoid(const double & x)
         {
-            return 1.0/(1.0+exp(-x));
+            return 2.0/(1.0+exp(2.0*x));
         }
         
         /**********************************************************************/
@@ -239,21 +300,23 @@ namespace model
                         const double& dt,
                         const bool& use_stochasticForce) const
         {
-                        
+            
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;
             const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
             
             // Compute components of non-Schmid model
-            const double tau=std::fabs(s.transpose()*S*n); // magnitude of resolved shear stress
+            const double tau=s.transpose()*S*n; // magnitude of resolved shear stress
             const double tauOrt=n.cross(s).transpose()*S*n;
-            const double tau1=std::fabs(s.transpose()*S*n1); // resolved schear stress on
+            const double tau1=s.transpose()*S*n1; // resolved schear stress on
             const double tauOrt1=n1.cross(s).transpose()*S*n1;
             
-            const double num=tau+a1*tau1;
+            const double num=std::fabs(tau+a1*tau1);
             //
-            assert(num>=0.0 && "num must be >= 0.");
-            const double den=(1.0+0.5*a1)*tauC*(a4+a0*sigmoid(-(a2*tauOrt+a3*tauOrt1)/tauC));
+//            assert(num>=0.0 && "num must be >= 0.");
+//            const double den=(1.0+0.5*a1)*tauC*(a4+a0*sigmoid(-(a2*tauOrt+a3*tauOrt1)/tauC));
+            const double den=a0*tauC*sigmoid((a2*tauOrt+a3*tauOrt1)/a0/tauC);
+
             assert(den>0.0 && "den must be > 0.");
             
             const double Theta=num/den;
@@ -262,14 +325,14 @@ namespace model
             const double expCoeff = exp(-dH0*dg1/(2.0*kB_eV*T));
             
             // Compute screw drag coeff
-            const double sgm=sigmoid((0.05-dg1)/0.05);
+            const double sgm=0.5*sigmoid(-0.5*(0.05-dg1)/0.05);
             const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm; //kink-dominated to drag-dominated interpolation
             
             // Compute screw velocity
-            double vs=tau*bNorm/Bs*expCoeff;
+            double vs=std::fabs(tau)*bNorm/Bs*expCoeff;
             
             // Compute edge velocity
-            double ve=tau*bNorm/(B0e+B1e*T);
+            double ve=std::fabs(tau)*bNorm/(B0e+B1e*T);
             
             if(use_stochasticForce)
             {

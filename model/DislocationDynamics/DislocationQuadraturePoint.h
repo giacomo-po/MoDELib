@@ -66,7 +66,22 @@ namespace model
                                            const double& dL
                                            )
         {
-            const VectorDim n(seg.glidePlaneNormal());
+            VectorDim n(seg.glidePlaneNormal()); // plane normal
+            VectorDim b(seg.burgers()); // Burgers vector
+            VectorDim t(rl);            // tangent vector
+            
+            // Select right-handed normal whenever possible
+            if(seg.loopLinks().size()==1)
+            {// pick right-handed normal for n
+                const typename LinkType::LoopLinkType& loopLink(**seg.loopLinks().begin());
+                n=loopLink.loop()->rightHandedNormal();
+                if(seg.source->sID!=loopLink.source()->sID)
+                {// NetworkLink and LoopLink are oriented in opposite direction
+                    b*=-1.0;
+                    t*=-1.0;
+                }
+            }
+            
             VectorDim glideForce = fPK-fPK.dot(n)*n;
             double glideForceNorm(glideForce.norm());
             
@@ -84,8 +99,8 @@ namespace model
             if(glideForceNorm>FLT_EPSILON)
             {
                 double v =seg.network().poly.mobility->velocity(S,
-                                                                seg.burgers(),
-                                                                rl,
+                                                                b,
+                                                                t,
                                                                 n,
                                                                 seg.network().poly.T,
                                                                 dL,

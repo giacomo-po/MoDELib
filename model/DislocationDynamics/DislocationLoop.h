@@ -30,6 +30,8 @@ namespace model
     {
     
         Eigen::Matrix<double,_dim,1> nA;
+        double _slippedArea;
+        Eigen::Matrix<double,_dim,1> _rightHandedNormal;
         
     public:
         
@@ -75,6 +77,8 @@ namespace model
         /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B)),
         /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
+        /*      init */ _slippedArea(0.0),
+        /*      init */ _rightHandedNormal(VectorDim::Zero()),
         /*      init */ grain(dn->poly.grain(grainID)),
 //        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),
         /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N)),
@@ -93,6 +97,8 @@ namespace model
         /* base init */ BaseLoopType(other),
         /*      init */ PlanarPolygon(other),
         /* init */ nA(other.nA),
+        /* init */ _slippedArea(0.0),
+        /* init */ _rightHandedNormal(VectorDim::Zero()),
         /* init */ grain(other.grain),
         /* init */ _glidePlane(other._glidePlane),
         /* init */ glidePlane(*_glidePlane.get()),
@@ -158,18 +164,22 @@ namespace model
             {
                 nA+= 0.5*(loopLink.second->source()->get_P()-glidePlane.P).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
             }
+            
+            _slippedArea=nA.norm();
+            _rightHandedNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
+            
         }
         
         /**********************************************************************/
-        double slippedArea() const
+        const double& slippedArea() const
         {
-            return nA.norm();
+            return _slippedArea;
         }
         
         /**********************************************************************/
-        VectorDim rightHandedNormal() const
+        const VectorDim& rightHandedNormal() const
         {
-            return nA.normalized();
+            return _rightHandedNormal;
         }
         
         /**********************************************************************/

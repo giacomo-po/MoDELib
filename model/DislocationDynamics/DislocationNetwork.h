@@ -209,6 +209,10 @@ namespace model
             //! 2 - Update quadrature points
             updateQuadraturePoints();
             
+            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
+            {// copmute slipped areas and right-handed normal
+                loop.second->update();
+            }
             updatePlasticDistortionFromAreas();
             
             //! 3- Calculate BVP correction
@@ -827,9 +831,8 @@ namespace model
             {
                 const MatrixDimD old(_plasticDistortionFromAreas);
                 _plasticDistortionFromAreas.setZero();
-                for(auto& loop : this->loops())
+                for(const auto& loop : this->loops())
                 {
-                    loop.second->update();
                     _plasticDistortionFromAreas+= loop.second->plasticDistortion();
                 }
                 _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;

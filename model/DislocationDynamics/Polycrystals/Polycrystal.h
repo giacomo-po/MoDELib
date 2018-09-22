@@ -82,7 +82,7 @@ namespace model
                 const double a1=parser.readScalar<double>("a1",true);
                 const double a2=parser.readScalar<double>("a2",true);
                 const double a3=parser.readScalar<double>("a3",true);
-                const double a4=parser.readScalar<double>("a4",true);
+//                const double a4=parser.readScalar<double>("a4",true);
 
                 return std::make_unique<DislocationMobility<BCClattice<dim>>>(material.b_SI,
                                                                               material.mu_SI,
@@ -94,7 +94,7 @@ namespace model
                                                                               p,q,
                                                                               Tm*Tf,
                                                                               tauC,
-                                                                              a0,a1,a2,a3,a4);
+                                                                              a0,a1,a2,a3);
             }
             else if(material.crystalStructure=="FCC")
             {
