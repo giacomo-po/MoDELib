@@ -66,51 +66,11 @@ namespace model
         {
             if(material.crystalStructure=="BCC")
             {
-//                TextFileParser parser(material.materialFile);
-//                const double B0e=parser.readScalar<double>("B0e_SI",true);
-//                const double B1e=parser.readScalar<double>("B1e_SI",true);
-//                const double B0s=parser.readScalar<double>("B0s_SI",true);
-//                const double B1s=parser.readScalar<double>("B1s_SI",true);
-//                const double Bk=parser.readScalar<double>("Bk_SI",true);
-//                const double dH=parser.readScalar<double>("dH0_eV",true);
-//                const double p=parser.readScalar<double>("p",true);
-//                const double q=parser.readScalar<double>("q",true);
-////                const double Tm=parser.readScalar<double>("Tm",true);
-//                const double Tf=parser.readScalar<double>("Tf",true);
-//                const double tauC=parser.readScalar<double>("tauC_SI",true);
-//                const double a0=parser.readScalar<double>("a0",true);
-//                const double a1=parser.readScalar<double>("a1",true);
-//                const double a2=parser.readScalar<double>("a2",true);
-//                const double a3=parser.readScalar<double>("a3",true);
-////                const double a4=parser.readScalar<double>("a4",true);
-//
-//                return std::make_unique<DislocationMobility<BCClattice<dim>>>(material.b_SI,
-//                                                                              material.mu_SI,
-//                                                                              material.cs_SI,
-//                                                                              B0e,B1e,
-//                                                                              B0s,B1s,
-//                                                                              Bk,
-//                                                                              dH,
-//                                                                              p,q,
-//                                                                              material.Tm*Tf,
-//                                                                              tauC,
-//                                                                              a0,a1,a2,a3);
-                
                 return std::make_unique<DislocationMobility<BCClattice<dim>>>(material);
-                
             }
             else if(material.crystalStructure=="FCC")
             {
-//                TextFileParser parser(material.materialFile);
-//                const double B1e=parser.readScalar<double>("B1e_SI",true);
-//                const double B1s=parser.readScalar<double>("B1s_SI",true);
-//                return std::make_unique<DislocationMobility<FCClattice<dim>>>(material.b_SI,
-//                                                                              material.mu_SI,
-//                                                                              material.cs_SI,
-//                                                                              B1e,
-//                                                                              B1s);
                 return std::make_unique<DislocationMobility<FCClattice<dim>>>(material);
-
             }
             else
             {

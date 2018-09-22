@@ -194,9 +194,7 @@ namespace model
             
             // Interpolate ve and vs
             const double cos2=std::pow(b.normalized().dot(xi),2);
-//            const double sin2=1.0-cos2;
             return vs*cos2+ve*(1.0-cos2);
-            
         }
         
 

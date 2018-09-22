@@ -507,7 +507,7 @@ namespace model
                 }
             }
         }
-
+        
         /**********************************************************************/
         void assemble(const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
         {
@@ -515,24 +515,38 @@ namespace model
             quadratureParticleContainer.clear();
             quadratureParticleContainer.reserve(this->quadraturePoints().size());
             
-            if(this->quadraturePoints().size())
+            Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
+            Kqq=this->nodalVelocityMatrix(*this);
+            h2posMap=this->hermite2posMap();
+            
+            Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+            size_t c=0;
+            for(const auto& pair : h2posMap)
             {
-
-                Fq=this->nodalVelocityVector();
-                               Kqq=this->nodalVelocityMatrix(*this);
-                h2posMap=this->hermite2posMap();
-
-                Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
-                size_t c=0;
-                for(const auto& pair : h2posMap)
+                for(int r=0;r<Ncoeff;++r)
                 {
-                    for(int r=0;r<Ncoeff;++r)
-                    {
-                        Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
-                    }
-                    c++;
+                    Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
                 }
+                c++;
             }
+//            if(this->quadraturePoints().size())
+//            {
+//                
+//                Fq=this->nodalVelocityVector();
+//                Kqq=this->nodalVelocityMatrix(*this);
+//                h2posMap=this->hermite2posMap();
+//                
+//                Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+//                size_t c=0;
+//                for(const auto& pair : h2posMap)
+//                {
+//                    for(int r=0;r<Ncoeff;++r)
+//                    {
+//                        Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+//                    }
+//                    c++;
+//                }
+//            }
         }
         
         
@@ -806,17 +820,17 @@ namespace model
             return Burgers.squaredNorm()<FLT_EPSILON;
         }
         
-//        /**********************************************************************/
-//        double arcLength() const
-//        {
-//            return SplineSegmentType::template arcLength<16,UniformOpen>();
-//        }
+        //        /**********************************************************************/
+        //        double arcLength() const
+        //        {
+        //            return SplineSegmentType::template arcLength<16,UniformOpen>();
+        //        }
         
-//        /**********************************************************************/
-//        VectorDim velocity(const double& u) const
-//        {
-//            return this->source->get_V().template segment<dim>(0)*(1.0-u)+this->sink->get_V().template segment<dim>(0)*u;
-//        }
+        //        /**********************************************************************/
+        //        VectorDim velocity(const double& u) const
+        //        {
+        //            return this->source->get_V().template segment<dim>(0)*(1.0-u)+this->sink->get_V().template segment<dim>(0)*u;
+        //        }
         
         /**********************************************************************/
         const MatrixDim& midPointStress() const
