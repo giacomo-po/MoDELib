@@ -529,24 +529,6 @@ namespace model
                 }
                 c++;
             }
-//            if(this->quadraturePoints().size())
-//            {
-//                
-//                Fq=this->nodalVelocityVector();
-//                Kqq=this->nodalVelocityMatrix(*this);
-//                h2posMap=this->hermite2posMap();
-//                
-//                Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
-//                size_t c=0;
-//                for(const auto& pair : h2posMap)
-//                {
-//                    for(int r=0;r<Ncoeff;++r)
-//                    {
-//                        Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
-//                    }
-//                    c++;
-//                }
-//            }
         }
         
         

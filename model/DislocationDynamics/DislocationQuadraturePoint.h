@@ -74,11 +74,13 @@ namespace model
             if(seg.loopLinks().size()==1)
             {// pick right-handed normal for n
                 const typename LinkType::LoopLinkType& loopLink(**seg.loopLinks().begin());
-                n=loopLink.loop()->rightHandedNormal();
-                if(seg.source->sID!=loopLink.source()->sID)
-                {// NetworkLink and LoopLink are oriented in opposite direction
-                    b*=-1.0;
-                    t*=-1.0;
+                if(std::fabs(loopLink.loop()->slippedArea())>FLT_EPSILON)
+                {
+                    if(seg.source->sID!=loopLink.source()->sID)
+                    {// NetworkLink and LoopLink are oriented in opposite direction
+                        b*=-1.0;
+                        t*=-1.0;
+                    }
                 }
             }
             
@@ -214,7 +216,7 @@ namespace model
         void updateGeometry(const LinkType& seg,
                             const double& quadPerLength)
         {
-    
+            
             this->clear();
             
             if(    !seg.hasZeroBurgers()
