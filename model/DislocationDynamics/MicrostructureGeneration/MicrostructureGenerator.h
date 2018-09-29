@@ -57,9 +57,9 @@ namespace model
         
         /**********************************************************************/
         std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> straightLineBoundaryClosure(const VectorDimD& P0,
-                                                           const VectorDimD& d,
-                                                           const VectorDimD& n,
-                                                           const int& grainID)
+                                                                                                const VectorDimD& d,
+                                                                                                const VectorDimD& n,
+                                                                                                const int& grainID)
         {
             // Define line AB containing dislocaiton and piercing the mesh
             const VectorDimD A=P0+3.0*maxSize*d;
@@ -195,7 +195,7 @@ namespace model
                         
                         // write loop file
                         loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
-
+                        
                         if(enforceMonotonicHelicity)
                         {
                             loopPoints.push_back(nodePos);
@@ -236,7 +236,7 @@ namespace model
                 
                 std::normal_distribution<double> sizeDistribution(FrankReadSizeMean/poly.b_SI,FrankReadSizeStd/poly.b_SI);
                 std::normal_distribution<double> aspectRatioDistribution(FrankReadAspectRatioMean,FrankReadAspectRatioStd);
-
+                
                 while(density<targetFrankReadDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -259,8 +259,8 @@ namespace model
                     
                     LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));
                     double d1cNorm(d1.cartesian().norm());
-//                    const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
-
+                    //                    const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
+                    
                     int a1=sizeDistribution(generator)/d1cNorm;
                     if(a1>0)
                     {
@@ -357,7 +357,7 @@ namespace model
                                     loopBurgers.push_back(-b);
                                     helicity+=dh;
                                     std::cout<<"helicity="<<helicity<<std::endl;
-                                }                                
+                                }
                             }
                         }
                     }
@@ -556,7 +556,7 @@ namespace model
                     
                     std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> posVector;
                     std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> normalsVector;
-
+                    
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
                     {
@@ -584,7 +584,7 @@ namespace model
                             break;
                         }
                     }
-
+                    
                     double dh=0.0;
                     if(enforceMonotonicHelicity)
                     {
@@ -614,9 +614,9 @@ namespace model
                             edgesIO.emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
                             edgesIO.emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
                             edgesIO.emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
-
+                            
                             loopsIO.emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID);
-
+                            
                         }
                         
                         
@@ -640,7 +640,7 @@ namespace model
                         nodeID+=2*posVector.size();
                         snID+=1;
                         loopID+=posVector.size()+1;
-
+                        
                         if(enforceMonotonicHelicity)
                         {
                             loopPoints.push_back(posVector);
@@ -910,17 +910,22 @@ namespace model
         const std::vector<double> straightDislocationsAngleFromScrewOrientation;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> pointsAlongStraightDislocations;
         
-        
-        // Defects
+        // Irradiation Loops
         const double targetIrradiationLoopDensity;
         const double averageLoopSize;
         const double fraction111Loops;  // fraction of [111] glissile loop;
+        
+        // SFTs
+        const double targetSFTdensity;
+        
+        // Inclusions
         const std::vector<double> targetInclusionDensities;
         const std::vector<double> inclusionsDistribution_alpha;
         const std::vector<double> inclusionsDistribution_beta;
         const std::vector<double> inclusionsDistribution_lambda;
         const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
+        
         
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
@@ -945,7 +950,7 @@ namespace model
         /* init*/,FrankReadSizeStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeStd",true))
         /* init*/,FrankReadAspectRatioMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioMean",true))
         /* init*/,FrankReadAspectRatioStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioStd",true))
-
+        
         /* Single-arm sources */
         /* init*/,targetSingleArmDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSingleArmDislocationDensity",true))
         /* Prismatic loops */
@@ -958,6 +963,8 @@ namespace model
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
         /* init*/,averageLoopSize(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true))
         /* init*/,fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true))
+        /* SFTs */
+        /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
         /* init*/,inclusionsDistribution_alpha(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_alpha",true))
@@ -981,6 +988,7 @@ namespace model
             addPrismaticLoops();
             addIndividualStraightDislocations();
             addIrradiationLoops();
+            addStackingFaultTetrahedra();
             addEshelbyInclusions();
             
             // Output to evl/evl_0
@@ -994,6 +1002,91 @@ namespace model
             }
             
         }
+        
+        /**********************************************************************/
+        void addStackingFaultTetrahedra()
+        {
+            
+            if(targetSFTdensity>0.0)
+            {
+                std::cout<<greenBoldColor<<"Generating Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
+                
+                
+                if(poly.crystalStructure=="FCC")
+                {
+                    size_t ndefects=0;
+                    double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                    
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const int& grainID=rp.second;   // random grain ID
+                    const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                    
+                    
+                    LatticeVector<3> a1(VectorDimI(1,0,0),poly.grain(grainID)); // [011]
+                    LatticeVector<3> a2(VectorDimI(0,1,0),poly.grain(grainID)); // [101]
+                    LatticeVector<3> a3(VectorDimI(0,0,1),poly.grain(grainID)); // [110]
+                    LatticeVector<3> a12(a2-a1); // [1-10]
+                    LatticeVector<3> a23(a3-a2); // [01-1]
+                    LatticeVector<3> a31(a1-a3); // [-101]
+                    
+                    int Li=100;
+                    const VectorDimD P0(L0.cartesian());
+                    const VectorDimD P1(P0+a1.cartesian()*Li);
+                    const VectorDimD P2(P0+a2.cartesian()*Li);
+                    const VectorDimD P3(P0+a3.cartesian()*Li);
+                    
+                    if(   mesh.searchRegion(grainID,P1).first
+                       && mesh.searchRegion(grainID,P1).first
+                       && mesh.searchRegion(grainID,P2).first)
+                    {
+                        VectorDimD b=L0.cartesian();
+                        
+                        nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        
+                        edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+2,0);
+                        edgesIO.emplace_back(loopID+0,nodeID+2,nodeID+1,0);
+                        edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+0,0);
+                        loopsIO.emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID);
+                        
+                        edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+1,0);
+                        edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+3,0);
+                        edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+0,0);
+                        loopsIO.emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID);
+                        
+                        edgesIO.emplace_back(loopID+2,nodeID+0,nodeID+3,0);
+                        edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+2,0);
+                        edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+0,0);
+                        loopsIO.emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID);
+
+                        edgesIO.emplace_back(loopID+3,nodeID+1,nodeID+2,0);
+                        edgesIO.emplace_back(loopID+3,nodeID+2,nodeID+3,0);
+                        edgesIO.emplace_back(loopID+3,nodeID+3,nodeID+1,0);
+                        loopsIO.emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID);
+
+                        
+                        snID++;
+                        loopID+=4;
+                        nodeID+=4;
+                        ndefects++;
+                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"SFT density="<<defectsDensity<<std::endl;
+                        
+                        
+                    }
+                    
+                }
+                else
+                {
+                    std::cout<<"SFTs can only be generated for FCC crystals"<<std::endl;
+                }
+            }
+            
+        }
+        
+        
         
         /**********************************************************************/
         void addIrradiationLoops()
@@ -1065,8 +1158,8 @@ namespace model
                             const int rSS_sessile=dist(generator); // a random sessile plane
                             LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
                             LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
-//                            const double d1cNorm(d1.cartesian().norm());
-//                            const double d2cNorm(d2.cartesian().norm());
+                            //                            const double d1cNorm(d1.cartesian().norm());
+                            //                            const double d2cNorm(d2.cartesian().norm());
                             
                             
                             double a1=0.5*averageLoopSize/poly.b_SI;
@@ -1135,7 +1228,7 @@ namespace model
                 }
                 else
                 {
-                    std::cout<<"irradiationLoops implemented only for BCC"<<std::endl;
+                    std::cout<<"irradiation loops can only be generated for BCC crystals"<<std::endl;
                     
                 }
             }
@@ -1150,21 +1243,21 @@ namespace model
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
-//                std::cout<<"newPoints=["<<std::endl;
-//                for(const auto& newPoint : newPoints)
-//                {
-//                    std::cout<<newPoint.transpose()<<std::endl;
-//                }
-//                std::cout<<"];"<<std::endl;
-//                
-//                std::cout<<"oldPoints=["<<std::endl;
-//                for(const auto& oldPoint : loopPoints[k])
-//                {
-//                    std::cout<<oldPoint.transpose()<<std::endl;
-//                }
-//                std::cout<<"];"<<std::endl;
-//                std::cout<<"h="<<LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers)<<std::endl;
-
+                //                std::cout<<"newPoints=["<<std::endl;
+                //                for(const auto& newPoint : newPoints)
+                //                {
+                //                    std::cout<<newPoint.transpose()<<std::endl;
+                //                }
+                //                std::cout<<"];"<<std::endl;
+                //
+                //                std::cout<<"oldPoints=["<<std::endl;
+                //                for(const auto& oldPoint : loopPoints[k])
+                //                {
+                //                    std::cout<<oldPoint.transpose()<<std::endl;
+                //                }
+                //                std::cout<<"];"<<std::endl;
+                //                std::cout<<"h="<<LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers)<<std::endl;
+                
                 h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
             

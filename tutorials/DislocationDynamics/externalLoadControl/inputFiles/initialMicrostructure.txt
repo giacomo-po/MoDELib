@@ -9,7 +9,7 @@ fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=1e13;
+targetFrankReadDislocationDensity=5e12;
 FrankReadSizeMean=0.5e-6;
 FrankReadSizeStd=0.25e-6;
 FrankReadAspectRatioMean=2.0;
@@ -35,6 +35,10 @@ pointsAlongStraightDislocations=0.0 0.0 0.0
 targetIrradiationLoopDensity=0e21;
 fraction111Loops=0.5;
 averageLoopSize=6.1e-9;
+
+#######################################
+# Stacking Fault Tetrahedra
+targetSFTdensity=0e19;
 
 #######################################
 # Eshelby Inclusions parameters

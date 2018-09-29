@@ -23,7 +23,8 @@
 #include <vtkActor.h>
 
 #include <model/IO/IDreader.h>
-
+#include <model/IO/BinaryFileReader.h>
+#include <model/DislocationDynamics/DislocationQuadraturePoint.h>
 
 // VTK documentation
 // http://vtk.1045678.n5.nabble.com/VTK-slow-to-display-300-vtkArrowSource-in-real-time-td5740730.html
@@ -36,14 +37,16 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    struct PKActor : public IDreader<'P',3,6,double>
+    struct PKActor : private BinaryFileReader<DislocationQuadraturePoint<3,0>>
+    //public IDreader<'P',3,6,double>
     {
         static bool showPK;
+        static int vectorType;
         static float pkFactor;
         static constexpr int dim=3;
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
         typedef Eigen::Matrix<float,dim,dim,1>  MatrixDim;
-        typedef IDreader<'P',3,6,double> ReaderType;
+        typedef BinaryFileReader<DislocationQuadraturePoint<3,0>> ReaderType;
         
 //        const PKContainerType& pkContainer;
         
@@ -58,46 +61,48 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         vtkSmartPointer<vtkActor> actor;
         
-        /**********************************************************************/
-        ReaderType& reader()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        void read(const size_t& frameID)
-        {
-            // Read data
-            if(reader().isGood(frameID,false))
-            {
-                reader().read(frameID,false);
-            }
-            else
-            {
-                reader().read(frameID,true);
-            }
-            
-            
-            // insert each datapoint
-            for(const auto& pk : reader())
-            {
-                Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
-                const Eigen::Matrix<float,3,1> P(val.segment<3>(0).template cast<float>());
-                const Eigen::Matrix<float,3,1> F(val.segment<3>(3).template cast<float>());
-                points->InsertNextPoint(P.data());  // origin of arrow
-                vectors->InsertNextTuple(F.data()); // arrow vactor
-            }
-            
-            // Fill polyData
-            polyData->SetPoints(points);
-            polyData->GetPointData()->SetVectors(vectors);
-            polyData->Modified();
-
-        }
+//        /**********************************************************************/
+//        ReaderType& reader()
+//        {
+//            return *this;
+//        }
+//        
+//        /**********************************************************************/
+//        void read(const size_t& frameID)
+//        {
+////            // Read data
+////            if(reader().isGood(frameID,false))
+////            {
+////                reader().read(frameID,false);
+////            }
+////            else
+////            {
+////                reader().read(frameID,true);
+////            }
+//            
+//            reader().read(frameID,false);
+//            
+//            // insert each datapoint
+//            for(const auto& q : reader())
+//            {
+////                Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
+////                const Eigen::Matrix<float,3,1> P(val.segment<3>(0).template cast<float>());
+////                const Eigen::Matrix<float,3,1> F(val.segment<3>(3).template cast<float>());
+//                points->InsertNextPoint(q.r.data());  // origin of arrow
+//                vectors->InsertNextTuple(q.pkForce.data()); // arrow vactor
+//            }
+//            
+//            // Fill polyData
+//            polyData->SetPoints(points);
+//            polyData->GetPointData()->SetVectors(vectors);
+//            polyData->Modified();
+//
+//        }
         
         /**********************************************************************/
 //        PKActor(const PKContainerType& pkContainer_in) :
         PKActor(const size_t& frameID,vtkRenderer* const ren) :
+        BinaryFileReader<DislocationQuadraturePoint<3,0>>("Q/Q_"+std::to_string(frameID)+".bin"),
 //        /* init */ pkContainer(pkContainer_in),
         /* init */ renderer(ren),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
@@ -114,7 +119,31 @@ namespace model
             vectors->SetName("pkForce");
 
             // Read data
-            read(frameID);
+            //read(frameID);
+            
+            // insert each datapoint
+            for(const auto& q : *this)
+            {
+                //                Eigen::Map<const Eigen::Matrix<double,1,6>> val(pk.second.data());
+                //                const Eigen::Matrix<float,3,1> P(val.segment<3>(0).template cast<float>());
+                //                const Eigen::Matrix<float,3,1> F(val.segment<3>(3).template cast<float>());
+                points->InsertNextPoint(q.r.data());  // origin of arrow
+                switch (vectorType)
+                {
+                    case 1:
+                        vectors->InsertNextTuple(q.glideVelocity.data()); // arrow vactor
+                        break;
+                        
+                    default:
+                        vectors->InsertNextTuple(q.pkForce.data()); // arrow vactor
+                        break;
+                }
+            }
+            
+            // Fill polyData
+            polyData->SetPoints(points);
+            polyData->GetPointData()->SetVectors(vectors);
+            polyData->Modified();
             
             // Set up glyph
             glyphs->SetSourceConnection(arrowSource->GetOutputPort());
@@ -173,7 +202,8 @@ namespace model
     };
     
     bool  PKActor::showPK=false;
-    float PKActor::pkFactor=1000.0;
+    int  PKActor::vectorType=0;
+    float PKActor::pkFactor=100.0;
     
 } // namespace model
 #endif

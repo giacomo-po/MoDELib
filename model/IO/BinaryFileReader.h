@@ -32,19 +32,13 @@ namespace model
         static constexpr size_t _bytes_in_Type=sizeof (DataType);
 
         
-//        DataType* memblock;
         std::ifstream::pos_type _bytes_in_file;
-//        size_t _array_size;
-//        const size_t _bytes_in_Type;
         bool _success;
         
     public:
         
         /**********************************************************************/
         BinaryFileReader(const std::string& filename) :
-//        /* init list */ memblock(NULL),
-//        /* init list */ _array_size(0),
-//        /* init list */ _bytes_in_Type( sizeof (DataType) ),
         /* init list */ _bytes_in_file(0)
         /* init list */,_success(false)
         {/*! @param[in] filename The name of the file to be read
@@ -69,19 +63,14 @@ namespace model
                 // Calculate how many element of type Type are in the file
                 const size_t _array_size = _bytes_in_file/_bytes_in_Type;
                 this->resize(_array_size);
-
-                //			std::cout << "	array size:  "<< _array_size  <<std::endl;
                 
                 // resize memblock with _array_size
-//                memblock = new DataType [_array_size];
                 
                 // bring back the get pointer to the beginning of the file
                 file.seekg (0, std::ios::beg);
                 
                 // read the file into memblock
-//                file.read (reinterpret_cast<char*>(memblock), _bytes_in_file);
                 file.read (reinterpret_cast<char*>(this->data()), _bytes_in_file);
-
                 
                 // close the file
                 file.close();
@@ -95,7 +84,6 @@ namespace model
             
         }
         
-
         /**********************************************************************/
         const size_t& bytes() const
         {/*! The number of bytes in the file read

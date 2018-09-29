@@ -896,8 +896,8 @@ namespace model
         /**********************************************************************/
         void projectVelocity()
         {
-            if(velocity.squaredNorm()>FLT_EPSILON)
-            {
+//            if(velocity.squaredNorm()>FLT_EPSILON)
+//            {
                 VectorOfNormalsType temp;
                 
                 for(const auto& loop : this->loops())
@@ -924,7 +924,7 @@ namespace model
                     }
                     
                 }
-            }
+//            }
         }
         
         

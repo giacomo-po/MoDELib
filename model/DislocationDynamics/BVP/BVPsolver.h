@@ -456,10 +456,20 @@ namespace model
             typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
+
             const auto t0= std::chrono::system_clock::now();
-            DN.template computeField<FieldPointType,StressField>(eb_list);
-            auto dislocationTraction=(test(*u),eb_list);
+            if(DN.corder==0)
+            {
+            
+            }
+            else
+            {
+                DN.template computeField<FieldPointType,StressField>(eb_list);
+            }
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
+            
+            auto dislocationTraction=(test(*u),eb_list);
             
             // Assemble loadController and dislocaiton tractions and solve
             displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());

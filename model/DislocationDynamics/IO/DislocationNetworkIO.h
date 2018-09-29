@@ -117,7 +117,7 @@ namespace model
 //                DN._userOutputColumn+=3;
 //            }
             
-//            EDR.readScalarInFile(fullName.str(),"outputQuadratureParticles",DN.outputQuadratureParticles);
+//            EDR.readScalarInFile(fullName.str(),"outputQuadraturePoints",DN.outputQuadraturePoints);
             
             // Parametrization exponent
 //            EDR.readScalarInFile(fullName.str(),"parametrizationExponent",LinkType::alpha);
@@ -677,26 +677,26 @@ namespace model
                 model::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
-            if(DN.outputPKforce)
-            {
-                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
-//                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
-//                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
-//                SequentialOutputFile<'P',1> p_file;
-//                for (const auto& linkIter : DN.links())
-//                {
-//                    const int qOrder(linkIter.second->rgauss.cols());
-//                    for (int q=0;q<qOrder;++q)
-//                    {
-//                        p_file << linkIter.second->source->sID<<" "
-//                        /*  */ << linkIter.second->sink->sID<<" "
-//                        /*  */ <<q<<" "
-//                        /*  */ << linkIter.second->rgauss.col(q).transpose()<<" "
-//                        /*  */ <<linkIter.second->pkGauss.col(q).transpose()<<"\n";
-//                    }
-//                }
-//                model::cout<<", P/P_"<<p_file.sID<<std::flush;
-            }
+//            if(DN.outputPKforce)
+//            {
+//                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
+////                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
+////                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
+////                SequentialOutputFile<'P',1> p_file;
+////                for (const auto& linkIter : DN.links())
+////                {
+////                    const int qOrder(linkIter.second->rgauss.cols());
+////                    for (int q=0;q<qOrder;++q)
+////                    {
+////                        p_file << linkIter.second->source->sID<<" "
+////                        /*  */ << linkIter.second->sink->sID<<" "
+////                        /*  */ <<q<<" "
+////                        /*  */ << linkIter.second->rgauss.col(q).transpose()<<" "
+////                        /*  */ <<linkIter.second->pkGauss.col(q).transpose()<<"\n";
+////                    }
+////                }
+////                model::cout<<", P/P_"<<p_file.sID<<std::flush;
+//            }
             
             if(DN.outputElasticEnergy)
             {
@@ -821,15 +821,34 @@ namespace model
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
-            if (DN.outputQuadratureParticles)
+            if (DN.outputQuadraturePoints)
             {
-                model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'Q',true> q_file;
-                for (const auto& particle : DN.particles())
+                if(DislocationNetworkType::corder==0)
                 {
-                    q_file<<particle<<"\n";
+                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_count(runID);
+                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_increment(DN.outputFrequency);
+                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true> binQuadratureFile;
+                    for (const auto& link : DN.links())
+                    {
+                        for(const auto& qPoint : link.second->quadraturePoints())
+                        {
+                            binQuadratureFile.write(qPoint);
+                        }
+//                        q_file<<particle<<"\n";
+                    }
                 }
+                else
+                {
+                    assert(false && "FINISH HERE");
+                    model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
+                    model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'Q',true> q_file;
+                    for (const auto& particle : DN.particles())
+                    {
+                        q_file<<particle<<"\n";
+                    }
+                }
+                
                 
             }
             

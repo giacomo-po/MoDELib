@@ -220,13 +220,14 @@ namespace model
                     //                }
                     //                    break;
                     
-//                                    case colorEdgeScrew:
-//                                    {
-//                                        const float u = std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized()));
-//                                        //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
-//                                        //                            colorVector << rgb.r, rgb.g, rgb.b;
-//                                        colorVector=screwColor*u+edgeColor*(1-u);
-//                                    }
+                                    case colorEdgeScrew:
+                                    {
+                                        const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/M_PI;
+                                        //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+                                        //                            colorVector << rgb.r, rgb.g, rgb.b;
+                                        clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1-u);
+                                        break;
+                                    }
                     //                    break;
                     
                 default:

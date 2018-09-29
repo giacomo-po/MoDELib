@@ -86,10 +86,6 @@ namespace model
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-//        /* init */,C1(1-nu)
-//        /* init */,C2(1.0/(4.0*M_PI*C1))
-//        /* init */,C3(1.0-2.0*nu)
-//        /* init */,C4(0.5*C2)
         {
             model::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
             model::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;

@@ -92,10 +92,9 @@ namespace model
         
     };
     
-    template <int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationNetwork : public DislocationNetworkBase<_dim>, // must be first in inheritance tree
-//    /* base                 */ public GlidePlaneObserver<_dim>,
-    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,corder,InterpolationType> >,
+    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,_corder,InterpolationType> >,
     /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
     /* base                 */ public std::map<size_t,EshelbyInclusion<_dim>>
     {
@@ -103,6 +102,7 @@ namespace model
     public:
         
         static constexpr int dim=_dim; // make dim available outside class
+        static constexpr int corder=_corder; // make dim available outside class
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
         typedef DislocationNode<dim,corder,InterpolationType> NodeType;
@@ -208,6 +208,7 @@ namespace model
             
             //! 2 - Update quadrature points
             updateQuadraturePoints();
+            updateStressStraightSegments();
             
             for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
             {// copmute slipped areas and right-handed normal
@@ -218,13 +219,13 @@ namespace model
             //! 3- Calculate BVP correction
             updateLoadControllers();
             
-#ifdef DislocationNucleationFile
-            if(use_bvp && !(runID%use_bvp))
-            {
-                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-                updateQuadraturePoints();
-            }
-#endif
+//#ifdef DislocationNucleationFile
+//            if(use_bvp && !(runID%use_bvp))
+//            {
+//                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+//                updateQuadraturePoints();
+//            }
+//#endif
             
             computeNodaVelocities();
             
@@ -323,18 +324,19 @@ namespace model
         bool use_extraStraightSegments;
         ExternalLoadControllerType extStressController;
         std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
+        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
         int  outputFrequency;
         bool outputBinary;
         bool outputGlidePlanes;
         bool outputSpatialCells;
-        bool outputPKforce;
+//        bool outputPKforce;
         bool outputElasticEnergy;
         bool outputMeshDisplacement;
         bool outputFEMsolution;
         bool outputDislocationLength;
         bool outputPlasticDistortion;
         bool outputPlasticDistortionRate;
-        bool outputQuadratureParticles;
+        bool outputQuadraturePoints;
         bool outputLinkingNumbers;
         bool outputLoopLength;
         bool outputSegmentPairDistances;
@@ -373,14 +375,14 @@ namespace model
         /* init */ outputBinary(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputBinary",true)),
         /* init */ outputGlidePlanes(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true)),
         /* init */ outputSpatialCells(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSpatialCells",true)),
-        /* init */ outputPKforce(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPKforce",true)),
+//        /* init */ outputPKforce(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPKforce",true)),
         /* init */ outputElasticEnergy(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true)),
         /* init */ outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true)),
         /* init */ outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true)),
         /* init */ outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true)),
         /* init */ outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true)),
         /* init */ outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true)),
-        /* init */ outputQuadratureParticles(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadratureParticles",true)),
+        /* init */ outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true)),
         /* init */ outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true)),
         /* init */ outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true)),
         /* init */ outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true)),
@@ -537,6 +539,57 @@ namespace model
         }
         
         /**********************************************************************/
+        void updateStressStraightSegments()
+        {
+        
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		Collecting StressStraight objects: "<<std::flush;
+
+            straightSegmentsDeq.clear();
+            //                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+            size_t currentSize=0;
+//            if(computeDDinteractions)
+//            {
+                for(const auto& link : this->networkLinks())
+                {
+                    link.second->addToStressStraight(straightSegmentsDeq);
+                }
+                
+                currentSize=straightSegmentsDeq.size();
+                
+                const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+                
+                for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+                {
+                    for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+                    {
+                        for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+                        {
+                            
+                            const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+                            
+                            if( cellID.squaredNorm()!=0) //skip current cell
+                            {
+                                for (size_t c=0;c<currentSize;++c)
+                                {
+                                    const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                    const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
+                                    
+                                    straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                
+//            }
+            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            
+        }
+        
+        /**********************************************************************/
         void assembleAndSolve()
         {/*! Performs the following operatons:
           */
@@ -551,50 +604,50 @@ namespace model
             
             if(corder==0)
             {// For straight segments use analytical expression of stress field
-                const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		Collecting StressStraight objects: "<<std::flush;
-                
-                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-                size_t currentSize=0;
-                if(computeDDinteractions)
-                {
-                    for(const auto& link : this->networkLinks())
-                    {
-                        link.second->addToStressStraight(straightSegmentsDeq);
-                    }
-                    
-                    currentSize=straightSegmentsDeq.size();
-                    
-                    const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
-                    
-                    for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
-                    {
-                        for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
-                        {
-                            for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
-                            {
-                                
-                                const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-                                
-                                if( cellID.squaredNorm()!=0) //skip current cell
-                                {
-                                    for (size_t c=0;c<currentSize;++c)
-                                    {
-                                        const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                        const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                        
-                                        straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    
-                    
-                }
-                model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-                
+//                const auto t0= std::chrono::system_clock::now();
+//                model::cout<<"		Collecting StressStraight objects: "<<std::flush;
+//                
+////                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+//                size_t currentSize=0;
+//                if(computeDDinteractions)
+//                {
+//                    for(const auto& link : this->networkLinks())
+//                    {
+//                        link.second->addToStressStraight(straightSegmentsDeq);
+//                    }
+//                    
+//                    currentSize=straightSegmentsDeq.size();
+//                    
+//                    const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+//                    
+//                    for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+//                    {
+//                        for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+//                        {
+//                            for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+//                            {
+//                                
+//                                const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+//                                
+//                                if( cellID.squaredNorm()!=0) //skip current cell
+//                                {
+//                                    for (size_t c=0;c<currentSize;++c)
+//                                    {
+//                                        const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
+//                                        const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
+//                                        
+//                                        straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                    
+//                    
+//                }
+//                model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
+//                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//                
                 const auto t1= std::chrono::system_clock::now();
                 model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
 #ifdef _OPENMP

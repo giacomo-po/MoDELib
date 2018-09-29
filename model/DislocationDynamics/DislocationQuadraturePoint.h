@@ -11,6 +11,10 @@
 
 #include <Eigen/Dense>
 #include <model/Geometry/Splines/SplineBase.h>
+#include <model/Quadrature/QuadratureDynamic.h>
+#include <model/Quadrature/QuadPowDynamic.h>
+#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
+#include <model/Geometry/SegmentSegmentDistance.h>
 
 namespace model
 {
@@ -145,6 +149,25 @@ namespace model
         }
         
         /**********************************************************************/
+//        template<typename LinkType>
+        DislocationQuadraturePoint() :
+        /* init */ sourceID(0)
+        /* init */,sinkID(0)
+        /* init */,qID(0)
+        /* init */,SF(Eigen::Matrix<double,1,Ncoeff>::Zero())
+        /* init */,r(VectorDim::Zero())
+        /* init */,ru(VectorDim::Zero())
+        /* init */,j(0.0)
+        /* init */,rl(VectorDim::Zero())
+        /* init */,dL(0.0)
+        /* init */,stress(MatrixDim::Zero())
+        /* init */,pkForce(VectorDim::Zero())
+        /* init */,glideVelocity(VectorDim::Zero())
+        {
+            
+        }
+        
+        /**********************************************************************/
         template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& seg)
         {
@@ -262,42 +285,46 @@ namespace model
             if(this->size())
             {
                 // Compute stress of straightSegmentsDeq
-                const double L0(seg.chord().norm());
-                const VectorDim c(0.5*(seg.source->get_P()+seg.sink->get_P()));
-                for(const auto& ss : straightSegmentsDeq)
+                if(seg.network().computeDDinteractions)
                 {
-                    SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
-                                                    seg.source->get_P(),seg.sink->get_P());
-                    
-                    //                        const double dr(ssd.dMin/(L0+ss.length));
-                    const double dr(ssd.dMin/(L0));
-                    
-                    if(dr<10.0)
-                    {// full interaction
-                        for (auto& qPoint : quadraturePoints())
-                        {
-                            qPoint.stress += ss.stress(qPoint.r);
+                    const double L0(seg.chord().norm());
+                    const VectorDim c(0.5*(seg.source->get_P()+seg.sink->get_P()));
+                    for(const auto& ss : straightSegmentsDeq)
+                    {
+                        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+                                                        seg.source->get_P(),seg.sink->get_P());
+                        
+                        //                        const double dr(ssd.dMin/(L0+ss.length));
+                        const double dr(ssd.dMin/(L0));
+                        
+                        if(dr<10.0)
+                        {// full interaction
+                            for (auto& qPoint : quadraturePoints())
+                            {
+                                qPoint.stress += ss.stress(qPoint.r);
+                            }
                         }
-                    }
-                    else if(dr<100.0)
-                    {// 2pt interpolation
-                        const MatrixDim stressSource(ss.stress(seg.source->get_P()));
-                        const MatrixDim stressSink(ss.stress(seg.sink->get_P()));
-                        for (auto& qPoint : quadraturePoints())
-                        {
-                            const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-                            qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+                        else if(dr<100.0)
+                        {// 2pt interpolation
+                            const MatrixDim stressSource(ss.stress(seg.source->get_P()));
+                            const MatrixDim stressSink(ss.stress(seg.sink->get_P()));
+                            for (auto& qPoint : quadraturePoints())
+                            {
+                                const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
+                                qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+                            }
                         }
-                    }
-                    else
-                    {// 1pt interpolation
-                        const MatrixDim stressC(ss.stress(c));
-                        for (auto& qPoint : quadraturePoints())
-                        {
-                            qPoint.stress += stressC;
+                        else
+                        {// 1pt interpolation
+                            const MatrixDim stressC(ss.stress(c));
+                            for (auto& qPoint : quadraturePoints())
+                            {
+                                qPoint.stress += stressC;
+                            }
                         }
                     }
                 }
+
                 
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())

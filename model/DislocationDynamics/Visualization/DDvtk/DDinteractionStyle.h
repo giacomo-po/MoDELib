@@ -551,6 +551,7 @@ namespace model
                 std::cout<<"      3 to color grain-boundary segments in black "<<std::endl;
                 std::cout<<"      4 to color segments by Burgers vector "<<std::endl;
                 std::cout<<"      5 to color segments by glissile/sessile "<<std::endl;
+                std::cout<<"      6 to color segments by screw/edge "<<std::endl;
 
             }
             
@@ -624,6 +625,8 @@ namespace model
                     selectedKey="p";
                     std::cout<<"selecting objects: pk forces"<<std::endl;
                     std::cout<<"    +/- to increase vector size"<<std::endl;
+                    std::cout<<"    0 show forces"<<std::endl;
+                    std::cout<<"    1 show velocities"<<std::endl;
                     if(ddPK.get()!=nullptr)
                     {
                         PKActor::showPK=true;
@@ -870,7 +873,13 @@ namespace model
                     //                    ddSegments->modify();
                     //                    this->Interactor->Render();
                 }
-                
+                if(key == "6")
+                {
+                    DislocationSegmentActor::clr=DislocationSegmentActor::colorEdgeScrew;
+                    std::cout<<"DislocationSegment color scheme = screw/edge. Reload frame to update colors."<<std::endl;
+                    //                    ddSegments->modify();
+                    //                    this->Interactor->Render();
+                }
                 
             }
             
@@ -907,6 +916,20 @@ namespace model
                     PKActor::pkFactor*=0.5;
                     ddPK->modify();
                     std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "0" && ddPK.get()!=nullptr)
+                {
+                    PKActor::vectorType=0;
+                    //                    ddPK->modify();
+                    std::cout<<"selected quadrature forces (reload frame)"<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "1" && ddPK.get()!=nullptr)
+                {
+                    PKActor::vectorType=1;
+//                    ddPK->modify();
+                    std::cout<<"selected quadrature velocities (reload frame)"<<std::endl;
                     this->Interactor->Render();
                 }
                 
