@@ -79,8 +79,8 @@ namespace model
             
         }
         
-        std::set<long int> glissileLoopIDs;
-        std::set<long int> sessileLoopIDs;
+//        std::set<long int> glissileLoopIDs;
+//        std::set<long int> sessileLoopIDs;
         
         static int verboseGlidePlane;
         GlidePlaneObserverType* const glidePlaneObserver;
@@ -122,44 +122,44 @@ namespace model
         }
 
         /**********************************************************************/
-        void addParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL,
-                                const bool& isGlissile,
-                                const size_t& loopID)
+        void addParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL)
+//                                const bool& isGlissile,
+//                                const size_t& loopID)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Adds pS to *this GLidePlane
           */
             const bool success=this->insert(pL).second;
             assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
             
-            if(isGlissile)
-            {
-                glissileLoopIDs.insert(loopID);
-            }
-            else
-            {
-                sessileLoopIDs.insert(loopID);
-            }
+//            if(isGlissile)
+//            {
+//                glissileLoopIDs.insert(loopID);
+//            }
+//            else
+//            {
+//                sessileLoopIDs.insert(loopID);
+//            }
         }
         
         /**********************************************************************/
 //        template<typename LoopType>
-        void removeParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL,
-                                   const bool& isGlissile,
-                                   const size_t& loopID)
+        void removeParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL)
+//                                   const bool& isGlissile,
+//                                   const size_t& loopID)
         {/*!@\param[in] pS a row pointer to a DislocationSegment
           * Removes pS from *this GLidePlane
           */
             const int success=this->erase(pL);
             assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
         
-            if(isGlissile)
-            {
-                glissileLoopIDs.erase(loopID);
-            }
-            else
-            {
-                sessileLoopIDs.erase(loopID);
-            }
+//            if(isGlissile)
+//            {
+//                glissileLoopIDs.erase(loopID);
+//            }
+//            else
+//            {
+//                sessileLoopIDs.erase(loopID);
+//            }
         }
         
         /**********************************************************************/

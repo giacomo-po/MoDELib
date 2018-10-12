@@ -674,12 +674,14 @@ namespace model
             
             if(DN.outputGlidePlanes)
             {
+                assert(false && "TO-DO: RE-IMPLEMENT THIS");
+                
                 //! 4- Outputs the glide planes
-                SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
-                SequentialOutputFile<'G',1>::set_increment(DN.outputFrequency); // GlidePlanes_file;
-                SequentialOutputFile<'G',1> glide_file;
-                glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
-                model::cout<<", G/G_"<<glide_file.sID<<std::flush;
+//                SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
+//                SequentialOutputFile<'G',1>::set_increment(DN.outputFrequency); // GlidePlanes_file;
+//                SequentialOutputFile<'G',1> glide_file;
+//                glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
+//                model::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
 //            if(DN.outputPKforce)
