@@ -315,8 +315,8 @@ namespace model
                 // Initialize Polycrystal
 //                DN.poly.init(DN,"./polyCrystalInput.txt");
                 
-//                EDR.readScalarInFile(fullName.str(),"use_virtualSegments",DN.use_virtualSegments);
-//                if(DN.use_virtualSegments)
+//                EDR.readScalarInFile(fullName.str(),"useVirtualExternalLoops",DN.useVirtualExternalLoops);
+//                if(DN.useVirtualExternalLoops)
 //                {
 //                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
 //                }
@@ -379,6 +379,8 @@ namespace model
 //            EDR.readScalarInFile(fullName.str(),"verboseNodeContraction",DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction);
 //            EDR.readScalarInFile(fullName.str(),"verboseDislocationNode",NodeType::verboseDislocationNode);
             DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseNodeContraction",true);
+            //NodeType::verboseDislocationNode=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationNode",true);
+//            LinkType::verboseDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationSegment",true);
             
             // GrainBoundary model
 //            EDR.readScalarInFile(fullName.str(),"grainBoundaryTransmissionModel",GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel);
@@ -469,11 +471,14 @@ namespace model
             size_t kk(1);
             for (const auto& node : evl.nodes())
             {
-                const size_t nodeIDinFile(node.sID);
-                model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
-                NodeType::set_count(nodeIDinFile);
-                const size_t nodeID=DN.insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
-                assert(nodeID==nodeIDinFile);
+                if(node.meshLocation!=TypeTraits<NodeType>::outsideMesh)
+                {// skip virtual nodes
+                    const size_t nodeIDinFile(node.sID);
+                    model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
+                    NodeType::set_count(nodeIDinFile);
+                    const size_t nodeID=DN.insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
+                    assert(nodeID==nodeIDinFile);
+                }
                 kk++;
             }
         }
@@ -749,7 +754,7 @@ namespace model
                         Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
                         
                         // Sum solid angle jump
-                        if (DN.use_virtualSegments) // solid-angle jump of virtual segments
+                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
                         {
                             for(const auto& segment : DN.links())
                             {

@@ -152,8 +152,8 @@ namespace model
                         
                         
                         
-                        PlanePlaneIntersection<dim> ppi((*isLink.second->loopLinks().begin())->loop()->glidePlane.P,
-                                                        (*isLink.second->loopLinks().begin())->loop()->glidePlane.unitNormal,
+                        PlanePlaneIntersection<dim> ppi((*isLink.second->loopLinks().begin())->loop()->glidePlane->P,
+                                                        (*isLink.second->loopLinks().begin())->loop()->glidePlane->unitNormal,
                                                         planePoint,
                                                         crosSlipSystem.unitNormal);
 

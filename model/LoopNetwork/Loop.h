@@ -142,7 +142,12 @@ namespace model
         void addLink(LoopLinkType* const pL)
         {
             const bool success=links().insert(std::make_pair(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID),pL)).second;
-            assert(success && "Could not insert in linkMap");
+            if(!success)
+            {
+                std::cout<<"DislocationLoop "<<this->sID<<" cannot add LoopLink "<<pL->tag()<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+//            assert(success && "Could not insert in linkMap");
         }
         
         /**********************************************************************/

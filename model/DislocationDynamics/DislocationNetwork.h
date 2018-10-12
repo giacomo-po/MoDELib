@@ -319,7 +319,7 @@ namespace model
         int crossSlipModel;
         bool use_boundary;
         unsigned int use_bvp;
-        bool use_virtualSegments;
+        bool useVirtualExternalLoops;
         bool use_externalStress;
         bool use_extraStraightSegments;
         ExternalLoadControllerType extStressController;
@@ -368,7 +368,7 @@ namespace model
         /* init */ crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true)),
         /* init */ use_boundary(true),
         /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
-        /* init */ use_virtualSegments(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_virtualSegments",true)),
+        /* init */ useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true)),
         /* init */ use_externalStress(false),
         /* init */ use_extraStraightSegments(false),
         /* init */ outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true)),

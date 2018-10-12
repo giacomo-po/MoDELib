@@ -236,7 +236,7 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        void updateGeometry(const LinkType& seg,
+        void updateQuadraturePoints(const LinkType& seg,
                             const double& quadPerLength)
         {
             
@@ -280,7 +280,7 @@ namespace model
                                        const double& quadPerLength,
                                        const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
         {
-            updateGeometry(seg,quadPerLength);
+            updateQuadraturePoints(seg,quadPerLength);
             
             if(this->size())
             {

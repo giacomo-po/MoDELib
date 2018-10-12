@@ -42,8 +42,110 @@
 #include <model/Mesh/MeshPlane.h>
 #include <model/DislocationDynamics/DislocationQuadraturePoint.h>
 
+
+#ifndef NDEBUG
+#define VerboseDislocationSegment(N,x) if(verboseDislocationSegment>=N){model::cout<<x;}
+#else
+#define VerboseDislocationSegment(N,x)
+#endif
+
+
 namespace model
 {
+    
+    
+    template<typename LinkType>
+    class VirtualBoundaryLinks
+    {
+        
+        typedef typename LinkType::LoopType LoopType;
+        typedef typename LinkType::NodeType NodeType;
+        typedef LoopLink<LinkType> LoopLinkType;
+        
+        LinkType& link;
+        //        const std::shared_ptr<LoopType> innermostLoop;
+        //        const std::shared_ptr<LoopType> outermostLoop;
+        
+        //        const std::unique_ptr<LoopType> loop;
+        
+        //        const std::unique_ptr<LoopLinkType> sinkTosource;
+        //        const std::unique_ptr<LoopLinkType> sourceToVirtualSource;
+        //        const std::unique_ptr<LoopLinkType> virtualSourceToSink;
+        //        const std::unique_ptr<LoopLinkType> sinkToVirtualSource;
+        //        const std::unique_ptr<LoopLinkType> virtualSourceToVirtualSink;
+        //        const std::unique_ptr<LoopLinkType> virtualSinkToSink;
+        
+        
+        //        const std::unique_ptr<LoopLink<LinkType>>
+        
+        static std::pair<size_t,size_t> getLoopIDs(LinkType& link)
+        {
+            assert(link.grains().size()==1);
+            assert(link.burgers().norm()>FLT_EPSILON);
+            const Grain<LinkType::dim>& grain(**link.grains().begin());
+            
+            std::vector<std::shared_ptr<NodeType>> innerNodes{link.sink,link.source,link.source->virtualBoundaryNode()};
+            std::shared_ptr<LoopType> innerLoop=link.network().insertLoop(innerNodes,link.burgers(),grain.grainID);
+            
+            std::vector<std::shared_ptr<NodeType>> outerNodes{link.sink,link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode()};
+            std::shared_ptr<LoopType> outerLoop=link.network().insertLoop(outerNodes,innerLoop->burgers(),grain.grainID);
+            
+            innerLoop->update();
+            outerLoop->update();
+            assert(innerLoop->burgers().norm()>FLT_EPSILON);
+            assert(outerLoop->burgers().norm()>FLT_EPSILON);
+
+            return std::make_pair(innerLoop->sID,outerLoop->sID);
+        }
+        
+        std::pair<size_t,size_t> loopIDs;
+        
+    public:
+        
+        
+        
+        VirtualBoundaryLinks(LinkType& _link) :
+        /* init */ link(_link)
+        /* init */,loopIDs(getLoopIDs(link))
+        //        /* init */ innermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
+        //        /* init */,outermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
+        //        /* init */,sinkTosource(new LoopLinkType(link.sink,link.source,innermostLoop))
+        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),innermostLoop))
+        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,innermostLoop))
+        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),outermostLoop))
+        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),outermostLoop))
+        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,outermostLoop))
+        //        /* init */ sinkTosource(new LoopLinkType(link.sink,link.source,std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
+        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),sinkTosource->loop()))
+        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,sinkTosource->loop()))
+        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
+        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),sinkToVirtualSource->loop()))
+        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,sinkToVirtualSource->loop()))
+        {
+            
+            std::cout<<"Created VirtualBoundaryLinks "<<link.tag()<<std::endl;
+            
+            
+        }
+        
+//        void update()
+//        {
+//            link.network().deleteLoop(loopIDs.first);
+//            link.network().deleteLoop(loopIDs.second);
+//            loopIDs(getLoopIDs(link));
+//        }
+        
+        /******************************************************************/
+        ~VirtualBoundaryLinks()
+        {
+            std::cout<<"Destroying VirtualBoundaryLinks "<<link.tag()<<std::endl;
+            
+            link.network().deleteLoop(loopIDs.first);
+            link.network().deleteLoop(loopIDs.second);
+        }
+        
+    };
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -104,6 +206,9 @@ namespace model
         MatrixNdof Kqq; //! Segment Stiffness Matrix
         VectorNdof Fq; //! Segment Nodal Force Vector
         VectorDim Burgers; //! The Burgers vector
+        double BurgersNorm;
+        bool _isBoundarySegment;
+        std::unique_ptr<VirtualBoundaryLinks<LinkType>> virtualLinks;
         
     public:
         
@@ -112,6 +217,8 @@ namespace model
         static const Eigen::Matrix<double,_dim,1> zeroVector;
         static double quadPerLength;
         static double virtualSegmentDistance;
+        static int verboseDislocationSegment;
+        
         QuadratureParticleContainerType quadratureParticleContainer;
         
     public:
@@ -128,6 +235,7 @@ namespace model
             quadPerLength=TextFileParser(fileName).readScalar<double>("quadPerLength",true);
             assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
             
+            verboseDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationSegment",true);
             virtualSegmentDistance=TextFileParser(fileName).readScalar<double>("virtualSegmentDistance",true);
             
         }
@@ -135,15 +243,48 @@ namespace model
         /******************************************************************/
         DislocationSegment(const std::shared_ptr<NodeType>& nI,
                            const std::shared_ptr<NodeType>& nJ) :
-        /* init */ SplineSegmentType(nI,nJ),
-        /* init */ Burgers(VectorDim::Zero())
+        /* init */ SplineSegmentType(nI,nJ)
+        /* init */,Burgers(VectorDim::Zero())
+        /* init */,BurgersNorm(Burgers.norm())
+        /* init */,_isBoundarySegment(this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first)
         //        /* init */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
             
+            VerboseDislocationSegment(1,"Creating DislocationSegment "<<this->tag()<<std::endl;);
+            VerboseDislocationSegment(2,"_isBoundarySegment "<<_isBoundarySegment<<std::endl;);
+            VerboseDislocationSegment(3,"source->isBoundaryNode() "<<this->source->isBoundaryNode()<<std::endl;);
+            VerboseDislocationSegment(3,"sink->isBoundaryNode() "<<this->sink->isBoundaryNode()<<std::endl;);
+            VerboseDislocationSegment(3,"midpoint is boundary "<<boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first<<std::endl;);
+            
+            
+            
             //            pkGauss.setZero(dim,this->quadraturePoints().size()); // necessary if this is not assembled
+            //            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+            
+        }
+        
+        /******************************************************************/
+        ~DislocationSegment()
+        {
+            VerboseDislocationSegment(1,"Destroying DislocationSegment "<<this->tag()<<std::endl;);
+        }
+        
+        
+        /**********************************************************************/
+        void updateGeometry()
+        {
+            SplineSegmentType::updateGeometry();
+            
+            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+            
+            if(this->network().useVirtualExternalLoops && _isBoundarySegment && !virtualLinks && !hasZeroBurgers())
+            {
+                VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in updateGeometry"<<std::endl;);
+                virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(*this));
+            }
         }
         
         /**********************************************************************/
@@ -219,6 +360,8 @@ namespace model
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
         {
+            VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", adding LoopLink "<<pL->tag()<<std::endl;);
+            
             SplineSegmentType::addLink(pL); // forward to base class
             
             // Modify Burgers vector
@@ -230,13 +373,35 @@ namespace model
             {
                 Burgers-=pL->flow().cartesian();
             }
+            BurgersNorm=Burgers.norm();
             
-            addMeshPlane(pL->loop()->glidePlane);
+            
+            if(!pL->loop()->isVirtualBoundaryLoop())
+            {
+                
+                if(pL->loop()->glidePlane)
+                {
+                    addMeshPlane(*pL->loop()->glidePlane.get());
+                }
+                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+                
+                
+                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
+                {// If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
+                    
+                    VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in addLink"<<std::endl;);
+                    //virtualLinks->update();
+                    virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(*this));
+                }
+            }
         }
         
         /**********************************************************************/
         void removeLink(LoopLinkType* const pL)
         {
+            VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", removing LoopLink "<<pL->tag()<<std::endl;);
+            
+            
             SplineSegmentType::removeLink(pL);  // forward to base class
             
             // Modify Burgers vector
@@ -248,16 +413,36 @@ namespace model
             {
                 Burgers+=pL->flow().cartesian();
             }
+            BurgersNorm=Burgers.norm();
             
             
-            meshPlanes().clear();
-            boundingBoxSegments().clear();
-            for(const auto& loopLink : this->loopLinks())
+            if(!pL->loop()->isVirtualBoundaryLoop())
             {
-                addMeshPlane(loopLink->loop()->glidePlane);
+                
+                meshPlanes().clear();
+                boundingBoxSegments().clear();
+                for(const auto& loopLink : this->loopLinks())
+                {
+                    if(loopLink->loop()->glidePlane)
+                    {
+                        addMeshPlane(*loopLink->loop()->glidePlane.get());
+                    }
+                }
+                
+                addGrainBoundaryPlanes();
+                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+                
+                
+                virtualLinks.reset(nullptr); // If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
+                
+                
+                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
+                {
+                    VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in removeLink"<<std::endl;);
+                    virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(*this));
+                }
+                
             }
-            
-            addGrainBoundaryPlanes();
             
         }
         
@@ -311,7 +496,7 @@ namespace model
           *  Computes all geometric properties at the k-th quadrature point
           */
             
-            this->quadraturePoints().updateGeometry(*this,quadPerLength);
+            this->quadraturePoints().updateQuadraturePoints(*this,quadPerLength);
             
             quadratureParticleContainer.clear();
             quadratureParticleContainer.reserve(this->quadraturePoints().size());
@@ -337,7 +522,7 @@ namespace model
                     
                     if(!this->network().use_bvp) // not using FEM correction
                     {
-                        if(this->network().use_virtualSegments)
+                        if(this->network().useVirtualExternalLoops)
                         {
                             
                             // Place Quadrature-particles on P1->P2
@@ -405,7 +590,7 @@ namespace model
                 {
                     if(this->network().use_bvp) // using FEM correction
                     {
-                        if(this->network().use_virtualSegments)
+                        if(this->network().useVirtualExternalLoops)
                         {
                             for (unsigned int k=0;k<this->quadraturePoints().size();++k)
                             {
@@ -744,7 +929,7 @@ namespace model
         /**********************************************************************/
         void addToSolidAngleJump(const VectorDim& Pf, const VectorDim& Sf, VectorDim& dispJump) const
         {
-            if(isBoundarySegment() && this->network().use_virtualSegments)
+            if(isBoundarySegment() && this->network().useVirtualExternalLoops)
             {
                 // first triangle is P1->P2->P3, second triangle is P2->P4->P3
                 const VectorDim P1(this->source->get_P());
@@ -770,12 +955,28 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isVirtualBoundarySegment() const
+        {
+            bool temp(true);
+            for(const auto& loopLink : this->loopLinks())
+            {
+                temp*=loopLink->loop()->isVirtualBoundaryLoop();
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         bool isSessile() const
         {
             return    !isGlissile()
             /*  */ && !isBoundarySegment()
             /*  */ && !isGrainBoundarySegment()
-            /*  */ && !hasZeroBurgers();
+            /*  */ && !hasZeroBurgers()
+            /*  */ && !isVirtualBoundarySegment();
         }
         
         /**********************************************************************/
@@ -785,7 +986,7 @@ namespace model
           * - its Burgers vector is non-zero
           * - all loops containing this segment are glissile
           */
-            bool temp(meshPlanes().size()==1 && !hasZeroBurgers());
+            bool temp(meshPlanes().size()==1 && !hasZeroBurgers() && !isVirtualBoundarySegment());
             if(temp)
             {
                 for(const auto& loopLink : this->loopLinks())
@@ -796,10 +997,16 @@ namespace model
             return temp;
         }
         
+        //        /**********************************************************************/
+        //        bool hasZeroBurgers() const
+        //        {
+        //            return Burgers.squaredNorm()<FLT_EPSILON;
+        //        }
+        
         /**********************************************************************/
         bool hasZeroBurgers() const
         {
-            return Burgers.squaredNorm()<FLT_EPSILON;
+            return BurgersNorm<FLT_EPSILON;
         }
         
         //        /**********************************************************************/
@@ -824,13 +1031,16 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+        const bool& isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
           * on the boundary.
           */
-            return this->source->isBoundaryNode() &&
-            /*  */ this->sink->isBoundaryNode() &&
-            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+            return _isBoundarySegment;
+            //            HERE RETURN REFERENCE
+            //
+            //            return this->source->isBoundaryNode() &&
+            //            /*  */ this->sink->isBoundaryNode() &&
+            //            /*  */ boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
         }
         
         /**********************************************************************/
@@ -890,6 +1100,10 @@ namespace model
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     double DislocationSegment<dim,corder,InterpolationType>::virtualSegmentDistance=200.0;
+    
+    template <int _dim, short unsigned int corder, typename InterpolationType>
+    int DislocationSegment<_dim,corder,InterpolationType>::verboseDislocationSegment=0;
+    
     
 }
 #endif

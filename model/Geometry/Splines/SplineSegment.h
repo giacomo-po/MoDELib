@@ -105,6 +105,12 @@ namespace model
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef ParametricCurve<Derived,dim> ParametricCurveType;
         
+        
+    private:
+        
+        VectorDim _chord;
+        double _chordLength;
+        
     public:
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -116,10 +122,19 @@ namespace model
         /**********************************************************************/
         SplineSegment(const std::shared_ptr<NodeType>& nI,
                       const std::shared_ptr<NodeType>& nJ) :
-        NetworkLink<Derived>(nI,nJ)
+        /* init */ NetworkLink<Derived>(nI,nJ)
+        /* init */,_chord(this->sink->get_P()-this->source->get_P())
+        /* init */,_chordLength(_chord.norm())
         {/*! Constructor with Nodes and flow
           */
             
+        }
+        
+        /**********************************************************************/
+        void updateGeometry()
+        {
+            _chord=this->sink->get_P()-this->source->get_P();
+            _chordLength=_chord.norm();
         }
         
         /**********************************************************************/
@@ -161,18 +176,32 @@ namespace model
             return SplineSegmentBaseType::sfCoeffs(parametricChordLength());
         }
         
+//        /**********************************************************************/
+//        VectorDim chord() const
+//        {/*!\returns the chord vector (source -> sink)
+//          */
+//            return this->sink->get_P()-this->source->get_P();
+//        }
+//        
+//        /**********************************************************************/
+//        double chordLength() const
+//        {/*!\returns the length of the chord vector
+//          */
+//            return chord().norm();
+//        }
+
         /**********************************************************************/
-        VectorDim chord() const
+        const VectorDim& chord() const
         {/*!\returns the chord vector (source -> sink)
           */
-            return this->sink->get_P()-this->source->get_P();
+            return _chord;
         }
         
         /**********************************************************************/
-        double chordLength() const
+        const double& chordLength() const
         {/*!\returns the length of the chord vector
           */
-            return chord().norm();
+            return _chordLength;
         }
         
         /**********************************************************************/

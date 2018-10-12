@@ -260,32 +260,32 @@ namespace model
             return NetworkLinkObserverType::links();
         }
         
-        /**********************************************************************/
-        std::shared_ptr<LinkType> sharedLink(const SharedNodePtrType& nI, const SharedNodePtrType& nJ) const
-        {/*!\param[in] nI node I
-          * \param[in] nJ node J
-          * \returns a shared_ptr to a NetworkLink nI->nJ (or nJ->nI). If no link
-          * exists, a new link is created and returned via shared_ptr.
-          */
-            typename LoopLinkContainerType::const_iterator iterIJ(loopLinks().find(std::make_pair(nI->sID,nJ->sID)));
-            if(iterIJ!=loopLinks().end())
-            {
-                return iterIJ->second.pLink;
-            }
-            else
-            {
-                typename LoopLinkContainerType::const_iterator iterJI(loopLinks().find(std::make_pair(nJ->sID,nI->sID)));
-                if(iterJI!=loopLinks().end())
-                {
-                    return iterJI->second.pLink;
-                }
-                else
-                {
-                    return nI->sID<nJ->sID? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : std::shared_ptr<LinkType>(new LinkType(nJ,nI));
-                    //                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
-                }
-            }
-        }
+//        /**********************************************************************/
+//        std::shared_ptr<LinkType> sharedLink(const SharedNodePtrType& nI, const SharedNodePtrType& nJ) const
+//        {/*!\param[in] nI node I
+//          * \param[in] nJ node J
+//          * \returns a shared_ptr to a NetworkLink nI->nJ (or nJ->nI). If no link
+//          * exists, a new link is created and returned via shared_ptr.
+//          */
+//            typename LoopLinkContainerType::const_iterator iterIJ(loopLinks().find(std::make_pair(nI->sID,nJ->sID)));
+//            if(iterIJ!=loopLinks().end())
+//            {
+//                return iterIJ->second.pLink;
+//            }
+//            else
+//            {
+//                typename LoopLinkContainerType::const_iterator iterJI(loopLinks().find(std::make_pair(nJ->sID,nI->sID)));
+//                if(iterJI!=loopLinks().end())
+//                {
+//                    return iterJI->second.pLink;
+//                }
+//                else
+//                {
+//                    return nI->sID<nJ->sID? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : std::shared_ptr<LinkType>(new LinkType(nJ,nI));
+//                    //                    return nI->sID<nJ->sID? std::make_shared<LinkType>(nI,nJ) : std::make_shared<LinkType>(nJ,nI);
+//                }
+//            }
+//        }
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
@@ -341,6 +341,33 @@ namespace model
                 }
                 
                 connect(n0.second,n1.second,tempLoop);
+            }
+            
+            assert(tempLoop->isLoop() && "Not a loop.");
+            
+            std::cout<<"LoopNetwork insertLoop end"<<std::endl;
+
+            
+            return tempLoop;
+        }
+        
+        /**********************************************************************/
+        template <typename ...LoopArgTypes>
+        std::shared_ptr<LoopType> insertLoop(const std::vector<std::shared_ptr<NodeType>> nodes,
+                                             const LoopArgTypes&... loopInput)
+        {/*!@param[in] nodes in the loop
+          * @param[loopInput] Loop constructor arguments
+          *
+          * Inserts a Loop connecting the sequence of nodes,
+          * The loop constructor arguments loopInput
+          * are forwarded to the loop constructor.
+          */
+            std::shared_ptr<LoopType> tempLoop=std::make_shared<LoopType>(this->p_derived(),loopInput...);
+            
+            for(size_t k=0;k<nodes.size();++k)
+            {
+                const size_t next=k+1<nodes.size()? k+1 : 0;
+                connect(nodes[k],nodes[next],tempLoop);
             }
             
             assert(tempLoop->isLoop() && "Not a loop.");
@@ -541,10 +568,14 @@ namespace model
         {/*!\param[in] nodeID the StaticID of the node to be removed
           * \returns true if the node is succesfully removed.
           */
+            
+
+            
             const auto isNode=this->node(nodeID);
             if(isNode.first)
             {
                 const auto linkByLoopID=isNode.second->linksByLoopID();
+
                 for(auto& pair : linkByLoopID)
                 {
                     const auto& set(pair.second);
@@ -574,11 +605,15 @@ namespace model
                     }
                     else
                     {
+                        std::cout<<"link0 "<<link0->tag()<<", nodeID="<<nodeID<<std::endl;
+                        std::cout<<"link1 "<<link1->tag()<<", nodeID="<<nodeID<<std::endl;
                         assert(false && "Links must connect to node being removed");
                     }
                 }
                 
             }
+            
+            std::cout<<"LoopNetwork remove end"<<std::endl;
             
             return !this->node(nodeID).first;
         }

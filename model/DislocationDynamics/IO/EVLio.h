@@ -224,15 +224,67 @@ namespace model
             return temp;
         }
         
+//        template<typename DislocationNodeType>
+//        static void collectIO(const DislocationNodeType& dn,
+//                              std::vector<DislocationNodeIO<dim>>& nodesIO,
+//                              std::vector<DislocationLoopIO<dim>>& loopsIO,
+//                              std::vector<DislocationEdgeIO<dim>>& edgesIO)
+//        {
+//            nodesIO.clear();
+//            loopsIO.clear();
+//            edgesIO.clear();
+//
+//            nodesIO.reserve(dn.nodes().size());
+//            loopsIO.reserve(dn.loops().size());
+//            edgesIO.reserve(dn.loopLinks().size());
+//
+//            for(const auto& node : dn.nodes())
+//            {
+//                nodesIO.emplace_back(*node.second);
+//                //                file<<DislocationNodeIO<dim>(*node.second)<<"\n";
+//            }
+//            
+//            for(const auto& loop : dn.loops())
+//            {
+//                loopsIO.emplace_back(*loop.second);
+//                if(loop.second->isVirtualBoundaryLoop())
+//                {// virtual links are not stored in the network, so add them manually
+//                    for(const auto& link : loop.second->links())
+//                    {
+//                        edgesIO.emplace_back(*link.second);
+//                        //                file<<DislocationEdgeIO<dim>(link.second)<<"\n";
+//                    }
+//                }
+//                //                file<<DislocationLoopIO<dim>(*loop.second)<<"\n";
+//            }
+//            
+//            for(const auto& link : dn.loopLinks())
+//            {
+//                edgesIO.emplace_back(link.second);
+//                //                file<<DislocationEdgeIO<dim>(link.second)<<"\n";
+//            }
+//
+//            
+//        }
+        
         /**********************************************************************/
         template<typename DislocationNodeType>
         static void writeTxt(const DislocationNodeType& dn,
                              const std::string& suffix="")
         {
             
+            
+//            std::vector<DislocationNodeIO<dim>> nodesIO;
+//            std::vector<DislocationLoopIO<dim>> loopsIO;
+//            std::vector<DislocationEdgeIO<dim>> edgesIO;
+//            
+//            collectIO(dn,nodesIO,loopsIO,edgesIO);
+//            
+//            
+//            writeTxt(dn.runningID(),nodesIO,loopsIO,edgesIO,suffix);
+            
             const std::string filename(getTxtFilename(dn.runningID(),suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header
@@ -325,9 +377,19 @@ namespace model
                              const std::string& suffix="")
         {
             
+//            std::vector<DislocationNodeIO<dim>> nodesIO;
+//            std::vector<DislocationLoopIO<dim>> loopsIO;
+//            std::vector<DislocationEdgeIO<dim>> edgesIO;
+//            
+//            collectIO(dn,nodesIO,loopsIO,edgesIO);
+//            
+//            
+//            writeBin(dn.runningID(),nodesIO,loopsIO,edgesIO,suffix);
+
+            
+            
             const std::string filename(getBinFilename(dn.runningID(),suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
                 // Write header

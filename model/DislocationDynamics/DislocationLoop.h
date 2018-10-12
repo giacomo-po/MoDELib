@@ -16,17 +16,17 @@
 #include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
+#include <model/DislocationDynamics/GlidePlanes/glidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
-#include <model/Geometry/PlanarPolygon.h>
+//#include <model/Geometry/PlanarPolygon.h>
 
 
 namespace model
 {
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>,
-                            public PlanarPolygon
+    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
+//                            public PlanarPolygon
     {
     
         Eigen::Matrix<double,_dim,1> nA;
@@ -51,8 +51,8 @@ namespace model
         
         
         const Grain<dim>& grain;
-        const std::shared_ptr<GlidePlaneType> _glidePlane;
-        const GlidePlaneType& glidePlane;
+        const std::shared_ptr<GlidePlaneType> glidePlane;
+//        const GlidePlaneType& glidePlane;
         const bool isGlissile;
         
         
@@ -75,50 +75,84 @@ namespace model
                         const VectorDim& P,
                         const int& grainID) :
         /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B)),
-        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
+//        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
         /*      init */ _slippedArea(0.0),
         /*      init */ _rightHandedNormal(VectorDim::Zero()),
         /*      init */ grain(dn->poly.grain(grainID)),
-//        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,grain.lattice(),grain.grainID,grain.grainID,P,N)),
-        /*      init */ _glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N)),
-        /*      init */ glidePlane(*_glidePlane.get()),
-        /*      init */ isGlissile(this->flow().dot(glidePlane.n)==0 && allowedSlipSystem(this->flow(),glidePlane.n,grain))
+        /*      init */ glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N)),
+//        /*      init */ glidePlane(*_glidePlane->get()),
+        /*      init */ isGlissile(this->flow().dot(glidePlane->n)==0 && allowedSlipSystem(this->flow(),glidePlane->n,grain))
         {
-            model::cout<<"Creating DislocationLoop "<<this->sID<<", glissile="<<isGlissile<<std::endl;
+//            model::cout<<"Creating DislocationLoop "<<this->sID<<", glissile="<<isGlissile<<std::endl;
             
-//            _glidePlane->addLoop(this);
-            _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
+//            glidePlane->addLoop(this);
+            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
 
+        }
+        
+        /**********************************************************************/
+        DislocationLoop(LoopNetworkType* const dn,
+                        const VectorDim& B,
+                        const int& grainID) :
+        /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B)),
+        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
+        /*      init */ nA(VectorDim::Zero()),
+        /*      init */ _slippedArea(0.0),
+        /*      init */ _rightHandedNormal(VectorDim::Zero()),
+        /*      init */ grain(dn->poly.grain(grainID)),
+        /*      init */ glidePlane(nullptr),
+        //        /*      init */ glidePlane(*_glidePlane->get()),
+        /*      init */ isGlissile(true)
+        {
+            //            model::cout<<"Creating DislocationLoop "<<this->sID<<", glissile="<<isGlissile<<std::endl;
+            
+            //            glidePlane->addLoop(this);
+            if(!isVirtualBoundaryLoop())
+            {
+                glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
+            }
+//
+            
         }
         
         /**********************************************************************/
         DislocationLoop(const DislocationLoop& other) :
         /* base init */ BaseLoopType(other),
-        /*      init */ PlanarPolygon(other),
+//        /*      init */ PlanarPolygon(other),
         /* init */ nA(other.nA),
         /* init */ _slippedArea(0.0),
         /* init */ _rightHandedNormal(VectorDim::Zero()),
         /* init */ grain(other.grain),
-        /* init */ _glidePlane(other._glidePlane),
-        /* init */ glidePlane(*_glidePlane.get()),
+        /* init */ glidePlane(other.glidePlane),
+//        /* init */ glidePlane(*_glidePlane->get()),
         /* init */ isGlissile(other.isGlissile)
         {
 //            model::cout<<"Copying DislocationLoop "<<this->sID<<std::endl;
             
-//            _glidePlane->addLoop(this);
-            _glidePlane->addParentSharedPtr(&_glidePlane,isGlissile,this->sID);
-
+//            glidePlane->addLoop(this);
+            
+            if(!isVirtualBoundaryLoop())
+            {
+                glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
+            }
         }
         
         /**********************************************************************/
         ~DislocationLoop()
         {
-//            model::cout<<"Destroying DislocationLoop "<<this->sID<<std::endl;
-
             
-//            _glidePlane->removeLoop(this);
-            _glidePlane->removeParentSharedPtr(&_glidePlane,isGlissile,this->sID);
+//            glidePlane->removeLoop(this);
+            if(!isVirtualBoundaryLoop())
+            {
+                glidePlane->removeParentSharedPtr(&glidePlane,isGlissile,this->sID);
+            }
+        }
+        
+        /**********************************************************************/
+        bool isVirtualBoundaryLoop() const
+        {
+            return glidePlane.get()==nullptr;
         }
         
         /**********************************************************************/
@@ -160,9 +194,13 @@ namespace model
         void update()
         {
             nA.setZero();
-            for(const auto& loopLink : this->links())
+            if(this->links().size())
             {
-                nA+= 0.5*(loopLink.second->source()->get_P()-glidePlane.P).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
+                const VectorDim P0(this->links().begin()->second->source()->get_P());
+                for(const auto& loopLink : this->links())
+                {
+                    nA+= 0.5*(loopLink.second->source()->get_P()-P0).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
+                }
             }
             
             _slippedArea=nA.norm();
@@ -220,7 +258,7 @@ namespace model
 ////            const double chornNorm(chord.norm());
 ////            if(chornNorm>FLT_EPSILON)
 ////            {
-////            assert(std::fabs((chord/chornNorm).dot(glidePlane.unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
+////            assert(std::fabs((chord/chornNorm).dot(glidePlane->unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
 ////            }
 //
 //        }

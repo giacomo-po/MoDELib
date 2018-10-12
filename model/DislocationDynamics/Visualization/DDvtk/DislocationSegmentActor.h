@@ -58,10 +58,10 @@ namespace model
         enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
         //        typedef VertexReader<'V',10,double> VertexReaderType;
         //        typedef EdgeReader<'K',15,double>   EdgeReaderType;
-        typedef IDreader<'V',1,10, double> VertexReaderType;
-        typedef IDreader<'K',2,13,double> EdgeReaderType;
-        typedef IDreader<'E',3,0,double> LoopLinkReaderType;
-        typedef IDreader<'L',1,13,double> LoopReaderType;
+//        typedef IDreader<'V',1,10, double> VertexReaderType;
+//        typedef IDreader<'K',2,13,double> EdgeReaderType;
+//        typedef IDreader<'E',3,0,double> LoopLinkReaderType;
+//        typedef IDreader<'L',1,13,double> LoopReaderType;
         
         
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
@@ -403,8 +403,9 @@ namespace model
         void createSegments()
         {
             
-            
-                        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
+            std::cout<<"Creating segments: "<<std::flush;
+            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
+            std::cout<<segments.size()<<std::endl;
             
             size_t ptID=0;
             for (const auto& segment : segments)

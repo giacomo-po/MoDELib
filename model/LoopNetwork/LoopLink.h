@@ -79,16 +79,11 @@ namespace model
         /* init */ prev(nullptr),
         /* init */ next(nullptr)
         {
-            VerboseLoopLink(1,"Constructing LoopLink "<<name()<<" (loop "<<pLoop->sID<<")"<<std::endl);
+            VerboseLoopLink(1,"Constructing LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
             pLoop->addLink(this);
             pLink->addLink(this);
-            
             _source->addLoopLink(this);
             _sink->addLoopLink(this);
-            
-            //            NodeObserver<LoopNodeType>::addNode(source());
-            //            NodeObserver<LoopNodeType>::addNode(sink());
-            
         }
 
         /**********************************************************************/
@@ -98,24 +93,26 @@ namespace model
         /**********************************************************************/
         ~LoopLink()
         {
-            VerboseLoopLink(1,"Destroying LoopLink "<<name()<<" (loop "<<pLoop->sID<<")"<<std::endl);
+            VerboseLoopLink(1,"Destroying LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
             pLoop->removeLink(this);
             pLink->removeLink(this);
             _source->removeLoopLink(this);
             _sink->removeLoopLink(this);
         }
         
+        /**********************************************************************/
         std::shared_ptr<LoopNodeType> source() const
         {
             return _source;
         }
         
-        
+        /**********************************************************************/
         std::shared_ptr<LoopNodeType> sink() const
         {
             return _sink;
         }
         
+        /**********************************************************************/
         std::shared_ptr<LoopType> loop() const
         {
             return pLoop;
@@ -126,7 +123,7 @@ namespace model
         {
             if(pL.get()!=pLoop.get())
             {
-                VerboseLoopLink(1,"LoopLink "<<name()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
+                VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
                 
                 pLoop->removeLink(this);
                 pLoop=pL;
@@ -161,7 +158,7 @@ namespace model
                 
                 if(source()->sID==startID)
                 {
-                    VerboseLoopLink(1,"LoopLink "<<name()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
+                    VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
                     pLoop->removeLink(this);
                     pLoop=pL;
                     pLoop->addLink(this);
@@ -216,7 +213,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::string name() const
+        std::string tag() const
         {/*!\returns the string "i->j" where i is source()->sID and j=sink()->sID
           */
             return std::to_string(source()->sID) + "->" + std::to_string(sink()->sID);

@@ -35,11 +35,10 @@
 namespace model
 {
     template<typename Derived>
-    class LoopNode : public StaticID<Derived>,
-    /*            */ public CRTP<Derived>,
+    class LoopNode : public  StaticID<Derived>,
+    /*            */ public  CRTP<Derived>,
     /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>,
-//    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const,short int>>
-        /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const>>
+    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const>>
     {
         
     public:
@@ -52,7 +51,6 @@ namespace model
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
-//        typedef std::tuple<Derived* const ,LinkType* const,short int>				NeighborType;
         typedef std::tuple<Derived* const ,LinkType* const>				NeighborType;
         typedef std::map<size_t,NeighborType>						    NeighborContainerType;
 
@@ -115,7 +113,7 @@ namespace model
         /* init list */ loopNetwork(ln),
         /* init list */ psn(new NetworkComponentType(this->p_derived()))
         {
-            VerboseLoopNode(1,"Constructing LoopNode "<<name()<<std::endl);
+            VerboseLoopNode(1,"Constructing LoopNode "<<tag()<<std::endl);
 
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             loopNetwork->addNode(this->p_derived());
@@ -132,14 +130,17 @@ namespace model
         /**********************************************************************/
         ~LoopNode()
         {
-            VerboseLoopNode(1,"Destroying LoopNode "<<name()<<std::endl);
+            VerboseLoopNode(1,"Destroying LoopNode "<<tag()<<std::endl);
 
+            
             loopNetwork->removeNode(this->p_derived());
+            
             
             assert(loopLinks().empty());
             
             this->psn->remove(this->p_derived());
 
+            
 //            const int success=neighbors().erase(this->sID);
 //            assert(success==1 && "CANNOT ERESE SELF FROM NEIGHBORHOOD.");
 
@@ -341,7 +342,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::string name() const
+        std::string tag() const
         {/*!\returns the string "i" where i is this->sID
           */
             return std::to_string(this->sID) ;

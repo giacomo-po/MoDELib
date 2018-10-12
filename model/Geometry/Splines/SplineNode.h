@@ -14,16 +14,13 @@
 #include <model/Geometry/Splines/CatmullRom.h>
 #include <model/Geometry/Splines/Hermite.h>
 
-//#include <model/Math/RoundEigen.h>
-//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
-
 namespace model
 {
     
     double chordal    =1.0;
     double centripetal=0.5;
     double uniform    =0.0;
-
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -43,35 +40,37 @@ namespace model
     public:
         constexpr static int corder=0;
         constexpr static int NdofXnode=dim;
-
+        
         typedef LoopNode<Derived> LoopNodeType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef Eigen::Matrix<double, dim, 1>   VectorDim;
         typedef Eigen::Matrix<double, dim, dim> MatrixDim;
         
     private:
+        
         VectorDim P;
         
         
     public:
-        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
-
         
         /*************************************************/
         SplineNode(LoopNetworkType* const ln,
                    const VectorDim& P_in) :
         /* init list */ LoopNodeType(ln),
-        /* init list */ P(P_in),
-        /* init list */ prjM(MatrixDim::Identity())
+        /* init list */ P(P_in)
         {
-
+            
         }
-
+        
         /*************************************************/
         void set_P(const VectorDim& P_in)
         {
             P=P_in;
-//            P= roundP(P_in);
+            
+            for(const auto& neighboor : this->neighbors())
+            {
+                std::get<1>(neighboor.second)->updateGeometry();
+            }
         }
         
         /*************************************************/
@@ -98,17 +97,17 @@ namespace model
         typedef typename LoopNode<Derived>::LinkByLoopContainerType LinkByLoopContainerType;
         typedef typename LoopNode<Derived>::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-
+        
         
         constexpr static int corder=1;
         constexpr static int NdofXnode=dim;
-
+        
         typedef SplineNode<Derived, dim,0,Hermite> Base;
         typedef typename Base::VectorDim VectorDim;
         typedef typename Base::MatrixDim MatrixDim;
         
     private:
-
+        
         
         /**********************************************************************/
         void computeLoopTangents()
@@ -121,16 +120,14 @@ namespace model
                 loopTangents.emplace(pair.first,this->prjM*TangentRule::loopTangent(pair.second));
             }
         }
-
+        
         std::map<size_t,VectorDim> loopTangents;
         
     public:
-//        MatrixDim prjM;	//! the projection matrix. THIS SHOULD BE PRIVATE
         
         SplineNode(LoopNetworkType* const ln,
                    const VectorDim& P_in) :
         /* init list */ Base(ln,P_in)
-//        /* init list */ prjM(MatrixDim::Identity())
         {
             
         }
@@ -161,10 +158,9 @@ namespace model
           *
           * This functin overrides SplineNode<Derived, dim,0>::set_P
           */
-//            std::cout<<"node "<<this->sID<<"set_P"<<std::endl;
             
             Base::set_P(P_in); // forward to base class
-
+            
             // Tangents of neighbors may change due to change in P, so updated them
             for(const auto& neighboor : this->neighbors())
             {
@@ -203,25 +199,6 @@ namespace model
         }
     };
     
-//    /**************************************************************************/
-//    /**************************************************************************/
-//    template <typename Derived, short unsigned int dim>
-//    class SplineNode<Derived, dim,2> : public SplineNode<Derived, dim,1>
-//    {
-//        
-//        typedef Eigen::Matrix<double, dim, 1>	VectorDim;
-//        typedef Eigen::Matrix<double, dim, dim> MatrixDim;
-//        
-//        VectorDim K;
-//        
-//    public:
-//        
-//        const VectorDim& get_K() const
-//        {
-//            return K;
-//        }
-//        
-//    };
     
 }
 #endif

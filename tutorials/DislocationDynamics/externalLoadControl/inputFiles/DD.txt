@@ -38,7 +38,7 @@ outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 
@@ -89,7 +89,7 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
-use_virtualSegments=1;
+useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
 solverTolerance=0.0001;
 
@@ -116,7 +116,8 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verboseDislocationNode=0;
+verboseDislocationNode=2;
+verboseDislocationSegment=5;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;
