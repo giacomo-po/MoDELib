@@ -77,7 +77,7 @@ namespace model
                         const VectorDim& N,
                         const VectorDim& P,
                         const int& grainID) :
-        /* base init */ BaseLoopType(dn,B,N,P,grainID)
+        /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
 //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
 //        /*      init */ nA(VectorDim::Zero()),
 //        /*      init */ _slippedArea(0.0),
@@ -98,7 +98,7 @@ namespace model
         DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
                         const int& grainID) :
-        /* base init */ BaseLoopType(dn,B,grainID)
+        /* base init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID)
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
 //        /*      init */ nA(VectorDim::Zero()),
 //        /*      init */ _slippedArea(0.0),

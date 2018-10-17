@@ -718,8 +718,9 @@ namespace model
                 const auto t1= std::chrono::system_clock::now();
                 model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
                 typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
-                LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
-                this->parallelExecute(Lmfp);
+                assert(0 && "THIS CASE MUST BE REWORKED, since LinkType::assemble DOES NOT EXIST ANYMORE");
+                //LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
+                //this->parallelExecute(Lmfp);
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
                 
                 

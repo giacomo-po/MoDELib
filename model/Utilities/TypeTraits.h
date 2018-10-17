@@ -12,21 +12,23 @@
 
 #include <assert.h>
 
-namespace model {
+namespace model
+{
 	
 	template <typename T>
-	struct TypeTraits{
+	struct TypeTraits
+    {
 		
 		/*! \brief A helper struct for predefinition of types in model classes. 
 		 */
 		
-		TypeTraits(){
+		TypeTraits()
+        {
 			assert(0 && "YOU MUST DEFINE A TypeTraits SPECIALIZATION FOR YOUR CLASS.");
 		}
 	};
 	
-	//////////////////////////////////////////////////////////////
-} // namespace model
+}
 #endif
 
 

@@ -15,7 +15,8 @@
 #include <cmath>
 #include <cfloat>
 #include <model/DislocationDynamics/Materials/Material.h>
-#include <model/IO/EigenDataReader.h>
+//#include <model/IO/EigenDataReader.h>
+#include <model/IO/TextFileParser.h>
 #include <model/IO/IDreader.h>
 #include <model/IO/UniqueOutputFile.h>
 
@@ -61,12 +62,12 @@ namespace model
         /* init list */,last_update_time(0.0)
         /* init list */,lambda(1.0)
         /* init list */,sample_volume(0.0)
-        /* init list */,relaxSteps(0)
-        /* init list */,torsionSteps(0)
+        /* init list */,relaxSteps(TextFileParser(inputFileName).readScalar<int>("relaxSteps",true))
+        /* init list */,torsionSteps(TextFileParser(inputFileName).readScalar<int>("torsionSteps",true))
         /* init list */,e33(0.0)
         /* init list */,s33(0.0)
-        /* init list */,strainRate(0.0)
-        /* init list */,tau(0)
+        /* init list */,strainRate(TextFileParser(inputFileName).readScalar<double>("strainRate",true))
+        /* init list */,tau(TextFileParser(inputFileName).readScalar<double>("tau",true))
         /* init list */,R(0.0)
         {
             
@@ -82,24 +83,25 @@ namespace model
 
             
             
-            model::EigenDataReader EDR;
-            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
+//            model::EigenDataReader EDR;
+            DN.use_externalStress=TextFileParser(inputFileName).readScalar<int>("use_externalStress",true);
+            //EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
             
             if (DN.use_externalStress)
             {
                 assert(DN.use_boundary && "A boundary mesh is necessary. Set use_boundary=1; in DDinput.txt");
                 
-                lambda=2.0*Material<Isotropic>::nu/(1.0-2.0*Material<Isotropic>::nu);
+                lambda=2.0*DN.poly.nu/(1.0-2.0*DN.poly.nu);
                 sample_volume=DN.mesh.volume();
                 R=0.5*(DN.mesh.xMax()(0)-DN.mesh.xMin()(0));
 
                 
                 DN._userOutputColumn+=outputCols;  //put here in order for right bvp restart
             
-                EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
-                EDR.readScalarInFile(inputFileName,"torsionSteps",torsionSteps);
-                EDR.readScalarInFile(inputFileName,"strainRate",strainRate);
-                EDR.readScalarInFile(inputFileName,"tau",tau);
+                //EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
+//                EDR.readScalarInFile(inputFileName,"torsionSteps",torsionSteps);
+//                EDR.readScalarInFile(inputFileName,"strainRate",strainRate);
+//                EDR.readScalarInFile(inputFileName,"tau",tau);
                 
                 assert(torsionSteps>=relaxSteps);
                 
@@ -169,6 +171,8 @@ namespace model
             {
                 const double deltaT = DN.get_totalTime() - last_update_time;
                 last_update_time += deltaT;
+                
+                tau=0.0; // release torsion stress
                 
                 e33+=strainRate*deltaT;
                 

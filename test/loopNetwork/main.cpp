@@ -13,11 +13,18 @@
 #include <model/Utilities/StaticID.h>
 
 
+#include <iostream>
+
+#include <Eigen/Dense>
+#include <model/Utilities/TypeTraits.h>
+#include <model/Utilities/StaticID.h>
+
+
 namespace model
 {
     struct Dnetwork;
     struct Dnode;
-//    struct DLnode;
+    //    struct DLnode;
     struct Dlink;
     struct Dloop;
     
@@ -26,7 +33,7 @@ namespace model
     {
         typedef Dnetwork LoopNetworkType;
         typedef Dnode  NodeType;
-//        typedef DLnode LoopNodeType;
+        //        typedef DLnode LoopNodeType;
         typedef Dlink LinkType;
         typedef Dloop LoopType;
         typedef double FlowType;
@@ -52,11 +59,11 @@ namespace model
         
     };
     
-//    template<>
-//    struct TypeTraits<DLnode> : public TypeTraits<Dnetwork>
-//    {
-//        
-//    };
+    //    template<>
+    //    struct TypeTraits<DLnode> : public TypeTraits<Dnetwork>
+    //    {
+    //
+    //    };
 }
 
 
@@ -67,11 +74,20 @@ namespace model
 
 namespace model
 {
+    
+    struct Dlink : public NetworkLink<Dlink>
+    {
+        
+        Dlink(const std::shared_ptr<Dnode>& Ni,
+              const std::shared_ptr<Dnode>& Nj) : NetworkLink<Dlink>(Ni,Nj){}
+        
+    };
+    
     struct Dnetwork : public LoopNetwork<Dnetwork>{};
     
     struct Dnode : public LoopNode<Dnode>
     {
-    
+        
         Dnode(Dnetwork* const net) :
         /* init */LoopNode<Dnode>(net)
         {
@@ -81,22 +97,16 @@ namespace model
     };
     
     
-    struct Dlink : public NetworkLink<Dlink>
-    {
     
-        Dlink(const std::shared_ptr<Dnode>& Ni,
-              const std::shared_ptr<Dnode>& Nj) : NetworkLink<Dlink>(Ni,Nj){}
-        
-    };
     
     
     struct Dloop : public Loop<Dloop>
     {
-    
+        
         Dloop(Dnetwork* const net, const double& flow) : Loop<Dloop>(net,flow){}
     };
-
-
+    
+    
 }
 
 using namespace model;
