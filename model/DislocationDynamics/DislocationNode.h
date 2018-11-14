@@ -614,7 +614,7 @@ namespace model
         VectorDim boundaryNormal;
         //        VectorDim C;
         
-//        std::shared_ptr<NodeType> virtualNode;
+        std::shared_ptr<NodeType> virtualNode;
         
         const bool isVirtualBoundaryNode;
         
@@ -691,59 +691,60 @@ namespace model
         ~DislocationNode()
         {
             VerboseDislocationNode(1,"Destroying DislocationNode "<<this->sID<<" ("<<this<<")"<<std::endl;);
-//            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
-//            
-//            if(virtualNode)
-//            {
-//                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" removing virtual "<<virtualNode->sID<<std::endl;);
-//                this->network().remove(virtualNode->sID);
-//            }
+            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
             
+            if(virtualNode)
+            {
+//                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" removing virtual "<<virtualNode->sID<<std::endl;);
+                this->network().remove(virtualNode->sID);
+            }
+//
         }
         
         /**********************************************************************/
-        std::shared_ptr<NodeType> virtualBoundaryNode()
+        const std::shared_ptr<NodeType>& virtualBoundaryNode() const
         {
+            return virtualNode;
             
-            std::shared_ptr<NodeType> temp(nullptr);
-            
-            if(this->network().useVirtualExternalLoops /* && this->network().use_bvp */ && isBoundaryNode()) //ENABLE THIS USE_BVP
-            {
-                std::vector<LinkType*> virtualNeighbors;
-                for (const auto& neighborIter : this->neighbors())
-                {
-                    if(   std::get<1>(neighborIter.second)->isVirtualBoundarySegment()
-                       && !std::get<1>(neighborIter.second)->hasZeroBurgers())
-                    {
-                        virtualNeighbors.push_back(std::get<1>(neighborIter.second));
-                    }
-                }
-                
-                switch (virtualNeighbors.size())
-                {// a unique virtual node does not exist, create a new one
-                    case 0:
-                    {
-                        temp.reset(new NodeType(&this->network(),this->get_P()+100.0*boundaryNormal));
-                        break;
-                    }
-                        
-                    case 1:
-                    {// a unique virtual node already exists, return that
-                        temp=virtualNeighbors[0]->source->sID==this->sID? virtualNeighbors[0]->sink : virtualNeighbors[0]->source;
-                        assert(temp->isVirtualBoundaryNode);
-                        break;
-                    }
-                        
-                    default:
-                    {
-                        assert(false && "THERE CAN BE AT THE MOST ONE VIRTUAL NODE FOR EACH BOUNDARY NODE");
-                        break;
-                    }
-                }
-            
-            }
-            
-            return temp;
+//            std::shared_ptr<NodeType> temp(nullptr);
+//            
+//            if(this->network().useVirtualExternalLoops /* && this->network().use_bvp */ && isBoundaryNode()) //ENABLE THIS USE_BVP
+//            {
+//                std::vector<LinkType*> virtualNeighbors;
+//                for (const auto& neighborIter : this->neighbors())
+//                {
+//                    if(   std::get<1>(neighborIter.second)->isVirtualBoundarySegment()
+//                       && !std::get<1>(neighborIter.second)->hasZeroBurgers())
+//                    {
+//                        virtualNeighbors.push_back(std::get<1>(neighborIter.second));
+//                    }
+//                }
+//                
+//                switch (virtualNeighbors.size())
+//                {// a unique virtual node does not exist, create a new one
+//                    case 0:
+//                    {
+//                        temp.reset(new NodeType(&this->network(),this->get_P()+100.0*boundaryNormal));
+//                        break;
+//                    }
+//                        
+//                    case 1:
+//                    {// a unique virtual node already exists, return that
+//                        temp=virtualNeighbors[0]->source->sID==this->sID? virtualNeighbors[0]->sink : virtualNeighbors[0]->source;
+//                        assert(temp->isVirtualBoundaryNode);
+//                        break;
+//                    }
+//                        
+//                    default:
+//                    {
+//                        assert(false && "THERE CAN BE AT THE MOST ONE VIRTUAL NODE FOR EACH BOUNDARY NODE");
+//                        break;
+//                    }
+//                }
+//            
+//            }
+//            
+//            return temp;
         }
         
         /**********************************************************************/
@@ -897,6 +898,7 @@ namespace model
                 if(boundingBoxSegments().contains(this->get_P()).first)
                 {
                     _isOnBoundingBox=true;
+                    setToBoundary(this->get_P());
                 }
                 
             }
@@ -942,6 +944,7 @@ namespace model
                 if(boundingBoxSegments().contains(this->get_P()).first)
                 {
                     _isOnBoundingBox=true;
+                    setToBoundary(this->get_P());
                 }
             }
             
@@ -1365,18 +1368,19 @@ namespace model
             
             if(this->network().useVirtualExternalLoops /* && this->network().use_bvp */ && isBoundaryNode()) //ENABLE THIS USE_BVP
             {
-                std::shared_ptr<NodeType> virtualNode(virtualBoundaryNode());
+//                std::shared_ptr<NodeType> virtualNode(virtualBoundaryNode());
                 
                 if(virtualNode)
                 {
                     static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+100.0*boundaryNormal);
                 }
-//                else
-//                {
-//                    virtualNode.reset(new NodeType(&this->network(),X+100.0*boundaryNormal));
-//                }
+                else
+                {
+                    VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+                    virtualNode.reset(new NodeType(&this->network(),X+100.0*boundaryNormal));
+                }
             }
-            NodeBaseType::set_P(X);
+            NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line 
             assert(boundingBoxSegments().contains(this->get_P()).first);
         }
         

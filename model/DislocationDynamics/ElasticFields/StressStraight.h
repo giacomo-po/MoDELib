@@ -144,6 +144,21 @@ namespace model
 #endif
         }
         
+        
+        /**********************************************************************/
+        template<typename Derived>
+        VectorDim displacement_kernel(const Eigen::MatrixBase<Derived>& r) const
+        {
+            const Scalar Ra(sqrt(r.squaredNorm()+DislocationStress<dim>::a2));
+            const VectorDim Y(r+Ra*t);
+            const Scalar Yt(Y.dot(t));
+
+
+            return -b.cross(t)*(2.0-0.5/MaterialType::C1+(2.0-1.0/MaterialType::C1)*log(Yt)-DislocationStress<dim>::a2/Ra/Yt)/8.0/M_PI
+            /*  */ +Y*b.cross(t).dot(r)/Yt/Ra/MaterialType::C1/8.0/M_PI;
+
+        }
+        
     public:
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -188,6 +203,23 @@ namespace model
             const MatrixDim temp = nonSymmStress(x);
             return MaterialType::C2*(temp+temp.transpose());
         }
+        
+//        /**********************************************************************/
+//        VectorDim displacement(const VectorDim& x) const
+//        {/*!\returns the line-integral part of the displacement contribution of this straight segment.
+//          * Note: the return value  does NOT include the solid-angle contribution to the displacement field.
+//          */
+//            return displacement_kernel(B-x)-displacement_kernel(A-x);
+//        }
+//        
+//        /**********************************************************************/
+//        VectorDim solidAngle(const VectorDim& x,const VectorDim& s) const
+//        {
+//            
+//            
+//            
+//            return ;
+//        }
         
 	};	
 	

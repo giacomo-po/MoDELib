@@ -47,10 +47,10 @@ namespace model
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        static void computeNodaVelocities(DislocationNetworkType& DN)
+        static void computeNodaVelocities(DislocationNetworkType& DN,const long int& runID)
         {
             //! Compute and store DislocaitonNode velocities
-            DN.assembleAndSolve();
+            DN.assembleAndSolve(runID);
             
             /*! Computes the time step size \f$dt\f$ for the current simulation step,
              *  based on maximum nodal velocity \f$v_{max}\f$.

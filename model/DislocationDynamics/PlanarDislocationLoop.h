@@ -21,6 +21,12 @@
 //#include <model/DislocationDynamics/IO/PlanarDislocationLoopIO.h>
 //#include <model/Geometry/PlanarPolygon.h>
 
+#ifndef NDEBUG
+#define VerbosePlanarDislocationLoop(N,x) if(verbosePlanarDislocationLoop>=N){model::cout<<x;}
+#else
+#define VerbosePlanarDislocationLoop(N,x)
+#endif
+
 
 namespace model
 {
@@ -55,6 +61,8 @@ namespace model
         
         const Grain<dim>& grain;
         const std::shared_ptr<GlidePlaneType> glidePlane;
+        static int verbosePlanarDislocationLoop;
+
         //        const GlidePlaneType& glidePlane;
 //        const bool isGlissile;
         
@@ -69,6 +77,12 @@ namespace model
 //            
 //            return true;
 //        }
+        
+        /******************************************************************/
+        static void initFromFile(const std::string& fileName)
+        {
+            verbosePlanarDislocationLoop=TextFileParser("inputFiles/DD.txt").readScalar<int>("verbosePlanarDislocationLoop",true);
+        }
         
         
         /**********************************************************************/
@@ -88,7 +102,7 @@ namespace model
         //        /*      init */ glidePlane(*_glidePlane->get()),
 //        /*      init */,isGlissile(_isGlissile)
         {
-            //            model::cout<<"Creating PlanarDislocationLoop "<<this->sID<<", glissile="<<isGlissile<<std::endl;
+            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             //            glidePlane->addLoop(this);
 //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
@@ -111,7 +125,7 @@ namespace model
         //        /*      init */ glidePlane(*_glidePlane->get()),
 //        /*      init */,isGlissile(true)
         {
-            //            model::cout<<"Creating PlanarDislocationLoop "<<this->sID<<", glissile="<<isGlissile<<std::endl;
+            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" without plane."<<std::endl;);
             
             //            glidePlane->addLoop(this);
             if(!isVirtualBoundaryLoop())
@@ -134,7 +148,7 @@ namespace model
         //        /* init */ glidePlane(*_glidePlane->get()),
 //        /* init */,isGlissile(other.isGlissile)
         {
-            //            model::cout<<"Copying PlanarDislocationLoop "<<this->sID<<std::endl;
+            VerbosePlanarDislocationLoop(1,"Copy-constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             //            glidePlane->addLoop(this);
             
@@ -147,6 +161,7 @@ namespace model
         /**********************************************************************/
         ~PlanarDislocationLoop()
         {
+            VerbosePlanarDislocationLoop(1,"Destroying PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             //            glidePlane->removeLoop(this);
             if(!isVirtualBoundaryLoop())
@@ -160,6 +175,25 @@ namespace model
         {
             return glidePlane.get()==nullptr;
         }
+        
+//        /**********************************************************************/
+//        bool isPureVirtualBoundaryLoop() const
+//        {
+//            bool temp(isVirtualBoundaryLoop());
+//            if(temp)
+//            {
+//                for(const auto& loopLink : this->links())
+//                {
+//                    temp*=loopLink->plink->isVirtualBoundarySegment();
+//                    if(!temp)
+//                    {
+//                        break;
+//                    }
+//                }
+//            }
+//            
+//            return temp;
+//        }
         
         /**********************************************************************/
         VectorDim burgers() const
@@ -241,6 +275,10 @@ namespace model
 //        }
         
     };
+    
+    template <typename Derived>
+    int PlanarDislocationLoop<Derived>::verbosePlanarDislocationLoop=0;
+
     
 }
 #endif

@@ -78,16 +78,26 @@ namespace model
     struct DislocationNetworkBase : public GlidePlaneObserver<dim>
     {// Class storing objects that need to be destroyed last
         
-        SimplicialMesh<dim> mesh;
-        Polycrystal<dim> poly;
-        BVPsolver<dim,2> bvpSolver;
+        SimplicialMesh<dim>& mesh;
+        Polycrystal<dim>& poly;
+        BVPsolver<dim,2>& bvpSolver;
         
-        DislocationNetworkBase() :
-        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
-        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
-        /* init */ bvpSolver(mesh)
+//        DislocationNetworkBase() :
+//        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
+//        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
+//        /* init */ bvpSolver(mesh)
+//        {
+//                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
+//        }
+
+        DislocationNetworkBase(SimplicialMesh<dim>& _mesh,
+                               Polycrystal<dim>& _poly,
+                               BVPsolver<dim,2>& _bvpSolver) :
+        /* init */ mesh(_mesh),
+        /* init */ poly(_poly),
+        /* init */ bvpSolver(_bvpSolver)
         {
-                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
+//            assert(mesh.simplices().size() && "MESH IS EMPTY.");
         }
         
     };
@@ -137,7 +147,7 @@ namespace model
     private:
         
         /**********************************************************************/
-        void updateLoadControllers()
+        void updateLoadControllers(const long int& runID)
         {/*! Updates bvpSolver using the stress and displacement fields of the
           *  current DD configuration.
           */
@@ -152,18 +162,18 @@ namespace model
             }
             if (use_externalStress)
             {
-                extStressController.update(*this);
+                extStressController.update(*this,runID);
             }
         }
         
         /**********************************************************************/
-        void computeNodaVelocities()
+        void computeNodaVelocities(const long int& runID)
         {
             
             switch (timeIntegrationMethod)
             {
                 case 0:
-                    DDtimeIntegrator<0>::computeNodaVelocities(*this);
+                    DDtimeIntegrator<0>::computeNodaVelocities(*this,runID);
                     break;
                     
                     //                case 1:
@@ -189,127 +199,100 @@ namespace model
         }
         
 
-        
         /**********************************************************************/
-        void singleStep()
+        void updateVirtualBoundaryLoops()
         {
-            //! A simulation step consists of the following:
-            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
-            /*                    */<< ", time="<<totalTime
-            /*                    */<< ": nodes="<<this->nodes().size()
-            /*                    */<< ", segments="<<this->links().size()
-            /*                    */<< ", loopSegments="<<this->loopLinks().size()
-            /*                    */<< ", loops="<<this->loops().size()
-            /*                    */<< ", components="<<this->components().size()
-            /*                    */<< defaultColor<<std::endl;
-            
-            //! 1- Check that all nodes are balanced
-            //            checkBalance();
-            
-            //! 2 - Update quadrature points
-            updateQuadraturePoints();
-            updateStressStraightSegments();
-            
-            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
-            {// copmute slipped areas and right-handed normal
-                loop.second->update();
-            }
-            updatePlasticDistortionFromAreas();
-            
-            //! 3- Calculate BVP correction
-            updateLoadControllers();
-            
-//#ifdef DislocationNucleationFile
-//            if(use_bvp && !(runID%use_bvp))
-//            {
-//                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-//                updateQuadraturePoints();
-//            }
-//#endif
-            
-            computeNodaVelocities();
-            
-            
-            //! 4- Solve the equation of motion
-            
-            
-            //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
-            // make_dt();
-            
-            if(outputElasticEnergy)
+            if(useVirtualExternalLoops)
             {
-                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
-                this->template computeNeighborField<ElasticEnergy>();
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"		Updating virtual boundary loops "<<std::flush;
+
+                // First clean up outdated boundary loops
+                std::set<size_t> removeLoops;
+                for(const auto& loop : this->loops())
+                {
+                    if(loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4)
+                    {// clean up left over loops from topological operations
+                        removeLoops.insert(loop.second->sID);
+                    }
+                }
+                
+//                for(const auto& link : this->links())
+//                {
+//                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+//                    {
+//                        
+//                        std::set<const LoopType*> virtualLoops=link.second->virtualLoops();
+//                        
+//                        if(virtualLoops.size())
+//                        {// there are existing virtual loops, but the Burgers vector is not zero. Virtual loops are outdated and must be destroyed
+//                            
+//                            // grab the sink-virtualSource segment
+//                            const auto isLink(this->link(std::min(link.second->sink->sID,link.second->source->virtualBoundaryNode()->sID),
+//                                                         std::max(link.second->sink->sID,link.second->source->virtualBoundaryNode()->sID)));
+//                            assert(isLink.first);
+//                            
+//                            for(const auto& loopLink : isLink.second->loopLinks())
+//                            {
+//                                assert(loopLink->loop()->isVirtualBoundaryLoop());
+//                                removeLoops.insert(loopLink->loop()->sID);
+//                            }
+//                            
+//                        }
+//                    }
+//                }
+                
+                for(const size_t& loopID : removeLoops)
+                {// Remove the virtual loops with ID in removeLoops
+                    this->deleteLoop(loopID);
+                }
+                
+
+                // Now reconstruct virtual boundary loops
+                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t>> virtualLoopVector;
+                for(const auto& link : this->links())
+                {
+                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+                    {
+//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode()},
+//                                                       link.second->burgers(),
+//                                                       (*link.second->grains().begin())->grainID);
+//                        
+//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+//                                                       link.second->burgers(),
+//                                                       (*link.second->grains().begin())->grainID);
+                        
+                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+                                                       link.second->burgers(),
+                                                       (*link.second->grains().begin())->grainID);
+                        
+//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+//                                                       link.second->burgers(),
+//                                                       (*link.second->grains().begin())->grainID);
+
+                    }
+                }
+                
+                for(const auto& tup : virtualLoopVector)
+                {// Insert the new virtual loops
+                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                }
+                
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             }
-            
-            //! 6- Output the current configuration before changing it
-            //            output(runID);
-            io().output(runID);
-            
-            
-            //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-            move(dt);
-            
-            //! 8- Update accumulated quantities (totalTime and plasticDistortion)
-            totalTime+=dt;
-            updatePlasticDistortionRateFromVelocities();
-            
-            
-            //! 9- Contract segments of zero-length
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-            
-            //! 10- Cross Slip (needs upated PK force)
-            DislocationCrossSlip<DislocationNetworkType>(*this);
-            
-            
-            //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
-            GrainBoundaryTransmission<DislocationNetworkType>(*this).directTransmit();
-            
-            //
-            //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
-            
-            //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
-            
-            
-            //! 11- detect loops that shrink to zero and expand as inverted loops
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
-            
-            //! 12- Form Junctions
-            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(maxJunctionIterations,DDtimeIntegrator<0>::dxMax);
-            
-            //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-            //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-            
-            //! 13- Node redistribution
-            DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
-            
-//            mergeLoopsAtNodes();
-            
-            //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
-            
-            //! 9- Contract segments of zero-length
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-            
-            //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
-            //            removeBoundarySegments();
-            
-            //            removeSmallComponents(3.0*dx,4);
-            
-            //            make_bndNormals();
-            
-            //! 16 - Increment runID counter
-            ++runID;     // increment the runID counter
         }
+        
+
         
     public:
         
         int timeIntegrationMethod;
         int maxJunctionIterations;
-        long int runID;
+//        long int runID;
         double totalTime;
         double dt;
         double vMax;
-        size_t Nsteps;
+//        size_t Nsteps;
         MatrixDimD _plasticDistortionFromVelocities;
         MatrixDimD _plasticDistortionFromAreas;
         MatrixDimD _plasticDistortionRateFromVelocities;
@@ -351,14 +334,19 @@ namespace model
         std::string folderSuffix;
         
         /**********************************************************************/
-        DislocationNetwork(int& argc, char* argv[]) :
-        /* init */ timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
+        DislocationNetwork(int& argc, char* argv[],
+                           SimplicialMesh<dim>& _mesh,
+                           Polycrystal<dim>& _poly,
+                           BVPsolver<dim,2>& _bvpSolver,
+                           long int& runID) :
+        /* init */ DislocationNetworkBase<dim>(_mesh,_poly,_bvpSolver)
+        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
-        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
-        /* init */ totalTime(0.0),
+//        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
+        /* init */,totalTime(0.0),
         /* init */ dt(0.0),
         /* init */ vMax(0.0),
-        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
+//        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
         /* init */ _plasticDistortionFromVelocities(MatrixDimD::Zero()),
         /* init */ _plasticDistortionFromAreas(MatrixDimD::Zero()),
         /* init */ _plasticDistortionRateFromVelocities(MatrixDimD::Zero()),
@@ -397,11 +385,12 @@ namespace model
         {
             
             // Some sanity checks
-            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
+//            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
 
             // Initialize static variables
             LinkType::initFromFile("inputFiles/DD.txt");
             NodeType::initFromFile("inputFiles/DD.txt");
+            LoopType::initFromFile("inputFiles/DD.txt");
             DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
             DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
             DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
@@ -462,7 +451,7 @@ namespace model
             }
             
             // IO
-            io().read("./","DDinput.txt");
+            io().read("./","DDinput.txt",runID);
             
             // Set up periodic shifts
             const VectorDim meshDimensions(use_boundary? (this->mesh.xMax()-this->mesh.xMin()).eval() : VectorDim::Zero());
@@ -489,6 +478,120 @@ namespace model
             
             // Initializing configuration
             move(0.0);	// initial configuration
+        }
+        
+        
+        /**********************************************************************/
+        void singleStep(const long int& runID)
+        {
+            //! A simulation step consists of the following:
+            //            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
+            //            /*                    */<< ", time="<<totalTime
+            //            /*                    */<< ": nodes="<<this->nodes().size()
+            //            /*                    */<< ", segments="<<this->links().size()
+            //            /*                    */<< ", loopSegments="<<this->loopLinks().size()
+            //            /*                    */<< ", loops="<<this->loops().size()
+            //            /*                    */<< ", components="<<this->components().size()
+            //            /*                    */<< defaultColor<<std::endl;
+            
+            //! 1- Check that all nodes are balanced
+            //            checkBalance();
+            
+            //! 2 - Update quadrature points
+            updateQuadraturePoints();
+            updateStressStraightSegments();
+            
+            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
+            {// copmute slipped areas and right-handed normal
+                loop.second->update();
+            }
+            updatePlasticDistortionFromAreas();
+            
+            //! 3- Calculate BVP correction
+            updateLoadControllers(runID);
+            
+            //#ifdef DislocationNucleationFile
+            //            if(use_bvp && !(runID%use_bvp))
+            //            {
+            //                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
+            //                updateQuadraturePoints();
+            //            }
+            //#endif
+            
+            computeNodaVelocities(runID);
+            
+            
+            //! 4- Solve the equation of motion
+            
+            
+            //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
+            // make_dt();
+            
+            if(outputElasticEnergy)
+            {
+                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
+                this->template computeNeighborField<ElasticEnergy>();
+            }
+            
+            //! 6- Output the current configuration before changing it
+            //            output(runID);
+            io().output(runID);
+            
+            
+            //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
+            move(dt);
+            
+            //! 8- Update accumulated quantities (totalTime and plasticDistortion)
+            totalTime+=dt;
+            updatePlasticDistortionRateFromVelocities();
+            
+            
+            //! 9- Contract segments of zero-length
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+            
+            //! 10- Cross Slip (needs upated PK force)
+            DislocationCrossSlip<DislocationNetworkType>(*this);
+            
+            
+            //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
+            GrainBoundaryTransmission<DislocationNetworkType>(*this).directTransmit();
+            
+            //
+            //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
+            
+            //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
+            
+            
+            //! 11- detect loops that shrink to zero and expand as inverted loops
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
+            
+            //! 12- Form Junctions
+            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(maxJunctionIterations,DDtimeIntegrator<0>::dxMax);
+            
+            //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
+            //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+            
+            //! 13- Node redistribution
+            DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
+            
+            updateVirtualBoundaryLoops();
+            
+            //            mergeLoopsAtNodes();
+            
+            //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
+            
+            //! 9- Contract segments of zero-length
+            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+            
+            //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
+            //            removeBoundarySegments();
+            
+            //            removeSmallComponents(3.0*dx,4);
+            
+            //            make_bndNormals();
+            
+            //! 16 - Increment runID counter
+            //            ++runID;     // increment the runID counter
         }
         
 //        const VectorDim periodicVector(const Eigen::Array<int,dim,1>& cellID) const
@@ -590,7 +693,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void assembleAndSolve()
+        void assembleAndSolve(const long int& runID)
         {/*! Performs the following operatons:
           */
 #ifdef _OPENMP
@@ -850,19 +953,19 @@ namespace model
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-        /**********************************************************************/
-        void runSteps()
-        {/*! Runs Nsteps simulation steps
-          */
-            const auto t0= std::chrono::system_clock::now();
-            while (runID<Nsteps)
-            {
-                model::cout<<std::endl; // leave a blank line
-                singleStep();
-            }
-            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
-            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
-        }
+//        /**********************************************************************/
+//        void runSteps() __attribute__ ((deprecated))
+//        {/*! Runs Nsteps simulation steps
+//          */
+//            const auto t0= std::chrono::system_clock::now();
+//            while (runID<Nsteps)
+//            {
+//                model::cout<<std::endl; // leave a blank line
+//                singleStep();
+//            }
+//            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
+//            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
+//        }
         
         /**********************************************************************/
         void updatePlasticDistortionRateFromVelocities()
@@ -982,12 +1085,12 @@ namespace model
             return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
         }
         
-        /**********************************************************************/
-        const long int& runningID() const
-        {/*! The current simulation step ID.
-          */
-            return runID;
-        }
+//        /**********************************************************************/
+//        const long int& runningID() const
+//        {/*! The current simulation step ID.
+//          */
+//            return runID;
+//        }
         
         
         /**********************************************************************/

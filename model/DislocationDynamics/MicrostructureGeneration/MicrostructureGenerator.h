@@ -733,15 +733,11 @@ namespace model
                                 
                                 const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
                                 edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
-                                //                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
-                                
                             }
                             nodeID+=nodePos.size();
                             
                             // write loop file
                             loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
-                            //                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
-                            //                    loopFile<< dlIO<<"\n";
                             
                             loopID+=1;
                             snID+=1;
@@ -751,28 +747,19 @@ namespace model
                                 std::cout<<"Line too short. EXITING."<<std::endl;
                                 exit(EXIT_FAILURE);
                             }
-                            //                        density += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
-                            //                        if(isSessile)
-                            //                        {
-                            //                            sessileDensity += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
-                            //                        }
-                            //                        std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
                         }
                         else
                         {
                             std::cout<<"nodePos.size="<<nodePos.size()<<std::endl;
                             assert(false && "LOOP DOES NOT HAVE ENOUGH POINTS");
                         }
-                        
                     }
                     else
                     {
                         std::cout<<"negative slip system ID. Skipping entries."<<std::endl;
                     }
                 }
-                
             }
-            
         }
         
         /**********************************************************************/

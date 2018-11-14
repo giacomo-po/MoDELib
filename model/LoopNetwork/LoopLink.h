@@ -31,9 +31,9 @@ namespace model
         typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
         
-        std::shared_ptr<LoopNodeType> _source;
-        std::shared_ptr<LoopNodeType> _sink;
-        std::shared_ptr<LoopType> pLoop;
+        const std::shared_ptr<LoopNodeType> _source;
+        const std::shared_ptr<LoopNodeType> _sink;
+        std::shared_ptr<LoopType> pLoop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
         
     public:
         
@@ -101,19 +101,19 @@ namespace model
         }
         
         /**********************************************************************/
-        std::shared_ptr<LoopNodeType> source() const
+        const std::shared_ptr<LoopNodeType>& source() const
         {
             return _source;
         }
         
         /**********************************************************************/
-        std::shared_ptr<LoopNodeType> sink() const
+        const std::shared_ptr<LoopNodeType>& sink() const
         {
             return _sink;
         }
         
         /**********************************************************************/
-        std::shared_ptr<LoopType> loop() const
+        const std::shared_ptr<LoopType>& loop() const
         {
             return pLoop;
         }
@@ -197,13 +197,13 @@ namespace model
             
         }
         
-        /**********************************************************************/
-        void flip()
-        {/*!Swaps source-sink, and prev-next
-          */
-            _source.swap(_sink);
-            std::swap(prev,next);
-        }
+//        /**********************************************************************/
+//        void flip()
+//        {/*!Swaps source-sink, and prev-next
+//          */
+//            _source.swap(_sink);
+//            std::swap(prev,next);
+//        }
         
         /**********************************************************************/
         const FlowType& flow() const
@@ -216,7 +216,7 @@ namespace model
         std::string tag() const
         {/*!\returns the string "i->j" where i is source()->sID and j=sink()->sID
           */
-            return std::to_string(source()->sID) + "->" + std::to_string(sink()->sID);
+            return std::to_string(source()->sID) + "->" + std::to_string(sink()->sID) + " ("+std::to_string(loop()->sID)+")";
         }
         
         

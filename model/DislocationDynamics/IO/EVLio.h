@@ -270,6 +270,7 @@ namespace model
         /**********************************************************************/
         template<typename DislocationNodeType>
         static void writeTxt(const DislocationNodeType& dn,
+                             const long int& runID,
                              const std::string& suffix="")
         {
             
@@ -281,9 +282,9 @@ namespace model
 //            collectIO(dn,nodesIO,loopsIO,edgesIO);
 //            
 //            
-//            writeTxt(dn.runningID(),nodesIO,loopsIO,edgesIO,suffix);
+//            writeTxt(runID,nodesIO,loopsIO,edgesIO,suffix);
             
-            const std::string filename(getTxtFilename(dn.runningID(),suffix));
+            const std::string filename(getTxtFilename(runID,suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
@@ -374,6 +375,7 @@ namespace model
         /**********************************************************************/
         template<typename DislocationNodeType>
         static void writeBin(const DislocationNodeType& dn,
+                             const long int& runID,
                              const std::string& suffix="")
         {
             
@@ -384,11 +386,11 @@ namespace model
 //            collectIO(dn,nodesIO,loopsIO,edgesIO);
 //            
 //            
-//            writeBin(dn.runningID(),nodesIO,loopsIO,edgesIO,suffix);
+//            writeBin(runID,nodesIO,loopsIO,edgesIO,suffix);
 
             
             
-            const std::string filename(getBinFilename(dn.runningID(),suffix));
+            const std::string filename(getBinFilename(runID,suffix));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {

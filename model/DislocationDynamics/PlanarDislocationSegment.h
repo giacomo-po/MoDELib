@@ -55,7 +55,7 @@ namespace model
     
     
     template<typename LinkType>
-    class VirtualBoundaryLinks
+    class VirtualBoundaryLoopsManager
     {
         
         typedef typename LinkType::LoopType LoopType;
@@ -84,30 +84,34 @@ namespace model
             assert(link.burgers().norm()>FLT_EPSILON);
             const Grain<LinkType::dim>& grain(**link.grains().begin());
             
-            std::shared_ptr<NodeType> virtualSource(link.source->virtualBoundaryNode());
-            std::shared_ptr<NodeType> virtualSink(link.sink->virtualBoundaryNode());
+//            std::shared_ptr<NodeType> virtualSource(link.source->virtualBoundaryNode());
+//            std::shared_ptr<NodeType> virtualSink(link.sink->virtualBoundaryNode());
             
-            std::vector<std::shared_ptr<NodeType>> innerNodes{link.sink,link.source,virtualSource};
+            std::vector<std::shared_ptr<NodeType>> innerNodes{link.sink,link.source,link.source->virtualBoundaryNode()};
             std::shared_ptr<LoopType> innerLoop=link.network().insertLoop(innerNodes,link.burgers(),grain.grainID);
             
-            std::vector<std::shared_ptr<NodeType>> outerNodes{link.sink,virtualSource,virtualSink};
+            std::vector<std::shared_ptr<NodeType>> outerNodes{link.sink,link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode()};
             std::shared_ptr<LoopType> outerLoop=link.network().insertLoop(outerNodes,innerLoop->burgers(),grain.grainID);
             
             innerLoop->update();
             outerLoop->update();
+            
+            std::cout<<"innerLoop "<<innerLoop.use_count()<<std::endl;
+            std::cout<<"outerLoop "<<outerLoop.use_count()<<std::endl;
+            
             assert(innerLoop->burgers().norm()>FLT_EPSILON);
             assert(outerLoop->burgers().norm()>FLT_EPSILON);
 
             return std::make_pair(innerLoop->sID,outerLoop->sID);
         }
         
-        std::pair<size_t,size_t> loopIDs;
+        const std::pair<size_t,size_t> loopIDs;
         
     public:
         
         
         
-        VirtualBoundaryLinks(LinkType& _link) :
+        VirtualBoundaryLoopsManager(LinkType& _link) :
         /* init */ link(_link)
         /* init */,loopIDs(getLoopIDs(link))
         //        /* init */ innermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
@@ -126,7 +130,7 @@ namespace model
         //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,sinkToVirtualSource->loop()))
         {
             
-            std::cout<<"Created VirtualBoundaryLinks "<<link.tag()<<std::endl;
+            std::cout<<"Created VirtualBoundaryLoops "<<loopIDs.first<<","<<loopIDs.second<<" for link "<<link.tag()<<std::endl;
             
             
         }
@@ -139,12 +143,14 @@ namespace model
 //        }
         
         /******************************************************************/
-        ~VirtualBoundaryLinks()
+        ~VirtualBoundaryLoopsManager()
         {
-            std::cout<<"Destroying VirtualBoundaryLinks "<<link.tag()<<std::endl;
+            std::cout<<"Destroying VirtualBoundaryLoopsManager "<<link.tag()<<std::endl;
             
             link.network().deleteLoop(loopIDs.first);
             link.network().deleteLoop(loopIDs.second);
+//            assert(link.network().loops().find(loopIDs.first )==link.network().loops().end());
+//            assert(link.network().loops().find(loopIDs.second)==link.network().loops().end());
         }
         
     };
@@ -168,6 +174,7 @@ namespace model
         static constexpr int corder=TypeTraits<Derived>::corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef Derived LinkType;
+        typedef typename TypeTraits<LinkType>::LoopType LoopType;
         typedef typename TypeTraits<LinkType>::LoopNetworkType NetworkType;
         typedef LoopLink<LinkType> LoopLinkType;
         typedef typename TypeTraits<LinkType>::NodeType NodeType;
@@ -211,7 +218,7 @@ namespace model
         VectorDim Burgers; //! The Burgers vector
         double BurgersNorm;
         bool _isBoundarySegment;
-        std::unique_ptr<VirtualBoundaryLinks<LinkType>> virtualLinks;
+//        std::unique_ptr<VirtualBoundaryLoopsManager<LinkType>> virtualLinks;
         
     public:
         
@@ -283,11 +290,11 @@ namespace model
             
             _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
             
-            if(this->network().useVirtualExternalLoops && _isBoundarySegment && !virtualLinks && !hasZeroBurgers())
-            {
-                VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in updateGeometry"<<std::endl;);
-                virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(this->derived()));
-            }
+//            if(this->network().useVirtualExternalLoops && _isBoundarySegment && !virtualLinks && !hasZeroBurgers())
+//            {
+//                VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLoopsManager in updateGeometry"<<std::endl;);
+//                virtualLinks.reset(new VirtualBoundaryLoopsManager<LinkType>(this->derived()));
+//            }
         }
         
         /**********************************************************************/
@@ -389,13 +396,13 @@ namespace model
                 _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
                 
                 
-                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
-                {// If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
-                    
-                    VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in addLink"<<std::endl;);
-                    //virtualLinks->update();
-                    virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(this->derived()));
-                }
+//                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
+//                {// If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
+//                    
+//                    VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLoopsManager in addLink"<<std::endl;);
+//                    //virtualLinks->update();
+//                    virtualLinks.reset(new VirtualBoundaryLoopsManager<LinkType>(this->derived()));
+//                }
             }
         }
         
@@ -436,14 +443,14 @@ namespace model
                 _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
                 
                 
-                virtualLinks.reset(nullptr); // If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
-                
-                
-                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
-                {
-                    VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLinks in removeLink"<<std::endl;);
-                    virtualLinks.reset(new VirtualBoundaryLinks<LinkType>(this->derived()));
-                }
+//                virtualLinks.reset(nullptr); // If a non-virtual loop is added to the segment, the virtual boundary structure must be reset
+//                
+//                
+//                if(this->network().useVirtualExternalLoops && _isBoundarySegment && !hasZeroBurgers())
+//                {
+//                    VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", creating VirtualBoundaryLoopsManager in removeLink"<<std::endl;);
+//                    virtualLinks.reset(new VirtualBoundaryLoopsManager<LinkType>(this->derived()));
+//                }
                 
             }
             
@@ -636,7 +643,7 @@ namespace model
         
         /**********************************************************************/
         bool isVirtualBoundarySegment() const
-        {
+        {//!\returns true if all loops of this segment are virtualBoundaryLoops
             bool temp(true);
             for(const auto& loopLink : this->loopLinks())
             {
@@ -644,6 +651,20 @@ namespace model
                 if(!temp)
                 {
                     break;
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::set<const LoopType*> virtualLoops() const
+        {//!\returns a set of pointers to the virtualBoundaryLoops of this segment
+            std::set<const LoopType*> temp;
+            for(const auto& loopLink : this->loopLinks())
+            {
+                if(loopLink->loop()->isVirtualBoundaryLoop())
+                {
+                    temp.insert(loopLink->loop().get());
                 }
             }
             return temp;

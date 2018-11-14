@@ -39,9 +39,6 @@ namespace model
         typedef std::map<std::pair<size_t,size_t>,LoopLinkType* const> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
         typedef std::deque<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> LoopNodeSequenceType;
-
-        
-        
         typedef LoopObserver<Derived> LoopObserverType;
         typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
@@ -88,6 +85,9 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
+            
+            assert(links().size()==0 && "DESTROYING NON-EMPTY LOOP.");
+            
             _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
         }
@@ -110,15 +110,15 @@ namespace model
 //            return temp;
 //        }
         
-        /**********************************************************************/
-        void flip()
-        {
-            _flow*=-1;
-            for(auto link : links())
-            {
-                link.second->flip();
-            }
-        }
+//        /**********************************************************************/
+//        void flip()
+//        {
+//            _flow*=-1;
+//            for(auto link : links())
+//            {
+//                link.second->flip();
+//            }
+//        }
         
         /**********************************************************************/
         const FlowType& flow() const

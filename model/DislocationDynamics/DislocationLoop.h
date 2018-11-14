@@ -16,7 +16,7 @@
 #include <model/LatticeMath/LatticePlaneBase.h>
 #include <model/LatticeMath/LatticePlane.h>
 #include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/GlidePlanes/glidePlane.h>
+#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
 #include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
 #include <model/DislocationDynamics/IO/DislocationLoopIO.h>
 #include <model/DislocationDynamics/PlanarDislocationLoop.h>

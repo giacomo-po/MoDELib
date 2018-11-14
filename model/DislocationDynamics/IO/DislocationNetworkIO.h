@@ -76,7 +76,8 @@ namespace model
         
         
         /**********************************************************************/
-        void read(const std::string& inputDirectoryName_in, std::string inputFileName) __attribute__ ((deprecated))
+        void read(const std::string& inputDirectoryName_in, std::string inputFileName,
+                long int& runID) __attribute__ ((deprecated))
         { //
             
 //            std::ostringstream fullName;
@@ -205,21 +206,21 @@ namespace model
                 
                 vReader.read(0,true);
                 
-                if(DN.runID<0)
+                if(runID<0)
                 {
                     if(vReader.size())
                     {
-                        DN.runID=vReader.rbegin()->first;
+                        runID=vReader.rbegin()->first;
                         temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
                     }
                     else
                     {
-                        DN.runID=0;
+                        runID=0;
                     }
                 }
                 else
                 {
-                    const auto iter=vReader.find(DN.runID);
+                    const auto iter=vReader.find(runID);
                     if(iter!=vReader.end())
                     {// runID has been found
                         temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
@@ -236,7 +237,7 @@ namespace model
             else
             {
                 model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
-                DN.runID=0;
+                runID=0;
                 DN.dt=10.0;
             }
             
@@ -261,7 +262,7 @@ namespace model
             }
             
 
-            model::cout<<"starting at time step "<<DN.runID<<std::endl;
+            model::cout<<"starting at time step "<<runID<<std::endl;
             model::cout<<"totalTime= "<<DN.totalTime<<std::endl;
             model::cout<<"plasticDistortionFromVelocities=\n "<<DN._plasticDistortionFromVelocities<<std::endl;
             
@@ -335,7 +336,7 @@ namespace model
                 DN.use_bvp=0;	// never comupute boundary correction
             }
             
-            DN.extStressController.init(DN);  // have to initialize it after mesh!
+            DN.extStressController.init(DN,runID);  // have to initialize it after mesh!
 
 
             
@@ -397,19 +398,19 @@ namespace model
             
             // Read Vertex and Edge information
             EVLio<dim> evl;
-            if(EVLio<dim>::isBinGood(DN.runID,suffix))
+            if(EVLio<dim>::isBinGood(runID,suffix))
             {
-                evl.readBin(DN.runID,suffix);
+                evl.readBin(runID,suffix);
             }
             else
             {
-                if(EVLio<dim>::isTxtGood(DN.runID,suffix))
+                if(EVLio<dim>::isTxtGood(runID,suffix))
                 {
-                    evl.readTxt(DN.runID,suffix);
+                    evl.readTxt(runID,suffix);
                 }
                 else
                 {
-                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<DN.runID<<".bin or evl/evl_"<<DN.runID<<".txt"<<std::endl;
+                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<runID<<".bin or evl/evl_"<<runID<<".txt"<<std::endl;
                     assert(0 && "COULD NOT FIND INPUT FILEs.");
                 }
             }
@@ -448,8 +449,8 @@ namespace model
                                         std::make_tuple(C,a,eT,DN.poly.nu,DN.poly.mu,typeID) );
             }
             
-            //            readVertices(DN.runID); // this requires mesh to be up-to-date
-            //            readEdges(DN.runID);    // this requires mesh to be up-to-date
+            //            readVertices(runID); // this requires mesh to be up-to-date
+            //            readEdges(runID);    // this requires mesh to be up-to-date
             //#ifdef DislocationNucleationFile
             //            EDR.readScalarInFile(fullName.str(),"nucleationFreq",nucleationFreq);
             //#endif
@@ -581,11 +582,11 @@ namespace model
             //            EVLio<dim> evl;
             if (DN.outputBinary)
             {
-                EVLio<dim>::writeBin(DN,suffix);
+                EVLio<dim>::writeBin(DN,runID,suffix);
             }
             else
             {
-                EVLio<dim>::writeTxt(DN,suffix);
+                EVLio<dim>::writeTxt(DN,runID,suffix);
             }
             
             //            if (DN.outputBinary)
@@ -732,7 +733,7 @@ namespace model
             {
                 if(DN.use_bvp)
                 {
-                    //                    if (!(DN.runningID()%DN.use_bvp))
+                    //                    if (!(runID%DN.use_bvp))
                     //                    {
                     const auto t0=std::chrono::system_clock::now();
                     model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
@@ -807,7 +808,7 @@ namespace model
             }
             
             
-            if (DN.use_bvp && DN.outputFEMsolution && !(DN.runningID()%DN.use_bvp))
+            if (DN.use_bvp && DN.outputFEMsolution && !(runID%DN.use_bvp))
             {
                 /**************************************************************************/
                 // Output displacement and stress on external mesh faces
@@ -875,9 +876,9 @@ namespace model
             
             std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
             
-            f_file<< DN.runningID()<<" "<<std::setprecision(15)<<std::scientific<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
+            f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
             int labelCol=0;
-            if(DN.runningID()==0)
+            if(runID==0)
             {
                 F_labels<<labelCol+0<<"    step #\n";
                 F_labels<<labelCol+1<<"    time [b/cs]\n";
@@ -890,7 +891,7 @@ namespace model
             {
                 const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
                 f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
-                if(DN.runningID()==0)
+                if(runID==0)
                 {
                     F_labels<<labelCol+0<<"    betaP_11\n";
                     F_labels<<labelCol+1<<"    betaP_12\n";
@@ -909,7 +910,7 @@ namespace model
             {
                 const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
-                if(DN.runningID()==0)
+                if(runID==0)
                 {
                     F_labels<<labelCol+0<<"    dotBetaP_11 [cs/b]\n";
                     F_labels<<labelCol+1<<"    dotBetaP_12 [cs/b]\n";
@@ -928,7 +929,7 @@ namespace model
             {
                 const std::tuple<double,double,double,double> length=DN.networkLength();
                 f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" "<<std::get<3>(length)<<" ";
-                if(DN.runningID()==0)
+                if(runID==0)
                 {
                     F_labels<<labelCol+0<<"    glissile length [b]\n";
                     F_labels<<labelCol+1<<"    sessile length [b]\n";
@@ -940,13 +941,13 @@ namespace model
             
             if (DN.use_externalStress)
             {
-                DN.extStressController.output(DN.runningID(),f_file,F_labels,labelCol);
+                DN.extStressController.output(runID,f_file,F_labels,labelCol);
             }
             
             if(DN.use_bvp)
             {
                 f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver.loadController().output(DN);
-                if(DN.runningID()==0)
+                if(runID==0)
                 {
                     assert(0 && "FINISH HERE, pass F_labels to loadController.output()");
                 }

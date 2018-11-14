@@ -28,6 +28,7 @@
 #include <model/MPI/MPIcout.h> // defines mode::cout
 #include <model/Mesh/MeshRegionBoundary.h>
 #include <model/Mesh/SimplexObserver.h>
+#include <model/Mesh/GmshReader.h>
 
 
 namespace model
@@ -317,7 +318,6 @@ namespace model
                 const Eigen::Matrix<double,dim+1,1> bary=temp.second->pos2bary(P);
                 for(int k=0;k<dim+1;++k)
                 {
-                    //                    if(bary(k)<=0.0)
                     if(bary(k)<=FLT_EPSILON)
                     {
                         for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
@@ -331,10 +331,8 @@ namespace model
                                     break;
                                 }
                             }
-                            
                         }
                     }
-                    
                 }
                 
                 if(searchAllRegions)
@@ -351,7 +349,6 @@ namespace model
                         lastSearched=temp;
                     }
                 }
-                
             }
             
             checkSearch(searchAllRegions,P,guess,lastSearched);
@@ -473,5 +470,5 @@ namespace model
         
     };
     
-}	// close namespace
+}
 #endif

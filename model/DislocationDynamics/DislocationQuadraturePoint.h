@@ -244,7 +244,8 @@ namespace model
             
             if(    !seg.hasZeroBurgers()
                &&  !seg.isBoundarySegment()
-               &&  !seg.isSessile())
+               &&  !seg.isSessile()
+               &&  !seg.isVirtualBoundarySegment())
             {
                 const int order=QuadPowDynamicType::lowerOrder(quadPerLength*seg.chord().norm());
                 const MatrixNcoeff  SFCH(seg.sfCoeffs());

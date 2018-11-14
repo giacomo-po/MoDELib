@@ -1,6 +1,6 @@
 #######################################
 # General settings
-enforceMonotonicHelicity=0;
+enforceMonotonicHelicity=1;
 
 #######################################
 # Straight dislocations from boundary to boundary

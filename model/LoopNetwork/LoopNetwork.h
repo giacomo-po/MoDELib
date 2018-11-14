@@ -147,7 +147,7 @@ namespace model
                      const SharedNodePtrType& n1,
                      const std::shared_ptr<LoopType>& tempLoop)
         {
-            VerboseLoopNetwork(1,"connecting "<<n0->sID<<"->"<<n1->sID<<std::endl);
+            VerboseLoopNetwork(1,"connecting "<<n0->sID<<"->"<<n1->sID<<" ("<<tempLoop->sID<<")"<<std::endl);
             //            assert(n0->sID!=n1->sID && "Cannot connect a node to itself");
             
             if(n0->sID!=n1->sID)
@@ -175,10 +175,9 @@ namespace model
                 else
                 {// opposite link does not exists, connect n0->n1
                     loopLinks().emplace(std::piecewise_construct,
-                                        //                                    std::make_tuple(n0->sID,n1->sID),
                                         std::make_tuple(key.first,key.second),
-                                        std::make_tuple(n0,n1, tempLoop) );
-                    
+                                        std::make_tuple(n0,n1, tempLoop)
+                                        );
                 }
             }
             
@@ -209,7 +208,7 @@ namespace model
         /**********************************************************************/
         size_t disconnect(const SharedNodePtrType& n0, const SharedNodePtrType& n1, const std::shared_ptr<LoopType>& loop)
         {
-            VerboseLoopNetwork(1,"disconnecting "<<n0->sID<<"->"<<n1->sID<<std::endl);
+            VerboseLoopNetwork(1,"disconnecting "<<n0->sID<<"->"<<n1->sID<<" ("<<loop->sID<<")"<<std::endl);
             size_t nDisconnected=0;
             const auto key=LoopLinkType::getKey(n0,n1);
             const auto iterPair = loopLinks().equal_range(key);
@@ -224,6 +223,31 @@ namespace model
                     loopLinks().erase(loopIter);
                     nDisconnected=1;
                     nDisconnected+=disconnect(n0,n1,loop); // make sure that recursive calls don't find another link
+                    assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
+                    break;
+                }
+            }
+            return nDisconnected;
+        }
+        
+        /**********************************************************************/
+        size_t disconnect(const size_t& sourceID, const size_t& sinkID, const size_t& loopID)
+        {
+            VerboseLoopNetwork(1,"disconnecting "<<sourceID<<"->"<<sinkID<<" ("<<loopID<<")"<<std::endl);
+            size_t nDisconnected=0;
+            const auto key=LoopLinkType::getKey(sourceID,sinkID);
+            const auto iterPair = loopLinks().equal_range(key);
+            
+            for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
+                /*                                          */ loopIter!=iterPair.second;
+                /*                                          */ loopIter++)
+            {
+                if(loopIter->second.loop()->sID==loopID &&
+                   loopIter->second.source()->sID==sourceID && loopIter->second.sink()->sID==sinkID)
+                {
+                    loopLinks().erase(loopIter);
+                    nDisconnected=1;
+                    nDisconnected+=disconnect(sourceID,sinkID,loopID); // make sure that recursive calls don't find another link
                     assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
                     break;
                 }
@@ -378,28 +402,59 @@ namespace model
         /**********************************************************************/
         void deleteLoop(const size_t& loopID)
         {
-            for(const auto& loopLink : this->loopLinks())
+//            for(const auto& loopLink : this->loopLinks())
+//            {
+//                if(loopLink.second.loop()->sID==loopID)
+//                {
+//                    const std::shared_ptr<LoopType> pL(loopLink.second.loop());
+//                    deleteLoop(pL);
+//                    break;
+//                }
+//            }
+            
+//            const auto loopIter=this->loops().find(loopID);
+//            if(loopIter!=this->loops().end())
+//            {
+//                assert(loopIter->second->links().size());
+//                deleteLoop(loopIter->second->links().begin()->second->loop());
+//            }
+            
+            for(typename LoopLinkContainerType::const_iterator loopIter=loopLinks().begin();
+                /*                                          */ loopIter!=loopLinks().end();)
             {
-                if(loopLink.second.loop()->sID==loopID)
+                if(loopIter->second.loop()->sID==loopID)
                 {
-                    const std::shared_ptr<LoopType> pL(loopLink.second.loop());
-                    deleteLoop(pL);
-                    break;
+                    loopIter=loopLinks().erase(loopIter);
+                }
+                else
+                {
+                    loopIter++;
                 }
             }
+            
+//            assert(this->loops().find(loopID)==this->loops().end() && "LOOP WAS NOT REMOVED");
         }
         
-        /**********************************************************************/
-        void deleteLoop(const std::shared_ptr<LoopType>& pL)
-        {/*!\param[in] pL a shared_ptr to the loop to be removed
-          *
-          * Disconnects all segments in loop pL, therefore removing the loop itself.
-          */
-            for(const auto& loopLink : pL->linkSequence())
-            {
-                disconnect(loopLink->source(),loopLink->sink(),pL);
-            }
-        }
+//        /**********************************************************************/
+//        void deleteLoop(const std::shared_ptr<LoopType>& pL)
+//        {/*!\param[in] pL a shared_ptr to the loop to be removed
+//          *
+//          * Disconnects all segments in loop pL, therefore removing the loop itself.
+//          */
+////            const auto nodeSequence();
+//            std::cout<<"deleteLoop count="<<pL.use_count()<<", nodeSequence="<<pL->nodeSequence().size()<<", link size="<<pL->links().size()<<std::endl;
+//
+//            for(const auto& pair : pL->nodeSequence())
+//            {
+//                disconnect(pair.first,pair.second,pL);
+//            }
+//            
+//            std::cout<<"now deleteLoop count="<<pL.use_count()<<std::endl;
+////            for(const auto& loopLink : pL->linkSequence())
+////            {
+////                disconnect(loopLink->source(),loopLink->sink(),pL);
+////            }
+//        }
         
         /**********************************************************************/
         template <typename ...NodeArgTypes>
@@ -575,11 +630,24 @@ namespace model
             if(isNode.first)
             {
                 const auto linkByLoopID=isNode.second->linksByLoopID();
-
+                std::vector<std::tuple<SharedNodePtrType,SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>>> disconnectVector;
+//                std::vector<std::tuple<const SharedNodePtrType&,const SharedNodePtrType&,const SharedNodePtrType&,const std::shared_ptr<LoopType>&>> disconnectVector;
+//                std::vector<std::tuple<size_t,size_t,size_t,size_t>> disconnectVector;
+                
+                
                 for(auto& pair : linkByLoopID)
-                {
+                {// store what needs to be disconnected and re-connected
                     const auto& set(pair.second);
-                    assert(set.size()==2 && "Not a Loop");
+                    if(set.size()!=2)
+                    {
+                        std::cout<<"LoopNetwork::remove "<<nodeID<<std::endl;
+                        std::cout<<"loop "<<pair.first<<" has "<<set.size()<<" links"<<std::endl;
+                        for(const auto& temp : set)
+                        {
+                            std::cout<<temp->tag()<<std::endl;
+                        }
+                        exit(EXIT_FAILURE);
+                    }
                     LoopLinkType* const link0(*set.begin());
                     LoopLinkType* const link1(*set.rbegin());
                     
@@ -589,9 +657,12 @@ namespace model
                         SharedNodePtrType n1(link1->sink());
                         SharedNodePtrType n2(link0->sink());
                         std::shared_ptr<LoopType> loop(link0->loop());
-                        disconnect(n0,n1,loop);
-                        disconnect(n1,n2,loop);
-                        connect(n0,n2,loop);
+                        disconnectVector.emplace_back(n0,n1,n2,loop);
+//                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
+
+//                        disconnect(n0,n1,loop);
+//                        disconnect(n1,n2,loop);
+//                        connect(n0,n2,loop);
                     }
                     else if(link0->sink().get()==isNode.second && link1->source().get()==isNode.second)
                     {
@@ -599,9 +670,12 @@ namespace model
                         SharedNodePtrType n1(link0->sink());
                         SharedNodePtrType n2(link1->sink());
                         std::shared_ptr<LoopType> loop(link1->loop());
-                        disconnect(n0,n1,loop);
-                        disconnect(n1,n2,loop);
-                        connect(n0,n2,loop);
+                        disconnectVector.emplace_back(n0,n1,n2,loop);
+//                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
+
+//                        disconnect(n0,n1,loop);
+//                        disconnect(n1,n2,loop);
+//                        connect(n0,n2,loop);
                     }
                     else
                     {
@@ -611,9 +685,30 @@ namespace model
                     }
                 }
                 
+                for(const auto& tup : disconnectVector)
+                {// perform disconnection and re-connection
+                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<3>(tup));
+                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+                    if(std::get<1>(tup) && std::get<2>(tup) && std::get<2>(tup))
+                    {
+                        if(std::get<3>(tup)->links().size())
+                        {
+                            connect(std::get<0>(tup),std::get<2>(tup),std::get<3>(tup));
+                            assert(std::get<3>(tup)->isLoop());
+                        }
+                    }
+                }
+                
+//                for(auto iter=disconnectVector.begin();iter!=disconnectVector.end();)
+//                {// perform disconnection and re-connection
+//                    disconnect(std::get<0>(*iter),std::get<1>(*iter),std::get<3>(*iter));
+//                    disconnect(std::get<1>(*iter),std::get<2>(*iter),std::get<3>(*iter));
+//                    connect(std::get<0>(*iter),std::get<2>(*iter),std::get<3>(*iter));
+//                    iter=disconnectVector.erase(iter); // erase element in disconnectVector to destroy shared_ptr(s)
+//                }
+                
             }
             
-            std::cout<<"LoopNetwork remove end"<<std::endl;
             
             return !this->node(nodeID).first;
         }
