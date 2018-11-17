@@ -872,7 +872,7 @@ namespace model
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
-        GlidePlaneObserver<dim> gpo;
+//        GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
         
         // Straight Dislocations
@@ -927,7 +927,7 @@ namespace model
         /* init*/,mesh(meshID)
         /* init*/,minSize(0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,maxSize(max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-        /* init*/,poly("./inputFiles/polycrystal.txt",mesh,gpo)
+        /* init*/,poly("./inputFiles/polycrystal.txt",mesh)
         /* Straight Dislocations */
         /* init*/,targetStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetStraightDislocationDensity",true))
         /* init*/,fractionSessileStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true))
@@ -1230,21 +1230,6 @@ namespace model
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
-                //                std::cout<<"newPoints=["<<std::endl;
-                //                for(const auto& newPoint : newPoints)
-                //                {
-                //                    std::cout<<newPoint.transpose()<<std::endl;
-                //                }
-                //                std::cout<<"];"<<std::endl;
-                //
-                //                std::cout<<"oldPoints=["<<std::endl;
-                //                for(const auto& oldPoint : loopPoints[k])
-                //                {
-                //                    std::cout<<oldPoint.transpose()<<std::endl;
-                //                }
-                //                std::cout<<"];"<<std::endl;
-                //                std::cout<<"h="<<LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers)<<std::endl;
-                
                 h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
             

@@ -1,4 +1,11 @@
 ######################################
+# Simulation type (0=finite sample no FEM, 1=finite sample with FEM,2=periodic prism)
+simulationType=2;
+dislocationImages_x=0;
+dislocationImages_y=0;
+dislocationImages_z=0;
+
+######################################
 # Number of simulation steps 
 Nsteps=100000;
 startAtTimeStep = -1;
@@ -13,9 +20,7 @@ use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
-dislocationImages_x=0;
-dislocationImages_y=0;
-dislocationImages_z=0;
+
 computePlasticDistortionIncrementally=1;
 
 ######################################

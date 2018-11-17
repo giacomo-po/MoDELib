@@ -616,9 +616,11 @@ namespace model
         
         std::shared_ptr<NodeType> virtualNode;
         
-        const bool isVirtualBoundaryNode;
         
     public:
+        
+        const bool isVirtualBoundaryNode;
+
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
@@ -675,7 +677,7 @@ namespace model
                         const VectorDim& Pin) :
         /* base constructor */ NodeBaseType(ln,Pin),
         /* init list        */ _isGlissile(false),
-        /* init list        */ p_Simplex( NULL),
+        /* init list        */ p_Simplex(this->network().simulationType==LoopNetworkType::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL),
         /* init list        */ velocity(VectorDim::Zero()),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
@@ -903,6 +905,9 @@ namespace model
                 
             }
             
+            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" finished addLoopLink "<<pL->tag()<<std::endl;);
+
+            
         }
         
         /**********************************************************************/
@@ -948,6 +953,8 @@ namespace model
                 }
             }
             
+            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" finished removeLoopLink "<<pL->tag()<<std::endl;);
+
         }
         
         /**********************************************************************/
@@ -1213,13 +1220,6 @@ namespace model
                 {
                     temp=false;
                 }
-                
-                
-                //                if(this->nonZeroNeighbors().size()<=2)
-                //                {
-                //
-                //
-                //                }
             }
             
             return temp;
@@ -1305,8 +1305,27 @@ namespace model
             return temp;
         }
         
+        
+        
         /**********************************************************************/
         bool isRemovable(const double& Lmin,const double& cosRemove) const
+        {
+        
+            bool temp(   !isVirtualBoundaryNode
+                      && (isSimpleBoundaryNode() || isSimpleGrainBoundaryNode() || isSimpleSessileNode() || isGeometricallyRemovable(Lmin,cosRemove))
+                      );
+            
+//            if(temp && usePeriodic && virtualNode)
+//            {
+//                    temp*=(virtualNode->isSimpleBoundaryNode() ) ;
+//            }
+            
+            return temp;
+        }
+        
+        
+        /**********************************************************************/
+        bool isGeometricallyRemovable(const double& Lmin,const double& cosRemove) const
         {
             bool temp=false;
             const auto linksMap=this->linksByLoopID();
@@ -1366,19 +1385,47 @@ namespace model
             _isOnBoundingBox=true;
             boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
             
-            if(this->network().useVirtualExternalLoops /* && this->network().use_bvp */ && isBoundaryNode()) //ENABLE THIS USE_BVP
+            if(isBoundaryNode() && !isVirtualBoundaryNode) //ENABLE THIS USE_BVP
             {
-//                std::shared_ptr<NodeType> virtualNode(virtualBoundaryNode());
                 
-                if(virtualNode)
+                switch (this->network().simulationType)
                 {
-                    static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+100.0*boundaryNormal);
+                    case LoopNetworkType::FINITE_FEM:
+                    {
+                        if(this->network().useVirtualExternalLoops)
+                        {
+                            if(virtualNode)
+                            {
+                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+100.0*boundaryNormal);
+                            }
+                            else
+                            {
+                                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+                                virtualNode.reset(new NodeType(&this->network(),X+100.0*boundaryNormal));
+                            }
+                        }
+                        break;
+                    }
+                        
+                    case LoopNetworkType::PERIODIC:
+                    {
+                            if(virtualNode)
+                            {
+                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X - ((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal)));
+                            }
+                            else
+                            {
+                                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+                                virtualNode.reset(new NodeType(&this->network(),X-((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal))));
+                            }
+                        break;
+                    }
+                        
+                    default:
+                        break;
                 }
-                else
-                {
-                    VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-                    virtualNode.reset(new NodeType(&this->network(),X+100.0*boundaryNormal));
-                }
+                
+
             }
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line 
             assert(boundingBoxSegments().contains(this->get_P()).first);

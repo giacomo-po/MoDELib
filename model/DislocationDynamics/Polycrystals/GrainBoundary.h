@@ -476,7 +476,7 @@ namespace model
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       Grain<dim>& grainFirst,
                       Grain<dim>& grainSecond,
-                      GlidePlaneObserver<dim>& dn,
+//                      GlidePlaneObserver<dim>& dn,
                       const SimplicialMesh<dim>& mesh) :
 //        /* init */ MeshPlane<dim>(getMeshPlane(regionbnd_in)),
         /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
@@ -511,7 +511,8 @@ namespace model
             }
 
             // Initialize
-            initializeGrainBoundary(dn,mesh);
+//            initializeGrainBoundary(dn,mesh);
+            computeCrystallographicRotationAxis();
             grainFirst.grainBoundaries().emplace(grainBndID,this);
             grainSecond.grainBoundaries().emplace(grainBndID,this);
 
@@ -552,21 +553,21 @@ namespace model
 //            return *glidePlanes().at(k).get();
 //        }
         
-        /**********************************************************************/
-//        template<typename NetworkType>
-        void initializeGrainBoundary(GlidePlaneObserver<dim>& dn,
-                                     const SimplicialMesh<dim>& mesh)
-        {
-//            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
-//            _csl.update(true);
-//            _dscl.update(true);
-            computeCrystallographicRotationAxis();
-//            createLatticePlanes(dn,mesh);
-//            findGrainBoundaryType(poly.grainBoundaryTypes());
-//            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
-            
-            //                grain(gb.first.second).emplace(gb.first,&gb.second);
-        }
+//        /**********************************************************************/
+////        template<typename NetworkType>
+//        void initializeGrainBoundary(GlidePlaneObserver<dim>& dn,
+//                                     const SimplicialMesh<dim>& mesh)
+//        {
+////            model::cout<<yellowColor<<"GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
+////            _csl.update(true);
+////            _dscl.update(true);
+//            computeCrystallographicRotationAxis();
+////            createLatticePlanes(dn,mesh);
+////            findGrainBoundaryType(poly.grainBoundaryTypes());
+////            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
+//            
+//            //                grain(gb.first.second).emplace(gb.first,&gb.second);
+//        }
         
         /**********************************************************************/
         const VectorDimD& crystallographicRotationAxis() const

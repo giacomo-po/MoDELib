@@ -38,7 +38,7 @@ namespace model
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-        
+
         
         friend class LoopNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
 
@@ -122,7 +122,6 @@ namespace model
         const std::shared_ptr<NodeType> source;
         const std::shared_ptr<NodeType> sink;
         const std::pair<size_t,size_t> nodeIDPair;
-        
         
         /**********************************************************************/
         NetworkLink(const std::shared_ptr<NodeType>& nI,

@@ -157,7 +157,6 @@ namespace model
         {
             return *loopNetwork;
         }
-
         
         /**********************************************************************/
         size_t snID() const
@@ -178,7 +177,6 @@ namespace model
         {
             return *this;
         }
-        
         
         /**********************************************************************/
         LinkByLoopContainerType linksByLoopID() const
@@ -225,28 +223,22 @@ namespace model
         void addToNeighborhood(LinkType* const pL)
         {/*!@param[in] pL a pointer to a LinkType edge
           */
-//            assert((pL->source->sID==this->sID || pL->sink->sID==this->sID) && "Connecting NetworkLink to wrong node.");
-            
-                        
             if (pL->source->sID==this->sID)
-            {// this vertex is the source of edge *pL
-//                const NeighborType temp(pL->sink.get(),pL,1);
+            {// this vertex is the source of edge *pL, so sink of *pL is the neighbor
                 const NeighborType temp(pL->sink.get(),pL);
                 const bool success=neighbors().emplace(pL->sink->sID,temp).second;
                 assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else if (pL->sink->sID==this->sID)
-            {// this vertex is the sink of edge *pL
-//                const NeighborType temp(pL->source.get(),pL,-1);
+            {// this vertex is the sink of edge *pL, so source of *pL is the neighbor
                 const NeighborType temp(pL->source.get(),pL);
-                const bool success=neighbors().emplace( pL->source->sID,temp).second;
+                const bool success=neighbors().emplace(pL->source->sID,temp).second;
                 assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else
             {
                 assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
             }
-            
         }
         
         /**********************************************************************/

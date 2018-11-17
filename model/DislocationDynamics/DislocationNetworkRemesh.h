@@ -78,7 +78,6 @@ namespace model
             return temp;
         }
         
-        
         /**********************************************************************/
         void remeshByRemoval()
         {
@@ -88,10 +87,8 @@ namespace model
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
             {
-//                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
-                if(   node.second->isSimpleBoundaryNode()
-                   || node.second->isSimpleGrainBoundaryNode()
-                   || node.second->isSimpleSessileNode())
+                //                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
+                if(node.second->isRemovable(Lmin,cosRemove))
                 {
                     toBeRemoved.push_back(node.second->sID);
                 }
@@ -103,11 +100,7 @@ namespace model
                 const auto isNode=DN.node(nodeID);
                 if(isNode.first)
                 {// Removing may have deleted the node, check that it exists
-                    if(   isNode.second->isSimpleBoundaryNode()
-                       || isNode.second->isSimpleGrainBoundaryNode()
-                       || isNode.second->isSimpleSessileNode()
-                       || isNode.second->isRemovable(Lmin,cosRemove)
-                       )
+                    if(isNode.second->isRemovable(Lmin,cosRemove))
                     {// Removing may have altered the isSimpleBoundaryNode, check again
                         Nremoved+=DN.remove(nodeID);
                     }
@@ -117,6 +110,46 @@ namespace model
             model::cout<<" ("<<Nremoved<<" removed)"<<std::flush;
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
+        
+        
+//        /**********************************************************************/
+//        void remeshByRemoval()
+//        {
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		remeshing network: removing... "<<std::flush;
+//            
+//            std::deque<size_t> toBeRemoved;
+//            for(const auto& node : DN.nodes())
+//            {
+////                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
+//                if(   !node.second->isVirtualBoundaryNode
+//                   && (node.second->isSimpleBoundaryNode() || node.second->isSimpleGrainBoundaryNode() || node.second->isSimpleSessileNode())
+//                   )
+//                {
+//                    toBeRemoved.push_back(node.second->sID);
+//                }
+//            }
+//            
+//            size_t Nremoved=0;
+//            for(const auto& nodeID : toBeRemoved)
+//            {
+//                const auto isNode=DN.node(nodeID);
+//                if(isNode.first)
+//                {// Removing may have deleted the node, check that it exists
+//                    if(   isNode.second->isSimpleBoundaryNode()
+//                       || isNode.second->isSimpleGrainBoundaryNode()
+//                       || isNode.second->isSimpleSessileNode()
+//                       || isNode.second->isRemovable(Lmin,cosRemove)
+//                       )
+//                    {// Removing may have altered the isSimpleBoundaryNode, check again
+//                        Nremoved+=DN.remove(nodeID);
+//                    }
+//                }
+//            }
+//            
+//            model::cout<<" ("<<Nremoved<<" removed)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//        }
         
         
 //        /**********************************************************************/

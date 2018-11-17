@@ -88,8 +88,9 @@ namespace model
         
         /**********************************************************************/
         Polycrystal(const std::string& polyFile,
-                    const SimplicialMeshType& mesh_in,
-                    GlidePlaneObserver<dim>& dn) :
+                    const SimplicialMeshType& mesh_in
+//                    GlidePlaneObserver<dim>& dn
+        ) :
         /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
         /* init */,mesh(mesh_in)
         /* init */,mobility(getMobility(*this))
@@ -140,7 +141,7 @@ namespace model
                                           std::forward_as_tuple(rgnBnd.second,
                                                                 grain(rgnBnd.first.first),
                                                                 grain(rgnBnd.first.second),
-                                                                dn,
+//                                                                dn,
                                                                 mesh));
                 
                 //                std::ofstream myfile;

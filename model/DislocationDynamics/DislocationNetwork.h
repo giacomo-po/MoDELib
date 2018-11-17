@@ -109,7 +109,12 @@ namespace model
     /* base                 */ public std::map<size_t,EshelbyInclusion<_dim>>
     {
         
+        
+        
+        
     public:
+        
+        enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC=2};
         
         static constexpr int dim=_dim; // make dim available outside class
         static constexpr int corder=_corder; // make dim available outside class
@@ -202,90 +207,206 @@ namespace model
         /**********************************************************************/
         void updateVirtualBoundaryLoops()
         {
-            if(useVirtualExternalLoops)
+            
+            switch (simulationType)
             {
-                const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		Updating virtual boundary loops "<<std::flush;
-
-                // First clean up outdated boundary loops
-                std::set<size_t> removeLoops;
-                for(const auto& loop : this->loops())
+                case FINITE_FEM:
                 {
-                    if(loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4)
-                    {// clean up left over loops from topological operations
-                        removeLoops.insert(loop.second->sID);
-                    }
-                }
-                
-//                for(const auto& link : this->links())
-//                {
-//                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
-//                    {
-//                        
-//                        std::set<const LoopType*> virtualLoops=link.second->virtualLoops();
-//                        
-//                        if(virtualLoops.size())
-//                        {// there are existing virtual loops, but the Burgers vector is not zero. Virtual loops are outdated and must be destroyed
-//                            
-//                            // grab the sink-virtualSource segment
-//                            const auto isLink(this->link(std::min(link.second->sink->sID,link.second->source->virtualBoundaryNode()->sID),
-//                                                         std::max(link.second->sink->sID,link.second->source->virtualBoundaryNode()->sID)));
-//                            assert(isLink.first);
-//                            
-//                            for(const auto& loopLink : isLink.second->loopLinks())
-//                            {
-//                                assert(loopLink->loop()->isVirtualBoundaryLoop());
-//                                removeLoops.insert(loopLink->loop()->sID);
-//                            }
-//                            
-//                        }
-//                    }
-//                }
-                
-                for(const size_t& loopID : removeLoops)
-                {// Remove the virtual loops with ID in removeLoops
-                    this->deleteLoop(loopID);
-                }
-                
-
-                // Now reconstruct virtual boundary loops
-                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t>> virtualLoopVector;
-                for(const auto& link : this->links())
-                {
-                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+                    if(useVirtualExternalLoops)
                     {
-//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode()},
-//                                                       link.second->burgers(),
-//                                                       (*link.second->grains().begin())->grainID);
-//                        
-//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
-//                                                       link.second->burgers(),
-//                                                       (*link.second->grains().begin())->grainID);
+                        const auto t0= std::chrono::system_clock::now();
+                        model::cout<<"		Updating virtual boundary loops "<<std::flush;
                         
-                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
-                                                       link.second->burgers(),
-                                                       (*link.second->grains().begin())->grainID);
+                        // First clean up outdated boundary loops
+                        std::set<size_t> removeLoops;
+                        for(const auto& loop : this->loops())
+                        {
+                            if(loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4)
+                            {// clean up left over loops from topological operations
+                                removeLoops.insert(loop.second->sID);
+                            }
+                        }
                         
-//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
-//                                                       link.second->burgers(),
-//                                                       (*link.second->grains().begin())->grainID);
-
+                        
+                        
+                        for(const size_t& loopID : removeLoops)
+                        {// Remove the virtual loops with ID in removeLoops
+                            this->deleteLoop(loopID);
+                        }
+                        
+                        
+                        // Now reconstruct virtual boundary loops
+                        std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t>> virtualLoopVector;
+                        for(const auto& link : this->links())
+                        {
+                            if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+                            {
+                                
+                                virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+                                                               link.second->burgers(),
+                                                               (*link.second->grains().begin())->grainID);
+                                
+                            }
+                        }
+                        
+                        for(const auto& tup : virtualLoopVector)
+                        {// Insert the new virtual loops
+                            this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                        }
+                        
+                        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                     }
+                    break;
                 }
-                
-                for(const auto& tup : virtualLoopVector)
-                {// Insert the new virtual loops
-                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                    
+                case PERIODIC:
+                {
+                    const auto t0= std::chrono::system_clock::now();
+                    
+                    std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim,VectorDim,size_t>> DislocationLoopVector;
+                    for(const auto& link : this->links())
+                    {
+                        
+                        if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers() && !link.second->sink->isVirtualBoundaryNode && !link.second->source->isVirtualBoundaryNode)
+                        {// First make the check whether the nodes connected to the sinks are not virtualNodes and they lie on the boundary
+                            
+                            
+                            const auto virtualLink(this->link(std::min(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID),std::max(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID)));
+                            
+                            if(!virtualLink.first)
+                            {// Checking whether the virtual nodes of the original link are already connected or not
+                                //						std::cout<<"Size of virtual boundary loop from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loops().size()<<std::endl;
+                                //						std::cout<<"Size of loopLinks from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loopLinks().size()<<std::endl;
+                                //						std::cout<<"Size of neighbors from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->neighbors().size()<<std::endl;
+                                //						std::cout<<"Size of virtual boundary loop from sink ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loops().size()<<std::endl;
+                                //						std::cout<<"Size of loopLinks from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loopLinks().size()<<std::endl;
+                                //						std::cout<<"Size of neighbors from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->neighbors().size()<<std::endl;
+                                
+                                if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
+                                   && link.second->source->virtualBoundaryNode()->loops().size()==0)
+                                {// If the virtual nodes are not connected to any loops, create a midnode based on the two virtual nodes and form a loop between them
+                                    
+                                    VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
+                                    // Direction along which the new node should be placed
+                                    VectorDim X=(-link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P()).cross(N).normalized();
+                                    // Make sure the node is placed inside the simulation domain
+                                    if (!(X.dot(link.second->source->bndNormal().normalized()) > 0)) X = -X;
+                                    X=X*(10);
+                                    // Create a new node based on two virtual nodes
+                                    std::shared_ptr<NodeType> midNode(new NodeType(this,X+0.5*(link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P())
+                                                                                   ,0.5*(link.second->source->virtualBoundaryNode()->get_V()+link.second->sink->virtualBoundaryNode()->get_V()),1));
+//                                    std::cout<<"Creating the mid node"<<midNode->sID<<std::endl;
+                                    // Create a container to store the nodes and the direction of the loop to be inserted
+                                    DislocationLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->source->virtualBoundaryNode(),midNode,link.second->sink->virtualBoundaryNode()},
+                                                                       link.second->burgers(),N,link.second->source->virtualBoundaryNode()->get_P(),
+                                                                       (*link.second->grains().begin())->grainID);
+//                                    std::cout<<"Creating the dislocationloop"<<std::endl;
+                                }
+                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()!=0
+                                        && link.second->source->virtualBoundaryNode()->loops().size()==0)
+                                {
+                                    // Loop over the links associated with the virtual node that has a loop
+                                    std::cout<<"The node to which expansion is taking place is"<<link.second->source->virtualBoundaryNode()->sID<<std::endl;
+                                    for(const auto& pair: link.second->sink->virtualBoundaryNode()->linksByLoopID())
+                                    {
+                                        VectorDim N1 = (*pair.second.begin())->loop()->glidePlane->unitNormal;
+                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
+                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
+                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
+                                        if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
+                                        {
+                                            std::cout<<"New loop needs to be merged on source"<<std::endl; //TODO not checked for the slip system for node expansion for the periodic loops
+                                        }
+                                        // Find the link which is a boundary segment
+                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
+                                        {
+                                            // Change the link of the other segment by using expand
+                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
+                                            break;
+                                        }
+                                    }
+                                    
+                                    // Second case - Expand the existing loop on the virtual node instead of creating a new loop
+//                                    // Check is made to see whether one of the node has any loop associated with it
+//                                    if(link.second->source->virtualBoundaryNode()->loops().size()==0)
+//                                    {
+//
+//                                    }
+//                                    
+//                                    else
+//                                    {
+// 
+//                                    }
+                                    
+                                }
+                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
+                                        && link.second->source->virtualBoundaryNode()->loops().size()!=0)
+                                {
+                                    // Same procedure done for the other case
+                                    std::cout<<"The node to which expansion is taking place is"<<link.second->sink->virtualBoundaryNode()->sID<<std::endl;
+                                    for(const auto& pair: link.second->source->virtualBoundaryNode()->linksByLoopID())
+                                    {
+                                        VectorDim N1 = (*pair.second.begin())->loop()->rightHandedNormal();
+                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
+                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->rightHandedNormal();
+                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
+                                        //									if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
+                                        //									{
+                                        //										std::cout<<"New loop needs to be merged on sink"<<std::endl;
+                                        //									}
+                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
+                                        {
+                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
+                                            break;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                
+                                    assert(0 && "CASE NOT CONSIDERED SO FAR");
+                                    
+                                }
+                            }
+                        }
+                        
+                        
+                    }
+                    for(const auto& tup : DislocationLoopVector)
+                    {// Insert the new loops
+                        this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+                    }
+                    
+                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
+                    break;
                 }
-                
-                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                    
+                default:
+                {
+                    break;
+                }
             }
+            
+            
+
         }
         
 
         
     public:
         
+        const int simulationType; // 0 finite sample, no FEM, // 1 finite sample FEM, // 2 periodic prism
         int timeIntegrationMethod;
         int maxJunctionIterations;
 //        long int runID;
@@ -340,6 +461,7 @@ namespace model
                            BVPsolver<dim,2>& _bvpSolver,
                            long int& runID) :
         /* init */ DislocationNetworkBase<dim>(_mesh,_poly,_bvpSolver)
+        /* init */,simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
         /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
 //        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
@@ -475,6 +597,18 @@ namespace model
                 
             }
             
+            if(simulationType==PERIODIC)
+            {// in case of periodic simulation, mesh must be commensurate to lattice periodicity
+                assert(this->poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
+                model::cout<<"Checking that mesh and lattice are commensurate"<<std::endl;
+                const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+                for(int d=0;d<dim;++d)
+                {
+                    VectorDim v(VectorDim::Zero());
+                    v(d)=1*meshSize(d);
+                    LatticeVector<dim> lv(v,this->poly.grains().begin()->second);
+                }
+            }
             
             // Initializing configuration
             move(0.0);	// initial configuration
@@ -571,10 +705,12 @@ namespace model
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
+            updateVirtualBoundaryLoops();
+
+            
             //! 13- Node redistribution
             DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
             
-            updateVirtualBoundaryLoops();
             
             //            mergeLoopsAtNodes();
             

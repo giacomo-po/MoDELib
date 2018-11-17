@@ -43,13 +43,13 @@ namespace model
         
         
         /**********************************************************************/
-        static KeyType getKey(const std::shared_ptr<LoopNodeType>& Ni,const std::shared_ptr<LoopNodeType>& Nj)
+        static KeyType networkLinkKey(const std::shared_ptr<LoopNodeType>& Ni,const std::shared_ptr<LoopNodeType>& Nj)
         {
-            return getKey(Ni->sID,Nj->sID);
+            return networkLinkKey(Ni->sID,Nj->sID);
         }
         
         /**********************************************************************/
-        static KeyType getKey(const size_t& i,const size_t& j)
+        static KeyType networkLinkKey(const size_t& i,const size_t& j)
         {
             assert(i!=j && "i and j cannot be the same");
             return KeyType(std::min(i,j),std::max(i,j));
