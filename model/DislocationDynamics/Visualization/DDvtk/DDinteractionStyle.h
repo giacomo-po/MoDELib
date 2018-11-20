@@ -605,6 +605,8 @@ namespace model
                 selectedKey="m";
                 std::cout<<"selecting objects: mesh"<<std::endl;
                 std::cout<<"    +/- to increase mesh displacement"<<std::endl;
+                std::cout<<"    1 to show/hide grain colors"<<std::endl;
+                std::cout<<"    2 to show/hide region boundaries"<<std::endl;
                 
             }
             
@@ -896,6 +898,20 @@ namespace model
                 {
                     SimplicialMeshActor::dispCorr*=0.5;
                     std::cout<<"displacement amplification="<<SimplicialMeshActor::dispCorr<<std::endl;
+                    meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                if(key == "1")
+                {
+                    SimplicialMeshActor::showGrainColors=!SimplicialMeshActor::showGrainColors;
+                    std::cout<<"showGrainColors="<<SimplicialMeshActor::showGrainColors<<std::endl;
+                    meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                if(key == "2")
+                {
+                    SimplicialMeshActor::showRegionBoundaries=!SimplicialMeshActor::showRegionBoundaries;
+                    std::cout<<"showRegionBoundaries="<<SimplicialMeshActor::showRegionBoundaries<<std::endl;
                     meshActor.modifyPts();
                     this->Interactor->Render();
                 }

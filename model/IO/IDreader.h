@@ -62,6 +62,7 @@ namespace model
         typedef std::pair<KeyType, ValueType > BinType;
 
 		long long int currentFrame;
+        std::map<std::string,size_t> labelsMap;
 		
         /**********************************************************************/
 		bool readTXT(const std::string& filename)
@@ -123,6 +124,8 @@ namespace model
             return success;
 		}
 		
+
+        
         /**********************************************************************/
 		bool readBIN(const std::string& filename)
         {/*! Reads the binary file filename and stores its data in this
@@ -169,7 +172,71 @@ namespace model
           *  frameN!=currentFrame will initially return false
           */
         }
+        
+        /**********************************************************************/
+        void readLabelsFile(const std::string& labelsFileName)
+        {
+            std::ifstream labelsFile(labelsFileName.c_str(), std::ifstream::in);
+            if (labelsFile.is_open())
+            {
+                std::cout<<"reading labels file: "<<labelsFileName;
+                double t0(clock());
+                std::string line;
+                
+                std::getline(labelsFile, line); // labels of ID
+                
+                size_t row = 0;
+                while (std::getline(labelsFile, line))
+                {
+                    
+                    const bool success=labelsMap.emplace(line,row).second;
+                    if(!success)
+                    {
+                        std::cout<<"Unable to insert label "<<line<<std::endl;
+                    }
+                    row++;
+                }
+                
+                
+                labelsFile.close();
+                
+                
+                std::cout<<" ("<<labelsMap.size()<<" labels) ["<<(clock()-t0)/CLOCKS_PER_SEC<<" sec]"<<std::endl;
+            }
+            else
+            {
+                std::cout<<"Unable to read labels file:"<<labelsFileName<<std::endl;
+            }
+        }
 		
+        /**********************************************************************/
+        const T& operator()(const KeyType& key,const std::string& label)
+        {
+            const auto rowIter(this->find(key));
+            assert(rowIter!=this->end() && "ID not found.");
+            const auto colIter(labelsMap.find(label));
+            assert(colIter!=labelsMap.end() && "label not found.");
+            return rowIter->second.operator[](colIter->second);
+        }
+        
+        /**********************************************************************/
+        const T& first(const std::string& label)
+        {
+            const auto rowIter(this->begin());
+            const auto colIter(labelsMap.find(label));
+            assert(colIter!=labelsMap.end() && "label not found.");
+            return rowIter->second.operator[](colIter->second);
+        }
+        
+        /**********************************************************************/
+        const T& last(const std::string& label)
+        {
+            const auto rowIter(this->rbegin());
+            const auto colIter(labelsMap.find(label));
+            assert(colIter!=labelsMap.end() && "label not found.");
+            return rowIter->second.operator[](colIter->second);
+        }
+        
         /**********************************************************************/
 		std::string getFilename(const long long int& frameN, const bool& useTXT) const
         {

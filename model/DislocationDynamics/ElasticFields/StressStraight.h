@@ -204,22 +204,13 @@ namespace model
             return MaterialType::C2*(temp+temp.transpose());
         }
         
-//        /**********************************************************************/
-//        VectorDim displacement(const VectorDim& x) const
-//        {/*!\returns the line-integral part of the displacement contribution of this straight segment.
-//          * Note: the return value  does NOT include the solid-angle contribution to the displacement field.
-//          */
-//            return displacement_kernel(B-x)-displacement_kernel(A-x);
-//        }
-//        
-//        /**********************************************************************/
-//        VectorDim solidAngle(const VectorDim& x,const VectorDim& s) const
-//        {
-//            
-//            
-//            
-//            return ;
-//        }
+        /**********************************************************************/
+        VectorDim displacement(const VectorDim& x) const
+        {/*!\returns the line-integral part of the displacement contribution of this straight segment.
+          * Note: the return value  does NOT include the solid-angle contribution to the displacement field.
+          */
+            return displacement_kernel(P1-x)-displacement_kernel(P0-x);
+        }
         
 	};	
 	

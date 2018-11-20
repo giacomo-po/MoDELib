@@ -480,23 +480,47 @@ namespace model
             if(!hasZeroBurgers())
             {
                 
-                if(this->network().use_bvp) // using FEM correction
-                {
-                    assert(0 && "FINISH HERE");
-                }
-                else
-                {// Don't add stress
-                    if(!isBoundarySegment())
-                    {
-                        straightSegmentsDeq.emplace_back(this->source->get_P(),
-                                                         this->sink->get_P(),
-                                                         burgers());
-                    }
-                    else
-                    {
+                
+                switch (this->network().simulationParameters.simulationType)
+                {// Initilization based on type of simulation
                         
+                        
+                    case DefectiveCrystalParameters::FINITE_NO_FEM:
+                    {
+                        if(!isBoundarySegment())
+                        {
+                            straightSegmentsDeq.emplace_back(this->source->get_P(),
+                                                             this->sink->get_P(),
+                                                             burgers());
+                        }
+                        break;
+                    }
+                        
+                    case DefectiveCrystalParameters::FINITE_FEM:
+                    {
+                        assert(0 && "FINISH HERE");
+                        break;
+                    }
+                        
+                    case DefectiveCrystalParameters::PERIODIC:
+                    {
+                        if(!isBoundarySegment())
+                        {
+                            straightSegmentsDeq.emplace_back(this->source->get_P(),
+                                                             this->sink->get_P(),
+                                                             burgers());
+                        }
+                        break;
+                    }
+                        
+                    default:
+                    {
+                        model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
+                        exit(EXIT_FAILURE);
+                        break;
                     }
                 }
+                
             }
         }
         

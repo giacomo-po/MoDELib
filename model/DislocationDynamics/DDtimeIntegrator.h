@@ -47,10 +47,10 @@ namespace model
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        static void computeNodaVelocities(DislocationNetworkType& DN,const long int& runID)
+        static double get_dt(const DislocationNetworkType& DN)
         {
             //! Compute and store DislocaitonNode velocities
-            DN.assembleAndSolve(runID);
+//            DN.assembleAndSolve(runID,straightSegmentsDeq);
             
             /*! Computes the time step size \f$dt\f$ for the current simulation step,
              *  based on maximum nodal velocity \f$v_{max}\f$.
@@ -69,9 +69,9 @@ namespace model
             //			double vmax(0.0);
             int vMaxID=-1;
             double vmax=0.0;
-            int nVmean=0;
-            double vmean=0.0;
-            double dt_mean=0.0;
+//            int nVmean=0;
+//            double vmean=0.0;
+//            double dt_mean=0.0;
             
 //            std::cout<<"computing vMax for nodes: ";
             for (const auto& nodeIter : DN.nodes())
@@ -84,8 +84,8 @@ namespace model
                    )
                 {
                     const double vNorm(nodeIter.second->get_V().norm());
-                    vmean +=vNorm;
-                    nVmean++;
+//                    vmean +=vNorm;
+//                    nVmean++;
                     if (vNorm>vmax)
                     {
                         vmax=vNorm;
@@ -93,25 +93,27 @@ namespace model
                     }
                 }
             }
-            vmean/=nVmean;
+//            vmean/=nVmean;
             
-            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
-            {
-                DN.set_dt(dxMax/vmax,vmax);
-            }
-            else
-            {
-                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
-            }
+            return vmax > DN.poly.cs*shearWaveSpeedFraction? dxMax/vmax : dxMax/(DN.poly.cs*shearWaveSpeedFraction);
             
-            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
-            {
-                dt_mean=dxMax/vmean;
-            }
-            else
-            {
-                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
-            }
+//            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
+//            {
+//                DN.set_dt(dxMax/vmax,vmax);
+//            }
+//            else
+//            {
+//                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
+//            }
+//            
+//            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
+//            {
+//                dt_mean=dxMax/vmean;
+//            }
+//            else
+//            {
+//                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
+//            }
             
             model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
         }

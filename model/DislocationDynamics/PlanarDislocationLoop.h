@@ -36,7 +36,7 @@ namespace model
     {
         
         constexpr static int dim=TypeTraits<Derived>::dim;
-
+        
         
         Eigen::Matrix<double,dim,1> nA;
         double _slippedArea;
@@ -47,7 +47,7 @@ namespace model
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         
-//        constexpr static int dim=_dim;
+        //        constexpr static int dim=_dim;
         typedef PlanarDislocationLoop<Derived> PlanarDislocationLoopType;
         typedef Loop<Derived> BaseLoopType;
         typedef typename BaseLoopType::LoopLinkType LoopLinkType;
@@ -62,21 +62,21 @@ namespace model
         const Grain<dim>& grain;
         const std::shared_ptr<GlidePlaneType> glidePlane;
         static int verbosePlanarDislocationLoop;
-
+        
         //        const GlidePlaneType& glidePlane;
-//        const bool isGlissile;
+        //        const bool isGlissile;
         
         
-//        /**********************************************************************/
-//        static bool allowedSlipSystem(const LatticeVector<dim>& b,
-//                                      const ReciprocalLatticeDirection<dim>& n,
-//                                      const Grain<dim>& gr)
-//        {
-//            
-//            std::cout<<"PlanarDislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
-//            
-//            return true;
-//        }
+        //        /**********************************************************************/
+        //        static bool allowedSlipSystem(const LatticeVector<dim>& b,
+        //                                      const ReciprocalLatticeDirection<dim>& n,
+        //                                      const Grain<dim>& gr)
+        //        {
+        //
+        //            std::cout<<"PlanarDislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
+        //
+        //            return true;
+        //        }
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
@@ -88,10 +88,10 @@ namespace model
         /**********************************************************************/
         template<typename FLowType>
         PlanarDislocationLoop(LoopNetworkType* const dn,
-                        const FLowType& B,
-                        const VectorDim& N,
-                        const VectorDim& P,
-                        const int& grainID) :
+                              const FLowType& B,
+                              const VectorDim& N,
+                              const VectorDim& P,
+                              const int& grainID) :
         /* base init */ BaseLoopType(dn,B),
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
@@ -100,12 +100,12 @@ namespace model
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N))
         //        /*      init */ glidePlane(*_glidePlane->get()),
-//        /*      init */,isGlissile(_isGlissile)
+        //        /*      init */,isGlissile(_isGlissile)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             //            glidePlane->addLoop(this);
-//            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
+            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
             glidePlane->addParentSharedPtr(&glidePlane);
             
         }
@@ -113,8 +113,8 @@ namespace model
         /**********************************************************************/
         template<typename FLowType>
         PlanarDislocationLoop(LoopNetworkType* const dn,
-                        const FLowType& B,
-                        const int& grainID) :
+                              const FLowType& B,
+                              const int& grainID) :
         /* base init */ BaseLoopType(dn,B),
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
@@ -123,7 +123,7 @@ namespace model
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ glidePlane(nullptr)
         //        /*      init */ glidePlane(*_glidePlane->get()),
-//        /*      init */,isGlissile(true)
+        //        /*      init */,isGlissile(true)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" without plane."<<std::endl;);
             
@@ -146,7 +146,7 @@ namespace model
         /* init */ grain(other.grain),
         /* init */ glidePlane(other.glidePlane)
         //        /* init */ glidePlane(*_glidePlane->get()),
-//        /* init */,isGlissile(other.isGlissile)
+        //        /* init */,isGlissile(other.isGlissile)
         {
             VerbosePlanarDislocationLoop(1,"Copy-constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
@@ -171,29 +171,79 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim diracStringDirection(const VectorDim& x) const
+        {
+            VectorDim temp(VectorDim::Zero());
+            if(glidePlane && _slippedArea>FLT_EPSILON)
+            {// a right-handed normal for the loop can be determined
+                if((x-glidePlane->P).dot(rightHandedNormal())>=0.0)
+                {
+                    temp= rightHandedNormal();
+                }
+                else
+                {
+                    temp=-rightHandedNormal();
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        double solidAngle(const VectorDim& x) const
+        {
+            double temp(0.0);
+            if(isVirtualBoundaryLoop())
+            {
+                assert(0 && "FINISH HERE. NEED TO BREAK LOOP IN TWO TRIAGLES");
+            }
+            else
+            {
+                const VectorDim s(diracStringDirection(x));
+                if(s.squaredNorm())
+                {
+                    for(const auto& loopLink : this->links())
+                    {
+                        const VectorDim e1((loopLink.second->source()->get_P()-x).normalized());
+                        const VectorDim Y1((loopLink.second->  sink()->get_P()-x).normalized());
+                        const VectorDim e3(e1.cross(Y1).normalized());
+                        const VectorDim e2(e3.cross(e1));
+                        const double ydy(e1.dot(Y1));
+                        const double w=sqrt((1.0-ydy)/(1.0+ydy));
+                        temp+=2.0*atan(s.dot(e3)*w/(1.0-s.dot(e1)-s.dot(e2)*w));
+                    }
+                }
+                else
+                {
+                    assert(0 && "FINISH HERE. NEED TO HANDLE SPECIAL CASES OF x on the loop plane. Inside or outside");
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         bool isVirtualBoundaryLoop() const
         {
             return glidePlane.get()==nullptr;
         }
         
-//        /**********************************************************************/
-//        bool isPureVirtualBoundaryLoop() const
-//        {
-//            bool temp(isVirtualBoundaryLoop());
-//            if(temp)
-//            {
-//                for(const auto& loopLink : this->links())
-//                {
-//                    temp*=loopLink->plink->isVirtualBoundarySegment();
-//                    if(!temp)
-//                    {
-//                        break;
-//                    }
-//                }
-//            }
-//            
-//            return temp;
-//        }
+        //        /**********************************************************************/
+        //        bool isPureVirtualBoundaryLoop() const
+        //        {
+        //            bool temp(isVirtualBoundaryLoop());
+        //            if(temp)
+        //            {
+        //                for(const auto& loopLink : this->links())
+        //                {
+        //                    temp*=loopLink->plink->isVirtualBoundarySegment();
+        //                    if(!temp)
+        //                    {
+        //                        break;
+        //                    }
+        //                }
+        //            }
+        //
+        //            return temp;
+        //        }
         
         /**********************************************************************/
         VectorDim burgers() const
@@ -201,37 +251,37 @@ namespace model
             return this->flow().cartesian();
         }
         
-//        /**********************************************************************/
-//        std::tuple<double,double,double> loopLength() const
-//        {
-//            double freeLength=0.0;
-//            double boundaryLength=0.0;
-//            double junctionLength=0.0;
-//            
-//            for(const auto& link : this->links())
-//            {
-//                if(link.second->pLink->isBoundarySegment())
-//                {
-//                    boundaryLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                }
-//                else
-//                {
-//                    if(link.second->pLink->loopLinks().size()==1)
-//                    {
-//                        freeLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                    }
-//                    else
-//                    {
-//                        junctionLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                    }
-//                }
-//            }
-//            
-//            return std::make_tuple(freeLength,junctionLength,boundaryLength);
-//        }
+        //        /**********************************************************************/
+        //        std::tuple<double,double,double> loopLength() const
+        //        {
+        //            double freeLength=0.0;
+        //            double boundaryLength=0.0;
+        //            double junctionLength=0.0;
+        //
+        //            for(const auto& link : this->links())
+        //            {
+        //                if(link.second->pLink->isBoundarySegment())
+        //                {
+        //                    boundaryLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+        //                }
+        //                else
+        //                {
+        //                    if(link.second->pLink->loopLinks().size()==1)
+        //                    {
+        //                        freeLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+        //                    }
+        //                    else
+        //                    {
+        //                        junctionLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
+        //                    }
+        //                }
+        //            }
+        //
+        //            return std::make_tuple(freeLength,junctionLength,boundaryLength);
+        //        }
         
         /**********************************************************************/
-        void update()
+        void updateGeometry()
         {
             nA.setZero();
             if(this->links().size())
@@ -245,7 +295,6 @@ namespace model
             
             _slippedArea=nA.norm();
             _rightHandedNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
-            
         }
         
         /**********************************************************************/
@@ -266,19 +315,18 @@ namespace model
             return -burgers()*nA.transpose()/this->network().mesh.volume();
         }
         
-//        /**********************************************************************/
-//        template <class T>
-//        friend T& operator << (T& os, const PlanarDislocationLoopType& dL)
-//        {
-//            os<< PlanarDislocationLoopIO<dim>(dL);
-//            return os;
-//        }
+        //        /**********************************************************************/
+        //        template <class T>
+        //        friend T& operator << (T& os, const PlanarDislocationLoopType& dL)
+        //        {
+        //            os<< PlanarDislocationLoopIO<dim>(dL);
+        //            return os;
+        //        }
         
     };
     
     template <typename Derived>
     int PlanarDislocationLoop<Derived>::verbosePlanarDislocationLoop=0;
-
     
 }
 #endif

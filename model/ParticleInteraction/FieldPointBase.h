@@ -19,7 +19,7 @@ namespace model
      * Eigen::Matrix<scalar,rows,cols>.
      *
      * In case that MPI is used, the underlying data is not stored with the 
-     * object but is deallocated to a static vector that can efficiently be 
+     * object but is delocalized to a static vector that can efficiently be
      * syncronized using MPI_Allgatherv. However, the base data is conveniently 
      * used as regular Eigen object via the Eigen::Map class.
      */    

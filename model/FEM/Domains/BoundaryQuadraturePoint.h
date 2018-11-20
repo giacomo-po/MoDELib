@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_BoundaryIntegrationPoint_H_
-#define model_BoundaryIntegrationPoint_H_
+#ifndef model_BoundaryQuadraturePoint_H_
+#define model_BoundaryQuadraturePoint_H_
 
 #include <Eigen/Dense>
 
@@ -16,24 +16,27 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    template <typename ElementType>
-	struct BoundaryIntegrationPoint
+    template <typename ElementType,int rows,int cols>
+    struct BoundaryQuadraturePoint : public Eigen::Matrix<double,rows,cols>
     {
         constexpr static int dim=ElementType::dim;
         const ElementType& ele;
         const Eigen::Matrix<double,dim+1,1> domainBary;
         const int boundaryFace;
         const double& weight;
+        const Eigen::Matrix<double,dim,1> P;
         
         /**********************************************************************/
-        BoundaryIntegrationPoint(const ElementType& _ele,
+        BoundaryQuadraturePoint(const ElementType& _ele,
                                  const Eigen::Matrix<double,dim+1,1>& _domainBary,
                                  const int& _boundaryFace,
                                  const double& _weight) :
-        /*                    */ ele(_ele),
-        /*                    */ domainBary(_domainBary),
-        /*                    */ boundaryFace(_boundaryFace),
-        /*                    */ weight(_weight)
+        /* init */ Eigen::Matrix<double,rows,cols>(Eigen::Matrix<double,rows,cols>::Zero()),
+        /* init */ ele(_ele),
+        /* init */ domainBary(_domainBary),
+        /* init */ boundaryFace(_boundaryFace),
+        /* init */ weight(_weight),
+        /* init */ P(ele.position(domainBary))
         {
 
         }

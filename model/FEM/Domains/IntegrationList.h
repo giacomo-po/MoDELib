@@ -45,7 +45,7 @@ namespace model
             typedef typename IntegrationDomainType::ElementType ElementType;
             typedef typename IntegrationDomainType::QuadratureType QuadratureType;
             
-            model::cout<<"Creating IntegrationList (size "<<this->size()<<"->"<<std::flush;
+            model::cout<<"Creating surface IntegrationList (size "<<this->size()<<"->"<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<domain.size();++k)
             {

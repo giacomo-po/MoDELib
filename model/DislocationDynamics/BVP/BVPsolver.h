@@ -25,11 +25,14 @@
 #include <model/Mesh/SimplicialMesh.h>
 #include <model/FEM/WeakForms/JGNselector.h>
 #include <model/ParticleInteraction/SingleFieldPoint.h>
-#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
-#include <model/DislocationDynamics/BVP/BoundaryStressPoint.h>
+//#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
+#include <model/DislocationDynamics/BVP/DisplacementPoint.h>
+//#include <model/DislocationDynamics/BVP/BoundaryStressPoint.h>
 #include <model/FEM/Domains/LinearWeakList.h>
+#include <model/FEM/Domains/BoundaryQuadraturePoint.h>
 //
 //#include <model/Utilities/RuntimeError.h>
+#include <model/IO/TextFileParser.h>
 
 #ifndef userLoadController
 #define userLoadController "model/DislocationDynamics/BVP/DummyLoadController.h"
@@ -72,7 +75,6 @@ namespace model
         size_t gSize;
         
         //        static bool apply_DD_displacement;
-        static bool use_directSolver;
         
     private:
         Eigen::Matrix<double,6,6> C; // matrix of elastic moduli
@@ -287,13 +289,17 @@ namespace model
     public:
         
         double tolerance;
+        const bool use_directSolver;
+        const int stepsBetweenBVPupdates;
         
         /**********************************************************************/
         BVPsolver(const SimplicialMesh<dim>& mesh_in) :
-        /* init  */ mesh(mesh_in),
-        /* init  */ gSize(0),
-        /* init  */ C(get_C(1.0,0.33)),
-        /* init  */ tolerance(0.0001)
+        /* init  */ mesh(mesh_in)
+        /* init  */,gSize(0)
+        /* init  */,C(get_C(1.0,0.33))
+        /* init  */,tolerance(TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
+        /* init  */,use_directSolver(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
+        /* init  */,stepsBetweenBVPupdates(TextFileParser("inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
         {
             
         }
@@ -382,23 +388,28 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             
             // Add the (negative) dislocation displacement
-            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
-            typedef typename FieldPointType::DisplacementField DisplacementField;
-            std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
+//            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+//            typedef typename FieldPointType::DisplacementField DisplacementField;
+//            std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
+            std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>> fieldPoints;
+            fieldPoints.reserve(displacement().dirichletNodeMap().size());
             
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
             {
                 const auto& gID(pair.first);
-                const auto node(fe->node(gID));
+//                const auto node(fe->node(gID));
                 
-                fieldPoints.emplace_back(node);
+//                fieldPoints.emplace_back(node);
+                                fieldPoints.emplace_back(gID,fe->node(gID).P0);
             }
-            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+//            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+  
+            DN.displacement(fieldPoints);
             
             // Subtract the DislocationNetwork displacement from the Dirichlet conditions
             for(const auto& fieldPoint : fieldPoints)
             {
-                const size_t& gID=fieldPoint.gID;
+                const size_t& gID=fieldPoint.pointID;
                 for(int dof=0;dof<dofPerNode;++dof)
                 {
                     if(displacement().dirichletNodeMap()[gID][dof])
@@ -406,25 +417,28 @@ namespace model
 #ifdef _MODEL_TEST_DD_DISPLACEMENT_
                         dd_disp_file<<fieldPoint.P.transpose()<<" "<<fieldPoint.template field<DisplacementField>().transpose()<<"\t"<<fieldPoint.S.transpose()<<"\n";
 #endif
-                        u->dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint.template field<DisplacementField>()(dof);
+//                        u->dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint.template field<DisplacementField>()(dof);
+                        u->dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint(dof);
+
                     }
                 }
                 
                 if(DN.useVirtualExternalLoops) // Add solid angle contribution
                 {
-                    VectorDim dispJump(VectorDim::Zero());
-                    for (const auto& segment : DN.links())
-                    {
-                        segment.second->addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
-                    }
-                    
-                    for(int dof=0;dof<dofPerNode;++dof)
-                    {
-                        if(displacement().dirichletNodeMap()[gID][dof])
-                        {
-                            u->dirichletConditions().at(gID*dofPerNode+dof) -= dispJump(dof);
-                        }
-                    }
+                    assert(0 && "FINISH HERE");
+//                    VectorDim dispJump(VectorDim::Zero());
+//                    for (const auto& segment : DN.links())
+//                    {
+//                        segment.second->addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
+//                    }
+//                    
+//                    for(int dof=0;dof<dofPerNode;++dof)
+//                    {
+//                        if(displacement().dirichletNodeMap()[gID][dof])
+//                        {
+//                            u->dirichletConditions().at(gID*dofPerNode+dof) -= dispJump(dof);
+//                        }
+//                    }
                 }
             }
             
@@ -452,10 +466,11 @@ namespace model
             
             // Compute dislocation traction
             model::cout<<"Computing DD boundary traction..."<<std::flush;
-            typedef typename DislocationNetworkType::StressField StressField;
-            typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
+//            typedef typename DislocationNetworkType::StressField StressField;
+//            typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
             auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
-            auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
+//            auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
+            auto eb_list = ndA.template integrationList<BoundaryQuadraturePoint<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
 
             const auto t0= std::chrono::system_clock::now();
             if(DN.corder==0)
@@ -464,7 +479,8 @@ namespace model
             }
             else
             {
-                DN.template computeField<FieldPointType,StressField>(eb_list);
+                assert(0 && "REIMPLEMENT THIS");
+//                DN.template computeField<FieldPointType,StressField>(eb_list);
             }
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
@@ -589,8 +605,8 @@ namespace model
     //    template <int dim, int sfOrder>
     //    bool BVPsolver<dim,sfOrder>::apply_DD_displacement=true;
     
-    template <int dim, int sfOrder>
-    bool BVPsolver<dim,sfOrder>::use_directSolver=true;
+//    template <int dim, int sfOrder>
+//    bool BVPsolver<dim,sfOrder>::use_directSolver=true;
     
 } // namespace model
 #endif

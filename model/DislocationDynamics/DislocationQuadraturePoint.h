@@ -331,15 +331,15 @@ namespace model
                 for (auto& qPoint : quadraturePoints())
                 {
                     // Add stress of ExternalLoadController
-                    if(seg.network().use_externalStress)
+                    if(seg.network().externalLoadController)
                     {
-                        qPoint.stress += seg.network().extStressController.externalStress(qPoint.r);
+                        qPoint.stress += seg.network().extStressController->externalStress(qPoint.r);
                     }
                     
                     // Add BVP stress
-                    if(seg.network().use_bvp)
+                    if(seg.network().bvpSolver)
                     {
-                        qPoint.stress += seg.network().bvpSolver.stress(qPoint.r,seg.source->includingSimplex());
+                        qPoint.stress += seg.network().bvpSolver->stress(qPoint.r,seg.source->includingSimplex());
                     }
                     
                     // Add GB stress

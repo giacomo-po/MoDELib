@@ -289,6 +289,7 @@ namespace model
             gbTrianglePolyData->SetPolys ( gbTriangles );
             gbTrianglePolyData->SetPolys ( gbTriangles );
             gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
+
             
             //                gbTrianglePolyData->GetCellData()->SetScalars(gbColors); // use this to assig color to each vertex
             
@@ -324,9 +325,7 @@ namespace model
         }
         
         /**************************************************************************/
-        void update(const long int& frameID
-                    /*,const long int& lastFrameID,const float& anglePerStep, Eigen::Matrix<float,3,1> spinAxis*/
-        )
+        void update(const long int& frameID)
         {
             
             if(DispContainerType::isGood(frameID,true))
@@ -396,6 +395,18 @@ namespace model
                 pts->Modified();
             }
             
+//            size_t t=0;
+//            for(const auto& meshTriangle : mesh.observer<2>())
+//            {
+//                if(meshTriangle.second->isBoundarySimplex())
+//                {
+//                    gbColors->SetTuple3(t,regionClr(1),regionClr(2)); // use this to assig color to each vertex
+//                    t++;
+//                }
+//            }
+            
+            gbMapper->SetScalarVisibility(showGrainColors);
+            
 //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
             
         }
@@ -403,8 +414,8 @@ namespace model
     };
     
     double SimplicialMeshActor::dispCorr=1.0;
-    bool SimplicialMeshActor::showGrainColors=true;
-    bool SimplicialMeshActor::showRegionBoundaries=true;
+    bool SimplicialMeshActor::showGrainColors=false;
+    bool SimplicialMeshActor::showRegionBoundaries=false;
     
 } // namespace model
 #endif

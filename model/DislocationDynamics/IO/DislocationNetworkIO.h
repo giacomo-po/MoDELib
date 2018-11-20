@@ -22,7 +22,7 @@
 #include <model/MPI/MPIcout.h>
 #include <model/LatticeMath/LatticeMath.h>
 #include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
+//#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
@@ -30,6 +30,8 @@
 #include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
 #include <model/DislocationDynamics/IO/EVLio.h>
 #include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
+#include <model/DislocationDynamics/BVP/DisplacementPoint.h>
+
 
 
 
@@ -49,14 +51,14 @@ namespace model
         typedef typename DislocationNetworkType::MatrixDimD MatrixDimD;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
-        typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
-        typedef typename SpatialCellObserverType::CellMapType CellMapType;
+//        typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
+//        typedef typename SpatialCellObserverType::CellMapType CellMapType;
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef typename DislocationNetworkType::LoopType LoopType;
         typedef typename DislocationNetworkType::LinkType LinkType;
-        typedef typename DislocationNetworkType::StressField StressField;
+//        typedef typename DislocationNetworkType::StressField StressField;
         typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
         
         enum {NdofXnode=NodeType::NdofXnode};
@@ -69,7 +71,7 @@ namespace model
         DislocationNetworkIO(DislocationNetworkType& DN_in,
                              const std::string& suffix_in="") :
         /* init */ DN(DN_in),
-        suffix(suffix_in)
+        /* init */ suffix(suffix_in)
         {
             
         }
@@ -196,75 +198,76 @@ namespace model
 //                }
 //            }
             
-            // Restart
-            IDreader<'F',1,200,double> vReader;
-            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
-            
-            
-            if (vReader.isGood(0,true))
-            {
-                
-                vReader.read(0,true);
-                
-                if(runID<0)
-                {
-                    if(vReader.size())
-                    {
-                        runID=vReader.rbegin()->first;
-                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
-                    }
-                    else
-                    {
-                        runID=0;
-                    }
-                }
-                else
-                {
-                    const auto iter=vReader.find(runID);
-                    if(iter!=vReader.end())
-                    {// runID has been found
-                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
-                    }
-                    else
-                    {
-                        assert(0 && "runID NOT FOUND IN F/F_0.txt");
-                    }
-                }
-                
-                DN.dt=temp(1);
-                
-            }
-            else
-            {
-                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
-                runID=0;
-                DN.dt=10.0;
-            }
-            
-            model::cout<<"dt="<<DN.dt<<std::endl;
-            
-            size_t curCol=0;
-            DN.totalTime=temp(curCol);
-            curCol+=2;
-            
-            if (DN.outputPlasticDistortion)
-            {
-                std::cout<<"reading PD"<<std::endl;
-                
-                for(int r=0;r<3;++r)
-                {
-                    for(int c=0;c<3;++c)
-                    {
-                        DN._plasticDistortionFromVelocities(r,c)=temp(curCol);
-                        curCol+=1;
-                    }
-                }
-            }
-            
-
-            model::cout<<"starting at time step "<<runID<<std::endl;
-            model::cout<<"totalTime= "<<DN.totalTime<<std::endl;
-            model::cout<<"plasticDistortionFromVelocities=\n "<<DN._plasticDistortionFromVelocities<<std::endl;
+//            // Restart
+//            IDreader<'F',1,200,double> vReader;
+//            vReader.readLabelsFile("F/F_labels.txt");
+//            Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
+//            
+//            
+//            if (vReader.isGood(0,true))
+//            {
+//                
+//                vReader.read(0,true);
+//                
+//                if(runID<0)
+//                {
+//                    if(vReader.size())
+//                    {
+//                        runID=vReader.rbegin()->first;
+//                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(vReader.rbegin()->second.data());
+//                    }
+//                    else
+//                    {
+//                        runID=0;
+//                    }
+//                }
+//                else
+//                {
+//                    const auto iter=vReader.find(runID);
+//                    if(iter!=vReader.end())
+//                    {// runID has been found
+//                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
+//                    }
+//                    else
+//                    {
+//                        assert(0 && "runID NOT FOUND IN F/F_0.txt");
+//                    }
+//                }
+//                
+//                DN.dt=temp(1);
+//                
+//            }
+//            else
+//            {
+//                model::cout<<"could not read runID from F/F_0.txt"<<std::endl;
+//                runID=0;
+//                DN.dt=10.0;
+//            }
+//            
+//            model::cout<<"dt="<<DN.dt<<std::endl;
+//            
+//            size_t curCol=0;
+//            DN.totalTime=temp(curCol);
+//            curCol+=2;
+//            
+//            if (DN.outputPlasticDistortion)
+//            {
+//                std::cout<<"reading PD"<<std::endl;
+//                
+//                for(int r=0;r<3;++r)
+//                {
+//                    for(int c=0;c<3;++c)
+//                    {
+//                        DN._plasticDistortionFromVelocities(r,c)=temp(curCol);
+//                        curCol+=1;
+//                    }
+//                }
+//            }
+//            
+//
+//            model::cout<<"starting at time step "<<runID<<std::endl;
+//            model::cout<<"totalTime= "<<DN.totalTime<<std::endl;
+//            model::cout<<"plasticDistortionFromVelocities=\n "<<DN._plasticDistortionFromVelocities<<std::endl;
             
             // time-stepping
             
@@ -298,8 +301,8 @@ namespace model
 //            }
             
             // Mesh and BVP
-            if (DN.use_boundary)
-            {
+//            if (DN.use_boundary)
+//            {
 //                EDR.readScalarInFile(fullName.str(),"surfaceAttractionDistance",DN.surfaceAttractionDistance);
                 
 //                EDR.readScalarInFile(fullName.str(),"dislocationImages_x",DN.dislocationImages_x);
@@ -322,21 +325,21 @@ namespace model
 //                    EDR.readScalarInFile(fullName.str(),"virtualSegmentDistance",LinkType::virtualSegmentDistance);
 //                }
                 
-                if(DN.use_bvp)
-                {
-                    DN.bvpSolver.use_directSolver=TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true);
-                    DN.bvpSolver.tolerance=TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true);
-//                    
-//                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver.use_directSolver);
-//                    EDR.readScalarInFile(fullName.str(),"solverTolerance",DN.bvpSolver.tolerance);
-                    DN.bvpSolver.init(DN);
-                }
-            }
-            else{ // no boundary is used, DislocationNetwork is in inifinite medium
-                DN.use_bvp=0;	// never comupute boundary correction
-            }
+//                if(DN.use_bvp)
+//                {
+////                    DN.bvpSolver->use_directSolver=TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true);
+//                    DN.bvpSolver->tolerance=TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true);
+////                    
+////                    EDR.readScalarInFile(fullName.str(),"use_directSolver_FEM",DN.bvpSolver->use_directSolver);
+////                    EDR.readScalarInFile(fullName.str(),"solverTolerance",DN.bvpSolver->tolerance);
+//                    DN.bvpSolver->init(DN);
+//                }
+//            }
+//            else{ // no boundary is used, DislocationNetwork is in inifinite medium
+//                DN.use_bvp=0;	// never comupute boundary correction
+//            }
             
-            DN.extStressController.init(DN,runID);  // have to initialize it after mesh!
+//            DN.externalLoadController.init(DN,runID);  // have to initialize it after mesh!
 
 
             
@@ -349,21 +352,21 @@ namespace model
             double nodeRemoveAngleDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("nodeRemoveAngleDeg",true);
 
             //            EDR.readScalarInFile(fullName.str(),"Lmax",Lmax);
-            if(DN.use_boundary)
-            {
+//            if(DN.use_boundary)
+//            {
                 const double minMeshSize=std::min(DN.mesh.xMax(0)-DN.mesh.xMin(0),std::min(DN.mesh.xMax(1)-DN.mesh.xMin(1),DN.mesh.xMax(2)-DN.mesh.xMin(2)));
                 assert(Lmax<1.0 && "IF USING A BOUNDARY Lmax MUST BE RELATIVE TO BOX SIZE (Lmax<1)");
                 assert(Lmin<=Lmax);
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax*minMeshSize;
                 DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin*minMeshSize;
                 DislocationNetworkRemesh<DislocationNetworkType>::cosRemove=cos(nodeRemoveAngleDeg*M_PI/180.0);
-
-            }
-            else
-            {
-                DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax;
-                DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin;
-            }
+//
+//            }
+//            else
+//            {
+//                DislocationNetworkRemesh<DislocationNetworkType>::Lmax=Lmax;
+//                DislocationNetworkRemesh<DislocationNetworkType>::Lmin=Lmin;
+//            }
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmax>3.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=0.0);
             assert(DislocationNetworkRemesh<DislocationNetworkType>::Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
@@ -650,28 +653,28 @@ namespace model
             //            }
             
             
-            if(DN.outputSpatialCells)
-            {
-                //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
-                SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
-                SequentialOutputFile<'C',1>::set_increment(DN.outputFrequency); // Cell_file;
-                SequentialOutputFile<'C',1> Cell_file;
-                //              SpatialCellObserverType SPC;
-                int cID(0);
-                //for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
-                for (const auto& cell : SpatialCellObserverType::cells())
-                {
-                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()
-#ifndef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
-                    /*     */<<"\t"<<std::get<0>(*cell.second).row(0)
-                    /*     */<<"\t"<<std::get<0>(*cell.second).row(1)
-                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)
-#endif
-                    <<"\n";
-                    ++cID;
-                }
-                model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
-            }
+//            if(DN.outputSpatialCells)
+//            {
+//                //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
+//                SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
+//                SequentialOutputFile<'C',1>::set_increment(DN.outputFrequency); // Cell_file;
+//                SequentialOutputFile<'C',1> Cell_file;
+//                //              SpatialCellObserverType SPC;
+//                int cID(0);
+//                //for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
+//                for (const auto& cell : SpatialCellObserverType::cells())
+//                {
+//                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()
+//#ifndef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
+//                    /*     */<<"\t"<<std::get<0>(*cell.second).row(0)
+//                    /*     */<<"\t"<<std::get<0>(*cell.second).row(1)
+//                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)
+//#endif
+//                    <<"\n";
+//                    ++cID;
+//                }
+//                model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
+//            }
             
             if(DN.outputGlidePlanes)
             {
@@ -708,6 +711,16 @@ namespace model
             
             if(DN.outputElasticEnergy)
             {
+                //                this->template computeNeighborField<ElasticEnergy>();
+
+                assert(0 && "RE-IMPLEMENT THIS FOR STRAIGHT SEGMENTS");
+//
+//                
+//                if(outputElasticEnergy)
+//                {
+//                    //                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
+//                }
+                
                 assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
 //                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
 //                SequentialOutputFile<'W',1>::set_count(runID);
@@ -726,54 +739,83 @@ namespace model
 //                model::cout<<", W/W_"<<w_file.sID<<std::flush;
             }
             
-            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
-            typedef typename FieldPointType::DisplacementField DisplacementField;
+//            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
+//            typedef typename FieldPointType::DisplacementField DisplacementField;
             
             if(DN.outputMeshDisplacement)
             {
-                if(DN.use_bvp)
+
+                const auto t0=std::chrono::system_clock::now();
+                model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+                model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
+                model::SequentialOutputFile<'D',true> d_file;
+                model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
+                
+                std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>> fieldPoints; // the container of field points
+                fieldPoints.reserve(DN.mesh.template observer<0>().size());
+                for (const auto& sIter : DN.mesh.template observer<0>())
                 {
+                    if(sIter.second->isBoundarySimplex())
+                    {
+                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
+                    }
+                }
+                
+                DN.displacement(fieldPoints);
+
+                
+                if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+                {
+                    assert(0 && "FINISH HERE");
                     //                    if (!(runID%DN.use_bvp))
                     //                    {
-                    const auto t0=std::chrono::system_clock::now();
-                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                    model::SequentialOutputFile<'D',true> d_file;
-                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
-                    
-                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
-                    for (const auto& sIter : DN.mesh.template observer<0>())
-                    {
-                        if(sIter.second->isBoundarySimplex())
-                        {
-                            fieldPoints.emplace_back(*(sIter.second));
-                        }
-                    }
-                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-                    
-                    
-                    for(auto node : fieldPoints)
-                    {
-                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
-                        
-                        // Sum solid angle jump
-                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
-                        {
-                            for(const auto& segment : DN.links())
-                            {
-                                segment.second->addToSolidAngleJump(node.P,node.S,nodeDisp);
-                            }
-                        }
-                        
-                        // Sum FEM solution
-                        const size_t femID=DN.bvpSolver.finiteElement().mesh2femIDmap().at(node.gID)->gID;
-                        nodeDisp+=DN.bvpSolver.displacement().dofs(femID);
-                        
-                        // output
-                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
-                    }
-                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//                    const auto t0=std::chrono::system_clock::now();
+//                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+//                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
+//                    model::SequentialOutputFile<'D',true> d_file;
+//                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
+//                    
+//                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
+//                    for (const auto& sIter : DN.mesh.template observer<0>())
+//                    {
+//                        if(sIter.second->isBoundarySimplex())
+//                        {
+//                            fieldPoints.emplace_back(*(sIter.second));
+//                        }
+//                    }
+//                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+//                    
+//                    
+//                    for(auto node : fieldPoints)
+//                    {
+//                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+//                        
+//                        // Sum solid angle jump
+//                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
+//                        {
+//                            for(const auto& segment : DN.links())
+//                            {
+//                                segment.second->addToSolidAngleJump(node.P,node.S,nodeDisp);
+//                            }
+//                        }
+//                        
+//                        // Sum FEM solution
+//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.gID)->gID;
+//                        nodeDisp+=DN.bvpSolver->displacement().dofs(femID);
+//                        
+//                        // output
+//                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+//                    }
                 }
+                
+                for(const auto& node : fieldPoints)
+                {// output
+                    d_file<<node.pointID<<" "<<node.transpose()<<"\n";
+                }
+
+                
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
                 
             }
             
@@ -807,26 +849,26 @@ namespace model
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
-            
-            if (DN.use_bvp && DN.outputFEMsolution && !(runID%DN.use_bvp))
+            if (DN.bvpSolver && DN.outputFEMsolution )
             {
-                /**************************************************************************/
-                // Output displacement and stress on external mesh faces
-                const auto t0=std::chrono::system_clock::now();
-                model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'U',true> u_file;
-                model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
-                u_file<<DN.bvpSolver.displacement().onBoundary();
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-                
-                const auto t1=std::chrono::system_clock::now();
-                model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'S',true> s_file;
-                model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
-                s_file<<DN.bvpSolver.stress().onBoundary();
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+                if(!(runID%DN.bvpSolver->stepsBetweenBVPupdates))
+                {// Output displacement and stress on external mesh faces
+                    const auto t0=std::chrono::system_clock::now();
+                    model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+                    model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'U',true> u_file;
+                    model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
+                    u_file<<DN.bvpSolver->displacement().onBoundary();
+                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                    
+                    const auto t1=std::chrono::system_clock::now();
+                    model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+                    model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
+                    model::SequentialOutputFile<'S',true> s_file;
+                    model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
+                    s_file<<DN.bvpSolver->stress().onBoundary();
+                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+                }
             }
             
             if (DN.outputQuadraturePoints)
@@ -842,19 +884,18 @@ namespace model
                         {
                             binQuadratureFile.write(qPoint);
                         }
-//                        q_file<<particle<<"\n";
                     }
                 }
                 else
                 {
                     assert(false && "FINISH HERE");
-                    model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                    model::SequentialOutputFile<'Q',true> q_file;
-                    for (const auto& particle : DN.particles())
-                    {
-                        q_file<<particle<<"\n";
-                    }
+//                    model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
+//                    model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
+//                    model::SequentialOutputFile<'Q',true> q_file;
+//                    for (const auto& particle : DN.particles())
+//                    {
+//                        q_file<<particle<<"\n";
+//                    }
                 }
                 
                 
@@ -880,15 +921,15 @@ namespace model
             int labelCol=0;
             if(runID==0)
             {
-                F_labels<<labelCol+0<<"    step #\n";
+                F_labels<<labelCol+0<<"    runID\n";
                 F_labels<<labelCol+1<<"    time [b/cs]\n";
                 F_labels<<labelCol+2<<"    dt [b/cs]\n";
                 labelCol+=3;
             }
             
             
-            if(DN.outputPlasticDistortion)
-            {
+//            if(DN.outputPlasticDistortion)
+//            {
                 const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
                 f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
                 if(runID==0)
@@ -904,7 +945,7 @@ namespace model
                     F_labels<<labelCol+8<<"    betaP_33\n";
                     labelCol+=9;
                 }
-            }
+//            }
             
             if(DN.outputPlasticDistortionRate)
             {
@@ -939,14 +980,14 @@ namespace model
                 }
             }
             
-            if (DN.use_externalStress)
+            if (DN.externalLoadController)
             {
-                DN.extStressController.output(runID,f_file,F_labels,labelCol);
+                DN.externalLoadController->output(runID,f_file,F_labels,labelCol);
             }
             
-            if(DN.use_bvp)
+            if(DN.bvpSolver)
             {
-                f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver.loadController().output(DN);
+                f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver->loadController().output(DN);
                 if(runID==0)
                 {
                     assert(0 && "FINISH HERE, pass F_labels to loadController.output()");

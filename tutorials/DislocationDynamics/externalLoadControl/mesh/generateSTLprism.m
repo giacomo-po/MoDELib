@@ -15,7 +15,7 @@ addpath([MODEL_DIR '/matlab/']);
 %% Define output file name
 meshID=0;
 filename='cube'; % this creates file cube.stl
-nElements=1e2;
+nElements=1e4;
 
 %% Size and position of the cube
 L1=2828*sqrt(2); % the side length of the cube, in units of Burgers vector

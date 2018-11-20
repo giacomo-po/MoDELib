@@ -26,6 +26,7 @@
 #define EIGEN_DONT_PARALLELIZE // disable Eigen Internal openmp Parallelization
 #endif
 
+#include <vector>
 #include <chrono>
 #include <Eigen/Dense>
 #include <Eigen/StdVector>
@@ -48,9 +49,9 @@
 #include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
 #include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
 #include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
-#include <model/ParticleInteraction/ParticleSystem.h>
+//#include <model/ParticleInteraction/ParticleSystem.h>
 #include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/ParticleInteraction/SingleFieldPoint.h>
+//#include <model/ParticleInteraction/SingleFieldPoint.h>
 #include <model/DislocationDynamics/DDtimeIntegrator.h>
 #include <model/Threads/EqualIteratorRange.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
@@ -61,12 +62,12 @@
 #include <model/DislocationDynamics/DislocationNodeContraction.h>
 #include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
 #include <model/IO/TextFileParser.h>
+#include <model/DislocationDynamics/BVP/DisplacementPoint.h>
+#include <model/DislocationDynamics/DefectiveCrystalParameters.h>
+#include <model/DislocationDynamics/ExternalLoadControllers/ExternalLoadControllerBase.h>
 
 
-#ifndef ExternalLoadControllerFile
-#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/DummyExternalLoadController.h>
-#endif
-#include ExternalLoadControllerFile
+
 
 //#include <model/DislocationDynamics/ExternalLoadController.h>
 #include <model/DislocationDynamics/DislocationInjector.h>
@@ -74,39 +75,46 @@
 namespace model
 {
     
-    template <int dim>
-    struct DislocationNetworkBase : public GlidePlaneObserver<dim>
-    {// Class storing objects that need to be destroyed last
-        
-        SimplicialMesh<dim>& mesh;
-        Polycrystal<dim>& poly;
-        BVPsolver<dim,2>& bvpSolver;
-        
-//        DislocationNetworkBase() :
-//        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
-//        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
-//        /* init */ bvpSolver(mesh)
+//    template <int dim>
+//    struct DislocationNetworkBase : public GlidePlaneObserver<dim>
+//    {// Class storing objects that need to be destroyed last
+//        
+//        typedef Eigen::Matrix<double,dim,1>		VectorDim;
+//        
+//        SimplicialMesh<dim>& mesh;
+//        Polycrystal<dim>& poly;
+//        BVPsolver<dim,2>& bvpSolver;
+//        const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& periodicShifts;
+//
+//        
+////        DislocationNetworkBase() :
+////        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
+////        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
+////        /* init */ bvpSolver(mesh)
+////        {
+////                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
+////        }
+//
+//        DislocationNetworkBase(SimplicialMesh<dim>& _mesh,
+//                               Polycrystal<dim>& _poly,
+//                               BVPsolver<dim,2>& _bvpSolver,
+//                               const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& _periodicShifts) :
+//        /* init */ mesh(_mesh)
+//        /* init */,poly(_poly)
+//        /* init */,bvpSolver(_bvpSolver)
+//        /* init */,periodicShifts(_periodicShifts)
+//        
 //        {
-//                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
+////            assert(mesh.simplices().size() && "MESH IS EMPTY.");
 //        }
-
-        DislocationNetworkBase(SimplicialMesh<dim>& _mesh,
-                               Polycrystal<dim>& _poly,
-                               BVPsolver<dim,2>& _bvpSolver) :
-        /* init */ mesh(_mesh),
-        /* init */ poly(_poly),
-        /* init */ bvpSolver(_bvpSolver)
-        {
-//            assert(mesh.simplices().size() && "MESH IS EMPTY.");
-        }
-        
-    };
+//        
+//    };
     
     template <int _dim, short unsigned int _corder, typename InterpolationType>
-    class DislocationNetwork : public DislocationNetworkBase<_dim>, // must be first in inheritance tree
-    /* base                 */ public LoopNetwork<DislocationNetwork<_dim,_corder,InterpolationType> >,
-    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
-    /* base                 */ public std::map<size_t,EshelbyInclusion<_dim>>
+    class DislocationNetwork : public GlidePlaneObserver<_dim> //public DislocationNetworkBase<_dim>, // must be first in inheritance tree
+    /* base                 */,public LoopNetwork<DislocationNetwork<_dim,_corder,InterpolationType> >
+//    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
+    /* base                 */,public std::map<size_t,EshelbyInclusion<_dim>>
     {
         
         
@@ -114,7 +122,6 @@ namespace model
         
     public:
         
-        enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC=2};
         
         static constexpr int dim=_dim; // make dim available outside class
         static constexpr int corder=_corder; // make dim available outside class
@@ -128,19 +135,19 @@ namespace model
         typedef Eigen::Matrix<double,dim,1>		VectorDim;
         typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
         typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
-        typedef DislocationParticle<_dim> DislocationParticleType;
-        typedef typename DislocationParticleType::StressField StressField;
-        typedef typename DislocationParticleType::DisplacementField DisplacementField;
-        typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
-        typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
-        typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
+//        typedef DislocationParticle<_dim> DislocationParticleType;
+//        typedef typename DislocationParticleType::StressField StressField;
+//        typedef typename DislocationParticleType::DisplacementField DisplacementField;
+//        typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
+//        typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
+//        typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
         typedef BVPsolver<dim,2> BvpSolverType;
         typedef typename BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename LoopNetworkType::IsNodeType IsNodeType;
         typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
         typedef Polycrystal<dim> PolycrystalType;
-        typedef ExternalLoadController<dim> ExternalLoadControllerType;
+//        typedef ExternalLoadControllerBase<dim> ExternalLoadControllerType;
         typedef std::map<size_t,EshelbyInclusion<_dim>> EshelbyInclusionContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
@@ -151,66 +158,18 @@ namespace model
         
     private:
         
-        /**********************************************************************/
-        void updateLoadControllers(const long int& runID)
-        {/*! Updates bvpSolver using the stress and displacement fields of the
-          *  current DD configuration.
-          */
-            const int quadraturePerTriangle=37;
-            if(use_bvp)
-            {
-                if (!(runID%use_bvp))
-                {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
-                    model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    this->bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
-                }
-            }
-            if (use_externalStress)
-            {
-                extStressController.update(*this,runID);
-            }
-        }
+
         
-        /**********************************************************************/
-        void computeNodaVelocities(const long int& runID)
-        {
-            
-            switch (timeIntegrationMethod)
-            {
-                case 0:
-                    DDtimeIntegrator<0>::computeNodaVelocities(*this,runID);
-                    break;
-                    
-                    //                case 1:
-                    //                    dt=DDtimeIntegrator<1>::integrate(*this);
-                    //                    break;
-                    
-                default:
-                    assert(0 && "time integration method not implemented");
-                    break;
-            }
-            
-            //            if(NodeType::use_velocityFilter)
-            //            {
-            //                assert(0 && "velocityFilter not implemented yet.");
-            //                //            for(auto& node : this->nodes())
-            //                //            {
-            //                //                node.second->applyVelocityFilter(vMax);
-            //                //            }
-            //            }
-            
-            
-            model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
-        }
+
         
 
         /**********************************************************************/
         void updateVirtualBoundaryLoops()
         {
             
-            switch (simulationType)
+            switch (simulationParameters.simulationType)
             {
-                case FINITE_FEM:
+                case DefectiveCrystalParameters::FINITE_FEM:
                 {
                     if(useVirtualExternalLoops)
                     {
@@ -259,7 +218,7 @@ namespace model
                     break;
                 }
                     
-                case PERIODIC:
+                case DefectiveCrystalParameters::PERIODIC:
                 {
                     const auto t0= std::chrono::system_clock::now();
                     
@@ -406,33 +365,38 @@ namespace model
         
     public:
         
-        const int simulationType; // 0 finite sample, no FEM, // 1 finite sample FEM, // 2 periodic prism
+        const DefectiveCrystalParameters& simulationParameters;
+        const SimplicialMesh<dim>& mesh;
+        const Polycrystal<dim>& poly;
+        const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
+        const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
+        const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& periodicShifts;
+
         int timeIntegrationMethod;
         int maxJunctionIterations;
 //        long int runID;
-        double totalTime;
-        double dt;
-        double vMax;
+//        double totalTime;
+//        double dt;
+//        double vMax;
 //        size_t Nsteps;
-        MatrixDimD _plasticDistortionFromVelocities;
+//        MatrixDimD _plasticDistortionFromVelocities;
         MatrixDimD _plasticDistortionFromAreas;
         MatrixDimD _plasticDistortionRateFromVelocities;
         MatrixDimD _plasticDistortionRateFromAreas;
         int ddSolverType;
         bool computeDDinteractions;
         int crossSlipModel;
-        bool use_boundary;
-        unsigned int use_bvp;
+//        bool use_boundary;
+//        unsigned int use_bvp;
         bool useVirtualExternalLoops;
-        bool use_externalStress;
-        bool use_extraStraightSegments;
-        ExternalLoadControllerType extStressController;
-        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
-        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+//        bool use_externalStress;
+//        bool use_extraStraightSegments;
+//        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
+//        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
         int  outputFrequency;
         bool outputBinary;
         bool outputGlidePlanes;
-        bool outputSpatialCells;
+//        bool outputSpatialCells;
 //        bool outputPKforce;
         bool outputElasticEnergy;
         bool outputMeshDisplacement;
@@ -444,66 +408,67 @@ namespace model
         bool outputLinkingNumbers;
         bool outputLoopLength;
         bool outputSegmentPairDistances;
-        unsigned int _userOutputColumn;
+//        unsigned int _userOutputColumn;
         bool use_stochasticForce;
-        int dislocationImages_x;
-        int dislocationImages_y;
-        int dislocationImages_z;
         double surfaceAttractionDistance;
-        std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
         bool computePlasticDistortionIncrementally;
         std::string folderSuffix;
         
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[],
-                           SimplicialMesh<dim>& _mesh,
-                           Polycrystal<dim>& _poly,
-                           BVPsolver<dim,2>& _bvpSolver,
+                           const DefectiveCrystalParameters& _simulationParameters,
+                           const SimplicialMesh<dim>& _mesh,
+                           const Polycrystal<dim>& _poly,
+                           const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
+                           const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
+                           const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& _periodicShifts,
                            long int& runID) :
-        /* init */ DislocationNetworkBase<dim>(_mesh,_poly,_bvpSolver)
-        /* init */,simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
+//        /* init */ DislocationNetworkBase<dim>(_mesh,_poly,_bvpSolver,_periodicShifts)
+        /* init */ simulationParameters(_simulationParameters)
+        /* init */,mesh(_mesh)
+        /* init */,poly(_poly)
+        /* init */,bvpSolver(_bvpSolver)
+        /* init */,externalLoadController(_externalLoadController)
+        /* init */,periodicShifts(_periodicShifts)
         /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
 //        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
-        /* init */,totalTime(0.0),
-        /* init */ dt(0.0),
-        /* init */ vMax(0.0),
+//        /* init */,totalTime(0.0),
+//        /* init */ dt(0.0),
+//        /* init */ vMax(0.0),
 //        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
-        /* init */ _plasticDistortionFromVelocities(MatrixDimD::Zero()),
-        /* init */ _plasticDistortionFromAreas(MatrixDimD::Zero()),
-        /* init */ _plasticDistortionRateFromVelocities(MatrixDimD::Zero()),
-        /* init */ _plasticDistortionRateFromAreas(MatrixDimD::Zero()),
-        /* init */ ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true)),
-        /* init */ computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true)),
-        /* init */ crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true)),
-        /* init */ use_boundary(true),
-        /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
-        /* init */ useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true)),
-        /* init */ use_externalStress(false),
-        /* init */ use_extraStraightSegments(false),
-        /* init */ outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true)),
-        /* init */ outputBinary(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputBinary",true)),
-        /* init */ outputGlidePlanes(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true)),
-        /* init */ outputSpatialCells(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSpatialCells",true)),
-//        /* init */ outputPKforce(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPKforce",true)),
-        /* init */ outputElasticEnergy(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true)),
-        /* init */ outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true)),
-        /* init */ outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true)),
-        /* init */ outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true)),
-        /* init */ outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true)),
-        /* init */ outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true)),
-        /* init */ outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true)),
-        /* init */ outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true)),
-        /* init */ outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true)),
-        /* init */ outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true)),
-        /* init */ _userOutputColumn(3),
-        /* init */ use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true)),
-        /* init */ dislocationImages_x(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_x",true) : 0),
-        /* init */ dislocationImages_y(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_y",true) : 0),
-        /* init */ dislocationImages_z(use_boundary? TextFileParser("inputFiles/DD.txt").readScalar<int>("dislocationImages_z",true) : 0),
-        /* init */ surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true)),
-        /* init */ computePlasticDistortionIncrementally(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionIncrementally",true)),
-        /* init */ folderSuffix("")
+//        /* init */,_plasticDistortionFromVelocities(MatrixDimD::Zero())
+        /* init */,_plasticDistortionFromAreas(MatrixDimD::Zero())
+        /* init */,_plasticDistortionRateFromVelocities(MatrixDimD::Zero())
+        /* init */,_plasticDistortionRateFromAreas(MatrixDimD::Zero())
+        /* init */,ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true))
+        /* init */,computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true))
+        /* init */,crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
+//        /* init */ use_boundary(true),
+//        /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
+        /* init */,useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true))
+//        /* init */,use_externalStress(false)
+//        /* init */,use_extraStraightSegments(false)
+        /* init */,outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true))
+        /* init */,outputBinary(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputBinary",true))
+        /* init */,outputGlidePlanes(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true))
+//        /* init */ outputSpatialCells(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSpatialCells",true))
+//        /* init */ outputPKforce(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPKforce",true))
+        /* init */,outputElasticEnergy(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true))
+        /* init */,outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true))
+        /* init */,outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true))
+        /* init */,outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true))
+        /* init */,outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true))
+        /* init */,outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true))
+        /* init */,outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
+        /* init */,outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
+        /* init */,outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true))
+        /* init */,outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
+//        /* init */ _userOutputColumn(3)
+        /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
+        /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
+        /* init */,computePlasticDistortionIncrementally(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionIncrementally",true))
+        /* init */,folderSuffix("")
         {
             
             // Some sanity checks
@@ -517,10 +482,10 @@ namespace model
             DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
             DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
             DislocationCrossSlip<DislocationNetworkType>::initFromFile("inputFiles/DD.txt");
-            SpatialCellObserverType::setCellSize(TextFileParser("inputFiles/DD.txt").readScalar<double>("dislocationCellSize",true));
-            DislocationDisplacement<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_DisplacementMultipole",true);
-            DislocationStress<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_StressMultipole",true);
-            DislocationEnergy<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_EnergyMultipole",true);
+//            SpatialCellObserverType::setCellSize(TextFileParser("inputFiles/DD.txt").readScalar<double>("dislocationCellSize",true));
+//            DislocationDisplacement<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_DisplacementMultipole",true);
+//            DislocationStress<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_StressMultipole",true);
+//            DislocationEnergy<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_EnergyMultipole",true);
             
             
 //            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
@@ -552,71 +517,81 @@ namespace model
                 std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
             }
             
-            ParticleSystemType::initMPI(argc,argv);
+//            ParticleSystemType::initMPI(argc,argv);
             
 
             
             
             
-            if(outputPlasticDistortion)
-            {
-                _userOutputColumn+=9;
-            }
-            if(outputPlasticDistortionRate)
-            {
-                _userOutputColumn+=9;
-            }
-            
-            if(outputDislocationLength)
-            {
-                _userOutputColumn+=4;
-            }
+//            if(outputPlasticDistortion)
+//            {
+//                _userOutputColumn+=9;
+//            }
+//            if(outputPlasticDistortionRate)
+//            {
+//                _userOutputColumn+=9;
+//            }
+//            
+//            if(outputDislocationLength)
+//            {
+//                _userOutputColumn+=4;
+//            }
             
             // IO
             io().read("./","DDinput.txt",runID);
             
-            // Set up periodic shifts
-            const VectorDim meshDimensions(use_boundary? (this->mesh.xMax()-this->mesh.xMin()).eval() : VectorDim::Zero());
-            model::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
-            for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
-            {
-                for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
-                {
-                    for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
-                    {
-                        const Eigen::Array<int,dim,1> cellID((Eigen::Array<int,dim,1>()<<i,j,k).finished());
-                        periodicShifts.push_back((meshDimensions.array()*cellID.template cast<double>()).matrix());
-                        
-                    }
-                }
-            }
-            model::cout<<"periodic shift vectors:"<<std::endl;
-            for(const auto& shift : periodicShifts)
-            {
-                model::cout<<shift.transpose()<<std::endl;
-                
-            }
+
             
-            if(simulationType==PERIODIC)
-            {// in case of periodic simulation, mesh must be commensurate to lattice periodicity
-                assert(this->poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
-                model::cout<<"Checking that mesh and lattice are commensurate"<<std::endl;
-                const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
-                for(int d=0;d<dim;++d)
-                {
-                    VectorDim v(VectorDim::Zero());
-                    v(d)=1*meshSize(d);
-                    LatticeVector<dim> lv(v,this->poly.grains().begin()->second);
-                }
-            }
+
             
             // Initializing configuration
             move(0.0);	// initial configuration
         }
         
+        /**********************************************************************/
+        void updateGeometry(const double& dt)
+        {
+            for(auto& loop : this->loops())
+            {// copmute slipped areas and right-handed normal // TODO: PARALLELIZE THIS LOOP
+                loop.second->updateGeometry();
+            }
+            updatePlasticDistortionFromAreas(dt);
+        }
         
         /**********************************************************************/
-        void singleStep(const long int& runID)
+        double get_dt() const
+        {
+            
+            switch (timeIntegrationMethod)
+            {
+                case 0:
+                    return DDtimeIntegrator<0>::get_dt(*this);
+                    break;
+                    
+                    //                case 1:
+                    //                    dt=DDtimeIntegrator<1>::integrate(*this);
+                    //                    break;
+                    
+                default:
+                    assert(0 && "time integration method not implemented");
+                    break;
+            }
+            
+            //            if(NodeType::use_velocityFilter)
+            //            {
+            //                assert(0 && "velocityFilter not implemented yet.");
+            //                //            for(auto& node : this->nodes())
+            //                //            {
+            //                //                node.second->applyVelocityFilter(vMax);
+            //                //            }
+            //            }
+            
+            
+            //            model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
+        }
+        
+        /**********************************************************************/
+        void singleStepDiscreteEvents(const long int& runID)
         {
             //! A simulation step consists of the following:
             //            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
@@ -632,17 +607,17 @@ namespace model
             //            checkBalance();
             
             //! 2 - Update quadrature points
-            updateQuadraturePoints();
-            updateStressStraightSegments();
+//            updateQuadraturePoints();
+//            updateStressStraightSegments();
             
-            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
-            {// copmute slipped areas and right-handed normal
-                loop.second->update();
-            }
-            updatePlasticDistortionFromAreas();
+//            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
+//            {// copmute slipped areas and right-handed normal
+//                loop.second->updateGeometry();
+//            }
+//            updatePlasticDistortionFromAreas();
             
             //! 3- Calculate BVP correction
-            updateLoadControllers(runID);
+//            updateLoadControllers(runID);
             
             //#ifdef DislocationNucleationFile
             //            if(use_bvp && !(runID%use_bvp))
@@ -651,8 +626,8 @@ namespace model
             //                updateQuadraturePoints();
             //            }
             //#endif
-            
-            computeNodaVelocities(runID);
+//            assembleAndSolve(runID,straightSegmentsDeq);
+//            computeNodaVelocities(runID);
             
             
             //! 4- Solve the equation of motion
@@ -661,23 +636,19 @@ namespace model
             //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
             // make_dt();
             
-            if(outputElasticEnergy)
-            {
-                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
-                this->template computeNeighborField<ElasticEnergy>();
-            }
+
             
             //! 6- Output the current configuration before changing it
             //            output(runID);
-            io().output(runID);
+//            io().output(runID);
             
             
             //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-            move(dt);
+//            move(dt);
             
             //! 8- Update accumulated quantities (totalTime and plasticDistortion)
-            totalTime+=dt;
-            updatePlasticDistortionRateFromVelocities();
+//            totalTime+=dt;
+//            updatePlasticDistortionRateFromVelocities();
             
             
             //! 9- Contract segments of zero-length
@@ -754,82 +725,33 @@ namespace model
             return DislocationNodeContraction<DislocationNetworkType>(*this).contract(nA,nB);
         }
         
-        /**********************************************************************/
-        const double& get_dt() const
-        {/*!\returns the current time step increment dt
-          */
-            return dt;
-        }
+//        /**********************************************************************/
+//        const double& get_dt() const
+//        {/*!\returns the current time step increment dt
+//          */
+//            return dt;
+//        }
+//        
+//        /**********************************************************************/
+//        void set_dt(const double& dt_in,const double& vMax_in)
+//        {/*!\param[in] dt_in
+//          * Sets the time increment dt to dt_in
+//          */
+//            dt=dt_in;
+//            vMax=vMax_in;
+//        }
         
-        /**********************************************************************/
-        void set_dt(const double& dt_in,const double& vMax_in)
-        {/*!\param[in] dt_in
-          * Sets the time increment dt to dt_in
-          */
-            dt=dt_in;
-            vMax=vMax_in;
-        }
+//        /**********************************************************************/
+//        const double& get_totalTime() const
+//        {/*! The elapsed simulation time step in dimensionless units
+//          */
+//            return totalTime;
+//        }
         
-        /**********************************************************************/
-        const double& get_totalTime() const
-        {/*! The elapsed simulation time step in dimensionless units
-          */
-            return totalTime;
-        }
-        
-        /**********************************************************************/
-        void updateStressStraightSegments()
-        {
-        
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Collecting StressStraight objects: "<<std::flush;
 
-            straightSegmentsDeq.clear();
-            //                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-            size_t currentSize=0;
-//            if(computeDDinteractions)
-//            {
-                for(const auto& link : this->networkLinks())
-                {
-                    link.second->addToStressStraight(straightSegmentsDeq);
-                }
-                
-                currentSize=straightSegmentsDeq.size();
-                
-                const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
-                
-                for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
-                {
-                    for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
-                    {
-                        for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
-                        {
-                            
-                            const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-                            
-                            if( cellID.squaredNorm()!=0) //skip current cell
-                            {
-                                for (size_t c=0;c<currentSize;++c)
-                                {
-                                    const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                    const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                                    
-                                    straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                
-//            }
-            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-            
-        }
         
         /**********************************************************************/
-        void assembleAndSolve(const long int& runID)
+        void assembleAndSolve(const long int& runID,const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
         {/*! Performs the following operatons:
           */
 #ifdef _OPENMP
@@ -931,37 +853,40 @@ namespace model
             {// For curved segments use quandrature integration of stress field
 //                assert(0 && "RE-ENABLE THIS. New Material class is incompatible with old implmentation using static objects");
                 
-                const auto t0= std::chrono::system_clock::now();
-                
-                if(computeDDinteractions)
-                {
-                    
-                    if(dislocationImages_x!=0 || dislocationImages_y!=0 || dislocationImages_z!=0)
-                    {
-                        assert(0 && "FINISH HERE");
-                    }
-                    
-                    model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-                    if (use_extraStraightSegments)
-                    {
-                        this->template computeNeighborField<StressField>(ssdeq);
-                    }
-                    else
-                    {
-                        this->template computeNeighborField<StressField>();
-                    }
-                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-                }
-                
-                //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
-                const auto t1= std::chrono::system_clock::now();
-                model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
-                typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
-                assert(0 && "THIS CASE MUST BE REWORKED, since LinkType::assemble DOES NOT EXIST ANYMORE");
-                //LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
-                //this->parallelExecute(Lmfp);
-                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-                
+                assert(0 && "ALL THIS MUST BE RE-IMPLEMENTED FOR CURVED SEGMENTS");
+
+//                
+//                const auto t0= std::chrono::system_clock::now();
+//                
+//                if(computeDDinteractions)
+//                {
+//                    
+//                    if(dislocationImages_x!=0 || dislocationImages_y!=0 || dislocationImages_z!=0)
+//                    {
+//                        assert(0 && "FINISH HERE");
+//                    }
+//                    
+//                    model::cout<<"		Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
+//                    if (use_extraStraightSegments)
+//                    {
+//                        this->template computeNeighborField<StressField>(ssdeq);
+//                    }
+//                    else
+//                    {
+//                        this->template computeNeighborField<StressField>();
+//                    }
+//                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//                }
+//                
+//                //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
+//                const auto t1= std::chrono::system_clock::now();
+//                model::cout<<"		Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
+//                typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
+//                assert(0 && "THIS CASE MUST BE REWORKED, since LinkType::assemble DOES NOT EXIST ANYMORE");
+//                //LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
+//                //this->parallelExecute(Lmfp);
+//                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+//                
                 
             }
             
@@ -1055,25 +980,25 @@ namespace model
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-        /**********************************************************************/
-        void updateQuadraturePoints()
-        {
-            if(corder>0)
-            {// quadrature points only used for curved segments
-                model::cout<<"		Updating quadrature points... "<<std::flush;
-                const auto t0=std::chrono::system_clock::now();
-                
-                // Clear DislocationParticles
-                this->clearParticles(); // this also destroys all cells
-                
-                // Populate DislocationParticles
-                for(auto& linkIter : this->links())
-                {
-                    linkIter.second->updateQuadraturePoints(*this);
-                }
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
-        }
+//        /**********************************************************************/
+//        void updateQuadraturePoints()
+//        {
+//            if(corder>0)
+//            {// quadrature points only used for curved segments
+//                model::cout<<"		Updating quadrature points... "<<std::flush;
+//                const auto t0=std::chrono::system_clock::now();
+//                
+//                // Clear DislocationParticles
+//                this->clearParticles(); // this also destroys all cells
+//                
+//                // Populate DislocationParticles
+//                for(auto& linkIter : this->links())
+//                {
+//                    linkIter.second->updateQuadraturePoints(*this);
+//                }
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//        }
         
         
         /**********************************************************************/
@@ -1103,22 +1028,22 @@ namespace model
 //            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
 //        }
         
-        /**********************************************************************/
-        void updatePlasticDistortionRateFromVelocities()
-        {
-            if(computePlasticDistortionIncrementally)
-            {
-                _plasticDistortionRateFromVelocities.setZero();
-                for (const auto& linkIter : this->links())
-                {
-                    _plasticDistortionRateFromVelocities+= linkIter.second->plasticDistortionRate();
-                }
-                _plasticDistortionFromVelocities += _plasticDistortionRateFromVelocities*dt;
-            }
-        }
+//        /**********************************************************************/
+//        void updatePlasticDistortionRateFromVelocities()
+//        {
+//            if(computePlasticDistortionIncrementally)
+//            {
+//                _plasticDistortionRateFromVelocities.setZero();
+//                for (const auto& linkIter : this->links())
+//                {
+//                    _plasticDistortionRateFromVelocities+= linkIter.second->plasticDistortionRate();
+//                }
+//                _plasticDistortionFromVelocities += _plasticDistortionRateFromVelocities*dt;
+//            }
+//        }
         
         /**********************************************************************/
-        void updatePlasticDistortionFromAreas()
+        void updatePlasticDistortionFromAreas(const double& dt)
         {
             if(!computePlasticDistortionIncrementally)
             {
@@ -1137,17 +1062,22 @@ namespace model
         {
             return computePlasticDistortionIncrementally? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
         }
-        
+
         /**********************************************************************/
         const MatrixDimD& plasticDistortion() const
         {
-            return computePlasticDistortionIncrementally? _plasticDistortionFromVelocities : _plasticDistortionFromAreas;
+            return _plasticDistortionFromAreas;
         }
+        
+//        /**********************************************************************/
+//        const MatrixDimD& plasticDistortion() const
+//        {
+//            return computePlasticDistortionIncrementally? _plasticDistortionFromVelocities : _plasticDistortionFromAreas;
+//        }
         
         /**********************************************************************/
         MatrixDimD plasticStrainRate() const
-        {/*!\returns the plastic distortion rate tensor generated by this
-          * DislocaitonNetwork.
+        {/*!\returns the plastic strain rate tensor generated during the last time step.
           */
             //const MatrixDimD temp(plasticDistortionRate());
             return (plasticDistortionRate()+plasticDistortionRate().transpose())*0.5;
@@ -1194,46 +1124,10 @@ namespace model
                     }
                 }
             }
-            
-//
-//            
-//            for (const auto& linkIter : this->links())
-//            {
-//                const double temp(linkIter.second->arcLength());
-//                if(linkIter.second->isBoundarySegment())
-//                {
-//                    boundaryLength+=temp;
-//                }
-//                else
-//                {
-//                    if(linkIter.second->isSessile())
-//                    {
-//                        bulkSessileLength+=temp;
-//                    }
-//                    else
-//                    {
-//                        bulkGlissileLength+=temp;
-//                        
-//                    }
-//                }
-//                
-//            }
             return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
         }
         
-//        /**********************************************************************/
-//        const long int& runningID() const
-//        {/*! The current simulation step ID.
-//          */
-//            return runID;
-//        }
-        
-        
-        /**********************************************************************/
-        const unsigned int& userOutputColumn()  const
-        {
-            return _userOutputColumn;
-        }
+
         
         /**********************************************************************/
         MatrixDimD stress(const VectorDim& P) const
@@ -1243,37 +1137,50 @@ namespace model
           * Note:
           */
             
+            MatrixDimD temp;
+            
             assert(false && "REWORK THIS FOR STRAIGHT SEGMENTS");
             
-            SingleFieldPoint<StressField> fieldPoint(P,true);
-            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoint);
-            return fieldPoint.field();
-        }
-        
-        /**********************************************************************/
-        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDim& P0, const Simplex<dim,dim>* const guess) const
-        {/*!\param[in] P0 position vector
-          * \param[in] guess pointer of the Simplex where the search starts
-          * \returns true if P0 is inside the mesh
-          */
-            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
-            if (use_boundary)
-            {
-                temp=this->mesh.searchWithGuess(P0,guess);
-            }
+//            SingleFieldPoint<StressField> fieldPoint(P,true);
+//            this->template computeField<SingleFieldPoint<StressField>,StressField>(fieldPoint);
+//            return fieldPoint.field();
             return temp;
         }
         
         /**********************************************************************/
-        const ParticleSystemType& particleSystem() const
-        {
-            return *this;
+        VectorDim displacement(const VectorDim& x) const
+        {/*!\param[in] P position vector
+          * \returns The stress field generated by the DislocationNetwork at P
+          *
+          * Note:
+          */
+            
+            VectorDim temp(VectorDim::Zero());
+            
+            for(const auto& loop : this->loops())
+            {// sum solid angle of each loop
+                temp-=loop.second->solidAngle(x)/4.0/M_PI*loop.second->burgers();
+            }
+            
+            for(const auto& link : this->links())
+            {// sum line-integral part of displacement field per segment
+                if(!link.second->hasZeroBurgers())
+                {
+                    temp+=StressStraight<dim>(link.second->source->get_P(),link.second->sink->get_P(),link.second->burgers()).displacement(x);
+                }
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/
-        ParticleSystemType& particleSystem()
+        void displacement(std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>>& fieldPoints) const
         {
-            return *this;
+#pragma omp parallel for
+            for(size_t k=0;k<fieldPoints.size();++k)
+            {
+                fieldPoints[k]=displacement(fieldPoints[k].P);
+            }
         }
         
         /**********************************************************************/
@@ -1293,4 +1200,105 @@ namespace model
 }
 #endif
 
+//        /**********************************************************************/
+//        void updateLoadControllers(const long int& runID)
+//        {/*! Updates bvpSolver using the stress and displacement fields of the
+//          *  current DD configuration.
+//          */
+//            const int quadraturePerTriangle=37;
+//            if(use_bvp)
+//            {
+//                if (!(runID%use_bvp))
+//                {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
+//                    model::cout<<"		Updating elastic bvp... "<<std::endl;
+//                    this->bvpSolver.template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*this);
+//                }
+//            }
+//            if (use_externalStress)
+//            {
+//                externalLoadController.update(*this,runID);
+//            }
+//        }
 
+//        /**********************************************************************/
+//        const unsigned int& userOutputColumn()  const
+//        {
+//            return _userOutputColumn;
+//        }
+
+//        /**********************************************************************/
+//        std::pair<bool,const Simplex<dim,dim>*> pointIsInsideMesh(const VectorDim& P0, const Simplex<dim,dim>* const guess) const
+//        {/*!\param[in] P0 position vector
+//          * \param[in] guess pointer of the Simplex where the search starts
+//          * \returns true if P0 is inside the mesh
+//          */
+////            std::pair<bool,const Simplex<dim,dim>*> temp(true,NULL);
+////            if (use_boundary)
+////            {
+////                temp=this->mesh.searchWithGuess(P0,guess);
+////            }
+//            return this->mesh.searchWithGuess(P0,guess);
+//        }
+
+//        /**********************************************************************/
+//        const ParticleSystemType& particleSystem() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        ParticleSystemType& particleSystem()
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        void updateStressStraightSegments()
+//        {
+//
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		Collecting StressStraight objects: "<<std::flush;
+//
+//            straightSegmentsDeq.clear();
+//            //                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+//            size_t currentSize=0;
+////            if(computeDDinteractions)
+////            {
+//                for(const auto& link : this->networkLinks())
+//                {
+//                    link.second->addToStressStraight(straightSegmentsDeq);
+//                }
+//
+//                currentSize=straightSegmentsDeq.size();
+//
+//                const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
+//
+//                for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
+//                {
+//                    for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
+//                    {
+//                        for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
+//                        {
+//
+//                            const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
+//
+//                            if( cellID.squaredNorm()!=0) //skip current cell
+//                            {
+//                                for (size_t c=0;c<currentSize;++c)
+//                                {
+//                                    const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
+//                                    const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
+//
+//                                    straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//
+////            }
+//            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//
+//        }

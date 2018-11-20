@@ -164,6 +164,8 @@ namespace model
 //            return this->flow().cartesian();
 //        }
         
+
+        
         /**********************************************************************/
         std::tuple<double,double,double> loopLength() const
         {

@@ -88,7 +88,7 @@ namespace model
                 const Eigen::Matrix<double,dim+1,1>& bary(list[k].domainBary);
 
                 const ElementVectorType ve(testExp().sfm(ele,bary).transpose()
-                                           *list[k]()
+                                           *list[k]
                                            *JGNselector<3>::jGN(ele.jGN(bary,f))
                                            *list[k].weight
                                            );

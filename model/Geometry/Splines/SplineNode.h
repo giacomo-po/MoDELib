@@ -71,6 +71,11 @@ namespace model
             {
                 std::get<1>(neighboor.second)->updateGeometry();
             }
+            
+//            for(const auto& loop : this->loops())
+//            {
+//                loop->updateGeometry();
+//            }
         }
         
         /*************************************************/

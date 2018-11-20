@@ -46,9 +46,12 @@ namespace model
         typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType>	LinkType;
-        typedef DislocationLoop      <dim,corder,InterpolationType>  LoopType;
+        typedef DislocationLoop      <dim,corder,InterpolationType> LoopType;
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
         typedef LatticeVector<3>                                                            FlowType;
+        typedef Eigen::Matrix<double,dim,1>                         VectorDim;
+        typedef Eigen::Matrix<double,dim,dim>                       MatrixDim;
+
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
 //        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
 //        typedef QuadPowDynamic<SplineBase<dim,corder>::pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;

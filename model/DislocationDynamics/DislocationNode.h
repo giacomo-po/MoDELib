@@ -33,6 +33,8 @@
 #include <model/Geometry/LineSegment.h>
 #include <model/DislocationDynamics/IO/DislocationNodeIO.h>
 #include <model/DislocationDynamics/BoundingLineSegments.h>
+#include <model/DislocationDynamics/DefectiveCrystalParameters.h>
+
 
 #ifndef NDEBUG
 #define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){model::cout<<x;}
@@ -516,8 +518,8 @@ namespace model
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-            if (this->network().use_boundary)
-            {
+//            if (this->network().use_boundary)
+//            {
                 if (guess==NULL)
                 {
                     temp=this->network().mesh.search(this->get_P());
@@ -558,7 +560,7 @@ namespace model
                         assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
                     }
                 }
-            }
+//            }
             
             return temp.second;
         }
@@ -647,7 +649,7 @@ namespace model
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(vrc),
         /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
+        /* init list        */ boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol))
         /* init list        */,isVirtualBoundaryNode(false)
         {/*! Constructor from DOF
           */
@@ -665,7 +667,7 @@ namespace model
         //        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
         /* init list        */ velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction())),
         /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
-        /* init list        */ boundaryNormal(this->network().use_boundary? SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) : VectorDim::Zero())
+        /* init list        */ boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) )
         /* init list        */,isVirtualBoundaryNode(false)
         {/*! Constructor from ExpandingEdge and DOF
           */
@@ -677,7 +679,7 @@ namespace model
                         const VectorDim& Pin) :
         /* base constructor */ NodeBaseType(ln,Pin),
         /* init list        */ _isGlissile(false),
-        /* init list        */ p_Simplex(this->network().simulationType==LoopNetworkType::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL),
+        /* init list        */ p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL),
         /* init list        */ velocity(VectorDim::Zero()),
         /* init list        */ vOld(velocity),
         /* init list        */ velocityReductionCoeff(1.0),
@@ -1388,9 +1390,9 @@ namespace model
             if(isBoundaryNode() && !isVirtualBoundaryNode) //ENABLE THIS USE_BVP
             {
                 
-                switch (this->network().simulationType)
+                switch (this->network().simulationParameters.simulationType)
                 {
-                    case LoopNetworkType::FINITE_FEM:
+                    case DefectiveCrystalParameters::FINITE_FEM:
                     {
                         if(this->network().useVirtualExternalLoops)
                         {
@@ -1407,7 +1409,7 @@ namespace model
                         break;
                     }
                         
-                    case LoopNetworkType::PERIODIC:
+                    case DefectiveCrystalParameters::PERIODIC:
                     {
                             if(virtualNode)
                             {
@@ -1446,9 +1448,9 @@ namespace model
             if(glidePlanesContained)
             {
                 //                NodeBaseType::set_P(newP);
-                if(this->network().use_boundary) // using confining mesh
-                {
-                    
+//                if(this->network().use_boundary) // using confining mesh
+//                {
+                
                     if(_isOnBoundingBox)
                     {// node was on bounding box, it must remain on bounding box
                         const VectorDim X(snapToBoundingBox(newP));
@@ -1665,12 +1667,12 @@ namespace model
                         boundaryNormal.setZero();
                     }
                     
-                }
-                else
-                {
-                    VerboseDislocationNode(3,"case 7"<<std::endl;);
-                    NodeBaseType::set_P(newP);
-                }
+//                }
+//                else
+//                {
+//                    VerboseDislocationNode(3,"case 7"<<std::endl;);
+//                    NodeBaseType::set_P(newP);
+//                }
                 
                 
                 //                make_projectionMatrix();
