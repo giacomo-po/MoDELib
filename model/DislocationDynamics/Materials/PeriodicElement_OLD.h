@@ -12,11 +12,11 @@
 //#include <list>
 #include <deque>
 #include <Eigen/Dense>
-#include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
+#include <MaterialSymmetry.h>
+#include <FCClattice.h>
+#include <BCClattice.h>
+#include <DislocationMobility.h>
+#include <GrainBoundaryType.h>
 
 namespace model
 {
@@ -31,9 +31,9 @@ namespace model
     
 }
 
-#include <model/DislocationDynamics/Materials/Elements/Al.h>
-#include <model/DislocationDynamics/Materials/Elements/Ni.h>
-#include <model/DislocationDynamics/Materials/Elements/Cu.h>
-#include <model/DislocationDynamics/Materials/Elements/W.h>
+#include <Al.h>
+#include <Ni.h>
+#include <Cu.h>
+#include <W.h>
 
 #endif

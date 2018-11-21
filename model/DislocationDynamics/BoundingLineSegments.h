@@ -16,14 +16,14 @@
 #include <deque>
 #include <map>
 #include <utility>
-//#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-//#include <model/Geometry/Plane.h>
-#include <model/Geometry/SegmentSegmentDistance.h>
-#include <model/Geometry/PlaneSegmentIntersection.h>
-#include <model/Geometry/LineSegment.h>
-#include <model/Mesh/MeshPlane.h>
+//#include <GlidePlane.h>
+//#include <Plane.h>
+#include <SegmentSegmentDistance.h>
+#include <PlaneSegmentIntersection.h>
+#include <LineSegment.h>
+#include <MeshPlane.h>
 
-//#include <model/Geometry/SegmentSegmentIntersection.h>
+//#include <SegmentSegmentIntersection.h>
 
 namespace model
 {

@@ -12,8 +12,8 @@
 #include <iostream>
 #include <map>
 #include <iterator>		// for std::distance
-#include <model/Utilities/CRTP.h>
-#include <model/Utilities/StaticID.h>
+#include <CRTP.h>
+#include <StaticID.h>
 
 namespace model
 {

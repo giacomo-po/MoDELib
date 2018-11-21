@@ -12,9 +12,9 @@
 #include <memory> // shared_ptr
 #include <map>
 #include <array>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/MPI/MPIcout.h>
+#include <SimplexTraits.h>
+#include <CompareVectorsByComponent.h>
+#include <MPIcout.h>
 
 namespace model
 {

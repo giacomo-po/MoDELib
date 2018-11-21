@@ -10,7 +10,7 @@
 #define model_CombinationWithRepetition_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/CTM.h>
+#include <CTM.h>
 
 namespace model
 {

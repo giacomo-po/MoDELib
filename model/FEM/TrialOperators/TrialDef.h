@@ -11,11 +11,11 @@
 
 #include <utility> // for std::move
 #include <type_traits> //static_assert
-#include <model/Utilities/TypeTraits.h>
-#include <model/Mesh/Simplex.h>
-#include <model/FEM/TrialOperators/TrialBase.h>
-#include <model/FEM/TrialOperators/TrialExpressionBase.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <TypeTraits.h>
+#include <Simplex.h>
+#include <TrialBase.h>
+#include <TrialExpressionBase.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

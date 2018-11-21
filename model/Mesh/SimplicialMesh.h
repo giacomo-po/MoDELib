@@ -17,18 +17,18 @@
 #include <set>
 
 #include <map>
-//#include <model/IO/VertexReader.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/IO/SequentialBinFile.h>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Mesh/Simplex.h>
-#include <model/Mesh/SimplexReader.h>
-//#include <model/Mesh/MeshStats.h>
-#include <model/Mesh/MeshRegionObserver.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/Mesh/MeshRegionBoundary.h>
-#include <model/Mesh/SimplexObserver.h>
-#include <model/Mesh/GmshReader.h>
+//#include <VertexReader.h>
+#include <TerminalColors.h>
+#include <SequentialBinFile.h>
+#include <SimplexTraits.h>
+#include <Simplex.h>
+#include <SimplexReader.h>
+//#include <MeshStats.h>
+#include <MeshRegionObserver.h>
+#include <MPIcout.h> // defines mode::cout
+#include <MeshRegionBoundary.h>
+#include <SimplexObserver.h>
+#include <GmshReader.h>
 
 
 namespace model

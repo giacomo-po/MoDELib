@@ -14,15 +14,15 @@
 #include <deque>
 #include <float.h>
 #include <Eigen/Dense>
-#include <model/LoopNetwork/NetworkComponent.h>
-#include <model/IO/TextFileParser.h>
+#include <NetworkComponent.h>
+#include <TextFileParser.h>
 
-//#include <model/Math/SchurComplementSolver.h>
+//#include <SchurComplementSolver.h>
 #include <Eigen/Sparse>
 #include <unsupported/Eigen/IterativeSolvers>
 #include <Eigen/SparseCholesky> // simplicial DLDT
 
-//#include <model/Math/SparseNullSpace.h>
+//#include <SparseNullSpace.h>
 
 #ifdef _MODEL_PARDISO_SOLVER_
 #include <Eigen/PardisoSupport>

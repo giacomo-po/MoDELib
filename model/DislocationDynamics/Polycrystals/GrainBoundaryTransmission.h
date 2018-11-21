@@ -13,9 +13,9 @@
 #include <deque>
 #include <utility>
 #include <math.h>
-#include <model/Utilities/TerminalColors.h>
-//#include <model/DislocationDynamics/Polycrystals/TransmitSegment.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
+#include <TerminalColors.h>
+//#include <TransmitSegment.h>
+#include <MPIcout.h> // defines mode::cout
 
 
 namespace model

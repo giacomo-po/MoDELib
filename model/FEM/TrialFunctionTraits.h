@@ -10,7 +10,7 @@
 #define model_TrialFunctionTraits_H_
 
 #include <Eigen/Dense>
-#include <model/Utilities/TypeTraits.h>
+#include <TypeTraits.h>
 
 
 namespace model

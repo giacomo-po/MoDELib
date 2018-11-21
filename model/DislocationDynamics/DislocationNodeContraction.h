@@ -13,11 +13,11 @@
 #include <memory>
 #include <tuple>
 #include <Eigen/Dense>
-#include <model/Utilities/TypeTraits.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/DislocationDynamics/BoundingLineSegments.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/Geometry/LineSegment.h>
+#include <TypeTraits.h>
+#include <GlidePlane.h>
+#include <BoundingLineSegments.h>
+#include <Grain.h>
+#include <LineSegment.h>
 
 #ifndef NDEBUG
 #define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}

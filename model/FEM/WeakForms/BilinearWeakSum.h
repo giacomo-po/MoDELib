@@ -12,9 +12,9 @@
 #include <iterator>
 #include <type_traits> // std::is_same
 
-//#include <model/Utilities/AreSameType.h>
-#include <model/FEM/WeakForms/BilinearWeakExpression.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+//#include <AreSameType.h>
+#include <BilinearWeakExpression.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

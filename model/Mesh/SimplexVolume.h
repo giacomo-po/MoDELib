@@ -9,8 +9,8 @@
 #ifndef model_SimplexVolume_H_
 #define model_SimplexVolume_H_
 
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Math/CompileTimeMath/CTM.h>
+#include <SimplexTraits.h>
+#include <CTM.h>
 
 namespace model
 {

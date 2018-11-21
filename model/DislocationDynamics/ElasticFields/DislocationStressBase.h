@@ -12,12 +12,12 @@
 #include <Eigen/StdVector>
 #include <Eigen/StdDeque>
 #include <tuple>
-#include <model/ParticleInteraction/FieldBase.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-//#include <model/DislocationDynamics/StressStraight.h>
-#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
+#include <FieldBase.h>
+#include <FieldPoint.h>
+//#include <StressStraight.h>
+#include <StressStraight.h>
 
-//#include <model/DislocationDynamics/BVP/BoundaryDislocationNetwork.h>
+//#include <BoundaryDislocationNetwork.h>
 
 
 namespace model

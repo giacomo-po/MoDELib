@@ -24,7 +24,7 @@
 #include <vtkTriangle.h>
 
 
-#include <model/IO/IDreader.h>
+#include <IDreader.h>
 
 
 // VTK documentation

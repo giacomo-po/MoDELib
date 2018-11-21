@@ -12,10 +12,10 @@
 #include <iostream>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <model/Math/RoundEigen.h>
-#include <model/LatticeMath/Lattice.h>
+#include <RoundEigen.h>
+#include <Lattice.h>
 
-//#include <model/LatticeMath/LatticeBase.h>
+//#include <LatticeBase.h>
 
 
 

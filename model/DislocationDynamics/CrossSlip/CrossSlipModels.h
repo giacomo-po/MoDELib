@@ -14,10 +14,10 @@
 #include <map>
 #include <tuple>
 #include <Eigen/Dense>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
+#include <LatticeMath.h>
+#include <BCClattice.h>
+#include <FCClattice.h>
+#include <Grain.h>
 
 namespace model
 {

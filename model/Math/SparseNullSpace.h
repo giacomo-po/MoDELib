@@ -16,7 +16,7 @@
 #include <Eigen/SparseQR>
 //#include <Eigen/SparseLU> // only for square matrics
 #include <Eigen/OrderingMethods>
-//#include <model/MPI/MPIcout.h>
+//#include <MPIcout.h>
 
 // http://stackoverflow.com/questions/2181418/computing-the-null-space-of-a-matrix-as-fast-as-possible
 

@@ -13,9 +13,9 @@
 #include <memory>
 #include <string>
 #include <iterator>
-#include <model/Utilities/TypeTraits.h>
-#include <model/MPI/MPIcout.h>
-#include <model/LoopNetwork/NodeObserver.h>
+#include <TypeTraits.h>
+#include <MPIcout.h>
+#include <NodeObserver.h>
 
 
 #define VerboseLoopLink(N,x) if(verboseLevel>=N){model::cout<<x;}

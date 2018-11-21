@@ -9,9 +9,9 @@
 #ifndef model_PERMUTATIONWITHOUTREPETITION_H_
 #define model_PERMUTATIONWITHOUTREPETITION_H_
 
-//#include <model/Math/CompileTimeMath/Factorial.h>
-//#include <model/Math/CompileTimeMath/Pow.h>
-#include <model/Math/CompileTimeMath/CTM.h>
+//#include <Factorial.h>
+//#include <Pow.h>
+#include <CTM.h>
 
 namespace model
 {

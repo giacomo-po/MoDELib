@@ -9,7 +9,7 @@
 #ifndef _model_SingleFieldPoint_h
 #define _model_SingleFieldPoint_h
 
-#include <model/ParticleInteraction/FieldPoint.h>
+#include <FieldPoint.h>
 
 
 namespace model

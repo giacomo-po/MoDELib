@@ -10,7 +10,7 @@
 #define model_SimplexBndNormal_H_
 
 #include <Eigen/Dense>
-#include <model/Mesh/Simplex.h>
+#include <Simplex.h>
 
 namespace model
 {

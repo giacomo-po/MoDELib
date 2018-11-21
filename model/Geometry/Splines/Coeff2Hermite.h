@@ -12,8 +12,8 @@
 #define model_COEFF2HERMITE_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/CTM.h>
-#include <model/Math/CompileTimeMath/PermutationWithoutRepetition.h>
+#include <CTM.h>
+#include <PermutationWithoutRepetition.h>
 
 namespace model {
 	

@@ -10,10 +10,10 @@
 #define model_LinearForm_H_
 
 #include <Eigen/Dense>
-#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/EvalFunction.h>
-#include <model/FEM/TrialOperators/TestExpression.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <EvalExpression.h>
+#include <EvalFunction.h>
+#include <TestExpression.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

@@ -14,9 +14,9 @@
 #include <fstream>      // std::stringstream
 //#include <cmath>
 //#include <cfloat>
-//#include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/IO/EigenDataReader.h>
-//#include <model/IO/IDreader.h>
+//#include <Material.h>
+//#include <EigenDataReader.h>
+//#include <IDreader.h>
 
 
 namespace model

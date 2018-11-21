@@ -23,24 +23,24 @@
 #include <Eigen/Geometry>
 #include <Eigen/Sparse>
 
-#include <model/Quadrature/Quadrature.h>
-#include <model/Quadrature/QuadPow.h>
-#include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/Geometry/Splines/SplineSegment.h>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/Geometry/Splines/Coeff2Hermite.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
-#include <model/ParticleInteraction/ParticleSystem.h>
-#include <model/DislocationDynamics/DislocationLocalReference.h>
-#include <model/IO/UniqueOutputFile.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
-#include <model/Geometry/LineSimplexIntersection.h>
-#include <model/DislocationDynamics/BoundingLineSegments.h>
-#include <model/DislocationDynamics/BoundingLineSegments.h>
-#include <model/Mesh/MeshPlane.h>
-#include <model/DislocationDynamics/DislocationQuadraturePoint.h>
+#include <Quadrature.h>
+#include <QuadPow.h>
+#include <DislocationNetworkTraits.h>
+#include <SplineSegment.h>
+#include <Material.h>
+#include <GlidePlaneObserver.h>
+#include <GlidePlane.h>
+#include <Coeff2Hermite.h>
+#include <DislocationParticle.h>
+#include <ParticleSystem.h>
+#include <DislocationLocalReference.h>
+#include <UniqueOutputFile.h>
+#include <GrainBoundary.h>
+#include <LineSimplexIntersection.h>
+#include <BoundingLineSegments.h>
+#include <BoundingLineSegments.h>
+#include <MeshPlane.h>
+#include <DislocationQuadraturePoint.h>
 
 
 #ifndef NDEBUG

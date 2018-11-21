@@ -15,10 +15,10 @@
 #endif
 
 #include <Eigen/Dense>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/Utilities/StaticID.h>
+#include <Material.h>
+#include <StaticID.h>
 
-//#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+//#include <DislocationStress.h>
 
 namespace model
 {

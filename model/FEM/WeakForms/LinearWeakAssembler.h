@@ -14,17 +14,17 @@
 //#include <Eigen/SparseCore>
 #include <Eigen/Dense>
 
-#include <model/Quadrature/Quadrature.h>
-//#include <model/Utilities/AreSameType.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/FEM/TrialOperators/TrialBase.h>
-//#include <model/FEM/Domains/IntegrationDomain.h>
-//#include <model/FEM/WeakForms/LinearWeakExpression.h>
-//#include <model/FEM/WeakForms/LinearForm.h>
-//#include <model/FEM/WeakForms/LinearWeakSum.h>
-//#include <model/FEM/WeakForms/LinearWeakDiff.h>
-#include <model/FEM/WeakForms/JGNselector.h>
-#include <model/MPI/MPIcout.h>
+#include <Quadrature.h>
+//#include <AreSameType.h>
+#include <TerminalColors.h>
+#include <TrialBase.h>
+//#include <IntegrationDomain.h>
+//#include <LinearWeakExpression.h>
+//#include <LinearForm.h>
+//#include <LinearWeakSum.h>
+//#include <LinearWeakDiff.h>
+#include <JGNselector.h>
+#include <MPIcout.h>
 
 
 namespace model

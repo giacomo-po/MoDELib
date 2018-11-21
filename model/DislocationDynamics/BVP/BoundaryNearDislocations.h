@@ -12,8 +12,8 @@
 #include <deque>
 #include <utility>      // std::pair, std::make_pair
 #include <Eigen/Dense>
-#include <model/Mesh/Simplex.h>
-#include <model/FEM/Domains/IntegrationDomain.h>
+#include <Simplex.h>
+#include <IntegrationDomain.h>
 
 namespace model
 {

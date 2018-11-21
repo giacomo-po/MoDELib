@@ -15,11 +15,11 @@
 #include <iostream>     // std::cout
 #include <fstream>      // std::ifstream
 #include <cfloat>      // std::ifstream
-#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
-#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
-#include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
-#include <model/DislocationDynamics/IO/DislocationSegmentIO.h>
-#include <model/MPI/MPIcout.h>
+#include <DislocationNodeIO.h>
+#include <DislocationLoopIO.h>
+#include <DislocationEdgeIO.h>
+#include <DislocationSegmentIO.h>
+#include <MPIcout.h>
 
 
 namespace model

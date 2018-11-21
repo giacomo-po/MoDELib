@@ -9,12 +9,12 @@
 #ifndef model_TrialBase_H_
 #define model_TrialBase_H_
 
-//#include <model/FEM/TrialOperators/TestExpression.h>
+//#include <TestExpression.h>
 
 #include <type_traits> // std::is_same
 #include <map>
 #include <Eigen/Dense>
-#include <model/Utilities/TypeTraits.h>
+#include <TypeTraits.h>
 
 namespace model
 {

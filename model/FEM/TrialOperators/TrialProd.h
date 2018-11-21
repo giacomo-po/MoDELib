@@ -10,14 +10,14 @@
 #define model_TrialProd_H_
 
 #include <utility> // for std::move
-#include <model/Utilities/TypeTraits.h>
-#include <model/Mesh/Simplex.h>
-#include <model/FEM/TrialOperators/TrialBase.h>
-#include <model/FEM/TrialOperators/TrialExpressionBase.h>
-#include <model/FEM/Constant.h>
-//#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/EvalFunction.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <TypeTraits.h>
+#include <Simplex.h>
+#include <TrialBase.h>
+#include <TrialExpressionBase.h>
+#include <Constant.h>
+//#include <EvalExpression.h>
+#include <EvalFunction.h>
+#include <ExpressionRef.h>
 
 
 namespace model

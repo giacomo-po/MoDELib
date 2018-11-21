@@ -19,9 +19,9 @@
 //#endif
 //#include ExternalLoadControllerFile
 
-#include <model/DislocationDynamics/DefectiveCrystalParameters.h>
-#include <model/DislocationDynamics/DislocationNetwork.h>
-#include <model/DislocationDynamics/ExternalLoadControllers/UniformExternalLoadController.h>
+#include <DefectiveCrystalParameters.h>
+#include <DislocationNetwork.h>
+#include <UniformExternalLoadController.h>
 
 
 namespace model

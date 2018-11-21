@@ -10,7 +10,7 @@
 #define model_StarsAndBars_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/CombinationWithRepetition.h>
+#include <CombinationWithRepetition.h>
 
 namespace model
 {

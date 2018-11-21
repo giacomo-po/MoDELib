@@ -22,9 +22,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
 
-#include <model/IO/IDreader.h>
-#include <model/IO/BinaryFileReader.h>
-#include <model/DislocationDynamics/DislocationQuadraturePoint.h>
+#include <IDreader.h>
+#include <BinaryFileReader.h>
+#include <DislocationQuadraturePoint.h>
 
 // VTK documentation
 // http://vtk.1045678.n5.nabble.com/VTK-slow-to-display-300-vtkArrowSource-in-real-time-td5740730.html

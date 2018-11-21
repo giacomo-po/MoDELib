@@ -10,9 +10,9 @@
 #define model_SplineNode_H_
 
 #include <Eigen/Dense>
-#include <model/LoopNetwork/LoopNode.h>
-#include <model/Geometry/Splines/CatmullRom.h>
-#include <model/Geometry/Splines/Hermite.h>
+#include <LoopNode.h>
+#include <CatmullRom.h>
+#include <Hermite.h>
 
 namespace model
 {

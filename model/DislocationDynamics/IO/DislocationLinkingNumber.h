@@ -15,7 +15,7 @@
 #include <cfloat>
 #include <math.h>       /* asin */
 
-#include <model/Geometry/SegmentSegmentDistance.h>
+#include <SegmentSegmentDistance.h>
 
 namespace model
 {

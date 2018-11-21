@@ -11,15 +11,15 @@
 
 #include <memory>
 
-#include <model/LoopNetwork/Loop.h>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticePlaneBase.h>
-#include <model/LatticeMath/LatticePlane.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-//#include <model/DislocationDynamics/IO/PlanarDislocationLoopIO.h>
-//#include <model/Geometry/PlanarPolygon.h>
+#include <Loop.h>
+#include <LatticeVector.h>
+#include <LatticePlaneBase.h>
+#include <LatticePlane.h>
+#include <Grain.h>
+#include <GlidePlane.h>
+#include <GlidePlaneObserver.h>
+//#include <PlanarDislocationLoopIO.h>
+//#include <PlanarPolygon.h>
 
 #ifndef NDEBUG
 #define VerbosePlanarDislocationLoop(N,x) if(verbosePlanarDislocationLoop>=N){model::cout<<x;}

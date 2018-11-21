@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <string>
 #include <mpi.h>
-#include <model/Utilities/TerminalColors.h>
+#include <TerminalColors.h>
 
 namespace model {
     

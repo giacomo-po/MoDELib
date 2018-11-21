@@ -15,15 +15,15 @@
 
 #include <Eigen/Dense>
 
-#include <model/Utilities/TypeTraits.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/Math/CompileTimeMath/CombinationWithRepetition.h>
-#include <model/Math/CompileTimeMath/StarsAndBars.h>
-#include <model/FEM/BarycentricTraits.h>
-#include <model/FEM/Elements/IsoparametricMapping.h>
-#include <model/FEM/Elements/LagrangeNode.h>
-#include <model/FEM/Elements/MulticomponentExpander.h>
-#include <model/Mesh/Simplex.h>
+#include <TypeTraits.h>
+#include <CompareVectorsByComponent.h>
+#include <CombinationWithRepetition.h>
+#include <StarsAndBars.h>
+#include <BarycentricTraits.h>
+#include <IsoparametricMapping.h>
+#include <LagrangeNode.h>
+#include <MulticomponentExpander.h>
+#include <Simplex.h>
 
 
 namespace model

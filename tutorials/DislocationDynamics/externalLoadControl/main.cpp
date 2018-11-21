@@ -16,7 +16,7 @@
 //#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/ClockIndentationController.h>
 
 //#include <model/DislocationDynamics/DislocationNetwork.h>
-#include <model/DislocationDynamics/DefectiveCrystal.h>
+#include <DefectiveCrystal.h>
 
 using namespace model;
 

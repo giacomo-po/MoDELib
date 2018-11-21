@@ -12,8 +12,8 @@
 #include <utility> // for std::move
 
 #include <Eigen/Dense>
-//#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/EvalFunction.h>
+//#include <EvalExpression.h>
+#include <EvalFunction.h>
 
 
 namespace model

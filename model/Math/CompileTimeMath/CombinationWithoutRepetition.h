@@ -10,7 +10,7 @@
 #define model_CombinationWithoutRepetition_H_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/Binomial.h>
+#include <Binomial.h>
 
 namespace model
 {

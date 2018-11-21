@@ -12,18 +12,18 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <Eigen/Dense>
-#include <model/Geometry/SegmentSegmentDistance.h>
-//#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
-#include <model/DislocationDynamics/DislocationNetworkRemesh.h>
-#include <model/DislocationDynamics/CrossSlip/CrossSlipModels.h>
+#include <SegmentSegmentDistance.h>
+//#include <DislocationSegmentIntersection.h>
+#include <DislocationNetworkRemesh.h>
+#include <CrossSlipModels.h>
 
-#include <model/Geometry/PlanePlaneIntersection.h>
+#include <PlanePlaneIntersection.h>
 
-#include <model/MPI/MPIcout.h>
-#include <model/Threads/EqualIteratorRange.h>
-#include <model/Threads/N2IteratorRange.h>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
+#include <MPIcout.h>
+#include <EqualIteratorRange.h>
+#include <N2IteratorRange.h>
+#include <BCClattice.h>
+#include <FCClattice.h>
 
 
 #ifndef NDEBUG

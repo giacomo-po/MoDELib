@@ -9,10 +9,10 @@
 #ifndef model_LinearWeakSum_H_
 #define model_LinearWeakSum_H_
 
-//#include <model/Utilities/AreSameType.h>
+//#include <AreSameType.h>
 #include <type_traits> // std::is_same
-#include <model/FEM/WeakForms/LinearWeakExpression.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <LinearWeakExpression.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

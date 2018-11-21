@@ -10,7 +10,7 @@
 #define model_TestExpression_H_
 
 #include <utility> // for std::move
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

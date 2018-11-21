@@ -14,9 +14,9 @@
 #ifndef model_DISLOCATIONSEGMENT_H
 #define model_DISLOCATIONSEGMENT_H
 
-#include <model/DislocationDynamics/PlanarDislocationSegment.h>
+#include <PlanarDislocationSegment.h>
 
-//#include <model/DislocationDynamics/DislocationQuadraturePoint.h>
+//#include <DislocationQuadraturePoint.h>
 
 
 #ifndef NDEBUG

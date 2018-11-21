@@ -17,7 +17,7 @@
 #include <vtkPlot.h>
 #include <vtkAxis.h>
 
-#include <model/IO/IDreader.h>
+#include <IDreader.h>
 
 
 namespace model

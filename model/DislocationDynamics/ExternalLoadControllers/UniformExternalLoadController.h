@@ -14,13 +14,13 @@
 #include <sstream>      // std::stringstream
 #include <cmath>
 #include <cfloat>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/ExternalLoadControllers/ExternalLoadControllerBase.h>
+#include <Material.h>
+#include <ExternalLoadControllerBase.h>
 
-//#include <model/IO/EigenDataReader.h>
-#include <model/IO/TextFileParser.h>
-#include <model/IO/IDreader.h>
-#include <model/IO/UniqueOutputFile.h>
+//#include <EigenDataReader.h>
+#include <TextFileParser.h>
+#include <IDreader.h>
+#include <UniqueOutputFile.h>
 
 
 

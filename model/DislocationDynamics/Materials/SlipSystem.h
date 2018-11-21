@@ -11,8 +11,8 @@
 #define model_SLIPSYSTEM_H_
 
 #include <assert.h>
-#include <model/LatticeMath/LatticePlaneBase.h>
-#include <model/LatticeMath/LatticeVector.h>
+#include <LatticePlaneBase.h>
+#include <LatticeVector.h>
 
 namespace model
 {

@@ -10,7 +10,7 @@
 #define _model_BoundaryDisplacementPoint_h
 
 #include <assert.h>
-#include <model/ParticleInteraction/FieldPoint.h>
+#include <FieldPoint.h>
 
 
 namespace model

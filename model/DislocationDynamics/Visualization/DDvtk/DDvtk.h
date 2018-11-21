@@ -48,17 +48,17 @@
 
 
 
-#include <model/DislocationDynamics/Visualization/DDvtk/SimplicialMeshActor.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
-//#include <model/DislocationDynamics/Visualization/vtk/DislocationActors.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/DDinteractionStyle.h>
+#include <SimplicialMeshActor.h>
+#include <DislocationSegmentActor.h>
+//#include <DislocationActors.h>
+#include <PlotActor.h>
+#include <DDinteractionStyle.h>
 
-//#include <model/IO/EigenDataReader.h>
-#include <model/IO/TextFileParser.h>
+//#include <EigenDataReader.h>
+#include <TextFileParser.h>
 
-//#include <model/IO/VertexReader.h>
-#include <model/IO/IDreader.h>
+//#include <VertexReader.h>
+#include <IDreader.h>
 
 
 namespace model

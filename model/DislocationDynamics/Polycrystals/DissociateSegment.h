@@ -21,11 +21,11 @@
 #include <vector>
 #include <set>
 #include <map>
-#include <model/DislocationDynamics/DislocationSharedObjects.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundary.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/LatticeMath/LatticeMath.h>
+#include <DislocationSharedObjects.h>
+#include <GrainBoundary.h>
+#include <Grain.h>
+#include <Material.h>
+#include <LatticeMath.h>
 
 
 namespace model

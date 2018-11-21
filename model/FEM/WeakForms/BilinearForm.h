@@ -10,10 +10,10 @@
 #define model_BilinearForm_H_
 
 #include <type_traits> // std::is_same
-#include <model/FEM/TrialOperators/TrialExpressionBase.h>
-//#include <model/Utilities/AreSameType.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <TrialExpressionBase.h>
+//#include <AreSameType.h>
+#include <TerminalColors.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

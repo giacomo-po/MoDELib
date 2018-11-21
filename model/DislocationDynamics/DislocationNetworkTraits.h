@@ -11,13 +11,13 @@
 #define model_DislocationNETWORKTRAITS_H_
 
 #include <Eigen/Dense>
-#include <model/Utilities/TypeTraits.h>
-#include <model/MPI/MPIcout.h>
-#include <model/Quadrature/Quadrature.h>
-#include <model/Quadrature/QuadratureDynamic.h>
-#include <model/Quadrature/QuadPowDynamic.h>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/Geometry/Splines/SplineBase.h>
+#include <TypeTraits.h>
+#include <MPIcout.h>
+#include <Quadrature.h>
+#include <QuadratureDynamic.h>
+#include <QuadPowDynamic.h>
+#include <LatticeMath.h>
+#include <SplineBase.h>
 
 namespace model
 {

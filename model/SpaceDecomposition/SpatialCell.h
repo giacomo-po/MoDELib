@@ -16,14 +16,14 @@
 #include <memory> // std::shared_ptr (c++11)
 #include <map>
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/CTM.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-//#include <model/Utilities/modelMacros.h> // model_execAssert(
-#include <model/Utilities/CRTP.h>
-#include <model/SpaceDecomposition/CellShift.h>
-#include <model/Utilities/TypeTraits.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/Math/CompileTimeMath/PermutationWithRepetition.h>
+#include <CTM.h>
+#include <CompareVectorsByComponent.h>
+//#include <modelMacros.h> // model_execAssert(
+#include <CRTP.h>
+#include <CellShift.h>
+#include <TypeTraits.h>
+#include <NonCopyable.h>
+#include <PermutationWithRepetition.h>
 //#include <stdexcept>      // std::out_of_range
 
 

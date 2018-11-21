@@ -24,13 +24,13 @@
 #include <iomanip> // std::scientific
 #include <utility> // std::pair
 
-#include <model/ParticleInteraction/PointSource.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/ParticleInteraction/ParticleSystemBase.h>
-#include <model/SpaceDecomposition/SpatialCellObserver.h>
+#include <PointSource.h>
+#include <FieldPoint.h>
+#include <ParticleSystemBase.h>
+#include <SpatialCellObserver.h>
 
 
-//#include <model/Threads/ParallelFor.h> // alterative to openmp using std::thread
+//#include <ParallelFor.h> // alterative to openmp using std::thread
 
 namespace model {
     

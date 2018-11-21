@@ -16,9 +16,9 @@
 #include <memory>
 #include <iterator>
 
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/CRTP.h>
-#include <model/LoopNetwork/LoopObserver.h>
+#include <StaticID.h>
+#include <CRTP.h>
+#include <LoopObserver.h>
 
 
 namespace model

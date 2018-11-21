@@ -14,9 +14,9 @@
 
 #include <map>
 #include <memory> // std::shared_ptr (c++11)
-#include <model/Math/RoundEigen.h>
-#include <model/SpaceDecomposition/SpatialCell.h>
-#include <model/SpaceDecomposition/CellShift.h>
+#include <RoundEigen.h>
+#include <SpatialCell.h>
+#include <CellShift.h>
 
 namespace model {
 	

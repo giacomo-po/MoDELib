@@ -10,11 +10,11 @@
 #define model_DislocationQuadraturePoint_H_
 
 #include <Eigen/Dense>
-#include <model/Geometry/Splines/SplineBase.h>
-#include <model/Quadrature/QuadratureDynamic.h>
-#include <model/Quadrature/QuadPowDynamic.h>
-#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
-#include <model/Geometry/SegmentSegmentDistance.h>
+#include <SplineBase.h>
+#include <QuadratureDynamic.h>
+#include <QuadPowDynamic.h>
+#include <StressStraight.h>
+#include <SegmentSegmentDistance.h>
 
 namespace model
 {

@@ -9,13 +9,13 @@
 #ifndef model_LinearWeakList_H_
 #define model_LinearWeakList_H_
 
-#include <model/Utilities/TypeTraits.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/FEM/TrialOperators/TestExpression.h>
-#include <model/FEM/WeakForms/LinearWeakExpression.h>
-#include <model/FEM/WeakForms/JGNselector.h>
-#include <model/FEM/Domains/IntegrationList.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <TypeTraits.h>
+#include <TerminalColors.h>
+#include <TestExpression.h>
+#include <LinearWeakExpression.h>
+#include <JGNselector.h>
+#include <IntegrationList.h>
+#include <ExpressionRef.h>
 
 
 namespace model

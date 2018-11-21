@@ -22,7 +22,7 @@ namespace model {
 	 * Sample usage:
 	 * \code
 	 * #include <iostream>
-	 * #include <model/Utilities/EnvVariable.h>
+	 * #include <EnvVariable.h>
 	 * 
 	 * int main(){
 	 *  model::EnvVariable ev("PATH");

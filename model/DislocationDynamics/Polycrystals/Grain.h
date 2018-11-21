@@ -11,18 +11,18 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Core>
-//#include <model/Math/RoundEigen.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Mesh/MeshRegionObserver.h>
-#include <model/Mesh/MeshRegion.h>
-#include <model/LatticeMath/LatticeMath.h>
-//#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/Materials/SlipSystem.h>
-#include <model/DislocationDynamics/Materials/SingleCrystal.h>
+//#include <RoundEigen.h>
+#include <SimplicialMesh.h>
+#include <MeshRegionObserver.h>
+#include <MeshRegion.h>
+#include <LatticeMath.h>
+//#include <PeriodicElement.h>
+#include <FCClattice.h>
+#include <BCClattice.h>
+#include <SlipSystem.h>
+#include <SingleCrystal.h>
 
-//#include <model/Math/BestRationalApproximation.h>
+//#include <BestRationalApproximation.h>
 
 namespace model
 {

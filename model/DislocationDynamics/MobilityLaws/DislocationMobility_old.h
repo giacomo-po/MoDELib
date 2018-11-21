@@ -17,8 +17,8 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <model/DislocationDynamics/Materials/Material.h>
+#include <PeriodicElement.h>
+#include <Material.h>
 
 namespace model
 {

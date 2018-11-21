@@ -9,9 +9,9 @@
 #ifndef model_TrialDomainView_H_
 #define model_TrialDomainView_H_
 
-//#include <model/Utilities/TypeTraits.h>
-#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+//#include <TypeTraits.h>
+#include <EvalExpression.h>
+#include <ExpressionRef.h>
 
 
 namespace model

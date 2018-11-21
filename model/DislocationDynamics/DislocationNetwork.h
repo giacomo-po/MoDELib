@@ -33,44 +33,39 @@
 #include <Eigen/StdDeque>
 
 
-#include <model/LoopNetwork/LoopNetwork.h>
-#include <model/Utilities/TerminalColors.h>
-//#include <model/IO/EigenDataReader.h>
-#include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/DislocationDynamics/DislocationNetworkComponent.h>
-#include <model/DislocationDynamics/DislocationNode.h>
-#include <model/DislocationDynamics/DislocationSegment.h>
-#include <model/DislocationDynamics/DislocationLoop.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/DislocationDynamics/DislocationNetworkRemesh.h>
-#include <model/DislocationDynamics/Junctions/DislocationJunctionFormation.h>
-#include <model/DislocationDynamics/CrossSlip/DislocationCrossSlip.h>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/IO/DislocationNetworkIO.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationParticle.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
-//#include <model/ParticleInteraction/ParticleSystem.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
-//#include <model/ParticleInteraction/SingleFieldPoint.h>
-#include <model/DislocationDynamics/DDtimeIntegrator.h>
-#include <model/Threads/EqualIteratorRange.h>
-#include <model/DislocationDynamics/BoundingLineSegments.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
-//#include <model/DislocationDynamics/Polycrystals/GrainBoundaryDissociation.h>
-#include <model/DislocationDynamics/BVP/BVPsolver.h>
-#include <model/DislocationDynamics/Polycrystals/Polycrystal.h>
-#include <model/DislocationDynamics/DislocationNodeContraction.h>
-#include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
-#include <model/IO/TextFileParser.h>
-#include <model/DislocationDynamics/BVP/DisplacementPoint.h>
-#include <model/DislocationDynamics/DefectiveCrystalParameters.h>
-#include <model/DislocationDynamics/ExternalLoadControllers/ExternalLoadControllerBase.h>
-
-
-
-
-//#include <model/DislocationDynamics/ExternalLoadController.h>
-#include <model/DislocationDynamics/DislocationInjector.h>
+#include <LoopNetwork.h>
+#include <TerminalColors.h>
+#include <DislocationNetworkTraits.h>
+#include <DislocationNetworkComponent.h>
+#include <DislocationNode.h>
+#include <DislocationSegment.h>
+#include <DislocationLoop.h>
+#include <GlidePlaneObserver.h>
+#include <DislocationNetworkRemesh.h>
+#include <DislocationJunctionFormation.h>
+#include <DislocationCrossSlip.h>
+#include <Material.h>
+#include <DislocationNetworkIO.h>
+#include <DislocationParticle.h>
+#include <DislocationStress.h>
+//#include <ParticleSystem.h>
+#include <MPIcout.h>
+//#include <SingleFieldPoint.h>
+#include <DDtimeIntegrator.h>
+#include <EqualIteratorRange.h>
+#include <BoundingLineSegments.h>
+#include <GrainBoundaryTransmission.h>
+//#include <GrainBoundaryDissociation.h>
+#include <BVPsolver.h>
+#include <Polycrystal.h>
+#include <DislocationNodeContraction.h>
+#include <EshelbyInclusion.h>
+#include <TextFileParser.h>
+#include <DisplacementPoint.h>
+#include <DefectiveCrystalParameters.h>
+#include <ExternalLoadControllerBase.h>
+//#include <ExternalLoadController.h>
+#include <DislocationInjector.h>
 
 namespace model
 {

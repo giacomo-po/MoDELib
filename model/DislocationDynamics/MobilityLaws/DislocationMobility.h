@@ -18,11 +18,11 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/Utilities/TerminalColors.h> // defines mode::cout
-#include <model/DislocationDynamics/Materials/Material.h>
+#include <BCClattice.h>
+#include <FCClattice.h>
+#include <MPIcout.h> // defines mode::cout
+#include <TerminalColors.h> // defines mode::cout
+#include <Material.h>
 
 namespace model
 {

@@ -29,11 +29,11 @@
 #include <vtkLabeledDataMapper.h>
 #include <vtkFloatArray.h>
 
-//#include <model/IO/EdgeReader.h>
-//#include <model/IO/vertexReader.h>
-#include <model/IO/IDreader.h>
-#include <model/Geometry/PlanarPolygon.h>
-#include <model/DislocationDynamics/IO/EVLio.h>
+//#include <EdgeReader.h>
+//#include <vertexReader.h>
+#include <IDreader.h>
+#include <PlanarPolygon.h>
+#include <EVLio.h>
 
 // VTK documentation
 // http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine

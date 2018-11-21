@@ -12,15 +12,15 @@
 #include <tuple>
 #include <Eigen/Dense>
 
-#include <model/SpaceDecomposition/CellPropertiesBase.h>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationEnergy.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationDisplacement.h>
-#include <model/ParticleInteraction/PointSource.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Utilities/TypeTraits.h>
+#include <CellPropertiesBase.h>
+#include <Material.h>
+#include <DislocationStress.h>
+#include <DislocationEnergy.h>
+#include <DislocationDisplacement.h>
+#include <PointSource.h>
+#include <FieldPoint.h>
+#include <SimplicialMesh.h>
+#include <TypeTraits.h>
 
 namespace model
 {

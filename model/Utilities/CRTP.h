@@ -38,7 +38,7 @@ namespace model {
 			CRTP(){
 			/*! Sample use: \code
 			 * #include <iostream>
-			 * #include <model/Utilities/CRTP.h>
+			 * #include <CRTP.h>
 			 *
 			 * template <typename Derived>
 			 * class BaseClass : public CRTP<Derived>{

@@ -14,18 +14,18 @@
 #include <deque>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <model/Math/RoundEigen.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Mesh/MeshRegionObserver.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundaryType.h>
-#include <model/LatticeMath/LatticePlane.h>
-//#include <model/LatticeMath/LineMeshIntersection.h>
-#include <model/LatticeMath/CSL.h>
-#include <model/LatticeMath/DSCL.h>
-#include <model/DislocationDynamics/ElasticFields/StressStraight.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/Mesh/MeshPlane.h>
+#include <RoundEigen.h>
+#include <SimplicialMesh.h>
+#include <MeshRegionObserver.h>
+#include <Grain.h>
+#include <GrainBoundaryType.h>
+#include <LatticePlane.h>
+//#include <LineMeshIntersection.h>
+#include <CSL.h>
+#include <DSCL.h>
+#include <StressStraight.h>
+#include <GlidePlane.h>
+#include <MeshPlane.h>
 
 
 namespace model

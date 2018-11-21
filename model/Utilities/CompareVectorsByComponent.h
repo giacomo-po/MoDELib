@@ -12,7 +12,7 @@
 #include <math.h>       /* fabs */
 #include <Eigen/Dense>
 #include <type_traits>
-#include <model/Utilities/NumericPrecision.h>
+#include <NumericPrecision.h>
 
 namespace model
 {

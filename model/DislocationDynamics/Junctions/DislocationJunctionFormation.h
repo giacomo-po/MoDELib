@@ -12,14 +12,14 @@
 #include <utility> // for std::pair
 #include <vector>
 #include <Eigen/Dense>
-#include <model/Geometry/SegmentSegmentDistance.h>
-#include <model/Geometry/SweepPlane.h>
+#include <SegmentSegmentDistance.h>
+#include <SweepPlane.h>
 
-//#include <model/DislocationDynamics/Junctions/DislocationSegmentIntersection.h>
-#include <model/DislocationDynamics/DislocationNetworkRemesh.h>
-#include <model/MPI/MPIcout.h>
-#include <model/Threads/EqualIteratorRange.h>
-#include <model/Threads/N2IteratorRange.h>
+//#include <DislocationSegmentIntersection.h>
+#include <DislocationNetworkRemesh.h>
+#include <MPIcout.h>
+#include <EqualIteratorRange.h>
+#include <N2IteratorRange.h>
 
 #ifndef NDEBUG
 #define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}

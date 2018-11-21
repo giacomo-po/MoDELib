@@ -11,8 +11,8 @@
 
 #include <set>
 #include <assert.h>
-#include <model/Mesh/Simplex.h>
-#include <model/MPI/MPIcout.h>
+#include <Simplex.h>
+#include <MPIcout.h>
 
 namespace model
 {

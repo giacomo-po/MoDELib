@@ -15,7 +15,7 @@
 #include <utility>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <model/Math/RoundEigen.h>
+#include <RoundEigen.h>
 
 
 namespace model

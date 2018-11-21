@@ -11,7 +11,7 @@
 #define model_MaterialBase_H_
 
 #include <string>
-#include <model/Utilities/TerminalColors.h> // defines mode::cout
+#include <TerminalColors.h> // defines mode::cout
 
 namespace model
 {

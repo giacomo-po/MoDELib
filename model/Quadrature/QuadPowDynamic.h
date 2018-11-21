@@ -14,8 +14,8 @@
 #include <math.h>
 #include <float.h>
 #include <Eigen/Dense>
-#include <model/Quadrature/QuadPow.h>
-#include <model/Quadrature/QuadratureDynamic.h>
+#include <QuadPow.h>
+#include <QuadratureDynamic.h>
 
 
 

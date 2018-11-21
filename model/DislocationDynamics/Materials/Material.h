@@ -12,17 +12,17 @@
 
 #include <cmath>
 #include <string>
-//#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/Utilities/TerminalColors.h> // defines mode::cout
-//#include <model/IO/EigenDataReader.h> // defines mode::cout
-#include <model/DislocationDynamics/Materials/MaterialSymmetry.h>
-//#include <model/DislocationDynamics/Materials/MaterialBase.h>
-#include <model/DislocationDynamics/Materials/BCClattice.h>
-#include <model/DislocationDynamics/Materials/FCClattice.h>
-#include <model/IO/TextFileParser.h>
-#include <model/DislocationDynamics/Materials/MaterialBase.h>
+//#include <PeriodicElement.h>
+//#include <CrystalOrientation.h>
+#include <MPIcout.h> // defines mode::cout
+#include <TerminalColors.h> // defines mode::cout
+//#include <EigenDataReader.h> // defines mode::cout
+#include <MaterialSymmetry.h>
+//#include <MaterialBase.h>
+#include <BCClattice.h>
+#include <FCClattice.h>
+#include <TextFileParser.h>
+#include <MaterialBase.h>
 
 
 

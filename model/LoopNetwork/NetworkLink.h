@@ -10,10 +10,10 @@
 #define model_NetworkLink_H_
 
 #include <set>
-#include <model/Utilities/CRTP.h>
-#include <model/LoopNetwork/LoopLink.h>
-#include <model/LoopNetwork/NetworkLinkObserver.h>
-#include <model/LoopNetwork/NetworkComponent.h>
+#include <CRTP.h>
+#include <LoopLink.h>
+#include <NetworkLinkObserver.h>
+#include <NetworkComponent.h>
 
 
 namespace model

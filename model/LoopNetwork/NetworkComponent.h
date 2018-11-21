@@ -17,12 +17,12 @@
 //#include <boost/ptr_container/ptr_map.hpp>
 //#include <boost/tuple/tuple.hpp>
 //#include <boost/utility.hpp>
-//#include <model/Network/NetworkLink.h>
-//#include <model/Network/Operations/includeNetworkOperations.h>
-//#include <model/Utilities/AddressBook.h>
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/LoopNetwork/NetworkComponentObserver.h>
+//#include <NetworkLink.h>
+//#include <includeNetworkOperations.h>
+//#include <AddressBook.h>
+#include <StaticID.h>
+#include <NonCopyable.h>
+#include <NetworkComponentObserver.h>
 
 namespace model
 {
@@ -46,7 +46,7 @@ namespace model
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
         typedef NetworkComponentObserver<NetworkComponentType> NetworkComponentObserverType;
         
-        //			#include <model/Network/NetworkTypedefs.h>
+        //			#include <NetworkTypedefs.h>
         
         friend class NetworkLink<LinkType>; // allow NetworkLink to access std::map<size_t,NodeType* const>
         

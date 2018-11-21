@@ -9,10 +9,10 @@
 #ifndef model_SimplexBase_H_
 #define model_SimplexBase_H_
 
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Mesh/SimplexObserver.h>
+#include <StaticID.h>
+#include <NonCopyable.h>
+#include <SimplexTraits.h>
+#include <SimplexObserver.h>
 
 namespace model
 {

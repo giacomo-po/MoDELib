@@ -10,7 +10,7 @@
 #define model_BilinearWeakExpression_H_
 
 
-#include <model/FEM/WeakForms/BilinearWeakExpression.h>
+#include <BilinearWeakExpression.h>
 
 
 namespace model

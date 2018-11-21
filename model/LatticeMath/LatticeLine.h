@@ -9,8 +9,8 @@
 #ifndef model_LatticeLine_h_
 #define model_LatticeLine_h_
 
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticeDirection.h>
+#include <LatticeVector.h>
+#include <LatticeDirection.h>
 #include <math.h>       /* round, floor, ceil, trunc */
 
 namespace model

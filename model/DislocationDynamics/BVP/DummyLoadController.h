@@ -10,8 +10,8 @@
 #define _model_DummyLoadController_h
 
 #include <Eigen/Dense>
-#include <model/Utilities/TerminalColors.h>
-#include <model/MPI/MPIcout.h>
+#include <TerminalColors.h>
+#include <MPIcout.h>
 
 
 namespace model

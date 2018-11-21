@@ -9,9 +9,9 @@
 #ifndef _model_DislocationEnergy_h_
 #define _model_DislocationEnergy_h_
 
-#include <model/ParticleInteraction/FieldBase.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationStress.h>
+#include <FieldBase.h>
+#include <FieldPoint.h>
+#include <DislocationStress.h>
 
 namespace model
 {

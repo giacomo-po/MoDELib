@@ -11,25 +11,25 @@
 
 #include <chrono>
 #include <string>
-#include <model/IO/IDreader.h>
+#include <IDreader.h>
 
 
-#include <model/IO/UniqueOutputFile.h>
-#include <model/IO/SequentialOutputFile.h>
-#include <model/IO/SequentialBinFile.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/MPI/MPIcout.h>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
-#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
-#include <model/DislocationDynamics/DDtimeIntegrator.h>
-#include <model/DislocationDynamics/DislocationNodeContraction.h>
-#include <model/DislocationDynamics/Polycrystals/GrainBoundaryTransmission.h>
-#include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
-#include <model/DislocationDynamics/IO/EVLio.h>
-#include <model/DislocationDynamics/ElasticFields/EshelbyInclusion.h>
+#include <UniqueOutputFile.h>
+#include <SequentialOutputFile.h>
+#include <SequentialBinFile.h>
+#include <TerminalColors.h>
+#include <GlidePlaneObserver.h>
+#include <MPIcout.h>
+#include <LatticeMath.h>
+#include <LatticeMath.h>
+#include <BoundaryDisplacementPoint.h>
+#include <DislocationNodeIO.h>
+#include <DDtimeIntegrator.h>
+#include <DislocationNodeContraction.h>
+#include <GrainBoundaryTransmission.h>
+#include <DislocationLinkingNumber.h>
+#include <EVLio.h>
+#include <EshelbyInclusion.h>
 
 
 

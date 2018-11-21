@@ -11,10 +11,10 @@
 #define model_MATERIAL_H_
 
 #include <cmath>
-#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-//#include <model/DislocationDynamics/Materials/CrystalOrientation.h>
-#include <model/MPI/MPIcout.h> // defines mode::cout
-#include <model/Utilities/TerminalColors.h> // defines mode::cout
+#include <PeriodicElement.h>
+//#include <CrystalOrientation.h>
+#include <MPIcout.h> // defines mode::cout
+#include <TerminalColors.h> // defines mode::cout
 
 
 

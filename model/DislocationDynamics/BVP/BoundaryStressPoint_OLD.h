@@ -9,9 +9,9 @@
 #ifndef _model_BoundaryStressPoint_h
 #define _model_BoundaryStressPoint_h
 
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/FEM/Domains/BoundaryIntegrationPoint.h>
+#include <Material.h>
+#include <FieldPoint.h>
+#include <BoundaryIntegrationPoint.h>
 
 
 namespace model

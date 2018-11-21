@@ -18,16 +18,16 @@
 #include <limits.h>
 //#include <iterator>
 
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/CRTP.h>
+#include <StaticID.h>
+#include <CRTP.h>
 //#include <iomanip>
 //#include <vector>
 //#include <Eigen/Dense>
 //#include <Eigen/StdVector>
-#include <model/LoopNetwork/NetworkComponent.h>
-#include <model/MPI/MPIcout.h>
-#include <model/LoopNetwork/NodeObserver.h>
-#include <model/LoopNetwork/LoopLink.h>
+#include <NetworkComponent.h>
+#include <MPIcout.h>
+#include <NodeObserver.h>
+#include <LoopLink.h>
 
 #define VerboseLoopNode(N,x) if(verboseLevel>=N){model::cout<<x;}
 

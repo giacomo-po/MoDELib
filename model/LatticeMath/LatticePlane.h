@@ -10,9 +10,9 @@
 #define model_LatticePlane_h_
 
 #include <iomanip>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticePlaneBase.h>
-#include <model/Geometry/Plane.h>
+#include <LatticeVector.h>
+#include <LatticePlaneBase.h>
+#include <Plane.h>
 
 namespace model
 {

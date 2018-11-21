@@ -9,7 +9,7 @@
 #ifndef model_CTM_H_
 #define model_CTM_H_
 
-//#include <model/Math/CompileTimeMath/Factorial.h>
+//#include <Factorial.h>
 
 namespace model
 {

@@ -17,9 +17,9 @@
 #ifndef model_INCLUDEGAUSSLEGENDRE_3_H_
 #define model_INCLUDEGAUSSLEGENDRE_3_H_ 
 
-#include <model/Quadrature/GaussLegendre/dim3/GaussLegendre_3_1.h>
-#include <model/Quadrature/GaussLegendre/dim3/GaussLegendre_3_4.h>
-#include <model/Quadrature/GaussLegendre/dim3/GaussLegendre_3_5.h>
+#include <GaussLegendre_3_1.h>
+#include <GaussLegendre_3_4.h>
+#include <GaussLegendre_3_5.h>
  
 #endif 
 

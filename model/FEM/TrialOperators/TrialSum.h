@@ -12,10 +12,10 @@
 #include <type_traits> // std::is_same
 #include <utility> // for std::move
 #include <stdlib.h>
-//#include <model/Utilities/AreSameType.h>
-//#include <model/Utilities/TypeTraits.h>
-#include <model/FEM/TrialOperators/TrialBase.h>
-#include <model/FEM/TrialOperators/TrialExpressionBase.h>
+//#include <AreSameType.h>
+//#include <TypeTraits.h>
+#include <TrialBase.h>
+#include <TrialExpressionBase.h>
 
 namespace model
 {

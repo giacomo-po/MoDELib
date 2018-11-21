@@ -14,7 +14,7 @@
 #include <string>
 #include <sstream>
 #include <assert.h>
-#include <model/Utilities/StaticID.h>
+#include <StaticID.h>
 
 #ifdef _MODEL_MPI_
 #include <mpi.h>

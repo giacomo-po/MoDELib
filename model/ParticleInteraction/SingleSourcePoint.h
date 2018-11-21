@@ -9,7 +9,7 @@
 #ifndef _model_SingleSourcePoint_h
 #define _model_SingleSourcePoint_h
 
-#include <model/SpaceDecomposition/SpatialCellParticle.h>
+#include <SpatialCellParticle.h>
 
 
 namespace model

@@ -11,9 +11,9 @@
 #define model_DefectiveCrystalParameters_H_
 
 #include <string>
-#include <model/IO/TextFileParser.h>
-#include <model/IO/IDreader.h>
-#include <model/MPI/MPIcout.h>
+#include <TextFileParser.h>
+#include <IDreader.h>
+#include <MPIcout.h>
 
 
 namespace model

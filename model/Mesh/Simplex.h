@@ -15,15 +15,15 @@
 #include <vector>
 #include <float.h>
 #include <Eigen/Dense>
-#include <model/Mesh/SimplexReader.h>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Mesh/SimplexObserver.h>
-#include <model/Mesh/SimplexBase.h>
-#include <model/Mesh/SimplexChild.h>
-#include <model/Mesh/MeshRegion.h>
-//#include <model/IO/VertexReader.h>
-#include <model/FEM/BarycentricTraits.h>
-#include <model/Mesh/SimplexVolume.h>
+#include <SimplexReader.h>
+#include <SimplexTraits.h>
+#include <SimplexObserver.h>
+#include <SimplexBase.h>
+#include <SimplexChild.h>
+#include <MeshRegion.h>
+//#include <VertexReader.h>
+#include <BarycentricTraits.h>
+#include <SimplexVolume.h>
 
 namespace model
 {

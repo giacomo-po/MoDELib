@@ -25,14 +25,14 @@
 #include <vtkRendererCollection.h>
 #include <vtkObjectFactory.h>
 
-#include <model/DislocationDynamics/Visualization/DDvtk/DislocationSegmentActor.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/PKActor.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/GlidePlaneActor.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/InclusionActor.h>
-#include <model/Utilities/TerminalColors.h>
-//#include <model/IO/EigenDataReader.h>
-#include <model/IO/TextFileParser.h>
-#include <model/DislocationDynamics/Visualization/DDvtk/PlotActor.h>
+#include <DislocationSegmentActor.h>
+#include <PKActor.h>
+#include <GlidePlaneActor.h>
+#include <InclusionActor.h>
+#include <TerminalColors.h>
+//#include <EigenDataReader.h>
+#include <TextFileParser.h>
+#include <PlotActor.h>
 
 
 namespace model

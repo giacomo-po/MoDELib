@@ -19,23 +19,23 @@
 #ifdef _MODEL_PARDISO_SOLVER_
 #include <Eigen/PardisoSupport>
 #endif
-#include <model/FEM/FiniteElement.h>
-#include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/BVP/DislocationNegativeFields.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/FEM/WeakForms/JGNselector.h>
-#include <model/ParticleInteraction/SingleFieldPoint.h>
-//#include <model/DislocationDynamics/BVP/BoundaryDisplacementPoint.h>
-#include <model/DislocationDynamics/BVP/DisplacementPoint.h>
-//#include <model/DislocationDynamics/BVP/BoundaryStressPoint.h>
-#include <model/FEM/Domains/LinearWeakList.h>
-#include <model/FEM/Domains/BoundaryQuadraturePoint.h>
+#include <FiniteElement.h>
+#include <Material.h>
+//#include <DislocationNegativeFields.h>
+#include <SimplicialMesh.h>
+#include <JGNselector.h>
+#include <SingleFieldPoint.h>
+//#include <BoundaryDisplacementPoint.h>
+#include <DisplacementPoint.h>
+//#include <BoundaryStressPoint.h>
+#include <LinearWeakList.h>
+#include <BoundaryQuadraturePoint.h>
 //
-//#include <model/Utilities/RuntimeError.h>
-#include <model/IO/TextFileParser.h>
+//#include <RuntimeError.h>
+#include <TextFileParser.h>
 
 #ifndef userLoadController
-#define userLoadController "model/DislocationDynamics/BVP/DummyLoadController.h"
+#define userLoadController "DummyLoadController.h"
 #endif
 #include userLoadController
 

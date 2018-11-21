@@ -11,8 +11,8 @@
 
 //#include <utility> // for std::move
 //#include <Eigen/Dense>
-//#include <model/Utilities/TypeTraits.h>
-//#include <model/FEM/TrialOperators/TrialBase.h>
+//#include <TypeTraits.h>
+//#include <TrialBase.h>
 
 
 namespace model

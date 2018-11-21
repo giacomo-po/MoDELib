@@ -38,9 +38,9 @@
 #include <random>
 
 
-#include <model/Mesh/SimplicialMesh.h>
-//#include <model/IO/VertexReader.h>
-#include <model/IO/IDreader.h>
+#include <SimplicialMesh.h>
+//#include <VertexReader.h>
+#include <IDreader.h>
 
 // See this for plane interactor
 // https://www.vtk.org/Wiki/VTK/Examples/Cxx/Widgets/ImplicitPlaneWidget2

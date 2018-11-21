@@ -13,12 +13,12 @@
 #define _MODEL_ParticleSystem_h_
 
 #ifdef _MODEL_MPI_
-#include <model/ParticleInteraction/ParticleSystemParallel.h>
+#include <ParticleSystemParallel.h>
 #else
-#include <model/ParticleInteraction/ParticleSystemSerial.h>
+#include <ParticleSystemSerial.h>
 #endif
 
-//#include <model/ParticleInteraction/SystemProperties.h>
+//#include <SystemProperties.h>
 
 namespace model {
     

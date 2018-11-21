@@ -11,17 +11,17 @@
 
 #include <memory>
 
-#include <model/LoopNetwork/Loop.h>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticePlaneBase.h>
-#include <model/LatticeMath/LatticePlane.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
-#include <model/DislocationDynamics/PlanarDislocationLoop.h>
+#include <Loop.h>
+#include <LatticeVector.h>
+#include <LatticePlaneBase.h>
+#include <LatticePlane.h>
+#include <Grain.h>
+#include <GlidePlane.h>
+#include <GlidePlaneObserver.h>
+#include <DislocationLoopIO.h>
+#include <PlanarDislocationLoop.h>
 
-//#include <model/Geometry/PlanarPolygon.h>
+//#include <PlanarPolygon.h>
 
 
 namespace model

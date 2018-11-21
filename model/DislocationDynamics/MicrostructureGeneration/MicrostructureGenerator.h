@@ -16,17 +16,17 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 
-#include <model/DislocationDynamics/Polycrystals/Polycrystal.h> // defines mode::cout
-//#include <model/IO/EigenDataReader.h>
-#include <model/Mesh/SimplicialMesh.h> // defines mode::cout
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/Mesh/PlaneMeshIntersection.h>
-#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
-#include <model/DislocationDynamics/IO/DislocationLoopIO.h>
-#include <model/DislocationDynamics/IO/DislocationEdgeIO.h>
-#include <model/DislocationDynamics/IO/EVLio.h>
-#include <model/DislocationDynamics/IO/DislocationLinkingNumber.h>
+#include <Polycrystal.h> // defines mode::cout
+//#include <EigenDataReader.h>
+#include <SimplicialMesh.h> // defines mode::cout
+#include <Material.h>
+#include <LatticeMath.h>
+#include <PlaneMeshIntersection.h>
+#include <DislocationNodeIO.h>
+#include <DislocationLoopIO.h>
+#include <DislocationEdgeIO.h>
+#include <EVLio.h>
+#include <DislocationLinkingNumber.h>
 
 
 namespace model

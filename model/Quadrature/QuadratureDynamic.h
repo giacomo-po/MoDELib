@@ -13,7 +13,7 @@
 #include <assert.h>
 #include <set>
 #include <Eigen/Dense>
-#include <model/Quadrature/Quadrature.h>
+#include <Quadrature.h>
 
 namespace model
 {

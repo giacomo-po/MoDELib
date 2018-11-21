@@ -18,21 +18,21 @@
 
 #include <Eigen/Dense>
 
-//#include <model/Utilities/AreSameType.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/FEM/Elements/LagrangeElement.h>
-#include <model/FEM/Elements/DiscontinuousLagrangeElement.h>
-#include <model/FEM/TrialFunction.h>
-#include <model/FEM/WeakForms/LinearWeakForm.h>
-#include <model/FEM/WeakForms/BilinearWeakForm.h>
-#include <model/FEM/Domains/IntegrationDomain.h>
-#include <model/FEM/Domains/EntireDomain.h>
-#include <model/FEM/Boundaries/ExternalBoundary.h>
-//#include <model/FEM/Boundaries/NodeList.h>
-#include <model/MPI/MPIcout.h>
+//#include <AreSameType.h>
+#include <SimplicialMesh.h>
+#include <TerminalColors.h>
+#include <CompareVectorsByComponent.h>
+#include <SimplicialMesh.h>
+#include <LagrangeElement.h>
+#include <DiscontinuousLagrangeElement.h>
+#include <TrialFunction.h>
+#include <LinearWeakForm.h>
+#include <BilinearWeakForm.h>
+#include <IntegrationDomain.h>
+#include <EntireDomain.h>
+#include <ExternalBoundary.h>
+//#include <NodeList.h>
+#include <MPIcout.h>
 
 
 namespace model

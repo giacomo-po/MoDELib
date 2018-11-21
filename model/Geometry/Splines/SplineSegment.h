@@ -17,15 +17,15 @@
 
 
 
-//#include <model/Network/NetworkLink.h>
-#include <model/LoopNetwork/NetworkLink.h>
-#include <model/Geometry/ParametricCurve.h>
-//#include <model/Geometry/Splines/Intersection/SplineIntersection.h>
-#include <model/Geometry/Splines/Coeff2Hermite.h>
-#include <model/Geometry/Splines/SplineSegmentBase.h>
-//#include <model/Network/Operations/EdgeFinder.h>
+//#include <NetworkLink.h>
+#include <NetworkLink.h>
+#include <ParametricCurve.h>
+//#include <SplineIntersection.h>
+#include <Coeff2Hermite.h>
+#include <SplineSegmentBase.h>
+//#include <EdgeFinder.h>
 //#include <Eigen/Sparse>
-#include <model/Math/MatrixCompanion.h>
+#include <MatrixCompanion.h>
 
 namespace model
 {

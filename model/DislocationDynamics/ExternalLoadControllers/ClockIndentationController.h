@@ -14,10 +14,10 @@
 #include <sstream>      // std::stringstream
 #include <cmath>
 #include <cfloat>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/IO/EigenDataReader.h>
-#include <model/IO/IDreader.h>
-#include <model/IO/UniqueOutputFile.h>
+#include <Material.h>
+#include <EigenDataReader.h>
+#include <IDreader.h>
+#include <UniqueOutputFile.h>
 
 
 

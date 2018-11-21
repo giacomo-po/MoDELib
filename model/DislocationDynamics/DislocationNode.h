@@ -20,20 +20,20 @@
 #include <Eigen/StdVector>
 #include <tuple>
 
-#include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/Geometry/Splines/SplineNode.h>
-#include <model/Math/GramSchmidt.h>
-#include <model/Mesh/Simplex.h>
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/SimplexBndNormal.h>
-#include <model/DislocationDynamics/Polycrystals/Grain.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlane.h>
-#include <model/Geometry/PlanePlaneIntersection.h>
-#include <model/Geometry/PlaneLineIntersection.h>
-#include <model/Geometry/LineSegment.h>
-#include <model/DislocationDynamics/IO/DislocationNodeIO.h>
-#include <model/DislocationDynamics/BoundingLineSegments.h>
-#include <model/DislocationDynamics/DefectiveCrystalParameters.h>
+#include <DislocationNetworkTraits.h>
+#include <SplineNode.h>
+#include <GramSchmidt.h>
+#include <Simplex.h>
+#include <LatticeMath.h>
+#include <SimplexBndNormal.h>
+#include <Grain.h>
+#include <GlidePlane.h>
+#include <PlanePlaneIntersection.h>
+#include <PlaneLineIntersection.h>
+#include <LineSegment.h>
+#include <DislocationNodeIO.h>
+#include <BoundingLineSegments.h>
+#include <DefectiveCrystalParameters.h>
 
 
 #ifndef NDEBUG

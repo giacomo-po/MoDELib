@@ -9,8 +9,8 @@
 #ifndef _model_FieldPoint_h
 #define _model_FieldPoint_h
 
-#include <model/SpaceDecomposition/SpatialCellObserver.h>
-#include <model/ParticleInteraction/FieldPointBase.h>
+#include <SpatialCellObserver.h>
+#include <FieldPointBase.h>
 
 
 namespace model {

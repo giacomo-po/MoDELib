@@ -17,10 +17,10 @@
 #include <Eigen/SparseLU>
 
 
-#include <model/IO/SequentialOutputFile.h>
+#include <SequentialOutputFile.h>
 #include <unsupported/Eigen/IterativeSolvers>
-#include <model/MPI/MPIcout.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <MPIcout.h>
+#include <ExpressionRef.h>
 
 
 #ifdef _MODEL_PARDISO_SOLVER_

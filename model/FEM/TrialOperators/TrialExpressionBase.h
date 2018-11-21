@@ -11,10 +11,10 @@
 
 #include <iostream>
 #include <iomanip>
-#include <model/Utilities/TypeTraits.h>
-#include <model/FEM/TrialOperators/TestExpression.h>
-#include <model/FEM/TrialOperators/EvalExpression.h>
-#include <model/FEM/TrialOperators/TrialDomainView.h>
+#include <TypeTraits.h>
+#include <TestExpression.h>
+#include <EvalExpression.h>
+#include <TrialDomainView.h>
 
 namespace model
 {

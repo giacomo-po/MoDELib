@@ -11,11 +11,11 @@
 
 #include <math.h>
 #include <Eigen/Dense>
-#include <model/SpaceDecomposition/SpatialCellObserver.h>
-#include <model/Utilities/CRTP.h>
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/Math/CompileTimeMath/CTM.h>
+#include <SpatialCellObserver.h>
+#include <CRTP.h>
+#include <StaticID.h>
+#include <NonCopyable.h>
+#include <CTM.h>
 
 
 

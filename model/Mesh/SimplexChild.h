@@ -10,9 +10,9 @@
 #define model_SimplexChild_H_
 
 #include <set>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Mesh/SimplexCompare.h>
-#include <model/Mesh/BoundarySimplex.h>
+#include <SimplexTraits.h>
+#include <SimplexCompare.h>
+#include <BoundarySimplex.h>
 
 namespace model
 {

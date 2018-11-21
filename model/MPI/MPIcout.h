@@ -16,7 +16,7 @@
 
 #ifdef _MODEL_MPI_
 #include <mpi.h>
-#include <model/MPI/ModelMPIbase.h>
+#include <ModelMPIbase.h>
 #endif
 
 namespace model

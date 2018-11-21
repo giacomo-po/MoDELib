@@ -10,9 +10,9 @@
 #define model_LatticePlaneBase_h_
 
 #include <map>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/LatticeDirection.h>
-#include <model/LatticeMath/ReciprocalLatticeDirection.h>
+#include <LatticeVector.h>
+#include <LatticeDirection.h>
+#include <ReciprocalLatticeDirection.h>
 
 namespace model
 {

@@ -13,20 +13,20 @@
 #include <vector>
 #include <Eigen/SparseCore>
 
-//#include <model/FEM/TrialOperators/EvalExpression.h>
-//#include <model/FEM/TrialOperators/TestExpression.h>
-//#include <model/Quadrature/Quadrature.h>
-//#include <model/Utilities/AreSameType.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/FEM/Domains/IntegrationDomain.h>
-#include <model/FEM/WeakForms/LinearWeakExpression.h>
-#include <model/FEM/WeakForms/LinearForm.h>
-#include <model/FEM/WeakForms/LinearWeakSum.h>
-#include <model/FEM/WeakForms/LinearWeakDiff.h>
-#include <model/FEM/WeakForms/LinearWeakAssembler.h>
-//#include <model/FEM/WeakForms/JGNselector.h>
-#include <model/MPI/MPIcout.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+//#include <EvalExpression.h>
+//#include <TestExpression.h>
+//#include <Quadrature.h>
+//#include <AreSameType.h>
+#include <TerminalColors.h>
+#include <IntegrationDomain.h>
+#include <LinearWeakExpression.h>
+#include <LinearForm.h>
+#include <LinearWeakSum.h>
+#include <LinearWeakDiff.h>
+#include <LinearWeakAssembler.h>
+//#include <JGNselector.h>
+#include <MPIcout.h>
+#include <ExpressionRef.h>
 
 namespace model
 {

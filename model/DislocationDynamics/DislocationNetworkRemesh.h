@@ -16,12 +16,12 @@
 #include <assert.h>
 
 #include <Eigen/Dense>
-//#include <model/Network/Operations/EdgeFinder.h>
-//#include <model/Math/GramSchmidt.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/MPI/MPIcout.h>
-#include <model/Mesh/Simplex.h>
-#include <model/LatticeMath/LatticeMath.h>
+//#include <EdgeFinder.h>
+//#include <GramSchmidt.h>
+#include <TerminalColors.h>
+#include <MPIcout.h>
+#include <Simplex.h>
+#include <LatticeMath.h>
 
 namespace model
 {

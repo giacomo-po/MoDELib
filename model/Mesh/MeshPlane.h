@@ -13,10 +13,10 @@
 #include <tuple>
 //#include <map>
 #include <Eigen/Dense>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Geometry/Plane.h>
-#include <model/Utilities/StaticID.h>
-#include <model/Mesh/PlaneMeshIntersection.h>
+#include <SimplicialMesh.h>
+#include <Plane.h>
+#include <StaticID.h>
+#include <PlaneMeshIntersection.h>
 
 namespace model
 {

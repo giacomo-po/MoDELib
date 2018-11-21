@@ -17,12 +17,12 @@
 #include <set>
 #include <assert.h>
 #include <Eigen/Core>
-#include <model/Utilities/StaticID.h>
-#include <model/DislocationDynamics/GlidePlanes/GlidePlaneObserver.h>
-#include <model/LatticeMath/LatticePlane.h>
-#include <model/MPI/MPIcout.h>
-//#include <model/Mesh/PlaneMeshIntersection.h>
-#include <model/Mesh/MeshPlane.h>
+#include <StaticID.h>
+#include <GlidePlaneObserver.h>
+#include <LatticePlane.h>
+#include <MPIcout.h>
+//#include <PlaneMeshIntersection.h>
+#include <MeshPlane.h>
 
 #ifndef NDEBUG
 #define VerboseGlidePlane(N,x) if(verboseGlidePlane>=N){model::cout<<x;}

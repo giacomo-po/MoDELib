@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <Eigen/Dense>
 
-#include <model/Geometry/SegmentSegmentDistance.h>
+#include <SegmentSegmentDistance.h>
 
 namespace model
 {

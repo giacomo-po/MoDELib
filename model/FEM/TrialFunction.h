@@ -15,19 +15,19 @@
 #include <list>
 #include <assert.h>
 
-#include <model/Utilities/TerminalColors.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/Utilities/InstanceCount.h>
+#include <TerminalColors.h>
+#include <NonCopyable.h>
+#include <InstanceCount.h>
 
-#include <model/FEM/TrialFunctionTraits.h>
-#include <model/FEM/Constant.h>
-//#include <model/FEM/TrialOperators/ExpressionEvaluator.h>
-//#include <model/FEM/TrialOperators/TrialSum.h>
-#include <model/FEM/TrialOperators/TrialProd.h>
-#include <model/FEM/TrialOperators/TrialGrad.h>
-#include <model/FEM/TrialOperators/TrialDef.h>
-//#include <model/FEM/Boundaries/NodeList.h>
-#include <model/MPI/MPIcout.h>
+#include <TrialFunctionTraits.h>
+#include <Constant.h>
+//#include <ExpressionEvaluator.h>
+//#include <TrialSum.h>
+#include <TrialProd.h>
+#include <TrialGrad.h>
+#include <TrialDef.h>
+//#include <NodeList.h>
+#include <MPIcout.h>
 
 // READ THIS
 // http://stackoverflow.com/questions/39267388/best-practices-for-dependency-injection-via-constructor

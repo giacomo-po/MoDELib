@@ -17,7 +17,7 @@
 #define _MODEL_ParticleSystemParallel_h_
 
 #ifdef _MODEL_MPI_
-#include <model/MPI/ModelMPIbase.h>
+#include <ModelMPIbase.h>
 //#include <metis.h> // partitioner
 #endif
 
@@ -30,14 +30,14 @@
 #include <vector>
 #include <time.h>
 
-#include <model/Utilities/modelMacros.h> // model_checkInput
-#include <model/Utilities/SequentialOutputFile.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/ParticleInteraction/PointSource.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/ParticleInteraction/ParticleSystemBase.h>
-#include <model/MPI/LPTpartitioner.h>
-#include <model/MPI/MPIcout.h>
+#include <modelMacros.h> // model_checkInput
+#include <SequentialOutputFile.h>
+#include <CompareVectorsByComponent.h>
+#include <PointSource.h>
+#include <FieldPoint.h>
+#include <ParticleSystemBase.h>
+#include <LPTpartitioner.h>
+#include <MPIcout.h>
 
 namespace model {
     

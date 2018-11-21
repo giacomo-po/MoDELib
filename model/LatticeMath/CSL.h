@@ -11,12 +11,12 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <model/Math/RoundEigen.h>
-#include <model/Math/SmithDecomposition.h>
-#include <model/LatticeMath/Lattice.h>
-#include <model/LatticeMath/RationalMatrix.h>
-#include <model/LatticeMath/LLL.h>
-#include <model/LatticeMath/RLLL.h>
+#include <RoundEigen.h>
+#include <SmithDecomposition.h>
+#include <Lattice.h>
+#include <RationalMatrix.h>
+#include <LLL.h>
+#include <RLLL.h>
 
 
 namespace model

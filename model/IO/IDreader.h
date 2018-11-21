@@ -19,7 +19,7 @@
 #include <utility>
 #include <chrono>
 //#include <Eigen/Dense>
-#include <model/IO/BinaryFileReader.h>
+#include <BinaryFileReader.h>
 
 namespace model
 {

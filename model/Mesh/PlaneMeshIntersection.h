@@ -12,12 +12,12 @@
 
 #include <deque>
 #include <utility>
-#include <model/Utilities/StaticID.h>
-#include <model/Utilities/NonCopyable.h>
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Mesh/SimplexObserver.h>
-#include <model/Mesh/SimplicialMesh.h>
-#include <model/Mesh/Simplex.h>
+#include <StaticID.h>
+#include <NonCopyable.h>
+#include <SimplexTraits.h>
+#include <SimplexObserver.h>
+#include <SimplicialMesh.h>
+#include <Simplex.h>
 
 namespace model
 {

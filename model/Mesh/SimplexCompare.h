@@ -9,8 +9,8 @@
 #ifndef model_SimplexCompare_H_
 #define model_SimplexCompare_H_
 
-#include <model/Mesh/SimplexTraits.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
+#include <SimplexTraits.h>
+#include <CompareVectorsByComponent.h>
 
 
 namespace model {

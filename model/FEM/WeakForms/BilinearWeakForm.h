@@ -19,14 +19,14 @@
 
 #include <Eigen/Sparse>
 
-#include <model/FEM/TrialOperators/TrialBase.h>
-#include <model/FEM/WeakForms/LinearWeakForm.h>
-#include <model/Utilities/TerminalColors.h>
-#include <model/FEM/WeakForms/BilinearForm.h>
-#include <model/MPI/MPIcout.h>
-#include <model/FEM/WeakForms/BilinearWeakExpression.h>
-#include <model/FEM/WeakForms/BilinearWeakSum.h>
-#include <model/FEM/WeakForms/WeakProblem.h>
+#include <TrialBase.h>
+#include <LinearWeakForm.h>
+#include <TerminalColors.h>
+#include <BilinearForm.h>
+#include <MPIcout.h>
+#include <BilinearWeakExpression.h>
+#include <BilinearWeakSum.h>
+#include <WeakProblem.h>
 
 
 

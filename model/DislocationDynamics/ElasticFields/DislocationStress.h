@@ -12,9 +12,9 @@
 #include <Eigen/StdVector>
 #include <Eigen/StdDeque>
 #include <tuple>
-#include <model/ParticleInteraction/FieldBase.h>
-#include <model/ParticleInteraction/FieldPoint.h>
-#include <model/DislocationDynamics/ElasticFields/DislocationStressBase.h>
+#include <FieldBase.h>
+#include <FieldPoint.h>
+#include <DislocationStressBase.h>
 
 namespace model
 {

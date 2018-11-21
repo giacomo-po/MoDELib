@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Jacobi>
-//#include <model/Math/GeneralizedEigenSolver.h>
+//#include <GeneralizedEigenSolver.h>
 
 namespace model
 {

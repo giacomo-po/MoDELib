@@ -10,8 +10,8 @@
 #define model_EvalExpression_H_
 
 #include <utility> // for std::move
-#include <model/FEM/TrialOperators/EvalFunction.h>
-#include <model/FEM/TrialOperators/ExpressionRef.h>
+#include <EvalFunction.h>
+#include <ExpressionRef.h>
 
 
 namespace model

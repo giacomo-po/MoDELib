@@ -11,11 +11,11 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <model/Math/RoundEigen.h>
-//#include <model/LatticeMath/LatticeBase.h>
-//#include <model/LatticeMath/ReciprocalLatticeVector.h>
-#include <model/LatticeMath/Lattice.h>
-#include <model/LatticeMath/ReciprocalLatticeVector.h>
+#include <RoundEigen.h>
+//#include <LatticeBase.h>
+//#include <ReciprocalLatticeVector.h>
+#include <Lattice.h>
+#include <ReciprocalLatticeVector.h>
 
 
 namespace model

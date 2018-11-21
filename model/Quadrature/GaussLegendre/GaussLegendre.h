@@ -10,8 +10,8 @@
 #define model_GAUSSLEGENDRE_H_
 
 #include <assert.h>
-#include <model/Quadrature/GaussLegendre/GaussLegendreRecursiveRelation.h>
-#include <model/Quadrature/QuadratureRecursiveRelation.h>
+#include <GaussLegendreRecursiveRelation.h>
+#include <QuadratureRecursiveRelation.h>
 
 namespace model
 {
@@ -43,9 +43,9 @@ namespace model
     
 } // namespace model
 
-//#include <model/Quadrature/GaussLegendre/includeGaussLegendre1D.h>
-#include <model/Quadrature/GaussLegendre/includeGaussLegendre2D.h>
-#include <model/Quadrature/GaussLegendre/includeGaussLegendre3D.h>
+//#include <includeGaussLegendre1D.h>
+#include <includeGaussLegendre2D.h>
+#include <includeGaussLegendre3D.h>
 
 #endif
 

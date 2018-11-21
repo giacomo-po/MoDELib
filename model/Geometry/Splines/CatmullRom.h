@@ -12,8 +12,8 @@
 
 #include <set>
 #include <Eigen/Dense>
-#include <model/Geometry/Splines/SplineSegment.h>
-#include <model/LoopNetwork/LoopLink.h>
+#include <SplineSegment.h>
+#include <LoopLink.h>
 
 namespace model
 {

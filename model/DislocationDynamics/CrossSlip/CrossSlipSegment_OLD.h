@@ -24,8 +24,8 @@
 #include <map>
 //#include <boost/random/mersenne_twister.hpp>
 //#include <boost/random/uniform_int_distribution.hpp>
-#include <model/DislocationDynamics/Materials/Material.h>
-#include <model/LatticeMath/LatticeMath.h>
+#include <Material.h>
+#include <LatticeMath.h>
 
 namespace model
 {

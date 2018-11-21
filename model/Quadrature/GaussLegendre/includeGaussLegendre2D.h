@@ -17,10 +17,10 @@
 #ifndef model_INCLUDEGAUSSLEGENDRE_2_H_
 #define model_INCLUDEGAUSSLEGENDRE_2_H_ 
 
-#include <model/Quadrature/GaussLegendre/dim2/GaussLegendre_2_1.h>
-#include <model/Quadrature/GaussLegendre/dim2/GaussLegendre_2_3.h>
-#include <model/Quadrature/GaussLegendre/dim2/GaussLegendre_2_4.h>
-#include <model/Quadrature/GaussLegendre/dim2/GaussLegendre_2_37.h>
+#include <GaussLegendre_2_1.h>
+#include <GaussLegendre_2_3.h>
+#include <GaussLegendre_2_4.h>
+#include <GaussLegendre_2_37.h>
  
 #endif 
 

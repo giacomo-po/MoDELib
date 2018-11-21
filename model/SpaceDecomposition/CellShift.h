@@ -13,7 +13,7 @@
 #define _model_CellShift_h_
 
 #include <Eigen/Dense>
-#include <model/Math/CompileTimeMath/CTM.h>
+#include <CTM.h>
 
 namespace model
 {

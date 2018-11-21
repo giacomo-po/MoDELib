@@ -34,18 +34,18 @@ class NetworkLink;
 #include <omp.h>
 #endif
 
-#include <model/Utilities/CRTP.h>
-#include <model/MPI/MPIcout.h>
-#include <model/LoopNetwork/LoopNode.h>
-//#include <model/LoopNetwork/NetworkNode.h>
-#include <model/LoopNetwork/LoopLink.h>
-#include <model/LoopNetwork/NetworkLink.h>
-#include <model/LoopNetwork/NetworkLinkObserver.h>
-#include <model/LoopNetwork/Loop.h>
-#include <model/LoopNetwork/LoopObserver.h>
-#include <model/LoopNetwork/NetworkComponent.h>
-#include <model/LoopNetwork/NetworkComponentObserver.h>
-#include <model/Threads/EqualIteratorRange.h>
+#include <CRTP.h>
+#include <MPIcout.h>
+#include <LoopNode.h>
+//#include <NetworkNode.h>
+#include <LoopLink.h>
+#include <NetworkLink.h>
+#include <NetworkLinkObserver.h>
+#include <Loop.h>
+#include <LoopObserver.h>
+#include <NetworkComponent.h>
+#include <NetworkComponentObserver.h>
+#include <EqualIteratorRange.h>
 
 
 #define VerboseLoopNetwork(N,x) if(verboseLevel>=N){model::cout<<x;}

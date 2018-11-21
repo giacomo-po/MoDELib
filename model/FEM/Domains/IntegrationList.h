@@ -12,11 +12,11 @@
 #include <deque>
 #include <utility>      // std::pair, std::make_pair
 #include <chrono>
-#include <model/Quadrature/Quadrature.h>
-#include <model/MPI/MPIcout.h>
-#include <model/FEM/BarycentricTraits.h>
-//#include <model/FEM/TrialOperators/TestExpression.h>
-//#include <model/FEM/Domains/LinearWeakList.h>
+#include <Quadrature.h>
+#include <MPIcout.h>
+#include <BarycentricTraits.h>
+//#include <TestExpression.h>
+//#include <LinearWeakList.h>
 
 namespace model
 {

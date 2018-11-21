@@ -11,9 +11,9 @@
 
 #include <iostream>
 #include <Eigen/Dense>
-#include <model/Mesh/SimplexTraits.h>
-//#include <model/IO/VertexReader.h>
-#include <model/IO/IDreader.h>
+#include <SimplexTraits.h>
+//#include <VertexReader.h>
+#include <IDreader.h>
 
 namespace model
 {

@@ -13,9 +13,9 @@
 #include <math.h>       /* fabs */
 #include <cfloat>       /* FLT_EPSILON */
 #include <deque>
-#include <model/LatticeMath/LatticeDirection.h>
-#include <model/Math/CompileTimeMath/PermutationWithoutRepetition.h>
-#include <model/DislocationDynamics/MobilityLaws/GrainBoundaryMobility.h>
+#include <LatticeDirection.h>
+#include <PermutationWithoutRepetition.h>
+#include <GrainBoundaryMobility.h>
 
 
 namespace model

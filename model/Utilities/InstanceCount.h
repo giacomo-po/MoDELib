@@ -9,7 +9,7 @@
 #ifndef model_InstanceCount_H_
 #define model_InstanceCount_H_
 
-//#include <model/Utilities/modelMacros.h> // model_checkInput
+//#include <modelMacros.h> // model_checkInput
 
 namespace model
 {

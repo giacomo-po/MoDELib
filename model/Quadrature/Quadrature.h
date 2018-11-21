@@ -11,8 +11,8 @@
 
 #include <assert.h>
 #include <Eigen/Dense>
-#include <model/Quadrature/GaussLegendre/GaussLegendre.h>
-#include <model/Quadrature/UniformOpen/UniformOpen.h>
+#include <GaussLegendre.h>
+#include <UniformOpen.h>
 
 
 
@@ -89,7 +89,7 @@ namespace model
           * Sample code: \code
           * #include <iostream>
           * #include <Eigen/Dense>
-          * #include <model/Quadrature/Quadrature.h>
+          * #include <Quadrature.h>
           *
           * Eigen::Matrix<double,3,3> integrand(const double& u) 
           * {
@@ -123,7 +123,7 @@ namespace model
           * Sample code: \code
           * #include <iostream>
           * #include <Eigen/Dense>
-          * #include <model/Quadrature/Quadrature.h>
+          * #include <Quadrature.h>
           *
           * class SomeClass
           * {
@@ -170,7 +170,7 @@ namespace model
           * Sample code: \code
           * #include <iostream>
           * #include <Eigen/Dense>
-          * #include <model/Quadrature/Quadrature.h>
+          * #include <Quadrature.h>
           *
           * class SomeClass{
           *

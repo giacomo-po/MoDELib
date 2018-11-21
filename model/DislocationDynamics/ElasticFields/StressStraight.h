@@ -15,8 +15,8 @@
 #endif
 
 #include <Eigen/Dense>
-#include <model/DislocationDynamics/Materials/Material.h>
-//#include <model/DislocationDynamics/NearestNeighbor/DislocationStress.h>
+#include <Material.h>
+//#include <DislocationStress.h>
 
 namespace model
 {

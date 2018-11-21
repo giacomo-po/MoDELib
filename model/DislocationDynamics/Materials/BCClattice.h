@@ -13,8 +13,8 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <model/LatticeMath/LatticeMath.h>
-#include <model/DislocationDynamics/Materials/SlipSystem.h>
+#include <LatticeMath.h>
+#include <SlipSystem.h>
 
 namespace model
 {

@@ -11,8 +11,10 @@ MKL_LIB=/opt/intel/mkl/lib
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
+include ../buildSymlink.mk
 IDIR += -I./
-IDIR += -I$(MODEL_INCLUDE)
+IDIR += -I$(all_header_dir)
+#IDIR += -I$(MODEL_INCLUDE)
 IDIR += -I$(EIGEN_INCLUDE)
 
 ##########################################################

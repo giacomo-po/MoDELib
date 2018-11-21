@@ -9,10 +9,10 @@
 #ifndef model_ReciprocalLatticeDirection_h_
 #define model_ReciprocalLatticeDirection_h_
 
-//#include <model/LatticeMath/LatticeBase.h>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/ReciprocalLatticeVector.h>
-#include <model/LatticeMath/LatticeGCD.h>
+//#include <LatticeBase.h>
+#include <LatticeVector.h>
+#include <ReciprocalLatticeVector.h>
+#include <LatticeGCD.h>
 
 namespace model
 {

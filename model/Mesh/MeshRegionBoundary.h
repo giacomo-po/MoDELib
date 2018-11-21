@@ -12,9 +12,9 @@
 #include <set>
 #include <deque>
 #include <assert.h>
-#include <model/MPI/MPIcout.h>
-#include <model/Mesh/MeshRegionObserver.h>
-#include <model/Mesh/PlanarMeshFacet.h>
+#include <MPIcout.h>
+#include <MeshRegionObserver.h>
+#include <PlanarMeshFacet.h>
 
 namespace model
 {

@@ -16,12 +16,12 @@
 #include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
 #include <Eigen/Cholesky>
-#include <model/DislocationDynamics/DislocationNetworkTraits.h>
-#include <model/Utilities/CompareVectorsByComponent.h>
-#include <model/LatticeMath/LatticeVector.h>
-#include <model/LatticeMath/ReciprocalLatticeDirection.h>
-#include <model/Geometry/PlanePlaneIntersection.h>
-#include <model/Mesh/MeshPlane.h>
+#include <DislocationNetworkTraits.h>
+#include <CompareVectorsByComponent.h>
+#include <LatticeVector.h>
+#include <ReciprocalLatticeDirection.h>
+#include <PlanePlaneIntersection.h>
+#include <MeshPlane.h>
 
 
 namespace model
