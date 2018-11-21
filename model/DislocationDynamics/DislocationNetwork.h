@@ -71,40 +71,7 @@
 namespace model
 {
     
-//    template <int dim>
-//    struct DislocationNetworkBase : public GlidePlaneObserver<dim>
-//    {// Class storing objects that need to be destroyed last
-//        
-//        typedef Eigen::Matrix<double,dim,1>		VectorDim;
-//        
-//        SimplicialMesh<dim>& mesh;
-//        Polycrystal<dim>& poly;
-//        BVPsolver<dim,2>& bvpSolver;
-//        const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& periodicShifts;
-//
-//        
-////        DislocationNetworkBase() :
-////        /* init */ mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true)),
-////        /* init */ poly("./inputFiles/polycrystal.txt",mesh,*this),
-////        /* init */ bvpSolver(mesh)
-////        {
-////                            assert(mesh.simplices().size() && "MESH IS EMPTY.");
-////        }
-//
-//        DislocationNetworkBase(SimplicialMesh<dim>& _mesh,
-//                               Polycrystal<dim>& _poly,
-//                               BVPsolver<dim,2>& _bvpSolver,
-//                               const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& _periodicShifts) :
-//        /* init */ mesh(_mesh)
-//        /* init */,poly(_poly)
-//        /* init */,bvpSolver(_bvpSolver)
-//        /* init */,periodicShifts(_periodicShifts)
-//        
-//        {
-////            assert(mesh.simplices().size() && "MESH IS EMPTY.");
-//        }
-//        
-//    };
+
     
     template <int _dim, short unsigned int _corder, typename InterpolationType>
     class DislocationNetwork : public GlidePlaneObserver<_dim> //public DislocationNetworkBase<_dim>, // must be first in inheritance tree
@@ -419,7 +386,6 @@ namespace model
                            const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
                            const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& _periodicShifts,
                            long int& runID) :
-//        /* init */ DislocationNetworkBase<dim>(_mesh,_poly,_bvpSolver,_periodicShifts)
         /* init */ simulationParameters(_simulationParameters)
         /* init */,mesh(_mesh)
         /* init */,poly(_poly)
@@ -1122,8 +1088,6 @@ namespace model
             }
             return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
         }
-        
-
         
         /**********************************************************************/
         MatrixDimD stress(const VectorDim& P) const

@@ -87,7 +87,7 @@ namespace model
             
             
             return  f1*MaterialType::C1*t*(b.cross(Y)).transpose()
-            /*   */-f1*Y*(b.cross(t)).transpose()
+            /*   */-f1*Y*bCt.transpose()
             /*   */-f1*bYt/Yta*t*r.transpose()
             /*   */-0.5*f1*bYt*MatrixDim::Identity()
             /*   */-f1*bYt*(R+Yt)/Ra/Y2*r*r.transpose()
@@ -124,14 +124,15 @@ namespace model
             const VectorDim Ya(r+Ra*t);
             const Scalar Yat(Ya.dot(t));
             const Scalar Ya2a2(Ya.squaredNorm()+DislocationStress<dim>::a2);
-            const Scalar bYat(b.cross(Ya).dot(t));
+            const VectorDim bYa(b.cross(Ya));
+            const Scalar bYat(bYa.dot(t));
             
             
             const Scalar f1(2.0/Ya2a2);
             
-            return f1*MaterialType::C1*(1.0+DislocationStress<dim>::a2/Ya2a2)*t*(b.cross(Ya)).transpose()
-            /*  */+f1*MaterialType::C1*0.5*DislocationStress<dim>::a2/Ra2*t*(b.cross(r)).transpose()
-            /*  */-f1*Ya*(b.cross(t)).transpose()
+            return f1*MaterialType::C1*(1.0+DislocationStress<dim>::a2/Ya2a2)*t*bYa.transpose()
+            /*  */+f1*MaterialType::C1*0.5*DislocationStress<dim>::a2/Ra2*t*b.cross(r).transpose()
+            /*  */-f1*Ya*bCt.transpose()
             /*  */-f1*bYat/Yat*t*r.transpose()
             /*  */-0.5*f1*bYat*(1.0+2.0*DislocationStress<dim>::a2/Ya2a2+DislocationStress<dim>::a2/Ra2)*MatrixDim::Identity()
             /*  */-f1*bYat*(Ra+Yat)/Ra/Ya2a2*r*r.transpose()
@@ -144,19 +145,15 @@ namespace model
 #endif
         }
         
-        
         /**********************************************************************/
         template<typename Derived>
         VectorDim displacement_kernel(const Eigen::MatrixBase<Derived>& r) const
         {
             const Scalar Ra(sqrt(r.squaredNorm()+DislocationStress<dim>::a2));
-            const VectorDim Y(r+Ra*t);
-            const Scalar Yt(Y.dot(t));
-
-
-            return -b.cross(t)*(2.0-0.5/MaterialType::C1+(2.0-1.0/MaterialType::C1)*log(Yt)-DislocationStress<dim>::a2/Ra/Yt)/8.0/M_PI
-            /*  */ +Y*b.cross(t).dot(r)/Yt/Ra/MaterialType::C1/8.0/M_PI;
-
+            const VectorDim Ya(r+Ra*t);
+            const Scalar Yat(Ya.dot(t));
+            return -(2.0-0.5/MaterialType::C1+(2.0-1.0/MaterialType::C1)*log(Yat)-DislocationStress<dim>::a2/Ra/Yat)/8.0/M_PI*bCt
+            /*  */ +bCt.dot(r)/Yat/Ra/MaterialType::C1/8.0/M_PI*Ya;
         }
         
     public:
@@ -168,6 +165,7 @@ namespace model
         const VectorDim b;
         const double length;
         const VectorDim t;
+        const VectorDim bCt;
         
         /**********************************************************************/
         StressStraight(const VectorDim& _P0,const VectorDim& _P1, const VectorDim& _b) :
@@ -175,7 +173,8 @@ namespace model
         /* init list */ P1(_P1),
         /* init list */ b(_b),
         /* init list */ length((P1-P0).norm()),
-        /* init list */ t((P1-P0)/length)
+        /* init list */ t((P1-P0)/length),
+        /* init list */ bCt(b.cross(t))
         {/*!\param[in] _P0 starting point of the segment
           * \param[in] _P0 ending point of the segment
           * \param[in] _b Burgers vector of the segment

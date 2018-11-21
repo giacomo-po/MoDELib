@@ -9,7 +9,7 @@ fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=0e12;
+targetFrankReadDislocationDensity=1e12;
 FrankReadSizeMean=0.5e-6;
 FrankReadSizeStd=0.25e-6;
 FrankReadAspectRatioMean=2.0;
@@ -25,7 +25,7 @@ targetPrismaticLoopDensity=0e12;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=0 -1;
+straightDislocationsSlipSystemIDs=-1 -1;
 straightDislocationsAngleFromScrewOrientation=90.0 90.0;
 pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 						   		0.0 0.0 0.0;

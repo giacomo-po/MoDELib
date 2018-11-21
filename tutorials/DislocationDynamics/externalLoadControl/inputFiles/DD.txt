@@ -1,6 +1,9 @@
 ######################################
-# Simulation type (0=finite sample no FEM, 1=finite sample with FEM,2=periodic prism)
-simulationType=0;
+# GENERAL SETTINGS
+# Simulation type 
+simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
+Nsteps=100000;		# total number of simulation steps
+startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
 externalLoadControllerName=UniformExternalLoadController;
@@ -17,14 +20,11 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-dislocationImages_x=0;
-dislocationImages_y=0;
-dislocationImages_z=0;
+periodicImages_x=0;
+periodicImages_y=0;
+periodicImages_z=0;
 
 ######################################
-# Number of simulation steps 
-Nsteps=100000;
-startAtTimeStep = -1;
 quadPerLength=0.1;
 
 ######################################

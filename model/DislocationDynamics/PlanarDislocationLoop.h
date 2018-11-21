@@ -42,6 +42,13 @@ namespace model
         double _slippedArea;
         Eigen::Matrix<double,dim,1> _rightHandedNormal;
         
+        
+        template <typename T>
+        static int sgn(const T& val)
+        {
+            return (val > T(0)) - (val < T(0));
+        }
+        
     public:
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -174,17 +181,7 @@ namespace model
         VectorDim diracStringDirection(const VectorDim& x) const
         {
             VectorDim temp(VectorDim::Zero());
-            if(glidePlane && _slippedArea>FLT_EPSILON)
-            {// a right-handed normal for the loop can be determined
-                if((x-glidePlane->P).dot(rightHandedNormal())>=0.0)
-                {
-                    temp= rightHandedNormal();
-                }
-                else
-                {
-                    temp=-rightHandedNormal();
-                }
-            }
+
             return temp;
         }
         
@@ -192,30 +189,53 @@ namespace model
         double solidAngle(const VectorDim& x) const
         {
             double temp(0.0);
-            if(isVirtualBoundaryLoop())
+            if(!isVirtualBoundaryLoop())
             {
-                assert(0 && "FINISH HERE. NEED TO BREAK LOOP IN TWO TRIAGLES");
+                if(_slippedArea>FLT_EPSILON)
+                {// a right-handed normal for the loop can be determined
+                    const double posNorm((x-glidePlane->P).norm());
+                    const double dotProd((x-glidePlane->P).dot(rightHandedNormal()));
+                    if(std::fabs(dotProd)>FLT_EPSILON*posNorm)
+                    {// x is outside the plane of the loop
+                        const VectorDim s(sgn(dotProd)*rightHandedNormal()); // s points along +n for points above, and along -n for points below
+                        for(const auto& loopLink : this->links())
+                        {
+                            VectorDim e1(loopLink.second->source()->get_P()-x);
+                            const double e1Norm(e1.norm());
+                            if(e1Norm>FLT_EPSILON)
+                            {
+                                e1/=e1Norm;
+                                VectorDim Y1(loopLink.second->  sink()->get_P()-x);
+                                const double Y1norm(Y1.norm());
+                                if(Y1norm>FLT_EPSILON)
+                                {
+                                    Y1/=Y1norm;
+                                    VectorDim e3(e1.cross(Y1));
+                                    const double e3Norm(e3.norm());
+                                    if(e3Norm>FLT_EPSILON)
+                                    {// e1 and Y1 are not align. If they are the projection on the unit sphere is a point and therefore there is no contribution to solid angle
+                                        e3/=e3Norm; // normalize e3
+                                        const VectorDim e2(e3.cross(e1));
+                                        const double ydy(e1.dot(Y1));
+                                        const double w=sqrt((1.0-ydy)/(1.0+ydy));
+                                        const double oneA2=sqrt(1.0+DislocationStress<dim>::a2);
+                                        const double s3(s.dot(e3));
+                                        const double s3A2=sqrt(std::pow(s3,2)+DislocationStress<dim>::a2);
+                                        temp+=2.0*s3/oneA2/s3A2*atan(s3A2*w/(oneA2-s.dot(e1)-s.dot(e2)*w));
+                                    }
+                                }
+                            }
+                        }
+                    }
+//                    else
+//                    {// x is in the plane of the loop. If x is outside the loop the solid angle is 0. Otherwise it is +/- 2Pi
+//                        assert(0 && "FINISH HERE. NEED TO HANDLE SPECIAL CASES OF x on the loop plane. Inside or outside");
+//                    }
+                }
             }
             else
             {
-                const VectorDim s(diracStringDirection(x));
-                if(s.squaredNorm())
-                {
-                    for(const auto& loopLink : this->links())
-                    {
-                        const VectorDim e1((loopLink.second->source()->get_P()-x).normalized());
-                        const VectorDim Y1((loopLink.second->  sink()->get_P()-x).normalized());
-                        const VectorDim e3(e1.cross(Y1).normalized());
-                        const VectorDim e2(e3.cross(e1));
-                        const double ydy(e1.dot(Y1));
-                        const double w=sqrt((1.0-ydy)/(1.0+ydy));
-                        temp+=2.0*atan(s.dot(e3)*w/(1.0-s.dot(e1)-s.dot(e2)*w));
-                    }
-                }
-                else
-                {
-                    assert(0 && "FINISH HERE. NEED TO HANDLE SPECIAL CASES OF x on the loop plane. Inside or outside");
-                }
+                assert(0 && "FINISH HERE. NEED TO BREAK LOOP IN TWO TRIAGLES");
             }
             return temp;
         }
