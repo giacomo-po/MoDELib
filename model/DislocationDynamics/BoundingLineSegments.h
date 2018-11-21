@@ -246,13 +246,13 @@ namespace model
                         const VectorDim x=0.5*(E1+E2);
                         if((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON)
                         {// distinct point
-                            isUnique*=true;
+//                            isUnique*=true;
 //                            std::cout<<"    B existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
                             iter++;
                         }
                         else
                         {// existing degenerate point is erased since P1-P2 will be appended later
-                            isUnique*=true;
+//                            isUnique*=true;
 //                            std::cout<<"    C existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
                             iter=temp.erase(iter);
                         }

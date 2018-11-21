@@ -7,7 +7,7 @@
  */
 
 
-#include <model/DislocationDynamics/Visualization/DDvtk/DDvtk.h>
+#include <DDvtk.h>
 
 
 int main(int, char *[])

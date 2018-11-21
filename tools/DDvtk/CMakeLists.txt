@@ -8,7 +8,7 @@ include(${VTK_USE_FILE})
 add_executable(DDvtk DDvtk.cxx)
 
 include_directories(/usr/local/include)
-include_directories(../../)
+include_directories(../../header_symlinks)
 
 set(CMAKE_BUILD_TYPE Release)
 

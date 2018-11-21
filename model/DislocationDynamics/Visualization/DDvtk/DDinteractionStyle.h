@@ -118,22 +118,23 @@ namespace model
             if (ifs.is_open())
             {
                 std::string line;
+                int colID=0;
                 while (std::getline(ifs, line))
                 {
-                    std::stringstream ss(line);
+//                    std::stringstream ss(line);
+//                    
+//                    int colID;
+//                    ss>>colID;
+//                    std::string label;
+//                    std::string temp;
+//                    
+//                    while (ss >> temp)
+//                    {
+//                        label+=" "+temp;
+//                    }
                     
-                    int colID;
-                    ss>>colID;
-                    std::string label;
-                    std::string temp;
-                    
-                    while (ss >> temp)
-                    {
-                        label+=" "+temp;
-                    }
-                    
-                    FlabelsMap.emplace(colID,label);
-                    
+                    FlabelsMap.emplace(colID,line);
+                    colID++;
                 }
                 
             }

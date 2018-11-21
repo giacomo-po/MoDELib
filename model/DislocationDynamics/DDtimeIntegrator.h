@@ -115,7 +115,7 @@ namespace model
 //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
 //            }
             
-            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+//            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
         }
         
     };

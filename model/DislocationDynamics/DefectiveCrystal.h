@@ -153,7 +153,7 @@ namespace model
             }
             if (externalLoadController)
             {
-                externalLoadController->update(DN,runID);
+                externalLoadController->update(runID);
             }
         }
         
@@ -239,6 +239,8 @@ namespace model
             simulationParameters.dt=DN.get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
             simulationParameters.totalTime+=simulationParameters.dt;
 //            DN.updatePlasticDistortionRateFromVelocities();
+            
+            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<simulationParameters.dt<<std::endl;
             
             // output
             DN.io().output(simulationParameters.runID);

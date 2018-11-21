@@ -330,27 +330,25 @@ namespace model
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())
                 {
-                    // Add stress of ExternalLoadController
                     if(seg.network().externalLoadController)
-                    {
-                        qPoint.stress += seg.network().extStressController->externalStress(qPoint.r);
+                    {// Add stress of externalLoadController
+                        qPoint.stress += seg.network().externalLoadController->stress(qPoint.r);
                     }
                     
-                    // Add BVP stress
                     if(seg.network().bvpSolver)
-                    {
+                    {// Add BVP stress
                         qPoint.stress += seg.network().bvpSolver->stress(qPoint.r,seg.source->includingSimplex());
                     }
                     
-                    // Add GB stress
+                    
                     for(const auto& sStraight : seg.network().poly.grainBoundaryDislocations() )
-                    {
+                    {// Add GB stress
                         qPoint.stress += sStraight.stress(qPoint.r);
                     }
                     
-                    // Add EshelbyInclusions stress
+                    
                     for(const auto& inclusion : seg.network().eshelbyInclusions() )
-                    {
+                    {// Add EshelbyInclusions stress
                         for(const auto& shift : seg.network().periodicShifts)
                         {
                             qPoint.stress += inclusion.second.stress(qPoint.r-shift);

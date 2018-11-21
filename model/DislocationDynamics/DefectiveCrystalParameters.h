@@ -69,7 +69,7 @@ namespace model
             }
             else
             {// F/F_0.txt is not there, keep default initialization
-                model::cout<<"Could not read runID from F/F_0.txt"<<std::endl;
+                model::cout<<"Unable to read F/F_0.txt"<<std::endl;
                 runID=0;
             }
             

@@ -35,6 +35,16 @@ namespace model
         
     public:
         
+                 const std::string inputFileName;
+
+        
+        /**************************************************************************/
+        ExternalLoadControllerBase(const std::string& _inputFileName) :
+        /* init list */ inputFileName(_inputFileName)
+        {
+            model::cout<<greenBoldColor<<"Reading ExternalLoadController file: "<<inputFileName<<defaultColor<<std::endl;
+        }
+
         /**************************************************************************/
         virtual MatrixDim stress(const VectorDim&) const = 0;
         
@@ -44,8 +54,7 @@ namespace model
         /**************************************************************************/
         virtual void output(const long int& runID,
                             UniqueOutputFile<'F'>& f_file,
-                            std::ofstream& F_labels,
-                            int& labelCol) const = 0;
+                            std::ofstream& F_labels) const = 0;
         
     };
 }

@@ -419,7 +419,7 @@ namespace model
             }
             createVertices(evl);
             createEdges(evl);
-            DN.updatePlasticDistortionFromAreas();
+            DN.updatePlasticDistortionFromAreas(DN.simulationParameters.dt);
             
             IDreader<'E',1,14,double> inclusionsReader;
             inclusionsReader.read(0,true);
@@ -917,14 +917,14 @@ namespace model
             
             std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
             
-            f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.get_totalTime()<<" "<<DN.get_dt()<<" ";
-            int labelCol=0;
+            f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.simulationParameters.totalTime<<" "<<DN.simulationParameters.dt<<" ";
+//            int labelCol=0;
             if(runID==0)
             {
-                F_labels<<labelCol+0<<"    runID\n";
-                F_labels<<labelCol+1<<"    time [b/cs]\n";
-                F_labels<<labelCol+2<<"    dt [b/cs]\n";
-                labelCol+=3;
+                F_labels<<"runID\n";
+                F_labels<<"time [b/cs]\n";
+                F_labels<<"dt [b/cs]\n";
+//                labelCol+=3;
             }
             
             
@@ -934,16 +934,16 @@ namespace model
                 f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
                 if(runID==0)
                 {
-                    F_labels<<labelCol+0<<"    betaP_11\n";
-                    F_labels<<labelCol+1<<"    betaP_12\n";
-                    F_labels<<labelCol+2<<"    betaP_13\n";
-                    F_labels<<labelCol+3<<"    betaP_21\n";
-                    F_labels<<labelCol+4<<"    betaP_22\n";
-                    F_labels<<labelCol+5<<"    betaP_23\n";
-                    F_labels<<labelCol+6<<"    betaP_31\n";
-                    F_labels<<labelCol+7<<"    betaP_32\n";
-                    F_labels<<labelCol+8<<"    betaP_33\n";
-                    labelCol+=9;
+                    F_labels<<"betaP_11\n";
+                    F_labels<<"betaP_12\n";
+                    F_labels<<"betaP_13\n";
+                    F_labels<<"betaP_21\n";
+                    F_labels<<"betaP_22\n";
+                    F_labels<<"betaP_23\n";
+                    F_labels<<"betaP_31\n";
+                    F_labels<<"betaP_32\n";
+                    F_labels<<"betaP_33\n";
+//                    labelCol+=9;
                 }
 //            }
             
@@ -953,16 +953,16 @@ namespace model
                 f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
                 if(runID==0)
                 {
-                    F_labels<<labelCol+0<<"    dotBetaP_11 [cs/b]\n";
-                    F_labels<<labelCol+1<<"    dotBetaP_12 [cs/b]\n";
-                    F_labels<<labelCol+2<<"    dotBetaP_13 [cs/b]\n";
-                    F_labels<<labelCol+3<<"    dotBetaP_21 [cs/b]\n";
-                    F_labels<<labelCol+4<<"    dotBetaP_22 [cs/b]\n";
-                    F_labels<<labelCol+5<<"    dotBetaP_23 [cs/b]\n";
-                    F_labels<<labelCol+6<<"    dotBetaP_31 [cs/b]\n";
-                    F_labels<<labelCol+7<<"    dotBetaP_32 [cs/b]\n";
-                    F_labels<<labelCol+8<<"    dotBetaP_33 [cs/b]\n";
-                    labelCol+=9;
+                    F_labels<<"dotBetaP_11 [cs/b]\n";
+                    F_labels<<"dotBetaP_12 [cs/b]\n";
+                    F_labels<<"dotBetaP_13 [cs/b]\n";
+                    F_labels<<"dotBetaP_21 [cs/b]\n";
+                    F_labels<<"dotBetaP_22 [cs/b]\n";
+                    F_labels<<"dotBetaP_23 [cs/b]\n";
+                    F_labels<<"dotBetaP_31 [cs/b]\n";
+                    F_labels<<"dotBetaP_32 [cs/b]\n";
+                    F_labels<<"dotBetaP_33 [cs/b]\n";
+//                    labelCol+=9;
                 }
             }
             
@@ -972,17 +972,17 @@ namespace model
                 f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" "<<std::get<3>(length)<<" ";
                 if(runID==0)
                 {
-                    F_labels<<labelCol+0<<"    glissile length [b]\n";
-                    F_labels<<labelCol+1<<"    sessile length [b]\n";
-                    F_labels<<labelCol+2<<"    boundary length [b]\n";
-                    F_labels<<labelCol+3<<"    grain boundary length [b]\n";
-                    labelCol+=4;
+                    F_labels<<"glissile length [b]\n";
+                    F_labels<<"sessile length [b]\n";
+                    F_labels<<"boundary length [b]\n";
+                    F_labels<<"grain boundary length [b]\n";
+//                    labelCol+=4;
                 }
             }
             
             if (DN.externalLoadController)
             {
-                DN.externalLoadController->output(runID,f_file,F_labels,labelCol);
+                DN.externalLoadController->output(runID,f_file,F_labels);
             }
             
             if(DN.bvpSolver)

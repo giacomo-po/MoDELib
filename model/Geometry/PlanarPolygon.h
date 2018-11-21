@@ -16,7 +16,7 @@
 //#include <Eigen/StdVector>
 #include <Eigen/StdDeque>
 #include <assert.h>
-#include <model/Geometry/earcut.hpp>
+#include <earcut.hpp>
 
 namespace model
 {

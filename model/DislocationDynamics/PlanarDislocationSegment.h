@@ -32,8 +32,6 @@
 #include <GlidePlane.h>
 #include <Coeff2Hermite.h>
 #include <DislocationParticle.h>
-#include <ParticleSystem.h>
-#include <DislocationLocalReference.h>
 #include <UniqueOutputFile.h>
 #include <GrainBoundary.h>
 #include <LineSimplexIntersection.h>
@@ -54,106 +52,106 @@ namespace model
 {
     
     
-    template<typename LinkType>
-    class VirtualBoundaryLoopsManager
-    {
-        
-        typedef typename LinkType::LoopType LoopType;
-        typedef typename LinkType::NodeType NodeType;
-        typedef LoopLink<LinkType> LoopLinkType;
-        
-        LinkType& link;
-        //        const std::shared_ptr<LoopType> innermostLoop;
-        //        const std::shared_ptr<LoopType> outermostLoop;
-        
-        //        const std::unique_ptr<LoopType> loop;
-        
-        //        const std::unique_ptr<LoopLinkType> sinkTosource;
-        //        const std::unique_ptr<LoopLinkType> sourceToVirtualSource;
-        //        const std::unique_ptr<LoopLinkType> virtualSourceToSink;
-        //        const std::unique_ptr<LoopLinkType> sinkToVirtualSource;
-        //        const std::unique_ptr<LoopLinkType> virtualSourceToVirtualSink;
-        //        const std::unique_ptr<LoopLinkType> virtualSinkToSink;
-        
-        
-        //        const std::unique_ptr<LoopLink<LinkType>>
-        
-        static std::pair<size_t,size_t> getLoopIDs(LinkType& link)
-        {
-            assert(link.grains().size()==1);
-            assert(link.burgers().norm()>FLT_EPSILON);
-            const Grain<LinkType::dim>& grain(**link.grains().begin());
-            
-//            std::shared_ptr<NodeType> virtualSource(link.source->virtualBoundaryNode());
-//            std::shared_ptr<NodeType> virtualSink(link.sink->virtualBoundaryNode());
-            
-            std::vector<std::shared_ptr<NodeType>> innerNodes{link.sink,link.source,link.source->virtualBoundaryNode()};
-            std::shared_ptr<LoopType> innerLoop=link.network().insertLoop(innerNodes,link.burgers(),grain.grainID);
-            
-            std::vector<std::shared_ptr<NodeType>> outerNodes{link.sink,link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode()};
-            std::shared_ptr<LoopType> outerLoop=link.network().insertLoop(outerNodes,innerLoop->burgers(),grain.grainID);
-            
-            innerLoop->update();
-            outerLoop->update();
-            
-            std::cout<<"innerLoop "<<innerLoop.use_count()<<std::endl;
-            std::cout<<"outerLoop "<<outerLoop.use_count()<<std::endl;
-            
-            assert(innerLoop->burgers().norm()>FLT_EPSILON);
-            assert(outerLoop->burgers().norm()>FLT_EPSILON);
-
-            return std::make_pair(innerLoop->sID,outerLoop->sID);
-        }
-        
-        const std::pair<size_t,size_t> loopIDs;
-        
-    public:
-        
-        
-        
-        VirtualBoundaryLoopsManager(LinkType& _link) :
-        /* init */ link(_link)
-        /* init */,loopIDs(getLoopIDs(link))
-        //        /* init */ innermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
-        //        /* init */,outermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
-        //        /* init */,sinkTosource(new LoopLinkType(link.sink,link.source,innermostLoop))
-        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),innermostLoop))
-        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,innermostLoop))
-        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),outermostLoop))
-        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),outermostLoop))
-        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,outermostLoop))
-        //        /* init */ sinkTosource(new LoopLinkType(link.sink,link.source,std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
-        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),sinkTosource->loop()))
-        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,sinkTosource->loop()))
-        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
-        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),sinkToVirtualSource->loop()))
-        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,sinkToVirtualSource->loop()))
-        {
-            
-            std::cout<<"Created VirtualBoundaryLoops "<<loopIDs.first<<","<<loopIDs.second<<" for link "<<link.tag()<<std::endl;
-            
-            
-        }
-        
-//        void update()
+//    template<typename LinkType>
+//    class VirtualBoundaryLoopsManager
+//    {
+//        
+//        typedef typename LinkType::LoopType LoopType;
+//        typedef typename LinkType::NodeType NodeType;
+//        typedef LoopLink<LinkType> LoopLinkType;
+//        
+//        LinkType& link;
+//        //        const std::shared_ptr<LoopType> innermostLoop;
+//        //        const std::shared_ptr<LoopType> outermostLoop;
+//        
+//        //        const std::unique_ptr<LoopType> loop;
+//        
+//        //        const std::unique_ptr<LoopLinkType> sinkTosource;
+//        //        const std::unique_ptr<LoopLinkType> sourceToVirtualSource;
+//        //        const std::unique_ptr<LoopLinkType> virtualSourceToSink;
+//        //        const std::unique_ptr<LoopLinkType> sinkToVirtualSource;
+//        //        const std::unique_ptr<LoopLinkType> virtualSourceToVirtualSink;
+//        //        const std::unique_ptr<LoopLinkType> virtualSinkToSink;
+//        
+//        
+//        //        const std::unique_ptr<LoopLink<LinkType>>
+//        
+//        static std::pair<size_t,size_t> getLoopIDs(LinkType& link)
 //        {
+//            assert(link.grains().size()==1);
+//            assert(link.burgers().norm()>FLT_EPSILON);
+//            const Grain<LinkType::dim>& grain(**link.grains().begin());
+//            
+////            std::shared_ptr<NodeType> virtualSource(link.source->virtualBoundaryNode());
+////            std::shared_ptr<NodeType> virtualSink(link.sink->virtualBoundaryNode());
+//            
+//            std::vector<std::shared_ptr<NodeType>> innerNodes{link.sink,link.source,link.source->virtualBoundaryNode()};
+//            std::shared_ptr<LoopType> innerLoop=link.network().insertLoop(innerNodes,link.burgers(),grain.grainID);
+//            
+//            std::vector<std::shared_ptr<NodeType>> outerNodes{link.sink,link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode()};
+//            std::shared_ptr<LoopType> outerLoop=link.network().insertLoop(outerNodes,innerLoop->burgers(),grain.grainID);
+//            
+//            innerLoop->update();
+//            outerLoop->update();
+//            
+//            std::cout<<"innerLoop "<<innerLoop.use_count()<<std::endl;
+//            std::cout<<"outerLoop "<<outerLoop.use_count()<<std::endl;
+//            
+//            assert(innerLoop->burgers().norm()>FLT_EPSILON);
+//            assert(outerLoop->burgers().norm()>FLT_EPSILON);
+//
+//            return std::make_pair(innerLoop->sID,outerLoop->sID);
+//        }
+//        
+//        const std::pair<size_t,size_t> loopIDs;
+//        
+//    public:
+//        
+//        
+//        
+//        VirtualBoundaryLoopsManager(LinkType& _link) :
+//        /* init */ link(_link)
+//        /* init */,loopIDs(getLoopIDs(link))
+//        //        /* init */ innermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
+//        //        /* init */,outermostLoop(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))
+//        //        /* init */,sinkTosource(new LoopLinkType(link.sink,link.source,innermostLoop))
+//        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),innermostLoop))
+//        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,innermostLoop))
+//        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),outermostLoop))
+//        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),outermostLoop))
+//        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,outermostLoop))
+//        //        /* init */ sinkTosource(new LoopLinkType(link.sink,link.source,std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
+//        //        /* init */,sourceToVirtualSource(new LoopLinkType(link.source,link.source->virtualBoundaryNode(),sinkTosource->loop()))
+//        //        /* init */,virtualSourceToSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink,sinkTosource->loop()))
+//        //        /* init */,sinkToVirtualSource(new LoopLinkType(link.sink,link.source->virtualBoundaryNode(),std::shared_ptr<LoopType>(new LoopType(&link.network(),link.burgers(),(*link.grains().begin())->grainID))))
+//        //        /* init */,virtualSourceToVirtualSink(new LoopLinkType(link.source->virtualBoundaryNode(),link.sink->virtualBoundaryNode(),sinkToVirtualSource->loop()))
+//        //        /* init */,virtualSinkToSink(new LoopLinkType(link.sink->virtualBoundaryNode(),link.sink,sinkToVirtualSource->loop()))
+//        {
+//            
+//            std::cout<<"Created VirtualBoundaryLoops "<<loopIDs.first<<","<<loopIDs.second<<" for link "<<link.tag()<<std::endl;
+//            
+//            
+//        }
+//        
+////        void update()
+////        {
+////            link.network().deleteLoop(loopIDs.first);
+////            link.network().deleteLoop(loopIDs.second);
+////            loopIDs(getLoopIDs(link));
+////        }
+//        
+//        /******************************************************************/
+//        ~VirtualBoundaryLoopsManager()
+//        {
+//            std::cout<<"Destroying VirtualBoundaryLoopsManager "<<link.tag()<<std::endl;
+//            
 //            link.network().deleteLoop(loopIDs.first);
 //            link.network().deleteLoop(loopIDs.second);
-//            loopIDs(getLoopIDs(link));
+////            assert(link.network().loops().find(loopIDs.first )==link.network().loops().end());
+////            assert(link.network().loops().find(loopIDs.second)==link.network().loops().end());
 //        }
-        
-        /******************************************************************/
-        ~VirtualBoundaryLoopsManager()
-        {
-            std::cout<<"Destroying VirtualBoundaryLoopsManager "<<link.tag()<<std::endl;
-            
-            link.network().deleteLoop(loopIDs.first);
-            link.network().deleteLoop(loopIDs.second);
-//            assert(link.network().loops().find(loopIDs.first )==link.network().loops().end());
-//            assert(link.network().loops().find(loopIDs.second)==link.network().loops().end());
-        }
-        
-    };
+//        
+//    };
     
     
     /**************************************************************************/

@@ -3,6 +3,9 @@
 simulationType=0;
 
 ######################################
+externalLoadControllerName=UniformExternalLoadController;
+
+######################################
 # Settings for simulationType=1 (finite sample with FEM)
 stepsBetweenBVPupdates = 10;
 useVirtualExternalLoops=1;

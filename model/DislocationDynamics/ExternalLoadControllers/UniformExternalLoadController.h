@@ -43,7 +43,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
-        const std::string inputFileName;
+//        const std::string this->inputFileName;
         const DislocationNetworType& DN;
         
         MatrixDim ExternalStress;
@@ -74,23 +74,24 @@ namespace model
         /**************************************************************************/
         template <typename DislocationNetworkType>
         UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
-        /* init list */ inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
+//        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
+        /* init list */ ExternalLoadControllerBase<DislocationNetworType::dim>("./externalLoadControl/UniformExternalLoadController.txt")
         /* init list */,DN(_DN)
         /* init list */,ExternalStress(MatrixDim::Zero())
-        /* init list */,ExternalStress0(TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
-        /* init list */,ExternalStressRate(TextFileParser(inputFileName).readMatrix<double>("ExternalStressRate",dim,dim,true))
+        /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
+        /* init list */,ExternalStressRate(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStressRate",dim,dim,true))
         /* init list */,ExternalStrain(MatrixDim::Zero())
-        /* init list */,ExternalStrain0(TextFileParser(inputFileName).readMatrix<double>("ExternalStrain0",dim,dim,true))
-        /* init list */,ExternalStrainRate(TextFileParser(inputFileName).readMatrix<double>("ExternalStrainRate",dim,dim,true))
+        /* init list */,ExternalStrain0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStrain0",dim,dim,true))
+        /* init list */,ExternalStrainRate(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStrainRate",dim,dim,true))
         /* init list */,plasticStrain(MatrixDim::Zero())
-        /* init list */,MachineStiffnessRatio(TextFileParser(inputFileName).readMatrix<double>("MachineStiffnessRatio",1,voigtSize,true))
+        /* init list */,MachineStiffnessRatio(TextFileParser(this->inputFileName).readMatrix<double>("MachineStiffnessRatio",1,voigtSize,true))
         /* init list */,voigtorder(Eigen::Matrix<size_t,voigtSize,2>::Zero())
         /* init list */,stressmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero())
         /* init list */,strainmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero())
         /* init list */,last_update_time(0.0)
         /* init list */,lambda(1.0)
         /* init list */,nu_use(0.12)
-        /* init list */,relaxSteps(TextFileParser(inputFileName).readScalar<int>("relaxSteps",true))
+        /* init list */,relaxSteps(TextFileParser(this->inputFileName).readScalar<int>("relaxSteps",true))
         {
             //            const long int runID=DN.runningID();
             //            const unsigned int userOutputColumn=DN.userOutputColumn();
@@ -104,25 +105,25 @@ namespace model
             lambda=2.0*nu/(1.0-2.0*nu);
             
             //            model::EigenDataReader EDR;
-            TextFileParser parser(inputFileName);
-            //TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
+            TextFileParser parser(this->inputFileName);
+            //TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
             
 //            DN.use_externalStress=parser.readScalar<int>("use_externalStress",true);
 //            if(DN.use_externalStress)
 //            {
-                //            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
-                //            EDR.readMatrixInFile(inputFileName,"ExternalStress0",ExternalStress0);
+                //            EDR.readScalarInFile(this->inputFileName,"use_externalStress",DN.use_externalStress);
+                //            EDR.readMatrixInFile(this->inputFileName,"ExternalStress0",ExternalStress0);
                 assert((ExternalStress0-ExternalStress0.transpose()).norm()<DBL_EPSILON && "ExternalStress0 is not symmetric.");
-                //           EDR.readMatrixInFile(inputFileName,"ExternalStressRate",ExternalStressRate);
+                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStressRate",ExternalStressRate);
                 assert((ExternalStressRate-ExternalStressRate.transpose()).norm()<DBL_EPSILON && "ExternalStressRate is not symmetric.");
-                //           EDR.readMatrixInFile(inputFileName,"ExternalStrain0",ExternalStrain0);
+                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrain0",ExternalStrain0);
                 assert((ExternalStrain0-ExternalStrain0.transpose()).norm()<DBL_EPSILON && "ExternalStrain0 is not symmetric.");
-                //           EDR.readMatrixInFile(inputFileName,"ExternalStrainRate",ExternalStrainRate);
+                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrainRate",ExternalStrainRate);
                 assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
-                //            EDR.readMatrixInFile(inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
-                //            EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
+                //            EDR.readMatrixInFile(this->inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
+                //            EDR.readScalarInFile(this->inputFileName,"relaxSteps",relaxSteps);
                 
-                    DN._userOutputColumn+=18;  //put here in order for right bvp restart
+//                    DN._userOutputColumn+=18;  //put here in order for right bvp restart
             
                 //                if (DN.use_boundary)
                 //                {
@@ -184,24 +185,27 @@ namespace model
                 IDreader<'F',1,200,double> vReader;
                 if (vReader.isGood(0,true))
                 {
+                    vReader.readLabelsFile("F/F_labels.txt");
                     vReader.read(0,true);
                     const auto iter=vReader.find(runID);
-                    Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
+//                    Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
                     if (iter!=vReader.end())
                     {
-                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
-                        last_update_time=temp(0);
+//                        temp=Eigen::Map<Eigen::Matrix<double,1,200>>(iter->second.data());
+//                        last_update_time=temp(0);
+                        last_update_time=vReader(runID,"time [b/cs]");
                         
-                        size_t curCol=DN.userOutputColumn()-19;
-                        std::cout<<"userOutputColumn="<<DN.userOutputColumn()<<std::endl;
-                        std::cout<<"curCol="<<curCol<<std::endl;
+//                        size_t curCol=DN.userOutputColumn()-19;
+//                        std::cout<<"userOutputColumn="<<DN.userOutputColumn()<<std::endl;
+//                        std::cout<<"curCol="<<curCol<<std::endl;
                         model::cout<<"last_update_time="<<last_update_time<<std::endl;
                         for(int r=0;r<dim;++r)
                         {
                             for(int c=0;c<dim;++c)
                             {
-                                ExternalStrain(r,c)=temp(curCol);
-                                curCol+=1;
+//                                ExternalStrain(r,c)=temp(curCol);
+                                ExternalStrain(r,c)=vReader(runID,"e_"+std::to_string(r+1)+std::to_string(c+1));
+  //                              curCol+=1;
                             }
                         }
                         
@@ -209,8 +213,9 @@ namespace model
                         {
                             for(int c=0;c<dim;++c)
                             {
-                                ExternalStress(r,c)=temp(curCol);
-                                curCol+=1;
+//                                ExternalStress(r,c)=temp(curCol);
+                                ExternalStress(r,c)=vReader(runID,"s_"+std::to_string(r+1)+std::to_string(c+1)+" [mu]");
+//                                curCol+=1;
                             }
                         }
                         std::cout<<"reading External Strain=\n "<<ExternalStrain<<std::endl;
@@ -300,15 +305,15 @@ namespace model
         {
             return ExternalStress;
         }
+
         /*************************************************************************/
-//        template <typename DislocationNetworkType>
         void update(const long int& runID) override
         {
             
             
             if(runID>=relaxSteps)
             {
-                const double deltaT = DN.get_totalTime() - last_update_time;
+                const double deltaT = DN.simulationParameters.totalTime - last_update_time;
                 last_update_time += deltaT;
                 MatrixDim PSR=DN.plasticStrainRate();
                 ExternalStress+=stressconsidermachinestiffness(ExternalStrainRate*deltaT-PSR*deltaT,ExternalStressRate*deltaT);  //2017-12-7
@@ -344,8 +349,7 @@ namespace model
         /**************************************************************************/
         void output(const long int& runID,
                     UniqueOutputFile<'F'>& f_file,
-                    std::ofstream& F_labels,
-                    int& labelCol) const
+                    std::ofstream& F_labels) const
         {
             
             //std::stringstream os;
@@ -353,26 +357,24 @@ namespace model
             
             if(runID==0)
             {
-                F_labels<<labelCol+0<<"    e_11\n";
-                F_labels<<labelCol+1<<"    e_12\n";
-                F_labels<<labelCol+2<<"    e_13\n";
-                F_labels<<labelCol+3<<"    e_21\n";
-                F_labels<<labelCol+4<<"    e_22\n";
-                F_labels<<labelCol+5<<"    e_23\n";
-                F_labels<<labelCol+6<<"    e_31\n";
-                F_labels<<labelCol+7<<"    e_32\n";
-                F_labels<<labelCol+8<<"    e_33\n";
-                labelCol+=9;
-                F_labels<<labelCol+0<<"    s_11 [mu]\n";
-                F_labels<<labelCol+1<<"    s_12 [mu]\n";
-                F_labels<<labelCol+2<<"    s_13 [mu]\n";
-                F_labels<<labelCol+3<<"    s_21 [mu]\n";
-                F_labels<<labelCol+4<<"    s_22 [mu]\n";
-                F_labels<<labelCol+5<<"    s_23 [mu]\n";
-                F_labels<<labelCol+6<<"    s_31 [mu]\n";
-                F_labels<<labelCol+7<<"    s_32 [mu]\n";
-                F_labels<<labelCol+8<<"    s_33 [mu]\n";
-                labelCol+=9;
+                F_labels<<"e_11\n";
+                F_labels<<"e_12\n";
+                F_labels<<"e_13\n";
+                F_labels<<"e_21\n";
+                F_labels<<"e_22\n";
+                F_labels<<"e_23\n";
+                F_labels<<"e_31\n";
+                F_labels<<"e_32\n";
+                F_labels<<"e_33\n";
+                F_labels<<"s_11 [mu]\n";
+                F_labels<<"s_12 [mu]\n";
+                F_labels<<"s_13 [mu]\n";
+                F_labels<<"s_21 [mu]\n";
+                F_labels<<"s_22 [mu]\n";
+                F_labels<<"s_23 [mu]\n";
+                F_labels<<"s_31 [mu]\n";
+                F_labels<<"s_32 [mu]\n";
+                F_labels<<"s_33 [mu]\n";
             }
             //return os.str();
         }
@@ -397,23 +399,23 @@ namespace model
 //            lambda=2.0*nu/(1.0-2.0*nu);
 //
 //            //            model::EigenDataReader EDR;
-//            TextFileParser parser(inputFileName);
-//            //TextFileParser(inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
+//            TextFileParser parser(this->inputFileName);
+//            //TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
 //
 //            DN.use_externalStress=parser.readScalar<int>("use_externalStress",true);
 //            if(DN.use_externalStress)
 //            {
-//                //            EDR.readScalarInFile(inputFileName,"use_externalStress",DN.use_externalStress);
-//                //            EDR.readMatrixInFile(inputFileName,"ExternalStress0",ExternalStress0);
+//                //            EDR.readScalarInFile(this->inputFileName,"use_externalStress",DN.use_externalStress);
+//                //            EDR.readMatrixInFile(this->inputFileName,"ExternalStress0",ExternalStress0);
 //                assert((ExternalStress0-ExternalStress0.transpose()).norm()<DBL_EPSILON && "ExternalStress0 is not symmetric.");
-//                //           EDR.readMatrixInFile(inputFileName,"ExternalStressRate",ExternalStressRate);
+//                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStressRate",ExternalStressRate);
 //                assert((ExternalStressRate-ExternalStressRate.transpose()).norm()<DBL_EPSILON && "ExternalStressRate is not symmetric.");
-//                //           EDR.readMatrixInFile(inputFileName,"ExternalStrain0",ExternalStrain0);
+//                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrain0",ExternalStrain0);
 //                assert((ExternalStrain0-ExternalStrain0.transpose()).norm()<DBL_EPSILON && "ExternalStrain0 is not symmetric.");
-//                //           EDR.readMatrixInFile(inputFileName,"ExternalStrainRate",ExternalStrainRate);
+//                //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrainRate",ExternalStrainRate);
 //                assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
-//                //            EDR.readMatrixInFile(inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
-//                //            EDR.readScalarInFile(inputFileName,"relaxSteps",relaxSteps);
+//                //            EDR.readMatrixInFile(this->inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
+//                //            EDR.readScalarInFile(this->inputFileName,"relaxSteps",relaxSteps);
 //
 //                if (DN.use_externalStress)
 //                {
