@@ -1,7 +1,7 @@
 ######################################
 # GENERAL SETTINGS
 # Simulation type 
-simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
+simulationType=0; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
@@ -20,9 +20,9 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-periodicImages_x=0;
-periodicImages_y=0;
-periodicImages_z=0;
+periodicImages_x=1;
+periodicImages_y=1;
+periodicImages_z=1;
 
 ######################################
 quadPerLength=0.1;
@@ -58,7 +58,7 @@ outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 

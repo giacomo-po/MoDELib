@@ -304,7 +304,6 @@ namespace model
                 ExternalStress+=stressconsidermachinestiffness(ExternalStrainRate*deltaT-PSR*deltaT,ExternalStressRate*deltaT);  //2017-12-7
                 plasticStrain+=PSR*deltaT;
                 ExternalStrain=elasticstrain(ExternalStress,nu_use)+plasticStrain;
-                
             }
         }
         

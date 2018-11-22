@@ -46,7 +46,7 @@ namespace model
         DislocationNetworkType DN;
         const std::unique_ptr<BVPsolverType> bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
-        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+//        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
 
 
         /**********************************************************************/
@@ -102,40 +102,39 @@ namespace model
 
         }
         
-        /**********************************************************************/
-        void updateStressStraightSegments()
-        {
-            
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Collecting StressStraight objects: MUST CHANGE THIS BY SHITFING THE FIELD POINT RATHER THAN POPOLATING THE IMAGES"<<std::flush;
-            
-            straightSegmentsDeq.clear();
-            //                std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-            size_t currentSize=0;
-            //            if(computeDDinteractions)
-            //            {
-            for(const auto& link : DN.networkLinks())
-            {
-                link.second->addToStressStraight(straightSegmentsDeq);
-            }
-            
-            currentSize=straightSegmentsDeq.size();
-            
-            for(const auto& shift : periodicShifts)
-            {
-                if(shift.squaredNorm()!=0.0)
-                {
-                    for (size_t c=0;c<currentSize;++c)
-                    {
-                        straightSegmentsDeq.emplace_back(straightSegmentsDeq[c].P0+shift,straightSegmentsDeq[c].P1+shift,straightSegmentsDeq[c].b);
-                    }
-                }
-            }
-            
-            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-            
-        }
+//        /**********************************************************************/
+//        void updateStressStraightSegments()
+//        {
+//            
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		Collecting StressStraight objects: MUST CHANGE THIS BY SHITFING THE FIELD POINT RATHER THAN POPOLATING THE IMAGES"<<std::flush;
+//            
+//            straightSegmentsDeq.clear();
+////            size_t currentSize=0;
+////            //            if(computeDDinteractions)
+////            //            {
+//            for(const auto& link : DN.networkLinks())
+//            {
+//                link.second->addToStressStraight(straightSegmentsDeq);
+//            }
+//            
+//            currentSize=straightSegmentsDeq.size();
+//            
+//            for(const auto& shift : periodicShifts)
+//            {
+//                if(shift.squaredNorm()!=0.0)
+//                {
+//                    for (size_t c=0;c<currentSize;++c)
+//                    {
+//                        straightSegmentsDeq.emplace_back(straightSegmentsDeq[c].P0+shift,straightSegmentsDeq[c].P1+shift,straightSegmentsDeq[c].b);
+//                    }
+//                }
+//            }
+//            
+//            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//            
+//        }
         
         /**********************************************************************/
         void updateLoadControllers(const long int& runID)
@@ -231,11 +230,11 @@ namespace model
             
             DN.updateGeometry(simulationParameters.dt);
             
-            updateStressStraightSegments();
+//            updateStressStraightSegments();
 
             updateLoadControllers(simulationParameters.runID);
             
-            DN.assembleAndSolve(simulationParameters.runID,straightSegmentsDeq);
+            DN.assembleAndSolve(simulationParameters.runID);
             simulationParameters.dt=DN.get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
             simulationParameters.totalTime+=simulationParameters.dt;
 //            DN.updatePlasticDistortionRateFromVelocities();

@@ -15,6 +15,7 @@
 #include <QuadPowDynamic.h>
 #include <StressStraight.h>
 #include <SegmentSegmentDistance.h>
+#include <StraightDislocationSegment.h>
 
 namespace model
 {
@@ -63,24 +64,24 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        static VectorDim  getGlideVelocity(const LinkType& seg,
+        static VectorDim  getGlideVelocity(const LinkType& parentSegment,
                                            const VectorDim& fPK,
                                            const MatrixDim& S,
                                            const VectorDim& rl,
                                            const double& dL
                                            )
         {
-            VectorDim n(seg.glidePlaneNormal()); // plane normal
-            VectorDim b(seg.burgers()); // Burgers vector
+            VectorDim n(parentSegment.glidePlaneNormal()); // plane normal
+            VectorDim b(parentSegment.burgers()); // Burgers vector
             VectorDim t(rl);            // tangent vector
             
             // Select right-handed normal whenever possible
-            if(seg.loopLinks().size()==1)
+            if(parentSegment.loopLinks().size()==1)
             {// pick right-handed normal for n
-                const typename LinkType::LoopLinkType& loopLink(**seg.loopLinks().begin());
+                const typename LinkType::LoopLinkType& loopLink(**parentSegment.loopLinks().begin());
                 if(std::fabs(loopLink.loop()->slippedArea())>FLT_EPSILON)
                 {
-                    if(seg.source->sID!=loopLink.source()->sID)
+                    if(parentSegment.source->sID!=loopLink.source()->sID)
                     {// NetworkLink and LoopLink are oriented in opposite direction
                         b*=-1.0;
                         t*=-1.0;
@@ -91,9 +92,9 @@ namespace model
             VectorDim glideForce = fPK-fPK.dot(n)*n;
             double glideForceNorm(glideForce.norm());
             
-            if(glideForceNorm<FLT_EPSILON && seg.network().use_stochasticForce)
+            if(glideForceNorm<FLT_EPSILON && parentSegment.network().use_stochasticForce)
             {
-                glideForce=seg.chord().cross(n);
+                glideForce=parentSegment.chord().cross(n);
                 glideForceNorm=glideForce.norm();
                 if(glideForceNorm>FLT_EPSILON)
                 {
@@ -104,17 +105,17 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                double v =seg.network().poly.mobility->velocity(S,
+                double v =parentSegment.network().poly.mobility->velocity(S,
                                                                 b,
                                                                 t,
                                                                 n,
-                                                                seg.network().poly.T,
+                                                                parentSegment.network().poly.T,
                                                                 dL,
-                                                                seg.network().get_dt(),
-                                                                seg.network().use_stochasticForce);
+                                                                parentSegment.network().get_dt(),
+                                                                parentSegment.network().use_stochasticForce);
                 
                 
-                assert((seg.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
+                assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
                 {
@@ -128,12 +129,12 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        DislocationQuadraturePoint(const LinkType& seg,
+        DislocationQuadraturePoint(const LinkType& parentSegment,
                                    const int& q,const int& qOrder,
                                    const MatrixNcoeff& SFCH,
                                    const MatrixNcoeffDim& qH) :
-        /* init */ sourceID(seg.source->sID)
-        /* init */,sinkID(seg.sink->sID)
+        /* init */ sourceID(parentSegment.source->sID)
+        /* init */,sinkID(parentSegment.sink->sID)
         /* init */,qID(q)
         /* init */,SF(QuadPowDynamicType::uPow(qOrder).row(qID)*SFCH)
         /* init */,r(SF*qH)
@@ -169,10 +170,10 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& seg)
+        void updateForcesAndVelocities(const LinkType& parentSegment)
         {
-            pkForce=(stress*seg.burgers()).cross(rl);
-            glideVelocity=getGlideVelocity(seg,pkForce,stress,rl,dL);
+            pkForce=(stress*parentSegment.burgers()).cross(rl);
+            glideVelocity=getGlideVelocity(parentSegment,pkForce,stress,rl,dL);
         }
         
         
@@ -236,23 +237,23 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        void updateQuadraturePoints(const LinkType& seg,
+        void updateQuadraturePoints(const LinkType& parentSegment,
                             const double& quadPerLength)
         {
             
             this->clear();
             
-            if(    !seg.hasZeroBurgers()
-               &&  !seg.isBoundarySegment()
-               &&  !seg.isSessile()
-               &&  !seg.isVirtualBoundarySegment())
+            if(    !parentSegment.hasZeroBurgers()
+               &&  !parentSegment.isBoundarySegment()
+               &&  !parentSegment.isSessile()
+               &&  !parentSegment.isVirtualBoundarySegment())
             {
-                const int order=QuadPowDynamicType::lowerOrder(quadPerLength*seg.chord().norm());
-                const MatrixNcoeff  SFCH(seg.sfCoeffs());
-                const MatrixNcoeffDim qH(seg.hermiteDofs());
+                const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());
+                const MatrixNcoeff  SFCH(parentSegment.sfCoeffs());
+                const MatrixNcoeffDim qH(parentSegment.hermiteDofs());
                 for(int q=0;q<order;++q)
                 {
-                    this->emplace_back(seg,q,order,SFCH,qH);
+                    this->emplace_back(parentSegment,q,order,SFCH,qH);
                 }
             }
         }
@@ -277,50 +278,56 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& seg,
-                                       const double& quadPerLength,
-                                       const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
+        void updateForcesAndVelocities(const LinkType& parentSegment,
+                                       const double& quadPerLength)
         {
-            updateQuadraturePoints(seg,quadPerLength);
+            updateQuadraturePoints(parentSegment,quadPerLength);
+            
             
             if(this->size())
             {
-                // Compute stress of straightSegmentsDeq
-                if(seg.network().computeDDinteractions)
+                if(parentSegment.network().computeDDinteractions)
                 {
-                    const double L0(seg.chord().norm());
-                    const VectorDim c(0.5*(seg.source->get_P()+seg.sink->get_P()));
-                    for(const auto& ss : straightSegmentsDeq)
+                    const double L0(parentSegment.chord().norm());
+                    const VectorDim c(0.5*(parentSegment.source->get_P()+parentSegment.sink->get_P()));
+                    for(const auto& link : parentSegment.network().links())
                     {
-                        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
-                                                        seg.source->get_P(),seg.sink->get_P());
-                        
-                        //                        const double dr(ssd.dMin/(L0+ss.length));
-                        const double dr(ssd.dMin/(L0));
-                        
-                        if(dr<10.0)
-                        {// full interaction
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                qPoint.stress += ss.stress(qPoint.r);
+                        if(   !link.second->hasZeroBurgers()
+                           && !link.second->isBoundarySegment())
+                        {
+
+                            const StraightDislocationSegment<dim>& ss(link.second->straight);
+                            
+                            SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+                                                            parentSegment.source->get_P(),parentSegment.sink->get_P());
+                            
+                            //                        const double dr(ssd.dMin/(L0+ss.length));
+                            const double dr(ssd.dMin/(L0));
+                            
+                            if(dr<10.0)
+                            {// full interaction
+                                for (auto& qPoint : quadraturePoints())
+                                {
+                                    qPoint.stress += ss.stress(qPoint.r);
+                                }
                             }
-                        }
-                        else if(dr<100.0)
-                        {// 2pt interpolation
-                            const MatrixDim stressSource(ss.stress(seg.source->get_P()));
-                            const MatrixDim stressSink(ss.stress(seg.sink->get_P()));
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-                                qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+                            else if(dr<100.0)
+                            {// 2pt interpolation
+                                const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()));
+                                const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()));
+                                for (auto& qPoint : quadraturePoints())
+                                {
+                                    const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
+                                    qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+                                }
                             }
-                        }
-                        else
-                        {// 1pt interpolation
-                            const MatrixDim stressC(ss.stress(c));
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                qPoint.stress += stressC;
+                            else
+                            {// 1pt interpolation
+                                const MatrixDim stressC(ss.stress(c));
+                                for (auto& qPoint : quadraturePoints())
+                                {
+                                    qPoint.stress += stressC;
+                                }
                             }
                         }
                     }
@@ -330,32 +337,31 @@ namespace model
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())
                 {
-                    if(seg.network().externalLoadController)
+                    
+                    if(parentSegment.network().externalLoadController)
                     {// Add stress of externalLoadController
-                        qPoint.stress += seg.network().externalLoadController->stress(qPoint.r);
+                        qPoint.stress += parentSegment.network().externalLoadController->stress(qPoint.r);
                     }
                     
-                    if(seg.network().bvpSolver)
+                    if(parentSegment.network().bvpSolver)
                     {// Add BVP stress
-                        qPoint.stress += seg.network().bvpSolver->stress(qPoint.r,seg.source->includingSimplex());
+                        qPoint.stress += parentSegment.network().bvpSolver->stress(qPoint.r,parentSegment.source->includingSimplex());
                     }
                     
-                    
-                    for(const auto& sStraight : seg.network().poly.grainBoundaryDislocations() )
+                    for(const auto& sStraight : parentSegment.network().poly.grainBoundaryDislocations() )
                     {// Add GB stress
                         qPoint.stress += sStraight.stress(qPoint.r);
                     }
                     
-                    
-                    for(const auto& inclusion : seg.network().eshelbyInclusions() )
+                    for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
                     {// Add EshelbyInclusions stress
-                        for(const auto& shift : seg.network().periodicShifts)
+                        for(const auto& shift : parentSegment.network().periodicShifts)
                         {
                             qPoint.stress += inclusion.second.stress(qPoint.r-shift);
                         }
                     }
                     
-                    qPoint.updateForcesAndVelocities(seg);
+                    qPoint.updateForcesAndVelocities(parentSegment);
                 }
             }
         }
@@ -371,12 +377,12 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        MatrixNdof nodalVelocityMatrix(const LinkType& seg) const
+        MatrixNdof nodalVelocityMatrix(const LinkType& parentSegment) const
         {
             MatrixNdof Kqq(MatrixNdof::Zero());
             if(corder==0)
             {// Analytical integral can be performed
-                const double L(seg.chord().norm());
+                const double L(parentSegment.chord().norm());
                 Kqq<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
                 /**/   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
                 /**/   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,

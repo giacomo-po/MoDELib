@@ -39,6 +39,7 @@
 #include <BoundingLineSegments.h>
 #include <MeshPlane.h>
 #include <DislocationQuadraturePoint.h>
+#include <StraightDislocationSegment.h>
 
 
 #ifndef NDEBUG
@@ -157,12 +158,12 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <typename Derived>
-    class PlanarDislocationSegment : public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>,
-    /*                      */ private std::set<const MeshPlane<TypeTraits<Derived>::dim>*>,
-    /*                      */ private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>,
-    /*                      */ private std::set<const Grain<TypeTraits<Derived>::dim>*>,
-    /*                      */ private BoundingLineSegments<TypeTraits<Derived>::dim>,
-    /*                      */ public DislocationQuadraturePointContainer<TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    class PlanarDislocationSegment : public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    /*                      */,private std::set<const MeshPlane<TypeTraits<Derived>::dim>*>
+    /*                      */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
+    /*                      */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
+    /*                      */,private BoundingLineSegments<TypeTraits<Derived>::dim>
+    /*                      */,public DislocationQuadraturePointContainer<TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
     {
         
         
@@ -172,6 +173,7 @@ namespace model
         static constexpr int corder=TypeTraits<Derived>::corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef Derived LinkType;
+        typedef StraightDislocationSegment<dim> StraightDislocationSegmentType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
         typedef typename TypeTraits<LinkType>::LoopNetworkType NetworkType;
         typedef LoopLink<LinkType> LoopLinkType;
@@ -228,6 +230,7 @@ namespace model
         static int verbosePlanarDislocationSegment;
         
         QuadratureParticleContainerType quadratureParticleContainer;
+        StraightDislocationSegment<dim> straight;
         
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -255,6 +258,7 @@ namespace model
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
         /* init */,_isBoundarySegment(this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first)
+        /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
         //        /* init */ qOrder(QuadPowDynamicType::lowerOrder(quadPerLength*this->chord().norm()))
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -285,6 +289,7 @@ namespace model
         void updateGeometry()
         {
             SplineSegmentType::updateGeometry();
+            straight.updateGeometry();
             
             _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
             
@@ -472,62 +477,62 @@ namespace model
             return addedGp;
         }
         
-        /**********************************************************************/
-        void addToStressStraight(std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq) const
-        {
-            if(!hasZeroBurgers())
-            {
-                
-                
-                switch (this->network().simulationParameters.simulationType)
-                {// Initilization based on type of simulation
-                        
-                        
-                    case DefectiveCrystalParameters::FINITE_NO_FEM:
-                    {
-                        if(!isBoundarySegment())
-                        {
-                            straightSegmentsDeq.emplace_back(this->source->get_P(),
-                                                             this->sink->get_P(),
-                                                             burgers());
-                        }
-                        break;
-                    }
-                        
-                    case DefectiveCrystalParameters::FINITE_FEM:
-                    {
-                        assert(0 && "FINISH HERE");
-                        break;
-                    }
-                        
-                    case DefectiveCrystalParameters::PERIODIC:
-                    {
-                        if(!isBoundarySegment())
-                        {
-                            straightSegmentsDeq.emplace_back(this->source->get_P(),
-                                                             this->sink->get_P(),
-                                                             burgers());
-                        }
-                        break;
-                    }
-                        
-                    default:
-                    {
-                        model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
-                        exit(EXIT_FAILURE);
-                        break;
-                    }
-                }
-                
-            }
-        }
+//        /**********************************************************************/
+//        void addToStressStraight(std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq) const
+//        {
+//            if(!hasZeroBurgers())
+//            {
+//                
+//                
+//                switch (this->network().simulationParameters.simulationType)
+//                {// Initilization based on type of simulation
+//                        
+//                        
+//                    case DefectiveCrystalParameters::FINITE_NO_FEM:
+//                    {
+//                        if(!isBoundarySegment())
+//                        {
+//                            straightSegmentsDeq.emplace_back(this->source->get_P(),
+//                                                             this->sink->get_P(),
+//                                                             burgers());
+//                        }
+//                        break;
+//                    }
+//                        
+//                    case DefectiveCrystalParameters::FINITE_FEM:
+//                    {
+//                        assert(0 && "FINISH HERE");
+//                        break;
+//                    }
+//                        
+//                    case DefectiveCrystalParameters::PERIODIC:
+//                    {
+//                        if(!isBoundarySegment())
+//                        {
+//                            straightSegmentsDeq.emplace_back(this->source->get_P(),
+//                                                             this->sink->get_P(),
+//                                                             burgers());
+//                        }
+//                        break;
+//                    }
+//                        
+//                    default:
+//                    {
+//                        model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
+//                        exit(EXIT_FAILURE);
+//                        break;
+//                    }
+//                }
+//                
+//            }
+//        }
         
 
         
         /**********************************************************************/
-        void assemble(const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
+        void assemble()
         {
-            this->updateForcesAndVelocities(*this,quadPerLength,straightSegmentsDeq);
+            this->updateForcesAndVelocities(*this,quadPerLength);
             quadratureParticleContainer.clear(); // OLD QUADRATURE PARTICLE METHOD
             quadratureParticleContainer.reserve(this->quadraturePoints().size());  // OLD QUADRATURE PARTICLE METHOD
             

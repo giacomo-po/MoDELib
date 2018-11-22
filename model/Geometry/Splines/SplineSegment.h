@@ -110,6 +110,7 @@ namespace model
         
         VectorDim _chord;
         double _chordLength;
+        VectorDim _unitDirection;
         
     public:
         
@@ -125,6 +126,7 @@ namespace model
         /* init */ NetworkLink<Derived>(nI,nJ)
         /* init */,_chord(this->sink->get_P()-this->source->get_P())
         /* init */,_chordLength(_chord.norm())
+        /* init */,_unitDirection(_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero())
         {/*! Constructor with Nodes and flow
           */
             
@@ -135,6 +137,7 @@ namespace model
         {
             _chord=this->sink->get_P()-this->source->get_P();
             _chordLength=_chord.norm();
+            _unitDirection=_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero();
         }
         
         /**********************************************************************/
@@ -202,6 +205,13 @@ namespace model
         {/*!\returns the length of the chord vector
           */
             return _chordLength;
+        }
+        
+        /**********************************************************************/
+        const VectorDim& unitDirection() const
+        {/*!\returns the chord vector (source -> sink)
+          */
+            return _unitDirection;
         }
         
         /**********************************************************************/

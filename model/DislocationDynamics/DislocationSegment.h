@@ -59,22 +59,7 @@ namespace model
         
 
         
-//        /**********************************************************************/
-//        Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const __attribute__ ((deprecated))
-//        {
-//            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal()));
-//            Eigen::Matrix<double,dim-1,Ncoeff> HrCf = Eigen::Matrix<double,dim-1,Ncoeff>::Zero();
-//            HrCf.col(1)= (G2L*this->sourceT()*this->chordParametricLength()).template segment<dim-1>(0);
-//            HrCf.col(2)= (G2L*(this->sink->get_P()-this->source->get_P())).template segment<dim-1>(0);
-//            HrCf.col(3)= (G2L*this->sinkT()*this->chordParametricLength()).template segment<dim-1>(0);
-//            return HrCf;
-//        }
-//        
-//        /**********************************************************************/
-//        Eigen::Matrix<double,dim-1,Ncoeff> polynomialLocalCoeff() const __attribute__ ((deprecated)) //change name polynomialCoeff
-//        {
-//            return Coeff2Hermite<pOrder>::template h2c<dim-1>(hermiteLocalCoefficient());
-//        }
+
         
 
         
@@ -91,6 +76,24 @@ namespace model
 
 }
 #endif
+
+
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim-1,Ncoeff> hermiteLocalCoefficient() const __attribute__ ((deprecated))
+//        {
+//            const MatrixDim G2L(DislocationLocalReference<dim>::global2local(this->chord(),this->glidePlaneNormal()));
+//            Eigen::Matrix<double,dim-1,Ncoeff> HrCf = Eigen::Matrix<double,dim-1,Ncoeff>::Zero();
+//            HrCf.col(1)= (G2L*this->sourceT()*this->chordParametricLength()).template segment<dim-1>(0);
+//            HrCf.col(2)= (G2L*(this->sink->get_P()-this->source->get_P())).template segment<dim-1>(0);
+//            HrCf.col(3)= (G2L*this->sinkT()*this->chordParametricLength()).template segment<dim-1>(0);
+//            return HrCf;
+//        }
+//
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim-1,Ncoeff> polynomialLocalCoeff() const __attribute__ ((deprecated)) //change name polynomialCoeff
+//        {
+//            return Coeff2Hermite<pOrder>::template h2c<dim-1>(hermiteLocalCoefficient());
+//        }
 
 
 //        /**********************************************************************/

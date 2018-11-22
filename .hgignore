@@ -40,7 +40,7 @@ DDvtk
 # Folders
 docs/HTML
 OLD
-
+header_symlinks
 
 # Output Files
 *.jpg
