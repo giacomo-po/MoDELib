@@ -368,10 +368,7 @@ namespace model
             }
             
             assert(tempLoop->isLoop() && "Not a loop.");
-            
-            std::cout<<"LoopNetwork insertLoop end"<<std::endl;
 
-            
             return tempLoop;
         }
         

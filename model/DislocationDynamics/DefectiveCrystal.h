@@ -102,39 +102,7 @@ namespace model
 
         }
         
-//        /**********************************************************************/
-//        void updateStressStraightSegments()
-//        {
-//            
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"		Collecting StressStraight objects: MUST CHANGE THIS BY SHITFING THE FIELD POINT RATHER THAN POPOLATING THE IMAGES"<<std::flush;
-//            
-//            straightSegmentsDeq.clear();
-////            size_t currentSize=0;
-////            //            if(computeDDinteractions)
-////            //            {
-//            for(const auto& link : DN.networkLinks())
-//            {
-//                link.second->addToStressStraight(straightSegmentsDeq);
-//            }
-//            
-//            currentSize=straightSegmentsDeq.size();
-//            
-//            for(const auto& shift : periodicShifts)
-//            {
-//                if(shift.squaredNorm()!=0.0)
-//                {
-//                    for (size_t c=0;c<currentSize;++c)
-//                    {
-//                        straightSegmentsDeq.emplace_back(straightSegmentsDeq[c].P0+shift,straightSegmentsDeq[c].P1+shift,straightSegmentsDeq[c].b);
-//                    }
-//                }
-//            }
-//            
-//            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//            
-//        }
+
         
         /**********************************************************************/
         void updateLoadControllers(const long int& runID)
@@ -162,7 +130,6 @@ namespace model
         /**********************************************************************/
         DefectiveCrystal(int& argc, char* argv[]) :
         /* init */ simulationParameters(argc,argv)
-//        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true))
         /* init */,mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true))
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
@@ -270,3 +237,38 @@ namespace model
     };
 }
 #endif
+
+
+//        /**********************************************************************/
+//        void updateStressStraightSegments()
+//        {
+//
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		Collecting StressStraight objects: MUST CHANGE THIS BY SHITFING THE FIELD POINT RATHER THAN POPOLATING THE IMAGES"<<std::flush;
+//
+//            straightSegmentsDeq.clear();
+////            size_t currentSize=0;
+////            //            if(computeDDinteractions)
+////            //            {
+//            for(const auto& link : DN.networkLinks())
+//            {
+//                link.second->addToStressStraight(straightSegmentsDeq);
+//            }
+//
+//            currentSize=straightSegmentsDeq.size();
+//
+//            for(const auto& shift : periodicShifts)
+//            {
+//                if(shift.squaredNorm()!=0.0)
+//                {
+//                    for (size_t c=0;c<currentSize;++c)
+//                    {
+//                        straightSegmentsDeq.emplace_back(straightSegmentsDeq[c].P0+shift,straightSegmentsDeq[c].P1+shift,straightSegmentsDeq[c].b);
+//                    }
+//                }
+//            }
+//
+//            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//
+//        }

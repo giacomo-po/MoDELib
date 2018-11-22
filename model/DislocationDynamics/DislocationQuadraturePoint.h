@@ -106,13 +106,13 @@ namespace model
             if(glideForceNorm>FLT_EPSILON)
             {
                 double v =parentSegment.network().poly.mobility->velocity(S,
-                                                                b,
-                                                                t,
-                                                                n,
-                                                                parentSegment.network().poly.T,
-                                                                dL,
-                                                                parentSegment.network().get_dt(),
-                                                                parentSegment.network().use_stochasticForce);
+                                                                          b,
+                                                                          t,
+                                                                          n,
+                                                                          parentSegment.network().poly.T,
+                                                                          dL,
+                                                                          parentSegment.network().get_dt(),
+                                                                          parentSegment.network().use_stochasticForce);
                 
                 
                 assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
@@ -150,7 +150,7 @@ namespace model
         }
         
         /**********************************************************************/
-//        template<typename LinkType>
+        //        template<typename LinkType>
         DislocationQuadraturePoint() :
         /* init */ sourceID(0)
         /* init */,sinkID(0)
@@ -238,7 +238,7 @@ namespace model
         /**********************************************************************/
         template<typename LinkType>
         void updateQuadraturePoints(const LinkType& parentSegment,
-                            const double& quadPerLength)
+                                    const double& quadPerLength)
         {
             
             this->clear();
@@ -295,7 +295,7 @@ namespace model
                         if(   !link.second->hasZeroBurgers()
                            && !link.second->isBoundarySegment())
                         {
-
+                            
                             const StraightDislocationSegment<dim>& ss(link.second->straight);
                             
                             
@@ -332,12 +332,12 @@ namespace model
                                         qPoint.stress += stressC;
                                     }
                                 }
-                            
+                                
                             }
                         }
                     }
                 }
-
+                
                 
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())

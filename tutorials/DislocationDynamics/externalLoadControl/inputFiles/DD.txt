@@ -37,7 +37,7 @@ velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
 
-computePlasticDistortionIncrementally=1;
+computePlasticDistortionRateFromVelocities=1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities

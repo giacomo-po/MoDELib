@@ -544,6 +544,7 @@ namespace model
                 }
             }
             
+            size_t formedJunctions=0;
             for(const auto& tup : glissDeq)
             {
                 const size_t& sourceID(std::get<0>(tup));
@@ -569,6 +570,8 @@ namespace model
                                   DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
                                   newNodeP,
                                   grainID);
+                    
+                    formedJunctions++;
                 }
                 
                 
@@ -578,8 +581,8 @@ namespace model
             DN.clearDanglingNodes();
             
             
-            std::cout<<"glissDeq.size="<<glissDeq.size()<<std::endl;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            std::cout<<"glissDeq.size="<<glissDeq.size()<<std::endl;
+            model::cout<<"("<<formedJunctions<<" junctions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             //            static_assert(0,"FINISH HERE");
         }

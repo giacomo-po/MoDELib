@@ -194,7 +194,7 @@ namespace model
 //        typedef typename DislocationQuadraturePointType::QuadPowDynamicType QuadPowDynamicType;
 //        typedef typename DislocationQuadraturePointType::QuadratureDynamicType QuadratureDynamicType;
         typedef DislocationParticle<dim> DislocationParticleType;
-        typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
+//        typedef std::vector<DislocationParticleType*> QuadratureParticleContainerType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
@@ -229,7 +229,7 @@ namespace model
         static double virtualSegmentDistance;
         static int verbosePlanarDislocationSegment;
         
-        QuadratureParticleContainerType quadratureParticleContainer;
+//        QuadratureParticleContainerType quadratureParticleContainer;
         StraightDislocationSegment<dim> straight;
         
     public:
@@ -533,8 +533,8 @@ namespace model
         void assemble()
         {
             this->updateForcesAndVelocities(*this,quadPerLength);
-            quadratureParticleContainer.clear(); // OLD QUADRATURE PARTICLE METHOD
-            quadratureParticleContainer.reserve(this->quadraturePoints().size());  // OLD QUADRATURE PARTICLE METHOD
+//            quadratureParticleContainer.clear(); // OLD QUADRATURE PARTICLE METHOD
+//            quadratureParticleContainer.reserve(this->quadraturePoints().size());  // OLD QUADRATURE PARTICLE METHOD
             
             Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
             Kqq=this->nodalVelocityMatrix(*this);

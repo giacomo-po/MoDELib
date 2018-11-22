@@ -82,7 +82,7 @@ namespace model
         void remeshByRemoval()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		remeshing network: removing... "<<std::flush;
+            model::cout<<"		Remeshing network: removing... "<<std::flush;
             
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
@@ -201,7 +201,7 @@ namespace model
         void remeshByExpansion()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		remeshing network: expanding... "<<std::flush;
+            model::cout<<"		Remeshing network: expanding... "<<std::flush;
             
             //            model::cout<<"expanding..."<<std::flush;
             
@@ -380,7 +380,7 @@ namespace model
         /**********************************************************************/
         void contract0chordSegments()
         {
-            model::cout<<"		contracting zero-chord segments... "<<std::flush;
+            model::cout<<"		Contracting zero-chord segments... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
@@ -409,7 +409,7 @@ namespace model
                     Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
                 }
             }
-            model::cout<<"("<<Ncontracted<<" contracted"<<std::flush;
+            model::cout<<"("<<Ncontracted<<" contracted)"<<std::flush;
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
