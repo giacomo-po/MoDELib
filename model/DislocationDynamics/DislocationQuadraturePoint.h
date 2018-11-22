@@ -298,36 +298,41 @@ namespace model
 
                             const StraightDislocationSegment<dim>& ss(link.second->straight);
                             
-                            SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
-                                                            parentSegment.source->get_P(),parentSegment.sink->get_P());
                             
-                            //                        const double dr(ssd.dMin/(L0+ss.length));
-                            const double dr(ssd.dMin/(L0));
+                            for(const auto& shift : parentSegment.network().periodicShifts)
+                            {
+                                SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+                                                                parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
+                                
+                                //                        const double dr(ssd.dMin/(L0+ss.length));
+                                const double dr(ssd.dMin/(L0));
+                                
+                                if(dr<10.0)
+                                {// full interaction
+                                    for (auto& qPoint : quadraturePoints())
+                                    {
+                                        qPoint.stress += ss.stress(qPoint.r+shift);
+                                    }
+                                }
+                                else if(dr<100.0)
+                                {// 2pt interpolation
+                                    const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()+shift));
+                                    const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()+shift));
+                                    for (auto& qPoint : quadraturePoints())
+                                    {
+                                        const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
+                                        qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+                                    }
+                                }
+                                else
+                                {// 1pt interpolation
+                                    const MatrixDim stressC(ss.stress(c+shift));
+                                    for (auto& qPoint : quadraturePoints())
+                                    {
+                                        qPoint.stress += stressC;
+                                    }
+                                }
                             
-                            if(dr<10.0)
-                            {// full interaction
-                                for (auto& qPoint : quadraturePoints())
-                                {
-                                    qPoint.stress += ss.stress(qPoint.r);
-                                }
-                            }
-                            else if(dr<100.0)
-                            {// 2pt interpolation
-                                const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()));
-                                const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()));
-                                for (auto& qPoint : quadraturePoints())
-                                {
-                                    const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-                                    qPoint.stress += (1.0-u)*stressSource+u*stressSink;
-                                }
-                            }
-                            else
-                            {// 1pt interpolation
-                                const MatrixDim stressC(ss.stress(c));
-                                for (auto& qPoint : quadraturePoints())
-                                {
-                                    qPoint.stress += stressC;
-                                }
                             }
                         }
                     }
@@ -357,7 +362,7 @@ namespace model
                     {// Add EshelbyInclusions stress
                         for(const auto& shift : parentSegment.network().periodicShifts)
                         {
-                            qPoint.stress += inclusion.second.stress(qPoint.r-shift);
+                            qPoint.stress += inclusion.second.stress(qPoint.r+shift);
                         }
                     }
                     

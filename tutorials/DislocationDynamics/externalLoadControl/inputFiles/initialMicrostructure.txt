@@ -9,7 +9,7 @@ fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=1e12;
+targetFrankReadDislocationDensity=0e13;
 FrankReadSizeMean=0.5e-6;
 FrankReadSizeStd=0.25e-6;
 FrankReadAspectRatioMean=2.0;
@@ -21,7 +21,7 @@ targetSingleArmDislocationDensity=0e13;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=0e12;
+targetPrismaticLoopDensity=1e13;
 
 #######################################
 # Individual straight dislocations

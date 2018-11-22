@@ -239,7 +239,6 @@ namespace model
             simulationParameters.totalTime+=simulationParameters.dt;
 //            DN.updatePlasticDistortionRateFromVelocities();
             
-            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<simulationParameters.dt<<std::endl;
             
             // output
             DN.io().output(simulationParameters.runID);

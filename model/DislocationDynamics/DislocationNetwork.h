@@ -129,15 +129,15 @@ namespace model
         /**********************************************************************/
         void updateVirtualBoundaryLoops()
         {
-            
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"		Updating virtual boundary loops "<<std::flush;
+
             switch (simulationParameters.simulationType)
             {
                 case DefectiveCrystalParameters::FINITE_FEM:
                 {
                     if(useVirtualExternalLoops)
                     {
-                        const auto t0= std::chrono::system_clock::now();
-                        model::cout<<"		Updating virtual boundary loops "<<std::flush;
                         
                         // First clean up outdated boundary loops
                         std::set<size_t> removeLoops;
@@ -176,14 +176,12 @@ namespace model
                             this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
                         }
                         
-                        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                     }
                     break;
                 }
                     
                 case DefectiveCrystalParameters::PERIODIC:
                 {
-                    const auto t0= std::chrono::system_clock::now();
                     
                     std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim,VectorDim,size_t>> DislocationLoopVector;
                     for(const auto& link : this->links())
@@ -309,7 +307,6 @@ namespace model
                         this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
                     }
                     
-                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                     
                     break;
                 }
@@ -320,7 +317,8 @@ namespace model
                 }
             }
             
-            
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
             
         }
         

@@ -1140,7 +1140,7 @@ namespace model
                     model::cout<<"_isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
                     model::cout<<"isGrainBoundaryNode()="<<isGrainBoundaryNode()<<std::endl;
                     model::cout<<"NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE"<<std::endl;
-                    //                    assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
+                                        assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
                 }
             }
             return isBndNode ;
@@ -1151,12 +1151,6 @@ namespace model
         {
             return grainBoundaries().size();
         }
-        
-        //        /**********************************************************************/
-        //        bool isPureBoundaryNode() const
-        //        {
-        //            return isBoundaryNode() && isConnectedToBoundaryNodes();
-        //        }
         
         /**********************************************************************/
         bool isPureBoundaryNode() const
