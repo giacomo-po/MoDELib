@@ -2,8 +2,8 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 0
-MODEL_INCLUDE =../../..
+usePARDISO = 1
+MODEL_INCLUDE =../../../
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
 MKL_LIB=/opt/intel/mkl/lib

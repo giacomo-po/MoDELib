@@ -1388,18 +1388,18 @@ namespace model
                 {
                     case DefectiveCrystalParameters::FINITE_FEM:
                     {
-                        if(this->network().useVirtualExternalLoops)
-                        {
+//                        if(this->network().useVirtualExternalLoops)
+//                        {
                             if(virtualNode)
                             {
-                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+100.0*boundaryNormal);
+                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal);
                             }
                             else
                             {
                                 VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-                                virtualNode.reset(new NodeType(&this->network(),X+100.0*boundaryNormal));
+                                virtualNode.reset(new NodeType(&this->network(),X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal));
                             }
-                        }
+//                        }
                         break;
                     }
                         

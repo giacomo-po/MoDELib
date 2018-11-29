@@ -136,9 +136,9 @@ namespace model
             {
                 case DefectiveCrystalParameters::FINITE_FEM:
                 {
-                    if(useVirtualExternalLoops)
-                    {
-                        
+//                    if(useVirtualExternalLoops)
+//                    {
+                    
                         // First clean up outdated boundary loops
                         std::set<size_t> removeLoops;
                         for(const auto& loop : this->loops())
@@ -176,7 +176,7 @@ namespace model
                             this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
                         }
                         
-                    }
+//                    }
                     break;
                 }
                     
@@ -349,7 +349,7 @@ namespace model
         int crossSlipModel;
         //        bool use_boundary;
         //        unsigned int use_bvp;
-        bool useVirtualExternalLoops;
+//        bool useVirtualExternalLoops;
         //        bool use_externalStress;
         //        bool use_extraStraightSegments;
         //        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
@@ -406,7 +406,7 @@ namespace model
         /* init */,crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
         //        /* init */ use_boundary(true),
         //        /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
-        /* init */,useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true))
+//        /* init */,useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true))
         //        /* init */,use_externalStress(false)
         //        /* init */,use_extraStraightSegments(false)
         /* init */,outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true))

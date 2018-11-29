@@ -31,12 +31,12 @@ namespace model
         const int periodicImages_z;
         const long int Nsteps;
         const std::string externalLoadControllerName;
+        const double virtualSegmentDistance;
 
         
         long int runID;
         double totalTime;
         double dt;
-//        Eigen::Matrix<double,3,3> plasticDistortion;
         
         /**********************************************************************/
         void manageRestart()
@@ -89,6 +89,7 @@ namespace model
         /* init */,periodicImages_z(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
         /* init */,Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true))
         /* init */,externalLoadControllerName(TextFileParser("inputFiles/DD.txt").readString("externalLoadControllerName",true))
+        /* init */,virtualSegmentDistance(simulationType==FINITE_FEM? TextFileParser("inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
         /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<long int>("startAtTimeStep",true))
         /* init */,totalTime(0.0)
         /* init */,dt(10.0)

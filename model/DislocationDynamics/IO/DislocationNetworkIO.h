@@ -764,52 +764,73 @@ namespace model
                 DN.displacement(fieldPoints);
 
                 
-                if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
-                {
-                    assert(0 && "FINISH HERE");
-                    //                    if (!(runID%DN.use_bvp))
-                    //                    {
-//                    const auto t0=std::chrono::system_clock::now();
-//                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-//                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
-//                    model::SequentialOutputFile<'D',true> d_file;
-//                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
-//                    
-//                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
-//                    for (const auto& sIter : DN.mesh.template observer<0>())
+//                if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+//                {
+//                    for(auto& node : fieldPoints)
 //                    {
-//                        if(sIter.second->isBoundarySimplex())
-//                        {
-//                            fieldPoints.emplace_back(*(sIter.second));
-//                        }
-//                    }
-//                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-//                    
-//                    
-//                    for(auto node : fieldPoints)
-//                    {
-//                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+////                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
 //                        
-//                        // Sum solid angle jump
-//                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
-//                        {
-//                            for(const auto& segment : DN.links())
-//                            {
-//                                segment.second->addToSolidAngleJump(node.P,node.S,nodeDisp);
-//                            }
-//                        }
 //                        
 //                        // Sum FEM solution
-//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.gID)->gID;
-//                        nodeDisp+=DN.bvpSolver->displacement().dofs(femID);
+//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+//                        node+=DN.bvpSolver->displacement().dofs(femID);
 //                        
-//                        // output
-//                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+////                        // output
+////                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
 //                    }
-                }
+//
+//                    
+//                    assert(0 && "FINISH HERE");
+//                    //                    if (!(runID%DN.use_bvp))
+//                    //                    {
+////                    const auto t0=std::chrono::system_clock::now();
+////                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+////                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
+////                    model::SequentialOutputFile<'D',true> d_file;
+////                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
+////                    
+////                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
+////                    for (const auto& sIter : DN.mesh.template observer<0>())
+////                    {
+////                        if(sIter.second->isBoundarySimplex())
+////                        {
+////                            fieldPoints.emplace_back(*(sIter.second));
+////                        }
+////                    }
+////                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
+////                    
+////                    
+////                    for(auto node : fieldPoints)
+////                    {
+////                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
+////                        
+////                        // Sum solid angle jump
+////                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
+////                        {
+////                            for(const auto& segment : DN.links())
+////                            {
+////                                segment.second->addToSolidAngleJump(node.P,node.S,nodeDisp);
+////                            }
+////                        }
+////                        
+////                        // Sum FEM solution
+////                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.gID)->gID;
+////                        nodeDisp+=DN.bvpSolver->displacement().dofs(femID);
+////                        
+////                        // output
+////                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
+////                    }
+//                }
                 
-                for(const auto& node : fieldPoints)
+                for(auto& node : fieldPoints)
                 {// output
+                    
+                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+                    {
+                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+                        node+=DN.bvpSolver->displacement().dofs(femID);
+                    }
+                    
                     d_file<<node.pointID<<" "<<node.transpose()<<"\n";
                 }
 
@@ -987,11 +1008,13 @@ namespace model
             
             if(DN.bvpSolver)
             {
-                f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver->loadController().output(DN);
-                if(runID==0)
-                {
-                    assert(0 && "FINISH HERE, pass F_labels to loadController.output()");
-                }
+                DN.bvpSolver->loadController().output(DN,runID,f_file,F_labels);
+
+//                f_file<<std::setprecision(15)<<std::scientific<<DN.bvpSolver->loadController().output(DN,runID,f_file,F_labels);
+//                if(runID==0)
+//                {
+//                    assert(0 && "FINISH HERE, pass F_labels to loadController.output()");
+//                }
             }
             
 #ifdef userOutputFile

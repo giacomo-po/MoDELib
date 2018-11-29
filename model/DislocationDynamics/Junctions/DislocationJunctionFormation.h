@@ -134,7 +134,9 @@ namespace model
             for(const auto& link : DN.links())
             {
                 if(   (!link.second->hasZeroBurgers() && !link.second->isVirtualBoundarySegment())
-                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
+//                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
+                    || link.second->isBoundarySegment() )
+
                 {
                     //                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
                     swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);

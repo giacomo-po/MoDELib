@@ -1,0 +1,7 @@
+######################################
+# Settings for BVP controller
+thetaDot=1e-9;
+initialTwist_Rad=0;
+apply_torsion=1;
+relaxSteps=0;
+

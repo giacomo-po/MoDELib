@@ -226,7 +226,7 @@ namespace model
         static const Eigen::Matrix<double,TypeTraits<Derived>::dim,TypeTraits<Derived>::dim> I;
         static const Eigen::Matrix<double,TypeTraits<Derived>::dim,1> zeroVector;
         static double quadPerLength;
-        static double virtualSegmentDistance;
+//        static double virtualSegmentDistance;
         static int verbosePlanarDislocationSegment;
         
 //        QuadratureParticleContainerType quadratureParticleContainer;
@@ -247,7 +247,7 @@ namespace model
             assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
             
             verbosePlanarDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verbosePlanarDislocationSegment",true);
-            virtualSegmentDistance=TextFileParser(fileName).readScalar<double>("virtualSegmentDistance",true);
+//            virtualSegmentDistance=TextFileParser(fileName).readScalar<double>("virtualSegmentDistance",true);
             
         }
         
@@ -819,8 +819,8 @@ namespace model
     template <typename Derived>
     double PlanarDislocationSegment<Derived>::quadPerLength=0.2;
     
-    template <typename Derived>
-    double PlanarDislocationSegment<Derived>::virtualSegmentDistance=200.0;
+//    template <typename Derived>
+//    double PlanarDislocationSegment<Derived>::virtualSegmentDistance=200.0;
     
     template <typename Derived>
     int PlanarDislocationSegment<Derived>::verbosePlanarDislocationSegment=0;

@@ -1,4 +1,32 @@
 NEW LOOP_NETWORK CODE
+
+- Implement model/Fem
+class NodeSelectorBase
+virtual bool contains(x) const =0;
+
+Then 
+class HalfSpace : public NodeSelectorBase
+P
+n
+bool contains(x) const override
+{
+reuturn (P-x).dot(n)><0;
+}
+
+class Plane : public NodeSelectorBase
+P
+n
+bool contains(x) const override
+{
+reuturn (P-x).dot(n)==0;
+}
+
+
+
+
+
+- CROSSSLIP WITH EXPANSION
+- MOTION OF BOUNDARY NODES BY BOUNDING BOX INTERSECTION
 - Mobility specific to slip system
 - Make Loops with |Burgers|>1 sessile
 - Rework crossslip

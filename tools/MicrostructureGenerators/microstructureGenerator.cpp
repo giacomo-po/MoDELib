@@ -6,7 +6,7 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#include <model/DislocationDynamics/MicrostructureGeneration/MicrostructureGenerator.h>
+#include <MicrostructureGenerator.h>
 
 using namespace model;
 

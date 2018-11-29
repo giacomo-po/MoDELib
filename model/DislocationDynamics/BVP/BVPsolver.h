@@ -78,11 +78,11 @@ namespace model
         
     private:
         Eigen::Matrix<double,6,6> C; // matrix of elastic moduli
-        FiniteElementType* fe;
-        TrialFunctionType*  u;  // displacement field *u=[u1 u2 u3]'
-        TrialGradType*  b;      // displacement gradient *b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
-        TrialDefType*  e;       // strain *e=[e11 e22 e33 e12 e23 e13]'
-        TrialStressType* s;     // stress *s=[s11 s22 s33 s12 s23 s13]'
+        FiniteElementType fe;
+        TrialFunctionType  u;  // displacement field u=[u1 u2 u3]'
+        TrialGradType  b;      // displacement gradient b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
+        TrialDefType  e;       // strain e=[e11 e22 e33 e12 e23 e13]'
+        TrialStressType s;     // stress s=[s11 s22 s33 s12 s23 s13]'
         
         IntegrationDomainType dV;
         BilinearWeakFormType* bWF;
@@ -293,67 +293,32 @@ namespace model
         const int stepsBetweenBVPupdates;
         
         /**********************************************************************/
-        BVPsolver(const SimplicialMesh<dim>& mesh_in) :
+        template <typename DislocationNetworkType>
+        BVPsolver(const SimplicialMesh<dim>& mesh_in,const DislocationNetworkType& DN) :
         /* init  */ mesh(mesh_in)
+        /* init  */,fe(mesh)
+        /* init  */,u(fe.template trial<'u',dim>())
+        /* init  */,b(grad(u))
+        /* init  */,e(def(u))
         /* init  */,gSize(0)
-        /* init  */,C(get_C(1.0,0.33))
+        /* init  */,C(get_C(DN.poly.mu,DN.poly.nu))
+        /* init  */,s(C*e)
         /* init  */,tolerance(TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
         /* init  */,use_directSolver(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
         /* init  */,stepsBetweenBVPupdates(TextFileParser("inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
         {
             
-        }
-        
-        /**********************************************************************/
-        const FiniteElementType& finiteElement() const
-        {
-            return *fe;
-        }
-        
-        /**********************************************************************/
-        FiniteElementType& finiteElement()
-        {
-            return *fe;
-        }
-        
-        /**********************************************************************/
-        const TrialFunctionType& displacement() const
-        {
-            return *u;
-        }
-        
-        /**********************************************************************/
-        TrialFunctionType& displacement()
-        {
-            return *u;
-        }
-        
-        /**********************************************************************/
-        const TrialStressType& stress() const
-        {
-            return *s;
-        }
-        
-        /**********************************************************************/
-        const LoadControllerType& loadController() const
-        {
-            return *lc;
-        }
-        
-        /**********************************************************************/
-        template <typename DislocationNetworkType>
-        void init(const DislocationNetworkType& DN)
-        {
+            
             std::cout<<"Initializing BVPsolver"<<std::endl;
-
-            fe = new FiniteElementType(mesh);
-            u  = new TrialFunctionType(fe->template trial<'u',dim>());
-            b  = new TrialGradType(grad(*u));
-            e  = new TrialDefType(def(*u));
+            
+            //            fe = new FiniteElementType(mesh);
+            //            u  = new TrialFunctionType(fe.template trial<'u',dim>());
+            //            b  = new TrialGradType(grad(u));
+            //            e  = new TrialDefType(def(u));
             C=get_C(DN.poly.mu,DN.poly.nu); // Material<Isotropic>  may have changed since construction
-            s  = new TrialStressType(C**e);
-            dV = fe->template domain<EntireDomain,4,GaussLegendre>();
-            bWF = new BilinearWeakFormType((test(*e),*s),dV);
+//            s  = new TrialStressType(C*e);
+            dV = fe.template domain<EntireDomain,4,GaussLegendre>();
+            bWF = new BilinearWeakFormType((test(e),s),dV);
             gSize=TrialBase<TrialFunctionType>::gSize();
             
             // Compute and store stiffness matrix
@@ -364,11 +329,78 @@ namespace model
             A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
             A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-        
+            
             // Initialize LoadController
             lc = new LoadControllerType(displacement());
             lc ->init(DN);
+            
         }
+        
+        /**********************************************************************/
+        const FiniteElementType& finiteElement() const
+        {
+            return fe;
+        }
+        
+        /**********************************************************************/
+        FiniteElementType& finiteElement()
+        {
+            return fe;
+        }
+        
+        /**********************************************************************/
+        const TrialFunctionType& displacement() const
+        {
+            return u;
+        }
+        
+        /**********************************************************************/
+        TrialFunctionType& displacement()
+        {
+            return u;
+        }
+        
+        /**********************************************************************/
+        const TrialStressType& stress() const
+        {
+            return s;
+        }
+        
+        /**********************************************************************/
+        const LoadControllerType& loadController() const
+        {
+            return *lc;
+        }
+        
+//        /**********************************************************************/
+//        template <typename DislocationNetworkType>
+//        void init(const DislocationNetworkType& DN)
+//        {
+//            std::cout<<"Initializing BVPsolver"<<std::endl;
+//
+////            fe = new FiniteElementType(mesh);
+////            u  = new TrialFunctionType(fe.template trial<'u',dim>());
+////            b  = new TrialGradType(grad(u));
+////            e  = new TrialDefType(def(u));
+//            C=get_C(DN.poly.mu,DN.poly.nu); // Material<Isotropic>  may have changed since construction
+//            s  = new TrialStressType(C*e);
+//            dV = fe.template domain<EntireDomain,4,GaussLegendre>();
+//            bWF = new BilinearWeakFormType((test(e),s),dV);
+//            gSize=TrialBase<TrialFunctionType>::gSize();
+//            
+//            // Compute and store stiffness matrix
+//            const auto t0= std::chrono::system_clock::now();
+//            std::cout<<"Computing stiffness matrix: gSize="<<gSize<<std::endl;
+//            std::vector<Eigen::Triplet<double> > globalTriplets(bWF->globalTriplets());
+//            A.resize(gSize,gSize);
+//            A.setFromTriplets(globalTriplets.begin(),globalTriplets.end());
+//            A.prune(A.norm()/A.nonZeros(),FLT_EPSILON);
+//            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//        
+//            // Initialize LoadController
+//            lc = new LoadControllerType(displacement());
+//            lc ->init(DN);
+//        }
         
         
         
@@ -397,10 +429,10 @@ namespace model
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
             {
                 const auto& gID(pair.first);
-//                const auto node(fe->node(gID));
+//                const auto node(fe.node(gID));
                 
 //                fieldPoints.emplace_back(node);
-                                fieldPoints.emplace_back(gID,fe->node(gID).P0);
+                                fieldPoints.emplace_back(gID,fe.node(gID).P0);
             }
 //            DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
   
@@ -417,29 +449,29 @@ namespace model
 #ifdef _MODEL_TEST_DD_DISPLACEMENT_
                         dd_disp_file<<fieldPoint.P.transpose()<<" "<<fieldPoint.template field<DisplacementField>().transpose()<<"\t"<<fieldPoint.S.transpose()<<"\n";
 #endif
-//                        u->dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint.template field<DisplacementField>()(dof);
-                        u->dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint(dof);
+//                        u.dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint.template field<DisplacementField>()(dof);
+                        u.dirichletConditions().at(gID*dofPerNode+dof) -= fieldPoint(dof);
 
                     }
                 }
                 
-                if(DN.useVirtualExternalLoops) // Add solid angle contribution
-                {
-                    assert(0 && "FINISH HERE");
-//                    VectorDim dispJump(VectorDim::Zero());
-//                    for (const auto& segment : DN.links())
-//                    {
-//                        segment.second->addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
-//                    }
-//                    
-//                    for(int dof=0;dof<dofPerNode;++dof)
-//                    {
-//                        if(displacement().dirichletNodeMap()[gID][dof])
-//                        {
-//                            u->dirichletConditions().at(gID*dofPerNode+dof) -= dispJump(dof);
-//                        }
-//                    }
-                }
+//                if(DN.useVirtualExternalLoops) // Add solid angle contribution
+//                {
+//                    assert(0 && "FINISH HERE");
+////                    VectorDim dispJump(VectorDim::Zero());
+////                    for (const auto& segment : DN.links())
+////                    {
+////                        segment.second->addToSolidAngleJump(fieldPoint.P,fieldPoint.S,dispJump);
+////                    }
+////                    
+////                    for(int dof=0;dof<dofPerNode;++dof)
+////                    {
+////                        if(displacement().dirichletNodeMap()[gID][dof])
+////                        {
+////                            u.dirichletConditions().at(gID*dofPerNode+dof) -= dispJump(dof);
+////                        }
+////                    }
+//                }
             }
             
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -453,7 +485,7 @@ namespace model
         void assembleAndSolve(const DislocationNetworkType& DN)
         {
             // Clear exisintg Dirichlet condition
-            u->clearDirichletConditions();
+            u.clearDirichletConditions();
             
             // Update loadController
             lc->update(DN);
@@ -468,7 +500,7 @@ namespace model
             model::cout<<"Computing DD boundary traction..."<<std::flush;
 //            typedef typename DislocationNetworkType::StressField StressField;
 //            typedef BoundaryStressPoint<DislocationNetworkType> FieldPointType;
-            auto ndA=fe->template boundary<ExternalBoundary,qOrder,GaussLegendre>();
+            auto ndA=fe.template boundary<ExternalBoundary,qOrder,GaussLegendre>();
 //            auto eb_list = ndA.template integrationList<FieldPointType>(); // TO DO: make this a member data to be able to output
             auto eb_list = ndA.template integrationList<BoundaryQuadraturePoint<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
 
@@ -485,7 +517,7 @@ namespace model
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
             
-            auto dislocationTraction=(test(*u),eb_list);
+            auto dislocationTraction=(test(u),eb_list);
             
             // Assemble loadController and dislocaiton tractions and solve
             displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());
@@ -506,14 +538,14 @@ namespace model
         Eigen::Matrix<double,dim,1> displacement(const Eigen::Matrix<double,dim,1> P,
                                              const Simplex<dim,dim>* guess) const
         {
-            return eval(*u)(P,guess);
+            return eval(u)(P,guess);
         }
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,dim> stress(const Eigen::Matrix<double,dim,1> P,
                                              const Simplex<dim,dim>* guess) const
         {
-            Eigen::Matrix<double,6,1> tempV(eval(*s)(P,guess));
+            Eigen::Matrix<double,6,1> tempV(eval(s)(P,guess));
             Eigen::Matrix<double,dim,dim> tempM;
             tempM(0,0)=tempV(0); // s11
             tempM(1,1)=tempV(1); // s22
@@ -532,7 +564,7 @@ namespace model
         Eigen::Matrix<double,dim,dim> stress(const ElementType& ele,
                                              const Eigen::Matrix<double,dim+1,1>& bary) const
         {
-            Eigen::Matrix<double,6,1> tempV(eval(*s)(ele,bary));
+            Eigen::Matrix<double,6,1> tempV(eval(s)(ele,bary));
             Eigen::Matrix<double,dim,dim> tempM;
             tempM(0,0)=tempV(0); // s11
             tempM(1,1)=tempV(1); // s22

@@ -11,12 +11,12 @@
 
 
 #include <iostream>
-#include <model/IO/SequentialOutputFile.h>
-#include <model/FEM/FiniteElement.h>
-#include <model/FEM/Boundaries/AtXmin.h>
-#include <model/FEM/Boundaries/AtXmax.h>
-#include <model/FEM/BoundaryConditions/Fix.h>
-#include <model/FEM/Domains/SubDomain.h>
+#include <SequentialOutputFile.h>
+#include <FiniteElement.h>
+#include <AtXmin.h>
+#include <AtXmax.h>
+#include <Fix.h>
+#include <SubDomain.h>
 
 using namespace model;
 

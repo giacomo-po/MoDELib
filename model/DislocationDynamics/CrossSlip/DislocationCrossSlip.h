@@ -174,6 +174,10 @@ namespace model
                             if(  (isSource.second->get_P()-newSourceP).norm()<FLT_EPSILON
                                &&  (isSink.second->get_P()-  newSinkP).norm()<FLT_EPSILON)
                             {
+                                
+                                // Check if source and sink are already part of loops on the conjugate plane
+                                
+                                
                                 // Construct and insert new loop in conjugate plane
                                 const VectorDim newNodeP(0.5*(isSource.second->get_P()+isSink.second->get_P()));
                                 const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;

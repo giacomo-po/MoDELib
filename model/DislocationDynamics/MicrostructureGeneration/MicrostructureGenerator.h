@@ -372,10 +372,10 @@ namespace model
             {
                 std::cout<<greenBoldColor<<"Generating single-arm sources"<<defaultColor<<std::endl;
                 
-                double fractionEdge=1.0; // TEMPORARY
+//                double fractionEdge=1.0; // TEMPORARY
                 
                 double density=0.0;
-                double edgeDensity=0.0;
+//                double edgeDensity=0.0;
                 
                 while(density<targetSingleArmDislocationDensity)
                 {
@@ -678,22 +678,22 @@ namespace model
                 
                 for(size_t k=0;k<straightDislocationsSlipSystemIDs.size();++k)
                 {
-                    
-                    std::pair<bool,const Simplex<dim,dim>*> found=mesh.search(pointsAlongStraightDislocations.row(k));
-                    if(!found.first)
-                    {
-                        std::cout<<"Point "<<pointsAlongStraightDislocations.row(k)<<" is outside mesh. EXITING."<<std::endl;
-                        exit(EXIT_FAILURE);
-                    }
-                    
-                    int grainID=found.second->region->regionID;
-                    
-                    
                     const int& rSS(straightDislocationsSlipSystemIDs[k]);
                     
                     
                     if(rSS>=0)
                     {
+                        std::pair<bool,const Simplex<dim,dim>*> found=mesh.search(pointsAlongStraightDislocations.row(k));
+                        if(!found.first)
+                        {
+                            std::cout<<"Point "<<pointsAlongStraightDislocations.row(k)<<" is outside mesh. EXITING."<<std::endl;
+                            exit(EXIT_FAILURE);
+                        }
+                        
+                        int grainID=found.second->region->regionID;
+                        
+                        
+                        
                         std::cout<<"generating individual straight dislocation "<<k<<defaultColor<<std::endl;
                         
                         
@@ -872,7 +872,7 @@ namespace model
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
-//        GlidePlaneObserver<dim> gpo;
+        //        GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
         
         // Straight Dislocations
@@ -1047,12 +1047,12 @@ namespace model
                         edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+2,0);
                         edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+0,0);
                         loopsIO.emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID);
-
+                        
                         edgesIO.emplace_back(loopID+3,nodeID+1,nodeID+2,0);
                         edgesIO.emplace_back(loopID+3,nodeID+2,nodeID+3,0);
                         edgesIO.emplace_back(loopID+3,nodeID+3,nodeID+1,0);
                         loopsIO.emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID);
-
+                        
                         
                         snID++;
                         loopID+=4;

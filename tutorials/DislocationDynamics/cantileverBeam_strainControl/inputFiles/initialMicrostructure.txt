@@ -1,0 +1,57 @@
+#######################################
+# General settings
+enforceMonotonicHelicity=0;
+
+#######################################
+# Straight dislocations from boundary to boundary
+targetStraightDislocationDensity=0e13;
+fractionSessileStraightDislocationDensity=0.0;
+
+#######################################
+# Frank-Read sources
+targetFrankReadDislocationDensity=0e13;
+FrankReadSizeMean=0.5e-6;
+FrankReadSizeStd=0.25e-6;
+FrankReadAspectRatioMean=2.0;
+FrankReadAspectRatioStd=1.0;
+
+#######################################
+# Single-arm sources
+targetSingleArmDislocationDensity=0e13;
+
+#######################################
+# Prismatic loops (dipolar glissile loops)
+targetPrismaticLoopDensity=0e13;
+
+#######################################
+# Individual straight dislocations
+straightDislocationsSlipSystemIDs=-1 -1;
+straightDislocationsAngleFromScrewOrientation=90.0 90.0;
+pointsAlongStraightDislocations=2000.0 2000.0 2000.0
+						   		0.0 0.0 0.0;
+
+#######################################
+# Irradiation loops
+targetIrradiationLoopDensity=0e21;
+fraction111Loops=0.5;
+averageLoopSize=6.1e-9;
+
+#######################################
+# Stacking Fault Tetrahedra
+targetSFTdensity=0e19;
+
+#######################################
+# Eshelby Inclusions parameters
+# vector of densities, one value per family
+targetInclusionDensities=0e20 0e19;
+# vector of Gamma-distribution parameter alpha (dimensionless), one value per family
+inclusionsDistribution_alpha=4.159 4.159;
+# vector of Gamma-distribution parameter beta (dimensionless), one value per family
+inclusionsDistribution_beta=1.943 1.943;
+# vector distribution scaling factors (meters), one value per family
+inclusionsDistribution_lambda=2.166e-9 10.17e-9;
+# Array inclusion transformation strains (dimensionless), one row per family with format (exx exy exz eyx eyy eyz ezx exy ezz)
+inclusionsTransformationStrains = 0.06 0.0 0.0 0.0 0.06 0.0 0.0 0.0 0.06
+                                  0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03;                          
+inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
+                     0 0 0;

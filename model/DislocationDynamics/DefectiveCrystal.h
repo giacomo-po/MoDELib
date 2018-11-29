@@ -134,7 +134,7 @@ namespace model
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
         /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
-        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh) : nullptr)
+        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,DN) : nullptr)
         /* init */,externalLoadController(getExternalLoadController(simulationParameters,DN,simulationParameters.runID))
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
@@ -152,7 +152,7 @@ namespace model
                     
                 case DefectiveCrystalParameters::FINITE_FEM:
                 {
-                    bvpSolver->init(DN);
+//                    bvpSolver->init(DN);
                     break;
                 }
                    

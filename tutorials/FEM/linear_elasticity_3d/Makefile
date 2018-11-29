@@ -1,8 +1,8 @@
-MODEL_INCLUDE = ../../../
+MODEL_INCLUDE = ../../../header_symlinks
 EIGEN_INCLUDE =/usr/local/include
 usePARDISO = 0
-MKL_INCLUDE=/opt/intel/composer_xe_2015.2.132/mkl/include
-MKL_LIB=/opt/intel/composer_xe_2015.2.132/mkl/lib
+MKL_INCLUDE=/opt/intel/mkl/include
+MKL_LIB=/opt/intel/mkl/lib
 
 ##############################
 IDIR += -I ./
