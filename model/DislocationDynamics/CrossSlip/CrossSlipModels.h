@@ -63,10 +63,10 @@ namespace model
                     for(size_t s=0;s<grain.slipSystems().size();++s)
                     {
                         const auto& slipSystem(grain.slipSystems()[s]);
-                        //const VectorDim ncs=slipSystem.unitNormal.normalized();
-                        if((slipSystem.s.cartesian()-link.burgers()).norm()<FLT_EPSILON)
+                        //const VectorDim ncs=slipSystem->unitNormal.normalized();
+                        if((slipSystem->s.cartesian()-link.burgers()).norm()<FLT_EPSILON)
                         {
-                            const double pkGlide=(pki-pki.dot(slipSystem.unitNormal)*slipSystem.unitNormal).norm();
+                            const double pkGlide=(pki-pki.dot(slipSystem->unitNormal)*slipSystem->unitNormal).norm();
                             ssMap.emplace(pkGlide,s);
                         }
                     }
@@ -74,7 +74,7 @@ namespace model
                     if(ssMap.size())
                     {
                         const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
-                        if(crosSlipSystem.unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
+                        if(crosSlipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
                         {// cross slip system is different than original system
                             crossSlipDeq.emplace_back(link.source->sID,
                                                       link.sink->sID,
@@ -132,10 +132,10 @@ namespace model
                     for(size_t s=0;s<grain.slipSystems().size();++s)
                     {
                         const auto& slipSystem(grain.slipSystems()[s]);
-                        //const VectorDim ncs=slipSystem.unitNormal.normalized();
-                        if((slipSystem.s.cartesian()-link.burgers()).norm()<FLT_EPSILON)
+                        //const VectorDim ncs=slipSystem->unitNormal.normalized();
+                        if((slipSystem->s.cartesian()-link.burgers()).norm()<FLT_EPSILON)
                         {
-                            const double pkGlide=(pki-pki.dot(slipSystem.unitNormal)*slipSystem.unitNormal).norm();
+                            const double pkGlide=(pki-pki.dot(slipSystem->unitNormal)*slipSystem->unitNormal).norm();
                             ssMap.emplace(pkGlide,s);
                         }
                     }
@@ -143,7 +143,7 @@ namespace model
                     if(ssMap.size())
                     {
                         const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
-                        if(crosSlipSystem.unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
+                        if(crosSlipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
                         {// cross slip system is different than original system
                             crossSlipDeq.emplace_back(link.source->sID,
                                                       link.sink->sID,

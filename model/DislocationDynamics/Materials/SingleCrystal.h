@@ -15,13 +15,9 @@
 #include <vector>
 #include <tuple>
 
-//#include <PeriodicElement.h>
-//#include <CrystalOrientation.h>
 #include <MPIcout.h> // defines mode::cout
 #include <TerminalColors.h> // defines mode::cout
-//#include <EigenDataReader.h> // defines mode::cout
 #include <MaterialSymmetry.h>
-//#include <MaterialBase.h>
 #include <BCClattice.h>
 #include <FCClattice.h>
 #include <HEXlattice.h>
@@ -35,15 +31,14 @@ namespace model
 {
     
     template<int dim>
-    class SingleCrystal : //public SingleCrystalBase
-    /*                 */ public Lattice<dim>
+    class SingleCrystal : public Lattice<dim>
     /*                 */,private std::vector<LatticePlaneBase>
-    /*                 */,private std::vector<SlipSystem>
+    /*                 */,private std::vector<std::shared_ptr<SlipSystem>>
     {
         
         typedef Lattice<dim> LatticeType;
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
-        typedef std::vector<SlipSystem> SlipSystemContainerType;
+        typedef std::vector<std::shared_ptr<SlipSystem>> SlipSystemContainerType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         /**********************************************************************/

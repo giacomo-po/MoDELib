@@ -528,11 +528,11 @@ namespace model
                                 {
                                     const auto& slipSystem(gr->slipSystems()[s]);
                                     
-                                    //                                    std::cout<<"here 3 "<<"\n"<<slipSystem.s.cartesian().transpose()<<"\n"<<link.second->burgers().transpose()<<std::endl;
-                                    //                                    std::cout<<((slipSystem.s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON)<<std::endl;
-                                    //                                    std::cout<<(fabs(slipSystem.n.cartesian().normalized().dot(unitChord)))<<std::endl;
-                                    if(  (slipSystem.s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-                                       && fabs(slipSystem.n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+                                    //                                    std::cout<<"here 3 "<<"\n"<<slipSystem->s.cartesian().transpose()<<"\n"<<link.second->burgers().transpose()<<std::endl;
+                                    //                                    std::cout<<((slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON)<<std::endl;
+                                    //                                    std::cout<<(fabs(slipSystem->n.cartesian().normalized().dot(unitChord)))<<std::endl;
+                                    if(  (slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
+                                       && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
                                     {
                                         //                                        std::cout<<"here 4"<<std::endl;
                                         
@@ -568,8 +568,8 @@ namespace model
                     nodeIDs.push_back(newNodeID);
                     
                     DN.insertLoop(nodeIDs,
-                                  DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
-                                  DN.poly.grain(grainID).slipSystems()[slipID].n.cartesian(),
+                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+                                  DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
                                   newNodeP,
                                   grainID);
                     

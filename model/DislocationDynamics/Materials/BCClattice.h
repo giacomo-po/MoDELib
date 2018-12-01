@@ -84,7 +84,7 @@ namespace model
 
         /**********************************************************************/
 //        template <int dim>
-        static std::vector<SlipSystem> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
+        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
@@ -97,37 +97,37 @@ namespace model
             LatticeVectorType  y(VectorDimI(1,1,1),lat);
             
             
-            std::vector<SlipSystem> temp;
+            std::vector<std::shared_ptr<SlipSystem>> temp;
             
-            temp.emplace_back(a3,a1, a3,material.dislocationMobilities.at("bcc")); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(a3,a1,a3*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(a3,a1, a1,material.dislocationMobilities.at("bcc")); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(a3,a1,a1*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1, a3,material.dislocationMobilities.at("bcc"))); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1,a3*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1, a1,material.dislocationMobilities.at("bcc"))); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1,a1*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 0, 1) in cartesian
             
-            temp.emplace_back( y,a2, y,material.dislocationMobilities.at("bcc")); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back( y,a2,y*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back( y,a2, a2,material.dislocationMobilities.at("bcc")); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back( y,a2,a2*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2, y,material.dislocationMobilities.at("bcc"))); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2,y*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2, a2,material.dislocationMobilities.at("bcc"))); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2,a2*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 0,-1) in cartesian
             
-            temp.emplace_back(a2,a3, a2,material.dislocationMobilities.at("bcc")); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(a2,a3,a2*(-1),material.dislocationMobilities.at("bcc")); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(a2,a3, a3,material.dislocationMobilities.at("bcc")); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(a2,a3,a3*(-1),material.dislocationMobilities.at("bcc")); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3, a2,material.dislocationMobilities.at("bcc"))); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3,a2*(-1),material.dislocationMobilities.at("bcc"))); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3, a3,material.dislocationMobilities.at("bcc"))); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3,a3*(-1),material.dislocationMobilities.at("bcc"))); // is ( 0, 1, 1) in cartesian
             
-            temp.emplace_back( y,a1, y,material.dislocationMobilities.at("bcc")); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back( y,a1,y*(-1),material.dislocationMobilities.at("bcc")); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back( y,a1, a1,material.dislocationMobilities.at("bcc")); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back( y,a1,a1*(-1),material.dislocationMobilities.at("bcc")); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1, y,material.dislocationMobilities.at("bcc"))); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1,y*(-1),material.dislocationMobilities.at("bcc"))); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1, a1,material.dislocationMobilities.at("bcc"))); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1,a1*(-1),material.dislocationMobilities.at("bcc"))); // is ( 0,-1, 1) in cartesian
             
-            temp.emplace_back(a1,a2, a1,material.dislocationMobilities.at("bcc")); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(a1,a2,a1*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(a1,a2, a2,material.dislocationMobilities.at("bcc")); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(a1,a2,a2*(-1),material.dislocationMobilities.at("bcc")); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2, a1,material.dislocationMobilities.at("bcc"))); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2, a2,material.dislocationMobilities.at("bcc"))); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),material.dislocationMobilities.at("bcc"))); // is ( 1, 1, 0) in cartesian
             
-            temp.emplace_back( y,a3, y,material.dislocationMobilities.at("bcc")); // is (-1, 1, 0) in cartesian
-            temp.emplace_back( y,a3,y*(-1),material.dislocationMobilities.at("bcc")); // is (-1, 1, 0) in cartesian
-            temp.emplace_back( y,a3, a3,material.dislocationMobilities.at("bcc")); // is (-1, 1, 0) in cartesian
-            temp.emplace_back( y,a3,a3*(-1),material.dislocationMobilities.at("bcc")); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3, y,material.dislocationMobilities.at("bcc"))); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3,y*(-1),material.dislocationMobilities.at("bcc"))); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3, a3,material.dislocationMobilities.at("bcc"))); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3,a3*(-1),material.dislocationMobilities.at("bcc"))); // is (-1, 1, 0) in cartesian
             
             return temp;
         }

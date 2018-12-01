@@ -27,6 +27,7 @@
 #include <DislocationEdgeIO.h>
 #include <EVLio.h>
 #include <DislocationLinkingNumber.h>
+#include <TextFileParser.h>
 
 
 namespace model
@@ -142,7 +143,7 @@ namespace model
                     const VectorDimD P0(L0.cartesian());   // cartesian position of L0
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem ID
-                    const SlipSystem& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
                     
                     
@@ -247,7 +248,7 @@ namespace model
                     
                     const int rSS=distribution(generator); // a random SlipSystem
                     
-                    const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
@@ -387,7 +388,7 @@ namespace model
                     
                     const int rSS=distribution(generator); // a random SlipSystem
                     
-                    const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
@@ -523,7 +524,7 @@ namespace model
                     
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
-                    const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                    const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
@@ -705,7 +706,7 @@ namespace model
                             exit(EXIT_FAILURE);
                         }
                         
-                        const auto& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                        const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                         const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(slipSystem.n,pointsAlongStraightDislocations.row(k));
                         
                         const VectorDimD P0=pointsAlongStraightDislocations.row(k).transpose()-pointsAlongStraightDislocations.row(k).dot(slipSystem.unitNormal)*slipSystem.unitNormal+slipSystem.unitNormal*slipSystem.n.planeSpacing()*heightPair.second;
@@ -1128,7 +1129,7 @@ namespace model
                             
                             std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                             const int rSS=distribution(generator); // a random SlipSystem ID
-                            const SlipSystem& slipSystem=poly.grain(grainID).slipSystems()[rSS];
+                            const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                             b=slipSystem.s.cartesian();    // Burgers vector
                             a=b.normalized();
                             //const VectorDimD c(slipSystem.s.cartesian());

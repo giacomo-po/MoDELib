@@ -12,6 +12,7 @@
 
 #include <string>
 #include <TerminalColors.h> // defines mode::cout
+#include <TextFileParser.h>
 
 namespace model
 {

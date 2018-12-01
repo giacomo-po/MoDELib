@@ -141,13 +141,13 @@ namespace model
                         
                         // Align source and sink to perfect screw orientation
                         const VectorDim midPoint(0.5*(isSource.second->get_P()+isSink.second->get_P()));
-                        const int height=LatticePlane::computeHeight(crosSlipSystem.n,midPoint).second;
-                        const VectorDim planePoint(height*crosSlipSystem.n.planeSpacing()*crosSlipSystem.unitNormal);
+                        const int height=LatticePlane::computeHeight(crosSlipSystem->n,midPoint).second;
+                        const VectorDim planePoint(height*crosSlipSystem->n.planeSpacing()*crosSlipSystem->unitNormal);
                         
-                        //const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem.unitNormal)*crosSlipSystem.unitNormal; // closest point to midPoint on the crossSlip plane
+                        //const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem->unitNormal)*crosSlipSystem->unitNormal; // closest point to midPoint on the crossSlip plane
                         
 //                        PlanePlaneIntersection<dim> ppi(midPoint,isLink.second->glidePlaneNormal(),
-//                                                        planePoint2,crosSlipSystem.unitNormal);
+//                                                        planePoint2,crosSlipSystem->unitNormal);
 
                         
                         
@@ -155,7 +155,7 @@ namespace model
                         PlanePlaneIntersection<dim> ppi((*isLink.second->loopLinks().begin())->loop()->glidePlane->P,
                                                         (*isLink.second->loopLinks().begin())->loop()->glidePlane->unitNormal,
                                                         planePoint,
-                                                        crosSlipSystem.unitNormal);
+                                                        crosSlipSystem->unitNormal);
 
                         
                         const VectorDim newSourceP(ppi.P+(isSource.second->get_P()-ppi.P).dot(ppi.d)*ppi.d);
@@ -189,8 +189,8 @@ namespace model
                                 nodeIDs.push_back(newNodeID);
                                 
                                 DN.insertLoop(nodeIDs,
-                                              DN.poly.grain(grainID).slipSystems()[slipID].s.cartesian(),
-                                              DN.poly.grain(grainID).slipSystems()[slipID].unitNormal,
+                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+                                              DN.poly.grain(grainID).slipSystems()[slipID]->unitNormal,
                                               newNodeP,
                                               grainID);
                             }

@@ -85,7 +85,7 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::vector<SlipSystem> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
+        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
@@ -98,35 +98,35 @@ namespace model
             LatticeVectorType c(VectorDimI(0,0,1),lat);
             
 
-            std::vector<SlipSystem> temp;
+            std::vector<std::shared_ptr<SlipSystem>> temp;
             
             // <a> type slip
-            temp.emplace_back(a1,a2,a1,material.dislocationMobilities.at("hexBasal"));           // basal plane
-            temp.emplace_back(a1,a2,a1*(-1),material.dislocationMobilities.at("hexBasal"));           // basal plane
-            temp.emplace_back(a1,a2,a2,material.dislocationMobilities.at("hexBasal"));           // basal plane
-            temp.emplace_back(a1,a2,a2*(-1),material.dislocationMobilities.at("hexBasal"));           // basal plane
-            temp.emplace_back(a1,a2,a3,material.dislocationMobilities.at("hexBasal"));           // basal plane
-            temp.emplace_back(a1,a2,a3*(-1),material.dislocationMobilities.at("hexBasal"));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a1,material.dislocationMobilities.at("hexBasal")));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),material.dislocationMobilities.at("hexBasal")));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a2,material.dislocationMobilities.at("hexBasal")));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),material.dislocationMobilities.at("hexBasal")));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a3,material.dislocationMobilities.at("hexBasal")));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a3*(-1),material.dislocationMobilities.at("hexBasal")));           // basal plane
             
-            temp.emplace_back(a1,c,a1,material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
-            temp.emplace_back(a1,c,a1*(-1),material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
-            temp.emplace_back(a2,c,a2,material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
-            temp.emplace_back(a2,c,a2*(-1),material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
-            temp.emplace_back(a3,c,a3,material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
-            temp.emplace_back(a3,c,a3*(-1),material.dislocationMobilities.at("hexPrismatic"));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a1,c,a1,material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a1,c,a1*(-1),material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a2,c,a2,material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a2,c,a2*(-1),material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a3,c,a3,material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a3,c,a3*(-1),material.dislocationMobilities.at("hexPrismatic")));           // prismatic plane
             
-            temp.emplace_back(a1,a2+c,a1,material.dislocationMobilities.at("hexPyramidal"));         // pyramidal plane
-            temp.emplace_back(a1,a2+c,a1*(-1),material.dislocationMobilities.at("hexPyramidal"));         // pyramidal plane
-            temp.emplace_back(a2,a3+c,a2,material.dislocationMobilities.at("hexPyramidal"));         // pyramidal plane
-            temp.emplace_back(a2,a3+c,a2*(-1),material.dislocationMobilities.at("hexPyramidal"));         // pyramidal plane
-            temp.emplace_back(a3,c-a1,a3,material.dislocationMobilities.at("hexPyramidal"));        // pyramidal plane
-            temp.emplace_back(a3,c-a1,a3*(-1),material.dislocationMobilities.at("hexPyramidal"));        // pyramidal plane
-            temp.emplace_back(a1*(-1),c-a2,a1,material.dislocationMobilities.at("hexPyramidal"));       // pyramidal plane
-            temp.emplace_back(a1*(-1),c-a2,a1*(-1),material.dislocationMobilities.at("hexPyramidal"));       // pyramidal plane
-            temp.emplace_back(a2*(-1),c-a3,a2,material.dislocationMobilities.at("hexPyramidal"));       // pyramidal plane
-            temp.emplace_back(a2*(-1),c-a3,a2*(-1),material.dislocationMobilities.at("hexPyramidal"));       // pyramidal plane
-            temp.emplace_back(a3*(-1),a1+c,a3,material.dislocationMobilities.at("hexPyramidal"));        // pyramidal plane
-            temp.emplace_back(a3*(-1),a1+c,a3*(-1),material.dislocationMobilities.at("hexPyramidal"));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1,a2+c,a1,material.dislocationMobilities.at("hexPyramidal")));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1,a2+c,a1*(-1),material.dislocationMobilities.at("hexPyramidal")));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2,a3+c,a2,material.dislocationMobilities.at("hexPyramidal")));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2,a3+c,a2*(-1),material.dislocationMobilities.at("hexPyramidal")));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3,c-a1,a3,material.dislocationMobilities.at("hexPyramidal")));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3,c-a1,a3*(-1),material.dislocationMobilities.at("hexPyramidal")));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1,material.dislocationMobilities.at("hexPyramidal")));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1*(-1),material.dislocationMobilities.at("hexPyramidal")));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2,material.dislocationMobilities.at("hexPyramidal")));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2*(-1),material.dislocationMobilities.at("hexPyramidal")));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3,material.dislocationMobilities.at("hexPyramidal")));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3*(-1),material.dislocationMobilities.at("hexPyramidal")));        // pyramidal plane
             
             // <a+c> type slip
             // TO BE COMPLETED
