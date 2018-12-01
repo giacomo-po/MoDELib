@@ -15,6 +15,7 @@
 
 #include <LatticeMath.h>
 #include <SlipSystem.h>
+#include <Material.h>
 
 namespace model
 {
@@ -103,7 +104,7 @@ namespace model
 //        template <int dim>
         //        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
         //                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
-        static std::vector<SlipSystem> slipSystems(const Lattice<dim>& lat)
+        static std::vector<SlipSystem> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
@@ -118,54 +119,54 @@ namespace model
             
             if(enable111planes)
             {// <110>{111}
-                temp.emplace_back(a1,a3, a1);               // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a1*(-1));           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3, a3);               // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a3*(-1));           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a1-a3);             // is (-1, 1,-1) in cartesian
-                temp.emplace_back(a1,a3,a3-a1);             // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3, a1,material.dislocationMobilities.at("fcc"));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1*(-1),material.dislocationMobilities.at("fcc"));           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3, a3,material.dislocationMobilities.at("fcc"));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3*(-1),material.dislocationMobilities.at("fcc"));           // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a1-a3,material.dislocationMobilities.at("fcc"));             // is (-1, 1,-1) in cartesian
+                temp.emplace_back(a1,a3,a3-a1,material.dislocationMobilities.at("fcc"));             // is (-1, 1,-1) in cartesian
                 
-                temp.emplace_back(a3,a2, a3);               // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a3*(-1));           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2, a2);               // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a2*(-1));           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a3-a2);             // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(a3,a2,a2-a3);             // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2, a3,material.dislocationMobilities.at("fcc"));               // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3*(-1),material.dislocationMobilities.at("fcc"));           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2, a2,material.dislocationMobilities.at("fcc"));               // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2*(-1),material.dislocationMobilities.at("fcc"));           // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a3-a2,material.dislocationMobilities.at("fcc"));             // is ( 1,-1,-1) in cartesian
+                temp.emplace_back(a3,a2,a2-a3,material.dislocationMobilities.at("fcc"));             // is ( 1,-1,-1) in cartesian
                 
-                temp.emplace_back(a2,a1, a2);               // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a2*(-1));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1, a1);               // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a1*(-1));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a2-a1);             // is (-1,-1, 1) in cartesian
-                temp.emplace_back(a2,a1,a1-a2);             // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1, a2,material.dislocationMobilities.at("fcc"));               // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a2*(-1),material.dislocationMobilities.at("fcc"));           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1, a1,material.dislocationMobilities.at("fcc"));               // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a1*(-1),material.dislocationMobilities.at("fcc"));           // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a2-a1,material.dislocationMobilities.at("fcc"));             // is (-1,-1, 1) in cartesian
+                temp.emplace_back(a2,a1,a1-a2,material.dislocationMobilities.at("fcc"));             // is (-1,-1, 1) in cartesian
                 
-                temp.emplace_back(a1-a3,a2-a3, a1-a3);      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a3-a1);      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3,a2-a3);       // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3,a3-a2);       // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a1-a2);      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(a1-a3,a2-a3, a2-a1);      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a1-a3,material.dislocationMobilities.at("fcc"));      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a3-a1,material.dislocationMobilities.at("fcc"));      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a2-a3,material.dislocationMobilities.at("fcc"));       // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3,a3-a2,material.dislocationMobilities.at("fcc"));       // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a1-a2,material.dislocationMobilities.at("fcc"));      // is ( 1, 1, 1) in cartesian
+                temp.emplace_back(a1-a3,a2-a3, a2-a1,material.dislocationMobilities.at("fcc"));      // is ( 1, 1, 1) in cartesian
             }
             
             if(enable110planes)
             {// <110>{110}
-                temp.emplace_back(a1+a2-a3,a3, a3);
-                temp.emplace_back(a1+a2-a3,a3, a3*(-1));
+                temp.emplace_back(a1+a2-a3,a3, a3,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a1+a2-a3,a3, a3*(-1),material.dislocationMobilities.at("fcc"));
                 
-                temp.emplace_back(a1+a2-a3,a1-a2,a1-a2);
-                temp.emplace_back(a1+a2-a3,a1-a2,a2-a1);
+                temp.emplace_back(a1+a2-a3,a1-a2,a1-a2,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a1+a2-a3,a1-a2,a2-a1,material.dislocationMobilities.at("fcc"));
                 
-                temp.emplace_back(a1+a3-a2,a2, a2);
-                temp.emplace_back(a1+a3-a2,a2, a2*(-1));
+                temp.emplace_back(a1+a3-a2,a2, a2,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a1+a3-a2,a2, a2*(-1),material.dislocationMobilities.at("fcc"));
                 
-                temp.emplace_back(a1+a3-a2,a1-a3,a1-a3);
-                temp.emplace_back(a1+a3-a2,a1-a3,a3-a1);
+                temp.emplace_back(a1+a3-a2,a1-a3,a1-a3,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a1+a3-a2,a1-a3,a3-a1,material.dislocationMobilities.at("fcc"));
                 
-                temp.emplace_back(a2+a3-a1,a1, a1);
-                temp.emplace_back(a2+a3-a1,a1, a1*(-1));
+                temp.emplace_back(a2+a3-a1,a1, a1,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a2+a3-a1,a1, a1*(-1),material.dislocationMobilities.at("fcc"));
                 
-                temp.emplace_back(a2+a3-a1,a2-a3,a2-a3);
-                temp.emplace_back(a2+a3-a1,a2-a3,a3-a2);
+                temp.emplace_back(a2+a3-a1,a2-a3,a2-a3,material.dislocationMobilities.at("fcc"));
+                temp.emplace_back(a2+a3-a1,a2-a3,a3-a2,material.dislocationMobilities.at("fcc"));
             }
             
             return temp;

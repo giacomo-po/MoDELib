@@ -27,18 +27,15 @@
 #include <GrainBoundary.h>
 #include <SimplicialMesh.h>
 #include <LatticeVector.h>
-//#include <PeriodicElement.h>
-//#include <EigenDataReader.h>
 #include <SequentialOutputFile.h>
 #include <StressStraight.h>
 #include <GrainBoundaryType.h>
 #include <GlidePlane.h>
 #include <GlidePlaneObserver.h>
-//#include <MaterialsLibrary.h>
 #include <TextFileParser.h>
 #include <Material.h>
-#include <DislocationMobility.h>
-
+#include <DislocationMobilityFCC.h>
+#include <DislocationMobilityBCC.h>
 
 namespace model
 {
@@ -66,11 +63,16 @@ namespace model
         {
             if(material.crystalStructure=="BCC")
             {
-                return std::make_unique<DislocationMobility<BCClattice<dim>>>(material);
+                return std::make_unique<DislocationMobilityBCC>(material);
             }
             else if(material.crystalStructure=="FCC")
             {
-                return std::make_unique<DislocationMobility<FCClattice<dim>>>(material);
+                return std::make_unique<DislocationMobilityFCC>(material);
+            }
+            else if(material.crystalStructure=="HEX")
+            {
+                std::cout<<"FINISH HERE. HEX MOBILITY NOT IMPLEMENTED YET"<<std::endl;
+                return std::make_unique<DislocationMobilityFCC>(material);
             }
             else
             {
@@ -84,13 +86,10 @@ namespace model
         
         const SimplicialMeshType& mesh;
         const std::unique_ptr<DislocationMobilityBase> mobility;
-        //        DislocationMobilityBase*  mobility;
         
         /**********************************************************************/
         Polycrystal(const std::string& polyFile,
-                    const SimplicialMeshType& mesh_in
-//                    GlidePlaneObserver<dim>& dn
-        ) :
+                    const SimplicialMeshType& mesh_in) :
         /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
         /* init */,mesh(mesh_in)
         /* init */,mobility(getMobility(*this))
@@ -101,22 +100,11 @@ namespace model
             // Construct Grains
             for(const auto& rIter : mesh.regions())
             {
-                
-//                const Eigen::Matrix<double,dim,dim> C2G=polyParser.readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,false);
-                
-                
-//                grains().emplace(std::piecewise_construct,
-//                                 std::forward_as_tuple(rIter.second->regionID),
-//                                 std::forward_as_tuple(*(rIter.second),
-//                                                       *this,
-//                                                       C2G));
-
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),
                                                        *this,
                                                        polyFile));
-                
             }
             
             // Construct GrainsBoundaries
@@ -124,35 +112,12 @@ namespace model
             //            int fileID=1;
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {
-                
-                //                const auto pr=rgnBnd.second.unsortedBoundary();
-                //                std::ofstream myfile1;
-                //                myfile1.open ("rb"+std::to_string(fileID)+".txt");
-                //                //myfile << "Writing this to a file.\n";
-                //                for(const auto& edge : pr)
-                //                {
-                //                    myfile1<<edge->child(0).P0.transpose()<<" "<<edge->child(1).P0.transpose()<<"\n";
-                //                }
-                //                myfile1.close();
-                
-                
                 grainBoundaries().emplace(std::piecewise_construct,
                                           std::forward_as_tuple(rgnBnd.first),
                                           std::forward_as_tuple(rgnBnd.second,
                                                                 grain(rgnBnd.first.first),
                                                                 grain(rgnBnd.first.second),
-//                                                                dn,
                                                                 mesh));
-                
-                //                std::ofstream myfile;
-                //                myfile.open ("gb"+std::to_string(fileID)+".txt");
-                //                //myfile << "Writing this to a file.\n";
-                //                for(const auto& pair : grainBoundary(rgnBnd.first.first,rgnBnd.first.second).meshIntersections)
-                //                {
-                //                    myfile<<" "<<pair.second.transpose()<<"\n";
-                //                }
-                //                myfile.close();
-                //                fileID++;
             }
             
             

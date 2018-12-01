@@ -24,10 +24,10 @@
 //#include <MaterialBase.h>
 #include <BCClattice.h>
 #include <FCClattice.h>
+#include <HEXlattice.h>
 #include <LatticeMath.h>
 #include <SlipSystem.h>
 #include <TextFileParser.h>
-#include <DislocationMobility.h>
 #include <Material.h>
 
 
@@ -47,20 +47,24 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         /**********************************************************************/
-        static Lattice<dim> getLattice(const std::string& crystalStructure,
+        static Lattice<dim> getLattice(const Material<dim,Isotropic>& material,
                                        const MatrixDim& C2G)
         {
-            if(crystalStructure=="BCC")
+            if(material.crystalStructure=="BCC")
             {
                 return BCClattice<dim>(C2G);
             }
-            else if(crystalStructure=="FCC")
+            else if(material.crystalStructure=="FCC")
             {
                 return FCClattice<dim>(C2G);
             }
+            else if(material.crystalStructure=="HEX")
+            {
+                return HEXlattice<dim>(C2G);
+            }
             else
             {
-                std::cout<<"Unknown crystal structure '"<<crystalStructure<<"'. Exiting."<<std::endl;
+                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
                 exit(EXIT_FAILURE);
             }
         }
@@ -77,6 +81,10 @@ namespace model
             {
                 return FCClattice<dim>::reciprocalPlaneNormals(lat);
             }
+            else if(crystalStructure=="HEX")
+            {
+                return HEXlattice<dim>::reciprocalPlaneNormals(lat);
+            }
             else
             {
                 std::cout<<"Unknown crystal structure '"<<crystalStructure<<"'. Exiting."<<std::endl;
@@ -85,20 +93,24 @@ namespace model
         }
         
         /**********************************************************************/
-        static SlipSystemContainerType getSlipSystems(const std::string& crystalStructure,
+        static SlipSystemContainerType getSlipSystems(const Material<dim,Isotropic>& material,
                                                       const LatticeType& lat)
         {
-            if(crystalStructure=="BCC")
+            if(material.crystalStructure=="BCC")
             {
-                return BCClattice<dim>::slipSystems(lat);
+                return BCClattice<dim>::slipSystems(material,lat);
             }
-            else if(crystalStructure=="FCC")
+            else if(material.crystalStructure=="FCC")
             {
-                return FCClattice<dim>::slipSystems(lat);
+                return FCClattice<dim>::slipSystems(material,lat);
+            }
+            else if(material.crystalStructure=="HEX")
+            {
+                return HEXlattice<dim>::slipSystems(material,lat);
             }
             else
             {
-                std::cout<<"Unknown crystal structure '"<<crystalStructure<<"'. Exiting."<<std::endl;
+                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
                 exit(EXIT_FAILURE);
             }
         }
@@ -108,9 +120,9 @@ namespace model
 
         /**********************************************************************/
         SingleCrystal(const Material<dim,Isotropic>& material,const MatrixDim& C2G) :
-        /* init */ LatticeType(getLattice(material.crystalStructure,C2G))
+        /* init */ LatticeType(getLattice(material,C2G))
         /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
-        /* init */,SlipSystemContainerType(getSlipSystems(material.crystalStructure,*this))
+        /* init */,SlipSystemContainerType(getSlipSystems(material,*this))
         {
                         
         }

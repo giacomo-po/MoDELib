@@ -20,7 +20,6 @@
 #include <FCClattice.h>
 #include <MPIcout.h> // defines mode::cout
 #include <TerminalColors.h> // defines mode::cout
-#include <DislocationMobility.h>
 
 namespace model
 {
@@ -46,8 +45,8 @@ namespace model
         const double tauP;
         
         /**********************************************************************/
-        template<typename CrystalStructureType>
-        GrainBoundaryMobility(const DislocationMobility<CrystalStructureType>& dm,
+        template<typename DislocationMobilityType>
+        GrainBoundaryMobility(const DislocationMobilityType& dm,
                               const double& spacing,
                               const double& gbE) :
         

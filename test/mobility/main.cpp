@@ -11,8 +11,8 @@
 #include <deque>
 #include <memory>
 //#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <model/DislocationDynamics/MobilityLaws/DislocationMobility.h>
-#include <model/DislocationDynamics/Materials/Material.h>
+#include <DislocationMobility.h>
+#include <Material.h>
 
 
 using namespace model;

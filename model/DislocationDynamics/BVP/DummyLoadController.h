@@ -50,12 +50,14 @@ namespace model
             return Eigen::VectorXd();
         }
         
-        /**********************************************************************/
+        /**************************************************************************/
         template <typename DislocationNetworkType>
-        std::string output(const DislocationNetworkType& ) const
+        void output(const DislocationNetworkType& ,
+                    const long int& ,
+                    UniqueOutputFile<'F'>& ,
+                    std::ofstream& ) const
         {
-            std::stringstream os;
-            return os.str();
+            
         }
         
     };

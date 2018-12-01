@@ -89,7 +89,7 @@ namespace model
     };
     
     // declare object cout
-    MPIcout cout;
+    static MPIcout cout;
     
 } // end namespace
 #endif

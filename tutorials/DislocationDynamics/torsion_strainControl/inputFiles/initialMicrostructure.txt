@@ -21,7 +21,7 @@ targetSingleArmDislocationDensity=0e13;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=0e13;
+targetPrismaticLoopDensity=1e13;
 
 #######################################
 # Individual straight dislocations

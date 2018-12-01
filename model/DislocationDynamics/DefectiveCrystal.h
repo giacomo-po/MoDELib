@@ -33,6 +33,8 @@ namespace model
         
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+
         typedef BVPsolver<dim,2> BVPsolverType;
         DefectiveCrystalParameters simulationParameters;
         
@@ -196,16 +198,11 @@ namespace model
 
             
             DN.updateGeometry(simulationParameters.dt);
-            
-//            updateStressStraightSegments();
-
             updateLoadControllers(simulationParameters.runID);
             
             DN.assembleAndSolve(simulationParameters.runID);
             simulationParameters.dt=DN.get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
             simulationParameters.totalTime+=simulationParameters.dt;
-//            DN.updatePlasticDistortionRateFromVelocities();
-            
             
             // output
             DN.io().output(simulationParameters.runID);
@@ -221,7 +218,7 @@ namespace model
         
         /**********************************************************************/
         void runSteps()
-        {/*! Runs Nsteps simulation steps
+        {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
           */
             const auto t0= std::chrono::system_clock::now();
             while (simulationParameters.runID<simulationParameters.Nsteps)
@@ -229,46 +226,32 @@ namespace model
                 model::cout<<std::endl; // leave a blank line
                 singleStep();
             }
-//            updateQuadraturePoints(); // necessary if quadrature data are necessary in main
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
         
         
+        /**********************************************************************/
+        VectorDim displacement(const VectorDim& x) const
+        {/*!\param[in] P position vector
+          * \returns The displacement field in the DefectiveCrystal at P
+          */
+            return DN.displacement(x);
+        }
+        
+        /**********************************************************************/
+        void displacement(std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>>& fieldPoints) const
+        {
+            DN.displacement(fieldPoints);
+        }
+        
+        /**********************************************************************/
+        MatrixDim stress(const VectorDim& x) const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+            return DN.stress(x);
+        }
     };
 }
 #endif
-
-
-//        /**********************************************************************/
-//        void updateStressStraightSegments()
-//        {
-//
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"		Collecting StressStraight objects: MUST CHANGE THIS BY SHITFING THE FIELD POINT RATHER THAN POPOLATING THE IMAGES"<<std::flush;
-//
-//            straightSegmentsDeq.clear();
-////            size_t currentSize=0;
-////            //            if(computeDDinteractions)
-////            //            {
-//            for(const auto& link : DN.networkLinks())
-//            {
-//                link.second->addToStressStraight(straightSegmentsDeq);
-//            }
-//
-//            currentSize=straightSegmentsDeq.size();
-//
-//            for(const auto& shift : periodicShifts)
-//            {
-//                if(shift.squaredNorm()!=0.0)
-//                {
-//                    for (size_t c=0;c<currentSize;++c)
-//                    {
-//                        straightSegmentsDeq.emplace_back(straightSegmentsDeq[c].P0+shift,straightSegmentsDeq[c].P1+shift,straightSegmentsDeq[c].b);
-//                    }
-//                }
-//            }
-//
-//            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//
-//        }

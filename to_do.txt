@@ -24,7 +24,7 @@ reuturn (P-x).dot(n)==0;
 
 
 
-
+- FORCES ON VIRTUAL NODES MUST BE ADDED TO PARENT NODES
 - CROSSSLIP WITH EXPANSION
 - MOTION OF BOUNDARY NODES BY BOUNDING BOX INTERSECTION
 - Mobility specific to slip system
@@ -34,7 +34,6 @@ reuturn (P-x).dot(n)==0;
 - DDvtk movies
 - DDvtk cannot interrupt autoplay
 - New time integrator
-- DipolarMicrostructureGenerator for Bcc/Hcp
 - Natural Cubic Splines
 - Merge loops on same plane
 - Non-convex domains (each grain convex?)
@@ -44,12 +43,10 @@ reuturn (P-x).dot(n)==0;
 - Replace const static with constexpr in LagrangeElement and DiscontinuousLagrange http://www.cplusplus.com/forum/general/121300/
 - Make all quadratures constexpr
 - Use constexpr std::array for quadrature
-- Don’t multipole expand displacement. Use loop structure to compute it
 - Make LatticePlane and LatticePlaneBase templated by dim
 - mesh search algorithms for non-convex domains (e.g. foam)
 - GPU computation
 - Implement cracks
-- DislocationSegment::is_boundarySegment() must use mid point (not normals) to push segments to corners
 - Assemble and solve is taking too long (> particle interaction). Can we assemble scalar system of equations? Null-space solver?
 - display help in DDvtk
 - Convex decomposition of Mesh (http://masc.cs.gmu.edu/wiki/ACD)
@@ -80,7 +77,6 @@ reuturn (P-x).dot(n)==0;
 ISSUES:
 - Should form finite length junctions
 - When remesh removes a node, part of the slipped area is removed. This should be accounted in the plastic strain rate, but is is not. As a consequence, when a new node is added, plastic strain rate oscillates about a non-zero mean value.
-- Boundary length does not account for overlapping loops on the bonudary. We should use Loops objects to compute length
 
 ERRORS
 1) FIXED 

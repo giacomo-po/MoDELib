@@ -10,9 +10,11 @@
 #ifndef model_SLIPSYSTEM_H_
 #define model_SLIPSYSTEM_H_
 
+#include <memory>
 #include <assert.h>
 #include <LatticePlaneBase.h>
 #include <LatticeVector.h>
+#include <DislocationMobilityBase.h>
 
 namespace model
 {
@@ -24,16 +26,20 @@ namespace model
         const LatticePlaneBase n;
         const LatticeVector<3>  s;
         const Eigen::Matrix<double,3,1>  unitNormal;
+        const std::shared_ptr<DislocationMobilityBase> mobility;
         
         
         SlipSystem(const LatticeVector<3>& a1,
                    const LatticeVector<3>& a2,
-                   const LatticeVector<3>& slip_in):
-        /* init list */ n(a1,a2),
-        /* init list */ s(slip_in),
-        /* init list */ unitNormal(n.cartesian().normalized())
+                   const LatticeVector<3>& slip_in,
+                   const std::shared_ptr<DislocationMobilityBase>& mobility_in):
+        /* init */ n(a1,a2)
+        /* init */,s(slip_in)
+        /* init */,unitNormal(n.cartesian().normalized())
+        /* init */,mobility(mobility_in)
         {
             assert(std::fabs(n.dot(s))==0 && "PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
+            assert(mobility && "MOBILITY CANNOT BE A NULLPTR");
         }
         
     };

@@ -177,17 +177,7 @@ struct LoadController
         val=(Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
         return val;
     }
-    
-    //    /**************************************/
-    //    template <typename NodeType>
-    //    Eigen::Matrix<double,3,1> operator()(const NodeType& node,const TrialFunctionType&) const
-    //    {/*!@param[in] node the FiniteElement node to be displaced
-    //      *\returns the displacement of node
-    //      */
-    //        Eigen::Matrix<double,3,3> rot(Eigen::AngleAxisd(initialTwist_Rad+deltaTheta, Eigen::Vector3d::UnitZ()));
-    //        return (Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
-    //    }
-    
+        
     /**************************************/
     template <typename DislocationNetworkType>
     void update(const DislocationNetworkType& DN)

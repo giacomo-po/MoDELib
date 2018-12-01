@@ -73,7 +73,7 @@ namespace model
         
         
         /**********************************************************************/
-        template<typename CrystalStructureType>
+        template<typename DislocationMobilityType>
         GrainBoundaryType(const std::string& name_in,
                           const VectorDimD& axis,
                           const VectorDimD& n1,
@@ -81,7 +81,7 @@ namespace model
                           const double& energy_in,
                           const double& spacing_in,
                           const double& b_in,
-                          const DislocationMobility<CrystalStructureType>& dm) :
+                          const DislocationMobilityType& dm) :
         /* init list */ name(name_in),
         /* init list */ FrankBilby_dislocationSpacing(0.0),
         /* init list */ dislocationSpacing(spacing_in),
