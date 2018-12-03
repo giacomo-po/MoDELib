@@ -38,8 +38,16 @@ namespace model
         /* init */,unitNormal(n.cartesian().normalized())
         /* init */,mobility(mobility_in)
         {
-            assert(std::fabs(n.dot(s))==0 && "PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
-            assert(mobility && "MOBILITY CANNOT BE A NULLPTR");
+            if(n.dot(s)!=0)
+            {
+                model::cout<<"PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL. EXITING."<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+            if(!mobility)
+            {
+                model::cout<<"MOBILITY CANNOT BE A NULLPTR. EXITING."<<std::endl;
+                exit(EXIT_FAILURE);
+            }
         }
         
     };

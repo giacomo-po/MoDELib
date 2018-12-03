@@ -9,7 +9,7 @@
  */
 
 #ifndef _model_DislocationMobilityHEXpyramidal_h_
-#define _model_,DislocationMobilityHEXpyramidal_h_
+#define _model_DislocationMobilityHEXpyramidal_h_
 
 #include <DislocationMobilityBase.h>
 

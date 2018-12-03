@@ -9,7 +9,7 @@
  */
 
 #ifndef _model_DislocationMobilityHEXprismatic_h_
-#define _model_,DislocationMobilityHEXprismatic_h_
+#define _model_DislocationMobilityHEXprismatic_h_
 
 #include <DislocationMobilityBase.h>
 

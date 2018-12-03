@@ -4,7 +4,7 @@ enforceMonotonicHelicity=1;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=2e13;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -32,9 +32,10 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 
 #######################################
 # Irradiation loops
-targetIrradiationLoopDensity=0e21;
-fraction111Loops=0.5;
+targetIrradiationLoopDensity=1e19;
 averageLoopSize=6.1e-9;
+fraction111Loops=1;
+mobile111Loops=0;
 
 #######################################
 # Stacking Fault Tetrahedra

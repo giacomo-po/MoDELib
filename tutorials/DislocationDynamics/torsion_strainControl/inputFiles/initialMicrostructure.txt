@@ -33,8 +33,10 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 #######################################
 # Irradiation loops
 targetIrradiationLoopDensity=0e21;
-fraction111Loops=0.5;
 averageLoopSize=6.1e-9;
+fraction111Loops=0.5;
+mobile111Loops=0;
+
 
 #######################################
 # Stacking Fault Tetrahedra
