@@ -4,7 +4,7 @@ enforceMonotonicHelicity=1;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=1e12;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -32,7 +32,7 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 
 #######################################
 # Irradiation loops
-targetIrradiationLoopDensity=1e19;
+targetIrradiationLoopDensity=0e19;
 averageLoopSize=6.1e-9;
 fraction111Loops=1;
 mobile111Loops=0;
@@ -56,3 +56,4 @@ inclusionsTransformationStrains = 0.06 0.0 0.0 0.0 0.06 0.0 0.0 0.0 0.06
                                   0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03;                          
 inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
                      0 0 0;
+inclusionsMobilityReduction=1.0 1.0;

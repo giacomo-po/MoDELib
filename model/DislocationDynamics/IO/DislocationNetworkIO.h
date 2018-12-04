@@ -424,6 +424,7 @@ namespace model
             IDreader<'E',1,14,double> inclusionsReader;
             inclusionsReader.read(0,true);
             
+            const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
             for(const auto& pair : inclusionsReader)
             {
                 
@@ -449,7 +450,7 @@ namespace model
                 EshelbyInclusion<dim>::set_count(inclusionID);
                 DN.eshelbyInclusions().emplace(std::piecewise_construct,
                                                std::make_tuple(inclusionID),
-                                        std::make_tuple(C,a,eT,DN.poly.nu,DN.poly.mu,typeID) );
+                                        std::make_tuple(C,a,eT,DN.poly.nu,DN.poly.mu,inclusionsMobilityReduction[typeID],typeID) );
             }
             
             //            readVertices(runID); // this requires mesh to be up-to-date

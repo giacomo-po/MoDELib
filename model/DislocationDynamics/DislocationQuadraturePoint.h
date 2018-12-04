@@ -16,6 +16,7 @@
 #include <StressStraight.h>
 #include <SegmentSegmentDistance.h>
 #include <StraightDislocationSegment.h>
+#include <EshelbyInclusion.h>
 
 namespace model
 {
@@ -45,6 +46,7 @@ namespace model
         const double j;                             // jacobian dl/du
         const VectorDim rl;                         // unit tangent dr/dl
         const double dL;                            // line length corresponding to this quadrature point
+//        const std::set<const EshelbyInclusion<dim>*> inclusions; // enabling this ruins DDvtk because the size of this container is not fixed
         
         MatrixDim stress;
         VectorDim pkForce;
@@ -105,16 +107,9 @@ namespace model
             VectorDim vv=VectorDim::Zero();
             if(glideForceNorm>FLT_EPSILON)
             {
-                double v =parentSegment.network().poly.mobility->velocity(S,
-                                                                          b,
-                                                                          t,
-                                                                          n,
+                double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
                                                                           parentSegment.network().poly.T,
-                                                                          dL,
-                                                                          parentSegment.network().get_dt(),
-                                                                          parentSegment.network().use_stochasticForce);
-                
-                
+                                                                          dL,parentSegment.network().get_dt(),parentSegment.network().use_stochasticForce);
                 assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -125,6 +120,21 @@ namespace model
                 vv= v * glideForce/glideForceNorm;
             }
             return vv;
+        }
+        
+        /**********************************************************************/
+        std::set<const EshelbyInclusion<dim>*> getInclusions(const std::map<size_t,EshelbyInclusion<dim>>& inclusionContainer,
+                                                            const VectorDim& x)
+        {
+            std::set<const EshelbyInclusion<dim>*> temp;
+            for(const auto& pair : inclusionContainer)
+            {
+                if(pair.second.cointains(x))
+                {
+                    temp.insert(&pair.second);
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/
@@ -142,6 +152,7 @@ namespace model
         /* init */,j(ru.norm())
         /* init */,rl(ru/j)
         /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
+//        /* init */,inclusions(getInclusions(parentSegment.network().eshelbyInclusions(),r))
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
@@ -150,7 +161,6 @@ namespace model
         }
         
         /**********************************************************************/
-        //        template<typename LinkType>
         DislocationQuadraturePoint() :
         /* init */ sourceID(0)
         /* init */,sinkID(0)
@@ -174,6 +184,10 @@ namespace model
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);
             glideVelocity=getGlideVelocity(parentSegment,pkForce,stress,rl,dL);
+//            for(const auto& inclusion : inclusions)
+//            {
+//                glideVelocity*=inclusion->mobilityReduction;
+//            }
         }
         
         

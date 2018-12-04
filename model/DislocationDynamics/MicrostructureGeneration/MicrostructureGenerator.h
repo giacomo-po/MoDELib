@@ -906,7 +906,7 @@ namespace model
         const std::vector<double> inclusionsDistribution_lambda;
         const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
-        
+//        const std::vector<double> inclusionsMobilityReduction;
         
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
@@ -954,6 +954,7 @@ namespace model
         /* init*/,inclusionsDistribution_lambda(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_lambda",true))
         /* init*/,inclusionsTransformationStrains(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsTransformationStrains",targetInclusionDensities.size(),dim*dim,true))
         /* init*/,inclusionsPatterns(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true))
+//        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
         {
             
             // Some sanity checks
@@ -1103,11 +1104,7 @@ namespace model
                         const int& grainID=rp.second;   // random grain ID
                         const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                         const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-//                        VectorDimD b;
-//                        VectorDimD a;
-                        
-                        
-                        
+
                         if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops)
                         {// add [111] loops
                             std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
@@ -1115,9 +1112,7 @@ namespace model
                             const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                             const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
                             const VectorDimD a=b.normalized();
-                            //const VectorDimD c(slipSystem.s.cartesian());
-                            
-                            const double radius(std::round(0.5*averageLoopSize/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0));
+                            const double radius(std::round(0.5*averageLoopSize/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0)); // 2.0*sqrt(2.0)/3.0 is the minimum radius inits of b.
                             if(radius>0.0)
                             {
                                 std::vector<VectorDimD> points;
@@ -1184,9 +1179,6 @@ namespace model
                             const int rSS_sessile=dist(generator); // a random sessile plane
                             LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
                             LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
-                            //                            const double d1cNorm(d1.cartesian().norm());
-                            //                            const double d2cNorm(d2.cartesian().norm());
-                            
                             
                             double a1=0.5*averageLoopSize/poly.b_SI;
                             double a2=0.5*averageLoopSize/poly.b_SI;

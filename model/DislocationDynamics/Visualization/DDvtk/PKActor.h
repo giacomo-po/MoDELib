@@ -102,7 +102,7 @@ namespace model
         /**********************************************************************/
 //        PKActor(const PKContainerType& pkContainer_in) :
         PKActor(const size_t& frameID,vtkRenderer* const ren) :
-        BinaryFileReader<DislocationQuadraturePoint<3,0>>("Q/Q_"+std::to_string(frameID)+".bin"),
+        /* init */ BinaryFileReader<DislocationQuadraturePoint<3,0>>("Q/Q_"+std::to_string(frameID)+".bin"),
 //        /* init */ pkContainer(pkContainer_in),
         /* init */ renderer(ren),
         /* init */ points(vtkSmartPointer<vtkPoints>::New()),
