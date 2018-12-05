@@ -96,15 +96,6 @@ struct LoadController
         relaxSteps=TextFileParser("./loadInput.txt").readScalar<int>("relaxSteps",true);
         apply_torsion=TextFileParser("./loadInput.txt").readScalar<int>("apply_torsion",true);
         
-        //        EigenDataReader EDR;
-        //
-        //        EDR.readScalarInFile("./loadInput.txt","thetaDot",thetaDot);
-        //        EDR.readScalarInFile("./loadInput.txt","initialTwist_Rad",initialTwist_Rad);
-        //        EDR.readScalarInFile("./loadInput.txt","relaxSteps",relaxSteps);
-        //        EDR.readScalarInFile("./loadInput.txt","apply_torsion",apply_torsion);
-        
-        
-        
         IDreader<'F',1,200,double> vReader;
         vReader.readLabelsFile("F/F_labels.txt");
         if (vReader.isGood(0,true))
@@ -133,7 +124,6 @@ struct LoadController
         {
             model::cout<<"LoadController: F/F_0.txt cannot be opened."<<std::endl;
         }
-        
     }
     
     /**************************************************************************/
@@ -147,23 +137,20 @@ struct LoadController
     template <typename DislocationNetworkType>
     void addDirichletConditions(const DislocationNetworkType& DN)
     {
-        
         // Fix bottom nodes
-        
         Fix fix;
         u.addDirichletCondition(nodeList_bottom,fix,{1,1,1}); // fix u1 u2 u3
         
         // Displace top nodes using operator()
         if(DN.simulationParameters.runID>=relaxSteps)
         {
-            
             if (apply_torsion)
             {
                 u.addDirichletCondition(nodeList_top,*this,{1,1,0}); // prescribe only u3
             }
             else
             {
-                std::cout<<"Tensioner IS NOT APPLYING ANY LOADS"<<std::endl;
+                std::cout<<"LoadController IS NOT APPLYING ANY LOADS"<<std::endl;
             }
         }
     }
@@ -220,7 +207,6 @@ struct LoadController
                 }
             }
         }
-        
         return temp;
     }
     
