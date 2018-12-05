@@ -48,6 +48,25 @@ namespace model
             return MatrixDim::Zero();
         }
         
+        /**********************************************************************/
+        MatrixDim plasticDistortion() const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+
+            return MatrixDim::Zero();
+        }
+        
+        /**********************************************************************/
+        MatrixDim plasticDistortionRate() const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+            return MatrixDim::Zero();
+        }
+        
     };
 }
 #endif

@@ -26,16 +26,16 @@
 namespace model
 {
     
-    template <typename DislocationNetworType>
-    class UniformExternalLoadController : public ExternalLoadControllerBase<DislocationNetworType::dim>
+    template <typename DefectiveCrystalType>
+    class UniformExternalLoadController : public ExternalLoadControllerBase<DefectiveCrystalType::dim>
     {
         
-        static constexpr int dim=DislocationNetworType::dim;
+        static constexpr int dim=DefectiveCrystalType::dim;
         static constexpr int voigtSize=dim*(dim+1)/2;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
-        const DislocationNetworType& DN;
+        const DefectiveCrystalType& DN;
         
         MatrixDim ExternalStress;
         
@@ -66,7 +66,7 @@ namespace model
         template <typename DislocationNetworkType>
         UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
         //        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
-        /* init list */ ExternalLoadControllerBase<DislocationNetworType::dim>("./externalLoadControl/UniformExternalLoadController.txt")
+        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>("./externalLoadControl/UniformExternalLoadController.txt")
         /* init list */,DN(_DN)
         /* init list */,ExternalStress(MatrixDim::Zero())
         /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))

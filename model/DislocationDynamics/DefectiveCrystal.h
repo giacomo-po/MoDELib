@@ -28,17 +28,20 @@
 namespace model
 {
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder, typename InterpolationType>
     class DefectiveCrystal //: public GlidePlaneObserver<dim>
     {
         
+    public:
+        static constexpr int dim=_dim; // make dim available outside class
+        typedef DefectiveCrystal<dim,corder,InterpolationType> DefectiveCrystalType;
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
         typedef CrackSystem<dim> CrackSystemType;
-        
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        
         typedef BVPsolver<dim,2> BVPsolverType;
+        
+        
         DefectiveCrystalParameters simulationParameters;
         
         //        long int runID;
@@ -57,13 +60,13 @@ namespace model
         
         /**********************************************************************/
         static std::unique_ptr<ExternalLoadControllerBase<dim>> getExternalLoadController(const DefectiveCrystalParameters& params,
-                                                                                          const DislocationNetworkType& dn,
+                                                                                          const DefectiveCrystalType& dc,
                                                                                           const long int& rID)
         {
             // Set up periodic shifts
             if(params.externalLoadControllerName=="UniformExternalLoadController")
             {
-                return std::unique_ptr<ExternalLoadControllerBase<dim>>(new UniformExternalLoadController<DislocationNetworkType>(dn,rID));
+                return std::unique_ptr<ExternalLoadControllerBase<dim>>(new UniformExternalLoadController<DefectiveCrystalType>(dc,rID));
             }
             else if(params.externalLoadControllerName=="None")
             {
@@ -143,7 +146,7 @@ namespace model
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
         //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
         /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)
-        /* init */,externalLoadController(getExternalLoadController(simulationParameters,*DN,simulationParameters.runID))
+        /* init */,externalLoadController(getExternalLoadController(simulationParameters,*this,simulationParameters.runID))
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
             
@@ -287,6 +290,53 @@ namespace model
             }
             return temp;
         }
+        
+        /**********************************************************************/
+        MatrixDim plasticDistortion() const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+            MatrixDim temp(MatrixDim::Zero());
+            if(DN)
+            {
+                temp+=DN->plasticDistortion();
+            }
+            if(CS)
+            {
+                temp+=CS->plasticDistortion();
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        MatrixDim plasticDistortionRate() const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+            MatrixDim temp(MatrixDim::Zero());
+            if(DN)
+            {
+                temp+=DN->plasticDistortionRate();
+            }
+            if(CS)
+            {
+                temp+=CS->plasticDistortionRate();
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        MatrixDim plasticStrainRate() const
+        {/*!\param[in] P position vector
+          * \returns The stress field in the DefectiveCrystal at P
+          * Note:
+          */
+            MatrixDim temp(plasticDistortionRate());
+            return 0.5*(temp+temp.transpose());
+        }
+        
     };
 }
 #endif
