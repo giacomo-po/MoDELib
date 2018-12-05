@@ -287,10 +287,36 @@ namespace model
                 assert(linkSeq.size()==4);
                 
                 std::vector<std::pair<VectorDim,VectorDim>> triangle0;
-//                triangle0
-
+                triangle0.emplace_back(linkSeq[0]->source()->get_P(),linkSeq[0]->sink()->get_P());
+                triangle0.emplace_back(linkSeq[1]->source()->get_P(),linkSeq[1]->sink()->get_P());
+                triangle0.emplace_back(linkSeq[1]->sink()->get_P(),linkSeq[0]->source()->get_P());
+                const VectorDim planePoint0(triangle0[0].first);
+                VectorDim rhN0(VectorDim::Zero());
+                for(const auto& pair : triangle0)
+                {
+                    rhN0+= 0.5*(pair.first-planePoint0).cross(pair.second-pair.first);
+                }
+                const double rhN0norm(rhN0.norm());
+                if(rhN0norm>FLT_EPSILON)
+                {
+                  temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
+                }
                 
-                assert(0 && "FINISH HERE. NEED TO BREAK LOOP IN TWO TRIAGLES");
+                std::vector<std::pair<VectorDim,VectorDim>> triangle1;
+                triangle1.emplace_back(linkSeq[2]->source()->get_P(),linkSeq[2]->sink()->get_P());
+                triangle1.emplace_back(linkSeq[3]->source()->get_P(),linkSeq[3]->sink()->get_P());
+                triangle1.emplace_back(linkSeq[3]->sink()->get_P(),linkSeq[2]->source()->get_P());
+                const VectorDim planePoint1(triangle1[0].first);
+                VectorDim rhN1(VectorDim::Zero());
+                for(const auto& pair : triangle1)
+                {
+                    rhN1+= 0.5*(pair.first-planePoint1).cross(pair.second-pair.first);
+                }
+                const double rhN1norm(rhN1.norm());
+                if(rhN1norm>FLT_EPSILON)
+                {
+                    temp+=planarSolidAngle(x,planePoint1,rhN1/rhN1norm,triangle1);
+                }
             }
             return temp;
         }
