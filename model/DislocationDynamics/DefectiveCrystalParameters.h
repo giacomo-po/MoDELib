@@ -26,6 +26,9 @@ namespace model
 
         
         const int simulationType;
+        const bool useDislocations;
+        const bool useCracks;
+
         const int periodicImages_x;
         const int periodicImages_y;
         const int periodicImages_z;
@@ -84,6 +87,8 @@ namespace model
         /**********************************************************************/
         DefectiveCrystalParameters(int& argc, char* argv[]) :
         /* init */ simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
+        /* init */,useDislocations(TextFileParser("inputFiles/DD.txt").readScalar<int>("useDislocations",true))
+        /* init */,useCracks(TextFileParser("inputFiles/DD.txt").readScalar<int>("useCracks",true))
         /* init */,periodicImages_x(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_x",true) : 0)
         /* init */,periodicImages_y(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_y",true) : 0)
         /* init */,periodicImages_z(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)

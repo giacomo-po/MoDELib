@@ -21,6 +21,7 @@
 
 #include <DefectiveCrystalParameters.h>
 #include <DislocationNetwork.h>
+#include <CrackSystem.h>
 #include <UniformExternalLoadController.h>
 
 
@@ -32,25 +33,28 @@ namespace model
     {
         
         typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
+        typedef CrackSystem<dim> CrackSystemType;
+        
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-
+        
         typedef BVPsolver<dim,2> BVPsolverType;
         DefectiveCrystalParameters simulationParameters;
         
-//        long int runID;
+        //        long int runID;
         
-
-
+        
+        
         const SimplicialMesh<dim> mesh;
         const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
         const Polycrystal<dim> poly;
-        DislocationNetworkType DN;
+        const std::unique_ptr<DislocationNetworkType> DN;
+        const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
-//        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
-
-
+        //        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
+        
+        
         /**********************************************************************/
         static std::unique_ptr<ExternalLoadControllerBase<dim>> getExternalLoadController(const DefectiveCrystalParameters& params,
                                                                                           const DislocationNetworkType& dn,
@@ -101,10 +105,10 @@ namespace model
             }
             
             return temp;
-
+            
         }
         
-
+        
         
         /**********************************************************************/
         void updateLoadControllers(const long int& runID)
@@ -117,7 +121,7 @@ namespace model
                 if (!(runID%bvpSolver->stepsBetweenBVPupdates))
                 {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(DN);
+                    bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*DN);
                 }
             }
             if (externalLoadController)
@@ -135,29 +139,31 @@ namespace model
         /* init */,mesh(TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",true))
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
-        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
-        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,DN) : nullptr)
-        /* init */,externalLoadController(getExternalLoadController(simulationParameters,DN,simulationParameters.runID))
+        /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
+        /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
+        //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
+        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)
+        /* init */,externalLoadController(getExternalLoadController(simulationParameters,*DN,simulationParameters.runID))
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
             
             
             switch (simulationParameters.simulationType)
             {// Initilization based on type of simulation
-
-
+                    
+                    
                 case DefectiveCrystalParameters::FINITE_NO_FEM:
                 {
-//                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
+                    //                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
                     break;
                 }
                     
                 case DefectiveCrystalParameters::FINITE_FEM:
                 {
-//                    bvpSolver->init(DN);
+                    //                    bvpSolver->init(DN);
                     break;
                 }
-                   
+                    
                 case DefectiveCrystalParameters::PERIODIC:
                 {
                     assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
@@ -180,7 +186,7 @@ namespace model
                 }
             }
             
-
+            
             
         }
         
@@ -188,31 +194,35 @@ namespace model
         void singleStep()
         {
             model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
-            /*                    */<< ", time="<<simulationParameters.totalTime
-            /*                    */<< ": nodes="<<DN.nodes().size()
-            /*                    */<< ", segments="<<DN.links().size()
-            /*                    */<< ", loopSegments="<<DN.loopLinks().size()
-            /*                    */<< ", loops="<<DN.loops().size()
-            /*                    */<< ", components="<<DN.components().size()
-            /*                    */<< defaultColor<<std::endl;
-
+            /*                    */<< ", time="<<simulationParameters.totalTime;
+            if(DN)
+            {
+                model::cout<< ": nodes="<<DN->nodes().size()
+                /*                    */<< ", segments="<<DN->links().size()
+                /*                    */<< ", loopSegments="<<DN->loopLinks().size()
+                /*                    */<< ", loops="<<DN->loops().size()
+                /*                    */<< ", components="<<DN->components().size();
+            }
+            model::cout<< defaultColor<<std::endl;
             
-            DN.updateGeometry(simulationParameters.dt);
-            updateLoadControllers(simulationParameters.runID);
-            
-            DN.assembleAndSolve(simulationParameters.runID);
-            simulationParameters.dt=DN.get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
-            simulationParameters.totalTime+=simulationParameters.dt;
-            
-            // output
-            DN.io().output(simulationParameters.runID);
-
-            // move
-            DN.move(simulationParameters.dt);
-
-            // menage discrete topological events
-            DN.singleStepDiscreteEvents(simulationParameters.runID);
-            
+            if(DN)
+            {
+                DN->updateGeometry(simulationParameters.dt);
+                updateLoadControllers(simulationParameters.runID);
+                
+                DN->assembleAndSolve(simulationParameters.runID);
+                simulationParameters.dt=DN->get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
+                simulationParameters.totalTime+=simulationParameters.dt;
+                
+                // output
+                DN->io().output(simulationParameters.runID);
+                
+                // move
+                DN->move(simulationParameters.dt);
+                
+                // menage discrete topological events
+                DN->singleStepDiscreteEvents(simulationParameters.runID);
+            }
             ++simulationParameters.runID;
         }
         
@@ -235,13 +245,29 @@ namespace model
         {/*!\param[in] P position vector
           * \returns The displacement field in the DefectiveCrystal at P
           */
-            return DN.displacement(x);
+            VectorDim temp(VectorDim::Zero());
+            if(DN)
+            {
+                temp+=DN->displacement(x);
+            }
+            if(CS)
+            {
+                temp+=CS->displacement(x);
+            }
+            return temp;
         }
         
         /**********************************************************************/
         void displacement(std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>>& fieldPoints) const
         {
-            DN.displacement(fieldPoints);
+            if(DN)
+            {
+                DN->displacement(fieldPoints);
+            }
+            if(CS)
+            {
+                CS->displacement(fieldPoints);
+            }
         }
         
         /**********************************************************************/
@@ -250,7 +276,16 @@ namespace model
           * \returns The stress field in the DefectiveCrystal at P
           * Note:
           */
-            return DN.stress(x);
+            MatrixDim temp(MatrixDim::Zero());
+            if(DN)
+            {
+                temp+=DN->stress(x);
+            }
+            if(CS)
+            {
+                temp+=CS->stress(x);
+            }
+            return temp;
         }
     };
 }
