@@ -2,6 +2,8 @@
 # GENERAL SETTINGS
 # Simulation type 
 simulationType=1; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
+useDislocations=1;
+useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
@@ -13,7 +15,7 @@ externalLoadControllerName=None;
 stepsBetweenBVPupdates = 10;
 useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
-use_directSolver_FEM=1;
+use_directSolver_FEM=0;
 solverTolerance=0.0001;
 # Surface nucleation model (0=no nucleation)
 surfaceNucleationModel=0;

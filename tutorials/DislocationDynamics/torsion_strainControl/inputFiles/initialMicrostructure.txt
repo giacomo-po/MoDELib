@@ -21,7 +21,7 @@ targetSingleArmDislocationDensity=0e13;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=1e13;
+targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
@@ -57,3 +57,4 @@ inclusionsTransformationStrains = 0.06 0.0 0.0 0.0 0.06 0.0 0.0 0.0 0.06
                                   0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03;                          
 inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
                      0 0 0;
+inclusionsMobilityReduction=1.0 1.0;
