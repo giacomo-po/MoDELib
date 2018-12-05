@@ -284,17 +284,6 @@ namespace model
                     }
                 }
             }
-            //            VerboseDislocationNode(3,"added "<<addedGp<<" planes"<<std::endl;);
-            
-            
-            //            for(const auto& gb : this->network().poly.grainBoundaries())
-            //            {
-            //                if(gb.second.contains(this->get_P()))
-            //                {
-            //                    grainBoundaries().insert(&gb.second);
-            //                    addedGp+=addMeshPlane(gb.second);
-            //                }
-            //            }
             
             if(isGrainBoundaryNode())
             {
@@ -307,9 +296,7 @@ namespace model
             
             return addedGp;
         }
-        
-        
-        
+
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P) const
         {/*!\param[in] P position to be snapped to the bounding box
@@ -362,158 +349,8 @@ namespace model
             }
             
             assert(false && "snapToBoundingBox FAILED.");
-            
-            
-            //
-            //
-            //            const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
-            //            const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
-            //
-            //
-            //            bool pLcontained=true;
-            //            bool pVcontained=true;
-            //
-            //            std::deque<VectorDim> bndChords;
-            //
-            //            for(const auto& pair : this->neighbors())
-            //            {
-            //                VerboseDislocationNode(3,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
-            //
-            //                if(std::get<1>(pair.second)->isBoundarySegment())
-            //                {// boundary segments must not become internal
-            //                    VerboseDislocationNode(3,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
-            //
-            //                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
-            //                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
-            //                    VerboseDislocationNode(3,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-            //                    VerboseDislocationNode(3,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
-            //
-            //                    bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
-            //                }
-            //
-            //                if(std::get<1>(pair.second)->isGrainBoundarySegment())
-            //                {// grainBoundary segments must not become internal
-            //                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
-            //                    {
-            //                        pLcontained*=gb->contains(pL);
-            //                        pVcontained*=gb->contains(pV);
-            //
-            //                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
-            //                    }
-            //                }
-            //            }
-            //
-            //            bool parallelBndChords=true;
-            //            for(size_t i=0;i<bndChords.size();++i)
-            //            {
-            //                for(size_t j=i+1;j<bndChords.size();++j)
-            //                {
-            //                    parallelBndChords*=(bndChords[i].cross(bndChords[j]).norm()<FLT_EPSILON);
-            //                }
-            //            }
-            //
-            //            if(pLcontained && parallelBndChords)
-            //            {
-            //                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-            //                return pL;
-            //            }
-            //            else
-            //            {
-            //                if(pVcontained)
-            //                {
-            //                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-            //                    return pV;
-            //                }
-            //                else
-            //                {
-            //                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
-            //                    assert(false && "snapToBoundingBox FAILED.");
-            //                    return VectorDim::Zero();
-            //                }
-            //            }
-            
         }
-        
-        //        /**********************************************************************/
-        //        VectorDim snapToBoundingBox(const VectorDim& P) const
-        //        {/*!\param[in] P position to be snapped to the bounding box
-        //          * \returns a point on the bounding box close to P. The returned point
-        //          * is the closest to the bounding box, unless the closest point causes
-        //          * boundarySegments to become interior. In that case the closest boundary
-        //          * vertex is returned.
-        //          */
-        //
-        //            VerboseDislocationNode(4,"snapping P="<<P.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-        //
-        //
-        //            const VectorDim pL=std::get<0>(boundingBoxSegments().snap(P));
-        //            const VectorDim pV=boundingBoxSegments().snapToVertex(P).second;
-        //
-        //
-        //            bool pLcontained=true;
-        //            bool pVcontained=true;
-        //
-        //            std::deque<VectorDim> bndChords;
-        //
-        //            for(const auto& pair : this->neighbors())
-        //            {
-        //                VerboseDislocationNode(3,"checking "<<std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<std::endl;);
-        //
-        //                if(std::get<1>(pair.second)->isBoundarySegment())
-        //                {// boundary segments must not become internal
-        //                    VerboseDislocationNode(3,std::get<1>(pair.second)->source->sID<<"->"<<std::get<1>(pair.second)->sink->sID<<" is boundary"<<std::endl;);
-        //
-        //                    pLcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pL+std::get<0>(pair.second)->get_P())).first;
-        //                    pVcontained*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(pV+std::get<0>(pair.second)->get_P())).first;
-        //                    VerboseDislocationNode(3,"pLcontained="<<pLcontained<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-        //                    VerboseDislocationNode(3,"pVcontained="<<pVcontained<<std::endl;);//", lineID="<<pVcontained.second<<std::endl;
-        //
-        //                    bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
-        //                }
-        //
-        //                if(std::get<1>(pair.second)->isGrainBoundarySegment())
-        //                {// grainBoundary segments must not become internal
-        //                    for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
-        //                    {
-        //                        pLcontained*=gb->contains(pL);
-        //                        pVcontained*=gb->contains(pV);
-        //
-        //                        bndChords.push_back(std::get<1>(pair.second)->chord().normalized());
-        //                    }
-        //                }
-        //            }
-        //
-        //            bool parallelBndChords=true;
-        //            for(size_t i=0;i<bndChords.size();++i)
-        //            {
-        //                for(size_t j=i+1;j<bndChords.size();++j)
-        //                {
-        //                    parallelBndChords*=(bndChords[i].cross(bndChords[j]).norm()<FLT_EPSILON);
-        //                }
-        //            }
-        //
-        //            if(pLcontained && parallelBndChords)
-        //            {
-        //                VerboseDislocationNode(4,"snapping to pL="<<pL.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-        //                return pL;
-        //            }
-        //            else
-        //            {
-        //                if(pVcontained)
-        //                {
-        //                    VerboseDislocationNode(4,"snapping to pV="<<pV.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-        //                    return pV;
-        //                }
-        //                else
-        //                {
-        //                    model::cout<<"DislocationNode "<<this->sID<<" snapToBoundingBox FAILED."<<std::endl;
-        //                    assert(false && "snapToBoundingBox FAILED.");
-        //                    return VectorDim::Zero();
-        //                }
-        //            }
-        //
-        //        }
-        
+
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
@@ -565,39 +402,6 @@ namespace model
             return temp.second;
         }
         
-        
-        //        /**********************************************************************/
-        //        void make_projectionMatrix()
-        //        {
-        //
-        //            Eigen::Matrix<double, dim, dim> I = Eigen::Matrix<double, dim, dim>::Identity();
-        //            VectorOfNormalsType  CN;
-        //            for(const auto& plane : meshPlanes())
-        //            {
-        //                CN.push_back(plane->unitNormal);
-        //            }
-        //
-        //            if(isBoundaryNode())
-        //            {
-        //                CN.push_back(boundaryNormal);
-        //
-        //            }
-        //
-        //            // Add normal to region boundary
-        //            //            CN.push_back(regionBndNormal);
-        //
-        //            // Find independent vectors
-        //            GramSchmidt::orthoNormalize(CN);
-        //
-        //            // Assemble projection matrix (prjM)
-        //            this->prjM.setIdentity();
-        //            for (size_t k=0;k<CN.size();++k)
-        //            {
-        //                this->prjM*=( I-CN[k]*CN[k].transpose() );
-        //            }
-        //
-        //        }
-        
         /**********************************************************************/
         BoundingLineSegments<dim> _glidePlaneIntersections; //
         
@@ -618,9 +422,9 @@ namespace model
         
         std::shared_ptr<NodeType> virtualNode;
         
-        
     public:
         
+        const NodeType* const masterNode;
         const bool isVirtualBoundaryNode;
 
         
@@ -642,15 +446,16 @@ namespace model
                         const VectorDim& Pin,
                         const VectorDofType& Vin,
                         const double& vrc) :
-        /* base constructor */ NodeBaseType(ln,Pin),
-        /* init list        */ _isGlissile(true),
-        /* init list        */ p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL)),
-        /* init list        */ velocity(Vin),
-        /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(vrc),
-        /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol))
-        /* init list        */,isVirtualBoundaryNode(false)
+        /* base constructor */ NodeBaseType(ln,Pin)
+        /* init */,_isGlissile(true)
+        /* init */,p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL))
+        /* init */,velocity(Vin)
+        /* init */,vOld(velocity)
+        /* init */,velocityReductionCoeff(vrc)
+        /* init */,_isOnBoundingBox(false)
+        /* init */,boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol))
+        /* init */,masterNode(nullptr)
+        /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from DOF
           */
             VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from position"<<std::endl;);
@@ -659,16 +464,16 @@ namespace model
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
                         const VectorDim& Pin) :
-        /* base constructor */ NodeBaseType(pL.loopNetwork,Pin),
-        /* init list        */ _isGlissile(true),
-        /* init list        */ p_Simplex(get_includingSimplex(pL.source->includingSimplex())),
-        /* init list        */ velocity((pL.source->velocity+pL.sink->velocity)*0.5), // TO DO: this should be calculated using shape functions from source and sink nodes of the link
-        /* init list        */ vOld(velocity),
-        //        /* init list        */ velocityReductionCoeff(0.5*(pL.source->velocityReduction()+pL.sink->velocityReduction())),
-        /* init list        */ velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction())),
-        /* init list        */ _isOnBoundingBox(pL.isBoundarySegment()),
-        /* init list        */ boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) )
-        /* init list        */,isVirtualBoundaryNode(false)
+        /* init */ NodeBaseType(pL.loopNetwork,Pin)
+        /* init */,_isGlissile(true)
+        /* init */,p_Simplex(get_includingSimplex(pL.source->includingSimplex()))
+        /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init */,vOld(velocity)
+        /* init */,velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction()))
+        /* init */,_isOnBoundingBox(pL.isBoundarySegment())
+        /* init */,boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) )
+        /* init */,masterNode(nullptr)
+        /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from ExpandingEdge and DOF
           */
             VerboseDislocationNode(1,"Creating DislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
@@ -676,16 +481,18 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
-                        const VectorDim& Pin) :
-        /* base constructor */ NodeBaseType(ln,Pin),
-        /* init list        */ _isGlissile(false),
-        /* init list        */ p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL),
-        /* init list        */ velocity(VectorDim::Zero()),
-        /* init list        */ vOld(velocity),
-        /* init list        */ velocityReductionCoeff(1.0),
-        /* init list        */ _isOnBoundingBox(false),
-        /* init list        */ boundaryNormal(VectorDim::Zero())
-        /* init list        */,isVirtualBoundaryNode(true)
+                        const VectorDim& Pin,
+                        const NodeType* const master) :
+        /* base constructor */ NodeBaseType(ln,Pin)
+        /* init */,_isGlissile(false)
+        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL)
+        /* init */,velocity(VectorDim::Zero())
+        /* init */,vOld(velocity)
+        /* init */,velocityReductionCoeff(1.0)
+        /* init */,_isOnBoundingBox(false)
+        /* init */,boundaryNormal(VectorDim::Zero())
+        /* init */,masterNode(master)
+        /* init */,isVirtualBoundaryNode(true)
         {/*! Constructor from DOF
           */
             VerboseDislocationNode(1,"Creating VirtualDislocationNode "<<this->sID<<std::endl;);
@@ -696,59 +503,16 @@ namespace model
         {
             VerboseDislocationNode(1,"Destroying DislocationNode "<<this->sID<<" ("<<this<<")"<<std::endl;);
             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
-            
             if(virtualNode)
             {
-//                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" removing virtual "<<virtualNode->sID<<std::endl;);
                 this->network().remove(virtualNode->sID);
             }
-//
         }
         
         /**********************************************************************/
         const std::shared_ptr<NodeType>& virtualBoundaryNode() const
         {
             return virtualNode;
-            
-//            std::shared_ptr<NodeType> temp(nullptr);
-//            
-//            if(this->network().useVirtualExternalLoops /* && this->network().use_bvp */ && isBoundaryNode()) //ENABLE THIS USE_BVP
-//            {
-//                std::vector<LinkType*> virtualNeighbors;
-//                for (const auto& neighborIter : this->neighbors())
-//                {
-//                    if(   std::get<1>(neighborIter.second)->isVirtualBoundarySegment()
-//                       && !std::get<1>(neighborIter.second)->hasZeroBurgers())
-//                    {
-//                        virtualNeighbors.push_back(std::get<1>(neighborIter.second));
-//                    }
-//                }
-//                
-//                switch (virtualNeighbors.size())
-//                {// a unique virtual node does not exist, create a new one
-//                    case 0:
-//                    {
-//                        temp.reset(new NodeType(&this->network(),this->get_P()+100.0*boundaryNormal));
-//                        break;
-//                    }
-//                        
-//                    case 1:
-//                    {// a unique virtual node already exists, return that
-//                        temp=virtualNeighbors[0]->source->sID==this->sID? virtualNeighbors[0]->sink : virtualNeighbors[0]->source;
-//                        assert(temp->isVirtualBoundaryNode);
-//                        break;
-//                    }
-//                        
-//                    default:
-//                    {
-//                        assert(false && "THERE CAN BE AT THE MOST ONE VIRTUAL NODE FOR EACH BOUNDARY NODE");
-//                        break;
-//                    }
-//                }
-//            
-//            }
-//            
-//            return temp;
         }
         
         /**********************************************************************/
@@ -811,14 +575,12 @@ namespace model
         /**********************************************************************/
         const BoundingLineSegments<dim>& glidePlaneIntersections() const
         {
-            
             return _glidePlaneIntersections;
         }
         
         /**********************************************************************/
         VectorDim snapToMeshPlaneIntersection(const VectorDim& P)
         {
-            
             switch (_glidePlaneIntersections.size())
             {
                 case 0:
@@ -872,7 +634,6 @@ namespace model
                     break;
                 }
             }
-            
         }
         
         /**********************************************************************/
@@ -1376,11 +1137,8 @@ namespace model
         }
         
         /**********************************************************************/
-        void setToBoundary(const VectorDim& X)
+        void resetVirtualBoundaryNode(const VectorDim& X)
         {
-            _isOnBoundingBox=true;
-            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-            
             if(isBoundaryNode() && !isVirtualBoundaryNode) //ENABLE THIS USE_BVP
             {
                 
@@ -1388,41 +1146,47 @@ namespace model
                 {
                     case DefectiveCrystalParameters::FINITE_FEM:
                     {
-//                        if(this->network().useVirtualExternalLoops)
-//                        {
-                            if(virtualNode)
-                            {
-                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal);
-                            }
-                            else
-                            {
-                                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-                                virtualNode.reset(new NodeType(&this->network(),X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal));
-                            }
-//                        }
+                        //                        if(this->network().useVirtualExternalLoops)
+                        //                        {
+                        if(virtualNode)
+                        {
+                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal);
+                        }
+                        else
+                        {
+                            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+                            virtualNode.reset(new NodeType(&this->network(),X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal,this));
+                        }
+                        //                        }
                         break;
                     }
                         
                     case DefectiveCrystalParameters::PERIODIC:
                     {
-                            if(virtualNode)
-                            {
-                                static_cast<NodeBaseType*>(virtualNode.get())->set_P(X - ((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal)));
-                            }
-                            else
-                            {
-                                VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-                                virtualNode.reset(new NodeType(&this->network(),X-((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal))));
-                            }
+                        if(virtualNode)
+                        {
+                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(X - ((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal)));
+                        }
+                        else
+                        {
+                            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+                            virtualNode.reset(new NodeType(&this->network(),X-((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(boundaryNormal)),this));
+                        }
                         break;
                     }
                         
                     default:
                         break;
                 }
-                
-
             }
+        }
+        
+        /**********************************************************************/
+        void setToBoundary(const VectorDim& X)
+        {
+            _isOnBoundingBox=true;
+            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
+            resetVirtualBoundaryNode(X);
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line 
             assert(boundingBoxSegments().contains(this->get_P()).first);
         }

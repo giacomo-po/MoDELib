@@ -29,6 +29,8 @@ namespace model
         double velocityReduction;             // velocity reduction factor
         size_t snID;          // component ID
         int  meshLocation;    // mesh location
+        size_t masterID;          // sID
+
         
         /**********************************************************************/
         template<typename DislocationNodeType>
@@ -38,7 +40,8 @@ namespace model
         /* init */ V(dn.get_V()),
         /* init */ velocityReduction(dn.velocityReduction()),
         /* init */ snID(dn.pSN()->sID),
-        /* init */ meshLocation(dn.meshLocation())
+        /* init */ meshLocation(dn.meshLocation()),
+        /* init */ masterID(dn.masterNode? dn.masterNode->sID : sID)
         {
          
 //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
@@ -57,11 +60,9 @@ namespace model
         /* init */ V(V_in),
         /* init */ velocityReduction(velocityReduction_in),
         /* init */ snID(snID_in),
-        /* init */ meshLocation(meshLocation_in)
-        {
-            
-            //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
-            
+        /* init */ meshLocation(meshLocation_in),
+        /* init */ masterID(sID)
+        {// Constructor for MicrostructureGenerator
         }
         
         /**********************************************************************/
@@ -71,11 +72,9 @@ namespace model
         /* init */ V(VectorDim::Zero()),
         /* init */ velocityReduction(1.0),
         /* init */ snID(0),
-        /* init */ meshLocation(0)
+        /* init */ meshLocation(0),
+        /* init */ masterID(0)
         {
-            
-            //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
-            
         }
 
         
@@ -86,7 +85,8 @@ namespace model
         /* init */ V(VectorDim::Zero()),
         /* init */ velocityReduction(1.0),
         /* init */ snID(0),
-        /* init */ meshLocation(0)
+        /* init */ meshLocation(0),
+        /* init */ masterID(0)
         {
             
             ss>>sID;
@@ -101,8 +101,7 @@ namespace model
             ss>>velocityReduction;
             ss>>snID;
             ss>>meshLocation;
-
-            
+            ss>>masterID;
         }
 
         
@@ -115,7 +114,8 @@ namespace model
             /**/<< ds.V.transpose()<<"\t"
             /**/<< ds.velocityReduction<<"\t"
             /**/<< ds.snID<<"\t"
-            /**/<< ds.meshLocation;
+            /**/<< ds.meshLocation<<"\t"
+            /**/<< ds.masterID;
             return os;
         }
         
