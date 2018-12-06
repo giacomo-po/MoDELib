@@ -180,10 +180,12 @@ namespace model
             const VectorDimD nd(reciprocalBasis.transpose()*d);
             const LatticeVectorType temp(rationalApproximation(nd),*this);
             
-            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
+            const double crossNorm(temp.cartesian().normalized().cross(d.normalized()).norm());
+            if(crossNorm>FLT_EPSILON)
             {
                 model::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
                 model::cout<<"lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                model::cout<<"cross product norm="<<std::setprecision(15)<<std::scientific<<crossNorm<<std::endl;
                 assert(0 && "LATTICE DIRECTION NOT FOUND");
             }
             
@@ -197,10 +199,12 @@ namespace model
             const VectorDimD nd(latticeBasis.transpose()*d);
             const ReciprocalLatticeVectorType temp(rationalApproximation(nd),*this);
             
-            if(temp.cartesian().normalized().cross(d.normalized()).norm()>FLT_EPSILON)
+            const double crossNorm(temp.cartesian().normalized().cross(d.normalized()).norm());
+            if(crossNorm>FLT_EPSILON)
             {
-                model::cout<<"input direction="<<d.normalized().transpose()<<std::endl;
-                model::cout<<"reciprocal lattice direction="<<temp.cartesian().normalized().transpose()<<std::endl;
+                model::cout<<"input direction="<<std::setprecision(15)<<std::scientific<<d.normalized().transpose()<<std::endl;
+                model::cout<<"reciprocal lattice direction="<<std::setprecision(15)<<std::scientific<<temp.cartesian().normalized().transpose()<<std::endl;
+                model::cout<<"cross product norm="<<std::setprecision(15)<<std::scientific<<crossNorm<<std::endl;
                 assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
             }
             

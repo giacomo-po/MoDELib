@@ -6,7 +6,7 @@ usePARDISO = 0
 MODEL_INCLUDE =../../../
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
-MKL_LIB=/opt/intel/mkl/lib
+
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
@@ -62,6 +62,7 @@ ifeq ($(usePARDISO), 1)
 
 	ifeq ($(OS),Darwin)
 		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
+		MKL_LIB=/opt/intel/mkl/lib
 	endif
 
 	ifeq ($(OS),Linux)
@@ -70,6 +71,7 @@ ifeq ($(usePARDISO), 1)
 		else
 			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group 
 		endif
+		MKL_LIB=/opt/intel/mkl/lib/intel64
 	endif
 
 endif
@@ -95,9 +97,7 @@ all:
 	@echo please use \
 	make DDomp \
 	or make DDmpi \
-	or make DDviewer \
-	or make dipoleGenerator \
-	or make frGenerator \
+	or make microstructureGenerator \
 	or make DDconverter \
 	or make empty \
 
@@ -129,11 +129,6 @@ $(mpiOBJS):
 clean:
 	rm -f $(OBJS) $(mpiOBJS)
 
-##########################################################
-# MAKE VIEWER
-##########################################################
-DDviewer: 
-	$(CC) $(MODEL_INCLUDE)/model/DislocationDynamics/Visualization/DDviewer.cpp -o DDviewer -O3 -std=c++14 $(IDIR)  $(VIEWERLIBS) 
 
 ##########################################################
 # MAKE MICROSTRUCTUREGENERATOR
@@ -144,59 +139,6 @@ $(generatorOBJS):
 	@echo making microstructureGenerator
 	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++14 -Wall $(IDIR)
 
-##########################################################
-# MAKE DIPOLEGENERATOR
-##########################################################
-dipoleOBJS = dipoleGenerator
-
-$(dipoleOBJS):
-	@echo making dipoleGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/dipoleGenerator.cpp -o dipoleGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
-# MAKE SINGLEEDGEGENERATOR
-##########################################################
-dipoleOBJS = singleEdgeGenerator
-
-$(dipoleOBJS):
-	@echo making singleEdgeGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/singleEdgeGenerator.cpp -o singleEdgeGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
-# MAKE DIPOLEGENERATOR
-##########################################################
-piOBJS = piGenerator
-
-$(piOBJS):
-	@echo making piGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/piGenerator.cpp -o piGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
-# MAKE FRANKREADGENERATOR
-##########################################################
-frOBJS = frGenerator
-
-$(frOBJS):
-	@echo making frGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/frGenerator.cpp -o frGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
-# MAKE straightGenerator
-##########################################################
-straightOBJS = straightGenerator
-
-$(straightOBJS):
-	@echo making straightGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/straightGenerator.cpp -o straightGenerator -O3 -std=c++14 $(IDIR)
-
-##########################################################
-# MAKE singleArmGenerator
-##########################################################
-singleArmOBJS = singleArmGenerator
-
-$(singleArmOBJS):
-	@echo making singleArmGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/singleArmGenerator.cpp -o singleArmGenerator -O3 -std=c++14 $(IDIR)
 
 ##########################################################
 # MAKE DDCONVERTER
