@@ -31,10 +31,10 @@ ifeq ($(USE_ICC), 1)
 	CFLAGS	+= -openmp 
 	CFLAGS	+= -std=c++14
 else
-	CC= g++
+	CC= /opt/local/bin/g++
 	mpiCC = mpicxx
 	CFLAGS += -Ofast
-#	CFLAGS += -fopenmp
+	CFLAGS += -fopenmp
 	CFLAGS += -std=c++17
 
 	ifeq ($(OS),Darwin)

@@ -822,7 +822,7 @@ namespace model
                     }
                 }
                 
-                if(fabs(loop.B.dot(loop.N))<FLT_EPSILON)
+                if(fabs(loop.B.dot(loop.N))<FLT_EPSILON && loop.N.squaredNorm()>FLT_EPSILON)
                 {
                     PlanarPolygon pp(loop.B,loop.N);
                     pp.assignPoints(nodePositions);
