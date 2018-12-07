@@ -14,7 +14,8 @@
 #include <cfloat>
 
 
-namespace model{
+namespace model
+{
     
     
     template <int pOrder>

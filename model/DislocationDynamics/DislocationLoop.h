@@ -39,11 +39,11 @@ namespace model
         void updateSlipSystem()
         {
             slipSystem=nullptr;
-            const ReciprocalLatticeDirection<dim> rightHandedDir(this->grain.reciprocalLatticeDirection(this->rightHandedNormal()));
+//            const ReciprocalLatticeDirection<dim> rightHandedDir(this->grain.reciprocalLatticeDirection(this->rightHandedNormal()));
             for(const auto& ss : this->grain.slipSystems())
             {
-                if(  ((this->flow()-ss->s).squaredNorm()==0 && (rightHandedDir-ss->n).squaredNorm()==0)
-                   ||((this->flow()+ss->s).squaredNorm()==0 && (rightHandedDir+ss->n).squaredNorm()==0))
+                if(  ((this->flow()-ss->s).squaredNorm()==0 && (this->rightHandedNormal()-ss->n).squaredNorm()==0)
+                   ||((this->flow()+ss->s).squaredNorm()==0 && (this->rightHandedNormal()+ss->n).squaredNorm()==0))
                 {
                     slipSystem=ss;
                 }

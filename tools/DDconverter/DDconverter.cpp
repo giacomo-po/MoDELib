@@ -8,7 +8,7 @@
 
 #include <string>
 #include <experimental/filesystem>
-#include <model/DislocationDynamics/IO/EVLio.h>
+#include <EVLio.h>
 
 using namespace model;
 

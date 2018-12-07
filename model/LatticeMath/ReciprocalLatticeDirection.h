@@ -18,7 +18,7 @@ namespace model
 {
     template <int dim>
     class ReciprocalLatticeDirection :
-    /* inherits */ public LatticeGCD<dim>,
+//    /* inherits */ public LatticeGCD<dim>,
     /* inherits */ public ReciprocalLatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
@@ -32,9 +32,10 @@ namespace model
         
         /**********************************************************************/
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
-        /* base init */ LatticeGCDType(v),
+//        /* base init */ LatticeGCDType(v),
 //        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
-        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
+//        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
+        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
         {
 //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
         }

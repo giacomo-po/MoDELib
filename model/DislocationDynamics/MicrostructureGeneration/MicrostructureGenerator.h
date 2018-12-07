@@ -800,7 +800,6 @@ namespace model
                             std::gamma_distribution<double> distribution(inclusionsDistribution_alpha[f],inclusionsDistribution_beta[f]);
                             
                             const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
-                            //poly.grain(grainID)
                             std::pair<LatticeVector<dim>,int> pointPair=randomPointInMesh();
                             VectorDimD P=pointPair.first.cartesian();
                             const int& grainID(pointPair.second);
@@ -814,17 +813,17 @@ namespace model
                                 P-=(P-O).dot(globalDir)*globalDir;
                             }
                             
-                            bool isGoodPopision=mesh.searchRegion(grainID,P).first;
+                            bool isGoodPosition=mesh.searchRegion(grainID,P).first;
                             for(const auto& pair : existingPrecipitates)
                             {
-                                isGoodPopision *= (P-pair.second).norm()>pair.first+size;
-                                if(!isGoodPopision)
+                                isGoodPosition *= (P-pair.second).norm()>pair.first+size;
+                                if(!isGoodPosition)
                                 {
                                     break;
                                 }
                             }
                             
-                            if(isGoodPopision)
+                            if(isGoodPosition)
                             {
                                 inclusionsfile<<inclusionID
                                 /*          */<<" "<<P.transpose()

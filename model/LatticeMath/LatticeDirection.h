@@ -18,7 +18,7 @@ namespace model
 {
     template <int dim>
     class LatticeDirection :
-    /* inherits */ public LatticeGCD<dim>,
+//    /* inherits */ public LatticeGCD<dim>,
     /* inherits */ public LatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
@@ -31,9 +31,10 @@ namespace model
         
         /**********************************************************************/
         LatticeDirection(const LatticeVectorType& v) :
-        /* base init */ LatticeGCDType(v),
+//        /* base init */ LatticeGCDType(v),
 //        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
-        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
+//        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
+        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
         {
         }
         

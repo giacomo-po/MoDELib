@@ -40,8 +40,9 @@ namespace model
         
         Eigen::Matrix<double,dim,1> nA;
         double _slippedArea;
-        Eigen::Matrix<double,dim,1> _rightHandedNormal;
-        
+        Eigen::Matrix<double,dim,1> _rightHandedUnitNormal;
+        ReciprocalLatticeDirection<dim> _rightHandedNormal;
+
         
         template <typename T>
         static int sgn(const T& val)
@@ -103,7 +104,8 @@ namespace model
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
         /*      init */ _slippedArea(0.0),
-        /*      init */ _rightHandedNormal(VectorDim::Zero()),
+        /*      init */ _rightHandedUnitNormal(VectorDim::Zero()),
+        /*      init */ _rightHandedNormal(dn->poly.grain(grainID)),
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N))
         //        /*      init */ glidePlane(*_glidePlane->get()),
@@ -126,7 +128,8 @@ namespace model
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */ nA(VectorDim::Zero()),
         /*      init */ _slippedArea(0.0),
-        /*      init */ _rightHandedNormal(VectorDim::Zero()),
+        /*      init */ _rightHandedUnitNormal(VectorDim::Zero()),
+        /*      init */ _rightHandedNormal(dn->poly.grain(grainID)),
         /*      init */ grain(dn->poly.grain(grainID)),
         /*      init */ glidePlane(nullptr)
         //        /*      init */ glidePlane(*_glidePlane->get()),
@@ -149,7 +152,8 @@ namespace model
         //        /*      init */ PlanarPolygon(other),
         /* init */ nA(other.nA),
         /* init */ _slippedArea(0.0),
-        /* init */ _rightHandedNormal(VectorDim::Zero()),
+        /* init */ _rightHandedUnitNormal(VectorDim::Zero()),
+        /*      init */ _rightHandedNormal(other._rightHandedNormal),
         /* init */ grain(other.grain),
         /* init */ glidePlane(other.glidePlane)
         //        /* init */ glidePlane(*_glidePlane->get()),
@@ -243,13 +247,13 @@ namespace model
                     {
                         segments.emplace_back(loopLink.second->source()->get_P(),loopLink.second->sink()->get_P());
                     }
-                    temp+=planarSolidAngle(x,glidePlane->P,rightHandedNormal(),segments);
+                    temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
                     
 //                    const double posNorm((x-glidePlane->P).norm());
-//                    const double dotProd((x-glidePlane->P).dot(rightHandedNormal()));
+//                    const double dotProd((x-glidePlane->P).dot(rightHandedUnitNormal()));
 //                    if(std::fabs(dotProd)>FLT_EPSILON*posNorm)
 //                    {// x is outside the plane of the loop
-//                        const VectorDim s(sgn(dotProd)*rightHandedNormal()); // s points along +n for points above, and along -n for points below
+//                        const VectorDim s(sgn(dotProd)*rightHandedUnitNormal()); // s points along +n for points above, and along -n for points below
 //                        for(const auto& loopLink : this->links())
 //                        {
 //                            VectorDim e1(loopLink.second->source()->get_P()-x);
@@ -337,17 +341,30 @@ namespace model
         void updateGeometry()
         {
             nA.setZero();
-            if(this->links().size())
-            {
-                const VectorDim P0(this->links().begin()->second->source()->get_P());
-                for(const auto& loopLink : this->links())
+            
+            if(glidePlane)
+            {// remove numerical errors by projecting along glidePlane->unitNormal
+                
+                if(this->links().size())
                 {
-                    nA+= 0.5*(loopLink.second->source()->get_P()-P0).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
+                    const VectorDim P0(this->links().begin()->second->source()->get_P());
+                    for(const auto& loopLink : this->links())
+                    {
+                        nA+= 0.5*(loopLink.second->source()->get_P()-P0).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
+                    }
                 }
+
+
+//                nA=nnDot*glidePlane->unitNormal;
+//                nA=nA.dot(glidePlane->n.cartesian().normalized())*glidePlane->n.cartesian().normalized();
+            
+                _slippedArea=nA.norm();
+                _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
+
+                const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
+                _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
             }
             
-            _slippedArea=nA.norm();
-            _rightHandedNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
         }
         
         /**********************************************************************/
@@ -357,7 +374,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const VectorDim& rightHandedNormal() const
+        const VectorDim& rightHandedUnitNormal() const
+        {
+            return _rightHandedUnitNormal;
+        }
+        
+        /**********************************************************************/
+        const ReciprocalLatticeDirection<dim>& rightHandedNormal() const
         {
             return _rightHandedNormal;
         }
@@ -374,65 +397,3 @@ namespace model
     
 }
 #endif
-
-//        /**********************************************************************/
-//        MatrixDim plasticDistortion() const
-//        {
-//            return -this->flow().cartesian()*nA.transpose();
-//        }
-
-
-//        static chordInPlane(LoopLinkType* const pL,)
-
-
-//        /**********************************************************************/
-//        void addLink(LoopLinkType* const pL)
-//        {
-//            BaseLoopType::addLink(pL);
-//
-////            const VectorDim chord(pL->source()->get_P()-pL->sink()->get_P());
-////            const double chornNorm(chord.norm());
-////            if(chornNorm>FLT_EPSILON)
-////            {
-////            assert(std::fabs((chord/chornNorm).dot(glidePlane->unitNormal))<FLT_EPSILON && "Chord does not belong to plane");
-////            }
-//
-//        }
-
-//        /**********************************************************************/
-//        void removeLink(LoopLinkType* const pL)
-//        {
-//            LoopType::removeLink(pL);
-//
-//        }
-
-//    template <int _dim, short unsigned int corder, typename InterpolationType>
-//    bool PlanarDislocationLoop<_dim,corder,InterpolationType>::outputLoopLength=false;
-
-///**********************************************************************/
-//void update()
-//{
-//    // Collect node positions along loop
-//    //            std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> nodePos;
-//    //            std::deque<size_t> nodeIDs;
-//    //            for(const auto& nodePair : this->nodeSequence)
-//    //            {
-//    //                nodePos.push_baack(nodePair.first->get_P());
-//    //                nodeIDs.push_back(nodePair.first->sID);
-//    //            }
-//    //
-//    //            // Call PlanarPolygon
-//    //            this->assignPoints(nodePos);
-//    //            std::deque<std::array<size_t, 3>> triangles=this->triangulate();
-//    //
-//    //            nA.setZero();
-//    //            for(const auto& triIDs : triangles)
-//    //            {
-//    //                const VectorDim ndA=(nodePos[std::get<0>(triIDs)]-nodePos[std::get<2>(triIDs)]).cross(nodePos[std::get<1>(triIDs)]-nodePos[std::get<0>(triIDs)]);
-//    //                assert(nA.dot(ndA)>=0.0 && "Tringles must all be right-handed");
-//    //                nA+=ndA;
-//    //            }
-//    
-//
-//    
-//}

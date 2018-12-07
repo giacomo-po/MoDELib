@@ -476,14 +476,24 @@ namespace model
             size_t kk(1);
             for (const auto& node : evl.nodes())
             {
-                if(node.meshLocation!=TypeTraits<NodeType>::outsideMesh)
-                {// skip virtual nodes
+//                if(node.meshLocation!=TypeTraits<NodeType>::outsideMesh)
+//                {// skip virtual nodes
                     const size_t nodeIDinFile(node.sID);
-                    model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
                     NodeType::set_count(nodeIDinFile);
-                    const size_t nodeID=DN.insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
-                    assert(nodeID==nodeIDinFile);
-                }
+                    if(node.sID==node.masterID)
+                    {// a regular node is created
+                        model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
+                        const size_t nodeID=DN.insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
+                        assert(nodeID==nodeIDinFile);
+                    }
+                    else
+                    {
+                        model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<"), virtual of "<<node.masterID<<std::endl;
+                        const auto isNode(DN.node(node.masterID));
+                        assert(isNode.first);
+                        isNode.second->resetVirtualBoundaryNode(node.P);
+                    }
+//                }
                 kk++;
             }
         }
@@ -526,21 +536,20 @@ namespace model
                     }
                 }
                 
-                
-                
                 LoopType::set_count(loop.sID);
-                //                const LatticeVector<dim> B=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(0*dim).transpose());
-                //                const LatticePlaneBase N(DN.poly.grain(grainID).reciprocalLatticeDirection(row.template segment<dim>(1*dim).transpose())); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-                //                const LatticeVector<dim> P=DN.poly.grain(grainID).latticeVector(row.template segment<dim>(2*dim).transpose());
-                //                const VectorDimD B=row.template segment<dim>(0*dim).transpose();
-                //                const VectorDimD N=row.template segment<dim>(1*dim).transpose(); // BETTER TO CONSTRUCT WITH PRIMITIVE VECTORS ON THE PLANE
-                //                const VectorDimD P=row.template segment<dim>(2*dim).transpose();
                 
-                
-                
-                model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
-                const size_t newLoopID=DN.insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
-                assert(loop.sID==newLoopID);
+                if(loop.N.squaredNorm()>FLT_EPSILON)
+                {
+                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
+                    const size_t newLoopID=DN.insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
+                    assert(loop.sID==newLoopID);
+                }
+                else
+                {
+                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
+                    const size_t newLoopID=DN.insertLoop(nodeIDs,loop.B,loop.grainID)->sID;
+                    assert(loop.sID==newLoopID);
+                }
                 loopLumber++;
             }
             
@@ -763,82 +772,17 @@ namespace model
                 }
                 
                 DN.displacement(fieldPoints);
-
-                
-//                if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
-//                {
-//                    for(auto& node : fieldPoints)
-//                    {
-////                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
-//                        
-//                        
-//                        // Sum FEM solution
-//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
-//                        node+=DN.bvpSolver->displacement().dofs(femID);
-//                        
-////                        // output
-////                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
-//                    }
-//
-//                    
-//                    assert(0 && "FINISH HERE");
-//                    //                    if (!(runID%DN.use_bvp))
-//                    //                    {
-////                    const auto t0=std::chrono::system_clock::now();
-////                    model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-////                    model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
-////                    model::SequentialOutputFile<'D',true> d_file;
-////                    model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
-////                    
-////                    std::deque<FieldPointType,Eigen::aligned_allocator<FieldPointType>> fieldPoints; // the container of field points
-////                    for (const auto& sIter : DN.mesh.template observer<0>())
-////                    {
-////                        if(sIter.second->isBoundarySimplex())
-////                        {
-////                            fieldPoints.emplace_back(*(sIter.second));
-////                        }
-////                    }
-////                    DN.template computeField<FieldPointType,DisplacementField>(fieldPoints);
-////                    
-////                    
-////                    for(auto node : fieldPoints)
-////                    {
-////                        Eigen::Matrix<double,dim,1> nodeDisp = node.template field<DisplacementField>();
-////                        
-////                        // Sum solid angle jump
-////                        if (DN.useVirtualExternalLoops) // solid-angle jump of virtual segments
-////                        {
-////                            for(const auto& segment : DN.links())
-////                            {
-////                                segment.second->addToSolidAngleJump(node.P,node.S,nodeDisp);
-////                            }
-////                        }
-////                        
-////                        // Sum FEM solution
-////                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.gID)->gID;
-////                        nodeDisp+=DN.bvpSolver->displacement().dofs(femID);
-////                        
-////                        // output
-////                        d_file<<node.gID<<" "<<nodeDisp.transpose()<<"\n";
-////                    }
-//                }
                 
                 for(auto& node : fieldPoints)
-                {// output
-                    
+                {// add FEM solution and output
                     if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
                     {
                         const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
                         node+=DN.bvpSolver->displacement().dofs(femID);
                     }
-                    
                     d_file<<node.pointID<<" "<<node.transpose()<<"\n";
                 }
-
-                
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
-                
             }
             
             if(DN.outputSegmentPairDistances)

@@ -43,11 +43,11 @@ namespace model
         }
         
         
-        const long int gCD;
-        
-        LatticeGCD(const VectorDimI& v) :
-        /* base init */ gCD(gcd(v))
-        {}
+//        const long int gCD;
+//        
+//        LatticeGCD(const VectorDimI& v) :
+//        /* base init */ gCD(gcd(v))
+//        {}
         
     };
     

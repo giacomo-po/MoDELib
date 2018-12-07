@@ -296,7 +296,7 @@ namespace model
             
             return addedGp;
         }
-
+        
         /**********************************************************************/
         VectorDim snapToBoundingBox(const VectorDim& P) const
         {/*!\param[in] P position to be snapped to the bounding box
@@ -350,55 +350,50 @@ namespace model
             
             assert(false && "snapToBoundingBox FAILED.");
         }
-
+        
         /**********************************************************************/
         const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
-//            if (this->network().use_boundary)
-//            {
-                if (guess==NULL)
-                {
-                    temp=this->network().mesh.search(this->get_P());
-                }
-                else
-                {
-                    if(grains().size()==1)
-                    {// node only in one region
-                        if((*grains().begin())->grainID!=guess->region->regionID)
-                        {
-                            temp=this->network().mesh.searchRegion((*grains().begin())->grainID,this->get_P());
-                        }
-                        else
-                        {
-                            temp=this->network().mesh.searchRegionWithGuess(this->get_P(),guess);
-                        }
+            if (guess==NULL)
+            {
+                temp=this->network().mesh.search(this->get_P());
+            }
+            else
+            {
+                if(grains().size()==1)
+                {// node only in one region
+                    if((*grains().begin())->grainID!=guess->region->regionID)
+                    {
+                        temp=this->network().mesh.searchRegion((*grains().begin())->grainID,this->get_P());
                     }
                     else
                     {
-                        temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
+                        temp=this->network().mesh.searchRegionWithGuess(this->get_P(),guess);
                     }
                 }
-                
-                if(!temp.first) // DislocationNode not found inside mesh
+                else
                 {
-                    // Detect if the DislocationNode is sligtly outside the boundary
-                    int faceID;
-                    const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
-                    const bool isApproxOnBoundary(std::fabs(baryMin)<1.0e3*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
-                    if(!isApproxOnBoundary)
-                    {
-                        model::cout<<"DislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
-                        model::cout<<"Simplex "<<temp.second->xID<<std::endl;
-                        model::cout<<"bary "<<temp.second->pos2bary(this->get_P())<<std::endl;
-                        model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
-                        model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
-                        model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
-                        assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
-                    }
+                    temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
                 }
-//            }
-            
+            }
+            if(!temp.first) // DislocationNode not found inside mesh
+            {
+                // Detect if the DislocationNode is sligtly outside the boundary
+                int faceID;
+                const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
+                const bool isApproxOnBoundary(std::fabs(baryMin)<1.0e3*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
+                if(!isApproxOnBoundary)
+                {
+                    model::cout<<"DislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
+                    model::cout<<"Simplex "<<temp.second->xID<<std::endl;
+                    model::cout<<"bary "<<temp.second->pos2bary(this->get_P())<<std::endl;
+                    model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
+                    model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
+                    model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
+                    assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
+                }
+            }
             return temp.second;
         }
         
@@ -416,17 +411,14 @@ namespace model
         double velocityReductionCoeff;
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
         bool _isOnBoundingBox;
-        //        bool _isGrainBoundaryNode;
         VectorDim boundaryNormal;
-        //        VectorDim C;
-        
         std::shared_ptr<NodeType> virtualNode;
         
     public:
         
         const NodeType* const masterNode;
         const bool isVirtualBoundaryNode;
-
+        
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
@@ -669,7 +661,7 @@ namespace model
             }
             
             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" finished addLoopLink "<<pL->tag()<<std::endl;);
-
+            
             
         }
         
@@ -717,7 +709,7 @@ namespace model
             }
             
             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" finished removeLoopLink "<<pL->tag()<<std::endl;);
-
+            
         }
         
         /**********************************************************************/
@@ -834,12 +826,6 @@ namespace model
             return velocity;
         }
         
-        //        /**********************************************************************/
-        //        bool isOscillating() const
-        //        {
-        //            return velocityReductionCoeff<std::pow(velocityReductionFactor,3);
-        //        }
-        
         /**********************************************************************/
         const Simplex<dim,dim>* includingSimplex() const
         {/*!\returns A pointer to the const Simplex imcluding *this DislocationNode
@@ -901,7 +887,7 @@ namespace model
                     model::cout<<"_isOnBoundingBox="<<_isOnBoundingBox<<std::endl;
                     model::cout<<"isGrainBoundaryNode()="<<isGrainBoundaryNode()<<std::endl;
                     model::cout<<"NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE"<<std::endl;
-                                        assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
+                    assert(0 && "NODE ON BoundingBox MUST BE EITHER A BOUNDARY NODE OR A GB NODE");
                 }
             }
             return isBndNode ;
@@ -1062,20 +1048,18 @@ namespace model
             return temp;
         }
         
-        
-        
         /**********************************************************************/
         bool isRemovable(const double& Lmin,const double& cosRemove) const
         {
-        
+            
             bool temp(   !isVirtualBoundaryNode
                       && (isSimpleBoundaryNode() || isSimpleGrainBoundaryNode() || isSimpleSessileNode() || isGeometricallyRemovable(Lmin,cosRemove))
                       );
             
-//            if(temp && usePeriodic && virtualNode)
-//            {
-//                    temp*=(virtualNode->isSimpleBoundaryNode() ) ;
-//            }
+            //            if(temp && usePeriodic && virtualNode)
+            //            {
+            //                    temp*=(virtualNode->isSimpleBoundaryNode() ) ;
+            //            }
             
             return temp;
         }
@@ -1139,15 +1123,12 @@ namespace model
         /**********************************************************************/
         void resetVirtualBoundaryNode(const VectorDim& X)
         {
-            if(isBoundaryNode() && !isVirtualBoundaryNode) //ENABLE THIS USE_BVP
+            if(isBoundaryNode() && !isVirtualBoundaryNode)
             {
-                
                 switch (this->network().simulationParameters.simulationType)
                 {
                     case DefectiveCrystalParameters::FINITE_FEM:
                     {
-                        //                        if(this->network().useVirtualExternalLoops)
-                        //                        {
                         if(virtualNode)
                         {
                             static_cast<NodeBaseType*>(virtualNode.get())->set_P(X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal);
@@ -1157,10 +1138,8 @@ namespace model
                             VerboseDislocationNode(2,"DislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
                             virtualNode.reset(new NodeType(&this->network(),X+this->network().simulationParameters.virtualSegmentDistance*boundaryNormal,this));
                         }
-                        //                        }
                         break;
                     }
-                        
                     case DefectiveCrystalParameters::PERIODIC:
                     {
                         if(virtualNode)
@@ -1174,7 +1153,6 @@ namespace model
                         }
                         break;
                     }
-                        
                     default:
                         break;
                 }
@@ -1187,7 +1165,7 @@ namespace model
             _isOnBoundingBox=true;
             boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
             resetVirtualBoundaryNode(X);
-            NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line 
+            NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
             assert(boundingBoxSegments().contains(this->get_P()).first);
         }
         
@@ -1202,58 +1180,35 @@ namespace model
                 glidePlanesContained*=gp->contains(newP);
             }
             
-            
             if(glidePlanesContained)
             {
-                //                NodeBaseType::set_P(newP);
-//                if(this->network().use_boundary) // using confining mesh
-//                {
-                
-                    if(_isOnBoundingBox)
-                    {// node was on bounding box, it must remain on bounding box
-                        const VectorDim X(snapToBoundingBox(newP));
-                        setToBoundary(X);
-                        //                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                        //                        NodeBaseType::set_P(X);
-                        
-                        if(addGrainBoundaryPlanes())
-                        {// GB-planes were added, the bounding box has changed, so snap again
-                            VerboseDislocationNode(3,"case 4"<<std::endl;);
-                            const VectorDim X1(snapToBoundingBox(this->get_P()));
-                            setToBoundary(X1);
-                            //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X1,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                            //                            NodeBaseType::set_P(X1); // put node back on bounding box
-                        }
+                if(_isOnBoundingBox)
+                {// node was on bounding box, it must remain on bounding box
+                    const VectorDim X(snapToBoundingBox(newP));
+                    setToBoundary(X);
+                    if(addGrainBoundaryPlanes())
+                    {// GB-planes were added, the bounding box has changed, so snap again
+                        VerboseDislocationNode(3,"case 4"<<std::endl;);
+                        const VectorDim X1(snapToBoundingBox(this->get_P()));
+                        setToBoundary(X1);
                     }
-                    else
-                    {// internal node
-                        
-                        std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
-                        
-                        if(temp.first)
-                        {// internal node, and newP is inside current grain
-                            if(   isConnectedToBoundaryNodes()
-                               && boundingBoxSegments().size()==2
-                               && glidePlaneIntersections().size()==1)
-                            {// force special case to boundary to get rid of small debris
-                                if((newP-glidePlaneIntersections()[0].first).norm()<this->network().surfaceAttractionDistance)
-                                {
-                                    setToBoundary(glidePlaneIntersections()[0].first);
-                                    //                                    _isOnBoundingBox=true;
-                                    //                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(glidePlaneIntersections()[0].first,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                                    //                                    NodeBaseType::set_P(glidePlaneIntersections()[0].first);
-                                }
-                                else if((newP-glidePlaneIntersections()[0].second).norm()<this->network().surfaceAttractionDistance)
-                                {
-                                    setToBoundary(glidePlaneIntersections()[0].second);
-                                    //                                    _isOnBoundingBox=true;
-                                    //                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(glidePlaneIntersections()[0].second,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                                    //                                    NodeBaseType::set_P(glidePlaneIntersections()[0].second);
-                                }
-                                else
-                                {
-                                    NodeBaseType::set_P(newP);
-                                }
+                }
+                else
+                {// internal node
+                    std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
+                    if(temp.first)
+                    {// internal node, and newP is inside current grain
+                        if(   isConnectedToBoundaryNodes()
+                           && boundingBoxSegments().size()==2
+                           && glidePlaneIntersections().size()==1)
+                        {// force special case to boundary to get rid of small debris
+                            if((newP-glidePlaneIntersections()[0].first).norm()<this->network().surfaceAttractionDistance)
+                            {
+                                setToBoundary(glidePlaneIntersections()[0].first);
+                            }
+                            else if((newP-glidePlaneIntersections()[0].second).norm()<this->network().surfaceAttractionDistance)
+                            {
+                                setToBoundary(glidePlaneIntersections()[0].second);
                             }
                             else
                             {
@@ -1261,179 +1216,55 @@ namespace model
                             }
                         }
                         else
-                        {// internal node, and newP is outside current grain
-                            
-                            const VectorDim X(snapToBoundingBox(newP));
-                            //                            _isOnBoundingBox=true;
-                            //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                            //                            NodeBaseType::set_P(X); // put node back on bounding box
-                            setToBoundary(X);
-                            
-                            
-                            if(addGrainBoundaryPlanes())
-                            {// GB-planes were added, the bounding box has changed, and it may now be a set of degenerate lines
-                                if(boundingBoxSegments().contains(this->get_P()).first)
-                                {// new bounding box contains node
-                                    VerboseDislocationNode(3,"case 5"<<std::endl;);
-                                    //                                    _isOnBoundingBox=true;
-                                    //                                    const VectorDim X(snapToBoundingBox(newP));
-                                    //                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                                    //                                    NodeBaseType::set_P(X); // put node back on bounding box
-                                    //                                    NodeBaseType::set_P(snapToBoundingBox(newP)); // kill numerical errors
-                                }
-                                else
-                                {// new bounding box does not contain node
-                                    VerboseDislocationNode(3,"case 6"<<std::endl;);
-                                    const VectorDim X1(snapToMeshPlaneIntersection(this->get_P()));
-                                    _isOnBoundingBox=false;
-                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(X1,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                                    NodeBaseType::set_P(X1); // kill numerical errors
-                                    //                                    setToBoundary(X1);
-                                }
-                            }
-                            //                            else
-                            //                            {// node is now on bounding box, and no GB planes were added
-                            //                                VerboseDislocationNode(3,"case 7"<<std::endl;);
-                            //                            }
-                        }
-                        
-                        
-                    }
-                    
-                    ///////////////
-                    
-                    //                    std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
-                    //                    if(temp.first)
-                    //                    {// newP is inside current grain
-                    //                        if(_isOnBoundingBox)
-                    //                        {// if the node is already on the the bounding box, keep it there
-                    //                            VerboseDislocationNode(3,"case 1"<<std::endl;);
-                    //                            const VectorDim X(snapToBoundingBox(newP));
-                    //                            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                            NodeBaseType::set_P(X);
-                    //                        }
-                    //                        else
-                    //                        {// node was internal to the grain and remains internal
-                    //                            VerboseDislocationNode(3,"case 2"<<std::endl;);
-                    //                            if(   isConnectedToBoundaryNodes()
-                    //                               && boundingBoxSegments().size()==2
-                    //                               && glidePlaneIntersections().size()==1)
-                    //                            {
-                    //                                if((newP-glidePlaneIntersections()[0].first).norm()<this->network().surfaceAttractionDistance)
-                    //                                {
-                    //                                    NodeBaseType::set_P(glidePlaneIntersections()[0].first);
-                    //                                }
-                    //                                else if((newP-glidePlaneIntersections()[0].second).norm()<this->network().surfaceAttractionDistance)
-                    //                                {
-                    //                                    NodeBaseType::set_P(glidePlaneIntersections()[0].second);
-                    //                                }
-                    //                                else
-                    //                                {
-                    //                                    NodeBaseType::set_P(newP);
-                    //                                }
-                    //                            }
-                    //                            else
-                    //                            {
-                    //                                NodeBaseType::set_P(newP);
-                    //                            }
-                    //
-                    //                            if(boundingBoxSegments().contains(this->get_P()).first)
-                    //                            {// there is a chance that newP is exactly on the bounding box
-                    //                                _isOnBoundingBox=true;
-                    //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                                NodeBaseType::set_P(this->get_P());
-                    //                            }
-                    //                        }
-                    //                    }
-                    //                    else
-                    //                    {// newP is outside current grain (or on grain boundary)
-                    //                        VerboseDislocationNode(3,"case 3"<<std::endl;);
-                    //                        const VectorDim newPbox(snapToBoundingBox(newP));
-                    //                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(newPbox,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                        NodeBaseType::set_P(newPbox); // put node on the bouding box
-                    //                        if(_isOnBoundingBox)
-                    //                        {// node was on bounding box, and exited the grain
-                    //                            if(addGrainBoundaryPlanes())
-                    //                            {// GB-planes were added, the bounding box has changed, so snap again
-                    //                                VerboseDislocationNode(3,"case 4"<<std::endl;);
-                    //                                const VectorDim X(snapToBoundingBox(newP));
-                    //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                                NodeBaseType::set_P(X); // put node back on bounding box
-                    //                            }
-                    //                        }
-                    //                        else
-                    //                        {// node was internal and exited the grain
-                    //                            if(addGrainBoundaryPlanes())
-                    //                            {// GB-planes were added, the bounding box has changed, and it may now be a set of degenerate lines
-                    //                                if(boundingBoxSegments().contains(this->get_P()).first)
-                    //                                {// new bounding box contains node
-                    //                                    VerboseDislocationNode(3,"case 5"<<std::endl;);
-                    //                                    _isOnBoundingBox=true;
-                    //                                    const VectorDim X(snapToBoundingBox(newP));
-                    //                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                                    NodeBaseType::set_P(X); // put node back on bounding box
-                    ////                                    NodeBaseType::set_P(snapToBoundingBox(newP)); // kill numerical errors
-                    //                                }
-                    //                                else
-                    //                                {// new bounding box does not contain node
-                    //                                    VerboseDislocationNode(3,"case 6"<<std::endl;);
-                    //                                    _isOnBoundingBox=false;
-                    //                                    const VectorDim X(snapToMeshPlaneIntersection(newP));
-                    //                                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                                    NodeBaseType::set_P(X); // kill numerical errors
-                    //                                }
-                    //                            }
-                    //                            else
-                    //                            {// node is now on bounding box, and no GB planes were added
-                    //                                VerboseDislocationNode(3,"case 7"<<std::endl;);
-                    //                                _isOnBoundingBox=true;
-                    //                                const VectorDim X(snapToBoundingBox(newP));
-                    //                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
-                    //                                NodeBaseType::set_P(X); // put node back on bounding box
-                    //                            }
-                    //                        }
-                    //
-                    //                    }
-                    
-                    p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
-                    //                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-                    //                    if(boundaryNormal.squaredNorm()<FLT_EPSILON)
-                    //                    {
-                    //                        model::cout<<"DislocationNode "<<this->sID<<", @"<<this->get_P().transpose()<<std::endl;
-                    //                        assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
-                    //                    }
-                    
-                    if(_isOnBoundingBox)
-                    {
-                        assert(boundingBoxSegments().contains(this->get_P()).first);
-                        boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
-                        if(boundaryNormal.squaredNorm()<FLT_EPSILON && !isGrainBoundaryNode())
                         {
-                            model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
-                            model::cout<<"BoundingBox Lines:"<<std::endl;
-                            model::cout<<boundingBoxSegments();
-                            //                            for (const auto& pair : boundingBoxSegments())
-                            //                            {
-                            //                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
-                            //                            }
-                            std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
-                            //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+                            NodeBaseType::set_P(newP);
                         }
                     }
                     else
-                    {
-                        boundaryNormal.setZero();
+                    {// internal node, and newP is outside current grain
+                        const VectorDim X(snapToBoundingBox(newP));
+                        setToBoundary(X);
+                        if(addGrainBoundaryPlanes())
+                        {// GB-planes were added, the bounding box has changed, and it may now be a set of degenerate lines
+                            if(boundingBoxSegments().contains(this->get_P()).first)
+                            {// new bounding box contains node
+                                VerboseDislocationNode(3,"case 5"<<std::endl;);
+                            }
+                            else
+                            {// new bounding box does not contain node
+                                VerboseDislocationNode(3,"case 6"<<std::endl;);
+                                const VectorDim X1(snapToMeshPlaneIntersection(this->get_P()));
+                                _isOnBoundingBox=false;
+                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(X1,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
+                                NodeBaseType::set_P(X1); // kill numerical errors
+                            }
+                        }
                     }
-                    
-//                }
-//                else
-//                {
-//                    VerboseDislocationNode(3,"case 7"<<std::endl;);
-//                    NodeBaseType::set_P(newP);
-//                }
+                }
                 
+                p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
                 
-                //                make_projectionMatrix();
+                if(_isOnBoundingBox)
+                {
+                    assert(boundingBoxSegments().contains(this->get_P()).first);
+                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+                    if(boundaryNormal.squaredNorm()<FLT_EPSILON && !isGrainBoundaryNode())
+                    {
+                        model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
+                        model::cout<<"BoundingBox Lines:"<<std::endl;
+                        model::cout<<boundingBoxSegments();
+                        //                            for (const auto& pair : boundingBoxSegments())
+                        //                            {
+                        //                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
+                        //                            }
+                        std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
+                        //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
+                    }
+                }
+                else
+                {
+                    boundaryNormal.setZero();
+                }
             }
             else
             {
@@ -1573,7 +1404,6 @@ namespace model
         
     };
     
-    
     // static data
     template <int _dim, short unsigned int corder, typename InterpolationType>
     bool DislocationNode<_dim,corder,InterpolationType>::use_velocityFilter=true;
@@ -1589,146 +1419,3 @@ namespace model
     
 }
 #endif
-
-
-//        /**********************************************************************/
-//        void applyVelocityFilter(double vMaxGood)
-//        {
-//            if(use_velocityFilter)
-//            {
-//                const double Rc=3.0*10.0;
-//                const double filterThreshold=0.05*vMaxGood*vMaxGood;
-//
-//                if((this->get_P()-C).norm()<Rc)
-//                {
-//                    if(velocity.dot(vOld)<-filterThreshold)
-//                    {
-//                        velocityReductionCoeff*=velocityReductionFactor;
-//                    }
-//                }
-//                else
-//                {
-//                    if(velocity.dot(vOld)<-filterThreshold)
-//                    {
-//                        velocityReductionCoeff*=velocityReductionFactor;
-//                        C=this->get_P();
-//                    }
-//                    else if(velocity.dot(vOld)>0.0)
-//                    {
-//                        velocityReductionCoeff/=velocityReductionFactor;
-//                    }
-//                    else
-//                    {
-//                        // don't change velocityReductionCoeff
-//                    }
-//                }
-//
-//                //                const double filterThreshold=0.05*velocity.norm()*vOld.norm();
-//
-//                //                const double VdotVold=
-//                //                if(velocity.dot(vOld)<-filterThreshold)
-//                //                {
-//                //                    velocityReductionCoeff*=velocityReductionFactor;
-//                //                }
-//                //                else if(velocity.dot(vOld)>filterThreshold)
-//                //                {
-//                //                    velocityReductionCoeff/=velocityReductionFactor;
-//                //                }
-//                //                else
-//                //                {
-//                //                    // don't change velocityReductionCoeff
-//                //                }
-//                if(velocityReductionCoeff>1.0)
-//                {
-//                    velocityReductionCoeff=1.0;
-//                }
-//                if(velocityReductionCoeff<0.0001)
-//                {
-//                    velocityReductionCoeff=0.0001;
-//                }
-//
-//
-//
-//                if( isOscillating()
-//                   //&& velocity.norm()>vMaxGood /*velocity.norm()>0.0*/
-//                   )
-//                { // oscillating node
-//                    std::cout<<"node "<<this->sID<<" BAD, ";
-//                    //                    velocity*=(velocityReductionCoeff*vMaxGood/velocity.norm());
-//                    if(velocity.norm()>vMaxGood)
-//                    {
-//                        velocity=velocityReductionCoeff*vMaxGood*velocity.normalized();
-//                    }
-//                    //                    std::cout<<velocity.norm()<<std::endl;
-//                }
-//                else
-//                { // good node
-//                    std::cout<<"node "<<this->sID<<" GOOD, ";
-//                    velocity*=velocityReductionCoeff;
-//                }
-//
-//                //                velocity*=velocityReductionCoeff;
-//                std::cout<<"velocityReductionCoeff="<<velocityReductionCoeff<<", vMaxGood="<<vMaxGood<<", velocity.norm()="<<velocity.norm()<<", newVelocity="<<velocity.norm()<<std::endl;
-//
-//            }
-//        }
-
-//        /**********************************************************************/
-//        bool is_simple() const
-//        {
-//            size_t nonZeroLink=0;
-//            for (const auto& neighborIter : this->neighbors())
-//            {
-////                if (!std::get<2>(neighborIter.second)==0)
-////                {
-//                    if (!std::get<1>(neighborIter.second)->hasZeroBurgers())
-//                    {  // neighbor not searched
-//                        nonZeroLink++;
-//                    }
-////                }
-//            }
-//            return (nonZeroLink==2);
-//        }
-
-//        /**********************************************************************/
-//        const BoundingLineSegments<dim>& glidePlaneIntersections() const
-//        {
-//            return glidePlaneIntersections();
-//        }
-
-//        /**********************************************************************/
-//        const BoundingLineSegments<dim>& boundingBoxSegments() const
-//        {
-//            return boundingBoxSegments();
-//        }
-
-//
-//        /**********************************************************************/
-//        bool isPureGBNode() const
-//        {
-//            bool temp(!this->is_isolated());
-//            for (const auto& neighborIter : this->neighbors())
-//            {
-////                if (std::get<2>(neighborIter.second)) // not self
-////                {
-//                    temp*=std::get<0>(neighborIter.second)->isGrainBoundaryNode();
-////                }
-//            }
-//
-//            return (isGrainBoundaryNode()&&temp);
-//        }
-
-//        /******************************************************************************/
-//        void neighborsAt(const LatticeVectorType& L0, std::set<size_t>& temp) const
-//        {/*!\param[in] P0 position to be serached
-//          * \param[out]temp set of IDs of neighbors of this which are located at P0 (possibly including *this)
-//          * \param[in] tol tolerance used to detect position overlap
-//          */
-//            for (const auto& nIiter : this->neighbors())
-//            { // loop over neighborhood
-//                if((std::get<0>(nIiter.second)->get_L()-L0).squaredNorm()==0)
-//                { // a neighbor of I exists at P0
-//                    temp.insert(std::get<0>(nIiter.second)->sID);
-//                }
-//            }
-//        }
