@@ -497,29 +497,53 @@ namespace model
             /*  */ && !isVirtualBoundarySegment();
         }
         
+//        /**********************************************************************/
+//        MeshLocation meshLocation() const
+//        {/*!\returns the position of *this relative to the bonudary:
+//          * 1 = inside mesh
+//          * 2 = on mesh boundary
+//          */
+//            MeshLocation temp = MeshLocation::outsideMesh;
+//            if(isBoundarySegment())
+//            {
+//                temp=MeshLocation::onMeshBoundary;
+//            }
+//            else
+//            {
+//                if(isGrainBoundarySegment())
+//                {
+//                    temp=MeshLocation::onRegionBoundary;
+//                }
+//                else
+//                {
+//                    temp=MeshLocation::insideMesh;
+//                }
+//            }
+//            return temp;
+//        }
+        
         /**********************************************************************/
         MeshLocation meshLocation() const
         {/*!\returns the position of *this relative to the bonudary:
           * 1 = inside mesh
           * 2 = on mesh boundary
           */
-            MeshLocation temp = MeshLocation::outsideMesh;
             if(isBoundarySegment())
             {
-                temp=MeshLocation::onMeshBoundary;
+                return MeshLocation::onMeshBoundary;
+            }
+            else if(isGrainBoundarySegment())
+            {
+                return MeshLocation::onRegionBoundary;
+            }
+            else if(isVirtualBoundarySegment())
+            {
+                return MeshLocation::outsideMesh;
             }
             else
             {
-                if(isGrainBoundarySegment())
-                {
-                    temp=MeshLocation::onRegionBoundary;
-                }
-                else
-                {
-                    temp=MeshLocation::insideMesh;
-                }
+                return MeshLocation::insideMesh;
             }
-            return temp;
         }
     };
     

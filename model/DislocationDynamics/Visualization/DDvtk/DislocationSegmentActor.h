@@ -511,8 +511,8 @@ namespace model
                     //                    unsigned char lineClr[3]={51,153,255};
                     unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
                     
-                    if(segment.second.meshLocation>=1)
-                    {
+                    if(segment.second.meshLocation!=0)
+                    {// 0=MeshLocation::insideMesh
                         cellsBnd->InsertNextCell(line);
                         colorsBnd->InsertNextTypedTuple(lineClr);
                         
