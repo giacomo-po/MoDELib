@@ -31,7 +31,7 @@ namespace model
 	class DislocationNode;
 		
 	template <int dim, short unsigned int corder, typename InterpolationType>
-	class DislocationSegment;
+	struct DislocationSegment;
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoop;

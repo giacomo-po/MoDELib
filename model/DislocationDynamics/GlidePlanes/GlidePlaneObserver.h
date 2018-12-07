@@ -29,7 +29,7 @@ namespace model
     
     // Class Predeclaration
     template <int dim>
-    class GlidePlane;
+    struct GlidePlane;
     
     /**************************************************************************/
     /**************************************************************************/
@@ -44,9 +44,9 @@ namespace model
 //    /*                                       */ CompareVectorsByComponent<long int,dim+3,long int>,
 //    /*                                       */ Eigen::aligned_allocator<std::pair<const Eigen::Matrix<long int,dim+3,1>,const GlidePlane<dim>* const> > >,
     /*                       */ private std::map<std::pair<size_t,size_t>,
-    /*                                        */ PlanePlaneIntersection<dim>,
-    /*                                        */ std::less<std::pair<size_t,size_t>>,
-    /*                                        */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersection<dim>>>
+    /*                                        */ PlanePlaneIntersection<dim>
+//    /*                                        */ std::less<std::pair<size_t,size_t>>,
+//    /*                                        */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersection<dim>>>
     /*                                        */ >
     {
         
@@ -80,9 +80,9 @@ namespace model
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
         typedef std::map<std::pair<size_t,size_t>,
-        /*            */ PlanePlaneIntersectionType,
-        /*            */ std::less<std::pair<size_t,size_t>>,
-        /*            */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersectionType>>
+        /*            */ PlanePlaneIntersectionType
+//        /*            */ std::less<std::pair<size_t,size_t>>,
+//        /*            */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>,PlanePlaneIntersectionType>>
         /*            */ > MeshPlaneIntersectionContainerType;
         
         

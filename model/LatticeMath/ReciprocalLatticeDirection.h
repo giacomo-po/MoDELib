@@ -17,7 +17,7 @@
 namespace model
 {
     template <int dim>
-    class ReciprocalLatticeDirection :
+    struct ReciprocalLatticeDirection :
 //    /* inherits */ public LatticeGCD<dim>,
     /* inherits */ public ReciprocalLatticeVector<dim>
     {
@@ -28,7 +28,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
 
         
-    public:
+//    public:
         
         /**********************************************************************/
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :

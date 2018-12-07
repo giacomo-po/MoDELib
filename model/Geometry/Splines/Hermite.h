@@ -8,7 +8,7 @@
  */
 
 #ifndef model_Hermite_H_
-#define model_CatmullRom_H_
+#define model_Hermite_H_
 
 #include <Eigen/Dense>
 

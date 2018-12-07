@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <utility>
 #include <chrono>
+#include <array>
 //#include <Eigen/Dense>
 #include <BinaryFileReader.h>
 

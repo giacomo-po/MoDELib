@@ -37,7 +37,7 @@
 
 
 #ifndef NDEBUG
-#define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){model::cout<<x;}
+#define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){std::cout<<x;}
 #else
 #define VerboseDislocationNode(N,x)
 #endif
@@ -1249,9 +1249,9 @@ namespace model
                     boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
                     if(boundaryNormal.squaredNorm()<FLT_EPSILON && !isGrainBoundaryNode())
                     {
-                        model::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
-                        model::cout<<"BoundingBox Lines:"<<std::endl;
-                        model::cout<<boundingBoxSegments();
+                        std::cout<<"DislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
+                        std::cout<<"BoundingBox Lines:"<<std::endl;
+                        std::cout<<boundingBoxSegments();
                         //                            for (const auto& pair : boundingBoxSegments())
                         //                            {
                         //                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;

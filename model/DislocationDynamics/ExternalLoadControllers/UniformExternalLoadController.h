@@ -310,7 +310,7 @@ namespace model
         /**************************************************************************/
         void output(const long int& runID,
                     UniqueOutputFile<'F'>& f_file,
-                    std::ofstream& F_labels) const
+                    std::ofstream& F_labels) const override
         {
             f_file<<ExternalStrain.row(0)<<" "<<ExternalStrain.row(1)<<" "<<ExternalStrain.row(2)<<" "<<ExternalStress.row(0)<<" "<<ExternalStress.row(1)<<" "<<ExternalStress.row(2)<<" ";
             

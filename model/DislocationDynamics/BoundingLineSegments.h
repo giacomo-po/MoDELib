@@ -379,7 +379,7 @@ namespace model
             
             assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
             
-            std::map<double,std::pair<VectorDim,size_t>,std::less<double>,Eigen::aligned_allocator<std::pair<double,std::pair<VectorDim,size_t>>>> snapMap;
+            std::map<double,std::pair<VectorDim,size_t>,std::less<double>/*,Eigen::aligned_allocator<std::pair<double,std::pair<VectorDim,size_t>>>*/> snapMap;
             
 //            for(const auto& vertexPair : *this)
                 for(size_t k=0;k<this->size();++k)

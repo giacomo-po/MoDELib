@@ -75,7 +75,7 @@ namespace model
                    && link.second->chord().norm()>2.0*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
                    )
                 {
-                    const auto& grain(**link.second->grains().begin());
+//                    const auto& grain(**link.second->grains().begin());
                     
                     
                     if(material.crystalStructure=="BCC")

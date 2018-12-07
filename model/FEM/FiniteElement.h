@@ -96,7 +96,7 @@ namespace model
           * FiniteElement is constructed.
           */
             
-             model::cout<<greenColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
+             model::cout<<greenBoldColor<<"Creating FiniteElement:\n"<<defaultColor<<std::flush;
             
             // THIS IS NECESSARY TO AVOID "STATIC INITIALIZATION FIASCO"
              model::cout<<"Element barycentric coordinates:\n"<<ElementType::baryNodalCoordinates<<std::endl;

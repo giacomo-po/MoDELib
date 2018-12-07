@@ -7,7 +7,7 @@
  */
 
 #ifndef _model_DislocationStressBase_h_
-#define _model_DislocationStress_h_
+#define _model_DislocationStressBase_h_
 
 #include <Eigen/StdVector>
 #include <Eigen/StdDeque>

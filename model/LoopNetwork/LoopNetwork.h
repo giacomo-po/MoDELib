@@ -62,8 +62,8 @@ namespace model
     /*               */ private std::map<size_t,std::shared_ptr<typename TypeTraits<Derived>::NodeType>>,
     /*               */ private std::multimap<std::pair<size_t,size_t>,
     /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>,
-    /*                                     */ std::less<std::pair<size_t,size_t>>,
-    /*                                     */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
+    /*                                     */ std::less<std::pair<size_t,size_t>>
+//    /*                                     */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
     /*                                     */ >
     {
         
@@ -78,8 +78,8 @@ namespace model
         //        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
         typedef std::multimap<std::pair<size_t,size_t>,
         /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
-        /*                 */ std::less<std::pair<size_t,size_t>>,
-        /*                 */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
+        /*                 */ std::less<std::pair<size_t,size_t>>
+//        /*                 */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
         /*                 */ > LoopLinkContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;

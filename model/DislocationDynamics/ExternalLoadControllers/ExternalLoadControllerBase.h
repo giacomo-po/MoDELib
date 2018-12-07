@@ -44,6 +44,11 @@ namespace model
         {
             model::cout<<greenBoldColor<<"Reading ExternalLoadController file: "<<inputFileName<<defaultColor<<std::endl;
         }
+        
+        /**************************************************************************/
+        virtual ~ExternalLoadControllerBase()
+        {
+        }
 
         /**************************************************************************/
         virtual MatrixDim stress(const VectorDim&) const = 0;

@@ -22,7 +22,7 @@ namespace model
 {
     
     template <int dim>
-    struct LatticeVector : public Eigen::Matrix<long int,dim,1>
+    class LatticeVector : public Eigen::Matrix<long int,dim,1>
     {
         static_assert(dim>0,"dim must be > 0.");
         

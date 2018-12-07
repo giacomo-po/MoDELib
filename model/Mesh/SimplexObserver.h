@@ -20,7 +20,7 @@ namespace model
 {
 
     template<int dim>
-    struct SimplicialMesh;
+    class SimplicialMesh;
 
     template<short int dim,short int order>
     struct SimplexObserverBase;

@@ -271,10 +271,10 @@ namespace model
                                     std::cout<<"The node to which expansion is taking place is"<<link.second->sink->virtualBoundaryNode()->sID<<std::endl;
                                     for(const auto& pair: link.second->source->virtualBoundaryNode()->linksByLoopID())
                                     {
-                                        VectorDim N1 = (*pair.second.begin())->loop()->rightHandedUnitNormal();
-                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
-                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->rightHandedUnitNormal();
-                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
+//                                        VectorDim N1 = (*pair.second.begin())->loop()->rightHandedUnitNormal();
+//                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
+//                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->rightHandedUnitNormal();
+//                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
                                         //									if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
                                         //									{
                                         //										std::cout<<"New loop needs to be merged on sink"<<std::endl;

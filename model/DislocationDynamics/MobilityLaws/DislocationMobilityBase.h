@@ -18,9 +18,7 @@
 #include <assert.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-//#include <BCClattice.h>
-//#include <FCClattice.h>
-#include <MPIcout.h> // defines mode::cout
+#include <MPIcout.h> // defines model::cout
 #include <TerminalColors.h> // defines mode::cout
 #include <MaterialBase.h>
 
@@ -73,11 +71,16 @@ namespace model
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         
+        /**********************************************************************/
         DislocationMobilityBase(const std::string& name)
         {
             model::cout<<greenBoldColor<<"Creating "<<name<<defaultColor<<std::endl;
         }
         
+        /**********************************************************************/
+        virtual ~DislocationMobilityBase(){};
+        
+        /**********************************************************************/
         virtual double velocity(const MatrixDim& S,
                                 const VectorDim& b,
                                 const VectorDim& , // xi
@@ -87,11 +90,7 @@ namespace model
                                 const double& dt,
                                 const bool& use_stochasticForce) const=0 ;
         
-        //        virtual ~DislocationMobilityBase(){};
     };
-    
-
-    
     
 }
 #endif

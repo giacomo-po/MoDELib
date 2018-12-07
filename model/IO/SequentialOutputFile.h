@@ -40,7 +40,7 @@ namespace model {
     template <char prefix, bool autoDelete=true>
     class SequentialOutputFile : public StaticID<SequentialOutputFile<prefix,autoDelete> >,
     //    /*                        */ public std::ofstream {
-    /*                        */ private std::ofstream
+    /*                        */ public std::ofstream
     {
         
 
@@ -172,43 +172,43 @@ namespace model {
 #endif
         }
         
-        /**********************************************************************/
-        template <typename T>
-        SequentialOutputFile<prefix,autoDelete>& operator<< (const T& os)
-        {
-#ifdef _MODEL_MPI_
-//            int mpiRank;
-//            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
-            if(mpiRank==0)
-            {
-                *static_cast<std::ofstream* const>(this)<<os;
-            }
-#else
-            *static_cast<std::ofstream* const>(this)<<os;
-
-#endif
-            
-            //            std::ofstream::operator<<(os);
-            return *this;
-        }
+//        /**********************************************************************/
+//        template <typename T>
+//        SequentialOutputFile<prefix,autoDelete>& operator<< (const T& os)
+//        {
+//#ifdef _MODEL_MPI_
+////            int mpiRank;
+////            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
+//            if(mpiRank==0)
+//            {
+//                *static_cast<std::ofstream* const>(this)<<os;
+//            }
+//#else
+//            *static_cast<std::ofstream* const>(this)<<os;
+//
+//#endif
+//
+//            //            std::ofstream::operator<<(os);
+//            return *this;
+//        }
         
-        /**********************************************************************/
-        SequentialOutputFile<prefix,autoDelete>& operator<<(StlEndl manip)
-        {/*! Overload << for Std::endl
-          */
-#ifdef _MODEL_MPI_
-//            int mpiRank;
-//            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
-            if(mpiRank==0)
-            {
-                manip(*static_cast<std::ofstream* const>(this));
-            }
-#else
-            manip(*static_cast<std::ofstream* const>(this));
-            
-#endif            
-            return *this;
-        }
+//        /**********************************************************************/
+//        SequentialOutputFile<prefix,autoDelete>& operator<<(StlEndl manip)
+//        {/*! Overload << for Std::endl
+//          */
+//#ifdef _MODEL_MPI_
+////            int mpiRank;
+////            MPI_Comm_rank(MPI_COMM_WORLD,&mpiRank);
+//            if(mpiRank==0)
+//            {
+//                manip(*static_cast<std::ofstream* const>(this));
+//            }
+//#else
+//            manip(*static_cast<std::ofstream* const>(this));
+//
+//#endif
+//            return *this;
+//        }
         
     };
     

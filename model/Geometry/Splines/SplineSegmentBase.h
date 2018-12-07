@@ -46,8 +46,8 @@ namespace model
 
         typedef std::map<size_t,
         /*            */ std::pair<VectorNcoeff,VectorDim>,
-        /*            */ std::less<size_t>,
-        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*            */ std::less<size_t>
+//        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
         /*            */ > H2PmapType;
         
         /**********************************************************************/

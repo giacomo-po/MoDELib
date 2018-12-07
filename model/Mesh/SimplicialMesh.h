@@ -44,8 +44,8 @@ namespace model
     /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>, // value
     /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
-    /*                                */ SimplexTraits<_dim,_dim>::nVertices>, // key compare
-    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
+    /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
+//    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
     /*                                */ >,
     /*                  */ public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
     {
@@ -65,8 +65,8 @@ namespace model
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
         /*            */ const Simplex<dim,dim>, // value
         /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,dim>::ScalarIDType,
-        /*                                      */ SimplexTraits<dim,dim>::nVertices>, // key compare
-        /*            */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
+        /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
+//        /*            */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
         /*            */ >  SimplexMapType;
         
         //        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;

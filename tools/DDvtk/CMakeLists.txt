@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 
-PROJECT(DDvtk)
+PROJECT(DDvtk CXX)
 
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})

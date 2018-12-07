@@ -163,11 +163,7 @@ namespace model
             model::cout<<"Assembling penalty constraints..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             const double K(pf*A.norm()/A.nonZeros());
-            const size_t cSize(lhs.trialExpr.trial().dirichletConditions().size());
-            
-//            for (typename DirichletConditionContainerType::const_iterator cIter =lhs.trialExpr.trial().dirichletConditions().begin();
-//                 /*                                                    */ cIter!=lhs.trialExpr.trial().dirichletConditions().end();
-//                 /*                                                    */ cIter++)
+
             for (const auto& cIter : TrialBase<TrialFunctionType>::dirichletConditions())
             {
                 const size_t& i(cIter.first);

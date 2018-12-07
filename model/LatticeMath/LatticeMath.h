@@ -22,13 +22,13 @@ namespace model
     class ReciprocalLatticeVector;
 
     template <int dim>
-    class LatticeDirection;
+    struct LatticeDirection;
     
     template <int dim>
-    class ReciprocalLatticeDirection;
+    struct ReciprocalLatticeDirection;
     
-    class LatticePlane;
-    class LatticeLine;
+    struct LatticePlane;
+    struct LatticeLine;
 //    class PlaneLineIntersection;
 
 } // end namespace

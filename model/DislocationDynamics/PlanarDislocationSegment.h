@@ -101,8 +101,8 @@ namespace model
         
         std::map<size_t,
         /*    */ std::pair<VectorNcoeff,VectorDim>,
-        /*    */ std::less<size_t>,
-        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        /*    */ std::less<size_t>
+//        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
         /*    */ > h2posMap;
         Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         MatrixNdof Kqq; //! Segment Stiffness Matrix

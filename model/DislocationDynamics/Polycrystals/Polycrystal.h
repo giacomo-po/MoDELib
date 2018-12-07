@@ -121,18 +121,18 @@ namespace model
             }
             
             
-            if(grainBoundaryDislocations().size())
-            {
-                model::SequentialOutputFile<'B',1>::set_count(0);
-                model::SequentialOutputFile<'B',1>::set_increment(1);
-                model::SequentialOutputFile<'B',true> stressStraightFile;
-                size_t n=0;
-                for(const auto& sStraight : grainBoundaryDislocations())
-                {
-                    stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
-                    n++;
-                }
-            }
+//            if(grainBoundaryDislocations().size())
+//            {
+//                model::SequentialOutputFile<'B',1>::set_count(0);
+//                model::SequentialOutputFile<'B',1>::set_increment(1);
+//                model::SequentialOutputFile<'B',true> stressStraightFile;
+//                size_t n=0;
+//                for(const auto& sStraight : grainBoundaryDislocations())
+//                {
+//                    stressStraightFile<<n<<"\t"<<sStraight.P0.transpose()<<"\t"<<sStraight.P1.transpose()<<"\t"<<sStraight.b.transpose()<<std::endl;
+//                    n++;
+//                }
+//            }
             
         }
         
