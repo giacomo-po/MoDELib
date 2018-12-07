@@ -143,7 +143,7 @@ namespace model
                         std::set<size_t> removeLoops;
                         for(const auto& loop : this->loops())
                         {
-                            if(loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4)
+                            if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
                             {// clean up left over loops from topological operations
                                 removeLoops.insert(loop.second->sID);
                             }

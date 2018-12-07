@@ -57,12 +57,12 @@ outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
-outputMeshDisplacement=1;
+outputMeshDisplacement=0;
 outputFEMsolution=1;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 

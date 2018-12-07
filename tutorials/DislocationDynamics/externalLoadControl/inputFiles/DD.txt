@@ -60,7 +60,7 @@ outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 

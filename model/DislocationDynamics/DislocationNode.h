@@ -493,11 +493,11 @@ namespace model
         ~DislocationNode()
         {
             VerboseDislocationNode(1,"Destroying DislocationNode "<<this->sID<<" ("<<this<<")"<<std::endl;);
-            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
-            if(virtualNode)
-            {
-                this->network().remove(virtualNode->sID);
-            }
+//            VerboseDislocationNode(2,"DislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
+//            if(virtualNode)
+//            {
+//                this->network().remove(virtualNode->sID);
+//            }
         }
         
         /**********************************************************************/

@@ -42,7 +42,7 @@ namespace model
         double _slippedArea;
         Eigen::Matrix<double,dim,1> _rightHandedUnitNormal;
         ReciprocalLatticeDirection<dim> _rightHandedNormal;
-
+        
         
         template <typename T>
         static int sgn(const T& val)
@@ -181,13 +181,13 @@ namespace model
             }
         }
         
-//        /**********************************************************************/
-//        VectorDim diracStringDirection(const VectorDim& x) const
-//        {
-//            VectorDim temp(VectorDim::Zero());
-//
-//            return temp;
-//        }
+        //        /**********************************************************************/
+        //        VectorDim diracStringDirection(const VectorDim& x) const
+        //        {
+        //            VectorDim temp(VectorDim::Zero());
+        //
+        //            return temp;
+        //        }
         
         /**********************************************************************/
         static double planarSolidAngle(const VectorDim& x,
@@ -232,7 +232,7 @@ namespace model
             }
             return temp;
         }
-    
+        
         /**********************************************************************/
         double solidAngle(const VectorDim& x) const
         {
@@ -249,40 +249,40 @@ namespace model
                     }
                     temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
                     
-//                    const double posNorm((x-glidePlane->P).norm());
-//                    const double dotProd((x-glidePlane->P).dot(rightHandedUnitNormal()));
-//                    if(std::fabs(dotProd)>FLT_EPSILON*posNorm)
-//                    {// x is outside the plane of the loop
-//                        const VectorDim s(sgn(dotProd)*rightHandedUnitNormal()); // s points along +n for points above, and along -n for points below
-//                        for(const auto& loopLink : this->links())
-//                        {
-//                            VectorDim e1(loopLink.second->source()->get_P()-x);
-//                            const double e1Norm(e1.norm());
-//                            if(e1Norm>FLT_EPSILON)
-//                            {
-//                                e1/=e1Norm;
-//                                VectorDim Y1(loopLink.second->sink()->get_P()-x);
-//                                const double Y1norm(Y1.norm());
-//                                if(Y1norm>FLT_EPSILON)
-//                                {
-//                                    Y1/=Y1norm;
-//                                    VectorDim e3(e1.cross(Y1));
-//                                    const double e3Norm(e3.norm());
-//                                    if(e3Norm>FLT_EPSILON)
-//                                    {// e1 and Y1 are not align. If they are the projection on the unit sphere is a point and therefore there is no contribution to solid angle
-//                                        e3/=e3Norm; // normalize e3
-//                                        const VectorDim e2(e3.cross(e1));
-//                                        const double ydy(e1.dot(Y1));
-//                                        const double w=sqrt((1.0-ydy)/(1.0+ydy));
-//                                        const double oneA2=sqrt(1.0+DislocationStress<dim>::a2);
-//                                        const double s3(s.dot(e3));
-//                                        const double s3A2=sqrt(std::pow(s3,2)+DislocationStress<dim>::a2);
-//                                        temp+=2.0*s3/oneA2/s3A2*atan(s3A2*w/(oneA2-s.dot(e1)-s.dot(e2)*w));
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
+                    //                    const double posNorm((x-glidePlane->P).norm());
+                    //                    const double dotProd((x-glidePlane->P).dot(rightHandedUnitNormal()));
+                    //                    if(std::fabs(dotProd)>FLT_EPSILON*posNorm)
+                    //                    {// x is outside the plane of the loop
+                    //                        const VectorDim s(sgn(dotProd)*rightHandedUnitNormal()); // s points along +n for points above, and along -n for points below
+                    //                        for(const auto& loopLink : this->links())
+                    //                        {
+                    //                            VectorDim e1(loopLink.second->source()->get_P()-x);
+                    //                            const double e1Norm(e1.norm());
+                    //                            if(e1Norm>FLT_EPSILON)
+                    //                            {
+                    //                                e1/=e1Norm;
+                    //                                VectorDim Y1(loopLink.second->sink()->get_P()-x);
+                    //                                const double Y1norm(Y1.norm());
+                    //                                if(Y1norm>FLT_EPSILON)
+                    //                                {
+                    //                                    Y1/=Y1norm;
+                    //                                    VectorDim e3(e1.cross(Y1));
+                    //                                    const double e3Norm(e3.norm());
+                    //                                    if(e3Norm>FLT_EPSILON)
+                    //                                    {// e1 and Y1 are not align. If they are the projection on the unit sphere is a point and therefore there is no contribution to solid angle
+                    //                                        e3/=e3Norm; // normalize e3
+                    //                                        const VectorDim e2(e3.cross(e1));
+                    //                                        const double ydy(e1.dot(Y1));
+                    //                                        const double w=sqrt((1.0-ydy)/(1.0+ydy));
+                    //                                        const double oneA2=sqrt(1.0+DislocationStress<dim>::a2);
+                    //                                        const double s3(s.dot(e3));
+                    //                                        const double s3A2=sqrt(std::pow(s3,2)+DislocationStress<dim>::a2);
+                    //                                        temp+=2.0*s3/oneA2/s3A2*atan(s3A2*w/(oneA2-s.dot(e1)-s.dot(e2)*w));
+                    //                                    }
+                    //                                }
+                    //                            }
+                    //                        }
+                    //                    }
                 }
             }
             else
@@ -303,7 +303,7 @@ namespace model
                 const double rhN0norm(rhN0.norm());
                 if(rhN0norm>FLT_EPSILON)
                 {
-                  temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
+                    temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
                 }
                 
                 std::vector<std::pair<VectorDim,VectorDim>> triangle1;
@@ -330,13 +330,31 @@ namespace model
         {
             return glidePlane.get()==nullptr;
         }
-
+        
+        /**********************************************************************/
+        bool isPureVirtualBoundaryLoop() const
+        {
+            bool temp(isVirtualBoundaryLoop());
+            if(temp)
+            {
+                for(const auto& link : this->links())
+                {
+                    temp*=link.second->pLink->isVirtualBoundarySegment();
+                    if(!temp)
+                    {
+                        break;
+                    }
+                }
+            }
+            return temp;
+        }
+        
         /**********************************************************************/
         VectorDim burgers() const
         {
             return this->flow().cartesian();
         }
-
+        
         /**********************************************************************/
         void updateGeometry()
         {
@@ -353,18 +371,17 @@ namespace model
                         nA+= 0.5*(loopLink.second->source()->get_P()-P0).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
                     }
                 }
-
-
-//                nA=nnDot*glidePlane->unitNormal;
-//                nA=nA.dot(glidePlane->n.cartesian().normalized())*glidePlane->n.cartesian().normalized();
-            
+                
+                
+                //                nA=nnDot*glidePlane->unitNormal;
+                //                nA=nA.dot(glidePlane->n.cartesian().normalized())*glidePlane->n.cartesian().normalized();
+                
                 _slippedArea=nA.norm();
                 _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
-
+                
                 const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
                 _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
             }
-            
         }
         
         /**********************************************************************/

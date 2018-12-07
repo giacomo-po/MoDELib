@@ -229,6 +229,21 @@ namespace model
             }
             return temp;
         }
+
+        /**********************************************************************/
+        bool isIsolated() const
+        {
+            bool temp(true);
+            for(const auto& link : links())
+            {
+                temp*=(link.second->pLink->loopLinks().size()==1);
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
         
         /**********************************************************************/
         void printLoop() const

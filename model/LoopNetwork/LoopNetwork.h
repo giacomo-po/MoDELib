@@ -697,12 +697,13 @@ namespace model
                     const auto& set(pair.second);
                     if(set.size()!=2)
                     {
-                        std::cout<<"LoopNetwork::remove "<<nodeID<<std::endl;
+                        std::cout<<"FATAL ERROR. LoopNetwork::remove "<<nodeID<<std::endl;
                         std::cout<<"loop "<<pair.first<<" has "<<set.size()<<" links"<<std::endl;
                         for(const auto& temp : set)
                         {
                             std::cout<<temp->tag()<<std::endl;
                         }
+                        std::cout<<"EXITING."<<std::endl;
                         exit(EXIT_FAILURE);
                     }
                     LoopLinkType* const link0(*set.begin());
