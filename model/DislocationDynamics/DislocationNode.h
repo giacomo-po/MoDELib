@@ -378,8 +378,7 @@ namespace model
                 }
             }
             if(!temp.first) // DislocationNode not found inside mesh
-            {
-                // Detect if the DislocationNode is sligtly outside the boundary
+            {// Detect if the DislocationNode is sligtly outside the boundary
                 int faceID;
                 const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
                 const bool isApproxOnBoundary(std::fabs(baryMin)<1.0e3*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
@@ -410,8 +409,8 @@ namespace model
         VectorDofType vOld;
         double velocityReductionCoeff;
         //! The normal unit vector of the boundary on which *this DislocationNode is moving on
-        bool _isOnBoundingBox;
         VectorDim boundaryNormal;
+        bool _isOnBoundingBox;
         std::shared_ptr<NodeType> virtualNode;
         
     public:
@@ -444,8 +443,8 @@ namespace model
         /* init */,velocity(Vin)
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(vrc)
-        /* init */,_isOnBoundingBox(false)
         /* init */,boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol))
+        /* init */,_isOnBoundingBox(boundaryNormal.squaredNorm()>FLT_EPSILON)
         /* init */,masterNode(nullptr)
         /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from DOF
@@ -462,8 +461,8 @@ namespace model
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction()))
-        /* init */,_isOnBoundingBox(pL.isBoundarySegment())
         /* init */,boundaryNormal(SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol) )
+        /* init */,_isOnBoundingBox(pL.isBoundarySegment())
         /* init */,masterNode(nullptr)
         /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from ExpandingEdge and DOF
@@ -481,8 +480,8 @@ namespace model
         /* init */,velocity(VectorDim::Zero())
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(1.0)
-        /* init */,_isOnBoundingBox(false)
         /* init */,boundaryNormal(VectorDim::Zero())
+        /* init */,_isOnBoundingBox(false)
         /* init */,masterNode(master)
         /* init */,isVirtualBoundaryNode(true)
         {/*! Constructor from DOF

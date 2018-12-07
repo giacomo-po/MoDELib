@@ -66,7 +66,7 @@ namespace model
             
             Eigen::MatrixXd temp;
             
-            if ( std::fabs(coeffsIN(0))>FLT_EPSILON )
+            if ( std::fabs(coeffsIN(0))>FLT_EPSILON)
             {
                 temp=MatrixPorder::Zero();
                 temp.row(0)=coeffsIN.template segment<pOrder>(1)/(-coeffsIN(0));

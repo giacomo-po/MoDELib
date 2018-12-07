@@ -547,7 +547,23 @@ namespace model
                 else
                 {
                     model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
-                    const size_t newLoopID=DN.insertLoop(nodeIDs,loop.B,loop.grainID)->sID;
+                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
+                    for(const size_t nodeID : nodeIDs)
+                    {// collect
+                        const auto isNode(DN.node(nodeID));
+                        assert(isNode.first);
+                        if(isNode.second->masterNode)
+                        {// a virtual node
+                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+                        }
+                        else
+                        {
+                            const auto isSharedNode(DN.sharedNode(nodeID));
+                            assert(isSharedNode.first);
+                            sharedNodes.push_back(isSharedNode.second);
+                        }
+                    }
+                    const size_t newLoopID=DN.insertLoop(sharedNodes,loop.B,loop.grainID)->sID;
                     assert(loop.sID==newLoopID);
                 }
                 loopLumber++;
