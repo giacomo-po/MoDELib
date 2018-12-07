@@ -7,8 +7,8 @@
  */
 
 
-#ifndef model_HexLattice_H_
-#define model_HexLattice_H_
+#ifndef model_HEXlattice_H_
+#define model_HEXlattice_H_
 
 #include <vector>
 #include <Eigen/Dense>
