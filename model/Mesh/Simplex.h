@@ -15,8 +15,8 @@
 #include <vector>
 #include <float.h>
 #include <Eigen/Dense>
-#include <SimplexReader.h>
 #include <SimplexTraits.h>
+#include <SimplexReader.h>
 #include <SimplexObserver.h>
 #include <SimplexBase.h>
 #include <SimplexChild.h>

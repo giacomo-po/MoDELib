@@ -31,6 +31,14 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 						   		0.0 0.0 0.0;
 
 #######################################
+# Circular loops
+targetCircularLoopDensity=1e13;
+circularLoopRadiusMean=1e-7;
+circularLoopRadiusStd=0.0;     
+circularLoopSides=10;
+
+
+#######################################
 # Irradiation loops
 targetIrradiationLoopDensity=0e21;
 averageLoopSize=6.1e-9;

@@ -16,9 +16,8 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 
-#include <Polycrystal.h> // defines mode::cout
-//#include <EigenDataReader.h>
-#include <SimplicialMesh.h> // defines mode::cout
+#include <SimplicialMesh.h>
+#include <Polycrystal.h>
 #include <Material.h>
 #include <LatticeMath.h>
 #include <PlaneMeshIntersection.h>
@@ -759,6 +758,62 @@ namespace model
         }
         
         /**********************************************************************/
+        void addCircularLoops()
+        {
+            if(targetCircularLoopDensity>0.0)
+            {
+                std::cout<<greenBoldColor<<"Generating circular loops"<<defaultColor<<std::endl;
+                double density=0.0;
+                while(density<targetCircularLoopDensity)
+                {
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
+                    const VectorDimD P0(L0.cartesian());
+                    const int grainID=rp.second;
+                    
+                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
+                    const int rSS=distribution(generator); // a random SlipSystem
+                    const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+                    const VectorDimD b(slipSystem.s.cartesian());
+                    const VectorDimD sessileAxis(b.normalized());
+                    
+                    // Compute the ReciprocalLatticeDirection corresponding to s
+                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
+                    
+                    std::normal_distribution<double> sizeDistribution(circularLoopRadiusMean/poly.b_SI,circularLoopRadiusStd/poly.b_SI);
+                    const double radius(sizeDistribution(generator));
+                    
+                    std::vector<VectorDimD> nodePos;
+                    for(int k=0;k<circularLoopSides;++k)
+                    {
+                        // Sessile loop
+                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/circularLoopSides, sessileAxis)*slipSystem.unitNormal*radius);
+                        
+                    }
+                    
+                    if(allPointsInGrain(nodePos,grainID))
+                    {
+                        for(size_t k=0;k<circularLoopSides;++k)
+                        {
+                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+                            nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                        }
+                        loopsIO.emplace_back(loopID+0, b,sessileAxis,P0,grainID);  // write loop file
+                        nodeID+=nodePos.size();
+                        loopID+=1;
+                        snID+=1;
+                        density += 2.0*radius*sin(M_PI/circularLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
+                        std::cout<<"circular loop density="<<density<<std::endl;
+                    }
+
+                }
+
+            }
+            
+        }
+        
+        /**********************************************************************/
         void addEshelbyInclusions()
         {
             
@@ -889,6 +944,12 @@ namespace model
         const std::vector<double> straightDislocationsAngleFromScrewOrientation;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> pointsAlongStraightDislocations;
         
+        // Circular  Loops
+        const double targetCircularLoopDensity;
+        const double circularLoopRadiusMean;
+        const double circularLoopRadiusStd;
+        const double circularLoopSides;
+
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
         const double averageLoopSize;
@@ -930,7 +991,6 @@ namespace model
         /* init*/,FrankReadSizeStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeStd",true))
         /* init*/,FrankReadAspectRatioMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioMean",true))
         /* init*/,FrankReadAspectRatioStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioStd",true))
-        
         /* Single-arm sources */
         /* init*/,targetSingleArmDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSingleArmDislocationDensity",true))
         /* Prismatic loops */
@@ -939,6 +999,11 @@ namespace model
         /* init*/,straightDislocationsSlipSystemIDs(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<int>("straightDislocationsSlipSystemIDs",true))
         /* init*/,straightDislocationsAngleFromScrewOrientation(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("straightDislocationsAngleFromScrewOrientation",true))
         /* init*/,pointsAlongStraightDislocations(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("pointsAlongStraightDislocations",straightDislocationsSlipSystemIDs.size(),dim,true))
+        /* Circular Loops */
+        /* init*/,targetCircularLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetCircularLoopDensity",true))
+        /* init*/,circularLoopRadiusMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusMean",true))
+        /* init*/,circularLoopRadiusStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusStd",true))
+        /* init*/,circularLoopSides(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("circularLoopSides",true))
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
         /* init*/,averageLoopSize(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true))
@@ -969,6 +1034,7 @@ namespace model
             addSingleArmDislocations();
             addPrismaticLoops();
             addIndividualStraightDislocations();
+            addCircularLoops();
             addIrradiationLoops();
             addStackingFaultTetrahedra();
             addEshelbyInclusions();
