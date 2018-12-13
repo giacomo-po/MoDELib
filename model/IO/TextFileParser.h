@@ -222,6 +222,7 @@ namespace model
 
             std::string line;
             std::string lines;
+            std::string comment;
             std::vector<Scalar> array;
             bool success=false;
             
@@ -230,12 +231,12 @@ namespace model
                 
                 const std::size_t foundKey=line.find(key);
                 const std::size_t foundEqual=line.find("=");
-                const std::size_t foundPound=line.find("#");
+//                const std::size_t foundPound=line.find("#");
                 
                 if(   foundKey!=std::string::npos
                    && foundEqual!=std::string::npos
                    && foundKey<foundEqual
-                   && foundPound==std::string::npos
+//                   && foundPound==std::string::npos
                    )
                 {
                     lines+=line;
@@ -262,6 +263,13 @@ namespace model
                                         
                     if(success)
                     {
+                        const std::size_t foundPound=line.find("#");
+                        if(foundPound!=std::string::npos)
+                        {
+                            comment=lines.substr(foundPound,lines.size()-foundPound);
+                        }
+
+                        
                         Scalar temp(0.0);
                         std::stringstream ss(lines.substr(foundEqual+1,foundSemiCol-foundEqual-1));
                         while (ss >> temp)
@@ -285,9 +293,9 @@ namespace model
                 std::cout<<key<<"=";
                 for(const auto& val : array)
                 {
-                    std::cout<<val<<" ";
+                    std::cout<<" "<<val;
                 }
-                std::cout<<std::endl;
+                std::cout<<"; "<<comment<<std::endl;
                 
             }
             

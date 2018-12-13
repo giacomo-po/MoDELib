@@ -261,7 +261,7 @@ namespace model
                     
                     LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));
                     double d1cNorm(d1.cartesian().norm());
-                    //                    const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
+                    //                    const double size = distribution(generator)*inclusionsDiameterLognormalDistribution_A[f]/poly.b_SI;
                     
                     int a1=sizeDistribution(generator)/d1cNorm;
                     if(a1>0)
@@ -774,7 +774,8 @@ namespace model
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
+//                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
+                    const VectorDimD b(poly.grain(grainID).latticeDirection(slipSystem.n.cartesian()).cartesian()); // Frank loop
                     const VectorDimD sessileAxis(b.normalized());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
@@ -830,9 +831,9 @@ namespace model
                 
                 if(totalDensity)
                 {
-                    assert(targetInclusionDensities.size()==inclusionsDistribution_alpha.size());
-                    assert(targetInclusionDensities.size()==inclusionsDistribution_beta.size());
-                    assert(targetInclusionDensities.size()==inclusionsDistribution_lambda.size());
+                    assert(targetInclusionDensities.size()==inclusionsDiameterLognormalDistribution_M.size());
+                    assert(targetInclusionDensities.size()==inclusionsDiameterLognormalDistribution_S.size());
+                    assert(targetInclusionDensities.size()==inclusionsDiameterLognormalDistribution_A.size());
                     assert(int(targetInclusionDensities.size())==inclusionsTransformationStrains.rows());
                     assert(int(targetInclusionDensities.size())==inclusionsPatterns.rows());
                     
@@ -847,9 +848,9 @@ namespace model
                     {
                         if(   targetInclusionDensities[f]>0.0)
                         {
-                            assert(inclusionsDistribution_alpha[f]>0.0);
-                            assert(inclusionsDistribution_beta[f]>0.0);
-                            assert(inclusionsDistribution_lambda[f]>0.0);
+                            assert(inclusionsDiameterLognormalDistribution_M[f]>0.0);
+                            assert(inclusionsDiameterLognormalDistribution_S[f]>0.0);
+                            assert(inclusionsDiameterLognormalDistribution_A[f]>0.0);
                             
                             const VectorDimD currentPattern(inclusionsPatterns.row(f)/poly.b_SI); // normalize to length units
                             const double patternHeigth(currentPattern.norm());
@@ -858,13 +859,12 @@ namespace model
                             
                             double numberDensity=0.0;
                             
+                            std::lognormal_distribution<double> distribution(log(inclusionsDiameterLognormalDistribution_M[f]/inclusionsDiameterLognormalDistribution_A[f]),inclusionsDiameterLognormalDistribution_S[f]);
+
                             while(numberDensity<targetInclusionDensities[f])
                             {
-                                
-                                //                        std::default_random_engine generator;
-                                std::gamma_distribution<double> distribution(inclusionsDistribution_alpha[f],inclusionsDistribution_beta[f]);
-                                
-                                const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
+                                const double diameter = distribution(generator)*inclusionsDiameterLognormalDistribution_A[f]/poly.b_SI;
+                                const double radius(0.5*diameter);
                                 std::pair<LatticeVector<dim>,int> pointPair=randomPointInMesh();
                                 VectorDimD P=pointPair.first.cartesian();
                                 const int& grainID(pointPair.second);
@@ -881,7 +881,7 @@ namespace model
                                 bool isGoodPosition=mesh.searchRegion(grainID,P).first;
                                 for(const auto& pair : existingPrecipitates)
                                 {
-                                    isGoodPosition *= (P-pair.second).norm()>pair.first+size;
+                                    isGoodPosition *= (P-pair.second).norm()>pair.first+radius;
                                     if(!isGoodPosition)
                                     {
                                         break;
@@ -892,14 +892,14 @@ namespace model
                                 {
                                     inclusionsfile<<inclusionID
                                     /*          */<<" "<<P.transpose()
-                                    /*          */<<" "<<size
+                                    /*          */<<" "<<radius
                                     /*          */<<" "<<inclusionsTransformationStrains.row(f)
                                     /*          */<<" "<<f
                                     /*          */<<"\n";
                                     
                                     numberDensity+=1.0/mesh.volume()/std::pow(poly.b_SI,3);
                                     inclusionID++;
-                                    existingPrecipitates.emplace_back(size,P);
+                                    existingPrecipitates.emplace_back(radius,P);
                                     
                                     std::cout<<"inclusions density="<<numberDensity<<std::endl;
                                 }
@@ -963,18 +963,21 @@ namespace model
         
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
-        const double averageLoopSize;
+//        const double averageLoopSize;
+        const double irradiationLoopsDiameterLognormalDistribution_M;
+        const double irradiationLoopsDiameterLognormalDistribution_S;
+        const double irradiationLoopsDiameterLognormalDistribution_A;
         const double fraction111Loops;  // fraction of [111] glissile loop;
         const bool mobile111Loops;
-        
+                                 
         // SFTs
         const double targetSFTdensity;
         
         // Inclusions
         const std::vector<double> targetInclusionDensities;
-        const std::vector<double> inclusionsDistribution_alpha;
-        const std::vector<double> inclusionsDistribution_beta;
-        const std::vector<double> inclusionsDistribution_lambda;
+        const std::vector<double> inclusionsDiameterLognormalDistribution_M;
+        const std::vector<double> inclusionsDiameterLognormalDistribution_S;
+        const std::vector<double> inclusionsDiameterLognormalDistribution_A;
         const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
         //        const std::vector<double> inclusionsMobilityReduction;
@@ -1017,16 +1020,18 @@ namespace model
         /* init*/,circularLoopSides(targetCircularLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("circularLoopSides",true) : 0.0)
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
-        /* init*/,averageLoopSize(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true) : 0.0)
+        /* init*/,irradiationLoopsDiameterLognormalDistribution_M(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_M",true) : 0.0)
+        /* init*/,irradiationLoopsDiameterLognormalDistribution_S(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_S",true) : 0.0)
+        /* init*/,irradiationLoopsDiameterLognormalDistribution_A(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_A",true) : 0.0)
         /* init*/,fraction111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true) : 0.0)
         /* init*/,mobile111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true) : 0.0)
         /* SFTs */
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
-        /* init*/,inclusionsDistribution_alpha(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_alpha",true))
-        /* init*/,inclusionsDistribution_beta(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_beta",true))
-        /* init*/,inclusionsDistribution_lambda(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_lambda",true))
+        /* init*/,inclusionsDiameterLognormalDistribution_M(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_M",true))
+        /* init*/,inclusionsDiameterLognormalDistribution_S(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_S",true))
+        /* init*/,inclusionsDiameterLognormalDistribution_A(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_A",true))
         /* init*/,inclusionsTransformationStrains(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsTransformationStrains",targetInclusionDensities.size(),dim*dim,true))
         /* init*/,inclusionsPatterns(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true))
         //        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
@@ -1173,7 +1178,8 @@ namespace model
                     size_t ndefects=0;
                     double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
                     //                    int NP=6;
-                    
+                    std::lognormal_distribution<double> distribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+
                     while(defectsDensity<targetIrradiationLoopDensity)
                     {
                         const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -1188,7 +1194,11 @@ namespace model
                             const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                             const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
                             const VectorDimD a=b.normalized();
-                            const double radius(std::round(0.5*averageLoopSize/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0)); // 2.0*sqrt(2.0)/3.0 is the minimum radius inits of b.
+                            
+                            const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                            const double radius_SI(0.5*diameter_SI);
+                            const double radius(std::round(radius_SI/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0)); // radius must be an integer multiple of 2.0*sqrt(2.0)/3.0, or lateral sides will not be on glide planes
+                            
                             if(radius>0.0)
                             {
                                 std::vector<VectorDimD> points;
@@ -1256,14 +1266,15 @@ namespace model
                             LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
                             LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
                             
-                            double a1=0.5*averageLoopSize/poly.b_SI;
-                            double a2=0.5*averageLoopSize/poly.b_SI;
+                            const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                            double a1=diameter_SI/poly.b_SI;
+                            double a2=diameter_SI/poly.b_SI;
                             
                             std::vector<VectorDimD> points;
                             points.push_back(P0);
-                            points.push_back(P0+d1.cartesian()*a1);
-                            points.push_back(P0+d1.cartesian()*a1+d2.cartesian()*a2);
-                            points.push_back(P0+d2.cartesian()*a2);
+                            points.push_back(P0+d1.cartesian().normalized()*a1);
+                            points.push_back(P0+d1.cartesian().normalized()*a1+d2.cartesian().normalized()*a2);
+                            points.push_back(P0+d2.cartesian().normalized()*a2);
                             
                             // make sure it is interstitial
                             VectorDimD Cycle_plane=d1.cartesian().cross(d2.cartesian());
