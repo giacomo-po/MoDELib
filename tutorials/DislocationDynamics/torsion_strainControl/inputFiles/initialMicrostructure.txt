@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e12;
+targetStraightDislocationDensity=0e12;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -32,11 +32,10 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 
 #######################################
 # Circular loops
-targetCircularLoopDensity=1e13;
+targetCircularLoopDensity=0e13;
 circularLoopRadiusMean=1e-7;
 circularLoopRadiusStd=0.0;     
 circularLoopSides=10;
-
 
 #######################################
 # Irradiation loops
@@ -45,7 +44,6 @@ averageLoopSize=6.1e-9;
 fraction111Loops=0.5;
 mobile111Loops=0;
 
-
 #######################################
 # Stacking Fault Tetrahedra
 targetSFTdensity=0e19;
@@ -53,7 +51,7 @@ targetSFTdensity=0e19;
 #######################################
 # Eshelby Inclusions parameters
 # vector of densities, one value per family
-targetInclusionDensities=0e20 0e19;
+targetInclusionDensities=1e20 0e19;
 # vector of Gamma-distribution parameter alpha (dimensionless), one value per family
 inclusionsDistribution_alpha=4.159 4.159;
 # vector of Gamma-distribution parameter beta (dimensionless), one value per family

@@ -39,7 +39,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef LatticeDirection<dim> LatticeDirectionType;
-
+        
         typedef Eigen::Matrix<double,dim,dim>	MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>	MatrixDimI;
         typedef Material<dim,Isotropic> MaterialType;
@@ -135,7 +135,7 @@ namespace model
                 double density=0.0;
                 double sessileDensity=0.0;
                 
-                std::cout<<greenBoldColor<<"Generating straight dislocations"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating straight dislocations"<<defaultColor<<std::endl;
                 while(density<targetStraightDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -229,7 +229,7 @@ namespace model
         {
             if(targetFrankReadDislocationDensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating Frank-Read sources"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating Frank-Read sources"<<defaultColor<<std::endl;
                 
                 double density=0.0;
                 double edgeDensity=0.0;
@@ -372,12 +372,12 @@ namespace model
         {
             if(targetSingleArmDislocationDensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating single-arm sources"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating single-arm sources"<<defaultColor<<std::endl;
                 
-//                double fractionEdge=1.0; // TEMPORARY
+                //                double fractionEdge=1.0; // TEMPORARY
                 
                 double density=0.0;
-//                double edgeDensity=0.0;
+                //                double edgeDensity=0.0;
                 
                 while(density<targetSingleArmDislocationDensity)
                 {
@@ -512,7 +512,7 @@ namespace model
         {
             if(targetPrismaticLoopDensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating prismatic loops"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating prismatic loops"<<defaultColor<<std::endl;
                 
                 double density=0.0;
                 
@@ -662,7 +662,7 @@ namespace model
         {
             if(straightDislocationsSlipSystemIDs.size())
             {
-                std::cout<<greenBoldColor<<"Generating individual straight dislocations"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating individual straight dislocations"<<defaultColor<<std::endl;
                 if(straightDislocationsSlipSystemIDs.size()!=straightDislocationsAngleFromScrewOrientation.size())
                 {
                     std::cout<<"straightDislocationsSlipSystemIDs.size()="<<straightDislocationsSlipSystemIDs.size()<<std::endl;
@@ -762,7 +762,7 @@ namespace model
         {
             if(targetCircularLoopDensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating circular loops"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating circular loops"<<defaultColor<<std::endl;
                 double density=0.0;
                 while(density<targetCircularLoopDensity)
                 {
@@ -774,7 +774,7 @@ namespace model
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-                    const VectorDimD b(slipSystem.s.cartesian());
+                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
                     const VectorDimD sessileAxis(b.normalized());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
@@ -787,7 +787,7 @@ namespace model
                     for(int k=0;k<circularLoopSides;++k)
                     {
                         // Sessile loop
-                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/circularLoopSides, sessileAxis)*slipSystem.unitNormal*radius);
+                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/circularLoopSides, sessileAxis)*slipSystem.s.cartesian().normalized()*radius);
                         
                     }
                     
@@ -806,9 +806,9 @@ namespace model
                         density += 2.0*radius*sin(M_PI/circularLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"circular loop density="<<density<<std::endl;
                     }
-
+                    
                 }
-
+                
             }
             
         }
@@ -819,84 +819,95 @@ namespace model
             
             if(targetInclusionDensities.size())
             {
-                
-                assert(targetInclusionDensities.size()==inclusionsDistribution_alpha.size());
-                assert(targetInclusionDensities.size()==inclusionsDistribution_beta.size());
-                assert(targetInclusionDensities.size()==inclusionsDistribution_lambda.size());
-                assert(int(targetInclusionDensities.size())==inclusionsTransformationStrains.rows());
-                assert(int(targetInclusionDensities.size())==inclusionsPatterns.rows());
-                
-                
-                std::cout<<greenBoldColor<<"Generating Inclusions"<<defaultColor<<std::endl;
-                
-                std::ofstream inclusionsfile("E/E_0.txt");
-                std::deque<std::pair<double,VectorDimD>> existingPrecipitates;
-                
-                size_t inclusionID=0;
-                for(size_t f=0;f<targetInclusionDensities.size();++f)
+                double totalDensity(0.0);
+                for(const double& val : targetInclusionDensities)
                 {
-                    if(   targetInclusionDensities[f]>0.0)
+                    if(val>0.0)
                     {
-                        assert(inclusionsDistribution_alpha[f]>0.0);
-                        assert(inclusionsDistribution_beta[f]>0.0);
-                        assert(inclusionsDistribution_lambda[f]>0.0);
-                        
-                        const VectorDimD currentPattern(inclusionsPatterns.row(f)/poly.b_SI); // normalize to length units
-                        const double patternHeigth(currentPattern.norm());
-                        const bool applyPattern(patternHeigth>0.0);
-                        const VectorDimD patternDir(applyPattern? (currentPattern/patternHeigth).eval() : VectorDimD::Zero());
-                        
-                        double numberDensity=0.0;
-                        
-                        while(numberDensity<targetInclusionDensities[f])
+                        totalDensity+=val;
+                    }
+                }
+                
+                if(totalDensity)
+                {
+                    assert(targetInclusionDensities.size()==inclusionsDistribution_alpha.size());
+                    assert(targetInclusionDensities.size()==inclusionsDistribution_beta.size());
+                    assert(targetInclusionDensities.size()==inclusionsDistribution_lambda.size());
+                    assert(int(targetInclusionDensities.size())==inclusionsTransformationStrains.rows());
+                    assert(int(targetInclusionDensities.size())==inclusionsPatterns.rows());
+                    
+                    
+                    std::cout<<magentaBoldColor<<"Generating Inclusions"<<defaultColor<<std::endl;
+                    
+                    std::ofstream inclusionsfile("E/E_0.txt");
+                    std::deque<std::pair<double,VectorDimD>> existingPrecipitates;
+                    
+                    size_t inclusionID=0;
+                    for(size_t f=0;f<targetInclusionDensities.size();++f)
+                    {
+                        if(   targetInclusionDensities[f]>0.0)
                         {
+                            assert(inclusionsDistribution_alpha[f]>0.0);
+                            assert(inclusionsDistribution_beta[f]>0.0);
+                            assert(inclusionsDistribution_lambda[f]>0.0);
                             
-                            //                        std::default_random_engine generator;
-                            std::gamma_distribution<double> distribution(inclusionsDistribution_alpha[f],inclusionsDistribution_beta[f]);
+                            const VectorDimD currentPattern(inclusionsPatterns.row(f)/poly.b_SI); // normalize to length units
+                            const double patternHeigth(currentPattern.norm());
+                            const bool applyPattern(patternHeigth>0.0);
+                            const VectorDimD patternDir(applyPattern? (currentPattern/patternHeigth).eval() : VectorDimD::Zero());
                             
-                            const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
-                            std::pair<LatticeVector<dim>,int> pointPair=randomPointInMesh();
-                            VectorDimD P=pointPair.first.cartesian();
-                            const int& grainID(pointPair.second);
+                            double numberDensity=0.0;
                             
-                            if(applyPattern)
+                            while(numberDensity<targetInclusionDensities[f])
                             {
-                                const VectorDimD globalVector(poly.grain(grainID).C2G*currentPattern);
-                                const VectorDimD globalDir(poly.grain(grainID).C2G*patternDir);
-                                const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
-                                const VectorDimD O(pointHeigth*globalVector);
-                                P-=(P-O).dot(globalDir)*globalDir;
-                            }
-                            
-                            bool isGoodPosition=mesh.searchRegion(grainID,P).first;
-                            for(const auto& pair : existingPrecipitates)
-                            {
-                                isGoodPosition *= (P-pair.second).norm()>pair.first+size;
-                                if(!isGoodPosition)
+                                
+                                //                        std::default_random_engine generator;
+                                std::gamma_distribution<double> distribution(inclusionsDistribution_alpha[f],inclusionsDistribution_beta[f]);
+                                
+                                const double size = distribution(generator)*inclusionsDistribution_lambda[f]/poly.b_SI;
+                                std::pair<LatticeVector<dim>,int> pointPair=randomPointInMesh();
+                                VectorDimD P=pointPair.first.cartesian();
+                                const int& grainID(pointPair.second);
+                                
+                                if(applyPattern)
                                 {
-                                    break;
+                                    const VectorDimD globalVector(poly.grain(grainID).C2G*currentPattern);
+                                    const VectorDimD globalDir(poly.grain(grainID).C2G*patternDir);
+                                    const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
+                                    const VectorDimD O(pointHeigth*globalVector);
+                                    P-=(P-O).dot(globalDir)*globalDir;
                                 }
-                            }
-                            
-                            if(isGoodPosition)
-                            {
-                                inclusionsfile<<inclusionID
-                                /*          */<<" "<<P.transpose()
-                                /*          */<<" "<<size
-                                /*          */<<" "<<inclusionsTransformationStrains.row(f)
-                                /*          */<<" "<<f
-                                /*          */<<"\n";
                                 
-                                numberDensity+=1.0/mesh.volume()/std::pow(poly.b_SI,3);
-                                inclusionID++;
-                                existingPrecipitates.emplace_back(size,P);
+                                bool isGoodPosition=mesh.searchRegion(grainID,P).first;
+                                for(const auto& pair : existingPrecipitates)
+                                {
+                                    isGoodPosition *= (P-pair.second).norm()>pair.first+size;
+                                    if(!isGoodPosition)
+                                    {
+                                        break;
+                                    }
+                                }
                                 
-                                std::cout<<"inclusions density="<<numberDensity<<std::endl;
+                                if(isGoodPosition)
+                                {
+                                    inclusionsfile<<inclusionID
+                                    /*          */<<" "<<P.transpose()
+                                    /*          */<<" "<<size
+                                    /*          */<<" "<<inclusionsTransformationStrains.row(f)
+                                    /*          */<<" "<<f
+                                    /*          */<<"\n";
+                                    
+                                    numberDensity+=1.0/mesh.volume()/std::pow(poly.b_SI,3);
+                                    inclusionID++;
+                                    existingPrecipitates.emplace_back(size,P);
+                                    
+                                    std::cout<<"inclusions density="<<numberDensity<<std::endl;
+                                }
                             }
                         }
                     }
+                    inclusionsfile.close();
                 }
-                inclusionsfile.close();
             }
         }
         
@@ -949,7 +960,7 @@ namespace model
         const double circularLoopRadiusMean;
         const double circularLoopRadiusStd;
         const double circularLoopSides;
-
+        
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
         const double averageLoopSize;
@@ -966,7 +977,7 @@ namespace model
         const std::vector<double> inclusionsDistribution_lambda;
         const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
-//        const std::vector<double> inclusionsMobilityReduction;
+        //        const std::vector<double> inclusionsMobilityReduction;
         
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
@@ -984,13 +995,13 @@ namespace model
         /* init*/,poly("./inputFiles/polycrystal.txt",mesh)
         /* Straight Dislocations */
         /* init*/,targetStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetStraightDislocationDensity",true))
-        /* init*/,fractionSessileStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true))
+        /* init*/,fractionSessileStraightDislocationDensity(targetStraightDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true) : 0.0)
         /* Frank-Read sources */
         /* init*/,targetFrankReadDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetFrankReadDislocationDensity",true))
-        /* init*/,FrankReadSizeMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeMean",true))
-        /* init*/,FrankReadSizeStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeStd",true))
-        /* init*/,FrankReadAspectRatioMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioMean",true))
-        /* init*/,FrankReadAspectRatioStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioStd",true))
+        /* init*/,FrankReadSizeMean(targetFrankReadDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeMean",true) : 0.0)
+        /* init*/,FrankReadSizeStd(targetFrankReadDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeStd",true) : 0.0)
+        /* init*/,FrankReadAspectRatioMean(targetFrankReadDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioMean",true) : 0.0)
+        /* init*/,FrankReadAspectRatioStd(targetFrankReadDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadAspectRatioStd",true) : 0.0)
         /* Single-arm sources */
         /* init*/,targetSingleArmDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSingleArmDislocationDensity",true))
         /* Prismatic loops */
@@ -1001,14 +1012,14 @@ namespace model
         /* init*/,pointsAlongStraightDislocations(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("pointsAlongStraightDislocations",straightDislocationsSlipSystemIDs.size(),dim,true))
         /* Circular Loops */
         /* init*/,targetCircularLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetCircularLoopDensity",true))
-        /* init*/,circularLoopRadiusMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusMean",true))
-        /* init*/,circularLoopRadiusStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusStd",true))
-        /* init*/,circularLoopSides(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("circularLoopSides",true))
+        /* init*/,circularLoopRadiusMean(targetCircularLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusMean",true) : 0.0)
+        /* init*/,circularLoopRadiusStd(targetCircularLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("circularLoopRadiusStd",true) : 0.0)
+        /* init*/,circularLoopSides(targetCircularLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("circularLoopSides",true) : 0.0)
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
-        /* init*/,averageLoopSize(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true))
-        /* init*/,fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true))
-        /* init*/,mobile111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true))
+        /* init*/,averageLoopSize(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("averageLoopSize",true) : 0.0)
+        /* init*/,fraction111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true) : 0.0)
+        /* init*/,mobile111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true) : 0.0)
         /* SFTs */
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
@@ -1018,7 +1029,7 @@ namespace model
         /* init*/,inclusionsDistribution_lambda(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDistribution_lambda",true))
         /* init*/,inclusionsTransformationStrains(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsTransformationStrains",targetInclusionDensities.size(),dim*dim,true))
         /* init*/,inclusionsPatterns(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true))
-//        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
+        //        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
         {
             
             // Some sanity checks
@@ -1057,7 +1068,7 @@ namespace model
             
             if(targetSFTdensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
                 
                 
                 if(poly.crystalStructure=="FCC")
@@ -1154,14 +1165,14 @@ namespace model
         {
             if(targetIrradiationLoopDensity>0.0)
             {
-                std::cout<<greenBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
+                std::cout<<magentaBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
                 
                 if(poly.crystalStructure=="BCC")
                 {
                     
                     size_t ndefects=0;
                     double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-//                    int NP=6;
+                    //                    int NP=6;
                     
                     while(defectsDensity<targetIrradiationLoopDensity)
                     {
@@ -1169,7 +1180,7 @@ namespace model
                         const int& grainID=rp.second;   // random grain ID
                         const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                         const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-
+                        
                         if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops)
                         {// add [111] loops
                             std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
@@ -1232,7 +1243,7 @@ namespace model
                             sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
                             sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
                             sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
-
+                            
                             std::uniform_int_distribution<> dist(0,2);
                             typedef Eigen::Matrix<long int,2,1> Vector2I;
                             std::vector<Vector2I> sslinedirection;
