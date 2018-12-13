@@ -137,10 +137,10 @@ namespace model
             while (std::getline(*this, line))
             {
                 
-                const std::size_t foundKey=line.find(key);
-                const std::size_t foundEqual=line.find("=");
-                const std::size_t foundSemiCol=line.find(";");
-                const std::size_t foundPound=line.find("#");
+                const size_t foundKey=line.find(key);
+                const size_t foundEqual=line.find("=");
+                const size_t foundSemiCol=line.find(";");
+                const size_t foundPound=line.find("#");
 
                 
                 if(   foundKey!=std::string::npos
@@ -229,18 +229,19 @@ namespace model
             while (std::getline(*this, line))
             {
                 
-                const std::size_t foundKey=line.find(key);
-                const std::size_t foundEqual=line.find("=");
-//                const std::size_t foundPound=line.find("#");
+                const size_t foundKey=line.find(key);
+                const size_t foundEqual=line.find("=");
+                size_t foundSemiCol=line.find(";");
+                size_t foundPound=line.find("#");
                 
                 if(   foundKey!=std::string::npos
                    && foundEqual!=std::string::npos
                    && foundKey<foundEqual
-//                   && foundPound==std::string::npos
+                   && (foundPound==std::string::npos || foundPound>foundSemiCol)
                    )
                 {
                     lines+=line;
-                    std::size_t foundSemiCol=line.find(";");
+                    foundSemiCol=line.find(";");
                     
                     if(   foundSemiCol!=std::string::npos
                        && foundEqual<foundSemiCol)
@@ -263,7 +264,7 @@ namespace model
                                         
                     if(success)
                     {
-                        const std::size_t foundPound=line.find("#");
+                        foundPound=line.find("#");
                         if(foundPound!=std::string::npos)
                         {
                             comment=lines.substr(foundPound,lines.size()-foundPound);

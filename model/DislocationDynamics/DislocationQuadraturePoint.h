@@ -46,7 +46,6 @@ namespace model
         const double j;                             // jacobian dl/du
         const VectorDim rl;                         // unit tangent dr/dl
         const double dL;                            // line length corresponding to this quadrature point
-//        const std::set<const EshelbyInclusion<dim>*> inclusions; // enabling this ruins DDvtk because the size of this container is not fixed
         
         MatrixDim stress;
         VectorDim pkForce;
@@ -67,6 +66,7 @@ namespace model
         /**********************************************************************/
         template<typename LinkType>
         static VectorDim  getGlideVelocity(const LinkType& parentSegment,
+                                           const VectorDim& r,
                                            const VectorDim& fPK,
                                            const MatrixDim& S,
                                            const VectorDim& rl,
@@ -117,25 +117,34 @@ namespace model
                     v= 1.0-std::exp(-v);
                 }
                 
+                for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
+                {// Add EshelbyInclusions stress
+                    if(inclusion.second.contains(r))
+                    {
+                        v*=inclusion.second.mobilityReduction;
+                    }
+                }
+
+                
                 vv= v * glideForce/glideForceNorm;
             }
             return vv;
         }
         
-        /**********************************************************************/
-        std::set<const EshelbyInclusion<dim>*> getInclusions(const std::map<size_t,EshelbyInclusion<dim>>& inclusionContainer,
-                                                            const VectorDim& x)
-        {
-            std::set<const EshelbyInclusion<dim>*> temp;
-            for(const auto& pair : inclusionContainer)
-            {
-                if(pair.second.cointains(x))
-                {
-                    temp.insert(&pair.second);
-                }
-            }
-            return temp;
-        }
+//        /**********************************************************************/
+//        std::set<const EshelbyInclusion<dim>*> getInclusions(const std::map<size_t,EshelbyInclusion<dim>>& inclusionContainer,
+//                                                            const VectorDim& x)
+//        {
+//            std::set<const EshelbyInclusion<dim>*> temp;
+//            for(const auto& pair : inclusionContainer)
+//            {
+//                if(pair.second.cointains(x))
+//                {
+//                    temp.insert(&pair.second);
+//                }
+//            }
+//            return temp;
+//        }
         
         /**********************************************************************/
         template<typename LinkType>
@@ -152,7 +161,6 @@ namespace model
         /* init */,j(ru.norm())
         /* init */,rl(ru/j)
         /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
-//        /* init */,inclusions(getInclusions(parentSegment.network().eshelbyInclusions(),r))
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
@@ -183,11 +191,7 @@ namespace model
         void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);
-            glideVelocity=getGlideVelocity(parentSegment,pkForce,stress,rl,dL);
-//            for(const auto& inclusion : inclusions)
-//            {
-//                glideVelocity*=inclusion->mobilityReduction;
-//            }
+            glideVelocity=getGlideVelocity(parentSegment,r,pkForce,stress,rl,dL);
         }
         
         

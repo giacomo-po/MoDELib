@@ -77,7 +77,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool cointains(const VectorDim& x) const
+        bool contains(const VectorDim& x) const
         {
             return (x-C).squaredNorm()<a2;
         }
