@@ -353,12 +353,12 @@ namespace model
         }
         
         /**********************************************************************/
-        const Simplex<dim,dim>* get_includingSimplex(const Simplex<dim,dim>* const guess) const
+        const Simplex<dim,dim>* get_includingSimplex(const VectorDim& X,const Simplex<dim,dim>* const guess) const
         {
             std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
             if (guess==NULL)
             {
-                temp=this->network().mesh.search(this->get_P());
+                temp=this->network().mesh.search(X);
             }
             else
             {
@@ -366,28 +366,28 @@ namespace model
                 {// node only in one region
                     if((*grains().begin())->grainID!=guess->region->regionID)
                     {
-                        temp=this->network().mesh.searchRegion((*grains().begin())->grainID,this->get_P());
+                        temp=this->network().mesh.searchRegion((*grains().begin())->grainID,X);
                     }
                     else
                     {
-                        temp=this->network().mesh.searchRegionWithGuess(this->get_P(),guess);
+                        temp=this->network().mesh.searchRegionWithGuess(X,guess);
                     }
                 }
                 else
                 {
-                    temp=this->network().mesh.searchWithGuess(this->get_P(),guess);
+                    temp=this->network().mesh.searchWithGuess(X,guess);
                 }
             }
             if(!temp.first) // PlanarDislocationNode not found inside mesh
             {// Detect if the PlanarDislocationNode is sligtly outside the boundary
                 int faceID;
-                const double baryMin(temp.second->pos2bary(this->get_P()).minCoeff(&faceID));
+                const double baryMin(temp.second->pos2bary(X).minCoeff(&faceID));
                 const bool isApproxOnBoundary(std::fabs(baryMin)<1.0e3*FLT_EPSILON && temp.second->child(faceID).isBoundarySimplex());
                 if(!isApproxOnBoundary)
                 {
-                    model::cout<<"PlanarDislocationNode "<<this->sID<<" @ "<<this->get_P().transpose()<<std::endl;
+                    model::cout<<"PlanarDislocationNode "<<this->sID<<" @ "<<X.transpose()<<std::endl;
                     model::cout<<"Simplex "<<temp.second->xID<<std::endl;
-                    model::cout<<"bary "<<temp.second->pos2bary(this->get_P())<<std::endl;
+                    model::cout<<"bary "<<temp.second->pos2bary(X)<<std::endl;
                     model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
                     model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
                     model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
@@ -440,7 +440,7 @@ namespace model
                         const double& vrc) :
         /* base constructor */ NodeBaseType(ln,Pin)
         /* init */,_isGlissile(true)
-        /* init */,p_Simplex(get_includingSimplex((const Simplex<dim,dim>*) NULL))
+        /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
         /* init */,velocity(Vin)
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(vrc)
@@ -458,7 +458,7 @@ namespace model
                         const VectorDim& Pin) :
         /* init */ NodeBaseType(pL.loopNetwork,Pin)
         /* init */,_isGlissile(true)
-        /* init */,p_Simplex(get_includingSimplex(pL.source->includingSimplex()))
+        /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction()))
@@ -477,7 +477,7 @@ namespace model
                         const NodeType* const master) :
         /* base constructor */ NodeBaseType(ln,Pin)
         /* init */,_isGlissile(false)
-        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex((const Simplex<dim,dim>*) NULL) : NULL)
+        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,velocity(VectorDim::Zero())
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(1.0)
@@ -1163,6 +1163,7 @@ namespace model
         void setToBoundary(const VectorDim& X)
         {
             _isOnBoundingBox=true;
+            p_Simplex=get_includingSimplex(X,p_Simplex);
             boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
             resetVirtualBoundaryNode(X);
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
@@ -1242,7 +1243,7 @@ namespace model
                     }
                 }
                 
-                p_Simplex=get_includingSimplex(p_Simplex); // update including simplex
+                p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
                 
                 if(_isOnBoundingBox)
                 {

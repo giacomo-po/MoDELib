@@ -1,10 +1,10 @@
 #######################################
 # General settings
-enforceMonotonicHelicity=1;
+enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e12;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################

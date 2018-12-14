@@ -62,9 +62,8 @@ namespace model
                 }
             }
             
-            // 2) check if P is close to a boundary edge
-            if(!found) // no boundary face was found
-            {
+            if(!found)
+            {// No boundary vertex was found. Check if P is close to a boundary edge
                 for(int f=0;f<Simplex<dim,dim>::nFaces;++f) // loop over faces of current Simplex in the path
                 {
                     for(int e=0;e<3;++e)

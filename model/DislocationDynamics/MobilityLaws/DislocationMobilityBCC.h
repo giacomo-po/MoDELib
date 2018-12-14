@@ -58,9 +58,7 @@ namespace model
                             const double& a0_in,
                             const double& a1_in,
                             const double& a2_in,
-                            const double& a3_in
-        //                            const double& a4_in
-        ) :
+                            const double& a3_in) :
         /* init */ DislocationMobilityBase("BCC DislocationMobility"),
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b
@@ -78,7 +76,6 @@ namespace model
         /* init */ a1(a1_in),
         /* init */ a2(a2_in),
         /* init */ a3(a3_in),
-        //        /* init */ a4(a4_in),
         /* init */ kB(kB_SI/mu_SI/std::pow(b_SI,3))
         {/*! Empty constructor is required by constexpr
           */
@@ -162,7 +159,6 @@ namespace model
             if(use_stochasticForce)
             {
                 vs+=StochasticForceGenerator::velocity(kB,T,Bs,dL,dt);
-                
                 ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
             }
             

@@ -154,6 +154,7 @@ $(converterOBJS):
 ##########################################################
 #mkdirV=$(shell test -d V || mkdir V)
 #mkdirE=$(shell test -d E || mkdir E)
+Eexists=$(shell test -d E && echo 1)
 Fexists=$(shell test -d F && echo 1)
 Gexists=$(shell test -d G && echo 1)
 Cexists=$(shell test -d C && echo 1)
@@ -172,6 +173,11 @@ empty:
 	@echo emptying folder evl
 	@find evl/ -name evl_\*.txt ! -name evl_0.txt -exec rm {} +;
 	@find evl/ -name evl_\*.bin ! -name evl_0.bin -exec rm {} +;
+ifeq ($(Eexists),1)
+	@echo emptying folder E
+	@find E/ -name E_\*.txt -exec rm {} +;
+	@find E/ -name E_\*.bin -exec rm {} +;
+endif
 ifeq ($(Fexists),1)
 	@echo emptying folder F
 	@find F/ -name F_\*.txt -exec rm {} +;
