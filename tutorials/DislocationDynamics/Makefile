@@ -2,7 +2,7 @@
 # EDIT HERE
 ##########################################################
 USE_ICC = 0
-usePARDISO = 0
+usePARDISO = 1
 MODEL_INCLUDE =../../../
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
@@ -54,14 +54,15 @@ CFLAGS += -Wall
 #CFLAGS += -Wextra
 
 ############################################
-# Compiler flags for MKL PARDISO
+# Compiler flags for MKL PARDISO, see also
+# https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor
 ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
 	LIBS += -L $(MKL_LIB)
 
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread 
 		MKL_LIB=/opt/intel/mkl/lib
 	endif
 

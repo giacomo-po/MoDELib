@@ -11,7 +11,7 @@ MODEL_DIR='../../../..';
 
 addpath([MODEL_DIR '/matlab/']);
 filename='cylinder'; % this creates file cylinder.stl
-meshID=1;
+meshID=0;
 targetElements=5e4;
 
 % (a) Cylinder diameter & length  r/l = [0.25:3] e.g. r X l = 250b X 1000b
