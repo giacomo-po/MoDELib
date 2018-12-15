@@ -25,11 +25,14 @@
 #include <SimplicialMesh.h>
 #include <JGNselector.h>
 #include <SingleFieldPoint.h>
+#include <FEMnodeEvaluation.h>
+#include <FEMfaceEvaluation.h>
+
 //#include <BoundaryDisplacementPoint.h>
-#include <DisplacementPoint.h>
+//#include <DisplacementPoint.h>
 //#include <BoundaryStressPoint.h>
 #include <LinearWeakList.h>
-#include <BoundaryQuadraturePoint.h>
+//#include <BoundaryQuadraturePoint.h>
 //
 //#include <RuntimeError.h>
 #include <TextFileParser.h>
@@ -388,7 +391,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             
             // Add the (negative) dislocation displacement
-            std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>> fieldPoints;
+            std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>> fieldPoints;
             fieldPoints.reserve(displacement().dirichletNodeMap().size());
             
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)
@@ -441,12 +444,15 @@ namespace model
             // Compute dislocation traction
             model::cout<<"Computing DD boundary traction..."<<std::flush;
             auto ndA=fe.template boundary<ExternalBoundary,qOrder,GaussLegendre>();
-            auto eb_list = ndA.template integrationList<BoundaryQuadraturePoint<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
+            auto eb_list = ndA.template integrationList<FEMfaceEvaluation<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
 
             const auto t0= std::chrono::system_clock::now();
             if(DN.corder==0)
             {
-            
+//            REIMPLEMENT DD TRACTION
+//                assert(0 && "REIMPLEMENT DD TRACTION");
+//
+                DN.stress(eb_list);
             }
             else
             {

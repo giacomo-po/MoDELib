@@ -45,8 +45,8 @@ namespace model
             typedef typename IntegrationDomainType::ElementType ElementType;
             typedef typename IntegrationDomainType::QuadratureType QuadratureType;
             
-            model::cout<<"Creating surface IntegrationList (size "<<this->size()<<"->"<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"Creating surface IntegrationList (size "<<this->size()<<"->"<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
             for (size_t k=0;k<domain.size();++k)
             {
                 const ElementType& ele(*domain[k].first);  // element ID
@@ -59,7 +59,7 @@ namespace model
                 }
                 
             }
-            model::cout<<this->size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            model::cout<<this->size()<<") ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
         }
         
     };

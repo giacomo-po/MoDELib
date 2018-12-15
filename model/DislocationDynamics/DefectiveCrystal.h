@@ -40,7 +40,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef BVPsolver<dim,2> BVPsolverType;
-        
+        typedef typename BVPsolverType::ElementType ElementType;
         
         DefectiveCrystalParameters simulationParameters;
         
@@ -258,7 +258,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void displacement(std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>>& fieldPoints) const
+        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>>& fieldPoints) const
         {
             if(DN)
             {

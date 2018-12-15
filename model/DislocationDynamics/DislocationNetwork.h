@@ -62,7 +62,7 @@
 #include <DislocationNodeContraction.h>
 #include <EshelbyInclusion.h>
 #include <TextFileParser.h>
-#include <DisplacementPoint.h>
+//#include <DisplacementPoint.h>
 #include <DefectiveCrystalParameters.h>
 #include <ExternalLoadControllerBase.h>
 //#include <ExternalLoadController.h>
@@ -1083,17 +1083,17 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        void stress(std::vector<StressPoint<dim>,Eigen::aligned_allocator<StressPoint<dim>>>& fieldPoints) const
-//        {
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-//            for(size_t k=0;k<fieldPoints.size();++k)
-//            {
-//                fieldPoints[k]=stress(fieldPoints[k].P);
-//            }
-//        }
+        /**********************************************************************/
+        void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>,Eigen::aligned_allocator<FEMfaceEvaluation<ElementType,dim,dim>>>& fieldPoints) const
+        {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for(size_t k=0;k<fieldPoints.size();++k)
+            {
+                fieldPoints[k]=stress(fieldPoints[k].P);
+            }
+        }
         
         /**********************************************************************/
         VectorDim displacement(const VectorDim& x) const
@@ -1129,7 +1129,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void displacement(std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>>& fieldPoints) const
+        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>>& fieldPoints) const
         {
 #ifdef _OPENMP
 #pragma omp parallel for

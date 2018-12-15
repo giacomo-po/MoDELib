@@ -30,8 +30,8 @@
 #include <DislocationLinkingNumber.h>
 #include <EVLio.h>
 #include <EshelbyInclusion.h>
-#include <DisplacementPoint.h>
-
+//#include <DisplacementPoint.h>
+#include <FEMnodeEvaluation.h>
 
 
 
@@ -54,6 +54,7 @@ namespace model
         //        typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
         //        typedef typename SpatialCellObserverType::CellMapType CellMapType;
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
+        typedef typename FiniteElementType::ElementType ElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef typename DislocationNetworkType::LoopType LoopType;
@@ -774,7 +775,7 @@ namespace model
                 model::SequentialOutputFile<'D',true> d_file;
                 model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                 
-                std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>> fieldPoints; // the container of field points
+                std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>> fieldPoints; // the container of field points
                 fieldPoints.reserve(DN.mesh.template observer<0>().size());
                 for (const auto& sIter : DN.mesh.template observer<0>())
                 {

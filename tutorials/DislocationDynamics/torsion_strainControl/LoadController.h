@@ -236,7 +236,7 @@ struct LoadController
         }
         
         // Compute dislocation displacement for those nodes
-        std::vector<DisplacementPoint<dim>,Eigen::aligned_allocator<DisplacementPoint<dim>>> fieldPoints; // the container of field points
+        std::vector<FEMnodeEvaluation<typename DislocationNetworkType::ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<typename DislocationNetworkType::ElementType,dim,1>>> fieldPoints; // the container of field points
         fieldPoints.reserve(DN.bvpSolver->finiteElement().nodeList(nodeList_top).size());
         for (const auto& node : DN.bvpSolver->finiteElement().nodeList(nodeList_top)) // range-based for loop (C++11)
         {

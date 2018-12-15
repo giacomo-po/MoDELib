@@ -59,20 +59,23 @@ CFLAGS += -Wall
 ifeq ($(usePARDISO), 1)
 	CFLAGS += -D _MODEL_PARDISO_SOLVER_
 	IDIR += -I $(MKL_INCLUDE)
-	LIBS += -L $(MKL_LIB)
 
 	ifeq ($(OS),Darwin)
-		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread 
 		MKL_LIB=/opt/intel/mkl/lib
+		INTEL_LIB=/opt/intel/lib
+		LIBS += -L $(MKL_LIB) -L $(INTEL_LIB)
+#		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread 
+		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -lpthread -lm -ldl
 	endif
 
 	ifeq ($(OS),Linux)
+		MKL_LIB=/opt/intel/mkl/lib/intel64
+		LIBS += -L $(MKL_LIB)
 		ifeq ($(USE_ICC), 1)
 			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -Wl,--end-group 
 		else
 			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group 
 		endif
-		MKL_LIB=/opt/intel/mkl/lib/intel64
 	endif
 
 endif
