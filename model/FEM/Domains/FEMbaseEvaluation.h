@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_EvaluationPoint_H_
-#define model_EvaluationPoint_H_
+#ifndef model_FEMbaseEvaluation_H_
+#define model_FEMbaseEvaluation_H_
 
 #include <Eigen/Dense>
 
@@ -16,20 +16,18 @@ namespace model
     
  
     /******************************************************************************/
-    template<int rows,int cols>
-    struct EvaluationPoint : public Eigen::Matrix<double,dim,cols>
+    template <typename ElementType,int rows,int cols>
+    struct FEMbaseEvaluation : public Eigen::Matrix<double,rows,cols>
     {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,ElementType::dim,1> VectorDim;
         
-        const size_t pointID;
         const VectorDim P;
         
         /**********************************************************************/
-        DisplacementPoint(const size_t& _pointID,const VectorDim& _P) :
-        /* init */ Eigen::Matrix<double,dim,cols>(Eigen::Matrix<double,dim,cols>::Zero()),
-        /* init */ pointID(_pointID),
+        FEMbaseEvaluation(const VectorDim& _P) :
+        /* init */ Eigen::Matrix<double,rows,cols>(Eigen::Matrix<double,rows,cols>::Zero()),
         /* init */ P(_P)
         {
         }
