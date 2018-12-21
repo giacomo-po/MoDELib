@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=0e13;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -32,7 +32,7 @@ pointsAlongStraightDislocations=2000.0 2000.0 2000.0
 						   		
 #######################################
 # Circular loops
-targetCircularLoopDensity=0e13;
+targetCircularLoopDensity=0e12;
 circularLoopRadiusMean=1e-7;
 circularLoopRadiusStd=0.0;     
 circularLoopSides=10;

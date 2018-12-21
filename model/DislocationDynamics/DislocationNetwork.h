@@ -636,13 +636,13 @@ namespace model
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
             
-            updateVirtualBoundaryLoops();
             
             
             //! 13- Node redistribution
             DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
             
-            
+            updateVirtualBoundaryLoops();
+
             //            mergeLoopsAtNodes();
             
             //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
