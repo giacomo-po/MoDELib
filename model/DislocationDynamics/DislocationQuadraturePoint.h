@@ -52,6 +52,19 @@ namespace model
         VectorDim glideVelocity;
         
         /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const DislocationQuadraturePoint<dim,corder>& dqp)
+        {
+            os  << dqp.sourceID<<" "<<dqp.sinkID<<" "<<dqp.qID<<" "
+            /**/<< dqp.SF<<" "
+            /**/<< dqp.r.transpose()<<" "
+            /**/<< dqp.ru.transpose()<<" "
+            /**/<< dqp.j<<" "
+            /**/<< dqp.pkForce.transpose();
+            return os;
+        }
+        
+        /**********************************************************************/
         MatrixDimNdof SFgaussEx() const
         { /*! The MatrixDimNdof matrix of shape functions at the k-th quadrature point
            */
@@ -193,8 +206,6 @@ namespace model
             pkForce=(stress*parentSegment.burgers()).cross(rl);
             glideVelocity=getGlideVelocity(parentSegment,r,pkForce,stress,rl,dL);
         }
-        
-        
     };
     
     template<int dim,int corder>

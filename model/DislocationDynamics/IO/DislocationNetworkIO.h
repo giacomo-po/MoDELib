@@ -855,16 +855,34 @@ namespace model
             {
                 if(DislocationNetworkType::corder==0)
                 {
-                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_count(runID);
-                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_increment(DN.outputFrequency);
-                    SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true> binQuadratureFile;
-                    for (const auto& link : DN.links())
+                    if (DN.outputBinary)
                     {
-                        for(const auto& qPoint : link.second->quadraturePoints())
+                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_count(runID);
+                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_increment(DN.outputFrequency);
+                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true> binQuadratureFile;
+                        for (const auto& link : DN.links())
                         {
-                            binQuadratureFile.write(qPoint);
+                            for(const auto& qPoint : link.second->quadraturePoints())
+                            {
+                                binQuadratureFile.write(qPoint);
+                            }
                         }
                     }
+                    else
+                    {
+                        SequentialOutputFile<'Q',true>::set_count(runID);
+                        SequentialOutputFile<'Q',true>::set_increment(DN.outputFrequency);
+                        SequentialOutputFile<'Q',true> txtQuadratureFile;
+                        for (const auto& link : DN.links())
+                        {
+                            for(const auto& qPoint : link.second->quadraturePoints())
+                            {
+                                txtQuadratureFile<<qPoint<<"\n";
+                            }
+                        }
+
+                    }
+
                 }
                 else
                 {

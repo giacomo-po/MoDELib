@@ -8,6 +8,7 @@ Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
+# Settings for simulationType=0 (finite sample without FEM)
 externalLoadControllerName=UniformExternalLoadController;
 
 ######################################
@@ -38,8 +39,6 @@ use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
-
-computePlasticDistortionRateFromVelocities=1;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities

@@ -18,9 +18,9 @@ filename='cube'; % this creates file cube.stl
 nElements=1e4;
 
 %% Size and position of the cube
-L1=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
-L2=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
-L3=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
+L1=500*sqrt(2); % the side length of the cube, in units of Burgers vector
+L2=500*sqrt(2); % the side length of the cube, in units of Burgers vector
+L3=500*sqrt(2); % the side length of the cube, in units of Burgers vector
 
 %% Compute element size
 V=L1*L2*L3;

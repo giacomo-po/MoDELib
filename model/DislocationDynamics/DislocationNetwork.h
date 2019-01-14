@@ -372,7 +372,7 @@ namespace model
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
         double surfaceAttractionDistance;
-        bool computePlasticDistortionRateFromVelocities;
+//        bool computePlasticDistortionRateFromVelocities;
         std::string folderSuffix;
         
         /**********************************************************************/
@@ -427,7 +427,7 @@ namespace model
         //        /* init */ _userOutputColumn(3)
         /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
         /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
-        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
+//        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
         /* init */,folderSuffix("")
         {
             
@@ -991,10 +991,16 @@ namespace model
 //            }
         }
         
+//        /**********************************************************************/
+//        const MatrixDimD& plasticDistortionRate() const
+//        {
+//            return computePlasticDistortionRateFromVelocities? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
+//        }
+        
         /**********************************************************************/
         const MatrixDimD& plasticDistortionRate() const
         {
-            return computePlasticDistortionRateFromVelocities? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
+            return  _plasticDistortionRateFromAreas;
         }
         
         /**********************************************************************/
