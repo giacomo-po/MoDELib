@@ -88,13 +88,8 @@ collisionTol=3;
 
 ######################################
 # BOUNDARY MESH
-# use_boundary enables/disables the use of a confining boundary.
-# If use_boundary=0 no confining boundary is used. This automatically sets use_bvp=0 (see # below). If use_boundary=1 a confining mesh is used. The files N/N_meshID.txt and 
-# T/T_meshID.txt must be present in the working directory.
-use_boundary=1;
-meshID=0;
+meshID=0; # Mesh files are read from N/N_meshID.txt and T/T_meshID.txt.
 surfaceAttractionDistance=20;
-use_meshRegions=0;
 
 ######################################
 # Enable/disable cross-slip
