@@ -47,10 +47,35 @@ namespace model
         }
         
         /**********************************************************************/
+        bool contractSecondAndVirtual(std::shared_ptr<NodeType> nA,
+                                      std::shared_ptr<NodeType> nB)
+        {
+            switch (DN.simulationParameters.simulationType)
+            {
+                case DefectiveCrystalParameters::FINITE_FEM:
+                {
+                    if(nB->virtualBoundaryNode())
+                    {
+                        assert(nA->virtualBoundaryNode());
+                        DN.contractSecond(nA->virtualBoundaryNode(),nB->virtualBoundaryNode());
+                    }
+                    break;
+                }
+                    
+                case DefectiveCrystalParameters::PERIODIC:
+                {
+                 // FINISH HERE
+                    break;
+                }
+            }
+            return DN.contractSecond(nA,nB);
+        }
+        
+        /**********************************************************************/
         bool contractYoungest(std::shared_ptr<NodeType> nA,
                               std::shared_ptr<NodeType> nB)
         {
-            return nA->sID<nB->sID? DN.contractSecond(nA,nB) : DN.contractSecond(nB,nA);
+            return nA->sID<nB->sID? contractSecondAndVirtual(nA,nB) : contractSecondAndVirtual(nB,nA);
             
         }
         
@@ -97,12 +122,12 @@ namespace model
             else if(nAisMovable && !nBisMovable)
             {
                 VerboseNodeContraction(1,"DislocationNodeContraction case 1b"<<std::endl;);
-                return DN.contractSecond(nB,nA);
+                return contractSecondAndVirtual(nB,nA);
             }
             else if(!nAisMovable && nBisMovable)
             {
                 VerboseNodeContraction(1,"DislocationNodeContraction case 1c"<<std::endl;);
-                return DN.contractSecond(nA,nB);
+                return contractSecondAndVirtual(nA,nB);
             }
             else
             {// nA and nB cannot be moved to each other. The calculation of a third point is necessary

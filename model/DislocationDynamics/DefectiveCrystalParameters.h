@@ -46,6 +46,7 @@ namespace model
         {
             // Menage restart
             IDreader<'F',1,200,double> vReader;
+            vReader.readLabelsFile("F/F_labels.txt");
             if (vReader.isGood(0,true))
             {// F/F_0.txt exists
                 vReader.read(0,true);
@@ -53,7 +54,7 @@ namespace model
                 {// Restart from last available step
                     if(vReader.size())
                     {// at least a line is available
-                        vReader.readLabelsFile("F/F_labels.txt");
+//                        vReader.readLabelsFile("F/F_labels.txt");
                         runID=vReader.rbegin()->first;
                         totalTime=vReader.last("time [b/cs]");
                         dt=vReader.last("dt [b/cs]");

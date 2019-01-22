@@ -509,6 +509,33 @@ namespace model
         }
         
         /**********************************************************************/
+        bool remove(const size_t& nodeID)
+        {
+            const auto isNode=this->node(nodeID);
+            if(isNode.first)
+            {
+                switch (simulationParameters.simulationType)
+                {
+                    case DefectiveCrystalParameters::FINITE_FEM:
+                    {
+                        if(isNode.second->virtualBoundaryNode())
+                        {
+                            LoopNetworkType::remove(isNode.second->virtualBoundaryNode()->sID);
+                        }
+                        break;
+                    }
+                        
+                    case DefectiveCrystalParameters::PERIODIC:
+                    {
+                        // FINISH HERE
+                        break;
+                    }
+                }
+            }
+            return LoopNetworkType::remove(nodeID);
+        }
+        
+        /**********************************************************************/
         void updateGeometry(const double& dt)
         {
             for(auto& loop : this->loops())
