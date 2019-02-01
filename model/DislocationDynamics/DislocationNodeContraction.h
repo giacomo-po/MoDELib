@@ -131,7 +131,8 @@ namespace model
             }
             else
             {// nA and nB cannot be moved to each other. The calculation of a third point is necessary
-                
+                VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
+
                 const double maxRange=4.0*(nA->get_P()-nB->get_P()).norm();
                 
                 

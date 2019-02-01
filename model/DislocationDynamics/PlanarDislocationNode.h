@@ -1183,7 +1183,7 @@ namespace model
             
             if(glidePlanesContained)
             {
-                if(_isOnBoundingBox)
+                if(_isOnBoundingBox || boundingBoxSegments().contains(newP).first)
                 {// node was on bounding box, it must remain on bounding box
                     const VectorDim X(snapToBoundingBox(newP));
                     setToBoundary(X);

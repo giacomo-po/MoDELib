@@ -119,26 +119,7 @@ namespace model
         
         
         
-        /**********************************************************************/
-        DanglingNodeContainerType& danglingNodes()
-        {
-            return *this;
-        }
-        
-        const DanglingNodeContainerType& danglingNodes() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        IsSharedNodeType danglingNode(const size_t & k)
-        {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
-          * if node k is in the network, in which case pair.second is a pointer
-          * the the node
-          */
-            typename DanglingNodeContainerType::iterator nodeIter(danglingNodes().find(k));
-            return (nodeIter!=danglingNodes().end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,SharedNodePtrType(nullptr));
-        }
+
         
         
         
@@ -255,10 +236,126 @@ namespace model
             return nDisconnected;
         }
         
+        /**********************************************************************/
+        bool remove(const std::shared_ptr<NodeType>& node)
+        {/*!\param[in] nodeID the StaticID of the node to be removed
+          * \returns true if the node is succesfully removed.
+          */
+            
+            
+            
+            //            const auto isNode=this->node(nodeID);
+            //            if(isNode.first)
+            //            {
+            const auto linkByLoopID=node->linksByLoopID();
+            std::vector<std::tuple<SharedNodePtrType,SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>>> disconnectVector;
+            //                std::vector<std::tuple<const SharedNodePtrType&,const SharedNodePtrType&,const SharedNodePtrType&,const std::shared_ptr<LoopType>&>> disconnectVector;
+            //                std::vector<std::tuple<size_t,size_t,size_t,size_t>> disconnectVector;
+            
+            
+            for(auto& pair : linkByLoopID)
+            {// store what needs to be disconnected and re-connected
+                const auto& set(pair.second);
+                if(set.size()!=2)
+                {
+                    std::cout<<"FATAL ERROR. LoopNetwork::remove "<<node->sID<<std::endl;
+                    std::cout<<"loop "<<pair.first<<" has "<<set.size()<<" links"<<std::endl;
+                    for(const auto& temp : set)
+                    {
+                        std::cout<<temp->tag()<<std::endl;
+                    }
+                    std::cout<<"EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                LoopLinkType* const link0(*set.begin());
+                LoopLinkType* const link1(*set.rbegin());
+                
+                if(link0->source().get()==node.get() && link1->sink().get()==node.get())
+                {
+                    SharedNodePtrType n0(link1->source());
+                    SharedNodePtrType n1(link1->sink());
+                    SharedNodePtrType n2(link0->sink());
+                    std::shared_ptr<LoopType> loop(link0->loop());
+                    disconnectVector.emplace_back(n0,n1,n2,loop);
+                    //                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
+                    
+                    //                        disconnect(n0,n1,loop);
+                    //                        disconnect(n1,n2,loop);
+                    //                        connect(n0,n2,loop);
+                }
+                else if(link0->sink().get()==node.get() && link1->source().get()==node.get())
+                {
+                    SharedNodePtrType n0(link0->source());
+                    SharedNodePtrType n1(link0->sink());
+                    SharedNodePtrType n2(link1->sink());
+                    std::shared_ptr<LoopType> loop(link1->loop());
+                    disconnectVector.emplace_back(n0,n1,n2,loop);
+                    //                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
+                    
+                    //                        disconnect(n0,n1,loop);
+                    //                        disconnect(n1,n2,loop);
+                    //                        connect(n0,n2,loop);
+                }
+                else
+                {
+                    std::cout<<"link0 "<<link0->tag()<<", nodeID="<<node->sID<<std::endl;
+                    std::cout<<"link1 "<<link1->tag()<<", nodeID="<<node->sID<<std::endl;
+                    assert(false && "Links must connect to node being removed");
+                }
+            }
+            
+            for(const auto& tup : disconnectVector)
+            {// perform disconnection and re-connection
+                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<3>(tup));
+                disconnect(std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+                if(std::get<1>(tup) && std::get<2>(tup) && std::get<2>(tup))
+                {
+                    if(std::get<3>(tup)->links().size())
+                    {
+                        connect(std::get<0>(tup),std::get<2>(tup),std::get<3>(tup));
+                        assert(std::get<3>(tup)->isLoop());
+                    }
+                }
+            }
+            
+            //                for(auto iter=disconnectVector.begin();iter!=disconnectVector.end();)
+            //                {// perform disconnection and re-connection
+            //                    disconnect(std::get<0>(*iter),std::get<1>(*iter),std::get<3>(*iter));
+            //                    disconnect(std::get<1>(*iter),std::get<2>(*iter),std::get<3>(*iter));
+            //                    connect(std::get<0>(*iter),std::get<2>(*iter),std::get<3>(*iter));
+            //                    iter=disconnectVector.erase(iter); // erase element in disconnectVector to destroy shared_ptr(s)
+            //                }
+            
+            //            }
+            
+            
+            return !this->node(node->sID).first;
+        }
         
     public:
         
         static int verboseLevel;
+        
+        /**********************************************************************/
+        DanglingNodeContainerType& danglingNodes()
+        {
+            return *this;
+        }
+        
+        const DanglingNodeContainerType& danglingNodes() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        IsSharedNodeType danglingNode(const size_t & k)
+        {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
+          * if node k is in the network, in which case pair.second is a pointer
+          * the the node
+          */
+            typename DanglingNodeContainerType::iterator nodeIter(danglingNodes().find(k));
+            return (nodeIter!=danglingNodes().end())? std::make_pair(true,nodeIter->second) : std::make_pair(false,SharedNodePtrType(nullptr));
+        }
         
         /**********************************************************************/
         void clearDanglingNodes()
@@ -674,104 +771,22 @@ namespace model
             
             return success;
         }
-        
+
         /**********************************************************************/
         bool remove(const size_t& nodeID)
         {/*!\param[in] nodeID the StaticID of the node to be removed
           * \returns true if the node is succesfully removed.
           */
-            
-
-            
-            const auto isNode=this->node(nodeID);
+            bool success=false;
+            const auto isNode=this->sharedNode(nodeID);
             if(isNode.first)
             {
-                const auto linkByLoopID=isNode.second->linksByLoopID();
-                std::vector<std::tuple<SharedNodePtrType,SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>>> disconnectVector;
-//                std::vector<std::tuple<const SharedNodePtrType&,const SharedNodePtrType&,const SharedNodePtrType&,const std::shared_ptr<LoopType>&>> disconnectVector;
-//                std::vector<std::tuple<size_t,size_t,size_t,size_t>> disconnectVector;
-                
-                
-                for(auto& pair : linkByLoopID)
-                {// store what needs to be disconnected and re-connected
-                    const auto& set(pair.second);
-                    if(set.size()!=2)
-                    {
-                        std::cout<<"FATAL ERROR. LoopNetwork::remove "<<nodeID<<std::endl;
-                        std::cout<<"loop "<<pair.first<<" has "<<set.size()<<" links"<<std::endl;
-                        for(const auto& temp : set)
-                        {
-                            std::cout<<temp->tag()<<std::endl;
-                        }
-                        std::cout<<"EXITING."<<std::endl;
-                        exit(EXIT_FAILURE);
-                    }
-                    LoopLinkType* const link0(*set.begin());
-                    LoopLinkType* const link1(*set.rbegin());
-                    
-                    if(link0->source().get()==isNode.second && link1->sink().get()==isNode.second)
-                    {
-                        SharedNodePtrType n0(link1->source());
-                        SharedNodePtrType n1(link1->sink());
-                        SharedNodePtrType n2(link0->sink());
-                        std::shared_ptr<LoopType> loop(link0->loop());
-                        disconnectVector.emplace_back(n0,n1,n2,loop);
-//                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
-
-//                        disconnect(n0,n1,loop);
-//                        disconnect(n1,n2,loop);
-//                        connect(n0,n2,loop);
-                    }
-                    else if(link0->sink().get()==isNode.second && link1->source().get()==isNode.second)
-                    {
-                        SharedNodePtrType n0(link0->source());
-                        SharedNodePtrType n1(link0->sink());
-                        SharedNodePtrType n2(link1->sink());
-                        std::shared_ptr<LoopType> loop(link1->loop());
-                        disconnectVector.emplace_back(n0,n1,n2,loop);
-//                        disconnectVector.emplace_back(n0->sID,n1->sID,n2->sID,loop->sID);
-
-//                        disconnect(n0,n1,loop);
-//                        disconnect(n1,n2,loop);
-//                        connect(n0,n2,loop);
-                    }
-                    else
-                    {
-                        std::cout<<"link0 "<<link0->tag()<<", nodeID="<<nodeID<<std::endl;
-                        std::cout<<"link1 "<<link1->tag()<<", nodeID="<<nodeID<<std::endl;
-                        assert(false && "Links must connect to node being removed");
-                    }
-                }
-                
-                for(const auto& tup : disconnectVector)
-                {// perform disconnection and re-connection
-                    disconnect(std::get<0>(tup),std::get<1>(tup),std::get<3>(tup));
-                    disconnect(std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
-                    if(std::get<1>(tup) && std::get<2>(tup) && std::get<2>(tup))
-                    {
-                        if(std::get<3>(tup)->links().size())
-                        {
-                            connect(std::get<0>(tup),std::get<2>(tup),std::get<3>(tup));
-                            assert(std::get<3>(tup)->isLoop());
-                        }
-                    }
-                }
-                
-//                for(auto iter=disconnectVector.begin();iter!=disconnectVector.end();)
-//                {// perform disconnection and re-connection
-//                    disconnect(std::get<0>(*iter),std::get<1>(*iter),std::get<3>(*iter));
-//                    disconnect(std::get<1>(*iter),std::get<2>(*iter),std::get<3>(*iter));
-//                    connect(std::get<0>(*iter),std::get<2>(*iter),std::get<3>(*iter));
-//                    iter=disconnectVector.erase(iter); // erase element in disconnectVector to destroy shared_ptr(s)
-//                }
-                
+                success=remove(isNode.second);
             }
-            
-            
-            return !this->node(nodeID).first;
+            return success;
         }
         
-        /* execute ************************************************************/
+        /**********************************************************************/
         void parallelExecute(void (LinkType::*Lfptr)(void))
         {
 #ifdef _OPENMP
@@ -842,9 +857,9 @@ namespace model
         {
             for(const auto& link : loopLinks())
             {
-                std::cout<<"link "<<link.second.source()->sID<<"->"<<link.second.sink()->sID
-                <<" (prev "<<link.second.prev->source()->sID<<"->"<<link.second.prev->sink()->sID<<")"
-                <<" (next "<<link.second.next->source()->sID<<"->"<<link.second.next->sink()->sID<<")"
+                std::cout<<"link "<<link.second.tag()
+                <<" (prev "<<link.second.prev->tag()<<")"
+                <<" (next "<<link.second.next->tag()<<")"
                 <<std::endl;
             }
         }

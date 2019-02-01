@@ -164,30 +164,30 @@ namespace model
         /************************************************************/
         size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq)
         {
-            const size_t nodeOrdr(NC.nodeOrder());
-            if (nodeOrdr==0 || nodeOrdr==1)
-            {
-                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-                typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
-                std::cout<<"Only DIslocatioNode is "<< nodeIter1->second->sID<<std::endl;
-//                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
-                std::cout<<"DislocationSubNetework has less than 2 Nodes."<<std::endl;
-            }
-            if (nodeOrdr==2)
-            {
-                typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
-                typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
-                nodeIter2++;
-                if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2)
-                {
-                    //					assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
-                    std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
-                    std::cout<<"First DIslocatioNode is " <<nodeIter1->second->sID<<std::endl;
-                    std::cout<<"Second DIslocatioNode is "<<nodeIter2->second->sID<<std::endl;
-                    std::cout<<"WARNING: DislocationSubNetework has only 2 fixed Nodes"<<std::endl;
-                    
-                }
-            }
+//            const size_t nodeOrdr(NC.nodeOrder());
+//            if (nodeOrdr==0 || nodeOrdr==1)
+//            {
+//                std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+//                typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
+//                std::cout<<"Only DIslocatioNode is "<< nodeIter1->second->sID<<std::endl;
+////                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
+//                std::cout<<"DislocationSubNetework has less than 2 Nodes."<<std::endl;
+//            }
+//            if (nodeOrdr==2)
+//            {
+//                typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
+//                typename NodeContainerType::const_iterator nodeIter2(nodeIter1);
+//                nodeIter2++;
+//                if (nodeIter1->second->constraintNormals().size()>2 && nodeIter2->second->constraintNormals().size()>2)
+//                {
+//                    //                    assert(0 && "DislocationSubNetework has only 2 fixed Nodes.");
+//                    std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
+//                    std::cout<<"First DIslocatioNode is " <<nodeIter1->second->sID<<std::endl;
+//                    std::cout<<"Second DIslocatioNode is "<<nodeIter2->second->sID<<std::endl;
+//                    std::cout<<"WARNING: DislocationSubNetework has only 2 fixed Nodes"<<std::endl;
+//                    
+//                }
+//            }
             
             
             // Assembly of Stiffness Matrix and force vector

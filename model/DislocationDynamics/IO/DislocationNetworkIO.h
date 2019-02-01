@@ -547,7 +547,7 @@ namespace model
                     model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
                     std::vector<std::shared_ptr<NodeType>> sharedNodes;
                     for(const size_t nodeID : nodeIDs)
-                    {// collect
+                    {// collect shared_ptrs to nodes
                         const auto isNode(DN.node(nodeID));
                         assert(isNode.first);
                         if(isNode.second->masterNode)
@@ -556,8 +556,12 @@ namespace model
                         }
                         else
                         {
-                            const auto isSharedNode(DN.sharedNode(nodeID));
-                            assert(isSharedNode.first);
+                            const auto isSharedNode(DN.danglingNode(nodeID));
+                            if(!isSharedNode.first)
+                            {
+                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+                                assert(false && "node shared pointer not found");
+                            }
                             sharedNodes.push_back(isSharedNode.second);
                         }
                     }
