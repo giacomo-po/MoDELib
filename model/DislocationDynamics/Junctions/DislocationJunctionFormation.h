@@ -415,9 +415,11 @@ namespace model
                         
                         auto  Ni= t<0.5? L1.second->source : L1.second->sink;
                         bool NiIsNew=false;
-                        if((ssd.x0-(t<0.5? L1.second->source->get_P() : L1.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        if((  ssd.x0-(t<0.5? L1.second->source->get_P() : L1.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+                           || !L1.second->source->isMovableTo(ssd.x0))
                         {
-                            if((ssd.x0-(t<0.5? L1.second->sink->get_P() : L1.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                            if((ssd.x0-(t<0.5? L1.second->sink->get_P() : L1.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+                               || !L1.second->sink->isMovableTo(ssd.x0))
                             {
                                 Ni=DN.expand(key1.first,key1.second,ssd.x0);
                                 NiIsNew=true;
@@ -430,9 +432,11 @@ namespace model
                         
                         auto Nj=u<0.5? L2.second->source : L2.second->sink;
                         bool NjIsNew=false;
-                        if((ssd.x1-(u<0.5? L2.second->source->get_P() : L2.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        if((ssd.x1-(u<0.5? L2.second->source->get_P() : L2.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+                           || !L2.second->source->isMovableTo(ssd.x1))
                         {
-                            if((ssd.x1-(u<0.5? L2.second->sink->get_P() : L2.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                            if((ssd.x1-(u<0.5? L2.second->sink->get_P() : L2.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+                               || !L2.second->sink->isMovableTo(ssd.x1))
                             {
                                 Nj=DN.expand(key2.first,key2.second,ssd.x1);
                                 NjIsNew=true;

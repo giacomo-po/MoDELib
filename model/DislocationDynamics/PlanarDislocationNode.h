@@ -1295,8 +1295,16 @@ namespace model
             
             if(isMovable)
             {
+                if(isOnBoundingBox())
+                {
+                    isMovable*=boundingBoxSegments().contains(X).first;
+                }
+            }
+            
+            if(isMovable)
+            {
                 
-                //                HERE CHECK THAT X IS IN REGION
+
                 
                 for(const auto& pair : this->neighbors())
                 {
