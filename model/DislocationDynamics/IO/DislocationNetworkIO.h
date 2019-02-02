@@ -917,7 +917,12 @@ namespace model
             UniqueOutputFile<'F'> f_file;
             model::cout<<" F/F_0.txt"<<std::flush;
             
-            std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
+//            std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
+            std::ofstream F_labels;
+            if(runID==0)
+            {
+                F_labels.open("F/F_labels.txt");
+            }
             
             f_file<< runID<<" "<<std::setprecision(15)<<std::scientific<<DN.simulationParameters.totalTime<<" "<<DN.simulationParameters.dt<<" ";
             //            int labelCol=0;

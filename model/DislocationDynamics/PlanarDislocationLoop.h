@@ -381,6 +381,7 @@ namespace model
                 
                 const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
                 _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
+                _rightHandedUnitNormal=_rightHandedNormal.cartesian().normalized();
             }
         }
         
