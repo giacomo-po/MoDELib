@@ -343,8 +343,10 @@ namespace model
             // Return the first point to which we can snap
             for(const auto& pair : snapMap)
             {
+                VerbosePlanarDislocationNode(4,"Checking snap point "<<pair.second.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                 if(isMovableTo(pair.second))
                 {
+                    VerbosePlanarDislocationNode(4,"Snapping to "<<pair.second.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                     return pair.second;
                 }
             }
@@ -1339,15 +1341,18 @@ namespace model
                     
                     if(std::get<1>(pair.second)->isSessile())
                     {// sessile segments cannot change direction if this node is moved
-                        const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*(std::get<0>(pair.second)->get_P()-X).norm()*(std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-                        VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
-                        isMovable*=sessileNeighborMovable;
-                        if(!isMovable)
+                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
+                        if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
                         {
-                            break;
+                            const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
+                            VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
+                            isMovable*=sessileNeighborMovable;
+                            if(!isMovable)
+                            {
+                                break;
+                            }
                         }
-                        //                        isMovable*=LineSegment<dim>(std::get<0>(pair.second)->get_P(),X).contains(this->get_P());
-                        //                        isMovable*=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X)).first;
                     }
                 }
             }
