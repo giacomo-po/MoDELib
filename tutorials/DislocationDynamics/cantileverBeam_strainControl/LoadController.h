@@ -99,36 +99,39 @@ struct LoadController
 //        EDR.readScalarInFile("./loadInput.txt","relaxSteps",LoadController::relaxSteps);
 //        EDR.readScalarInFile("./loadInput.txt","apply_tension",LoadController::apply_tension);
         
-        IDreader<'F',1,200,double> vReader;
-        vReader.readLabelsFile("F/F_labels.txt");
-
-        if (vReader.isGood(0,true))
-        {
-            vReader.read(0,true);
-            const auto iter=vReader.find(runID);
-            if (iter!=vReader.end())
+        if(runID>0)
+        {// a restart
+            IDreader<'F',1,200,double> vReader;
+            vReader.readLabelsFile("F/F_labels.txt");
+            if (vReader.isGood(0,true))
             {
-                
-                initialDisplacement=vReader(runID,"displacement [b]");//iter->second(userOutputColumn-1);
-                model::cout<<"initialDisplacement="<<initialDisplacement<<std::endl;
-                //                initialTwist_Rad=iter->second(userOutputColumn);
-                //                model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
-//                last_update_time=iter->second(0);
-                last_update_time=vReader(runID,"time [b/cs]");
-
-                model::cout<<"last_update_time="<<last_update_time<<std::endl;
-                
+                vReader.read(0,true);
+                const auto iter=vReader.find(runID);
+                if (iter!=vReader.end())
+                {
+                    
+                    initialDisplacement=vReader(runID,"displacement [b]");//iter->second(userOutputColumn-1);
+                    model::cout<<"initialDisplacement="<<initialDisplacement<<std::endl;
+                    //                initialTwist_Rad=iter->second(userOutputColumn);
+                    //                model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
+                    //                last_update_time=iter->second(0);
+                    last_update_time=vReader(runID,"time [b/cs]");
+                    
+                    model::cout<<"last_update_time="<<last_update_time<<std::endl;
+                    
+                }
+                else
+                {
+                    model::cout<<"LoadController::init runID="<<runID<<" not found in F file. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
             }
             else
             {
-                //                assert(0 && "LoadController::init runID not found inf F file");
+                model::cout<<"LoadController: F/F_0.txt cannot be opened."<<std::endl;
+                exit(EXIT_FAILURE);
             }
         }
-        else
-        {
-            model::cout<<"LoadController: F/F_0.txt cannot be opened."<<std::endl;
-        }
-        
     }
     
     /**************************************************************************/

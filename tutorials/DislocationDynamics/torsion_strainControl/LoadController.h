@@ -86,43 +86,51 @@ struct LoadController
     void init(const DislocationNetworkType& DN)
     {
         const long int runID=DN.simulationParameters.runID;
-//        const unsigned int userOutputColumn=DN.userOutputColumn();
-        
         model::cout<<greenColor<<"Initializing LoadController at runID="<<runID<<defaultColor<<std::endl;
-        
+
+//        if (runID%DN.bvpSolver->stepsBetweenBVPupdates)
+//        {
+//            model::cout<<"        LoadController can only be restarted with runID being a multiple of "<<DN.bvpSolver->stepsBetweenBVPupdates<<". EXITING "<<std::endl;
+//            exit(EXIT_FAILURE);
+//        }
         
         thetaDot=TextFileParser("./loadInput.txt").readScalar<double>("thetaDot",true);
         initialTwist_Rad=TextFileParser("./loadInput.txt").readScalar<double>("initialTwist_Rad",true);
         relaxSteps=TextFileParser("./loadInput.txt").readScalar<int>("relaxSteps",true);
         apply_torsion=TextFileParser("./loadInput.txt").readScalar<int>("apply_torsion",true);
         
-        IDreader<'F',1,200,double> vReader;
-        vReader.readLabelsFile("F/F_labels.txt");
-        if (vReader.isGood(0,true))
-        {
-            vReader.read(0,true);
-            const auto iter=vReader.find(runID);
-            if (iter!=vReader.end())
+        if(runID>0)
+        {// a restart
+            IDreader<'F',1,200,double> vReader;
+            vReader.readLabelsFile("F/F_labels.txt");
+            if (vReader.isGood(0,true))
             {
-                model::cout<<"Initializing LoadController at runID="<<runID<<std::endl;
-                
-                initialTwist_Rad=vReader(runID,"twist angle [rad]");
-//                initialTwist_Rad=iter->second(userOutputColumn-1);
-                model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
-                
-//                last_update_time=iter->second(0);
-                last_update_time=vReader(runID,"time [b/cs]");
-                model::cout<<"last_update_time="<<last_update_time<<std::endl;
-                
+                vReader.read(0,true);
+                const auto iter=vReader.find(runID);
+                if (iter!=vReader.end())
+                {
+                    model::cout<<"Initializing LoadController at runID="<<runID<<std::endl;
+                    
+                    initialTwist_Rad=vReader(runID,"twist angle [rad]");
+                    //                initialTwist_Rad=iter->second(userOutputColumn-1);
+                    model::cout<<"initialTwist_Rad="<<initialTwist_Rad<<std::endl;
+                    
+                    //                last_update_time=iter->second(0);
+                    last_update_time=vReader(runID,"time [b/cs]");
+                    model::cout<<"last_update_time="<<last_update_time<<std::endl;
+                    
+                }
+                else
+                {
+                    model::cout<<"LoadController::init runID="<<runID<<" not found in F file. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
             }
             else
             {
-                //                assert(0 && "LoadController::init runID not found inf F file");
+                model::cout<<"LoadController: F/F_0.txt cannot be opened."<<std::endl;
+                exit(EXIT_FAILURE);
             }
-        }
-        else
-        {
-            model::cout<<"LoadController: F/F_0.txt cannot be opened."<<std::endl;
         }
     }
     
@@ -164,7 +172,7 @@ struct LoadController
         val=(Eigen::Matrix<double,3,1>()<<(rot*(node.P0-pivot)-(node.P0-pivot)).template segment<2>(0),0.0).finished();
         return val;
     }
-        
+    
     /**************************************/
     template <typename DislocationNetworkType>
     void update(const DislocationNetworkType& DN)
@@ -213,9 +221,9 @@ struct LoadController
     /**************************************************************************/
     template <typename DislocationNetworkType>
     void output(const DislocationNetworkType& DN,
-                       const long int& runID,
-                       UniqueOutputFile<'F'>& f_file,
-                       std::ofstream& F_labels) const
+                const long int& runID,
+                UniqueOutputFile<'F'>& f_file,
+                std::ofstream& F_labels) const
     {
         
         // COMPUTATION OF DISPLACEMENT
@@ -267,11 +275,11 @@ struct LoadController
         loadedBnd.integrate(DN.bvpSolver.get(),torque,&BvpSolverType::bvpMoment,pivot);   // integrate bvp moment about tt.pivot
         loadedBnd.integrate(DN.bvpSolver.get(),torque,&BvpSolverType::ddMoment ,pivot,DN); // integrate  dd moment about tt.pivot
         
-
         
-//        std::stringstream os;
+        
+        //        std::stringstream os;
         f_file<<" "<<avgRotZ<<" "<<" "<<torque(2);
-//        return os.str();
+        //        return os.str();
         
         if(runID==0)
         {

@@ -377,7 +377,61 @@ namespace model
             
         }
         
-        
+        /**********************************************************************/
+        std::pair<std::shared_ptr<NodeType>,bool> junctionNode(const double& t,
+                                                               const VectorDim& x,
+                                                               const IsNetworkLinkType& L,
+                                                               const EdgeIDType& key)
+        {
+            VerboseJunctions(4,"JunctionNode for segment: "<<key.first<<"->"<<key.second<<" @ "<<t<<std::endl;);
+
+            auto  Nclose= t <0.5? L.second->source : L.second->sink;
+            auto  Nfar  = t>=0.5? L.second->source : L.second->sink;
+            VerboseJunctions(4,"Nclose="<<Nclose->sID<<std::endl;);
+            VerboseJunctions(4,"Nfar="<<Nfar->sID<<std::endl;);
+            if(t>FLT_EPSILON && t<1.0-FLT_EPSILON)
+            {// intersection point is not an end node
+                if((Nclose->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                {
+                    VerboseJunctions(4,"JunctionNode case a"<<std::endl;);
+                    return std::make_pair(DN.expand(key.first,key.second,x),true);
+                }
+                else
+                {
+                    if(Nclose->isMovableTo(x))
+                    {
+                        VerboseJunctions(4,"JunctionNode case b"<<std::endl;);
+                        return std::make_pair(Nclose,false);
+                    }
+                    else
+                    {
+                        if((Nfar->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        {
+                            VerboseJunctions(4,"JunctionNode case c"<<std::endl;);
+                            return std::make_pair(DN.expand(key.first,key.second,x),true);
+                        }
+                        else
+                        {
+                            if(Nfar->isMovableTo(x))
+                            {
+                                VerboseJunctions(4,"JunctionNode case d"<<std::endl;);
+                                return std::make_pair(Nfar,false);
+                            }
+                            else
+                            {
+                                VerboseJunctions(4,"JunctionNode case e"<<std::endl;);
+                                return std::make_pair(DN.expand(key.first,key.second,x),true);
+                            }
+                        }
+                    }
+                }
+            }
+            else
+            {
+                VerboseJunctions(4,"JunctionNode case f"<<std::endl;);
+                return std::make_pair(Nclose,false);
+            }
+        }
         
         /**********************************************************************/
         size_t junctionStep(const double& dx)
@@ -413,59 +467,123 @@ namespace model
                     if(L1.first && L2.first) // Links exist
                     {
                         
-                        auto  Ni= t<0.5? L1.second->source : L1.second->sink;
-                        bool NiIsNew=false;
-                        if((  ssd.x0-(t<0.5? L1.second->source->get_P() : L1.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
-                           || !L1.second->source->isMovableTo(ssd.x0))
-                        {
-                            if((ssd.x0-(t<0.5? L1.second->sink->get_P() : L1.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
-                               || !L1.second->sink->isMovableTo(ssd.x0))
-                            {
-                                Ni=DN.expand(key1.first,key1.second,ssd.x0);
-                                NiIsNew=true;
-                            }
-                            else
-                            {
-                                Ni=t<0.5? L1.second->sink : L1.second->source;
-                            }
-                        }
                         
-                        auto Nj=u<0.5? L2.second->source : L2.second->sink;
-                        bool NjIsNew=false;
-                        if((ssd.x1-(u<0.5? L2.second->source->get_P() : L2.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
-                           || !L2.second->source->isMovableTo(ssd.x1))
-                        {
-                            if((ssd.x1-(u<0.5? L2.second->sink->get_P() : L2.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
-                               || !L2.second->sink->isMovableTo(ssd.x1))
-                            {
-                                Nj=DN.expand(key2.first,key2.second,ssd.x1);
-                                NjIsNew=true;
-                            }
-                            else
-                            {
-                                Nj=u<0.5? L2.second->sink : L2.second->source;;
-                            }
-                        }
+//                        auto  Ni= t<0.5? L1.second->source : L1.second->sink;
+////                        auto  Nio= t>=0.5? L1.second->source : L1.second->sink;
+//                        bool NiIsNew=false;
+//                        if(t<FLT_EPSILON && t>1.0-FLT_EPSILON)
+//                        {// intersection is between source and sink
+//
+//                            const double sourceDistance((ssd.x0-L1.second->source->get_P()).norm());
+//                            const double   sinkDistance((ssd.x0-  L1.second->sink->get_P()).norm());
+//                            const bool sourceMovable(L1.second->source->isMovableTo(ssd.x0));
+//                            const bool   sinkMovable(L1.second->  sink->isMovableTo(ssd.x0));
+//
+//                            if(   sourceDistance>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                               &&   sinkDistance>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+//                            {
+//                                Ni=DN.expand(key1.first,key1.second,ssd.x0);
+//                                NiIsNew=true;
+//                            }
+//                            else if(   sourceDistance >DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                                    &&   sinkDistance<=DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+//                            {
+//                                if(sinkMovable)
+//                                {
+//                                    Ni=L1.second->sink;
+//                                }
+//                                else
+//                                {
+//                                    Ni=DN.expand(key1.first,key1.second,ssd.x0);
+//                                    NiIsNew=true;
+//                                }
+//                            }
+//                            else if(   sourceDistance<=DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                                    &&   sinkDistance >DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+//                            {
+//                                if(sourceMovable)
+//                                {
+//                                    Ni=L1.second->source;
+//                                }
+//                                else
+//                                {
+//                                    Ni=DN.expand(key1.first,key1.second,ssd.x0);
+//                                    NiIsNew=true;
+//                                }
+//                            }
+//                            else
+//                            {
+//
+//                            }
+//
+////                            if((ssd.x0-Ni->get_P()).norm()>DislocationNetworkType>::Lmin // distance of x0 from closest node larger then Lmin
+////                               || !Ni->isMovableTo(ssd.x0) // closest node cannot be moved to x0
+////                               )
+////                            {
+////                                Ni=DN.expand(key1.first,key1.second,ssd.x0);
+////                                NiIsNew=true;
+////                            }
+//                        }
+//
+//
+//
+//
+//                        auto  Ni= t<0.5? L1.second->source : L1.second->sink;
+//                        bool NiIsNew=false;
+//                        if((  ssd.x0-(t<0.5? L1.second->source->get_P() : L1.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                           || !L1.second->source->isMovableTo(ssd.x0))
+//                        {
+//                            if((ssd.x0-(t<0.5? L1.second->sink->get_P() : L1.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                               || !L1.second->sink->isMovableTo(ssd.x0))
+//                            {
+//                                Ni=DN.expand(key1.first,key1.second,ssd.x0);
+//                                NiIsNew=true;
+//                            }
+//                            else
+//                            {
+//                                Ni=t<0.5? L1.second->sink : L1.second->source;
+//                            }
+//                        }
+//
+//                        auto Nj=u<0.5? L2.second->source : L2.second->sink;
+//                        bool NjIsNew=false;
+//                        if((ssd.x1-(u<0.5? L2.second->source->get_P() : L2.second->sink->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                           || !L2.second->source->isMovableTo(ssd.x1))
+//                        {
+//                            if((ssd.x1-(u<0.5? L2.second->sink->get_P() : L2.second->source->get_P())).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                               || !L2.second->sink->isMovableTo(ssd.x1))
+//                            {
+//                                Nj=DN.expand(key2.first,key2.second,ssd.x1);
+//                                NjIsNew=true;
+//                            }
+//                            else
+//                            {
+//                                Nj=u<0.5? L2.second->sink : L2.second->source;;
+//                            }
+//                        }
+                        
+                        std::pair<std::shared_ptr<NodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
+                        std::pair<std::shared_ptr<NodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
                         
                         VerboseJunctions(1,"forming junction "<<key1.first<<"->"<<key1.second<<", "
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
                                          /*                   */ <<"dMin="<<ssd.dMin<<", "
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "
-                                         /*                   */ <<"contracting "<<Ni->sID<<" "<<Nj->sID<<std::endl;);
+                                         /*                   */ <<"contracting "<<Ni.first->sID<<" "<<Nj.first->sID<<std::endl;);
                         
-                        if(Ni->sID!=Nj->sID)
+                        if(Ni.first->sID!=Nj.first->sID)
                         {
-                            const bool success=DN.contract(Ni,Nj);
+                            const bool success=DN.contract(Ni.first,Nj.first);
                             nContracted+=success;
                             if(!success)
                             {
-                                if(NiIsNew)
+                                if(Ni.second)
                                 {
-                                    DN.remove(Ni->sID);
+                                    DN.remove(Ni.first->sID);
                                 }
-                                if(NjIsNew)
+                                if(Nj.second)
                                 {
-                                    DN.remove(Nj->sID);
+                                    DN.remove(Nj.first->sID);
                                 }
                             }
                             else

@@ -437,9 +437,9 @@ namespace model
         
         /**********************************************************************/
         PlanarDislocationNode(LoopNetworkType* const ln,
-                        const VectorDim& Pin,
-                        const VectorDofType& Vin,
-                        const double& vrc) :
+                              const VectorDim& Pin,
+                              const VectorDofType& Vin,
+                              const double& vrc) :
         /* base constructor */ NodeBaseType(ln,Pin)
         /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
@@ -457,7 +457,7 @@ namespace model
         
         /**********************************************************************/
         PlanarDislocationNode(const LinkType& pL,
-                        const VectorDim& Pin) :
+                              const VectorDim& Pin) :
         /* init */ NodeBaseType(pL.loopNetwork,Pin)
         /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
@@ -475,8 +475,8 @@ namespace model
         
         /**********************************************************************/
         PlanarDislocationNode(LoopNetworkType* const ln,
-                        const VectorDim& Pin,
-                        const NodeType* const master) :
+                              const VectorDim& Pin,
+                              const NodeType* const master) :
         /* base constructor */ NodeBaseType(ln,Pin)
         /* init */,_isGlissile(false)
         /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
@@ -496,11 +496,11 @@ namespace model
         ~PlanarDislocationNode()
         {
             VerbosePlanarDislocationNode(1,"Destroying PlanarDislocationNode "<<this->sID<<" ("<<this<<")"<<std::endl;);
-//            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
-//            if(virtualNode)
-//            {
-//                this->network().remove(virtualNode->sID);
-//            }
+            //            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<", virtual node count="<<virtualNode.use_count()<<std::endl;);
+            //            if(virtualNode)
+            //            {
+            //                this->network().remove(virtualNode->sID);
+            //            }
         }
         
         /**********************************************************************/
@@ -1071,37 +1071,40 @@ namespace model
         bool isGeometricallyRemovable(const double& Lmin,const double& cosRemove) const
         {
             bool temp=false;
-            const auto linksMap=this->linksByLoopID();
-            if(linksMap.size()==1)
+            if(!this->isBoundaryNode() && !this->isGrainBoundaryNode())
             {
-                const LoopLinkContainerType& linkSet(linksMap.begin()->second);
-                assert(linkSet.size()==2);
-                const LoopLinkType& link0(**linkSet. begin());
-                const LoopLinkType& link1(**linkSet.rbegin());
-                
-                if(link0.loop()->isGlissile)
+                const auto linksMap=this->linksByLoopID();
+                if(linksMap.size()==1)
                 {
-                    const VectorDim chord0(link0.sink()->get_P()-link0.source()->get_P());
-                    const VectorDim chord1(link1.sink()->get_P()-link1.source()->get_P());
-                    const double chord0Norm(chord0.norm());
-                    const double chord1Norm(chord1.norm());
+                    const LoopLinkContainerType& linkSet(linksMap.begin()->second);
+                    assert(linkSet.size()==2);
+                    const LoopLinkType& link0(**linkSet. begin());
+                    const LoopLinkType& link1(**linkSet.rbegin());
                     
-                    if(chord0Norm<Lmin || chord1Norm<Lmin)
+                    if(link0.loop()->isGlissile)
                     {
-                        if(chord0.dot(chord1)>cosRemove*chord0Norm*chord1Norm)
+                        const VectorDim chord0(link0.sink()->get_P()-link0.source()->get_P());
+                        const VectorDim chord1(link1.sink()->get_P()-link1.source()->get_P());
+                        const double chord0Norm(chord0.norm());
+                        const double chord1Norm(chord1.norm());
+                        
+                        if(chord0Norm<Lmin || chord1Norm<Lmin)
                         {
-                            const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
-                            const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
-                            if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter
+                            if(chord0.dot(chord1)>cosRemove*chord0Norm*chord1Norm)
                             {
-                                temp=true;
+                                const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
+                                const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
+                                if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter
+                                {
+                                    temp=true;
+                                }
                             }
                         }
-                    }
-                    
-                    if(chord0Norm+chord1Norm<Lmin)
-                    {
-                        temp=true;
+                        
+                        if(chord0Norm+chord1Norm<Lmin)
+                        {
+                            temp=true;
+                        }
                     }
                 }
             }
@@ -1306,7 +1309,7 @@ namespace model
             if(isMovable)
             {
                 
-
+                
                 
                 for(const auto& pair : this->neighbors())
                 {
@@ -1408,13 +1411,13 @@ namespace model
             //            vOld=velocity; // store current value of velocity before updating
         }
         
-//        /**********************************************************************/
-//        template <class T>
-//        friend T& operator << (T& os, const NodeType& ds)
-//        {
-//            os<< DislocationNodeIO<dim>(ds);
-//            return os;
-//        }
+        //        /**********************************************************************/
+        //        template <class T>
+        //        friend T& operator << (T& os, const NodeType& ds)
+        //        {
+        //            os<< DislocationNodeIO<dim>(ds);
+        //            return os;
+        //        }
         
     };
     
