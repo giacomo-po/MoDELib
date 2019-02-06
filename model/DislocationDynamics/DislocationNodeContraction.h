@@ -276,7 +276,7 @@ namespace model
                         }
                     }
                     else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
-                    {
+                    {// same as previous case, so switch nA and nB
                         VerboseNodeContraction(1,"DislocationNodeContraction case 7a"<<std::endl;);
                         return contract(nB,nA);
                     }
@@ -289,15 +289,19 @@ namespace model
                         const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(&nA->meshPlane(0),&nB->meshPlane(0)));
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
-                        {
+                        {// the contraction point can be the averago of nA and nB, which should be internal for convex domains
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8a"<<std::endl;);
                             return contractToPosition(nA,nB,nA->snapToMeshPlaneIntersection(0.5*(nA->get_P()+nB->get_P())),maxRange);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
-                            const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
-                            return contractToPosition(nA,nB,ppi.P+u*ppi.d,maxRange);
+                            BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                            assert(temp.size()==2 && "LINE BETWEEN INCIDENT PLANES MUST CUT THE MESH IN TWO POINTS");
+                            LineSegment<dim> cutLine(0.5*(temp[0].first+temp[0].second),0.5*(temp[1].first+temp[1].second));
+                            return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+//                            const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
+//                            return contractToPosition(nA,nB,ppi.P+u*ppi.d,maxRange);
                         }
                         else
                         {
