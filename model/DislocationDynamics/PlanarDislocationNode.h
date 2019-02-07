@@ -457,8 +457,8 @@ namespace model
         
         /**********************************************************************/
         PlanarDislocationNode(const LinkType& pL,
-                              const VectorDim& Pin) :
-        /* init */ NodeBaseType(pL.loopNetwork,Pin)
+                              const double& u) :
+        /* init */ NodeBaseType(pL.loopNetwork,pL.get_r(u))
         /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -471,6 +471,11 @@ namespace model
         {/*! Constructor from ExpandingEdge and DOF
           */
             VerbosePlanarDislocationNode(1,"Creating PlanarDislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
+            if(pL.isBoundarySegment())
+            {
+                assert(isBoundaryNode());
+            }
+            
         }
         
         /**********************************************************************/

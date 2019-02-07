@@ -366,7 +366,7 @@ namespace model
                         //                        {
                         //                            //                        DN.expand(i,j,expandPoint);
                         //std::cout<<"Expanding "<<i<<"->"<<j<<std::endl;
-                        DN.expand(i,j,expandPoint);
+                        DN.expand(i,j,expand_at);
                         Nexpanded++;
                         //                        }
                     }

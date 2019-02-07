@@ -56,8 +56,8 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(const LinkType& pL,
-                        const VectorDim& Pin) :
-        /* base constructor */ NodeBaseType(pL,Pin)
+                        const double& u) :
+        /* base constructor */ NodeBaseType(pL,u)
         {/*! Constructor from ExpandingEdge and DOF
           */
         }

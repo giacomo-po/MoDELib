@@ -394,7 +394,7 @@ namespace model
                 if((Nclose->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                 {
                     VerboseJunctions(4,"JunctionNode case a"<<std::endl;);
-                    return std::make_pair(DN.expand(key.first,key.second,x),true);
+                    return std::make_pair(DN.expand(key.first,key.second,t),true);
                 }
                 else
                 {
@@ -408,7 +408,7 @@ namespace model
                         if((Nfar->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
                         {
                             VerboseJunctions(4,"JunctionNode case c"<<std::endl;);
-                            return std::make_pair(DN.expand(key.first,key.second,x),true);
+                            return std::make_pair(DN.expand(key.first,key.second,t),true);
                         }
                         else
                         {
@@ -420,7 +420,7 @@ namespace model
                             else
                             {
                                 VerboseJunctions(4,"JunctionNode case e"<<std::endl;);
-                                return std::make_pair(DN.expand(key.first,key.second,x),true);
+                                return std::make_pair(DN.expand(key.first,key.second,t),true);
                             }
                         }
                     }
@@ -562,14 +562,14 @@ namespace model
 //                            }
 //                        }
                         
-                        std::pair<std::shared_ptr<NodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
-                        std::pair<std::shared_ptr<NodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
-                        
                         VerboseJunctions(1,"forming junction "<<key1.first<<"->"<<key1.second<<", "
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
                                          /*                   */ <<"dMin="<<ssd.dMin<<", "
-                                         /*                   */ <<"@ ("<<t<<","<<u<<"), "
-                                         /*                   */ <<"contracting "<<Ni.first->sID<<" "<<Nj.first->sID<<std::endl;);
+                                         /*                   */ <<"@ ("<<t<<","<<u<<"), "<<std::flush);
+                        std::pair<std::shared_ptr<NodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
+                        std::pair<std::shared_ptr<NodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
+                        
+                        VerboseJunctions(1,"contracting "<<Ni.first->sID<<" "<<Nj.first->sID<<std::endl;);
                         
                         if(Ni.first->sID!=Nj.first->sID)
                         {
