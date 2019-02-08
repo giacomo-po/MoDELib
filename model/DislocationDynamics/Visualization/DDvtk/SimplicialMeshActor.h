@@ -178,7 +178,7 @@ namespace model
                 {
                     if(meshTriangle.second->isBoundarySimplex())
                     {
-                        const int regionID=(*meshTriangle.second->parents().begin())->region->regionID;
+                        const int regionID=meshTriangle.second->parents().begin()->second->region->regionID;
                         
                         const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
                         
@@ -224,8 +224,8 @@ namespace model
                     {
                         const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
                         
-                        const int regionID1=(*meshTriangle.second->parents().begin())->region->regionID;
-                        const int regionID2=(*meshTriangle.second->parents().rbegin())->region->regionID;
+                        const int regionID1=meshTriangle.second->parents().begin()->second->region->regionID;
+                        const int regionID2=meshTriangle.second->parents().rbegin()->second->region->regionID;
 
                         const Eigen::Matrix<double,3,1> n1=-meshTriangle.second->outNormal(regionID1).normalized();
                         const Eigen::Matrix<double,3,1> n2=-meshTriangle.second->outNormal(regionID2).normalized();

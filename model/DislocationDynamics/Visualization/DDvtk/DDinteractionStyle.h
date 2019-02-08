@@ -243,7 +243,7 @@ namespace model
                 {
                     vtkSmartPointer<vtkWindowToImageFilter> windowToImageFilter = vtkSmartPointer<vtkWindowToImageFilter>::New();
                     windowToImageFilter->SetInput(rwi->GetRenderWindow()/*renderWindow*/);
-                    windowToImageFilter->SetMagnification(imageMagnification); //set the resolution of the output image (3 times the current resolution of vtk render window)
+//                    windowToImageFilter->SetMagnification(imageMagnification); //set the resolution of the output image (3 times the current resolution of vtk render window)
                     if(imageTransparentBackground)
                     {
                         windowToImageFilter->SetInputBufferTypeToRGBA(); //also record the alpha (transparency) channel
