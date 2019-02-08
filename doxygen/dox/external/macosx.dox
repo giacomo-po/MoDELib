@@ -4,7 +4,7 @@ namespace model {
 \section macosxGCC Updating gcc
 At the time of writing this guide, the version of gcc that ships with <a href="https://developer.apple.com/xcode/">Xcode</a> is unable to compile MODEL. However, you can easily install a more recent version of gcc in your <a href="http://www.apple.com/osx/">Mac OsX</a>  using <a href="http://www.macports.org">MacPorts</a>. After installing  <a href="http://www.macports.org">MacPorts</a>, run the following in Terminal:
 \verbatim
-sudo port install gcc6
+sudo port install gcc8
 \endverbatim
 
 This installs gcc6 in your system. Now make sure  to select gcc6 as the default gcc compiler. You can select a particular version of  gcc by first installing gcc_select, again via <a href="http://www.macports.org">MacPorts</a>:
@@ -17,7 +17,7 @@ port select --list gcc
 \endverbatim
 And finally select the most current version, say mp-gcc6:
 \verbatim
-sudo port select --set gcc mp-gcc6
+sudo port select --set gcc mp-gcc8
 \endverbatim
 
 For DDmpi, also install the following
@@ -32,7 +32,18 @@ sudo port select --set mpi openmpi-gcc6-fortran
 sudo port install openmpi
 \endverbatim
 
-
+\section macosxDDVTK Compiling DDvtk
+In order to compile DDvtk we need cmake and vtk from MacPorts
+\verbatim
+sudo port install cmake
+sudo port install vtk
+\endverbatim
+Unfortunately, vtk is only compatible with the system g++/gcc (clang). Therefore, when invoking cmake, we need to specify the system compiler:
+\verbatim
+cd tools/DDvtk 
+cmake . -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_CC_COMPILER=/usr/bin/gcc
+make
+\endverbatim
 
 Make sure to complete these steps before installing \ref openmpi.
 
