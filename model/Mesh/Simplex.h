@@ -143,15 +143,27 @@ namespace model
         }
         
         /**********************************************************************/
+        BaseArrayType& children()
+        {
+            return *this;
+        }
+
+        /**********************************************************************/
+        const BaseArrayType& children() const
+        {
+            return *this;
+        }
+
+        /**********************************************************************/
         ChildSimplexType& child(const int& n)
         {
-            return *(this->operator[](n).get());
+            return *(children()[n].get());
         }
         
         /**********************************************************************/
         const ChildSimplexType& child(const int& n) const
         {
-            return *(this->operator[](n).get());
+            return *(children()[n].get());
         }
         
         /**********************************************************************/
@@ -160,21 +172,20 @@ namespace model
             size_t n=nFaces;
             for (size_t k=0;k<nFaces;++k)
             {
-                if(this->operator[](k)->xID==xID)
+                if(children()[k]->xID==xID)
                 {
                     n=k;
                     break;
                 }
             }
             assert(n!=nFaces && "CHILD NOT FOUND");
-            return this->operator[](n);
+            return children()[n];
         }
         
-        const BaseArrayType& children() const
-        {
-            return *this;
-        }
-        
+//        const BaseArrayType& children() const
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         size_t childOrder(const ChildIDType& childID) const
@@ -317,15 +328,27 @@ namespace model
         }
         
         /**********************************************************************/
+        BaseArrayType& children()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const BaseArrayType& children() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         ChildSimplexType& child(const int& n)
         {
-            return *(this->operator[](n).get());
+            return *(children()[n].get());
         }
         
         /**********************************************************************/
         const ChildSimplexType& child(const int& n) const
         {
-            return *(this->operator[](n).get());
+            return *(children()[n].get());
         }
         
         /**********************************************************************/
@@ -344,10 +367,10 @@ namespace model
             return this->operator[](n);
         }
         
-        const BaseArrayType& children() const
-        {
-            return *this;
-        }
+//        const BaseArrayType& children() const
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         size_t childOrder(const ChildIDType& childID) const
@@ -435,9 +458,9 @@ namespace model
                     
                     for(auto& pParent : this->child(kMin).parents())
                     {
-                        if(pParent->region->regionID==region->regionID || searchAllRegions)
+                        if(pParent.second->region->regionID==region->regionID || searchAllRegions)
                         {
-                            pParent->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+                            pParent.second->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
                             if (lastSearched.first)
                             {
                                 break;

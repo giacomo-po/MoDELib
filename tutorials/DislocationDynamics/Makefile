@@ -36,14 +36,13 @@ else
 	CFLAGS += -Ofast
 	CFLAGS += -fopenmp
 	CFLAGS += -std=c++17
-
 	ifeq ($(OS),Darwin)
 		CFLAGS += -msse4
 	endif
 
 	ifeq ($(OS),Linux)
-		CFLAGS += -msse4
-#s		CFLAGS += -march=native
+#		CFLAGS += -msse4
+		CFLAGS += -march=native
 	endif
 
 endif
@@ -141,7 +140,7 @@ generatorOBJS = microstructureGenerator
 
 $(generatorOBJS):
 	@echo making microstructureGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++14 -Wall $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++17 -Wall $(IDIR)
 
 
 ##########################################################

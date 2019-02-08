@@ -18,6 +18,8 @@
 #include <assert.h>
 #include <Eigen/Core>
 #include <StaticID.h>
+#include <SimplexTraits.h>
+#include <SimplicialMesh.h>
 #include <GlidePlaneObserver.h>
 #include <LatticePlane.h>
 #include <MPIcout.h>
@@ -32,7 +34,7 @@
 
 namespace model
 {
-    
+
     /**************************************************************************/
     /**************************************************************************/
     template <int dim>
@@ -41,12 +43,12 @@ namespace model
     /* base class    */ public MeshPlane<dim>,
     /* base class    */ private std::set<const std::shared_ptr<GlidePlane<dim>>*>
     {
-        
+
         typedef GlidePlane<dim> GlidePlaneType;
         typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::array<long int,dim+3> GlidePlaneKeyType;
-        
+
         /**********************************************************************/
         static GlidePlaneKeyType getGlidePlaneKey(const int& grainID,
                                                   const LatticePlane& lp
@@ -76,16 +78,16 @@ namespace model
             temp[2+dim]=lp.h;
             return temp;
             //            return (GlidePlaneKeyType()<<grainID1,grainID2,r*sign(h),h*sign(h)).finished(); // make sure that key heigh is always positive for uniqueness
-            
+
         }
-        
+
 //        std::set<long int> glissileLoopIDs;
 //        std::set<long int> sessileLoopIDs;
-        
+
         static int verboseGlidePlane;
         GlidePlaneObserverType* const glidePlaneObserver;
         const GlidePlaneKeyType glidePlaneKey;
-        
+
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
@@ -100,10 +102,10 @@ namespace model
             VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<std::endl;);
             glidePlaneObserver->addGlidePlane(this);
         }
-        
+
         /**********************************************************************/
         GlidePlane(const GlidePlane<dim>& other) = delete;
-        
+
         /**********************************************************************/
         ~GlidePlane()
         {
@@ -111,7 +113,7 @@ namespace model
             VerboseGlidePlane(1,"Destroying GlidePlane "<<this->sID<<std::endl;);
             glidePlaneObserver->removeGlidePlane(this);
         }
-        
+
         /**********************************************************************/
         std::shared_ptr<GlidePlane<dim>> sharedPlane() const
         {/*!\returns a shared pointer to this
@@ -130,7 +132,7 @@ namespace model
           */
             const bool success=this->insert(pL).second;
             assert( success && "COULD NOT INSERT LOOP POINTER IN GLIDE PLANE.");
-            
+
 //            if(isGlissile)
 //            {
 //                glissileLoopIDs.insert(loopID);
@@ -140,7 +142,7 @@ namespace model
 //                sessileLoopIDs.insert(loopID);
 //            }
         }
-        
+
         /**********************************************************************/
 //        template<typename LoopType>
         void removeParentSharedPtr(const std::shared_ptr<GlidePlane<dim>>* const pL)
@@ -151,7 +153,7 @@ namespace model
           */
             const int success=this->erase(pL);
             assert(success==1 && "COULD NOT ERASE LOOP POINTER FROM GLIDE PLANE.");
-        
+
 //            if(isGlissile)
 //            {
 //                glissileLoopIDs.erase(loopID);
@@ -161,7 +163,7 @@ namespace model
 //                sessileLoopIDs.erase(loopID);
 //            }
         }
-        
+
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const GlidePlaneType& gp)
@@ -172,17 +174,20 @@ namespace model
                 os<<gp.sID<< " "<<kk<<" "<< x.first->child(0).xID<< " "<< x.first->child(1).xID <<" "<<x.second.transpose()<<"\n";
                 kk++;
             }
-            
+
             return os;
         }
-        
+
     };
-    
+
     template <int dim>
     int GlidePlane<dim>::verboseGlidePlane=0;
-    
+
 }
 #endif
+
+
+
 
 //        /**********************************************************************/
 //        template<typename LoopType>

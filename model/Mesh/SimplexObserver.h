@@ -132,22 +132,21 @@ namespace model
     /**************************************************************************/
 	template<short int dim,short int order>
     struct SimplexObserverBase : public std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
-    /*                                        */ const Simplex<dim,order>* const, // value
-    /*                                        */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
-    /*                                        */ SimplexTraits<dim,order>::nVertices>> // key compare
+    /*                                        */ const Simplex<dim,order>* const> // value
+//    /*                                        */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
+//    /*                                        */ SimplexTraits<dim,order>::nVertices>> // key compare
     {
-        
+        typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         typedef Simplex<dim,order> SimplexType;
 		typedef std::map<typename SimplexTraits<dim,order>::SimplexIDType, // key
-        /*            */ const Simplex<dim,order>* const, // value
-        /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
-        /*                                      */ SimplexTraits<dim,order>::nVertices> // key compare
-        /*            */ >  SimplexMapType;
+        /*            */ const Simplex<dim,order>* const> SimplexMapType;// value
+//        /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,order>::ScalarIDType,
+//        /*                                      */ SimplexTraits<dim,order>::nVertices> // key compare
+//        /*            */ >  SimplexMapType;
 		
         typedef typename SimplexMapType::const_iterator const_iterator;
         typedef typename SimplexMapType::iterator iterator;
         
-        typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         typedef std::shared_ptr<SimplexType> SharedPtrType;
 		
 		
@@ -157,31 +156,16 @@ namespace model
             return *this;
         }
         
-//		/**********************************************************************/
-//		static size_t size()
-//        {
-//			return simplexMap.size();
-//		}
-		
-//        /**********************************************************************/
-//		static typename SimplexMapType::const_iterator simplexBegin()
-//        {
-//			return simplexMap.begin();
-//		}
-//		
-//		/**********************************************************************/
-//		static typename SimplexMapType::const_iterator simplexEnd()
-//        {
-//			return simplexMap.end();
-//		}
+
         
 		/**********************************************************************/
         SharedPtrType sharedSimplex(SimplicialMesh<dim>* const mesh,
                                            const SimplexIDType& xID)
         {
 			typename SimplexMapType::const_iterator iter(this->find(xID));
-			return (iter!=this->end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
-		}
+//			return (iter!=this->end())? (*(iter->second->parentBegin()))->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
+            return (iter!=this->end())? (iter->second->parents().begin())->second->child(xID) : SharedPtrType(new SimplexType(mesh,xID));
+        }
         
         /**********************************************************************/
         const SimplexType& simplex(const SimplexIDType& xID) const
@@ -241,3 +225,23 @@ namespace model
     
 }	// close namespace
 #endif
+
+
+
+//        /**********************************************************************/
+//        static size_t size()
+//        {
+//            return simplexMap.size();
+//        }
+
+//        /**********************************************************************/
+//        static typename SimplexMapType::const_iterator simplexBegin()
+//        {
+//            return simplexMap.begin();
+//        }
+//
+//        /**********************************************************************/
+//        static typename SimplexMapType::const_iterator simplexEnd()
+//        {
+//            return simplexMap.end();
+//        }

@@ -262,6 +262,11 @@ namespace model
             return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
         }
         
+//        double vacancyConcentrationKernel(const int& k,const VectorDim& x) const
+//        {
+//            return quadraturePoint(k).climbVelocity/(quadraturePoint(k).r-x).norm()*this->quadraturePoint(k).j;
+//        }
+        
     public:
         
         /**********************************************************************/

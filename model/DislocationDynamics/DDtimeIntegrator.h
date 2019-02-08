@@ -67,7 +67,7 @@ namespace model
              */
             
             //			double vmax(0.0);
-            int vMaxID=-1;
+//            int vMaxID=-1;
             double vmax=0.0;
 //            int nVmean=0;
 //            double vmean=0.0;
@@ -89,7 +89,7 @@ namespace model
                     if (vNorm>vmax)
                     {
                         vmax=vNorm;
-                        vMaxID=nodeIter.first;
+//                        vMaxID=nodeIter.first;
                     }
                 }
             }

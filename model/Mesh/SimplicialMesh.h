@@ -42,9 +42,9 @@ namespace model
     /*                  */ public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>,   // make sure this is destroyed after map of Simplex<_dim,_dim>
     /*                  */ public SimplexReader<_dim>,
     /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
-    /*                                */ const Simplex<_dim,_dim>, // value
-    /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
-    /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
+    /*                                */ const Simplex<_dim,_dim> // value
+//    /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
+//    /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
 //    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
     /*                                */ >,
     /*                  */ public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
@@ -63,9 +63,9 @@ namespace model
         
         
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
-        /*            */ const Simplex<dim,dim>, // value
-        /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,dim>::ScalarIDType,
-        /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
+        /*            */ const Simplex<dim,dim> // value
+//        /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,dim>::ScalarIDType,
+//        /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
 //        /*            */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
         /*            */ >  SimplexMapType;
         
@@ -138,8 +138,16 @@ namespace model
                 for (const auto& eIter : elementReader)
                 {
                     //                    insertSimplex(eIter->second);
-                    Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
-                    insertSimplex(row.template segment<dim+1>(0),row(dim+1));
+//                    Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
+//                    insertSimplex(row.template segment<dim+1>(0),row(dim+1));
+                    
+                    typename SimplexTraits<dim,dim>::SimplexIDType key;
+                    for(int d=0;d<dim+1;++d)
+                    {
+                        key[d]=eIter.second[d];
+                    }
+                    insertSimplex(key,eIter.second[dim+1]);
+
                     //                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
                     
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
@@ -233,7 +241,6 @@ namespace model
                                                 std::make_tuple(xID),
                                                 std::make_tuple(this,xID, regionID)
                                                 );
-            
             assert(pair.second);
             vol0+=pair.first->second.vol0;
         }
@@ -320,12 +327,23 @@ namespace model
                 {
                     if(bary(k)<=FLT_EPSILON)
                     {
-                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
-                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
+//                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
+//                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
+//                        {
+//                            if((*pIter)->region->regionID==temp.second->region->regionID || searchAllRegions)
+//                            {
+//                                (*pIter)->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+//                                if (lastSearched.first)
+//                                {
+//                                    break;
+//                                }
+//                            }
+//                        }
+                        for(const auto& pIter : temp.second->child(k).parents())
                         {
-                            if((*pIter)->region->regionID==temp.second->region->regionID || searchAllRegions)
+                            if(pIter.second->region->regionID==temp.second->region->regionID || searchAllRegions)
                             {
-                                (*pIter)->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+                                pIter.second->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
                                 if (lastSearched.first)
                                 {
                                     break;

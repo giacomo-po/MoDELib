@@ -16,6 +16,7 @@
 #include <memory> // std::shared_ptr (c++11)
 #include <Eigen/Dense>
 #include <Eigen/Cholesky>
+#include <SimplicialMesh.h>
 #include <DislocationNetworkTraits.h>
 #include <CompareVectorsByComponent.h>
 #include <LatticeVector.h>

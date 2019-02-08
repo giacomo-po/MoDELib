@@ -25,6 +25,35 @@ namespace model
     class SimplexChild;
     
     
+    template<short int nVertices>
+    struct SimplexID : public std::array<size_t,nVertices>
+    {
+        typedef size_t ScalarIDType;
+        typedef typename std::array<size_t,nVertices>::size_type size_type;
+        
+        ScalarIDType& operator()(const size_type& k)
+        {
+            return this->operator[](k);
+        }
+
+        const ScalarIDType& operator()(const size_type& k) const
+        {
+            return this->operator[](k);
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const SimplexID& xID)
+        {
+            for(const auto& val : xID)
+            {
+                os  << val<<" ";
+            }
+            return os;
+        }
+        
+    };
+    
     /**************************************************************************/
     /**************************************************************************/
     template<short int dim, short int order>
@@ -40,11 +69,18 @@ namespace model
         enum {nEdges=SimplexTraits<dim,order-1>::nEdges+SimplexTraits<dim,order-1>::nVertices};
         enum {nFaces=nVertices};
         
+        typedef Simplex<dim,order>   SimplexType;
+        typedef Simplex<dim,order+1> ParentSimplexType;
+
         typedef std::array<std::shared_ptr<Simplex<dim,order-1> >,nFaces> BaseArrayType;
-        
-        typedef size_t ScalarIDType;
-        
-        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
+
+        typedef typename SimplexID<nVertices>::ScalarIDType ScalarIDType;
+        typedef SimplexID<nVertices> SimplexIDType;
+
+//        typedef size_t ScalarIDType;
+////        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
+//        typedef std::array<ScalarIDType,nVertices> SimplexIDType;
+
         
         /**********************************************************************/
         static SimplexIDType sortID(const SimplexIDType& vIN)
@@ -58,14 +94,9 @@ namespace model
             
             SimplexIDType temp;
             int k(0);
-            //			for (std::set<size_t>::const_iterator iter=set.begin();iter!=set.end();++iter)
-            //            {
-            //				temp(k)=(*iter);
-            //				++k;
-            //			}
             for (const size_t& m : set)
             {
-                temp(k)=m;
+                temp[k]=m;
                 ++k;
             }
             return temp;
@@ -86,7 +117,7 @@ namespace model
             {
                 if(k!=j)
                 {
-                    temp(m)=(xID(k));
+                    temp[m]=xID[k];
                     ++m;
                 }
             }
@@ -120,7 +151,6 @@ namespace model
                 }
             }
             assert(temp>=0 && "FACE NOT FOUND");
-            
             return temp;
         }
         
@@ -136,10 +166,15 @@ namespace model
         enum {nEdges=0};
         enum {nFaces=nVertices};
         
-        typedef size_t ScalarIDType;
-        
-        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
-        
+        typedef Simplex<dim,order>   SimplexType;
+        typedef Simplex<dim,order+1> ParentSimplexType;
+
+//        typedef size_t ScalarIDType;
+//
+//        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
+        typedef typename SimplexID<nVertices>::ScalarIDType ScalarIDType;
+        typedef SimplexID<nVertices> SimplexIDType;
+
         /**********************************************************************/
         static SimplexIDType sortID(const SimplexIDType& vIN)
         {

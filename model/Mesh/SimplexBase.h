@@ -57,7 +57,8 @@ namespace model
             for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
-                vID<<xID(v);
+//                vID<<xID(v);
+                vID[0]=xID[v];
                 temp[v]=&mesh->template observer<0>().simplex(vID);
             }
             return temp;
@@ -70,7 +71,8 @@ namespace model
             for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
             {
                 typename SimplexTraits<dim,0>::SimplexIDType vID;
-                vID<<xID(v);
+//                vID<<xID(v);
+                vID[0]=xID[v];
 //                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
                 temp.col(v)=mesh->template observer<0>().simplex(vID).P0;
 

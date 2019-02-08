@@ -176,13 +176,15 @@ namespace model
             Eigen::Matrix<double,dim,dim> temp;
             
             typename SimplexTraits<dim,0>::SimplexIDType last;
-            last<<s.xID(dim); // a 1x1 matrix
-            
+//            last<<s.xID(dim); // a 1x1 matrix
+            last[0]=s.xID(dim); // a 1x1 matrix
+
             //! Compute linear part of the deformation gradient
             for (int k=0;k<dim;++k)
             {
                 typename SimplexTraits<dim,0>::SimplexIDType current;
-                current<<s.xID(k); // a 1x1 matrix
+//                current<<s.xID(k); // a 1x1 matrix
+                current[0]=s.xID(k); // a 1x1 matrix
                 temp.col(k) << s.mesh->template observer<0>().simplex(current).P0 - s.mesh->template observer<0>().simplex(last).P0;
             }
             return temp;
@@ -214,7 +216,8 @@ namespace model
           */
             
             typename SimplexTraits<dim,0>::SimplexIDType last;
-            last<<s.xID(dim); // a 1x1 matrix
+//            last<<s.xID(dim); // a 1x1 matrix
+            last[0]=s.xID(dim); // a 1x1 matrix
 
             const Eigen::Matrix<double,dim,dim> FL(get_FL(simplex));
             

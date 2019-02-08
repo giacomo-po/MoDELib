@@ -30,7 +30,8 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef std::deque<std::pair<const Simplex<dim,dim-2>* const,VectorDim>> PlaneMeshIntersectionContainerType;
         typedef Simplex<dim,dim-2>   EdgeSimplexType;
-        typedef std::set<const EdgeSimplexType*,SimplexCompare<dim,dim-2> >  SiblingsContainerType;
+//        typedef std::set<const EdgeSimplexType*,SimplexCompare<dim,dim-2> >  SiblingsContainerType;
+        typedef std::map<typename SimplexTraits<dim,dim-2>::SimplexIDType,const Simplex<dim,dim-2>* const>  SiblingsContainerType;
         typedef Simplex<dim,dim-1> ParentSimplexType;
         typedef std::pair<VectorDim,const Simplex<dim,0>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
@@ -144,7 +145,7 @@ namespace model
         {
             for(const auto& parent : vertex.parents())
             {
-                tested.insert(parent);
+                tested.insert(parent.second);
             }
         }
         
@@ -158,14 +159,14 @@ namespace model
             SiblingsContainerType siblings;
             for(const auto& parent : edge.parents())
             {
-                if(  (parent->isBoundarySimplex() || parent->isRegionBoundarySimplex())
-                   && parent->isInRegion(rID)
-                   && parent->outNormal(rID).cross(N).norm()>FLT_EPSILON
+                if(  (parent.second->isBoundarySimplex() || parent.second->isRegionBoundarySimplex())
+                   && parent.second->isInRegion(rID)
+                   && parent.second->outNormal(rID).cross(N).norm()>FLT_EPSILON
                    )
                 {
                     for(int c=0; c<ParentSimplexType::nFaces;++c)
                     {
-                        siblings.insert(&parent->child(c));
+                        siblings.emplace(parent.second->child(c).xID,&parent.second->child(c));
                     }
                 }
             }
@@ -185,9 +186,9 @@ namespace model
             std::set<const Simplex<dim,dim-1>*> grandParents;
             for(const auto& parent : vertex.parents())
             {
-                for(const auto& grandParent : parent->parents())
+                for(const auto& grandParent : parent.second->parents())
                 {
-                    grandParents.insert(grandParent);
+                    grandParents.insert(grandParent.second);
                 }
             }
             
@@ -201,7 +202,7 @@ namespace model
                 {
                     for(int c=0; c<Simplex<dim,dim-1>::nFaces;++c)
                     {
-                        uncles.insert(&grandParent->child(c));
+                        uncles.emplace(grandParent->child(c).xID,&grandParent->child(c));
                     }
                 }
             }
@@ -223,10 +224,10 @@ namespace model
             {
                 
                 
-                if(tested.find(edge)==tested.end())
+                if(tested.find(edge.second)==tested.end())
                 {
                     
-                    RootContainerType root=planeEdgeIntersection(P0,N,*edge,tested);
+                    RootContainerType root=planeEdgeIntersection(P0,N,*edge.second,tested);
                     
                     switch (root.size())
                     {
@@ -234,7 +235,7 @@ namespace model
                             break;
                             
                         case 1:
-                            rootDeq.emplace_back(edge,root[0]);
+                            rootDeq.emplace_back(edge.second,root[0]);
                             break;
                             
                         default:

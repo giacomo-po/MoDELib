@@ -22,10 +22,10 @@
 #include <random>
 #include <memory>
 #include <Eigen/Core>
+#include <SimplicialMesh.h>
 #include <MPIcout.h>
 #include <Grain.h>
 #include <GrainBoundary.h>
-#include <SimplicialMesh.h>
 #include <LatticeVector.h>
 #include <SequentialOutputFile.h>
 #include <StressStraight.h>
@@ -40,8 +40,8 @@
 namespace model
 {
     
-    
-    
+
+
     template <int dim>
     class Polycrystal : public  Material<dim,Isotropic>
     /*               */,private std::map<size_t,Grain<dim>>
@@ -57,7 +57,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
-        
+
         /**********************************************************************/
         static std::unique_ptr<DislocationMobilityBase> getMobility(const Material<dim,Isotropic>& material)
         {
@@ -80,13 +80,13 @@ namespace model
                 exit(EXIT_FAILURE);
             }
         }
-        
-        
+
+
     public:
-        
+
         const SimplicialMeshType& mesh;
         const std::unique_ptr<DislocationMobilityBase> mobility;
-        
+
         /**********************************************************************/
         Polycrystal(const std::string& polyFile,
                     const SimplicialMeshType& mesh_in) :
@@ -96,7 +96,7 @@ namespace model
         {
             model::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
             TextFileParser polyParser(polyFile);
-            
+
             // Construct Grains
             for(const auto& rIter : mesh.regions())
             {
@@ -106,7 +106,7 @@ namespace model
                                                        *this,
                                                        polyFile));
             }
-            
+
             // Construct GrainsBoundaries
             grainBoundaryDislocations().clear();
             //            int fileID=1;
@@ -119,8 +119,8 @@ namespace model
                                                                 grain(rgnBnd.first.second),
                                                                 mesh));
             }
-            
-            
+
+
 //            if(grainBoundaryDislocations().size())
 //            {
 //                model::SequentialOutputFile<'B',1>::set_count(0);
@@ -133,45 +133,45 @@ namespace model
 //                    n++;
 //                }
 //            }
-            
+
         }
-        
+
         /**********************************************************************/
         GrainType& grain(const size_t& k)
         {
             return grains().at(k);
         }
-        
+
         /**********************************************************************/
         const GrainType& grain(const size_t& k) const
         {
             return grains().at(k);
         }
-        
+
         /**********************************************************************/
         const std::map<size_t,GrainType>& grains() const
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         std::map<size_t,GrainType>& grains()
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries()
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         const std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries() const
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         const GrainBoundaryType& grainBoundary(const size_t& i,
                                                const size_t& j) const
@@ -179,7 +179,7 @@ namespace model
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
             return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));
         }
-        
+
         /**********************************************************************/
         GrainBoundaryType& grainBoundary(const size_t& i,
                                          const size_t& j)
@@ -187,7 +187,7 @@ namespace model
             assert(i!=j && "GrainBoundary IDs cannot be the same.");
             return (i<j)? grainBoundaries().at(std::make_pair(i,j)) : grainBoundaries().at(std::make_pair(j,i));
         }
-        
+
         /**********************************************************************/
         LatticeVectorType latticeVectorFromPosition(const VectorDim& p,
                                                     const Simplex<dim,dim>* const guess) const
@@ -196,13 +196,13 @@ namespace model
             assert(temp.first && "Position not found in mesh");
             return grain(temp.second->region->regionID).latticeVector(p);
         }
-        
+
         /**********************************************************************/
         LatticeVectorType latticeVectorFromPosition(const VectorDim& p) const
         {
             return latticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
-        
+
         /**********************************************************************/
         ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDim& p,
                                                                         const Simplex<dim,dim>* const guess) const
@@ -211,41 +211,41 @@ namespace model
             assert(temp.first && "Position not found in mesh");
             return grain(temp.second->region->regionID).reciprocalLatticeVector(p);
         }
-        
+
         /**********************************************************************/
         ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDim& p) const
         {
             return reciprocalLatticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
-        
+
         /**********************************************************************/
         std::vector<StressStraight<dim>>& grainBoundaryDislocations()
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         VectorDim randomPoint() const
         {
             std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
             std::uniform_real_distribution<double> distribution(0.0,1.0);
-            
+
             VectorDim P0(VectorDim::Zero());
-            
+
             P0 << mesh.xMin(0)+distribution(generator)*(mesh.xMax(0)-mesh.xMin(0)),
             /* */ mesh.xMin(1)+distribution(generator)*(mesh.xMax(1)-mesh.xMin(1)),
             /* */ mesh.xMin(2)+distribution(generator)*(mesh.xMax(2)-mesh.xMin(2));
-            
+
             return P0;
-            
+
         }
-        
+
         /**********************************************************************/
         std::pair<LatticeVector<dim>,int> randomLatticePointInMesh() const
         {
@@ -268,11 +268,11 @@ namespace model
             {
                 return randomLatticePointInMesh();
             }
-            
+
         }
-        
+
     };
-    
+
 }
 #endif
 

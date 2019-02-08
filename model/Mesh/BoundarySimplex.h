@@ -23,7 +23,7 @@ namespace model
             bool temp(false);
             for (auto& pParent : simplexChild.parents())
             {
-                temp=pParent->isBoundarySimplex();
+                temp=pParent.second->isBoundarySimplex();
                 if (temp)
                 {
                     break;
@@ -38,7 +38,7 @@ namespace model
             bool temp(false);
             for (auto& pParent : simplexChild.parents())
             {
-                temp=pParent->isRegionBoundarySimplex();
+                temp=pParent.second->isRegionBoundarySimplex();
                 if (temp)
                 {
                     break;
@@ -53,9 +53,9 @@ namespace model
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             for(const auto& parent : simplexChild.parents())
             {
-                if(parent->isBoundarySimplex())
+                if(parent.second->isBoundarySimplex())
                 {
-                    temp+=parent->outNormal();
+                    temp+=parent.second->outNormal();
                 }
             }
             const double tempNorm(temp.norm());
@@ -69,7 +69,7 @@ namespace model
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             for(const auto& parent : simplexChild.parents())
             {
-                    temp+=parent->outNormal(rID);
+                    temp+=parent.second->outNormal(rID);
             }
             const double tempNorm(temp.norm());
             return (tempNorm>0.0)? (temp/tempNorm).eval() : temp;
@@ -94,7 +94,8 @@ namespace model
             bool temp(false);
             if(simplexChild.parents().size()==2)
             {
-                if((*simplexChild.parents().begin())->region->regionID != (*simplexChild.parents().rbegin())->region->regionID)
+//                if((*simplexChild.parents().begin())->region->regionID != (*simplexChild.parents().rbegin())->region->regionID)
+                 if(simplexChild.parents().begin()->second->region->regionID != simplexChild.parents().rbegin()->second->region->regionID)
                 {
                     temp=true;
                 }
@@ -109,8 +110,8 @@ namespace model
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             if(simplexChild.isBoundarySimplex())
             {
-                const size_t faceID=(*simplexChild.parents().begin())->childOrder(simplexChild.xID);
-                temp=(*simplexChild.parents().begin())->nda.col(faceID).normalized();
+                const size_t faceID=simplexChild.parents().begin()->second->childOrder(simplexChild.xID);
+                temp=simplexChild.parents().begin()->second->nda.col(faceID).normalized();
             }
             return temp;
         }
@@ -122,11 +123,11 @@ namespace model
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             for(const auto& parent : simplexChild.parents())
             {
-                if(  (parent->isBoundarySimplex() || parent->isRegionBoundarySimplex())
-                   && parent->region->regionID==rID)
+                if(  (parent.second->isBoundarySimplex() || parent.second->isRegionBoundarySimplex())
+                   && parent.second->region->regionID==rID)
                 {
-                    const size_t faceID=parent->childOrder(simplexChild.xID);
-                    temp+=parent->nda.col(faceID).normalized();
+                    const size_t faceID=parent.second->childOrder(simplexChild.xID);
+                    temp+=parent.second->nda.col(faceID).normalized();
                 }
             }
             const double tempNorm(temp.norm());

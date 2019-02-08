@@ -50,7 +50,7 @@ namespace model
             for(const auto& triangle : regionBnd)
             {
                 
-                const Simplex<dim,dim>& tet(**triangle->parents().begin());
+                const Simplex<dim,dim>& tet(*triangle->parents().begin()->second);
                 const size_t faceID=tet.childOrder(triangle->xID);
                 const VectorDim n=tet.nda.col(faceID);
 

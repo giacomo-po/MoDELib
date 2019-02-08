@@ -30,9 +30,9 @@
 
 namespace model
 {
-    
-    
-    
+
+
+
     template <int dim>
     class GrainBoundary : public MeshPlane<dim>,
     /* base            */ private std::map<int,const Grain<dim>* const>,
@@ -40,9 +40,9 @@ namespace model
 //    /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
     {
 //        static constexpr int dim=NetworkType::dim;
-        
+
         enum AxisPlaneRelation{TILT=0,TWIST=1,MIXED=2};
-        
+
         typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
@@ -55,12 +55,12 @@ namespace model
         typedef std::map<int,std::shared_ptr<GlidePlane<dim>>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
         typedef GlidePlane<dim> GlidePlaneType;
-        
-        
+
+
 //        static_assert(false,"NEED TO CREATE GLIDE PLANES FOR DSCL AND CSL, AND ADD THEM TO NODES WHICH ARE ON THE GB. THEN ADD THEM TO THE NODES. CAREFUL THAT REMOVE LOOP LINK DO NOT REMOVE THESE GLIDE PLANES");
 //        static_assert(false,"IN DDVTK SHOW THE MESH FOR THE GBs, and let the GP SHADE THE PLANE");
-        
-        
+
+
 //        /**********************************************************************/
 ////        template<typename NetworkType>
 //        void storeLatticePlane(GlidePlaneObserver<dim>& dn,
@@ -70,20 +70,20 @@ namespace model
 //        {
 //            //std::cout<<"storeLatticePlane"<<std::endl;
 //            //std::cout<<"normal="<<normal.transpose()<<std::endl;
-//            
+//
 //            const ReciprocalLatticeDirectionType R=grain.reciprocalLatticeDirection(normal);
-//            
+//
 //            model::cout<<"   GB plane normal for grain "<< grain.grainID<<":"<<defaultColor<<std::endl;
 //            model::cout<<"      cartesian components="<<R.cartesian().normalized().transpose()<<defaultColor<<std::endl;
 //            model::cout<<"      crystallographic components="<<grain.rationalApproximation((grain.C2G.transpose()*R.cartesian())).transpose()<<defaultColor<<std::endl;
 ////            model::cout<<"   crystallographic components="<<(grain.C2G.transpose()*R.cartesian()).transpose()<<defaultColor<<std::endl;
 //            model::cout<<"      interplanar spacing="<<1.0/R.cartesian().norm()<<defaultColor<<std::endl;
-//            
+//
 ////            LatticeVectorType L0(grain.lattice());
 ////            bool latticePointFound=false;
-////            
+////
 //////            //std::cout<<"here 0"<<std::endl;
-////            
+////
 ////            for(const auto& simplexPtr : regionBoundary.simplices())
 ////            {
 //////                            //std::cout<<"here 1"<<std::endl;
@@ -91,7 +91,7 @@ namespace model
 ////                {
 ////                    const VectorDimD P0=simplexPtr->vertexPositionMatrix().col(d);
 ////                    L0=grain.snapToLattice(P0);
-////                    
+////
 ////                    if(fabs((L0.cartesian()-P0).dot(normal))<FLT_EPSILON) // L0 belongs to mesh plane
 ////                    {
 ////                        std::cout<<"GrainBonudary: using origin "<<P0.transpose()<<std::endl;
@@ -99,23 +99,23 @@ namespace model
 ////                        break; //break inner loop
 ////                    }
 ////                }
-////                
+////
 ////                if(latticePointFound==true) // L0 belongs to mesh plane
 ////                {
 ////                    break; //break outer loop
 ////                }
 ////            }
-////            
-////            
-////            
+////
+////
+////
 ////            assert(latticePointFound && "None of the GB mesh vertices, snapped to the lattice, belongs to GB plane.");
-////            
+////
 ////            LatticePlaneBase pb(R);
 ////            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
 ////                                                                 std::forward_as_tuple(grain.grainID),
 ////                                                                 std::forward_as_tuple(&dn,dn.mesh,grain,L0.cartesian(),pb.cartesian()));
 ////            assert(temp.first->second.unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
-//            
+//
 //            const VectorDimD P0=(*regionBoundary.simplices().begin())->vertexPositionMatrix().col(0); // a point on the plane
 ////            const auto temp = GlidePlaneContainerType::emplace(std::piecewise_construct,
 ////                                                               std::forward_as_tuple(grain.grainID),
@@ -129,24 +129,24 @@ namespace model
 //            assert(temp.second);
 //            assert(temp.first->second->unitNormal.cross(normal.normalized()).norm()<FLT_EPSILON && "LatticePlane normal and triangle normal are not the same.");
 //            temp.first->second->addParentSharedPtr(&temp.first->second,false,-1); // add shared pointer to GlidePlane
-//            
+//
 //        }
-        
+
         /**********************************************************************/
 //        template<typename NetworkType>
 
 //        static MeshPlane<dim> getMeshPlane(const MeshRegionBoundaryType& regionBnd)
 //        {
 //            //std::cout<<"createLatticePlanes"<<std::endl;
-//            
-//            
+//
+//
 ////            GlidePlaneContainerType::clear();
 //            const Simplex<dim,dim-1>& triangle(**regionBnd.begin());
 //            const Simplex<dim,dim>& tet(**triangle.parents().begin());
 //            const size_t faceID=tet.childOrder(triangle.xID);
 //            const VectorDimD N=tet.nda.col(faceID);
 //            const VectorDimD P=triangle.vertexPositionMatrix().col(0);
-//            
+//
 //            MeshPlane<dim> mp(P,N);
 //
 ////            for(const auto& tet : triangle.parents())
@@ -157,10 +157,10 @@ namespace model
 ////                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
 ////                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
 ////            }
-////            
+////
 ////            assert(glidePlanes().size()==2);
 ////            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
-//            
+//
 //            // Check that all tringle vertices are contained by both GB planes
 //            for(const auto& triangle : regionBnd)
 //            {
@@ -174,16 +174,16 @@ namespace model
 ////                    }
 //                }
 //            }
-//            
+//
 //            return mp;
 //        }
-        
+
 //        void createLatticePlanes(GlidePlaneObserver<dim>& dn,
 //                                 const SimplicialMesh<dim>& mesh)
 //        {
 //            //std::cout<<"createLatticePlanes"<<std::endl;
 //
-//            
+//
 //            GlidePlaneContainerType::clear();
 //            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
 //            for(const auto& tet : triangle.parents())
@@ -194,10 +194,10 @@ namespace model
 //                assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
 //                storeLatticePlane(dn,mesh,grain(tet->region->regionID),outNormal/outNorm);
 //            }
-//            
+//
 //            assert(glidePlanes().size()==2);
 //            assert((glidePlanes().begin()->second->unitNormal+glidePlanes().rbegin()->second->unitNormal).norm()<FLT_EPSILON && "plane normals are not opposite to each other.");
-//            
+//
 //            // Check that all tringle vertices are contained by both GB planes
 //            for(const auto& triangle : regionBoundary)
 //            {
@@ -210,7 +210,7 @@ namespace model
 //                    }
 //                }
 //            }
-//            
+//
 //            if(fabs(_rotationAxis.dot(glidePlanes().begin()->second->unitNormal))<FLT_EPSILON)
 //            {
 //                model::cout<<"TILT BOUNDARY"<<std::endl;
@@ -226,19 +226,19 @@ namespace model
 //                model::cout<<"MIXED BOUNDARY"<<std::endl;
 //
 //            }
-//            
-//            
+//
+//
 //        }
-        
+
         /**********************************************************************/
         void computeCrystallographicRotationAxis()
         {
             // Compute the relative rotation matrix R such that C2G2=R*C2G1
             const MatrixDimD R(grain(grainBndID.first).C2G.transpose()*grain(grainBndID.second).C2G);
-            
+
             // Eigen-decompose R
             Eigen::EigenSolver<MatrixDimD> es(R);
-            
+
             // Determine _crystallographicRotationAxis as the eigenvector of R corresponding to eigenvalue=1
             for(unsigned int j=0;j<dim;++j)
             {
@@ -254,25 +254,25 @@ namespace model
             const double axisNorm(_crystallographicRotationAxis.norm());
             assert(axisNorm>FLT_EPSILON);
             _crystallographicRotationAxis/=axisNorm;
-            
+
             _rotationAxis=grain(grainBndID.first).C2G*_crystallographicRotationAxis;
             assert((_rotationAxis-grain(grainBndID.second).C2G*_crystallographicRotationAxis).norm()<FLT_EPSILON && "rotationAxis inconsistency.");
-            
+
             cosTheta=0.5*(R.trace()-1.0);
-            
+
             model::cout<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
             model::cout<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
         }
-        
+
 //        /**********************************************************************/
 //        void findGrainBoundaryType(const std::deque<GrainBoundaryType<dim>>& bgTypes)
 //        {
 //            //std::cout<<"findGrainBoundaryType"<<std::endl;
-//            
+//
 //            const VectorDimD n1=(grain(grainBndID.first).C2G.transpose()*glidePlane(grainBndID.first).unitNormal).normalized();
 //            const VectorDimD n2=(grain(grainBndID.second).C2G.transpose()*glidePlane(grainBndID.second).unitNormal).normalized();
-//            
-//            
+//
+//
 //            for (const auto& gbt : bgTypes)
 //            {
 //                bool axisFound=false;
@@ -285,7 +285,7 @@ namespace model
 //                        break;
 //                    }
 //                }
-//                
+//
 //                bool n1Found=false;
 //                for(const auto& n : gbt.n1Permutations)
 //                {
@@ -295,7 +295,7 @@ namespace model
 //                        break;
 //                    }
 //                }
-//                
+//
 //                bool n2Found=false;
 //                for(const auto& n : gbt.n2Permutations)
 //                {
@@ -305,7 +305,7 @@ namespace model
 //                        break;
 //                    }
 //                }
-//                
+//
 //                if(!n1Found && ! n2Found) // search n1 in n2Permutations and viceversa
 //                {
 //                    for(const auto& n : gbt.n2Permutations)
@@ -316,7 +316,7 @@ namespace model
 //                            break;
 //                        }
 //                    }
-//                    
+//
 //                    for(const auto& n : gbt.n1Permutations)
 //                    {
 //                        n2Found=( (n2-n.normalized()).norm()<FLT_EPSILON || (n2+n.normalized()).norm()<FLT_EPSILON );
@@ -326,15 +326,15 @@ namespace model
 //                        }
 //                    }
 //                }
-//                
+//
 //                if(axisFound && n1Found && n2Found)
 //                {
 //                    p_gbType=&gbt;
 //                    break;
 //                }
-//                
+//
 //            }
-//            
+//
 //            if(p_gbType!=NULL)
 //            {
 //                model::cout<<yellowColor<<"   GB type is "<<p_gbType->name<<defaultColor<<std::endl;
@@ -342,8 +342,8 @@ namespace model
 //                model::cout<<yellowColor<<"   GB dislocation spacing= "<<p_gbType->dislocationSpacing<<defaultColor<<std::endl;
 //                model::cout<<yellowColor<<"   Frank-Bilby dislocation spacing= "<<p_gbType->FrankBilby_dislocationSpacing<<defaultColor<<std::endl;
 //                model::cout<<yellowColor<<"   Read-Shockley_energyDensity= "<<p_gbType->ReadShockley_energyDensity<<defaultColor<<std::endl;
-//                
-//                
+//
+//
 //                //
 //                //                const double energyDensity;
 //                //                const double dislocationSpacing;
@@ -352,28 +352,28 @@ namespace model
 //            {
 //                assert(0 && "GRAIN BONUDARY TYPE NOT FOUND.");
 //            }
-//            
-//            
+//
+//
 //        }
-        
 
-        
+
+
         /**********************************************************************/
         void populateGBdislocations(std::vector<StressStraight<dim>>& vD, const SimplicialMesh<dim>& mesh) const __attribute__ ((deprecated))
         {
             //std::cout<<"populateGBdislocations"<<std::endl;
 
-            
+
             if(use_GBdislocations)
             {
                 assert(0 && "Re-Enable this");
-                
+
 //                const int gbRegionID=grainBndID.first;
-//                
+//
 //                const VectorDimD normal=latticePlane(gbRegionID).unitNormal.normalized();
 //                const VectorDimD dir=rotationAxis().normalized();
 //                const VectorDimD p=dir.cross(latticePlane(gbRegionID).unitNormal).normalized()*grainBoundaryType().dislocationSpacing;
-//                
+//
 //                model::cout<<"Grain boundary dislocations being added with spacing of "<<grainBoundaryType().dislocationSpacing<<" and along direction "<<p.normalized().transpose()<<std::endl;
 //                VectorDimD P0(VectorDimD::Zero());
 //                VectorDimD P1(VectorDimD::Zero());
@@ -397,7 +397,7 @@ namespace model
 //                        //Determine the dislocation line - mesh intersection at either end of the projected dislocation position, and snap positions to that lattice point.
 //                        LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
 //                        LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
-//                        
+//
 //                        LatticeLine line(L0,Dir);
 //                        LineMeshIntersection lmi(line,L0+Dir,mesh,mesh.search(P0).second);
 //                        LatticeDirection<dim> negativeDir(grain(gbRegionID).latticeDirection((-1.0)*dir));
@@ -433,7 +433,7 @@ namespace model
 //                        //Determine the dislocation line - mesh intersection at either end of the projected dislocation position, and snap positions to that lattice point.
 //                        LatticeVectorType L0=latticePlane(gbRegionID).snapToLattice(P0);
 //                        LatticeVectorType L1=latticePlane(gbRegionID).snapToLattice(P1);
-//                        
+//
 //                        LatticeLine line(L0,Dir);
 //                        LineMeshIntersection lmi(line,L0+Dir,mesh,mesh.search(P0).second);
 //                        LatticeDirection<dim> negativeDir(grain(gbRegionID).latticeDirection((-1.0)*dir));
@@ -447,30 +447,30 @@ namespace model
 //                        }
 //                        else
 //                        {
-//                            
+//
 //                            positionOK=false;
 //                        }
 //                    }
 //                }
             }
         }
-        
-        
+
+
 //        CSL<dim> _csl;
 //        DSCL<dim> _dscl;
         VectorDimD _crystallographicRotationAxis;
         VectorDimD _rotationAxis;
-        
+
         double cosTheta; // cosine of relative rotation angle between grains
         const GrainBoundaryType<dim>* p_gbType;
-        
+
     public:
-        
+
         static bool use_GBdislocations;
         const MeshRegionBoundaryType& regionBoundary;
         const std::pair<int,int>& grainBndID;
-        
-        
+
+
         /**********************************************************************/
 //        template<typename NetworkType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
@@ -492,7 +492,7 @@ namespace model
             model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
 //            model::cout<<defaultColor<<"   CSL:  sigma= "<<_csl.sigma()<<std::endl;
 //            model::cout<<defaultColor<<"   DSCL: sigma= "<<_dscl.sigma()<<std::endl;
-            
+
             // Populate pointers to parent Grains
             GrainContainerType::emplace(grainFirst.grainID,&grainFirst);
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
@@ -501,10 +501,10 @@ namespace model
             const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
             for(const auto& tet : triangle.parents())
             {
-                const size_t faceID=tet->childOrder(triangle.xID);
-                const VectorDimD outNormal=tet->nda.col(faceID);
+                const size_t faceID=tet.second->childOrder(triangle.xID);
+                const VectorDimD outNormal=tet.second->nda.col(faceID);
                 const double outNorm(outNormal.norm());
-                const int rID=tet->region->regionID;
+                const int rID=tet.second->region->regionID;
                 assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
                 assert(rID==grainFirst.grainID || rID==grainSecond.grainID);
                 OutNormalContainerType::emplace(rID,outNormal/outNorm);
@@ -517,42 +517,42 @@ namespace model
             grainSecond.grainBoundaries().emplace(grainBndID,this);
 
         }
-        
+
         /**********************************************************************/
         const GrainContainerType& grains() const
         {
             return *this;
         }
-        
+
         /**********************************************************************/
         const Grain<dim>& grain(const int& k) const
         {
             return *(grains().at(k));
         }
-        
+
         /**********************************************************************/
         const OutNormalContainerType& outNormals() const
         {
             return *this;
         }
-        
+
         const VectorDimD& outNormal(const int& k) const
         {
             return outNormals().at(k);
         }
-        
+
 //        /**********************************************************************/
 //        const GlidePlaneContainerType& glidePlanes() const
 //        {
 //            return *this;
 //        }
-        
+
 //        /**********************************************************************/
 //        const GlidePlaneType& glidePlane(const int& k) const
 //        {
 //            return *glidePlanes().at(k).get();
 //        }
-        
+
 //        /**********************************************************************/
 ////        template<typename NetworkType>
 //        void initializeGrainBoundary(GlidePlaneObserver<dim>& dn,
@@ -565,82 +565,59 @@ namespace model
 ////            createLatticePlanes(dn,mesh);
 ////            findGrainBoundaryType(poly.grainBoundaryTypes());
 ////            populateGBdislocations(dn.poly.grainBoundaryDislocations(),dn.poly.mesh);
-//            
+//
 //            //                grain(gb.first.second).emplace(gb.first,&gb.second);
 //        }
-        
+
         /**********************************************************************/
         const VectorDimD& crystallographicRotationAxis() const
         {
             return _crystallographicRotationAxis;
         }
-        
+
         /**********************************************************************/
         const VectorDimD& rotationAxis() const
         {
             return _rotationAxis;
         }
-        
+
         /**********************************************************************/
         double rotationAngle() const
         {
             return acos(cosTheta);
         }
-        
+
         /**********************************************************************/
         const GrainBoundaryType<dim>& grainBoundaryType() const
         {
             return *p_gbType;
         }
-        
+
 //        /**********************************************************************/
 //        const CSL<dim>& csl() const
 //        {
 //            return _csl;
 //        }
-//        
+//
 //        /**********************************************************************/
 //        const DSCL<dim>& dscl() const
 //        {
 //            return _dscl;
 //        }
-        
+
         /**********************************************************************/
         std::string tag() const
         {
             return "(" + std::to_string(grainBndID.first)+"," +std::to_string(grainBndID.second)+")";
         }
     };
-    
+
     template <int dim>
     bool GrainBoundary<dim>::use_GBdislocations=false;
-    
+
+
+
 } // end namespace
 #endif
 
-                
-                //        /**********************************************************************/
-                //        void populateGBdislocations(std::vector<StressStraight<dim>>& vD) const
-                //        {
-                //            if(use_GBdislocations)
-                //            {
-                //            const VectorDimD dir=rotationAxis().normalized();
-                //            const VectorDimD p=dir.cross(latticePlane(grainBndID.first).unitNormal).normalized()*grainBoundaryType().dislocationSpacing;
-                //
-                //
-                //            VectorDimD P0(VectorDimD::Zero());
-                //            VectorDimD P1(VectorDimD::Zero());
-                //
-                //            VectorDimD Q(latticePlane(grainBndID.first).P.cartesian());
-                //            Q(1)=0.0;
-                //
-                //            for(int k=0;k<10;++k)
-                //            {
-                //                P0=Q-100.0*dir+k*p;
-                //                P1=Q+100.0*dir+k*p;
-                //                //std::cout<<"GB DISLOCATIONS MAY BE WRONG SIGN"<<std::endl;
-                //                vD.emplace_back(P0,P1,grainBoundaryType().Burgers*latticePlane(grainBndID.first).unitNormal.normalized());
-                //            }
-                //            }
-                //
-                //        }
+

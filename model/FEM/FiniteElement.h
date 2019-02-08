@@ -40,10 +40,14 @@ namespace model
 
     template<typename _ElementType>
     class FiniteElement :
-    /* inherits        */ public std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
-    /*                                  */ _ElementType, // value
-    /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
-    /*                                  */ >, // element container
+//    /* inherits        */ public std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
+//    /*                                  */ _ElementType, // value
+//    /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
+//    /*                                  */ >, // element container
+    /* inherits        */ public std::map<typename SimplexTraits<_ElementType::dim,_ElementType::dim>::SimplexIDType, // key
+    /*                                  */ _ElementType>, // value
+//    /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
+//    /*                                  */ >, // element container
     /* inherits        */ public std::deque<typename _ElementType::NodeType>, // node container
     /* inherits        */ public std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
     /*                                  */ typename _ElementType::NodeType* const, // value
@@ -74,10 +78,12 @@ namespace model
         constexpr static int dim=ElementType::dim;
         constexpr static int nodesPerElement=ElementType::nodesPerElement;
         typedef SimplicialMesh<dim> MeshType;
-        typedef std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
-        /*                                  */ _ElementType, // value
-        /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
-        /*                                  */ > ElementContainerType;
+//        typedef std::map<Eigen::Matrix<size_t,_ElementType::dim+1,1>, // key
+//        /*                                  */ _ElementType, // value
+//        /*                                  */ CompareVectorsByComponent<size_t,_ElementType::dim+1> // key compare
+//        /*                                  */ > ElementContainerType;
+        typedef std::map<typename SimplexTraits<_ElementType::dim,_ElementType::dim>::SimplexIDType, // key
+        /*                                  */ _ElementType> ElementContainerType;
         typedef std::deque<typename _ElementType::NodeType> NodeContainerType;
         typedef std::map<Eigen::Matrix<double,_ElementType::dim,1>, // key
         /*                                  */ typename _ElementType::NodeType* const, // value
@@ -329,6 +335,7 @@ namespace model
           */
             const std::pair<bool,const Simplex<dim,dim>*> temp(mesh.searchWithGuess(P,guess));
             const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(temp.second->xID));
+//            const typename ElementContainerType::const_iterator eIter(ElementContainerType::find(Eigen::Map<const Eigen::Matrix<size_t,_ElementType::dim+1,1>>(temp.second->xID.data())));
             assert(eIter!=elements().end() && "ELEMENT NOT FOUND");
             return std::pair<bool,const ElementType*>(temp.first,&(eIter->second));
         }
