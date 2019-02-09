@@ -43,6 +43,22 @@ namespace model
         }
 
         /**********************************************************************/
+        double vacancyConcentration(const VectorDim& x) const
+        {
+            const double a(this->chordLengthSquared());
+            const double b(-2.0*(x-this->source->get_P()).dot(this->chord()));
+            const double c((x-this->source->get_P()).squaredNorm()+DislocationStress<dim>::a2);
+            const double ba(b/a);
+            const double ca(c/a);
+            const double sqbca(sqrt(1.0+ba+ca));
+            const double sqca(sqrt(ca));
+            const double logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
+            const double M0((1.0+0.5*ba)*logTerm-sqbca+sqca);
+            const double M1(-0.5*ba*logTerm+sqbca-sqca);
+            return -1.0/(4.0*M_PI*this->network().poly.Dv)/a*(this->chord().cross(this->burgers()).dot(M0*this->source->climbVelocity()+M1*this->sink->climbVelocity()));
+        }
+        
+        /**********************************************************************/
         const MatrixDim& midPointStress() const __attribute__ ((deprecated))
         {/*!\returns The stress matrix for the centre point over this segment.*/
             return this->quadraturePoints().size()? quadraturePoint(this->quadraturePoints().size()/2).stress : MatrixDim::Zero();            

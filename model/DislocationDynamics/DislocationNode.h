@@ -29,6 +29,7 @@ namespace model
     class DislocationNode : public PlanarDislocationNode<DislocationNode<dim,corder,InterpolationType>,InterpolationType>
     {
 
+        
     public:
 
         
@@ -42,7 +43,11 @@ namespace model
         typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
 
         
+    private:
+        VectorDim _climbVelocity;
+
         
+    public:
         
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
@@ -50,6 +55,7 @@ namespace model
                         const VectorDofType& Vin,
                         const double& vrc) :
         /* base constructor */ NodeBaseType(ln,Pin,Vin,vrc)
+        /* init */,_climbVelocity(VectorDim::UnitZ())
         {/*! Constructor from DOF
           */
         }
@@ -58,6 +64,7 @@ namespace model
         DislocationNode(const LinkType& pL,
                         const double& u) :
         /* base constructor */ NodeBaseType(pL,u)
+        /* init */,_climbVelocity(0.5*(pL.source->climbVelocity()+pL.sink->climbVelocity()))
         {/*! Constructor from ExpandingEdge and DOF
           */
         }
@@ -67,10 +74,16 @@ namespace model
                         const VectorDim& Pin,
                         const NodeType* const master) :
         /* base constructor */ NodeBaseType(ln,Pin,master)
+        /* init */,_climbVelocity(VectorDim::Zero())
         {/*! Constructor from DOF
           */
         }
         
+        /**********************************************************************/
+        const VectorDim& climbVelocity() const
+        {
+            return _climbVelocity;
+        }
         
         /**********************************************************************/
         template <class T>

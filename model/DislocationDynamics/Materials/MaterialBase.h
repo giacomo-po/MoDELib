@@ -36,12 +36,14 @@ namespace model
         const double rho_SI;    // mass density [Kg/m^3]
         const double cs_SI;     // shear wave speed [m/s]
         const double b_SI;      // Burgers vector [m]
+        const double Dv_SI;     // vacancy diffusion coefficient in [m^2/s]
         
         // Material constants in code units
         const double kB;        // Boltzmann constant [-]
         const double mu;        // shear modulus [-]
         const double b;         // Burgers vector [-]
         const double cs;        // shear wave speed [-]
+        const double Dv;        // shear wave speed [-]
 
         
         static const std::string& getMaterialFile(const std::string& fileName)
@@ -64,10 +66,12 @@ namespace model
         /* init */,rho_SI(TextFileParser(materialFile).readScalar<double>("rho_SI",true))
         /* init */,cs_SI(sqrt(mu_SI/rho_SI))
         /* init */,b_SI(TextFileParser(materialFile).readScalar<double>("b_SI",true))
+        /* init */,Dv_SI(TextFileParser(materialFile).readScalar<double>("Dv_SI",true))
         /* init */,kB(kB_SI/mu_SI/std::pow(b_SI,3))
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
+        /* init */,Dv(Dv_SI/b_SI/cs_SI)
         {
 //            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 

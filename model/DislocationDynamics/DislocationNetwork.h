@@ -1174,6 +1174,38 @@ namespace model
         }
         
         /**********************************************************************/
+        double vacancyConcentration(const VectorDim& x) const
+        {
+            double temp(0.0);
+            for(const auto& link : this->links())
+            {// sum line-integral part of displacement field per segment
+                if(   !link.second->hasZeroBurgers()
+                   && !link.second->isBoundarySegment()
+                   && !link.second->isGrainBoundarySegment()
+                   )
+                {
+                    for(const auto& shift : periodicShifts)
+                    {
+                        temp+=link.second->vacancyConcentration(x+shift);
+                    }
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        void vacancyConcentration(std::vector<FEMnodeEvaluation<ElementType,1,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,1,1>>>& fieldPoints) const
+        {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for(size_t k=0;k<fieldPoints.size();++k)
+            {
+                fieldPoints[k](0,0)=vacancyConcentration(fieldPoints[k].P);
+            }
+        }
+        
+        /**********************************************************************/
         DislocationNetworkIOType io()
         {
             return DislocationNetworkIOType(*this,folderSuffix);

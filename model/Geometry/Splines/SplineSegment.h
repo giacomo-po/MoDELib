@@ -109,6 +109,7 @@ namespace model
     private:
         
         VectorDim _chord;
+        double _chordLength2;
         double _chordLength;
         VectorDim _unitDirection;
         
@@ -125,7 +126,8 @@ namespace model
                       const std::shared_ptr<NodeType>& nJ) :
         /* init */ NetworkLink<Derived>(nI,nJ)
         /* init */,_chord(this->sink->get_P()-this->source->get_P())
-        /* init */,_chordLength(_chord.norm())
+        /* init */,_chordLength2(_chord.squaredNorm())
+        /* init */,_chordLength(sqrt(_chordLength2))
         /* init */,_unitDirection(_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero())
         {/*! Constructor with Nodes and flow
           */
@@ -136,7 +138,8 @@ namespace model
         void updateGeometry()
         {
             _chord=this->sink->get_P()-this->source->get_P();
-            _chordLength=_chord.norm();
+            _chordLength2=_chord.squaredNorm();
+            _chordLength=sqrt(_chordLength2);
             _unitDirection=_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero();
         }
         
@@ -205,6 +208,13 @@ namespace model
         {/*!\returns the length of the chord vector
           */
             return _chordLength;
+        }
+        
+        /**********************************************************************/
+        const double& chordLengthSquared() const
+        {/*!\returns the length of the chord vector
+          */
+            return _chordLength2;
         }
         
         /**********************************************************************/

@@ -7,6 +7,7 @@ nu=0.34;		# [-]		Poisson's ratio
 rho_SI=8940.0;	# [kg/m^3]	mass density
 T=300;			# [K]		temperature
 Tm=1358;		# [K]		melting temperature
+Dv_SI=1.0;	    # [?????]	vacancy diffusion coefficient
 
 
 # Mobility parameters

@@ -1,0 +1,16 @@
+# Enable/disable controller
+use_externalStress=1; 
+
+# Number of initial DD steps during which no load is applied
+relaxSteps=0;
+
+# number of DD steps during which only the torsional stress is applied
+indentationStepsPerSector=3000;
+sectorAngleDeg=120;
+maxAngleDeg=360;
+forceDensity=100.0;
+
+# Axial strain rate which kicks in after torsionSteps
+strainRate=1e-11;
+
+

@@ -1286,8 +1286,10 @@ namespace model
             
             
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" _isOnBoundingBox="<<_isOnBoundingBox<<std::endl;);
-            
-            return (this->get_P()-newP).norm()<FLT_EPSILON;
+            const double posDelta((this->get_P()-newP).norm());
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" posDelta="<<posDelta<<std::endl;);
+
+            return posDelta<FLT_EPSILON;
         }
         
         /**********************************************************************/

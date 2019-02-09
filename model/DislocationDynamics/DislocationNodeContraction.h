@@ -259,6 +259,8 @@ namespace model
                                                        nA->glidePlaneIntersections()[0].second-nA->glidePlaneIntersections()[0].first // line direction
                                                        );
                         
+                        // THERE SHOULD BE A PlaneSegmentIntersection class, which intersects the plane with a finite segment
+                        
                         if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
                         {// nothing to do, _glidePlaneIntersections remains unchanged
                             VerboseNodeContraction(1,"DislocationNodeContraction case 6a"<<std::endl;);
@@ -267,7 +269,16 @@ namespace model
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
                         {// _glidePlaneIntersections becomes a singular point
                             VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
-                            return contractToPosition(nA,nB,pli.P,maxRange);
+                            LineSegment<dim> cutLine(nA->glidePlaneIntersections()[0].first,nA->glidePlaneIntersections()[0].second);
+                            if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)
+                            {// intersection point is inside mesh
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6b1"<<std::endl;);
+                                return contractToPosition(nA,nB,pli.P,maxRange);
+                            }
+                            else
+                            {
+                                return false;
+                            }
                         }
                         else
                         {// parallel planes, cannot contract
@@ -297,11 +308,25 @@ namespace model
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
                             BoundingLineSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
-                            assert(temp.size()==2 && "LINE BETWEEN INCIDENT PLANES MUST CUT THE MESH IN TWO POINTS");
-                            LineSegment<dim> cutLine(0.5*(temp[0].first+temp[0].second),0.5*(temp[1].first+temp[1].second));
-                            return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
-//                            const double u=(0.5*(nA->get_P()+nB->get_P())-ppi.P).dot(ppi.d);
-//                            return contractToPosition(nA,nB,ppi.P+u*ppi.d,maxRange);
+                            switch (temp.size())
+                            {
+                                case 2:
+                                {
+                                    LineSegment<dim> cutLine(0.5*(temp[0].first+temp[0].second),0.5*(temp[1].first+temp[1].second));
+                                    return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                                    break;
+                                }
+                                case 1:
+                                {
+                                    LineSegment<dim> cutLine(temp[0].first,temp[0].second);
+                                    return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                                    break;
+                                }
+                                default:
+                                {// intersection line outside mesh
+                                    return false;
+                                }
+                            }
                         }
                         else
                         {

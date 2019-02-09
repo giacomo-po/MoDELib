@@ -207,9 +207,9 @@ namespace model
             const double faceOffset(1.0e-1);
             
             // grain-boundaries
-            if(showRegionBoundaries)
-            {
-                
+//            if(showRegionBoundaries)
+//            {
+            
                 
                 //                Eigen::MatrixXi regionColors(Eigen::MatrixXi::Random(mesh.regions().size(),3));
                 
@@ -283,7 +283,7 @@ namespace model
                 //
                 //                    }
                 //                }
-            }
+//            }
             
             gbTrianglePolyData->SetPoints ( gbPoints );
             gbTrianglePolyData->SetPolys ( gbTriangles );
@@ -295,7 +295,8 @@ namespace model
             
             gbMapper->SetInputData(gbTrianglePolyData);
             gbActor->SetMapper(gbMapper);
-            gbActor->GetProperty()->SetOpacity(0.05);
+            gbActor->GetProperty()->SetOpacity(0.2);
+            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
 //            gbActor->GetProperty()->SetOpacity(1);
             
             //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
@@ -407,6 +408,14 @@ namespace model
             
             gbMapper->SetScalarVisibility(showGrainColors);
             
+            if(showRegionBoundaries)
+            {
+                gbActor->VisibilityOn();
+            }
+            else
+            {
+                gbActor->VisibilityOff();
+            }
 //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
             
         }
@@ -415,7 +424,7 @@ namespace model
     
     double SimplicialMeshActor::dispCorr=1.0;
     bool SimplicialMeshActor::showGrainColors=false;
-    bool SimplicialMeshActor::showRegionBoundaries=false;
+    bool SimplicialMeshActor::showRegionBoundaries=true;
     
 } // namespace model
 #endif
