@@ -28,6 +28,7 @@
 #include <MPIcout.h> // defines mode::cout
 #include <MeshRegionBoundary.h>
 #include <SimplexObserver.h>
+#include <SimplicialMeshFace.h>
 #include <GmshReader.h>
 
 
@@ -38,16 +39,17 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<int _dim>
-    class SimplicialMesh : public SimplexObserver<_dim>,                                // make sure this is destroyed after map of Simplex<_dim,_dim>
-    /*                  */ public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>,   // make sure this is destroyed after map of Simplex<_dim,_dim>
-    /*                  */ public SimplexReader<_dim>,
-    /*                  */ public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
+    class SimplicialMesh : public SimplexObserver<_dim>                                // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */,public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>   // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */,public SimplexReader<_dim>
+    /*                  */,public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim> // value
 //    /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
 //    /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
 //    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
-    /*                                */ >,
-    /*                  */ public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
+    /*                                */ >
+    /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
+    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
         
         Eigen::Matrix<double,_dim,1> _xMin;
@@ -78,6 +80,7 @@ namespace model
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
+        typedef std::deque<SimplicialMeshFace<_dim>> MeshFacesContainerType;
         
         /**********************************************************************/
         SimplicialMesh() :
@@ -191,8 +194,35 @@ namespace model
             
             // Populate MeshRegionBoundaryContainerType
             regionBoundaries().clear();
+            faces().clear();
+            size_t bndSimplexCount=0;
             for (const auto& simpl : this->template observer<dim-1>())
             {
+                
+                if(simpl.second->isBoundarySimplex())
+                {
+                    const Eigen::Matrix<double,_dim,1> n(simpl.second->outNormal());
+                    const Eigen::Matrix<double,_dim,1> c(simpl.second->center());
+                    SimplicialMeshFace<_dim>* faceFound=nullptr;
+                    for(auto& face : faces())
+                    {
+                        if(fabs(n.dot(face.outNormal())-1.0)<FLT_EPSILON && fabs((c-face.center()).dot(n))<FLT_EPSILON)
+                        {// same normal, and c contained in face
+                            faceFound=&face;
+                            break;
+                        }
+                    }
+                    if(faceFound)
+                    {
+                        faceFound->insert(simpl.second);
+                    }
+                    else
+                    {
+                        faces().emplace_back(simpl.second);
+                    }
+                    bndSimplexCount++;
+                }
+                
                 if(simpl.second->isRegionBoundarySimplex())
                 {
                     std::set<int> regionIDset=simpl.second->regionIDs();
@@ -211,11 +241,19 @@ namespace model
             }
             
             
-            
-            
             model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
             //            model::cout<<"mesh volume="<<volume()<<std::endl;
+            
+            model::cout<<"mesh faces: "<<faces().size()<<std::endl;
+            size_t simplexSum=0;
+            for(auto& face : faces())
+            {
+                face.finalize();
+                model::cout<<" face: hullPts="<<face.convexHull().size()<<", outNormal "<<face.outNormal().transpose()<<std::endl;
+                simplexSum+=face.size();
+            }
+            assert(simplexSum==bndSimplexCount && "WRONG NUMBER OF FACE SIMPLICES");
             
             for(auto rIter : MeshRegionObserverType::regions())
             {
@@ -476,6 +514,16 @@ namespace model
         
         /**********************************************************************/
         MeshRegionBoundaryContainerType& regionBoundaries()
+        {
+            return *this;
+        }
+
+        const MeshFacesContainerType& faces() const
+        {
+            return *this;
+        }
+
+        MeshFacesContainerType& faces()
         {
             return *this;
         }

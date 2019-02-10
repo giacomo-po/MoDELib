@@ -14,6 +14,8 @@
 #include <fstream>
 #include <string>
 #include <assert.h>
+#include <vector>
+#include <cmath>
 
 namespace model
 {

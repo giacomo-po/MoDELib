@@ -80,6 +80,18 @@ namespace model
             return temp;
         }
         
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1>  center() const
+        {
+            Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices> P(vertexPositionMatrix());
+            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+            for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
+            {
+                temp+=P.col(v);
+            }
+            return temp/SimplexTraits<dim,order>::nVertices;
+        }
+        
 	};
     
 }	// close namespace
