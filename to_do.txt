@@ -1,4 +1,5 @@
 NEW LOOP_NETWORK CODE
+- Finish PeriodicBC
 - Mobility specific to slip system
 - Make Loops with |Burgers|>1 sessile
 - Rework crossslip
