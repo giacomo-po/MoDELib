@@ -131,7 +131,7 @@ namespace model
             std::string line;
             std::string read;
             std::string comment;
-            bool success=false;
+            bool success(false);
             
             while (std::getline(*this, line))
             {

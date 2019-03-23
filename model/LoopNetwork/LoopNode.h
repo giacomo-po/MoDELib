@@ -35,11 +35,10 @@
 namespace model
 {
     template<typename Derived>
-    class LoopNode : public StaticID<Derived>,
-    /*            */ public CRTP<Derived>,
+    class LoopNode : public  StaticID<Derived>,
+    /*            */ public  CRTP<Derived>,
     /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>,
-//    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const,short int>>
-        /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const>>
+    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const>>
     {
         
     public:
@@ -52,7 +51,6 @@ namespace model
         typedef LoopLink<LinkType> LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
-//        typedef std::tuple<Derived* const ,LinkType* const,short int>				NeighborType;
         typedef std::tuple<Derived* const ,LinkType* const>				NeighborType;
         typedef std::map<size_t,NeighborType>						    NeighborContainerType;
 
@@ -115,7 +113,7 @@ namespace model
         /* init list */ loopNetwork(ln),
         /* init list */ psn(new NetworkComponentType(this->p_derived()))
         {
-            VerboseLoopNode(1,"Constructing LoopNode "<<name()<<std::endl);
+            VerboseLoopNode(1,"Constructing LoopNode "<<tag()<<std::endl);
 
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             loopNetwork->addNode(this->p_derived());
@@ -132,14 +130,17 @@ namespace model
         /**********************************************************************/
         ~LoopNode()
         {
-            VerboseLoopNode(1,"Destroying LoopNode "<<name()<<std::endl);
+            VerboseLoopNode(1,"Destroying LoopNode "<<tag()<<std::endl);
 
+            
             loopNetwork->removeNode(this->p_derived());
+            
             
             assert(loopLinks().empty());
             
             this->psn->remove(this->p_derived());
 
+            
 //            const int success=neighbors().erase(this->sID);
 //            assert(success==1 && "CANNOT ERESE SELF FROM NEIGHBORHOOD.");
 
@@ -156,7 +157,6 @@ namespace model
         {
             return *loopNetwork;
         }
-
         
         /**********************************************************************/
         size_t snID() const
@@ -177,7 +177,6 @@ namespace model
         {
             return *this;
         }
-        
         
         /**********************************************************************/
         LinkByLoopContainerType linksByLoopID() const
@@ -224,28 +223,22 @@ namespace model
         void addToNeighborhood(LinkType* const pL)
         {/*!@param[in] pL a pointer to a LinkType edge
           */
-//            assert((pL->source->sID==this->sID || pL->sink->sID==this->sID) && "Connecting NetworkLink to wrong node.");
-            
-                        
             if (pL->source->sID==this->sID)
-            {// this vertex is the source of edge *pL
-//                const NeighborType temp(pL->sink.get(),pL,1);
+            {// this vertex is the source of edge *pL, so sink of *pL is the neighbor
                 const NeighborType temp(pL->sink.get(),pL);
                 const bool success=neighbors().emplace(pL->sink->sID,temp).second;
                 assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else if (pL->sink->sID==this->sID)
-            {// this vertex is the sink of edge *pL
-//                const NeighborType temp(pL->source.get(),pL,-1);
+            {// this vertex is the sink of edge *pL, so source of *pL is the neighbor
                 const NeighborType temp(pL->source.get(),pL);
-                const bool success=neighbors().emplace( pL->source->sID,temp).second;
+                const bool success=neighbors().emplace(pL->source->sID,temp).second;
                 assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else
             {
                 assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
             }
-            
         }
         
         /**********************************************************************/
@@ -341,7 +334,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::string name() const
+        std::string tag() const
         {/*!\returns the string "i" where i is this->sID
           */
             return std::to_string(this->sID) ;

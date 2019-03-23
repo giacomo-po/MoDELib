@@ -64,9 +64,15 @@ namespace model
         {
             if(ssd.dMin<currentcCollisionTOL)
             {
-                bool isValidJunction(bndJunction || gbndJunction);
-                if(!isValidJunction)
-                {
+//                bool isValidJunction(bndJunction || gbndJunction);
+            	bool isValidJunction(	(bndJunction || gbndJunction) && DN.simulationType!=2);
+//                if(!isValidJunction)
+            	if(!isValidJunction &&
+            			!linkA->isBoundarySegment() &&
+            			&& !linkB->isBoundarySegment()
+						&& !linkA->isGrainBoundarySegment()
+						&& !linkB->isGrainBoundarySegment())
+                {//Check for the force condition
                     
                     const VectorDim chordA(linkA->sink->get_P()-linkA->source->get_P());
                     const double LA(chordA.norm());
@@ -89,7 +95,17 @@ namespace model
                         if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
                         {
                             VerboseJunctions(3,"attractive pair"<<std::endl;);
-                            isValidJunction=true;
+                            isValidJunction=true; //previous condition
+//                            //Condition added after recommendation for enforcing the boundary conditions
+//                            if (!bndJunction || DN.simulationType!=2)
+//                            {
+//                            	isValidJunction=true;
+//                            }
+//                            else
+//                            {
+//                            	VerboseJunctions(3,"Running with Periodic Boundary Condition (Not forming boundary junctions)"<<std::endl;);
+//                            }
+
                         }
                         else
                         {
@@ -133,7 +149,8 @@ namespace model
             SweepPlane<LinkType,dim> swp;
             for(const auto& link : DN.links())
             {
-                if(!link.second->hasZeroBurgers())
+                if(   (!link.second->hasZeroBurgers() && !link.second->isVirtualBoundarySegment())
+                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
                 {
                     //                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
                     swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);
@@ -192,7 +209,12 @@ namespace model
                 
                 const bool bndJunction(   (linkAisBnd || linkBisBnd)
                                        &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON);
-                
+//                const bool bndJunction(   (linkAisBnd || linkBisBnd)
+//                                                      &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON && DN.simulationType!=2);
+
+//                model::cout<<greenColor<<"bndjunction value"<<bndJunction<<std::endl;
+//                model::cout<<greenColor<<"linkA "<<linkA->source->sID<<"=>"<<linkA->sink->sID<<std::endl;
+//                model::cout<<greenColor<<"linkB "<<linkB->source->sID<<"=>"<<linkB->sink->sID<<std::endl;
                 const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
                                         &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON);
                 

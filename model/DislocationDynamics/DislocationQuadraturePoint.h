@@ -236,7 +236,7 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
-        void updateGeometry(const LinkType& seg,
+        void updateQuadraturePoints(const LinkType& seg,
                             const double& quadPerLength)
         {
             
@@ -244,7 +244,8 @@ namespace model
             
             if(    !seg.hasZeroBurgers()
                &&  !seg.isBoundarySegment()
-               &&  !seg.isSessile())
+               &&  !seg.isSessile()
+               &&  !seg.isVirtualBoundarySegment())
             {
                 const int order=QuadPowDynamicType::lowerOrder(quadPerLength*seg.chord().norm());
                 const MatrixNcoeff  SFCH(seg.sfCoeffs());
@@ -280,7 +281,7 @@ namespace model
                                        const double& quadPerLength,
                                        const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& straightSegmentsDeq)
         {
-            updateGeometry(seg,quadPerLength);
+            updateQuadraturePoints(seg,quadPerLength);
             
             if(this->size())
             {

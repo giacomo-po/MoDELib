@@ -78,7 +78,6 @@ namespace model
             return temp;
         }
         
-        
         /**********************************************************************/
         void remeshByRemoval()
         {
@@ -88,11 +87,10 @@ namespace model
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
             {
-//                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
-                if(   node.second->isSimpleBoundaryNode()
-                   || node.second->isSimpleGrainBoundaryNode()
-                   || node.second->isSimpleSessileNode())
+//                                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
+                if(node.second->isRemovable(Lmin,cosRemove))
                 {
+//                    std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
                     toBeRemoved.push_back(node.second->sID);
                 }
             }
@@ -103,11 +101,7 @@ namespace model
                 const auto isNode=DN.node(nodeID);
                 if(isNode.first)
                 {// Removing may have deleted the node, check that it exists
-                    if(   isNode.second->isSimpleBoundaryNode()
-                       || isNode.second->isSimpleGrainBoundaryNode()
-                       || isNode.second->isSimpleSessileNode()
-                       || isNode.second->isRemovable(Lmin,cosRemove)
-                       )
+                    if(isNode.second->isRemovable(Lmin,cosRemove))
                     {// Removing may have altered the isSimpleBoundaryNode, check again
                         Nremoved+=DN.remove(nodeID);
                     }
@@ -119,50 +113,90 @@ namespace model
         }
         
         
-        /**********************************************************************/
-        void remeshByContraction()
-        {/*! Contract edges according to two criteria.
-          */
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		remeshing network: contracting... "<<std::flush;
-            
-            //            model::cout<<"contracting..."<<std::flush;
-            
-            
-            // Store segments to be contracted
-            std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
-            
-            for (const auto& linkIter : DN.links())
-            {
-                const LinkType& segment(*linkIter.second);
-                std::pair<bool,double> temp=mustBeContracted(segment);
-                if(temp.first)
-                {
-                    const bool inserted=toBeContracted.insert(std::make_pair(temp.second,segment.nodeIDPair)).second;
-                    assert(inserted && "COULD NOT INSERT IN SET.");
-                }
-            }
-            
-            // Call Network::contract
-            unsigned int Ncontracted(0);
-            for (const auto& smallIter : toBeContracted)
-            {
-                const size_t i(smallIter.second.first);
-                const size_t j(smallIter.second.second);
-                const IsConstNetworkLinkType Lij(DN.link(i,j));
-                
-                if (Lij.first )
-                {// previous contractions could have destroyed Lij, so check that Lij exists
-                    if(mustBeContracted(*Lij.second).first)
-                    {// previous contractions could have changed Lij, so check the contract conditions again
-                        Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
-                    }
-                }
-            }
-            model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-            
-        }
+//        /**********************************************************************/
+//        void remeshByRemoval()
+//        {
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		remeshing network: removing... "<<std::flush;
+//            
+//            std::deque<size_t> toBeRemoved;
+//            for(const auto& node : DN.nodes())
+//            {
+////                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
+//                if(   !node.second->isVirtualBoundaryNode
+//                   && (node.second->isSimpleBoundaryNode() || node.second->isSimpleGrainBoundaryNode() || node.second->isSimpleSessileNode())
+//                   )
+//                {
+//                    toBeRemoved.push_back(node.second->sID);
+//                }
+//            }
+//            
+//            size_t Nremoved=0;
+//            for(const auto& nodeID : toBeRemoved)
+//            {
+//                const auto isNode=DN.node(nodeID);
+//                if(isNode.first)
+//                {// Removing may have deleted the node, check that it exists
+//                    if(   isNode.second->isSimpleBoundaryNode()
+//                       || isNode.second->isSimpleGrainBoundaryNode()
+//                       || isNode.second->isSimpleSessileNode()
+//                       || isNode.second->isRemovable(Lmin,cosRemove)
+//                       )
+//                    {// Removing may have altered the isSimpleBoundaryNode, check again
+//                        Nremoved+=DN.remove(nodeID);
+//                    }
+//                }
+//            }
+//            
+//            model::cout<<" ("<<Nremoved<<" removed)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//        }
+        
+        
+//        /**********************************************************************/
+//        void remeshByContraction()
+//        {/*! Contract edges according to two criteria.
+//          */
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"		remeshing network: contracting... "<<std::flush;
+//            
+//            //            model::cout<<"contracting..."<<std::flush;
+//            
+//            
+//            // Store segments to be contracted
+//            std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
+//            
+//            for (const auto& linkIter : DN.links())
+//            {
+//                const LinkType& segment(*linkIter.second);
+//                std::pair<bool,double> temp=mustBeContracted(segment);
+//                if(temp.first)
+//                {
+//                    const bool inserted=toBeContracted.insert(std::make_pair(temp.second,segment.nodeIDPair)).second;
+//                    assert(inserted && "COULD NOT INSERT IN SET.");
+//                }
+//            }
+//            
+//            // Call Network::contract
+//            unsigned int Ncontracted(0);
+//            for (const auto& smallIter : toBeContracted)
+//            {
+//                const size_t i(smallIter.second.first);
+//                const size_t j(smallIter.second.second);
+//                const IsConstNetworkLinkType Lij(DN.link(i,j));
+//                
+//                if (Lij.first )
+//                {// previous contractions could have destroyed Lij, so check that Lij exists
+//                    if(mustBeContracted(*Lij.second).first)
+//                    {// previous contractions could have changed Lij, so check the contract conditions again
+//                        Ncontracted+=DN.contract(Lij.second->source,Lij.second->sink);
+//                    }
+//                }
+//            }
+//            model::cout<<" ("<<Ncontracted<<" contracted)"<<std::flush;
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//            
+//        }
         
         /**********************************************************************/
         void remeshByExpansion()
@@ -186,6 +220,7 @@ namespace model
                    && !linkIter.second->isSessile()
                    && !linkIter.second->isBoundarySegment()
                    && !linkIter.second->isGrainBoundarySegment()
+                   && !linkIter.second->isVirtualBoundarySegment()
                    //                   && !linkIter.second->isSimpleBndSegment()
                    )
                     

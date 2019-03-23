@@ -38,11 +38,12 @@ namespace model
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
-	template <int _dim, short unsigned int corder, typename InterpolationType>
+	template <int _dim, short unsigned int _corder, typename InterpolationType>
 	struct DislocationNetworkTraitsBase
     {
         static constexpr int dim=_dim;
-		typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
+        static constexpr int corder=_corder;
+        typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType>	LinkType;
         typedef DislocationLoop      <dim,corder,InterpolationType>  LoopType;

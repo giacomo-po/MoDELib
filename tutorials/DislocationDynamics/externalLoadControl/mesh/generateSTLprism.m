@@ -18,9 +18,9 @@ filename='cube'; % this creates file cube.stl
 nElements=1e2;
 
 %% Size and position of the cube
-L1=4000; % the side length of the cube, in units of Burgers vector
-L2=4000; % the side length of the cube, in units of Burgers vector
-L3=4000; % the side length of the cube, in units of Burgers vector
+L1=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
+L2=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
+L3=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
 
 %% Compute element size
 V=L1*L2*L3;
@@ -28,20 +28,20 @@ averageElementVolume=V/nElements;
 
 % coordinates of the 8 vertices of the cube.
 % The base of the cube is at z=0. The cube is centered in x and y
-v0=[0 0 0]-[L1 L2 L3]/2;
-v1=[L1 0 0]-[L1 L2 L3]/2;
-v2=[L1 L2 0]-[L1 L2 L3]/2;
-v3=[0 L2 0]-[L1 L2 L3]/2;
-v4=[0 0 L3]-[L1 L2 L3]/2;
-v5=[L1 0 L3]-[L1 L2 L3]/2;
-v6=[L1 L2 L3]-[L1 L2 L3]/2;
-v7=[0 L2 L3]-[L1 L2 L3]/2;
-v8=[L1/2 L2/2 0]-[L1 L2 L3]/2;
-v9=[L1/2 L2/2 L3]-[L1 L2 L3]/2;
-v10=[L1/2 0 L3/2]-[L1 L2 L3]/2;
-v11=[L1/2 L2 L3/2]-[L1 L2 L3]/2;
-v12=[0 L2/2 L3/2]-[L1 L2 L3]/2;
-v13=[L1 L2/2 L3/2]-[L1 L2 L3]/2;
+v0=[0 0 0]-[L1 L2 L3]/2*0;
+v1=[L1 0 0]-[L1 L2 L3]/2*0;
+v2=[L1 L2 0]-[L1 L2 L3]/2*0;
+v3=[0 L2 0]-[L1 L2 L3]/2*0;
+v4=[0 0 L3]-[L1 L2 L3]/2*0;
+v5=[L1 0 L3]-[L1 L2 L3]/2*0;
+v6=[L1 L2 L3]-[L1 L2 L3]/2*0;
+v7=[0 L2 L3]-[L1 L2 L3]/2*0;
+v8=[L1/2 L2/2 0]-[L1 L2 L3]/2*0;
+v9=[L1/2 L2/2 L3]-[L1 L2 L3]/2*0;
+v10=[L1/2 0 L3/2]-[L1 L2 L3]/2*0;
+v11=[L1/2 L2 L3/2]-[L1 L2 L3]/2*0;
+v12=[0 L2/2 L3/2]-[L1 L2 L3]/2*0;
+v13=[L1 L2/2 L3/2]-[L1 L2 L3]/2*0;
 
 
 % Create 12 facets by splitting each face of the cube in two triangles

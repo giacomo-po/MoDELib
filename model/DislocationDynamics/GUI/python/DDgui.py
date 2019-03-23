@@ -1,8 +1,8 @@
 #simple GUI
 
 #import everything from Tkinter
-from Tkinter import *
-from ttk import *
+from tkinter import *
+from tkinter.ttk import *
 
 #def write_help_text(lab,text):
 #    lab["text"] = text

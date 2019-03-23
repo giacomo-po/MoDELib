@@ -47,13 +47,23 @@ namespace model
         }
         
         /**********************************************************************/
+//old version of the contractYoungest
+//        bool contractYoungest(std::shared_ptr<NodeType> nA,
+//                              std::shared_ptr<NodeType> nB)
+//        {
+//            return nA->sID<nB->sID? DN.contractSecond(nA,nB) : DN.contractSecond(nB,nA);
+//
+//        }
+// Chnaged with respect to the new implementation.
         bool contractYoungest(std::shared_ptr<NodeType> nA,
-                              std::shared_ptr<NodeType> nB)
+        		std::shared_ptr<NodeType> nB)
         {
-            return nA->sID<nB->sID? DN.contractSecond(nA,nB) : DN.contractSecond(nB,nA);
-            
+        if ((nA->imageBoundaryNodeContainer().size()>0 || nB->imageBoundaryNodeContainer().size()>0) || (nA->isImageBoundaryNode || nB->isImageBoundaryNode))
+        	return contractSecondWithImages(nA,nB);
+        else
+        	return nA->sID<nB->sID? DN.contractSecond(nA,nB) : DN.contractSecond(nB,nA);
+
         }
-        
         /**********************************************************************/
         bool contractToPosition(std::shared_ptr<NodeType> nA,
                                 std::shared_ptr<NodeType> nB,
@@ -79,6 +89,127 @@ namespace model
             return (movedA && movedB)? contractYoungest(nA,nB) : false;
         }
         
+        bool contractSecondWithImages(std::shared_ptr<NodeType> nA,
+                             std::shared_ptr<NodeType> nB)
+        {	if ((!nA->isImageBoundaryNode && !nB->isImageBoundaryNode)
+        		&& (nA->imageBoundaryNodeContainer().size()>0 || nB->imageBoundaryNodeContainer().size()>0))
+        	{//First contract the images and then contract the real nodes
+        	size_t temp=0;
+        	if (nA->imageBoundaryNodeContainer().size()>0 && nB->imageBoundaryNodeContainer().size()>0)
+        	{ size_t count=0;
+
+        		for (const auto& iternA:nA->imageBoundaryNodeContainer())
+        		{
+
+        			for (const auto& iternB:nB->imageBoundaryNodeContainer())
+        			{
+        				if (iternA.first==iternB.first)
+        				{
+        					if(DN.contractSecond(iternA.second,iternB.second));
+        					std::cout<<"Contracting image node"<<iternB.second->sID<<std::endl;
+        					count++;
+        				}
+        			}
+        		}
+        		if (count==std::min(nA->imageBoundaryNodeContainer().size(),nB->imageBoundaryNodeContainer().size())) //TODO after contraction, container size is samwe
+        			temp=1;
+        		if (temp)
+        			{
+
+        				std::cout<<"Contracting "<<nB->sID<<std::endl;
+        				return DN.contractSecond(nA,nB);
+        			}
+        		else
+        			assert(0 && "All the image nodes could not be contracted");
+        	}
+        	else if (nA->imageBoundaryNodeContainer().size()>0 && nB->imageBoundaryNodeContainer().size()==0)
+        	{
+        		model::cout<<greenColor<<"executing else statement in contract second with images"<<std::endl;
+//        		temp=(nA->imageBoundaryNodeContainer().size()>0)?DN.contractSecond(nB,nA):DN.contractSecond(nA,nB);
+        		temp=DN.contractSecond(nA,nB);
+        		return temp;
+        	}
+        	else if (nA->imageBoundaryNodeContainer().size()==0 && nB->imageBoundaryNodeContainer().size()>0)
+        	{
+        		model::cout<<greenColor<<"executing else statement in contract second with images"<<std::endl;
+        		//        		temp=(nA->imageBoundaryNodeContainer().size()>0)?DN.contractSecond(nB,nA):DN.contractSecond(nA,nB);
+        		temp=DN.contractSecond(nB,nA);		//TODO check this if this can change the contract sequence
+        		return temp;
+        	}
+        	else
+        	{
+        		assert(0 && "Case for the real boundary node within contract second not taken into consideration");
+        	}
+
+        	}
+       //TODO: Check the condition for the contraction of the image node and real node for one more time
+        else if ((nA->isImageBoundaryNode && !nB->isImageBoundaryNode))
+        {
+        	return DN.contractSecond(nA,nB);
+        }
+
+        else if ((!nA->isImageBoundaryNode && nB->isImageBoundaryNode))
+        {
+//        	for (const auto& nA1:nA->imageBoundaryNodeContainer())
+//        	{
+//        		for (const auto& nB1:nB->masterNode->imageBoundaryNodeContainer())
+//        		{
+//        			if ( (nA1.first==nB1.first) && ( nB1.second->sID==nB->sID))
+//        			{
+//        				//condition satisfied for the movement of the real node
+//        				if (nB->masterNode->isMovableTo(nA1.second->get_P()))
+//        				{
+//        					auto nB2=DN.sharedNode(nB->masterNode->sID);
+//        					//contract the master node
+//        					contractSecondWithImages(nA1.second,nB2.second);
+////        					DN.contract(nA1.second->sID,nB->masterNode->sID);
+//        				}
+//        			}
+//        		}
+//        	}
+        	//check if nA is movable to nB
+        	if (nA->isMovableTo(nB->get_P()))
+        	{
+        		return DN.contractSecond(nB,nA);
+        	}
+        	else
+        	{
+        		assert (0 && "All conditions for movable not taken into consideration in Dislocation Node contraction with images");
+        	}
+        }
+        else if ((nA->isImageBoundaryNode && nB->isImageBoundaryNode))
+        {
+        	//go to master node and check if nA and nB directions are the same
+        	for (const auto& nA1:nA->masterNode->imageBoundaryNodeContainer())
+        	{
+        		for (const auto& nB1:nB->masterNode->imageBoundaryNodeContainer())
+        		{
+        			if ((nA1.first==nB1.first) && (nA1.second->sID==nA->sID && nB1.second->sID==nB->sID))
+        			{
+        				//condition satisfied for the movement of the real node
+        				if (nB->masterNode->isMovableTo(nA->masterNode->get_P()))
+        				{
+        					//contract the master node
+        					auto nA2=DN.sharedNode(nA->masterNode->sID);
+        					auto nB2=DN.sharedNode(nB->masterNode->sID);
+
+        					contractSecondWithImages(nA2.second,nB2.second);
+        				}
+        			}
+        		}
+        	}
+        }
+        else if (nA->imageBoundaryNodeContainer().size()==0 && nB->imageBoundaryNodeContainer().size()==0)
+        	{
+        		//just contract the real nodes
+        		return DN.contractSecond(nA,nB);
+
+        	}
+        else
+        {
+        	assert(0 && "Condition for Node contraction with images not taken into consideration.");
+        }
+        }
         /**********************************************************************/
         bool contract(std::shared_ptr<NodeType> nA,
                       std::shared_ptr<NodeType> nB)
@@ -97,12 +228,15 @@ namespace model
             else if(nAisMovable && !nBisMovable)
             {
                 VerboseNodeContraction(1,"DislocationNodeContraction case 1b"<<std::endl;);
-                return DN.contractSecond(nB,nA);
+                return contractSecondWithImages(nB,nA);
+              // return contractSecond(nB,nA);
+
             }
             else if(!nAisMovable && nBisMovable)
             {
                 VerboseNodeContraction(1,"DislocationNodeContraction case 1c"<<std::endl;);
-                return DN.contractSecond(nA,nB);
+                return contractSecondWithImages(nA,nB);
+//                return contractSecond(nA,nB);
             }
             else
             {// nA and nB cannot be moved to each other. The calculation of a third point is necessary
@@ -289,6 +423,7 @@ namespace model
     template <typename DislocationNetworkType>
     int DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=0;
     
+
 }
 #endif
 

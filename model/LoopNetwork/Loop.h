@@ -39,9 +39,6 @@ namespace model
         typedef std::map<std::pair<size_t,size_t>,LoopLinkType* const> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
         typedef std::deque<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> LoopNodeSequenceType;
-
-        
-        
         typedef LoopObserver<Derived> LoopObserverType;
         typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
@@ -88,6 +85,9 @@ namespace model
         /**********************************************************************/
         ~Loop()
         {
+            
+            assert(links().size()==0 && "DESTROYING NON-EMPTY LOOP.");
+            
             _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
         }
@@ -110,15 +110,15 @@ namespace model
 //            return temp;
 //        }
         
-        /**********************************************************************/
-        void flip()
-        {
-            _flow*=-1;
-            for(auto link : links())
-            {
-                link.second->flip();
-            }
-        }
+//        /**********************************************************************/
+//        void flip()
+//        {
+//            _flow*=-1;
+//            for(auto link : links())
+//            {
+//                link.second->flip();
+//            }
+//        }
         
         /**********************************************************************/
         const FlowType& flow() const
@@ -141,14 +141,19 @@ namespace model
         /**********************************************************************/
         void addLink(LoopLinkType* const pL)
         {
-            const bool success=links().insert(std::make_pair(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID),pL)).second;
-            assert(success && "Could not insert in linkMap");
+            const bool success=links().insert(std::make_pair(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID),pL)).second;
+            if(!success)
+            {
+                std::cout<<"DislocationLoop "<<this->sID<<" cannot add LoopLink "<<pL->tag()<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+//            assert(success && "Could not insert in linkMap");
         }
         
         /**********************************************************************/
         void removeLink(LoopLinkType* const pL)
         {
-            const size_t erased=links().erase(LoopLinkType::getKey(pL->source()->sID,pL->sink()->sID));
+            const size_t erased=links().erase(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID));
             assert(erased==1 && "Could not erase from linkMap");
         }
 

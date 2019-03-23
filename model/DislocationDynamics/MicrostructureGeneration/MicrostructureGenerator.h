@@ -733,15 +733,11 @@ namespace model
                                 
                                 const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
                                 edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
-                                //                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
-                                
                             }
                             nodeID+=nodePos.size();
                             
                             // write loop file
                             loopsIO.emplace_back(loopID+0, b,n,P0,grainID);
-                            //                    DislocationLoopIO<dim> dlIO(loopID+0, b,n,P0,grainID);
-                            //                    loopFile<< dlIO<<"\n";
                             
                             loopID+=1;
                             snID+=1;
@@ -751,28 +747,19 @@ namespace model
                                 std::cout<<"Line too short. EXITING."<<std::endl;
                                 exit(EXIT_FAILURE);
                             }
-                            //                        density += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
-                            //                        if(isSessile)
-                            //                        {
-                            //                            sessileDensity += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
-                            //                        }
-                            //                        std::cout<<"theta="<<theta*180.0/M_PI<<", density="<<density<<" (sessileDensity="<<sessileDensity<<")"<<std::endl;
                         }
                         else
                         {
                             std::cout<<"nodePos.size="<<nodePos.size()<<std::endl;
                             assert(false && "LOOP DOES NOT HAVE ENOUGH POINTS");
                         }
-                        
                     }
                     else
                     {
                         std::cout<<"negative slip system ID. Skipping entries."<<std::endl;
                     }
                 }
-                
             }
-            
         }
         
         /**********************************************************************/
@@ -885,7 +872,7 @@ namespace model
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
-        GlidePlaneObserver<dim> gpo;
+//        GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
         
         // Straight Dislocations
@@ -940,7 +927,7 @@ namespace model
         /* init*/,mesh(meshID)
         /* init*/,minSize(0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,maxSize(max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-        /* init*/,poly("./inputFiles/polycrystal.txt",mesh,gpo)
+        /* init*/,poly("./inputFiles/polycrystal.txt",mesh)
         /* Straight Dislocations */
         /* init*/,targetStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetStraightDislocationDensity",true))
         /* init*/,fractionSessileStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true))
@@ -1243,21 +1230,6 @@ namespace model
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
-                //                std::cout<<"newPoints=["<<std::endl;
-                //                for(const auto& newPoint : newPoints)
-                //                {
-                //                    std::cout<<newPoint.transpose()<<std::endl;
-                //                }
-                //                std::cout<<"];"<<std::endl;
-                //
-                //                std::cout<<"oldPoints=["<<std::endl;
-                //                for(const auto& oldPoint : loopPoints[k])
-                //                {
-                //                    std::cout<<oldPoint.transpose()<<std::endl;
-                //                }
-                //                std::cout<<"];"<<std::endl;
-                //                std::cout<<"h="<<LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers)<<std::endl;
-                
                 h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
             

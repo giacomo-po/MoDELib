@@ -239,19 +239,19 @@ namespace model
             assert(success==1 && "COULD NOT ERASE GLIDE PLANE POINTER FROM GLIDE PLANE OBSERVER.");
         }
         
-        /**********************************************************************/
-        template <class T>
-        friend T& operator << (T& os, const GlidePlaneObserverType& gpo)
-        {
-            for (const auto& glidePlane : gpo.glidePlanes())
-            {
-                if(glidePlane.second->glissileLoopIDs.size())
-                {
-                    os << (*glidePlane.second);
-                }
-            }
-            return os;
-        }
+//        /**********************************************************************/
+//        template <class T>
+//        friend T& operator << (T& os, const GlidePlaneObserverType& gpo)
+//        {
+//            for (const auto& glidePlane : gpo.glidePlanes())
+//            {
+//                if(glidePlane.second->glissileLoopIDs.size())
+//                {
+//                    os << (*glidePlane.second);
+//                }
+//            }
+//            return os;
+//        }
         
     };
     

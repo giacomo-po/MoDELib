@@ -1,0 +1,18 @@
+Final version
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#	modified:   DislocationNetwork.h
+#	modified:   DislocationNetworkRemesh.h
+#	modified:   DislocationNode.h
+#	modified:   DislocationNodeContraction.h
+#
+# Changes not staged for commit:
+#	modified:   Junctions/DislocationJunctionFormation.h
+#
+# Untracked files:
+#	._.DS_Store
+#	._DislocationNode.h
+#	._DislocationSegment.h
+#

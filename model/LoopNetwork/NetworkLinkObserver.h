@@ -25,6 +25,8 @@ namespace model
     struct NetworkLinkObserver : public std::map<std::pair<size_t,size_t>,LinkType* const>
     {
         
+        typedef typename LinkType::NodeType NodeType;
+        
         typedef std::pair<bool,LinkType* const>			IsNetworkLinkType;
         typedef std::pair<bool,const LinkType* const>	IsConstNetworkLinkType;
         
@@ -75,6 +77,18 @@ namespace model
             const size_t erased=this->erase(std::make_pair(pL->source->sID,pL->sink->sID));
             assert(erased==1 && "Could not erase from linkMap");
         }
+        
+        /**********************************************************************/
+        std::shared_ptr<LinkType> sharedLink(const std::shared_ptr<NodeType>& nI, const std::shared_ptr<NodeType>& nJ) const
+        {
+        
+            const std::pair<size_t,size_t> key=std::make_pair(std::min(nI->sID,nJ->sID),std::max(nI->sID,nJ->sID));
+            const auto iterIJ(this->find(key));
+            
+            return iterIJ==this->end()? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : (*iterIJ->second->loopLinks().begin())->pLink;
+
+        }
+
         
     };
         

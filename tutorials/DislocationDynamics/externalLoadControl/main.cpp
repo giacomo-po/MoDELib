@@ -15,17 +15,19 @@
 //#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/SequentialTorsionTensionController.h>
 //#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/ClockIndentationController.h>
 
-#include <model/DislocationDynamics/DislocationNetwork.h>
+//#include <model/DislocationDynamics/DislocationNetwork.h>
+#include <model/DislocationDynamics/DefectiveCrystal.h>
 
 using namespace model;
 
 int main (int argc, char* argv[])
 {
     // Create the DislocationNetwork object
-    DislocationNetwork<3,0,Hermite> DN(argc,argv);
+//    DislocationNetwork<3,0,Hermite> DN(argc,argv);
+    DefectiveCrystal<3,0,Hermite> DC(argc,argv);
     
     // Run time steps
-    DN.runSteps();
+    DC.runSteps();
     
     return 0;
 }

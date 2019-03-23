@@ -1,4 +1,11 @@
 ######################################
+# Simulation type (0=finite sample no FEM, 1=finite sample with FEM,2=periodic prism)
+simulationType=2;
+dislocationImages_x=1;
+dislocationImages_y=1;
+dislocationImages_z=1;
+
+######################################
 # Number of simulation steps 
 Nsteps=100000;
 startAtTimeStep = -1;
@@ -13,9 +20,7 @@ use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
-dislocationImages_x=0;
-dislocationImages_y=0;
-dislocationImages_z=0;
+
 computePlasticDistortionIncrementally=1;
 
 ######################################
@@ -89,7 +94,7 @@ use_meshRegions=0;
 # use_bvp = 0 for no BVP solution
 # use_bvp = n (n>1) for solving the BVP every n dislocation dynamics time steps
 use_bvp = 0;
-use_virtualSegments=1;
+useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
 solverTolerance=0.0001;
 
@@ -113,10 +118,12 @@ surfaceNucleationModel=0;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-verboseJunctions=0;
+verboseJunctions=1;
 verboseRemesh=0;
-verboseNodeContraction=0;
-verboseDislocationNode=0;
+verboseNodeContraction=1;
+verboseDislocationNode=1;
+verbosePlanarDislocationSegment=1;
+verbosePlanarDislocationLoop=1;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;

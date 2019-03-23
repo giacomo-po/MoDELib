@@ -410,7 +410,7 @@ namespace model
                     }
                 }
                 
-                if(DN.use_virtualSegments) // Add solid angle contribution
+                if(DN.useVirtualExternalLoops) // Add solid angle contribution
                 {
                     VectorDim dispJump(VectorDim::Zero());
                     for (const auto& segment : DN.links())

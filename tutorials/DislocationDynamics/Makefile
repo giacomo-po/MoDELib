@@ -4,9 +4,9 @@
 USE_ICC = 0
 usePARDISO = 0
 MODEL_INCLUDE =../../..
-EIGEN_INCLUDE =/usr/local/include
+EIGEN_INCLUDE =/usr/include/eigen3
 MKL_INCLUDE=/opt/intel/mkl/include
-MKL_LIB=/opt/intel/mkl/lib
+MKL_LIB=/opt/intel/mkl/lib/intel64
 
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-

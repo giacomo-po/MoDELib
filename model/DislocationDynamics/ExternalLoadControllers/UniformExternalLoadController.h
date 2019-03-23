@@ -93,9 +93,9 @@ namespace model
         
         /**************************************************************************/
         template <typename DislocationNetworkType>
-        void init(DislocationNetworkType& DN)
+        void init(DislocationNetworkType& DN,const long int& runID)
         {
-            const long int runID=DN.runningID();
+//            const long int runID=DN.runningID();
             //            const unsigned int userOutputColumn=DN.userOutputColumn();
             model::cout<<greenColor<<"Initializing UniformExternalLoadController at runID="<<runID<<defaultColor<<std::endl;
             
@@ -307,11 +307,11 @@ namespace model
         }
         /*************************************************************************/
         template <typename DislocationNetworkType>
-        void update(const DislocationNetworkType& DN)
+        void update(const DislocationNetworkType& DN,const long int& runID)
         {
             
             
-            if(DN.runningID()>=relaxSteps)
+            if(runID>=relaxSteps)
             {
                 const double deltaT = DN.get_totalTime() - last_update_time;
                 last_update_time += deltaT;

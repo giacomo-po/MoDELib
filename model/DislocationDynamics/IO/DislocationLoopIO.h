@@ -32,8 +32,8 @@ namespace model
         DislocationLoopIO(const DislocationLoopType& dL) :
         /* init */ sID(dL.sID),
         /* init */ B(dL.flow().cartesian()),
-        /* init */ N(dL.glidePlane.unitNormal),
-        /* init */ P(dL.glidePlane.P),
+        /* init */ N(dL.isVirtualBoundaryLoop()? dL.rightHandedNormal() : (dL.slippedArea()>FLT_EPSILON? dL.rightHandedNormal() : dL.glidePlane->unitNormal)),
+        /* init */ P(dL.isVirtualBoundaryLoop()? dL.links().begin()->second->source()->get_P() : dL.glidePlane->P),
         /* init */ grainID(dL.grain.grainID),
         /* init */ loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
         {

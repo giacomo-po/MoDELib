@@ -170,7 +170,8 @@ namespace model
                 std::cout<<"DislocationNetworkComponent:" <<NC.sID<<" nodeOrder()="<<nodeOrdr<<std::endl<<", linkOrder()="<<NC.linkOrder()<<std::endl;
                 typename NodeContainerType::const_iterator nodeIter1=NC.nodeBegin();
                 std::cout<<"Only DIslocatioNode is "<< nodeIter1->second->sID<<std::endl;
-                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
+//                assert(0 && "DislocationSubNetework has less than 2 Nodes.");
+                std::cout<<"DislocationSubNetework has less than 2 Nodes."<<std::endl;
             }
             if (nodeOrdr==2)
             {

@@ -38,7 +38,7 @@ namespace model
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-        
+
         
         friend class LoopNode<NodeType>; // allow NetworkNode to call private NetworkLink::formNetworkComponent
 
@@ -84,11 +84,9 @@ namespace model
         /**********************************************************************/
         void makeTopologyChange()
         {
-//            std::cout<<"1"<<std::endl;
             // Add this to NetworkLinkObserver
             loopNetwork->addLink(this->p_derived());
 
-//                        std::cout<<"2"<<std::endl;
             // Add this to neighobors of source and sink
             source->addToNeighborhood(this->p_derived());
             sink  ->addToNeighborhood(this->p_derived());
@@ -96,13 +94,11 @@ namespace model
             //! 2 - Joins source and sink NetworkComponents
             if (source->pSN()==sink->pSN()) // source and sink are already in the same NetworkComponent
             {
-//                            std::cout<<"3"<<std::endl;
                 psn=source->pSN();				// redirect psn to the source psn
                 psn->add(this->p_derived());	// add this to the existing NetworkComponent
             }
             else // source and sink are in different NetworkComponents
             {
-//                            std::cout<<"4"<<std::endl;
                 // find the size of the source and sink
                 size_t sourceSNsize(source->pSN()->nodeOrder());
                 size_t   sinkSNsize(  sink->pSN()->nodeOrder());
@@ -119,7 +115,6 @@ namespace model
                     changeSN(*(source->psn.get()));
                 }
             }
-//                     std::cout<<"end"<<std::endl;
         }
         
     public:
@@ -128,21 +123,14 @@ namespace model
         const std::shared_ptr<NodeType> sink;
         const std::pair<size_t,size_t> nodeIDPair;
         
-        
         /**********************************************************************/
         NetworkLink(const std::shared_ptr<NodeType>& nI,
                     const std::shared_ptr<NodeType>& nJ) :
-//        /* init */ _flow(TypeTraits<Derived>::zeroFlow),
         /* init */ loopNetwork(nI->loopNetwork),
         /* init */ source(nI->sID<nJ->sID? nI : nJ),
         /* init */ sink(nI->sID<nJ->sID? nJ : nI),
         /* init */ nodeIDPair(std::make_pair(source->sID,sink->sID))
         {
-            //                        std::cout<<"Constructing NetworkLink ("<<source->sID<<","<<sink->sID<<")"<<std::endl;
-            //            const bool sourceInserted=source->insert(this->p_derived()).second;
-            //            assert(sourceInserted);
-            //            const bool sinkInserted=sink->insert(this->p_derived()).second;
-            //            assert(sinkInserted);
             assert(nI->loopNetwork==nJ->loopNetwork && "source and sink in different networks");
             makeTopologyChange();
         }
@@ -175,6 +163,12 @@ namespace model
         
         /**********************************************************************/
         const LoopNetworkType& network() const
+        {
+            return *loopNetwork;
+        }
+        
+        /**********************************************************************/
+        LoopNetworkType& network() 
         {
             return *loopNetwork;
         }
