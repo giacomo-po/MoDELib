@@ -28,7 +28,7 @@
 #include <MPIcout.h> // defines mode::cout
 #include <MeshRegionBoundary.h>
 #include <SimplexObserver.h>
-#include <SimplicialMeshFace.h>
+//#include <SimplicialMeshFace.h>
 #include <GmshReader.h>
 
 
@@ -49,7 +49,7 @@ namespace model
 //    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
     /*                                */ >
     /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
-    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
+//    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
         
         Eigen::Matrix<double,_dim,1> _xMin;
@@ -80,7 +80,7 @@ namespace model
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
-        typedef std::deque<SimplicialMeshFace<_dim>> MeshFacesContainerType;
+//        typedef std::deque<SimplicialMeshFace<_dim>> MeshFacesContainerType;
         
         /**********************************************************************/
         SimplicialMesh() :
@@ -109,6 +109,32 @@ namespace model
         SimplexMapType& simplices()
         {
             return *this;
+        }
+        
+        /**********************************************************************/
+        void updateRegions()
+        {
+            for(auto region : MeshRegionObserverType::regions())
+            {
+                region.second->update();
+            }
+        }
+        
+        /**********************************************************************/
+        void updateRegionBoundaries()
+        {
+            for(auto& rgnBnd : regionBoundaries())
+            {
+                rgnBnd.second.update();
+                MeshRegionType* const region1(this->region(rgnBnd.second.regionBndID.first));
+                MeshRegionType* const region2(this->region(rgnBnd.second.regionBndID.second));
+                for(const auto& face : rgnBnd.second.faces())
+                {// add each face to the region boundary to the corresponding two regions
+                    region1->faces().emplace(face.second->sID,face.second);
+                    region2->faces().emplace(face.second->sID,face.second);
+
+                }
+            }
         }
         
         /**********************************************************************/
@@ -191,35 +217,40 @@ namespace model
                 //                assert(0);
                 model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
             }
+            model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
+            model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
+
             
             // Populate MeshRegionBoundaryContainerType
             regionBoundaries().clear();
-            faces().clear();
+
+            
             size_t bndSimplexCount=0;
+            size_t rgnBndSimplexCount=0;
             for (const auto& simpl : this->template observer<dim-1>())
             {
                 
                 if(simpl.second->isBoundarySimplex())
-                {
-                    const Eigen::Matrix<double,_dim,1> n(simpl.second->outNormal());
-                    const Eigen::Matrix<double,_dim,1> c(simpl.second->center());
-                    SimplicialMeshFace<_dim>* faceFound=nullptr;
-                    for(auto& face : faces())
-                    {
-                        if(fabs(n.dot(face.outNormal())-1.0)<FLT_EPSILON && fabs((c-face.center()).dot(n))<FLT_EPSILON)
-                        {// same normal, and c contained in face
-                            faceFound=&face;
-                            break;
-                        }
-                    }
-                    if(faceFound)
-                    {
-                        faceFound->insert(simpl.second);
-                    }
-                    else
-                    {
-                        faces().emplace_back(simpl.second);
-                    }
+                {// count number of bonudary simplices for later check
+//                    const Eigen::Matrix<double,_dim,1> n(simpl.second->outNormal());
+//                    const Eigen::Matrix<double,_dim,1> c(simpl.second->center());
+//                    SimplicialMeshFace<_dim>* faceFound=nullptr;
+//                    for(auto& face : faces())
+//                    {
+//                        if(fabs(n.dot(face.outNormal())-1.0)<FLT_EPSILON && fabs((c-face.center()).dot(n))<FLT_EPSILON)
+//                        {// same normal, and c contained in face
+//                            faceFound=&face;
+//                            break;
+//                        }
+//                    }
+//                    if(faceFound)
+//                    {
+//                        faceFound->insert(simpl.second);
+//                    }
+//                    else
+//                    {
+//                        faces().emplace_back(simpl.second);
+//                    }
                     bndSimplexCount++;
                 }
                 
@@ -230,42 +261,75 @@ namespace model
                     const auto regionBndIter=regionBoundaries().find(regionIDs);
                     if(regionBndIter!=regionBoundaries().end())
                     {
-                        regionBndIter->second.insert(simpl.second);
+                        regionBndIter->second.simplices().insert(simpl.second);
                     }
                     else
                     {
-                        regionBoundaries().emplace(regionIDs,regionIDs).first->second.insert(simpl.second);
+                        regionBoundaries().emplace(regionIDs,regionIDs).first->second.simplices().insert(simpl.second);
+//                        regionBoundaries().emplace(std::piecewise_construct,
+//                                         std::forward_as_tuple(regionIDs),
+//                                         std::forward_as_tuple(regionIDs,simpl.second));
+//                        regionBoundaries().emplace(regionIDs,regionIDs);
+
+                        
                     }
-                    
+                    rgnBndSimplexCount++;
                 }
             }
             
+            updateRegions();
+            updateRegionBoundaries();
+
             
-            model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
-            model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
+            
             //            model::cout<<"mesh volume="<<volume()<<std::endl;
             
-            model::cout<<"mesh faces: "<<faces().size()<<std::endl;
-            size_t simplexSum=0;
-            for(auto& face : faces())
-            {
-                face.finalize();
-                model::cout<<" face: hullPts="<<face.convexHull().size()<<", outNormal "<<face.outNormal().transpose()<<std::endl;
-                simplexSum+=face.size();
-            }
-            assert(simplexSum==bndSimplexCount && "WRONG NUMBER OF FACE SIMPLICES");
+//            model::cout<<"mesh faces: "<<faces().size()<<std::endl;
             
-            for(auto rIter : MeshRegionObserverType::regions())
-            {
-                std::cout<<"mesh region "<<rIter.second->regionID<<" contains "<<rIter.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+            
+            size_t bndFaceSimplexSum=0;
+            for(auto region : MeshRegionObserverType::regions())
+            {// Sum number of external faces for final check
+                std::cout<<magentaColor<<"MeshRegion "<<region.second->regionID<<defaultColor<<std::endl;
+                std::cout<<"    simplices: "<<region.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
+                for(auto& face : region.second->faces())
+                {
+                    model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
+                    bndFaceSimplexSum+=face.second->size();
+                }
             }
             
-            std::cout<<"Mesh contains "<<regionBoundaries().size()<<" mesh region boundaries"<<std::endl;
+            size_t rgnBndFaceSimplexSum=0;
             for(const auto& rgnBnd : regionBoundaries())
-            {
-                std::cout<<"    RegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<") contains "<<rgnBnd.second.size()<<" Simplex<"<<dim<<","<<dim-1<<">"<<std::endl;
+            {// Sum number of internal faces for final check
+                std::cout<<magentaColor<<"MeshRegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<")"<<defaultColor<<std::endl;
+                std::cout<<"    simplices: "<<rgnBnd.second.simplices().size()<<" Simplex<"<<dim<<","<<dim-1<<">"<<std::endl;
+                for(auto& face : rgnBnd.second.faces())
+                {
+                    model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
+                    rgnBndFaceSimplexSum+=face.second->size();
+                    bndFaceSimplexSum-=2*face.second->size(); // each region boundary face was added to two regions
+                }
             }
             
+            if(bndFaceSimplexSum!=bndSimplexCount)
+            {
+                std::cout<<"WRONG NUMBER OF BOUNDAY FACE SIMPLICES"<<std::endl;
+                std::cout<<"boundary simplices="<<bndSimplexCount<<std::endl;
+                std::cout<<"simplices in external faces="<<bndFaceSimplexSum<<std::endl;
+                exit(EXIT_FAILURE);
+
+            }
+
+            if(rgnBndFaceSimplexSum!=rgnBndSimplexCount)
+            {
+                std::cout<<"WRONG NUMBER OF REGION-BOUNDARY FACE SIMPLICES"<<std::endl;
+                std::cout<<"region-boundary simplices="<<rgnBndSimplexCount<<std::endl;
+                std::cout<<"simplices in internal faces="<<rgnBndFaceSimplexSum<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+
         }
         
         /**********************************************************************/
@@ -322,7 +386,7 @@ namespace model
           *
           * By default the search starts at this->begin()->second
           */
-            return searchRegionWithGuess(P,*this->region(regionID)->begin());
+            return searchRegionWithGuess(P,*this->region(regionID)->simplices().begin());
         }
         
         /**********************************************************************/
@@ -518,15 +582,15 @@ namespace model
             return *this;
         }
 
-        const MeshFacesContainerType& faces() const
-        {
-            return *this;
-        }
-
-        MeshFacesContainerType& faces()
-        {
-            return *this;
-        }
+//        const MeshFacesContainerType& faces() const
+//        {
+//            return *this;
+//        }
+//
+//        MeshFacesContainerType& faces()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         const MeshRegionBoundaryType& regionBoundary(const int& i,const int& j) const

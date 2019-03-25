@@ -14,7 +14,6 @@
 
 namespace model
 {
-    
     /**************************************************************************/
     /**************************************************************************/
     template<typename RegionType>
@@ -24,10 +23,6 @@ namespace model
         typedef std::map<int,RegionType* const> RegionMapType;
         typedef std::shared_ptr<RegionType> SharedPtrType;
         
-////        static RegionMapType regionMap;
-//        
-//    public:
-//        
         /**********************************************************************/
         const RegionMapType& regions() const
         {
@@ -45,8 +40,7 @@ namespace model
         {
             typename RegionMapType::const_iterator iter(this->find(k));
             assert(iter!=this->end());
-            return iter.second;
-//            return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));
+            return iter->second;
         }
         
         /**********************************************************************/
@@ -55,7 +49,6 @@ namespace model
             typename RegionMapType::const_iterator iter(this->find(k));
             assert(iter!=this->end());
             return iter->second;
-            //            return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));
         }
         
         /**********************************************************************/
@@ -64,23 +57,7 @@ namespace model
             typename RegionMapType::const_iterator iter(this->find(k));
             return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));
         }
-        
-//        /**********************************************************************/
-//        static size_t erase(const int& k)
-//        {
-//            return regionMap.erase(k);
-//        }
-        
-//        /**********************************************************************/
-//        static std::pair<typename RegionMapType::iterator,bool> emplace(const int& k, RegionType* const reg)
-//        {
-//            return regionMap.emplace(k,reg);
-//        }
-        
     };
-    
-    
-//    template<typename RegionType>
-//    std::map<int,RegionType* const> MeshRegionObserver<RegionType>::regionMap;
+
 }	// close namespace
 #endif

@@ -165,6 +165,14 @@ namespace model
           */
             return psn->snID(this->p_derived());
         }
+        
+        /**********************************************************************/
+        size_t gID() const
+        {/*!\returns The NetworkComponent::snID() of the component
+          * containing this.
+          */
+            return network().globalNodeID(this->sID);
+        }
     
         /**********************************************************************/
         const LoopLinkContainerType& loopLinks() const

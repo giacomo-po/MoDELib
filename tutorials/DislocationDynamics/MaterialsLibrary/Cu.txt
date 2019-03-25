@@ -7,11 +7,16 @@ nu=0.34;		# [-]		Poisson's ratio
 rho_SI=8940.0;	# [kg/m^3]	mass density
 T=300;			# [K]		temperature
 Tm=1358;		# [K]		melting temperature
-Dv_SI=1.0;	    # [?????]	vacancy diffusion coefficient
-
 
 # Mobility parameters
 B0e_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for edge  dislocations			
 B1e_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for edge  dislocations			
 B0s_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for screw dislocations	
-B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations	
+B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations
+
+# Vacancy diffusion
+Ufv_SI=1.0;		# [J]	Vacancy formation energy
+DVv=0.05;		# [-]	Relative vacancy relaxation volume
+Udv_SI=1.0; 	# [J]	Vacancy migration energy
+D0v_SI=1.0;	    # [?????]	vacancy diffusion coefficient
+

@@ -7,7 +7,6 @@ nu=0.28;		# [-]		Poisson's ratio
 rho_SI=19250.0;	# [kg/m^3]	mass density
 T=300;			# [K]		temperature
 Tm=3695.0;		# [K]		melting temperature
-Dv_SI=1.0;	    # [?????]	vacancy diffusion coefficient
 
 # Mobility parameters (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
 B0e_SI=4.26e-04;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations
@@ -24,3 +23,9 @@ a0=1.50;			# [-]		non-Schmid coefficient
 a1=1.15;			# [-]		non-Schmid coefficient
 a2=2.32;			# [-]		non-Schmid coefficient
 a3=4.29;			# [-]		non-Schmid coefficient
+
+# Vacancy diffusion
+Ufv_SI=1.0;	# [J]	Vacancy formation energy
+DVv=0.05;	# [-]	Relative vacancy relaxation volume
+Udv_SI=1.0; # [J]	Vacancy migration energy
+D0v_SI=1.0;	    # [?????]	vacancy diffusion coefficient

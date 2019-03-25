@@ -14,6 +14,10 @@
 #include <TerminalColors.h> // defines mode::cout
 #include <TextFileParser.h>
 
+//#include <BCClattice.h>
+//#include <FCClattice.h>
+//#include <HEXlattice.h>
+
 namespace model
 {
     
@@ -36,20 +40,59 @@ namespace model
         const double rho_SI;    // mass density [Kg/m^3]
         const double cs_SI;     // shear wave speed [m/s]
         const double b_SI;      // Burgers vector [m]
-        const double Dv_SI;     // vacancy diffusion coefficient in [m^2/s]
         
         // Material constants in code units
         const double kB;        // Boltzmann constant [-]
         const double mu;        // shear modulus [-]
         const double b;         // Burgers vector [-]
         const double cs;        // shear wave speed [-]
+        
+        
+        // Vacancy concentration
+        const double Omega;     // shear wave speed [-]
+        const double Ufv_SI;
+        const double Ufv;
+        const double DVv;
+        const double Udv_SI;        // shear wave speed [-]
+        const double Udv;        // shear wave speed [-]
+        const double D0v_SI;        // shear wave speed [-]
         const double Dv;        // shear wave speed [-]
+//        const double c0;        // shear wave speed [-]
 
         
         static const std::string& getMaterialFile(const std::string& fileName)
         {
             model::cout<<greenBoldColor<<"Reading material file: "<<fileName<<defaultColor<<std::endl;
             return fileName;
+        }
+        
+        /**********************************************************************/
+        static double atomicVolume(const std::string& structure)
+        {
+            
+//            if(structure=="BCC")
+//            {
+//                return BCClattice<3>::getLatticeBasis().determinant();
+//            }
+//            else if(structure=="FCC")
+//            {
+//                return FCClattice<3>::getLatticeBasis().determinant();
+//            }
+//            else if(structure=="HEX")
+//            {
+//                return HEXlattice<3>::getLatticeBasis().determinant();
+//
+//            }
+//            else
+//            {
+//                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
+//                exit(EXIT_FAILURE);
+//                return 0.0;
+//            }
+            
+            std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
+
+            return 1.0;
         }
         
         /**************************************************************************/
@@ -66,12 +109,19 @@ namespace model
         /* init */,rho_SI(TextFileParser(materialFile).readScalar<double>("rho_SI",true))
         /* init */,cs_SI(sqrt(mu_SI/rho_SI))
         /* init */,b_SI(TextFileParser(materialFile).readScalar<double>("b_SI",true))
-        /* init */,Dv_SI(TextFileParser(materialFile).readScalar<double>("Dv_SI",true))
+//        /* init */,Dv_SI(TextFileParser(materialFile).readScalar<double>("Dv_SI",true))
         /* init */,kB(kB_SI/mu_SI/std::pow(b_SI,3))
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-        /* init */,Dv(Dv_SI/b_SI/cs_SI)
+        /* init */,Omega(atomicVolume(crystalStructure))
+        /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_SI",true))
+        /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
+        /* init */,DVv(TextFileParser(materialFile).readScalar<double>("DVv",true))
+        /* init */,Udv_SI(TextFileParser(materialFile).readScalar<double>("Udv_SI",true))
+        /* init */,Udv(Udv_SI/mu_SI/std::pow(b_SI,3))
+        /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
+        /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Udv/kB/T))
         {
 //            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 

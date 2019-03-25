@@ -34,6 +34,7 @@
 #include <IDreader.h>
 #include <PlanarPolygon.h>
 #include <EVLio.h>
+#include <MeshPlane.h>
 
 // VTK documentation
 // http://www.vtk.org/Wiki/VTK/Examples/Cxx/GeometricObjects/PolyLine
@@ -82,8 +83,10 @@ namespace model
         static bool showNodes;
         static bool showSlippedArea;
         static float slippedAreaOpacity;
+        static bool showGlidePlanes;
         
         vtkRenderer* const renderer;
+        const SimplicialMesh<3>& mesh;
         
         vtkSmartPointer<vtkActor> lineActor;
         vtkSmartPointer<vtkActor> tubeActor;
@@ -161,6 +164,13 @@ namespace model
         vtkSmartPointer<vtkPolyData> trianglePolyData;
         vtkSmartPointer<vtkPolyDataMapper> triangleMapper;
         vtkSmartPointer<vtkActor> triangleActor;
+        
+        // GlidePlanes
+        vtkSmartPointer<vtkPoints> gpPts;
+        vtkSmartPointer<vtkPolyData> gpPolydata;
+        vtkSmartPointer<vtkPolyDataMapper> gpMapper;
+        vtkSmartPointer<vtkActor> gpActor;
+
         
         
         //        const std::map<size_t,const DislocationNodeIO<dim>* const>& this->nodeMap() const
@@ -583,196 +593,7 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        void createSegments()
-//        {
-//            //            if (edgeReader().isGood(frameID,false)) // bin format
-//            //            {
-//            //                edgeReader().read(frameID,false);
-//            //            }
-//            //            else // txt format
-//            //            {
-//            //                edgeReader().read(frameID,true);
-//            //            }
-//            
-//            
-////            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
-//            
-//            size_t ptID=0;
-//            for (const auto& edge : edgeMap())
-//            {
-//                assert(edge.first.second.size());
-//                
-//                auto itSource(this->nodeMap().find(edge.first.first)); //source
-//                assert(itSource!=this->nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-//                auto   itSink(this->nodeMap().find(edge.first.second)); //sink
-//                assert(  itSink!=this->nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
-//                
-//                //                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
-//                //                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
-//                //                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
-//                
-//                //                const int   snID(edgeRow(2*dim+2));
-//                //                const bool sourceOnBoundary(sourceRow(2*dim+1));
-//                //                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
-//                //
-//                //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
-//                //                {
-//                
-//                int meshLocation=(*edge.second.begin())->meshLocation;
-//                
-//                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
-//                
-//                //                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();	// source position
-//                //                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();	// sink position
-//                //                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-//                //                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-//                //                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();		// Burgers vector
-//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-//                P0T0P1T1BN.col(0) = itSource->second->P.template cast<float>();	// source position
-//                P0T0P1T1BN.col(2) = itSink->second->P.template cast<float>();	// sink position
-//                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());	// source tangent
-//                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());	// sink tangent
-//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();	// source tangent
-//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();	// sink tangent
-//                P0T0P1T1BN.col(4).setZero();		// Burgers vector
-//                for(auto& loopLink : edge.second)
-//                {
-//                    auto loopIter(this->loopMap().find(loopLink->loopID));
-//                    assert(loopIter!=this->loopMap().end());
-//                    if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
-//                    {
-//                        P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
-//                    }
-//                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
-//                    {
-//                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
-//                    }
-//                    else
-//                    {
-//                        assert(0);
-//                    }
-//                }
-//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();		// plane normal
-//                P0T0P1T1BN.col(5).setZero();		// plane normal
-//                
-//                VectorDim chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
-//                VectorDim burgers=P0T0P1T1BN.col(4);
-//                VectorDim planeNormal=P0T0P1T1BN.col(5);
-//                
-//                const float g = std::pow(chord.norm(),alpha);
-//                
-//                
-//                //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
-//                //                    auto& line(*lines.rbegin());
-//                vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
-//                line->GetPointIds()->SetNumberOfIds(Np);
-//                
-//                //                    unsigned char clr0[3]={255,255,255};
-//                
-//                const float burgersNorm(burgers.norm());
-//                
-//                for (int k=0;k<Np;++k) // this may have to go to Np+1
-//                {
-//                    const float u1=k*1.0/(Np-1);
-//                    const float u2=u1*u1;
-//                    const float u3=u2*u1;
-//                    
-//                    // Compute positions along axis
-//                    VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
-//                    /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
-//                    /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
-//                    /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
-//                    
-//                    points->InsertNextPoint(P.data());
-//                    radii->InsertNextValue(burgersNorm*tubeRadius);
-//                    line->GetPointIds()->SetId(k,ptID);
-//                    
-//                    ptID++;
-//                }
-//                
-//                
-//                if(burgers.squaredNorm()>FLT_EPSILON)
-//                {
-//                    
-//                    Eigen::Matrix<int,3,1> colorVector=computeColor(burgers,chord,planeNormal);
-//                    
-//                    //                    unsigned char lineClr[3]={51,153,255};
-//                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-//                    
-//                    if(meshLocation>=1)
-//                    {
-//                        cellsBnd->InsertNextCell(line);
-//                        colorsBnd->InsertNextTypedTuple(lineClr);
-//                        
-//                    }
-//                    else
-//                    {
-//                        cells->InsertNextCell(line);
-//                        
-//                        if(meshLocation==2 && blackGrainBoundarySegments)
-//                        {
-//                            unsigned char lineClr1[3]={1,1,1};
-//                            colors->InsertNextTypedTuple(lineClr1);
-//                        }
-//                        else
-//                        {
-//                            colors->InsertNextTypedTuple(lineClr);
-//                        }
-//                    }
-//                    
-//                    //                        if(meshLocation==1)
-//                    //                        {
-//                    //                            cellsBnd->InsertNextCell(line);
-//                    //                            colorsBnd->InsertNextTypedTuple(lineClr);
-//                    //
-//                    //                        }
-//                    //                        else
-//                    //                        {
-//                    //                            cells->InsertNextCell(line);
-//                    //
-//                    //                            if(meshLocation==2 && blackGrainBoundarySegments)
-//                    //                            {
-//                    //                                unsigned char lineClr1[3]={1,1,1};
-//                    //                                colors->InsertNextTypedTuple(lineClr1);
-//                    //                            }
-//                    //                            else
-//                    //                            {
-//                    //                                colors->InsertNextTypedTuple(lineClr);
-//                    //                            }
-//                    //                        }
-//                }
-//                else
-//                {
-//                    cells0->InsertNextCell(line);
-//                }
-//                
-//                //                }
-//            }
-//            
-//            polyData->SetPoints(points);
-//            polyData->SetLines(cells);
-//            //            polyData->GetCellData()->SetScalars(colors);
-//            
-//            //            polyData->GetPointData()->SetScalars(radii);
-//            //            polyData->GetCellData()->SetScalars(radii);
-//            polyData->GetCellData()->AddArray(colors);
-//            polyData->GetPointData()->AddArray(radii);
-//            polyData->GetPointData()->SetActiveScalars("TubeRadius");
-//            
-//            
-//            polyDataBnd->SetPoints(points);
-//            polyDataBnd->SetLines(cellsBnd);
-//            polyDataBnd->GetCellData()->SetScalars(colorsBnd);
-//            
-//            
-//            polyData0->SetPoints(points);
-//            polyData0->SetLines(cells0);
-//            //            polyData0->GetCellData()->SetScalars(colors);
-//            
-//        }
+
         
         /**********************************************************************/
         void createLoopLinks()
@@ -855,12 +676,64 @@ namespace model
         }
         
         /**********************************************************************/
+        void plotGlidePlanes()
+        {
+            
+            
+            if(showGlidePlanes)
+            {
+                gpPts=vtkSmartPointer<vtkPoints>::New();
+                gpPolydata=vtkSmartPointer<vtkPolyData>::New();
+                gpMapper=vtkSmartPointer<vtkPolyDataMapper>::New();
+                gpActor=vtkSmartPointer<vtkActor>::New();
+
+                gpPolydata->Allocate();
+                
+                
+                size_t connectivityID=0;
+                for(const auto& loop : this->loops())
+                {
+                    MeshPlane<dim> meshPlane(mesh,loop.grainID,loop.P,loop.N);
+                    for(const auto& seg : meshPlane.meshIntersections)
+                    {
+                        gpPts->InsertNextPoint(seg.P0(0),
+                                               seg.P0(1),
+                                               seg.P0(2));
+                        
+                        gpPts->InsertNextPoint(seg.P1(0),
+                                               seg.P1(1),
+                                               seg.P1(2));
+                        
+                        vtkIdType connectivity[2];
+                        connectivity[0] = connectivityID;
+                        connectivity[1] = connectivityID+1;
+                        gpPolydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+                        connectivityID+=2;
+                        
+                        
+                    }
+                }
+                
+                gpPolydata->SetPoints(gpPts);
+                gpMapper->SetInputData(gpPolydata);
+                gpActor->SetMapper ( gpMapper );
+                gpActor->GetProperty()->SetLineWidth(2);
+                gpActor->GetProperty()->SetColor(0,0,1); // Give some color to the mesh. (1,1,1) is white
+                renderer->AddActor(gpActor);
+                
+            }
+
+        }
+        
+        /**********************************************************************/
         DislocationSegmentActor(const size_t& frameID,
                                 /*const size_t& lastFrameID,
                                  const float& anglePerStep,
                                  Eigen::Matrix<float,3,1> spinAxis,*/
-                                vtkRenderer* const ren) :
+                                vtkRenderer* const ren,
+                                const SimplicialMesh<3>& mesh_in) :
         /* init */ renderer(ren),
+        /* init */ mesh(mesh_in),
         /* init */ lineActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActor(vtkSmartPointer<vtkActor>::New()),
         /* init */ tubeActorBnd(vtkSmartPointer<vtkActor>::New()),
@@ -945,6 +818,7 @@ namespace model
             createNodes();
             createLoopLinks();
             createSegments();
+            plotGlidePlanes();
             //            readSegments(frameID);
             //            //            if(showSlippedArea)
             //            //            {
@@ -1109,7 +983,8 @@ namespace model
             renderer->RemoveActor(labelActor);
             renderer->RemoveActor(singleNodeLabelActor);
             renderer->RemoveActor(triangleActor);
-            
+            renderer->RemoveActor(gpActor);
+
         }
         
         /**********************************************************************/
@@ -1210,6 +1085,12 @@ namespace model
                 nodeActor->VisibilityOff();
             }
             
+            if(showGlidePlanes)
+            {
+
+
+            }
+            
         }
         
     };
@@ -1231,7 +1112,7 @@ namespace model
     bool DislocationSegmentActor::showNodes=false;
     bool DislocationSegmentActor::showSlippedArea=false;
     float DislocationSegmentActor::slippedAreaOpacity=0.1;
-    
+    bool DislocationSegmentActor::showGlidePlanes=false;
 } // namespace model
 #endif
 
@@ -1241,3 +1122,193 @@ namespace model
 
 
 
+//        /**********************************************************************/
+//        void createSegments()
+//        {
+//            //            if (edgeReader().isGood(frameID,false)) // bin format
+//            //            {
+//            //                edgeReader().read(frameID,false);
+//            //            }
+//            //            else // txt format
+//            //            {
+//            //                edgeReader().read(frameID,true);
+//            //            }
+//
+//
+////            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
+//
+//            size_t ptID=0;
+//            for (const auto& edge : edgeMap())
+//            {
+//                assert(edge.first.second.size());
+//
+//                auto itSource(this->nodeMap().find(edge.first.first)); //source
+//                assert(itSource!=this->nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+//                auto   itSink(this->nodeMap().find(edge.first.second)); //sink
+//                assert(  itSink!=this->nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+//
+//                //                Eigen::Map<const Eigen::Matrix<double,1,6>> sourceRow(itSource->second.data());
+//                //                Eigen::Map<const Eigen::Matrix<double,1,6>>   sinkRow(  itSink->second.data());
+//                //                Eigen::Map<const Eigen::Matrix<double,1,13>>   edgeRow(edge.second.data());
+//
+//                //                const int   snID(edgeRow(2*dim+2));
+//                //                const bool sourceOnBoundary(sourceRow(2*dim+1));
+//                //                const bool   sinkOnBoundary(  sinkRow(2*dim+1));
+//                //
+//                //                if(!(sourceOnBoundary && sinkOnBoundary) || showBoundarySegments)
+//                //                {
+//
+//                int meshLocation=(*edge.second.begin())->meshLocation;
+//
+//                Eigen::Matrix<float,dim,6> P0T0P1T1BN;
+//
+//                //                P0T0P1T1BN.col(0) = sourceRow.segment<dim>(0*dim).transpose().template cast<float>();    // source position
+//                //                P0T0P1T1BN.col(2) =   sinkRow.segment<dim>(0*dim).transpose().template cast<float>();    // sink position
+//                //                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());    // source tangent
+//                //                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());    // sink tangent
+//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();    // source tangent
+//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();    // sink tangent
+//                //                P0T0P1T1BN.col(4) = edgeRow.segment<dim>(0*dim).transpose().template cast<float>();        // Burgers vector
+//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();        // plane normal
+//                P0T0P1T1BN.col(0) = itSource->second->P.template cast<float>();    // source position
+//                P0T0P1T1BN.col(2) = itSink->second->P.template cast<float>();    // sink position
+//                //                    P0T0P1T1BN.col(1) = sourceTfactor*(itSource->second.segment<dim>(1*dim).transpose().template cast<float>());    // source tangent
+//                //                    P0T0P1T1BN.col(3) =  -sinkTfactor*(  itSink->second.segment<dim>(1*dim).transpose().template cast<float>());    // sink tangent
+//                //                P0T0P1T1BN.col(1) = edgeRow.segment<dim>(2*dim).transpose().template cast<float>();    // source tangent
+//                //                P0T0P1T1BN.col(3) = edgeRow.segment<dim>(3*dim).transpose().template cast<float>();    // sink tangent
+//                P0T0P1T1BN.col(4).setZero();        // Burgers vector
+//                for(auto& loopLink : edge.second)
+//                {
+//                    auto loopIter(this->loopMap().find(loopLink->loopID));
+//                    assert(loopIter!=this->loopMap().end());
+//                    if(loopLink->sourceID==edge.first.first && loopLink->sinkID==edge.first.second)
+//                    {
+//                        P0T0P1T1BN.col(4)+=loopIter->second->B.template cast<float>();
+//                    }
+//                    else if(loopLink->sourceID==edge.first.second && loopLink->sinkID==edge.first.first)
+//                    {
+//                        P0T0P1T1BN.col(4)-=loopIter->second->B.template cast<float>();
+//                    }
+//                    else
+//                    {
+//                        assert(0);
+//                    }
+//                }
+//                //                P0T0P1T1BN.col(5) = edgeRow.segment<dim>(1*dim).transpose().template cast<float>();        // plane normal
+//                P0T0P1T1BN.col(5).setZero();        // plane normal
+//
+//                VectorDim chord = P0T0P1T1BN.col(2)-P0T0P1T1BN.col(0);
+//                VectorDim burgers=P0T0P1T1BN.col(4);
+//                VectorDim planeNormal=P0T0P1T1BN.col(5);
+//
+//                const float g = std::pow(chord.norm(),alpha);
+//
+//
+//                //                    lines.push_back(vtkSmartPointer<vtkPolyLine>::New());
+//                //                    auto& line(*lines.rbegin());
+//                vtkSmartPointer<vtkPolyLine> line=vtkSmartPointer<vtkPolyLine>::New();
+//                line->GetPointIds()->SetNumberOfIds(Np);
+//
+//                //                    unsigned char clr0[3]={255,255,255};
+//
+//                const float burgersNorm(burgers.norm());
+//
+//                for (int k=0;k<Np;++k) // this may have to go to Np+1
+//                {
+//                    const float u1=k*1.0/(Np-1);
+//                    const float u2=u1*u1;
+//                    const float u3=u2*u1;
+//
+//                    // Compute positions along axis
+//                    VectorDim P =   ( 2.0f*u3-3.0f*u2+1.0f) * P0T0P1T1BN.col(0)
+//                    /*************/ + g*(      u3-2.0f*u2+u1)   * P0T0P1T1BN.col(1)
+//                    /*************/ +   (-2.0f*u3+3.0f*u2)      * P0T0P1T1BN.col(2)
+//                    /*************/ + g*(      u3-u2)           * P0T0P1T1BN.col(3);
+//
+//                    points->InsertNextPoint(P.data());
+//                    radii->InsertNextValue(burgersNorm*tubeRadius);
+//                    line->GetPointIds()->SetId(k,ptID);
+//
+//                    ptID++;
+//                }
+//
+//
+//                if(burgers.squaredNorm()>FLT_EPSILON)
+//                {
+//
+//                    Eigen::Matrix<int,3,1> colorVector=computeColor(burgers,chord,planeNormal);
+//
+//                    //                    unsigned char lineClr[3]={51,153,255};
+//                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+//
+//                    if(meshLocation>=1)
+//                    {
+//                        cellsBnd->InsertNextCell(line);
+//                        colorsBnd->InsertNextTypedTuple(lineClr);
+//
+//                    }
+//                    else
+//                    {
+//                        cells->InsertNextCell(line);
+//
+//                        if(meshLocation==2 && blackGrainBoundarySegments)
+//                        {
+//                            unsigned char lineClr1[3]={1,1,1};
+//                            colors->InsertNextTypedTuple(lineClr1);
+//                        }
+//                        else
+//                        {
+//                            colors->InsertNextTypedTuple(lineClr);
+//                        }
+//                    }
+//
+//                    //                        if(meshLocation==1)
+//                    //                        {
+//                    //                            cellsBnd->InsertNextCell(line);
+//                    //                            colorsBnd->InsertNextTypedTuple(lineClr);
+//                    //
+//                    //                        }
+//                    //                        else
+//                    //                        {
+//                    //                            cells->InsertNextCell(line);
+//                    //
+//                    //                            if(meshLocation==2 && blackGrainBoundarySegments)
+//                    //                            {
+//                    //                                unsigned char lineClr1[3]={1,1,1};
+//                    //                                colors->InsertNextTypedTuple(lineClr1);
+//                    //                            }
+//                    //                            else
+//                    //                            {
+//                    //                                colors->InsertNextTypedTuple(lineClr);
+//                    //                            }
+//                    //                        }
+//                }
+//                else
+//                {
+//                    cells0->InsertNextCell(line);
+//                }
+//
+//                //                }
+//            }
+//
+//            polyData->SetPoints(points);
+//            polyData->SetLines(cells);
+//            //            polyData->GetCellData()->SetScalars(colors);
+//
+//            //            polyData->GetPointData()->SetScalars(radii);
+//            //            polyData->GetCellData()->SetScalars(radii);
+//            polyData->GetCellData()->AddArray(colors);
+//            polyData->GetPointData()->AddArray(radii);
+//            polyData->GetPointData()->SetActiveScalars("TubeRadius");
+//
+//
+//            polyDataBnd->SetPoints(points);
+//            polyDataBnd->SetLines(cellsBnd);
+//            polyDataBnd->GetCellData()->SetScalars(colorsBnd);
+//
+//
+//            polyData0->SetPoints(points);
+//            polyData0->SetLines(cells0);
+//            //            polyData0->GetCellData()->SetScalars(colors);
+//
+//        }

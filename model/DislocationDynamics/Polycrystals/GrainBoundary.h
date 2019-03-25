@@ -468,25 +468,29 @@ namespace model
 
         static bool use_GBdislocations;
         const MeshRegionBoundaryType& regionBoundary;
+        const std::shared_ptr<PlanarMeshFace<dim>>& face;
         const std::pair<int,int>& grainBndID;
 
 
         /**********************************************************************/
 //        template<typename NetworkType>
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
+                      const std::shared_ptr<PlanarMeshFace<dim>>& face_in,
                       Grain<dim>& grainFirst,
                       Grain<dim>& grainSecond,
 //                      GlidePlaneObserver<dim>& dn,
                       const SimplicialMesh<dim>& mesh) :
 //        /* init */ MeshPlane<dim>(getMeshPlane(regionbnd_in)),
-        /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
-//        /* init */ _csl(grainFirst,grainSecond),
+//        /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
+        /* init */ MeshPlane<dim>(*face_in,grainFirst.grainID,grainSecond.grainID),
+        //        /* init */ _csl(grainFirst,grainSecond),
 //        /* init */ _dscl(grainFirst,grainSecond),
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
         /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
         /* init */ p_gbType(NULL),
         /* init */ regionBoundary(regionbnd_in),
+        /* init */ face(face_in),
         /* init */ grainBndID(regionBoundary.regionBndID)
         {
             model::cout<<greenBoldColor<<"Creating GrainBoundary ("<<grainBndID.first<<" "<<grainBndID.second<<")"<<defaultColor<<std::endl;
@@ -498,7 +502,7 @@ namespace model
             GrainContainerType::emplace(grainSecond.grainID,&grainSecond);
 
             // Populate outNormals to grains
-            const Simplex<dim,dim-1>& triangle(**regionBoundary.begin());
+            const Simplex<dim,dim-1>& triangle(**regionBoundary.simplices().begin());
             for(const auto& tet : triangle.parents())
             {
                 const size_t faceID=tet.second->childOrder(triangle.xID);

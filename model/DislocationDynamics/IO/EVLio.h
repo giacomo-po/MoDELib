@@ -65,6 +65,12 @@ namespace model
         }
         
         /**********************************************************************/
+        static std::string getTxtSegmentFilename(const size_t& runID,const std::string& suffix="")
+        {
+            return "evl"+suffix+"/S_"+std::to_string(runID)+".txt";
+        }
+        
+        /**********************************************************************/
         void make_maps()
         {
             // node map
@@ -366,10 +372,20 @@ namespace model
         }
         
         /**********************************************************************/
-        void bin2txt(const size_t& runID,const std::string& suffix="")
+        void bin2txt(const size_t& runID,const bool& writeSegments,const std::string& suffix="")
         {
             readBin(runID,suffix);
             writeTxt(runID,nodes(),loops(),links());
+            if(writeSegments)
+            {// std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
+                const std::string segmentsFilename(getTxtSegmentFilename(runID,suffix));
+                const auto segmts(segments());
+                std::ofstream segFile(segmentsFilename.c_str());
+                for(const auto& seg : segmts)
+                {
+                    segFile<<seg.second<<"\n";
+                }
+            }
         }
         
         /**********************************************************************/

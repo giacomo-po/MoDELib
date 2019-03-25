@@ -10,5 +10,3 @@ betaP_23
 betaP_31
 betaP_32
 betaP_33
-twist angle [rad]
-torque [mu b^3]

@@ -13,6 +13,7 @@
 #include <map>
 #include <Eigen/Dense>
 #include <Eigen/Cholesky>
+#include <Plane.h>
 
 namespace model
 {
@@ -125,6 +126,17 @@ namespace model
                                const VectorDimD& n2,
                                const double& tolerance=FLT_EPSILON) :
         /* init */ sol(findIntersection(p1,n1,p2,n2,tolerance)),
+        /* init */ type(std::get<0>(sol)),
+        /* init */ P(std::get<1>(sol)),
+        /* init */ d(std::get<2>(sol))
+        {
+        }
+        
+        /**********************************************************************/
+        PlanePlaneIntersection(const Plane<dim>& plane0,
+                               const Plane<dim>& plane1,
+                               const double& tolerance=FLT_EPSILON) :
+        /* init */ sol(findIntersection(plane0.P,plane0.unitNormal,plane1.P,plane1.unitNormal,tolerance)),
         /* init */ type(std::get<0>(sol)),
         /* init */ P(std::get<1>(sol)),
         /* init */ d(std::get<2>(sol))

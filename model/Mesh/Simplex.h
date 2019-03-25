@@ -181,12 +181,7 @@ namespace model
             assert(n!=nFaces && "CHILD NOT FOUND");
             return children()[n];
         }
-        
-//        const BaseArrayType& children() const
-//        {
-//            return *this;
-//        }
-        
+                
         /**********************************************************************/
         size_t childOrder(const ChildIDType& childID) const
         {
@@ -207,6 +202,47 @@ namespace model
             }
             return temp;
         }
+        
+        /**********************************************************************/
+        std::set<const Simplex<dim,order>*> boundaryNeighbors() const
+        {
+            std::set<const Simplex<dim,order>*> temp;
+            for(const auto& child : children())
+            {
+                if(child->isBoundarySimplex())
+                {
+                    for(const auto& parent : child->parents())
+                    {
+                        if(parent.second->isBoundarySimplex())
+                        {
+                            temp.insert(parent.second);
+                        }
+                    }
+                }
+            }
+           return temp;
+        }
+        
+        /**********************************************************************/
+        std::set<const Simplex<dim,order>*> regionBoundaryNeighbors() const
+        {
+            std::set<const Simplex<dim,order>*> temp;
+            for(const auto& child : children())
+            {
+                if(child->isRegionBoundarySimplex())
+                {
+                    for(const auto& parent : child->parents())
+                    {
+                        if(parent.second->isRegionBoundarySimplex())
+                        {
+                            temp.insert(parent.second);
+                        }
+                    }
+                }
+            }
+            return temp;
+        }
+        
         
         /**********************************************************************/
         Eigen::Matrix<double,dim,1> outNormal() const
@@ -367,11 +403,6 @@ namespace model
             return this->operator[](n);
         }
         
-//        const BaseArrayType& children() const
-//        {
-//            return *this;
-//        }
-        
         /**********************************************************************/
         size_t childOrder(const ChildIDType& childID) const
         {
@@ -405,7 +436,6 @@ namespace model
             return BoundarySimplex<dim,dim-order>::isRegionBoundarySimplex(*this);
         }
         
-        
         /**********************************************************************/
         Eigen::Matrix<double,dim+1,1> pos2bary(const Eigen::Matrix<double,dim,1>& P) const
         {
@@ -417,8 +447,6 @@ namespace model
         {
             return (b2p*bary).template segment<dim>(0);
         }
-        
-        
         
         /**********************************************************************/
         void convexDelaunaynSearch(const bool& searchAllRegions,
@@ -433,11 +461,6 @@ namespace model
                 
                 int kMin;
                 const double baryMin=pos2bary(P).minCoeff(&kMin);
-                //                double tol=0.0;
-                //                if(this->child(kMin).isBoundarySimplex())
-                //                {
-                //                    tol=-FLT_EPSILON;
-                //                }
                 
 #ifdef _MODEL_BENCH_BARYSEARCH_
                 std::cout<<"Searching "<<this->xID<<std::endl;
@@ -445,9 +468,6 @@ namespace model
                 searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
                 /*      */<<this->xID<<"\n";
 #endif
-                
-                
-                
                 
                 if (baryMin>=-FLT_EPSILON)
                 {
@@ -516,47 +536,8 @@ namespace model
             return temp;
         }
         
-        
     };
     
     
 }	// close namespace
 #endif
-
-
-
-//        /**********************************************************************/
-//        void convexDelaunaynSearch(const Eigen::Matrix<double,dim,1>& P,
-//                                   std::pair<bool,const Simplex<dim,dim>*>& lastSearched,
-//                                   std::set<int>& searchSet) const // TO DO: searchSet is not necessary, because baryMin changes sign in next Simplex
-//        {
-//            if(searchSet.find(this->sID)==searchSet.end())
-//            {// this simplex has not been searched yet
-//                searchSet.insert(this->sID);
-//                lastSearched.second=this;
-//#ifdef _MODEL_BENCH_BARYSEARCH_
-//                const Eigen::Matrix<double,dim+1,1> bary(pos2bary(P));
-//                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<"\n";
-//#endif
-//                int kMin;
-//                if (pos2bary(P).minCoeff(&kMin)>=0.0)
-//                {
-//                    lastSearched.first=true;
-//                }
-//                else
-//                {
-////                    for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=this->child(kMin).parentBegin();
-////                        /*                                                            */ pIter!=this->child(kMin).parentEnd();++pIter)
-////                    {
-//                    for(auto& pParent : this->child(kMin).parents())
-//                    {
-////                        (*pIter)->convexDelaunaynSearch(P,lastSearched,searchSet);
-//                    pParent->convexDelaunaynSearch(P,lastSearched,searchSet);
-//                        if (lastSearched.first)
-//                        {
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }

@@ -28,7 +28,9 @@ int main (int argc, char* argv[])
     
     // Run time steps
     DC.runSteps();
-    
+
+    DC.DN->bvpSolver->vacancyConcentration()=1.0;
+    DC.DN->vacancyConcentrationAssembly();
     
     std::ofstream file("concentration.txt");
     int N=500;

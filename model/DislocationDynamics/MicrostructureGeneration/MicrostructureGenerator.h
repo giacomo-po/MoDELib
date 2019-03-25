@@ -21,7 +21,7 @@
 #include <Polycrystal.h>
 #include <Material.h>
 #include <LatticeMath.h>
-#include <PlaneMeshIntersection.h>
+//#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
 #include <DislocationLoopIO.h>
 #include <DislocationEdgeIO.h>
@@ -44,7 +44,10 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
         typedef Material<dim,Isotropic> MaterialType;
-        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
+        
+        typedef typename MeshPlane<dim>::MeshBoundaryContainerType MeshBoundaryContainerType;
+        
+//        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 
         /**********************************************************************/
         static double min(const double& a,const double& b)
@@ -64,25 +67,43 @@ namespace model
                                                                                                 const VectorDimD& n,
                                                                                                 const int& grainID)
         {
+
+            
             // Define line AB containing dislocaiton and piercing the mesh
             const VectorDimD A=P0+3.0*maxSize*d;
             const VectorDimD B=P0-3.0*maxSize*d;
+            
+            MeshPlane<dim> plane(mesh,grainID,P0,n);
+            const auto& segDeq(plane.meshIntersections);
 
             // Compute interseciton between mesh and glide plane
-            PlaneMeshIntersection<dim> pmi(mesh,P0,n,grainID);
-            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
+//            PlaneMeshIntersection<dim> pmi(mesh,P0,n,grainID);
+//            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
+//
+//            for(size_t k=0;k<pmi.size();++k)
+//            {
+//                const size_t k1=(k+1)<pmi.size()? k+1 :0;
+//                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
+//            }
 
-            for(size_t k=0;k<pmi.size();++k)
-            {
-                const size_t k1=(k+1)<pmi.size()? k+1 :0;
-                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
-            }
-
+            
+//            std::cout<<"P0"<<std::endl;
+//            for(const auto& pair : segDeq)
+//            {
+//                std::cout<<pair.P0.transpose()<<std::endl;
+//            }
+//
+//            std::cout<<"P1"<<std::endl;
+//            for(const auto& pair : segDeq)
+//            {
+//                std::cout<<pair.P1.transpose()<<std::endl;
+//            }
             std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
             int nIntersections=0;
             for(const auto& pair : segDeq)
             {
-                SegmentSegmentDistance<dim> ssi(A,B,pair.first,pair.second);
+
+                SegmentSegmentDistance<dim> ssi(A,B,pair.P0,pair.P1);
 
                 if(nIntersections==0)
                 {
@@ -100,9 +121,9 @@ namespace model
                 {
                     if(ssi.dMin>FLT_EPSILON)
                     {// no intersection
-                        if((pair.first-nodePos.back()).norm()>FLT_EPSILON)
+                        if((pair.P0-nodePos.back()).norm()>FLT_EPSILON)
                         {
-                            nodePos.push_back(pair.first);
+                            nodePos.push_back(pair.P0);
                         }
                     }
                     else
@@ -111,8 +132,8 @@ namespace model
                         if((X-nodePos.back()).norm()>FLT_EPSILON)
                         {
                             nIntersections++;
-                            nodePos.push_back(pair.first);
-                            if((X-pair.first).norm()>FLT_EPSILON)
+                            nodePos.push_back(pair.P0);
+                            if((X-pair.P0).norm()>FLT_EPSILON)
                             {
                                 nodePos.push_back(X);
                             }
@@ -124,6 +145,13 @@ namespace model
 
                 }
             }
+            
+//            std::cout<<"Node Positions"<<std::endl;
+//            for(const auto& node : nodePos)
+//            {
+//                std::cout<<node.transpose()<<std::endl;
+//            }
+            
             return nodePos;
         }
 
@@ -162,9 +190,7 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-
                     std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
-
 
                     const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
@@ -425,11 +451,11 @@ namespace model
                         const VectorDimD n1=slipSystem.unitNormal;
                         const VectorDimD n2=d2.cross(d1).cartesian().normalized();
 
-
-                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(mesh,P0,n2,grainID);
-                        const VectorDimD P1=boundaryProjection(P0,d1.cartesian(),pmi01).second;
-                        const VectorDimD P2=boundaryProjection(P3,d1.cartesian(),pmi01).second;
-                        const std::map<double,VectorDimD> P12=boundaryProjection(P0,P3,d1.cartesian(),pmi01);
+                        MeshPlane<dim> plane01(mesh,grainID,P0,n2);
+//                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(mesh,P0,n2,grainID);
+                        const VectorDimD P1=boundaryProjection(P0,d1.cartesian(),plane01.meshIntersections).second;
+                        const VectorDimD P2=boundaryProjection(P3,d1.cartesian(),plane01.meshIntersections).second;
+                        const std::map<double,VectorDimD> P12=boundaryProjection(P0,P3,d1.cartesian(),plane01.meshIntersections);
 
                         // const VectorDimD P1=P12.begin().second;
                         // const VectorDimD P2=P12.rbegin().second;
@@ -983,6 +1009,20 @@ namespace model
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
         //        const std::vector<double> inclusionsMobilityReduction;
 
+        bool isInclusionsUsed() const
+        {
+            bool temp(false);
+            for(const auto& density : targetInclusionDensities)
+            {
+                if(density>0.0)
+                {
+                    temp=true;
+                    break;
+                }
+            }
+            return temp;
+        }
+        
         /**********************************************************************/
         MicrostructureGenerator(int argc, char* argv[]) :
         /* init*/ generator(std::chrono::system_clock::now().time_since_epoch().count())
@@ -1030,11 +1070,11 @@ namespace model
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
-        /* init*/,inclusionsDiameterLognormalDistribution_M(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_M",true))
-        /* init*/,inclusionsDiameterLognormalDistribution_S(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_S",true))
-        /* init*/,inclusionsDiameterLognormalDistribution_A(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_A",true))
-        /* init*/,inclusionsTransformationStrains(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsTransformationStrains",targetInclusionDensities.size(),dim*dim,true))
-        /* init*/,inclusionsPatterns(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true))
+        /* init*/,inclusionsDiameterLognormalDistribution_M(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_M",true) : std::vector<double>())
+        /* init*/,inclusionsDiameterLognormalDistribution_S(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_S",true) : std::vector<double>())
+        /* init*/,inclusionsDiameterLognormalDistribution_A(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_A",true) : std::vector<double>())
+        /* init*/,inclusionsTransformationStrains(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsTransformationStrains",targetInclusionDensities.size(),dim*dim,true) : Eigen::Matrix<double,Eigen::Dynamic,dim*dim>::Zero(1,dim*dim))
+        /* init*/,inclusionsPatterns(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true) : Eigen::Matrix<double,Eigen::Dynamic,dim>::Zero(1,dim))
         //        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
         {
 
@@ -1045,6 +1085,7 @@ namespace model
                 exit(EXIT_FAILURE);
             }
 
+            model::cout<<greenBoldColor<<"Generating initial microstructure"<<defaultColor<<std::endl;
             // Call individual generators
             addStraightDislocations();
             addFrankReadSources();
@@ -1358,7 +1399,8 @@ namespace model
         static std::map<double,VectorDimD> boundaryProjection(const VectorDimD& P0,
                                                               const VectorDimD& P1,
                                                               const VectorDimD& D,
-                                                              const PlaneMeshIntersectionContainerType& pp)
+//                                                              const PlaneMeshIntersectionContainerType& pp
+                                                              const MeshBoundaryContainerType& pp)
         {
 
 
@@ -1378,11 +1420,18 @@ namespace model
             std::map<double,VectorDimD> temp; // keep points sorted by parameter u1
             for(size_t m=0;m<pp.size();++m)
             {
-                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].second-P0));
+                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].P0-P0));
                 if(x(0)>FLT_EPSILON && x(0)<1.0-FLT_EPSILON && x(1)>FLT_EPSILON)
                 {
-                    temp.emplace(x(0),pp[m].second);
+                    temp.emplace(x(0),pp[m].P0);
                 }
+
+                const Eigen::Matrix<double,2,1> y=llt.solve(A.transpose()*(pp[m].P1-P0));
+                if(y(0)>FLT_EPSILON && y(0)<1.0-FLT_EPSILON && y(1)>FLT_EPSILON)
+                {
+                    temp.emplace(y(0),pp[m].P1);
+                }
+
             }
 
             return temp;
@@ -1393,7 +1442,8 @@ namespace model
         /**********************************************************************/
         static std::pair<int,VectorDimD> boundaryProjection(const VectorDimD& P,
                                                             const VectorDimD& D,
-                                                            const PlaneMeshIntersectionContainerType& pp)
+//                                                            const PlaneMeshIntersectionContainerType& pp,
+                                                            const MeshBoundaryContainerType& pp)
         {
             const double dNorm(D.norm());
             assert(dNorm>FLT_EPSILON);
@@ -1405,9 +1455,9 @@ namespace model
 
             for(size_t k=0;k<pp.size();++k)
             {
-                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
-                const VectorDimD& v0=pp[k].second;
-                const VectorDimD& v1=pp[k1].second;
+//                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
+                const VectorDimD& v0=pp[k].P0;
+                const VectorDimD& v1=pp[k].P1;
                 // line2 is v0+u2*(v1-v0), 0<=u2<=1
 
                 //P+u1*dir=v0+u2*(v1-v0)

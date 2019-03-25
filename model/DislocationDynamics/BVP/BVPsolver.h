@@ -57,7 +57,9 @@ namespace model
         typedef LagrangeElement<dim,sfOrder> ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
         typedef TrialFunction<'u',dim,FiniteElementType> TrialFunctionType;
-//        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
+        typedef TrialFunction<'c',1,FiniteElementType> ConcentrationTrialFunctionType;
+
+        //        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
         constexpr static int dofPerNode=TrialFunctionType::dofPerNode;
         typedef TrialGrad<TrialFunctionType> TrialGradType;
         typedef TrialDef<TrialFunctionType> TrialDefType;
@@ -86,6 +88,8 @@ namespace model
         TrialGradType  b;      // displacement gradient b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
         TrialDefType  e;       // strain e=[e11 e22 e33 e12 e23 e13]'
         TrialStressType s;     // stress s=[s11 s22 s33 s12 s23 s13]'
+        
+        ConcentrationTrialFunctionType c;
         
         IntegrationDomainType dV;
         BilinearWeakFormType* bWF;
@@ -306,6 +310,7 @@ namespace model
         /* init  */,b(grad(u))
         /* init  */,e(def(u))
         /* init  */,s(C*e)
+        /* init  */,c(fe.template trial<'c',1>())
         /* init  */,tolerance(TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
         /* init  */,use_directSolver(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
         /* init  */,stepsBetweenBVPupdates(TextFileParser("inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
@@ -367,6 +372,16 @@ namespace model
         const TrialStressType& stress() const
         {
             return s;
+        }
+        
+        ConcentrationTrialFunctionType& vacancyConcentration()
+        {
+            return c;
+        }
+        
+        const ConcentrationTrialFunctionType& vacancyConcentration() const
+        {
+            return c;
         }
         
         /**********************************************************************/
@@ -483,6 +498,13 @@ namespace model
                                              const Simplex<dim,dim>* guess) const
         {
             return eval(u)(P,guess);
+        }
+        
+        /**********************************************************************/
+        double vacancyConcentration(const Eigen::Matrix<double,dim,1> P,
+                            const Simplex<dim,dim>* guess) const
+        {
+            return eval(c)(P,guess)(0,0);
         }
         
         /**********************************************************************/

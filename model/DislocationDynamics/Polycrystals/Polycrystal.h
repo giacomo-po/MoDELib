@@ -112,12 +112,16 @@ namespace model
             //            int fileID=1;
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {
+                for(const auto& face : rgnBnd.second.faces())
+                {
                 grainBoundaries().emplace(std::piecewise_construct,
                                           std::forward_as_tuple(rgnBnd.first),
                                           std::forward_as_tuple(rgnBnd.second,
+                                                                face.second,
                                                                 grain(rgnBnd.first.first),
                                                                 grain(rgnBnd.first.second),
                                                                 mesh));
+                }
             }
 
 

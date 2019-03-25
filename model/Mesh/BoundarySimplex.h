@@ -59,7 +59,7 @@ namespace model
                 }
             }
             const double tempNorm(temp.norm());
-            return (tempNorm>0.0)? (temp/tempNorm).eval() : temp;
+            return (tempNorm>FLT_EPSILON)? (temp/tempNorm).eval() : Eigen::Matrix<double,dim,1>::Zero();
         }
         
         /**********************************************************************/
@@ -72,7 +72,7 @@ namespace model
                     temp+=parent.second->outNormal(rID);
             }
             const double tempNorm(temp.norm());
-            return (tempNorm>0.0)? (temp/tempNorm).eval() : temp;
+            return (tempNorm>FLT_EPSILON)? (temp/tempNorm).eval() : Eigen::Matrix<double,dim,1>::Zero();
         }
         
     };
@@ -131,7 +131,7 @@ namespace model
                 }
             }
             const double tempNorm(temp.norm());
-            return (tempNorm>0.0)? (temp/tempNorm).eval() : temp;
+            return (tempNorm>FLT_EPSILON)? (temp/tempNorm).eval() : Eigen::Matrix<double,dim,1>::Zero();
         }
         
     };

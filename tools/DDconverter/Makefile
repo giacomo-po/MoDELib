@@ -1,5 +1,5 @@
 IDIR  = -I/usr/local/include/
-IDIR += -I../../
+IDIR += -I../../header_symlinks
 
 
 ##########################################################

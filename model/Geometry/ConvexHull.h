@@ -12,16 +12,44 @@
 #include <algorithm>
 #include <array>
 #include <map>
+#include <set>
 #include <vector>
+#include <cfloat>
 
 namespace model
 {
     
+    
+    template <typename T>
+    class reverse_range
+    {
+        const T &x;
+        
+    public:
+        reverse_range(T &x) : x(x) {}
+        
+        auto begin() const -> decltype(this->x.rbegin())
+        {
+            return x.rbegin();
+        }
+        
+        auto end() const -> decltype(this->x.rend())
+        {
+            return x.rend();
+        }
+    };
+    
+    template <typename T>
+    reverse_range<T> reverse_iterate(T &x)
+    {
+        return reverse_range<T>(x);
+    }
+    
     template<int dim,typename T>
     struct HullPoint : public std::array<double,dim>
     {
-        const T* t ;
-
+        const T* const t ;
+        
         HullPoint() :
         /* init */t(nullptr)
         {
@@ -36,6 +64,9 @@ namespace model
             
         }
         
+//        HullPoint(const HullPoint& other)
+//        {}
+        
     };
     
     
@@ -47,15 +78,15 @@ namespace model
     };
     
     template <typename T>
-    struct ConvexHull<2,T> :  public std::vector<HullPoint<2,T>>
-    {
+    struct ConvexHull<2,T> :  public std::set<HullPoint<2,T>>
+    {/*! Constructs the Convex-Hull of a planar set of points
+      * algorithm adapted from https://en.wikibooks.org/wiki/Algorithm_Implementation/Geometry/Convex_hull/Monotone_chain
+      */
         typedef HullPoint<2,T> HullPointType;
         typedef std::vector<HullPointType> HullPointContainerType;
         static constexpr int dim=2;
         static constexpr double tol=FLT_EPSILON;
-
-//        typedef std::array<double,dim> HullPoint;
-
+        
     private:
         
         double cross(const HullPointType& O, const HullPointType& A, const HullPointType& B)
@@ -64,40 +95,80 @@ namespace model
         }
         
     public:
-       
-       HullPointContainerType getHull()
+        
+        HullPointContainerType getPoints()
         {
-            
+            HullPointContainerType H;
             if(this->size()<=3)
             {
-                return *this;
+                for(const auto& pt : *this)
+                {
+                    H.push_back(pt);
+                }
             }
             else
             {
-                std::sort(this->begin(), this->end());
-                HullPointContainerType H(*this);
-                size_t k(0);
-                
                 // Build lower hull
-                for (size_t i = 0; i < this->size(); ++i)
+                for (const auto& pt : *this)
                 {
-                    while (k >= 2 && cross(H[k-2], H[k-1], this->operator[](i)) <= tol) k--;
-                    H[k++] = this->operator[](i);
+                    while(H.size()>=2 && cross(H[H.size()-2], H[H.size()-1], pt)<= tol)
+                    {
+                        H.pop_back();
+                    }
+                    H.push_back(pt);
                 }
+                H.pop_back();
+
                 
-                // Build upper hull
-                for (size_t i = this->size()-1, t = k+1; i > 0; --i)
+                const size_t lowerSize(H.size());
+                
+                for (const auto& pt : reverse_iterate(*this))
                 {
-                    while (k >= t && cross(H[k-2], H[k-1], this->operator[](i-1)) <= tol) k--;
-                    H[k++] = this->operator[](i-1);
+                    while(H.size()-lowerSize>=2 && cross(H[H.size()-2], H[H.size()-1], pt)<= tol)
+                    {
+                        H.pop_back();
+                    }
+                    H.push_back(pt);
                 }
-                
-                H.resize(k-1);
-                return H;
+                H.pop_back();
+
             }
-            
+            return H;
         }
 
+//        HullPointContainerType getPoints()
+//        {
+//            if(this->size()<=3)
+//            {
+//                return *this;
+//            }
+//            else
+//            {
+//                std::sort(this->begin(), this->end());
+//                HullPointContainerType H;
+//                size_t k(0);
+//
+//                // Build lower hull
+//                for (size_t i = 0; i < this->size(); ++i)
+//                {
+//                    while (k >= 2 && cross(H[k-2], H[k-1], this->operator[](i)) <= tol) k--;
+//                    k++;
+//                    H.push_back(this->operator[](i));
+//                }
+//
+//                // Build upper hull
+//                for (size_t i = this->size()-1, t = k+1; i > 0; --i)
+//                {
+//                    while (k >= t && cross(H[k-2], H[k-1], this->operator[](i-1)) <= tol) k--;
+//                    k++;
+//                    H.push_back(this->operator[](i-1));
+//                }
+//
+////                H.resize(k-1);
+//                return H;
+//            }
+//        }
+        
     };
     
 }

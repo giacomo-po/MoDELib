@@ -201,7 +201,7 @@ namespace model
                 
                 // Update ddActors
                 meshActor.update(frameID/*,lastFrameID,degPerStep,spinAxis*/);
-                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer));
+                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
                 ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddGP.reset(new GlidePlaneActor(frameID,ddRenderer));
                 inclusions.reset(new InclusionActor(0,ddRenderer));
@@ -553,6 +553,7 @@ namespace model
                 std::cout<<"      4 to color segments by Burgers vector "<<std::endl;
                 std::cout<<"      5 to color segments by glissile/sessile "<<std::endl;
                 std::cout<<"      6 to color segments by screw/edge "<<std::endl;
+                std::cout<<"      7 show/hide glide planes "<<std::endl;
 
             }
             
@@ -880,6 +881,14 @@ namespace model
                 {
                     DislocationSegmentActor::clr=DislocationSegmentActor::colorEdgeScrew;
                     std::cout<<"DislocationSegment color scheme = screw/edge. Reload frame to update colors."<<std::endl;
+                    //                    ddSegments->modify();
+                    //                    this->Interactor->Render();
+                }
+                if(key == "7")
+                {
+                    DislocationSegmentActor::showGlidePlanes=!DislocationSegmentActor::showGlidePlanes;
+                    std::cout<<"show GlidePlanes="<<DislocationSegmentActor::showGlidePlanes<<std::endl;
+                    ddSegments->modify();
                     //                    ddSegments->modify();
                     //                    this->Interactor->Render();
                 }

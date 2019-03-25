@@ -201,6 +201,25 @@ namespace model
         
         /**********************************************************************/
         template<typename LinkType>
+        double equilibriumVacancyConcentration(const LinkType& parentSegment) const
+        {
+            
+            const VectorDim climbDir(rl.cross(parentSegment.burgers()));
+            const double climbDirNorm2(climbDir.squaredNorm());
+            if(climbDirNorm2>FLT_EPSILON)
+            {
+                const MaterialBase& mat(parentSegment.network().poly);
+                const double c0(exp(-(mat.Ufv-stress.trace()*mat.DVv*mat.Omega/3.0)/mat.kB/mat.T));
+                return c0*exp(-pkForce.dot(climbDir)/climbDirNorm2*mat.Omega/mat.kB/mat.T);
+            }
+            else
+            {// screw direction
+                return 0.0;
+            }
+        }
+        
+        /**********************************************************************/
+        template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);

@@ -11,28 +11,89 @@
 
 #include <set>
 #include <deque>
+#include <memory>
 #include <assert.h>
 #include <MPIcout.h>
 #include <MeshRegionObserver.h>
+#include <PlanarMeshFace.h>
 #include <Simplex.h>
-
-//#include <PlanarMeshFacet.h>
+#include <TerminalColors.h>
 
 namespace model
 {
-    
     
     /**************************************************************************/
     /**************************************************************************/
     template<typename _SimplexType>
     struct MeshRegion : public std::set<const _SimplexType*>
-//    /* base */ private std::deque<PlanarMeshFacet<_SimplexType::dim>>
+    /*               */,public std::map<int,std::shared_ptr<PlanarMeshFace<_SimplexType::dim>>> // MeshRegionBoundary container
     {
         typedef _SimplexType SimplexType;
+        static constexpr int dim=SimplexType::dim;
         typedef MeshRegion<SimplexType> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
+        typedef std::map<int,std::shared_ptr<PlanarMeshFace<dim>>> MeshFacesContainerType;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
+    private:
+        
+        /**********************************************************************/
+        void buildSingleFace(const Simplex<dim,dim-1>* newStart,
+                        std::shared_ptr<PlanarMeshFace<_SimplexType::dim>> newFace,
+                        std::set<const Simplex<dim,dim-1>*>& allSimplices)
+        {
+            allSimplices.erase(newStart);
+            const auto boundaryNeighbors(newStart->boundaryNeighbors());
+            for(const auto& neighbor : boundaryNeighbors)
+            {
+                const auto neighborRgnIDs(neighbor->regionIDs());
+                if(   neighborRgnIDs.find(regionID)!=neighborRgnIDs.end()  // neighbor in region
+                   && allSimplices.find(neighbor)!=allSimplices.end())   // neighbor found in allSimplices
+                {
+                    if((newStart->outNormal()-neighbor->outNormal()).norm()<FLT_EPSILON)
+                    {// same plane
+                        allSimplices.erase(neighbor);
+                        newFace->insert(neighbor);
+                        buildSingleFace(neighbor,newFace,allSimplices);
+                    }
+                }
+            }
+            faces().emplace(newFace->sID,newFace);
+        }
+        
+        /**********************************************************************/
+        void buildFaces()
+        {/*!Constructs and stores the external PlanarMeshFace(s) of this MeshRegion
+          * This function supports non-convex regions.
+          */
+            faces().clear();
+            std::set<const Simplex<dim,dim-1>*> allSimplices;
+            for(const auto& simplex : simplices())
+            {// collect each possible boundary/region_boundary simplices
+                for(const auto& child : simplex->children())
+                {
+                    if(child->isBoundarySimplex())
+                    {
+                        allSimplices.insert(child.get());
+                    }
+                }
+            }
+
+            while(allSimplices.size())
+            {
+                std::shared_ptr<PlanarMeshFace<_SimplexType::dim>> newFace(new PlanarMeshFace<_SimplexType::dim>(*allSimplices.begin()));
+                buildSingleFace(*allSimplices.begin(),newFace,allSimplices);
+            }
+
+            for(auto& face : faces())
+            {
+                face.second->finalize();
+            }
+        }
         
         MeshRegionObserverType& regionObserver;
+        
+    public:
         const int regionID;
         
         /**********************************************************************/
@@ -41,10 +102,8 @@ namespace model
         /* init */ regionObserver(ro),
         /* init */ regionID(rID)
         {
-//            model::cout<<"Creating Mesh Region "<<rID<<std::flush;
             const bool success=regionObserver.emplace(regionID,this).second;
             assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
-//            model::cout<<" done"<<std::endl;
         }
         
         /**********************************************************************/
@@ -55,16 +114,35 @@ namespace model
         }
         
         /**********************************************************************/
+        void update()
+        {
+            buildFaces();
+        }
+        
+        /**********************************************************************/
         const std::set<const _SimplexType*>& simplices() const
         {
             return *this;
         }
         
+        /**********************************************************************/
         std::set<const _SimplexType*>& simplices()
         {
             return *this;
         }
 
+        /**********************************************************************/
+        const MeshFacesContainerType& faces() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        MeshFacesContainerType& faces()
+        {
+            return *this;
+        }
+        
     };
     
 }	// close namespace

@@ -1194,6 +1194,63 @@ namespace model
         }
         
         /**********************************************************************/
+        void vacancyConcentrationAssembly() const
+        {
+            std::vector<Eigen::Triplet<double>> lhsT;
+            std::vector<Eigen::Triplet<double>> rhsT;
+            size_t globalRow(0);
+            for(const auto& fieldLink : this->links())
+            {// sum line-integral part of displacement field per segment
+                if(   !fieldLink.second->hasZeroBurgers()
+                   && !fieldLink.second->isBoundarySegment()
+                   && !fieldLink.second->isGrainBoundarySegment())
+                {
+                    for(const auto& qPoint : fieldLink.second->quadraturePoints())
+                    {
+                        for(const auto& sourceLink : this->links())
+                        {// sum line-integral part of displacement field per segment
+                            if(   !sourceLink.second->hasZeroBurgers()
+                               && !sourceLink.second->isBoundarySegment()
+                               && !sourceLink.second->isGrainBoundarySegment())
+                            {
+                                for(const auto& shift : periodicShifts)
+                                {
+                                    sourceLink.second->addToVacancyConcentrationAssembly(qPoint.r+shift,
+                                                                                   lhsT,
+                                                                                   globalRow);
+                                }
+                            }
+                        }
+//                        rhsT.emplace_back(globalRow,1,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-bvpSolver->vacancyConcentration(qPoint.r,fieldLink.second->source->includingSimplex()));
+                        rhsT.emplace_back(globalRow,0,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-1.0);
+                        globalRow++;
+                    }
+                }
+            }
+            
+//            for(const auto& trip : lhsT)
+//            {
+//                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
+//            }
+            Eigen::SparseMatrix<double> K(globalRow,this->nodes().size()*dim);
+            K.setFromTriplets(lhsT.begin(),lhsT.end());
+            std::ofstream kFile("K.txt");
+            kFile<<K.toDense()<<std::endl;
+            
+//            for(const auto& trip : rhsT)
+//            {
+//                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
+//            }
+            Eigen::SparseMatrix<double> F(globalRow,1);
+            F.setFromTriplets(rhsT.begin(),rhsT.end());
+            std::ofstream fFile("F.txt");
+            fFile<<F.toDense()<<std::endl;
+
+            
+            
+        }
+        
+        /**********************************************************************/
         void vacancyConcentration(std::vector<FEMnodeEvaluation<ElementType,1,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,1,1>>>& fieldPoints) const
         {
 #ifdef _OPENMP

@@ -29,10 +29,12 @@ int main (int argc, char * const argv[])
         ConvexHullType hull;
         while (inFile >> p[0] >> p[1])
         {
-            hull.push_back(p); // &x[0] is unused
+//            hull.push_back(p); // &x[0] is unused
+            hull.insert(p); // &x[0] is unused
+
         }
         
-        const auto outPoints=hull.getHull();
+        const auto outPoints=hull.getPoints();
         std::ofstream outFile("outPoints.txt");
         for(const auto& point : outPoints)
         {

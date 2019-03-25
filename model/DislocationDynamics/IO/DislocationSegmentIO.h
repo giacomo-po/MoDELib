@@ -10,6 +10,7 @@
 #define model_DislocationSegmentIO_H_
 
 #include <tuple>
+#include <iomanip>
 
 namespace model
 {
@@ -49,9 +50,9 @@ namespace model
                           const size_t& sinkID_in) :
         /* init */ sourceID(sourceID_in),
         /* init */ sinkID(sinkID_in),
-        b(VectorDim::Zero()),
-        n(VectorDim::Zero()),
-        meshLocation(-1)
+        /* init */ b(VectorDim::Zero()),
+        /* init */ n(VectorDim::Zero()),
+        /* init */ meshLocation(-1)
 //        loopCounter(0),
 //        isGlissile(true)
 //        /* init */ meshLocation(meshLocation_in)
@@ -86,16 +87,17 @@ namespace model
 //        }
 
         
-//        /**********************************************************************/
-//        template <class T>
-//        friend T& operator << (T& os, const DislocationSegmentIO<dim>& ds)
-//        {
-//            os  << ds.loopID<<"\t"
-//            /**/<< ds.sourceID<<"\t"
-//            /**/<< ds.sinkID<<"\t"
-//            /**/<< ds.meshLocation;
-//            return os;
-//        }
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const DislocationSegmentIO<dim>& ds)
+        {
+            os  << ds.sourceID<<" "
+            /**/<< ds.sinkID<<" "
+            /**/<< std::setprecision(15)<<std::scientific<<ds.b.transpose()<<" "
+            /**/<< std::setprecision(15)<<std::scientific<<ds.n.transpose()<<" "
+            /**/<< ds.meshLocation;
+            return os;
+        }
         
 	};
 	

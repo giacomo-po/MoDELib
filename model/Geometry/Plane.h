@@ -23,7 +23,8 @@ namespace model
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+
         const VectorDim P;
         const VectorDim unitNormal;
         
@@ -53,6 +54,25 @@ namespace model
         {
             return fabs((P0-P).dot(unitNormal));
         }
+        
+        /**********************************************************************/
+        MatrixDim localRotationMatrix(VectorDim x2=VectorDim::Random()) const
+        {
+            VectorDim x1(x2.cross(unitNormal));
+            while(x1.norm()<FLT_EPSILON)
+            {
+                x1=VectorDim::Random().cross(unitNormal);
+            }
+            x1.normalize();
+            
+            MatrixDim R;
+            R.col(0)=x1;
+            R.col(1)=unitNormal.cross(x1);
+            R.col(2)=unitNormal;
+            return R;
+        }
+        
+        
 
         
     };

@@ -21,6 +21,9 @@ int main(int argc, char** argv)
 
     const std::string subS1="evl_";
     const std::string subS2=".bin";
+    
+    const bool writeSegments = argc > 1 ? std::atoi(argv[1]) : false;
+
 
     for (const auto & p : fs::directory_iterator(path))
     {
@@ -34,7 +37,8 @@ int main(int argc, char** argv)
             const std::string stringID=p.path().string().substr(found1+subS1.length(),found2-(found1+subS1.length()));
             const size_t runID=std::stol(stringID);
             EVLio<3> evlio;
-            evlio.bin2txt(runID);
+            evlio.bin2txt(runID,writeSegments);
+            
         }
     }
 

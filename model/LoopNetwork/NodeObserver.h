@@ -11,6 +11,7 @@
 
 #include <map>
 #include <utility>
+#include <iterator>
 
 namespace model
 {
@@ -83,6 +84,14 @@ namespace model
             const size_t erased=this->erase(pL->sID);
             assert(erased==1 && "Could not erase from NodeMap");
 
+        }
+        
+        /**********************************************************************/
+        size_t globalNodeID(const size_t& sID) const
+        {
+            const auto iter=this->find(sID);
+            return std::distance(this->begin(),iter);
+            
         }
         
     };

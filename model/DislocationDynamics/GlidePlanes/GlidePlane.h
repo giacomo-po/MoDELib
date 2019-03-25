@@ -164,19 +164,20 @@ namespace model
 //            }
         }
 
-        /**********************************************************************/
-        template <class T>
-        friend T& operator << (T& os, const GlidePlaneType& gp)
-        {
-            size_t kk=0;
-            for (const auto& x : gp.meshIntersections)
-            {
-                os<<gp.sID<< " "<<kk<<" "<< x.first->child(0).xID<< " "<< x.first->child(1).xID <<" "<<x.second.transpose()<<"\n";
-                kk++;
-            }
-
-            return os;
-        }
+//        /**********************************************************************/
+//        template <class T>
+//        friend T& operator << (T& os, const GlidePlaneType& gp)
+//        {
+//            size_t kk=0;
+//            for (const auto& x : gp.meshIntersections)
+//            {
+////                os<<gp.sID<< " "<<kk<<" "<< x.first->child(0).xID<< " "<< x.first->child(1).xID <<" "<<x.second.transpose()<<"\n";
+//                os<<gp.sID<< " "<<x.face->sID<<" "<< x.P0.transpose()<< " "<< x.P1.transpose()<<"\n";
+//                kk++;
+//            }
+//
+//            return os;
+//        }
 
     };
 

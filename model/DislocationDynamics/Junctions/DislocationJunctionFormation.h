@@ -64,9 +64,13 @@ namespace model
         {
             if(ssd.dMin<currentcCollisionTOL)
             {
-                bool isValidJunction(bndJunction || gbndJunction);
-                if(!isValidJunction)
-                {
+                bool isValidJunction((bndJunction || gbndJunction) && DN.simulationType!=2);
+                if(   !isValidJunction
+                   && !linkA->isBoundarySegment()
+                   && !linkB->isBoundarySegment()
+                   && !linkA->isGrainBoundarySegment()
+                   && !linkB->isGrainBoundarySegment())
+                {// Check force condition for internal segments
                     
                     const VectorDim chordA(linkA->sink->get_P()-linkA->source->get_P());
                     const double LA(chordA.norm());
@@ -189,8 +193,8 @@ namespace model
                 
                 const bool linkAisBnd(linkA->isBoundarySegment());
                 const bool linkBisBnd(linkB->isBoundarySegment());
-                const bool linkAisGBnd(linkA->grainBoundaries().size());
-                const bool linkBisGBnd(linkB->grainBoundaries().size());
+                const bool linkAisGBnd(linkA->isGrainBoundarySegment());
+                const bool linkBisGBnd(linkB->isGrainBoundarySegment());
                 
                 
                 const bool bndJunction(   (linkAisBnd || linkBisBnd)

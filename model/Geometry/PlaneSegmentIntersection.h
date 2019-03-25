@@ -13,6 +13,8 @@
 //#include <map>
 #include <Eigen/Dense>
 //#include <Eigen/Cholesky>
+#include <Plane.h>
+#include <LineSegment.h>
 
 namespace model
 {
@@ -115,6 +117,17 @@ namespace model
                                  const VectorDimD& v0,
                                  const VectorDimD& v1) :
         /* init */ sol(findIntersection(P0,N,v0,v1)),
+        /* init */ type(std::get<0>(sol)),
+        /* init */ x0(std::get<1>(sol)),
+        /* init */ x1(std::get<2>(sol))
+        {
+            
+        }
+        
+        /**********************************************************************/
+        PlaneSegmentIntersection(const Plane<dim>& plane,
+                                 const LineSegment<dim>& seg) :
+        /* init */ sol(findIntersection(plane.P,plane.unitNormal,seg.P0,seg.P1)),
         /* init */ type(std::get<0>(sol)),
         /* init */ x0(std::get<1>(sol)),
         /* init */ x1(std::get<2>(sol))
