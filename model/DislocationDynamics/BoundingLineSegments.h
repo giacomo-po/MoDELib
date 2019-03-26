@@ -178,7 +178,7 @@ namespace model
         {
             for(const auto& pair : bls)
             {
-                os<< pair.second.P0.transpose()<<" "<<pair.second.P1.transpose()<<std::endl;
+                os<<std::setprecision(15)<<std::scientific<<pair.second.P0.transpose()<<" "<<pair.second.P1.transpose()<<std::endl;
             }
             return os;
         }

@@ -1249,10 +1249,12 @@ namespace model
         {
             _isOnBoundingBox=true;
             p_Simplex=get_includingSimplex(X,p_Simplex);
-            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
+//            boundaryNormal=SimplexBndNormal::get_boundaryNormal(X,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
+            boundaryNormal=boundingBoxSegments().boundaryNormal(X);
+            assert(boundaryNormal.squaredNorm()>FLT_EPSILON); // automatically checks that bounding box contains X
             resetVirtualBoundaryNode(X);
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
-            assert(boundingBoxSegments().contains(this->get_P()));
+//            assert(boundingBoxSegments().contains(this->get_P()));
         }
         
         /**********************************************************************/
@@ -1321,7 +1323,8 @@ namespace model
                                 VerbosePlanarDislocationNode(3,"case 6"<<std::endl;);
                                 const VectorDim X1(snapToMeshPlaneIntersection(this->get_P()));
                                 _isOnBoundingBox=false;
-                                boundaryNormal=SimplexBndNormal::get_boundaryNormal(X1,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
+                                boundaryNormal=boundingBoxSegments().boundaryNormal(X1);
+                                //boundaryNormal=SimplexBndNormal::get_boundaryNormal(X1,*p_Simplex,bndTol); // must be updated before NodeBaseType::set_P
                                 NodeBaseType::set_P(X1); // kill numerical errors
                             }
                         }
@@ -1332,17 +1335,14 @@ namespace model
                 
                 if(_isOnBoundingBox)
                 {
-                    assert(boundingBoxSegments().contains(this->get_P()));
-                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+//                    assert(boundingBoxSegments().contains(this->get_P()));
+//                    boundaryNormal=SimplexBndNormal::get_boundaryNormal(this->get_P(),*p_Simplex,bndTol); // check if node is now on a boundary
+                    boundaryNormal=boundingBoxSegments().boundaryNormal(this->get_P());
                     if(boundaryNormal.squaredNorm()<FLT_EPSILON && !isGrainBoundaryNode())
                     {
                         std::cout<<"PlanarDislocationNode "<<this->sID<<", @"<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;
                         std::cout<<"BoundingBox Lines:"<<std::endl;
                         std::cout<<boundingBoxSegments();
-                        //                            for (const auto& pair : boundingBoxSegments())
-                        //                            {
-                        //                                model::cout<<std::setprecision(15)<<std::scientific<<"("<<pair.first.transpose()<<"), ("<<pair.second.transpose()<<std::endl;
-                        //                            }
                         std::cout<<"BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL"<<std::endl;
                         //assert(false && "BOUNDARY NODES MUST HAVE A NON-ZERO NORMAL");
                     }

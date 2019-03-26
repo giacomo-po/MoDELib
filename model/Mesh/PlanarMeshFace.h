@@ -200,10 +200,28 @@ namespace model
             return *this;
         }
         
+//        /**********************************************************************/
+//        const Eigen::Matrix<double,dim,1>& outNormal() const
+//        {
+//            return n;
+//        }
+        
         /**********************************************************************/
-        const Eigen::Matrix<double,dim,1>& outNormal() const
+        bool isExternal() const
         {
-            return n;
+            return regionIDs.first==regionIDs.second;
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1> outNormal() const
+        {
+            return isExternal()? n : Eigen::Matrix<double,dim,1>::Zero();
+        }
+        
+        /**********************************************************************/
+        const Eigen::Matrix<double,dim,1> outNormal(const int& k) const
+        {
+            return k==regionIDs.first? n : (k==regionIDs.second? -n : Eigen::Matrix<double,dim,1>::Zero());
         }
         
         /**********************************************************************/
@@ -215,8 +233,7 @@ namespace model
         /**********************************************************************/
         Plane<dim> asPlane() const
         {
-            return Plane<dim>(center(),outNormal());
-            
+            return Plane<dim>(center(),n);
         }
         
     };
