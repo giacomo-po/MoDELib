@@ -139,7 +139,7 @@ namespace model
         /* init */ SplineSegmentType(nI,nJ)
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
-        /* init */,_isBoundarySegment(this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first)
+        /* init */,_isBoundarySegment(this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())))
         /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
@@ -149,7 +149,7 @@ namespace model
             VerbosePlanarDislocationSegment(2,"_isBoundarySegment "<<_isBoundarySegment<<std::endl;);
             VerbosePlanarDislocationSegment(3,"source->isBoundaryNode() "<<this->source->isBoundaryNode()<<std::endl;);
             VerbosePlanarDislocationSegment(3,"sink->isBoundaryNode() "<<this->sink->isBoundaryNode()<<std::endl;);
-            VerbosePlanarDislocationSegment(3,"midpoint is boundary "<<boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first<<std::endl;);
+            VerbosePlanarDislocationSegment(3,"midpoint is boundary "<<boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()))<<std::endl;);
         }
         
         /**********************************************************************/
@@ -163,7 +163,7 @@ namespace model
         {
             SplineSegmentType::updateGeometry();
             straight.updateGeometry();
-            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
         }
         
         /**********************************************************************/
@@ -256,7 +256,7 @@ namespace model
                 {
                     addMeshPlane(*pL->loop()->glidePlane.get());
                 }
-                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
             }
         }
         
@@ -286,7 +286,7 @@ namespace model
                     }
                 }
                 addGrainBoundaryPlanes();
-                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())).first;
+                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
             }
         }
         

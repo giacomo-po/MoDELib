@@ -154,17 +154,17 @@ namespace model
                             
                         case 1:
                         {
-                            if((temp[0].first-temp[0].second).norm()<FLT_EPSILON)
+                            if((temp.begin()->second.P0-temp.begin()->second.P1).norm()<FLT_EPSILON)
                             {// a unique intersection point of the bounding boxes exist
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
-                                const VectorDim X=0.5*(temp[0].first+temp[0].second);
+                                const VectorDim X=0.5*(temp.begin()->second.P0+temp.begin()->second.P1);
                                 return contractToPosition(nA,nB,X,maxRange);
                             }
                             else
                             {// two possible intersection points of the bounding boxes exist
-                                const bool firstIsCloser=(nA->get_P()-temp[0].first).norm()+(nB->get_P()-temp[0].first).norm()<(nA->get_P()-temp[0].second).norm()+(nB->get_P()-temp[0].second).norm();
-                                const VectorDim X= firstIsCloser? temp[0].first : temp[0].second;
-                                const VectorDim Y= firstIsCloser? temp[0].second : temp[0].first;
+                                const bool firstIsCloser=(nA->get_P()-temp.begin()->second.P0).norm()+(nB->get_P()-temp.begin()->second.P0).norm()<(nA->get_P()-temp.begin()->second.P1).norm()+(nB->get_P()-temp.begin()->second.P1).norm();
+                                const VectorDim X= firstIsCloser? temp.begin()->second.P0 : temp.begin()->second.P1;
+                                const VectorDim Y= firstIsCloser? temp.begin()->second.P1 : temp.begin()->second.P0;
                                 
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 1dX"<<std::endl;);
                                 const bool Xcontracted=contractToPosition(nA,nB,X,maxRange);
@@ -195,16 +195,16 @@ namespace model
                             std::map<double,VectorDim> vertexMap;
                             for(const auto& seg : temp)
                             {
-                                const double firstRange=(nA->get_P()-seg.first).norm()+(nB->get_P()-seg.first).norm();
+                                const double firstRange=(nA->get_P()-seg.second.P0).norm()+(nB->get_P()-seg.second.P0).norm();
                                 if(firstRange<maxRange)
                                 {
-                                    vertexMap.insert(std::make_pair(firstRange,seg.first));
+                                    vertexMap.insert(std::make_pair(firstRange,seg.second.P0));
                                 }
                                 
-                                const double secondRange=(nA->get_P()-seg.second).norm()+(nB->get_P()-seg.second).norm();
+                                const double secondRange=(nA->get_P()-seg.second.P1).norm()+(nB->get_P()-seg.second.P1).norm();
                                 if(secondRange<maxRange)
                                 {
-                                    vertexMap.insert(std::make_pair(secondRange,seg.second));
+                                    vertexMap.insert(std::make_pair(secondRange,seg.second.P1));
                                 }
                             }
                             
@@ -227,11 +227,11 @@ namespace model
                 }
                 else
                 {// neither a nor b are on bounding box
-                    if(nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
+                    if(nA->glidePlaneIntersections() && nB->glidePlaneIntersections())
                     {// both nodes confined by more then one plane
                         
-                        SegmentSegmentDistance<dim> ssd(nA->glidePlaneIntersections()[0].first,nA->glidePlaneIntersections()[0].second,
-                                                        nB->glidePlaneIntersections()[0].first,nB->glidePlaneIntersections()[0].second);
+                        SegmentSegmentDistance<dim> ssd(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1,
+                                                        nB->glidePlaneIntersections()->P0,nB->glidePlaneIntersections()->P1);
                         
                         const auto iSeg=ssd.intersectionSegment();
                         if(iSeg.size()==1)
@@ -251,12 +251,12 @@ namespace model
                             return false;
                         }
                     }
-                    else if(nA->glidePlaneIntersections().size() && !nB->glidePlaneIntersections().size())
+                    else if(nA->glidePlaneIntersections() && !nB->glidePlaneIntersections())
                     {// nA confined by more then one plane, nB confined by only one plane
                         PlaneLineIntersection<dim> pli(nB->meshPlane(0).P,
                                                        nB->meshPlane(0).unitNormal,
-                                                       nA->glidePlaneIntersections()[0].first, // origin of line
-                                                       nA->glidePlaneIntersections()[0].second-nA->glidePlaneIntersections()[0].first // line direction
+                                                       nA->glidePlaneIntersections()->P0, // origin of line
+                                                       nA->glidePlaneIntersections()->P1-nA->glidePlaneIntersections()->P0 // line direction
                                                        );
                         
                         // THERE SHOULD BE A PlaneSegmentIntersection class, which intersects the plane with a finite segment
@@ -269,7 +269,7 @@ namespace model
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
                         {// _glidePlaneIntersections becomes a singular point
                             VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
-                            LineSegment<dim> cutLine(nA->glidePlaneIntersections()[0].first,nA->glidePlaneIntersections()[0].second);
+                            LineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1);
                             if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)
                             {// intersection point is inside mesh
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 6b1"<<std::endl;);
@@ -286,7 +286,7 @@ namespace model
                             return false;
                         }
                     }
-                    else if(!nA->glidePlaneIntersections().size() && nB->glidePlaneIntersections().size())
+                    else if(!nA->glidePlaneIntersections() && nB->glidePlaneIntersections())
                     {// same as previous case, so switch nA and nB
                         VerboseNodeContraction(1,"DislocationNodeContraction case 7a"<<std::endl;);
                         return contract(nB,nA);
@@ -312,13 +312,13 @@ namespace model
                             {
                                 case 2:
                                 {
-                                    LineSegment<dim> cutLine(0.5*(temp[0].first+temp[0].second),0.5*(temp[1].first+temp[1].second));
+                                    LineSegment<dim> cutLine(0.5*(temp.begin()->second.P0+temp.begin()->second.P1),0.5*(temp.rbegin()->second.P0+temp.rbegin()->second.P1));
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }
                                 case 1:
                                 {
-                                    LineSegment<dim> cutLine(temp[0].first,temp[0].second);
+                                    LineSegment<dim> cutLine(temp.begin()->second.P0,temp.begin()->second.P1);
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }

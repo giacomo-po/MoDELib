@@ -28,7 +28,7 @@
 #include <EVLio.h>
 #include <DislocationLinkingNumber.h>
 #include <TextFileParser.h>
-
+#include <DislocationInjector.h>
 
 namespace model
 {
@@ -61,99 +61,100 @@ namespace model
             return a>b? a : b;
         }
 
-        /**********************************************************************/
-        std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> straightLineBoundaryClosure(const VectorDimD& P0,
-                                                                                                const VectorDimD& d,
-                                                                                                const VectorDimD& n,
-                                                                                                const int& grainID)
-        {
-
-            
-            // Define line AB containing dislocaiton and piercing the mesh
-            const VectorDimD A=P0+3.0*maxSize*d;
-            const VectorDimD B=P0-3.0*maxSize*d;
-            
-            MeshPlane<dim> plane(mesh,grainID,P0,n);
-            const auto& segDeq(plane.meshIntersections);
-
-            // Compute interseciton between mesh and glide plane
-//            PlaneMeshIntersection<dim> pmi(mesh,P0,n,grainID);
-//            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
+//        /**********************************************************************/
+//        static std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> straightLineBoundaryClosure(const VectorDimD& P0,
+//                                                                                                const VectorDimD& d,
+//                                                                                                const VectorDimD& n,
+//                                                                                                const int& grainID,
+//                                                                                                const SimplicialMesh<dim>& msh)
+//        {
 //
-//            for(size_t k=0;k<pmi.size();++k)
-//            {
-//                const size_t k1=(k+1)<pmi.size()? k+1 :0;
-//                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
-//            }
-
-            
-//            std::cout<<"P0"<<std::endl;
+//
+//            // Define line AB containing dislocaiton and piercing the mesh
+//            const VectorDimD A=P0+3.0*maxSize*d;
+//            const VectorDimD B=P0-3.0*maxSize*d;
+//
+//            MeshPlane<dim> plane(msh,grainID,P0,n);
+//            const auto& segDeq(plane.meshIntersections);
+//
+//            // Compute interseciton between mesh and glide plane
+////            PlaneMeshIntersection<dim> pmi(mesh,P0,n,grainID);
+////            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
+////
+////            for(size_t k=0;k<pmi.size();++k)
+////            {
+////                const size_t k1=(k+1)<pmi.size()? k+1 :0;
+////                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
+////            }
+//
+//
+////            std::cout<<"P0"<<std::endl;
+////            for(const auto& pair : segDeq)
+////            {
+////                std::cout<<pair.P0.transpose()<<std::endl;
+////            }
+////
+////            std::cout<<"P1"<<std::endl;
+////            for(const auto& pair : segDeq)
+////            {
+////                std::cout<<pair.P1.transpose()<<std::endl;
+////            }
+//            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
+//            int nIntersections=0;
 //            for(const auto& pair : segDeq)
 //            {
-//                std::cout<<pair.P0.transpose()<<std::endl;
+//
+//                SegmentSegmentDistance<dim> ssi(A,B,pair.P0,pair.P1);
+//
+//                if(nIntersections==0)
+//                {
+//                    if(ssi.dMin>FLT_EPSILON) // no intersection
+//                    {
+//
+//                    }
+//                    else //if(ssi.size==1)
+//                    {
+//                        nIntersections++;
+//                        nodePos.push_back((ssi.x0+ssi.x1)*0.5);
+//                    }
+//                }
+//                else if(nIntersections==1)
+//                {
+//                    if(ssi.dMin>FLT_EPSILON)
+//                    {// no intersection
+//                        if((pair.P0-nodePos.back()).norm()>FLT_EPSILON)
+//                        {
+//                            nodePos.push_back(pair.P0);
+//                        }
+//                    }
+//                    else
+//                    {// intersection
+//                        const VectorDimD X((ssi.x0+ssi.x1)*0.5);
+//                        if((X-nodePos.back()).norm()>FLT_EPSILON)
+//                        {
+//                            nIntersections++;
+//                            nodePos.push_back(pair.P0);
+//                            if((X-pair.P0).norm()>FLT_EPSILON)
+//                            {
+//                                nodePos.push_back(X);
+//                            }
+//                        }
+//                    }
+//                }
+//                else
+//                {
+//
+//                }
 //            }
 //
-//            std::cout<<"P1"<<std::endl;
-//            for(const auto& pair : segDeq)
-//            {
-//                std::cout<<pair.P1.transpose()<<std::endl;
-//            }
-            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
-            int nIntersections=0;
-            for(const auto& pair : segDeq)
-            {
-
-                SegmentSegmentDistance<dim> ssi(A,B,pair.P0,pair.P1);
-
-                if(nIntersections==0)
-                {
-                    if(ssi.dMin>FLT_EPSILON) // no intersection
-                    {
-
-                    }
-                    else //if(ssi.size==1)
-                    {
-                        nIntersections++;
-                        nodePos.push_back((ssi.x0+ssi.x1)*0.5);
-                    }
-                }
-                else if(nIntersections==1)
-                {
-                    if(ssi.dMin>FLT_EPSILON)
-                    {// no intersection
-                        if((pair.P0-nodePos.back()).norm()>FLT_EPSILON)
-                        {
-                            nodePos.push_back(pair.P0);
-                        }
-                    }
-                    else
-                    {// intersection
-                        const VectorDimD X((ssi.x0+ssi.x1)*0.5);
-                        if((X-nodePos.back()).norm()>FLT_EPSILON)
-                        {
-                            nIntersections++;
-                            nodePos.push_back(pair.P0);
-                            if((X-pair.P0).norm()>FLT_EPSILON)
-                            {
-                                nodePos.push_back(X);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-
-                }
-            }
-            
-//            std::cout<<"Node Positions"<<std::endl;
-//            for(const auto& node : nodePos)
-//            {
-//                std::cout<<node.transpose()<<std::endl;
-//            }
-            
-            return nodePos;
-        }
+////            std::cout<<"Node Positions"<<std::endl;
+////            for(const auto& node : nodePos)
+////            {
+////                std::cout<<node.transpose()<<std::endl;
+////            }
+//
+//            return nodePos;
+//        }
 
         /**********************************************************************/
         void addStraightDislocations()
@@ -190,9 +191,9 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
+                    const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
 
-                    const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
+                    const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+2.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
 
@@ -744,9 +745,9 @@ namespace model
                         const VectorDimD b(slipSystem.s.cartesian());
 
                         const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
-                        const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos=straightLineBoundaryClosure(P0,d,n,grainID);
+                        const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
 
-                        const double lineLength=(nodePos[nodePos.size()-1]-nodePos[0]).norm();
+                        const double lineLength=(nodePos.back()-nodePos.front()).norm();
 
 
                         if(nodePos.size()>=3)

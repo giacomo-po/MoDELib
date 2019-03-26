@@ -29,22 +29,62 @@ namespace model
 {
     
     template <int dim>
-    struct BoundingLineSegments :
-    /* */ public std::deque<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>/*,Eigen::aligned_allocator<std::pair<Eigen::Matrix<double,dim,1>,Eigen::Matrix<double,dim,1>>>*/>
+    class BoundingLineSegments : public std::map<int,MeshBoundarySegment<dim>>
     {
-//        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
+    public:
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef std::pair<VectorDim,VectorDim> LineSegmentType;
-        typedef std::deque<LineSegmentType/*,Eigen::aligned_allocator<LineSegmentType>*/> LineSegmentContainerType;
-        typedef std::tuple<VectorDim,size_t,double> SnapReturnType;
+        //        typedef std::pair<VectorDim,VectorDim> MeshBoundarySegment<dim>;
+        //typedef std::deque<MeshBoundarySegment<dim>/*,Eigen::aligned_allocator<MeshBoundarySegment<dim>>*/> LineSegmentContainerType;
+        typedef std::map<int,MeshBoundarySegment<dim>> LineSegmentContainerType;
+//        typedef std::tuple<VectorDim,size_t,double> SnapReturnType;
         
-//        /**********************************************************************/
-//        const LineSegmentContainerType& segments() const
-//        {
-//            return *this;
-//        }
+        //        /**********************************************************************/
+        //        const LineSegmentContainerType& segments() const
+        //        {
+        //            return *this;
+        //        }
         
+    private:
+        
+        
+        /**********************************************************************/
+        void emplaceFromIntersection(const MeshBoundarySegment<dim>& s1,
+                                     const MeshBoundarySegment<dim>& s2)
+        {
+            if(s1.face->sID==s2.face->sID)
+            {// Lines on the same face
+                SegmentSegmentDistance<dim> ssd(s1.P0,s1.P1,
+                                                s2.P0,s2.P1);
+                const auto iSeg=ssd.intersectionSegment();
+                
+                
+                if(this->find(s1.face->sID)==this->end())
+                {// no MeshBoundarySegment exists on current face
+                    const auto iSeg=ssd.intersectionSegment();
+                    if(iSeg.size()==1)
+                    {
+                        this->emplace(s1.face->sID,MeshBoundarySegment<dim>(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]),s1.face));
+                    }
+                    else if(iSeg.size()==2)
+                    {
+                        this->emplace(s1.face->sID,MeshBoundarySegment<dim>(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]),s1.face));
+                    }
+                    else
+                    {// do nothing
+                        
+                    }
+                }
+                else
+                {// another MeshBoundarySegment exists on current face
+                    assert(false && "FINISH HERE");
+                }
+                
+            }
+            
+        }
+        
+    public:
         
         /**********************************************************************/
         BoundingLineSegments()
@@ -57,388 +97,79 @@ namespace model
         BoundingLineSegments(const MeshPlane<dim>& gp)
         {/* Empty constructor
           */
-            for(size_t k=0;k<gp.meshIntersections.size();++k)
+            for(const auto& seg : gp.meshIntersections)
             {
-                const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                this->emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
+                this->emplace(seg.face->sID,seg);
             }
-            
-//            USE THIS CONSTRUCTOR INSTEAD OF UPDATE;
         }
-        
-        
-        
+
         /**********************************************************************/
         BoundingLineSegments(const BoundingLineSegments<dim>& bls1,
                              const BoundingLineSegments<dim>& bls2)
-        {/* Constructor from intersectin of BoundingLineSegments
+        {/*! Constructs the BoundingLineSegments from the intersection of two BoundingLineSegments
           */
-            for (const auto& s1 : bls1)
+            for (const auto& s1pair : bls1)
             {
-                for (const auto& s2 : bls2)
+                for (const auto& s2pair : bls2)
                 {
-//                    std::cout<<"Comparison"<<std::endl;
-//                    
-//                    SegmentSegmentIntersection<dim> ssi(s1.first,s1.second,
-//                                                        s2.first,s2.second);
-//                    
-//                    if(ssi.size)
-//                    {
-//                        std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
-//                                                this->emplace_back(ssi.x0,ssi.x1);
-//                    }
                     
-                    SegmentSegmentDistance<dim> ssd(s1.first,s1.second,
-                                                    s2.first,s2.second);
-                    const auto iSeg=ssd.intersectionSegment();
-                    if(iSeg.size()==1)
-                    {
-//                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
-//                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
-                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+                    const MeshBoundarySegment<dim>& s1(s1pair.second);
+                    const MeshBoundarySegment<dim>& s2(s2pair.second);
+                    
+                    emplaceFromIntersection(s1,s2);
 
-                    }
-                    else if(iSeg.size()==2)
-                    {
-//                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
-//                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
-                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
-                    }
-                    else
-                    {// do nothing
-                        
-                    }
                 }
             }
             
             assert(this->size()<=std::max(bls1.size(),bls2.size()) && "intersections cannot be more than original segments");
-//            assert(this->size()<=bls2.size() && "intersections cannot be more than original segments");
-//            std::cout<<"BoundingLineSegments "<<this<<", size="<<this->size()<<std::endl;
-            
         }
         
         /**********************************************************************/
-//        template <typename LoopType>
         void updateWithMeshPlane(const MeshPlane<dim>& gp)
-//        void updateWithPlane(const Plane<dim>& gp)
         {
-            
-            
             if(this->size())
             {
-                LineSegmentContainerType temp;
-                
-                for(const auto& oldPair : *this)
-                {
-//                    const LineSegmentContainerType psi=GlidePlaneObserver<LoopType>::planeSegmentIntersection(gp.P.cartesian(),
-//                                                                                                              gp.unitNormal,
-//                                                                                                              oldPair.first,
-//                                                                                                              oldPair.second);
-
-                    PlaneSegmentIntersection<dim> psi(gp.P,
-                                                      gp.unitNormal,
-                                                      oldPair.first,
-                                                      oldPair.second);
-                    
-//                    if(psi.size())
-                    if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT || psi.type==PlaneSegmentIntersection<dim>::COINCIDENT)
-                    {// plane and current segment intersect
-                        for(size_t k=0;k<gp.meshIntersections.size();++k)
-                        {
-                            const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                            
-                            //                            SegmentSegmentIntersection<dim> ssi(gp.meshIntersections[k].second,
-                            //                                                                gp.meshIntersections[k1].second,
-                            //                                                                oldPair.first,
-                            //                                                                oldPair.second);
-                            //                            std::cout<<"Comparison 2"<<std::endl;
-                            //                            if(ssi.size)
-                            //                            {
-                            //                                std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
-                            //                                temp.emplace_back(ssi.x0,ssi.x1);
-                            //                            }
-                            
-                            SegmentSegmentDistance<dim> ssd(gp.meshIntersections[k].second,
-                                                            gp.meshIntersections[k1].second,
-                                                            oldPair.first,
-                                                            oldPair.second);
-                            
-                            const auto iSeg=ssd.intersectionSegment();
-                            if(iSeg.size()==1)
-                            {
-                                //                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
-//                                temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
-                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
-                            }
-                            else if(iSeg.size()==2)
-                            {
-                                //                                std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
-                                //temp.emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
-                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
-
-                            }
-                            else
-                            {// do nothing
-//                                std::cout<<"BoundingLineSegments: ssd no intersection"<<std::endl;
- 
-                            }
-                            
-                        }
-                    }
-                    else
-                    {
-//                        std::cout<<"BoundingLineSegments: plane does not contain segment"<<std::endl;
-
-                    }
-                }
-                
-                assert(temp.size()<=std::max(this->size(),gp.meshIntersections.size()) && "intersections cannot be more than original segments");
-                //assert(temp.size()<=gp.meshIntersections.size() && "intersections cannot be more than original segments");
-
-                
+                BoundingLineSegments<dim> temp(*this,BoundingLineSegments(gp));
                 this->swap(temp);
             }
             else
             {
-                for(size_t k=0;k<gp.meshIntersections.size();++k)
-                {
-                    const size_t k1((k==gp.meshIntersections.size()-1)? 0 : k+1);
-                    this->emplace_back(gp.meshIntersections[k].second,gp.meshIntersections[k1].second);
-                }
+                BoundingLineSegments<dim> temp(gp);
+                this->swap(temp);
             }
-            
         }
-        
-        
+
         /**********************************************************************/
-        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
+        std::set<const MeshBoundarySegment<dim>*> containingSegments(const VectorDim& P) const
         {
+            std::set<const MeshBoundarySegment<dim>*> temp;
             
-//            std::cout<<"emplaceUnique "<<P1.transpose()<<" ### "<<P2.transpose()<<std::endl;
-            
-            bool isUnique=true;
-
-        
-            if((P1-P2).squaredNorm()>FLT_EPSILON)
-            {// P1-P2 is not a degenerate line
-                for(typename LineSegmentContainerType::iterator iter=temp.begin(); iter!=temp.end();)
-                {
-                    
-                                        VectorDim& E1(iter->first);
-                                        VectorDim& E2(iter->second);
-                    if((E1-E2).squaredNorm()>FLT_EPSILON)
-                    {// existing pair is not a degenerate line
-                        //                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON && (E2-P2).squaredNorm()>FLT_EPSILON);
-                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON || (E2-P2).squaredNorm()>FLT_EPSILON);
-                        isUnique*=((E1-P2).squaredNorm()>FLT_EPSILON || (E2-P1).squaredNorm()>FLT_EPSILON);
-//                        std::cout<<"    A existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
-                        if(!isUnique)
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            iter++;
-                        }
-                    }
-                    else
-                    {// existing pair is a degenerate line
-                        const VectorDim x=0.5*(E1+E2);
-                        if((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON)
-                        {// distinct point
-//                            isUnique*=true;
-//                            std::cout<<"    B existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
-                            iter++;
-                        }
-                        else
-                        {// existing degenerate point is erased since P1-P2 will be appended later
-//                            isUnique*=true;
-//                            std::cout<<"    C existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
-                            iter=temp.erase(iter);
-                        }
-                    }
-                }
-            }
-            else
-            {// P1-P2 is a degenerate line (a point)
-                const VectorDim x=0.5*(P1+P2);
-                for(const auto& pair : temp)
-                {
-                    isUnique*=((pair.first-x).squaredNorm()>FLT_EPSILON && (pair.second-x).squaredNorm()>FLT_EPSILON);
-//                    std::cout<<"    D existing "<<pair.first.transpose()<<" ### "<<pair.second.transpose()<<" ### "<<isUnique<<std::endl;
-                    if(!isUnique)
-                    {
-                        break;
-                    }
-                }
-                
-            }
-            
-            if(isUnique)
+            for(const auto& pair : *this)
             {
-                temp.emplace_back(P1,P2);
-            }
-            else
-            {
-                //                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
-            }
-            
-        }
-        
-
-        
-
-        
-        
-        /**********************************************************************/
-        std::pair<bool,size_t> contains(const VectorDim& P) const
-        {
-            
-//            std::cout<<"Point="<<P.transpose()<<std::endl;
-            std::pair<bool,size_t> temp=std::make_pair(false,0);
-            for(size_t segID=0;segID<this->size();++segID)
-//            for(const auto& vertexPair : *this)
-            {
-                const auto& vertexPair(this->operator[](segID));
-                const VectorDim segm(vertexPair.second-vertexPair.first);
-                const double segmNorm2(segm.squaredNorm());
-                if(segmNorm2>FLT_EPSILON)
+                if(pair.second.contains(P))
                 {
-                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
-                    if(u<0.0)
-                    {
-                        u=0.0;
-                    }
-                    if(u>1.0)
-                    {
-                        u=1.0;
-                    }
-                    const VectorDim x(vertexPair.first+u*segm);
-//                    std::cout<<vertexPair.first.transpose()<<" "<<vertexPair.second.transpose()<<"      case A: P-x="<<(P-x).squaredNorm()<<std::endl;
-                    if((P-x).squaredNorm()<FLT_EPSILON)
-                    {
-                        temp=std::make_pair(true,segID);
-                        break;
-                    }
-                }
-                else
-                {
-                    const VectorDim x(0.5*(vertexPair.first+vertexPair.second));
-//                    std::cout<<vertexPair.first.transpose()<<" "<<vertexPair.second.transpose()<<"      case B: P-x="<<(P-x).squaredNorm()<<std::endl;
-                    if((P-x).squaredNorm()<FLT_EPSILON)
-                    {
-                        temp=std::make_pair(true,segID);
-                        break;
-                    }
+                    temp.insert(&pair.second);
                 }
             }
             return temp;
         }
         
         /**********************************************************************/
-        bool contains(const VectorDim& P,const size_t& k) const
+        bool contains(const VectorDim& P) const
         {
-            bool temp(false);
-            if(k<this->size())
-            {
-                const auto& vertexPair(this->operator[](k));
-                const VectorDim segm(vertexPair.second-vertexPair.first);
-                const double segmNorm2(segm.squaredNorm());
-                if(segmNorm2>FLT_EPSILON)
-                {
-                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
-                    if(u<0.0)
-                    {
-                        u=0.0;
-                    }
-                    if(u>1.0)
-                    {
-                        u=1.0;
-                    }
-                    const VectorDim x(vertexPair.first+u*segm);
-                    if((P-x).squaredNorm()<FLT_EPSILON)
-                    {
-                        temp=true;
-                    }
-                }
-                else
-                {
-                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-                    if((P-x).squaredNorm()<FLT_EPSILON)
-                    {
-                        temp=true;
-                    }
-                }
-            }
-            return temp;
+            return containingSegments(P).size();
         }
         
         /**********************************************************************/
-        SnapReturnType snap(const VectorDim& P) const __attribute__ ((deprecated))
+        VectorDim boundaryNormal(const VectorDim& P) const
         {
-            
-            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
-            
-            std::map<double,std::pair<VectorDim,size_t>,std::less<double>/*,Eigen::aligned_allocator<std::pair<double,std::pair<VectorDim,size_t>>>*/> snapMap;
-            
-//            for(const auto& vertexPair : *this)
-                for(size_t k=0;k<this->size();++k)
+            VectorDim temp(VectorDim::Zero());
+            for(const auto& seg : containingSegments(P))
             {
-                const LineSegmentType& vertexPair(this->operator[](k));
-                const VectorDim segm(vertexPair.second-vertexPair.first);
-                const double segmNorm2(segm.squaredNorm());
-                if(segmNorm2>FLT_EPSILON)
-                {
-                    double u((P-vertexPair.first).dot(segm)/segmNorm2);
-                    if(u<0.0)
-                    {
-                        u=0.0;
-                    }
-                    if(u>1.0)
-                    {
-                        u=1.0;
-                    }
-                    const VectorDim x(vertexPair.first+u*segm);
-                    //snapMap.emplace((P-x).squaredNorm(),x);
-                    snapMap.emplace(std::piecewise_construct,
-                                                        std::make_tuple((P-x).squaredNorm()),
-                                                        std::make_tuple(x,k)
-                                                        );
-
-                }
-                else
-                {
-                    const VectorDim x(0.5*(vertexPair.second+vertexPair.first));
-//                    snapMap.emplace((P-x).squaredNorm(),x);
-                    snapMap.emplace(std::piecewise_construct,
-                                    std::make_tuple((P-x).squaredNorm()),
-                                    std::make_tuple(x,k)
-                                    );
-
-                }
+                temp+=seg->face->outNormal();
             }
-            
-            assert(contains(snapMap.begin()->second.first).first && "BoundingLineSegments does not contains snapped point.");
-            
-//            return snapMap.begin()->second;
-            return std::make_tuple(snapMap.begin()->second.first,snapMap.begin()->second.second,snapMap.begin()->first);
-        }
-        
-        /**********************************************************************/
-        std::pair<double,VectorDim> snapToVertex(const VectorDim& P) const __attribute__ ((deprecated))
-        {
-            
-            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
-            
-            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
-            
-            for(const auto& vertexPair : *this)
-            {
-                    snapMap.emplace((P-vertexPair.first).norm(),vertexPair.first);
-            }
-            
-            return std::make_pair(snapMap.begin()->first,snapMap.begin()->second);
-            
+            const double tempNorm(temp.norm());
+            return tempNorm>FLT_EPSILON? (temp/tempNorm).eval() : VectorDim::Zero();
         }
         
         /**********************************************************************/
@@ -447,17 +178,167 @@ namespace model
         {
             for(const auto& pair : bls)
             {
-                os<< pair.first.transpose()<<" "<<pair.second.transpose()<<std::endl;
-
+                os<< pair.second.P0.transpose()<<" "<<pair.second.P1.transpose()<<std::endl;
             }
             return os;
         }
         
     };
     
-}	// close namespace
+}
 #endif
 
+
+//        /**********************************************************************/
+//        std::pair<bool,size_t> contains(const VectorDim& P) const
+//        {
+//
+//            //            std::cout<<"Point="<<P.transpose()<<std::endl;
+//            std::pair<bool,size_t> temp=std::make_pair(false,0);
+//            for(size_t segID=0;segID<this->size();++segID)
+//                //            for(const auto& vertexPair : *this)
+//            {
+//                const auto& vertexPair(this->operator[](segID));
+//                const VectorDim segm(vertexPair.P1-vertexPair.P0);
+//                const double segmNorm2(segm.squaredNorm());
+//                if(segmNorm2>FLT_EPSILON)
+//                {
+//                    double u((P-vertexPair.P0).dot(segm)/segmNorm2);
+//                    if(u<0.0)
+//                    {
+//                        u=0.0;
+//                    }
+//                    if(u>1.0)
+//                    {
+//                        u=1.0;
+//                    }
+//                    const VectorDim x(vertexPair.P0+u*segm);
+//                    //                    std::cout<<vertexPair.P0.transpose()<<" "<<vertexPair.P1.transpose()<<"      case A: P-x="<<(P-x).squaredNorm()<<std::endl;
+//                    if((P-x).squaredNorm()<FLT_EPSILON)
+//                    {
+//                        temp=std::make_pair(true,segID);
+//                        break;
+//                    }
+//                }
+//                else
+//                {
+//                    const VectorDim x(0.5*(vertexPair.P0+vertexPair.P1));
+//                    //                    std::cout<<vertexPair.P0.transpose()<<" "<<vertexPair.P1.transpose()<<"      case B: P-x="<<(P-x).squaredNorm()<<std::endl;
+//                    if((P-x).squaredNorm()<FLT_EPSILON)
+//                    {
+//                        temp=std::make_pair(true,segID);
+//                        break;
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+
+//        /**********************************************************************/
+//        bool contains(const VectorDim& P,const size_t& k) const
+//        {
+//            bool temp(false);
+//            if(k<this->size())
+//            {
+//                const auto& vertexPair(this->operator[](k));
+//                const VectorDim segm(vertexPair.P1-vertexPair.P0);
+//                const double segmNorm2(segm.squaredNorm());
+//                if(segmNorm2>FLT_EPSILON)
+//                {
+//                    double u((P-vertexPair.P0).dot(segm)/segmNorm2);
+//                    if(u<0.0)
+//                    {
+//                        u=0.0;
+//                    }
+//                    if(u>1.0)
+//                    {
+//                        u=1.0;
+//                    }
+//                    const VectorDim x(vertexPair.P0+u*segm);
+//                    if((P-x).squaredNorm()<FLT_EPSILON)
+//                    {
+//                        temp=true;
+//                    }
+//                }
+//                else
+//                {
+//                    const VectorDim x(0.5*(vertexPair.P1+vertexPair.P0));
+//                    if((P-x).squaredNorm()<FLT_EPSILON)
+//                    {
+//                        temp=true;
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+
+//        /**********************************************************************/
+//        SnapReturnType snap(const VectorDim& P) const __attribute__ ((deprecated))
+//        {
+//
+//            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
+//
+//            std::map<double,std::pair<VectorDim,size_t>,std::less<double>/*,Eigen::aligned_allocator<std::pair<double,std::pair<VectorDim,size_t>>>*/> snapMap;
+//
+//            //            for(const auto& vertexPair : *this)
+//            for(size_t k=0;k<this->size();++k)
+//            {
+//                const MeshBoundarySegment<dim>& vertexPair(this->operator[](k));
+//                const VectorDim segm(vertexPair.P1-vertexPair.P0);
+//                const double segmNorm2(segm.squaredNorm());
+//                if(segmNorm2>FLT_EPSILON)
+//                {
+//                    double u((P-vertexPair.P0).dot(segm)/segmNorm2);
+//                    if(u<0.0)
+//                    {
+//                        u=0.0;
+//                    }
+//                    if(u>1.0)
+//                    {
+//                        u=1.0;
+//                    }
+//                    const VectorDim x(vertexPair.P0+u*segm);
+//                    //snapMap.emplace((P-x).squaredNorm(),x);
+//                    snapMap.emplace(std::piecewise_construct,
+//                                    std::make_tuple((P-x).squaredNorm()),
+//                                    std::make_tuple(x,k)
+//                                    );
+//
+//                }
+//                else
+//                {
+//                    const VectorDim x(0.5*(vertexPair.P1+vertexPair.P0));
+//                    //                    snapMap.emplace((P-x).squaredNorm(),x);
+//                    snapMap.emplace(std::piecewise_construct,
+//                                    std::make_tuple((P-x).squaredNorm()),
+//                                    std::make_tuple(x,k)
+//                                    );
+//
+//                }
+//            }
+//
+//            assert(contains(snapMap.begin()->second.first).first && "BoundingLineSegments does not contains snapped point.");
+//
+//            //            return snapMap.begin()->second;
+//            return std::make_tuple(snapMap.begin()->second.first,snapMap.begin()->second.second,snapMap.begin()->first);
+//        }
+
+//        /**********************************************************************/
+//        std::pair<double,VectorDim> snapToVertex(const VectorDim& P) const __attribute__ ((deprecated))
+//        {
+//
+//            assert(this->size() && "CANNOT SNAP TO EMPTY BoundingLineSegments");
+//
+//            std::map<double,VectorDim,std::less<double>,Eigen::aligned_allocator<std::pair<double,VectorDim>>> snapMap;
+//
+//            for(const auto& vertexPair : *this)
+//            {
+//                snapMap.emplace((P-vertexPair.P0).norm(),vertexPair.P0);
+//            }
+//
+//            return std::make_pair(snapMap.begin()->first,snapMap.begin()->second);
+//
+//        }
 
 //        /**********************************************************************/
 //        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
@@ -522,4 +403,206 @@ namespace model
 //            {
 ////                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
 //            }
+//        }
+
+//        /**********************************************************************/
+//        static void emplaceUnique(LineSegmentContainerType& temp,const VectorDim& P1,const VectorDim& P2)
+//        {
+//
+//            //            std::cout<<"emplaceUnique "<<P1.transpose()<<" ### "<<P2.transpose()<<std::endl;
+//
+//            bool isUnique=true;
+//
+//
+//            if((P1-P2).squaredNorm()>FLT_EPSILON)
+//            {// P1-P2 is not a degenerate line
+//                for(typename LineSegmentContainerType::iterator iter=temp.begin(); iter!=temp.end();)
+//                {
+//
+//                    VectorDim& E1(iter->P0);
+//                    VectorDim& E2(iter->P1);
+//                    if((E1-E2).squaredNorm()>FLT_EPSILON)
+//                    {// existing pair is not a degenerate line
+//                        //                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON && (E2-P2).squaredNorm()>FLT_EPSILON);
+//                        isUnique*=((E1-P1).squaredNorm()>FLT_EPSILON || (E2-P2).squaredNorm()>FLT_EPSILON);
+//                        isUnique*=((E1-P2).squaredNorm()>FLT_EPSILON || (E2-P1).squaredNorm()>FLT_EPSILON);
+//                        //                        std::cout<<"    A existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
+//                        if(!isUnique)
+//                        {
+//                            break;
+//                        }
+//                        else
+//                        {
+//                            iter++;
+//                        }
+//                    }
+//                    else
+//                    {// existing pair is a degenerate line
+//                        const VectorDim x=0.5*(E1+E2);
+//                        if((P1-x).squaredNorm()>FLT_EPSILON && (P2-x).squaredNorm()>FLT_EPSILON)
+//                        {// distinct point
+//                            //                            isUnique*=true;
+//                            //                            std::cout<<"    B existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
+//                            iter++;
+//                        }
+//                        else
+//                        {// existing degenerate point is erased since P1-P2 will be appended later
+//                            //                            isUnique*=true;
+//                            //                            std::cout<<"    C existing "<<E1.transpose()<<" ### "<<E2.transpose()<<" ### "<<isUnique<<std::endl;
+//                            iter=temp.erase(iter);
+//                        }
+//                    }
+//                }
+//            }
+//            else
+//            {// P1-P2 is a degenerate line (a point)
+//                const VectorDim x=0.5*(P1+P2);
+//                for(const auto& pair : temp)
+//                {
+//                    isUnique*=((pair.P0-x).squaredNorm()>FLT_EPSILON && (pair.P1-x).squaredNorm()>FLT_EPSILON);
+//                    //                    std::cout<<"    D existing "<<pair.P0.transpose()<<" ### "<<pair.P1.transpose()<<" ### "<<isUnique<<std::endl;
+//                    if(!isUnique)
+//                    {
+//                        break;
+//                    }
+//                }
+//
+//            }
+//
+//            if(isUnique)
+//            {
+//                temp.emplace_back(P1,P2);
+//            }
+//            else
+//            {
+//                //                std::cout<<"BoundingLineSegments: not unique"<<std::endl;
+//            }
+//
+//        }
+
+
+//        /**********************************************************************/
+//        BoundingLineSegments(const BoundingLineSegments<dim>& bls1,
+//                             const BoundingLineSegments<dim>& bls2)
+//        {/* Constructor from intersectin of BoundingLineSegments
+//          */
+//            for (const auto& s1 : bls1)
+//            {
+//                for (const auto& s2 : bls2)
+//                {
+//                    //                    std::cout<<"Comparison"<<std::endl;
+//                    //
+//                    //                    SegmentSegmentIntersection<dim> ssi(s1.P0,s1.P1,
+//                    //                                                        s2.P0,s2.P1);
+//                    //
+//                    //                    if(ssi.size)
+//                    //                    {
+//                    //                        std::cout<<ssi.x0.transpose()<<" -A- "<<ssi.x1.transpose()<<std::endl;
+//                    //                                                this->emplace_back(ssi.x0,ssi.x1);
+//                    //                    }
+//
+//                    SegmentSegmentDistance<dim> ssd(s1.P0,s1.P1,
+//                                                    s2.P0,s2.P1);
+//                    const auto iSeg=ssd.intersectionSegment();
+//                    if(iSeg.size()==1)
+//                    {
+//                        //                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -B- "<<std::get<0>(iSeg[0]).transpose()<<std::endl;
+//                        //                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+//                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+//
+//                    }
+//                    else if(iSeg.size()==2)
+//                    {
+//                        //                        std::cout<<std::get<0>(iSeg[0]).transpose()<<" -C- "<<std::get<0>(iSeg[1]).transpose()<<std::endl;
+//                        //                        this->emplace_back(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+//                        emplaceUnique(*this,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+//                    }
+//                    else
+//                    {// do nothing
+//
+//                    }
+//                }
+//            }
+//
+//            assert(this->size()<=std::max(bls1.size(),bls2.size()) && "intersections cannot be more than original segments");
+//            //            assert(this->size()<=bls2.size() && "intersections cannot be more than original segments");
+//            //            std::cout<<"BoundingLineSegments "<<this<<", size="<<this->size()<<std::endl;
+//
+//        }
+
+//        /**********************************************************************/
+//        //        template <typename LoopType>
+//        void updateWithMeshPlane(const MeshPlane<dim>& gp)
+//        {
+//
+//            if(this->size())
+//            {
+//                *this=BoundingLineSegments(*this,BoundingLineSegments(gp));
+//            }
+//            else
+//            {
+//                *this=BoundingLineSegments(gp);
+//            }
+//
+////            if(this->size())
+////            {
+////                LineSegmentContainerType temp;
+////
+////                for(const auto& oldPair : *this)
+////                {// loop over current segments
+////
+////                    PlaneSegmentIntersection<dim> psi(gp.P,
+////                                                      gp.unitNormal,
+////                                                      oldPair.P0,
+////                                                      oldPair.P1);
+////
+////                    //                    if(psi.size())
+////                    if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT || psi.type==PlaneSegmentIntersection<dim>::COINCIDENT)
+////                    {// plane and current segment intersect
+////                        for(const auto& seg : gp.meshIntersections)
+////                        {
+////
+////                            SegmentSegmentDistance<dim> ssd(seg.P0,
+////                                                            seg.P1,
+////                                                            oldPair.P0,
+////                                                            oldPair.P1);
+////
+////                            const auto iSeg=ssd.intersectionSegment();
+////                            if(iSeg.size()==1)
+////                            {
+////                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[0]));
+////                            }
+////                            else if(iSeg.size()==2)
+////                            {
+////                                emplaceUnique(temp,std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+////
+////                            }
+////                            else
+////                            {// do nothing
+////                                //                                std::cout<<"BoundingLineSegments: ssd no intersection"<<std::endl;
+////
+////                            }
+////
+////                        }
+////                    }
+////                    else
+////                    {// plane does not contain segment, do nothing
+////
+////                    }
+////                }
+////
+////                assert(temp.size()<=std::max(this->size(),gp.meshIntersections.size()) && "intersections cannot be more than original segments");
+////                //assert(temp.size()<=gp.meshIntersections.size() && "intersections cannot be more than original segments");
+////
+////
+////                this->swap(temp);
+////            }
+////            else
+////            {// this is empty, so just copy segments from MashPlane
+////                for(const auto& seg : gp.meshIntersections)
+////                {
+////                    this->push_back(seg);
+////                }
+////            }
+//
 //        }

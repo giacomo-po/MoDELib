@@ -51,6 +51,7 @@ namespace model
                     
                 default:
                     assert(0 && "FINISH HERE");
+                    return 0;
                     break;
             }
         }

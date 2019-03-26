@@ -14,7 +14,7 @@
 #include <tuple>
 #include <vector>
 #include <Eigen/Dense>
-#include<Eigen/StdVector>
+#include <Eigen/StdVector>
 #include <SimplicialMesh.h>
 #include <PlanarMeshFace.h>
 #include <Plane.h>
@@ -78,20 +78,7 @@ namespace model
         }
         
         
-        //        static MeshBoundaryContainerType sortMeshBoundarySegments(const MeshBoundaryContainerType& vin)
-        //        {/*!\todo Remove this function when getMeshBoundarySegments uses FaceEdge to sort intersections
-        //          */
-        //
-        //            MeshBoundaryContainerType vout;
-        //            if(vin.size())
-        //            {
-        //                for(const auto& seg : vin)
-        //                {
-        //
-        //                }
-        //            }
-        //            return vout;
-        //        }
+
         
         /**********************************************************************/
         static MeshBoundaryContainerType getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
@@ -234,12 +221,6 @@ namespace model
             
         }
         
-        
-        
-
-        
-
-        
         const std::pair<int,int> regionIDs;
         //        const PlaneMeshIntersectionContainerType meshIntersections;
         const MeshBoundaryContainerType meshIntersections;
@@ -251,12 +232,7 @@ namespace model
                   const VectorDim& n) :
         /* init */ Plane<dim>(p,n)
         /* init */,regionIDs(rID,rID)
-        //        /* init */ regionID(rID),
-        //        meshIntersections(getPlaneIntersection(mesh,rID,p,this->unitNormal))
-        ,meshIntersections(getMeshBoundarySegments(mesh,rID,*this))
-        //        ,meshIntersections(MeshBoundaryContainerType())
-        //        ,meshIntersections(getMeshBoundarySegments(mesh,rID,p,n))
-        //        /* init */ meshIntersections(PlaneMeshIntersection<dim>(mesh,this->P,this->unitNormal,rID))
+        /* init */,meshIntersections(getMeshBoundarySegments(mesh,rID,*this))
         {/*!\param[in] mesh
           * \param[in] rID the region ID where the plane is defined
           * \param[in] p position of the plane
@@ -290,14 +266,10 @@ namespace model
         template <class T>
         friend T& operator << (T& os, const MeshPlane<dim>& gp)
         {
-//            size_t kk=0;
             for (const auto& x : gp.meshIntersections)
             {
-                //                os<<gp.sID<< " "<<kk<<" "<< x.first->child(0).xID<< " "<< x.first->child(1).xID <<" "<<x.second.transpose()<<"\n";
                 os<<gp.sID<< " "<<x.face->sID<<" "<< x.P0.transpose()<< " "<< x.P1.transpose()<<"\n";
-  //              kk++;
             }
-            
             return os;
         }
         
@@ -653,4 +625,19 @@ namespace model
 //
 //
 //            return PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(temp);
+//        }
+
+//        static MeshBoundaryContainerType sortMeshBoundarySegments(const MeshBoundaryContainerType& vin)
+//        {/*!\todo Remove this function when getMeshBoundarySegments uses FaceEdge to sort intersections
+//          */
+//
+//            MeshBoundaryContainerType vout;
+//            if(vin.size())
+//            {
+//                for(const auto& seg : vin)
+//                {
+//
+//                }
+//            }
+//            return vout;
 //        }

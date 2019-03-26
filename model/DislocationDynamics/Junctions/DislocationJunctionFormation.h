@@ -64,7 +64,7 @@ namespace model
         {
             if(ssd.dMin<currentcCollisionTOL)
             {
-                bool isValidJunction((bndJunction || gbndJunction) && DN.simulationType!=2);
+                bool isValidJunction((bndJunction || gbndJunction) && DN.simulationParameters.simulationType!=2);
                 if(   !isValidJunction
                    && !linkA->isBoundarySegment()
                    && !linkB->isBoundarySegment()

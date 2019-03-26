@@ -28,7 +28,7 @@ ifeq ($(USE_ICC), 1)
 	CFLAGS	 = -O3
 	CFLAGS	+= -xhost
 	#CFLAGS	+= -fast
-	CFLAGS	+= -openmp 
+	CFLAGS	+= -qopenmp 
 	CFLAGS	+= -std=c++14
 else
 	CC= g++
