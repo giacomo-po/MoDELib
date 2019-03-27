@@ -89,6 +89,21 @@ namespace model
             return SegmentSegmentDistance<dim>(P0,P1,other.P0,other.P1,degeneracyValue);
         }
         
+        double length() const
+        {
+            return (P1-P0).norm();
+        }
+        
+        bool hasZeroLength() const
+        {
+            return length()<FLT_EPSILON;
+        }
+        
+        VectorDim center() const
+        {
+            return 0.5*(P0+P1);
+        }
+        
     };
     
 }

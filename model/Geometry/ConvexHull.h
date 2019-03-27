@@ -89,7 +89,7 @@ namespace model
         
     private:
         
-        double cross(const HullPointType& O, const HullPointType& A, const HullPointType& B)
+        static double cross(const HullPointType& O, const HullPointType& A, const HullPointType& B)
         {
             return (A[0] - O[0]) * (B[1] - O[1]) - (A[1] - O[1]) * (B[0] - O[0]);
         }
@@ -136,6 +136,14 @@ namespace model
             return H;
         }
 
+
+        
+    };
+    
+}
+#endif
+
+
 //        HullPointContainerType getPoints()
 //        {
 //            if(this->size()<=3)
@@ -168,8 +176,3 @@ namespace model
 //                return H;
 //            }
 //        }
-        
-    };
-    
-}
-#endif

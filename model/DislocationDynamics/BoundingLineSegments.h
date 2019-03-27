@@ -47,6 +47,23 @@ namespace model
         
     private:
         
+        bool isUniquePoint(const VectorDim& P) const
+        {/*!\returns true if point if P is not alrady a degenerate line on any existing face
+          */
+            bool temp(true);
+            for(const auto& seg : *this)
+            {
+                if(seg.second.hasZeroLength())
+                {
+                    temp*=((P-seg.second.center()).norm()>FLT_EPSILON);
+                    if(!temp)
+                    {
+                        break;
+                    }
+                }
+            }
+            return temp;
+        }
         
         /**********************************************************************/
         void emplaceFromIntersection(const MeshBoundarySegment<dim>& s1,
@@ -64,7 +81,10 @@ namespace model
                     const auto iSeg=ssd.intersectionSegment();
                     if(iSeg.size()==1)
                     {
-                        this->emplace(s1.face->sID,MeshBoundarySegment<dim>(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]),s1.face));
+                        if(isUniquePoint(std::get<0>(iSeg[0])))
+                        {
+                            this->emplace(s1.face->sID,MeshBoundarySegment<dim>(std::get<0>(iSeg[0]),std::get<0>(iSeg[0]),s1.face));
+                        }
                     }
                     else if(iSeg.size()==2)
                     {
@@ -178,7 +198,7 @@ namespace model
         {
             for(const auto& pair : bls)
             {
-                os<<std::setprecision(15)<<std::scientific<<pair.second.P0.transpose()<<" "<<pair.second.P1.transpose()<<std::endl;
+                os<<pair.second.face->sID<<", "<<std::setprecision(15)<<std::scientific<<pair.second.P0.transpose()<<","<<pair.second.P1.transpose()<<std::endl;
             }
             return os;
         }

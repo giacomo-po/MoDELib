@@ -172,10 +172,11 @@ namespace model
                             default:
                             {
                                 model::cout<<"PlanarDislocationNode "<<this->sID<<" boundingBoxSegments() are:"<<std::endl;
-                                for(const auto& pair : boundingBoxSegments())
-                                {
-                                    model::cout<<"("<<pair.second.P0.transpose()<<","<<pair.second.P1.transpose()<<")"<<std::endl;
-                                }
+                                model::cout<<boundingBoxSegments();
+//                                for(const auto& pair : boundingBoxSegments())
+//                                {
+//                                    model::cout<<"("<<pair.second.P0.transpose()<<","<<pair.second.P1.transpose()<<")"<<std::endl;
+//                                }
                                 assert(0 && "Bounding boxes of two incident planes must intersect on a boundary segment or on two boundary points.");
                             }
                         }
@@ -1103,6 +1104,35 @@ namespace model
         }
         
         /**********************************************************************/
+        bool isZeroBurgersNode() const
+        {
+            
+            bool temp=true;
+            for (const auto& neighborIter : this->neighbors())
+            {
+                temp*=std::get<1>(neighborIter.second)->hasZeroBurgers();
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
+
+        /**********************************************************************/
+        bool isSimpleZeroBurgersNode() const
+        {
+            bool temp(this->isSimple() && isZeroBurgersNode());
+            if(temp)
+            {// make sure attached sessile segments are aligned
+                const LinkType* firstLink(std::get<1>(this->neighbors().begin()->second));
+                const LinkType* secondLink(std::get<1>(this->neighbors().rbegin()->second));
+                temp*=(firstLink->chord().normalized().cross(secondLink->chord().normalized()).norm()<FLT_EPSILON);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         bool isSimpleSessileNode() const
         {
             bool temp(this->isSimple() && isSessileNode());
@@ -1134,7 +1164,12 @@ namespace model
         {
             
             bool temp(   !isVirtualBoundaryNode
-                      && (isSimpleBoundaryNode() || isSimpleGrainBoundaryNode() || isSimpleSessileNode() || isGeometricallyRemovable(Lmin,cosRemove))
+                      && (   isSimpleBoundaryNode()
+                          || isSimpleGrainBoundaryNode()
+                          || isSimpleSessileNode()
+                          || isSimpleZeroBurgersNode()
+                          || isGeometricallyRemovable(Lmin,cosRemove)
+                          )
                       );
             
             //            if(temp && usePeriodic && virtualNode)
