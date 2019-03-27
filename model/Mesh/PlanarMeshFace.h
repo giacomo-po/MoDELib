@@ -26,53 +26,7 @@
 namespace model
 {
     
-//    template<int dim>
-//    struct PlanarMeshFaceHull
-//    {
-//
-//    };
-//
-//    template<>
-//    struct PlanarMeshFaceHull<3>
-//    {
-//
-//        static constexpr int dim=3;
-//
-//        static void makeHull(const std::set<const Simplex<dim,dim-1>*>& vertices,
-//                                                          const Eigen::Matrix<double,dim,1>& outNormal,
-//                                                          const Eigen::Matrix<double,dim,1>& center,
-//                             std::vector<const Simplex<dim,0>*>& _hull)
-//        {
-//
-//            _hull.clear();
-//            if(vertices.size())
-//            {
-//                // Compute local rotation matrix
-//                Eigen::Matrix<double,dim,dim> R;
-//                R.col(0)=((*vertices.begin())->P0-center).normalized();
-//                R.col(2)=outNormal;
-//                R.col(1)=R.col(2).cross(R.col(0));
-//
-//                ConvexHull<2,Simplex<dim,0>> hull;
-//                for(const auto& v : vertices)
-//                {// compute local position in the plane as insert in ConvexHull
-//                    const Eigen::Matrix<double,dim,1> x(R.transpose()*(v->P0-center));
-//                    HullPoint<2,Simplex<dim,0>> hp({x[0],x[1]},v);
-//                    hull.push_back(hp);
-//                }
-//
-//
-//                const auto hullPts=hull.getHull();
-//                for(const auto& hp : hullPts)
-//                {
-//                    _hull.push_back(hp.t);
-//                }
-//
-//            }
-//
-//        }
-//
-//    };
+
     
     /**************************************************************************/
     /**************************************************************************/
@@ -88,6 +42,7 @@ namespace model
         const std::pair<int,int> regionIDs;
 
     private:
+        
         Eigen::Matrix<double,dim,1> n;
         Eigen::Matrix<double,dim,1> c;
         std::vector<const Simplex<dim,0>*> _hull;
@@ -102,7 +57,6 @@ namespace model
         /* init */,c(pS->center())
         {
 //            std::cout<<"Creating PlanarMeshFace "<<this->sID<<", n="<<outNormal().transpose()<<std::endl;
-//            std::cout<<"regionIDs "<<regionIDs.first<<","<<regionIDs.second<<std::endl;
             assert((n.norm()-1.0)<FLT_EPSILON);
             this->insert(pS);
         }
@@ -163,15 +117,13 @@ namespace model
                 // Compute local rotation matrix
                 Eigen::Matrix<double,dim,dim> R;
                 R.col(0)=((*vertices.begin())->P0-center()).normalized();
-                R.col(2)=outNormal();
+                R.col(2)=n;
                 R.col(1)=R.col(2).cross(R.col(0));
 
                 ConvexHull<2,Simplex<dim,0>> hull;
                 for(const auto& v : vertices)
                 {// compute local position in the plane as insert in ConvexHull
                     const Eigen::Matrix<double,dim,1> x(R.transpose()*(v->P0-center()));
-//                    HullPoint<2,Simplex<dim,0>> hp({x[0],x[1]},v);
-//                    hull.push_back(hp);
                     hull.emplace(std::array<double,2>{x[0],x[1]},v);
                 }
 
@@ -199,12 +151,6 @@ namespace model
         {
             return *this;
         }
-        
-//        /**********************************************************************/
-//        const Eigen::Matrix<double,dim,1>& outNormal() const
-//        {
-//            return n;
-//        }
         
         /**********************************************************************/
         bool isExternal() const

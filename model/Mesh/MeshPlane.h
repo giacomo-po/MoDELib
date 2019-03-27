@@ -98,13 +98,15 @@ namespace model
             
             for(const auto& face : mesh.region(rID)->faces())
             {
+                //std::cout<<face.second->outNormal()<<std::endl;
                 PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
                 
                 if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                 {// Collect all intersection points with lines defined by convexHull of face
-                    //                    std::cout<<"incident"<<std::endl;
+                                        //std::cout<<"incident"<<std::endl;
                     std::vector<VectorDim> pts;
-                    
+                    //std::cout<<"face.second->convexHull().size()="<<face.second->convexHull().size()<<std::endl;
+
                     for(size_t k=0;k<face.second->convexHull().size();++k)
                     {
                         const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
@@ -135,10 +137,12 @@ namespace model
                     const auto hullPts=hull.getPoints();
                     if(hullPts.size()==2)
                     {
+                        //std::cout<<"a"<<std::endl;
                         temp.emplace_back(*hullPts[0].t,*hullPts[1].t,face.second.get());
                     }
                     else if(hullPts.size()>2)
                     {
+                                                //std::cout<<"b"<<std::endl;
                         for(size_t k=0;k<hullPts.size();++k)
                         {
                             const size_t k1(k==hullPts.size()-1? 0 : k+1);
@@ -147,13 +151,13 @@ namespace model
                     }
                     else
                     {// don't push points
-                        
+                                                //std::cout<<"c"<<std::endl;
                     }
                     
                 }
                 else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                 {
-                    //                                        std::cout<<"incident"<<std::endl;
+                                                            //std::cout<<"coincident"<<std::endl;
                     temp.clear();
                     for(size_t k=0;k<face.second->convexHull().size();++k)
                     {
@@ -169,19 +173,24 @@ namespace model
 
             
             ConvexHull<2,MeshBoundarySegment<dim>> finalHull;
+            //std::cout<<"unsorted hull"<<std::endl;
             for(const auto& pt : temp)
             {
+                
                 VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
                 finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
+                //std::cout<<pt.P0.transpose()<<","<<pt.P1.transpose()<<std::endl;
             }
             const auto hullPts=finalHull.getPoints();
 
+            assert(hullPts.size()==temp.size());
 
             MeshBoundaryContainerType sortedTemp;
 //            for(const auto& seg : hullPts)
 //            {
 //                sortedTemp.push_back(*seg.t);
 //            }
+                        //std::cout<<"sorted hull"<<std::endl;
             for(size_t k=0;k<hullPts.size();++k)
             {
                 const auto& seg(*hullPts[k].t);
@@ -210,13 +219,18 @@ namespace model
                     }
                     else
                     {
-                        std::cout<<"k="<<k<<" of "<<hullPts.size()<<std::endl;
+                        //std::cout<<"k="<<k<<" of "<<hullPts.size()<<std::endl;
                         assert(false && "DISCONNECTED FACE BOUNDARY");
                     }
                 }
+                //std::cout<<sortedTemp.back().P0.transpose()<<","<<sortedTemp.back().P1.transpose()<<std::endl;
+
             }
             assert((sortedTemp.back().P1-sortedTemp.front().P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
 
+            assert(sortedTemp.size()==temp.size());
+
+            
             return sortedTemp;
             
         }
