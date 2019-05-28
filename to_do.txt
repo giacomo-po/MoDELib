@@ -23,7 +23,7 @@ reuturn (P-x).dot(n)==0;
 
 
 
-
+- Merge loops on same plane
 - FORCES ON VIRTUAL NODES MUST BE ADDED TO PARENT NODES
 - CROSSSLIP WITH EXPANSION
 - MOTION OF BOUNDARY NODES BY BOUNDING BOX INTERSECTION
@@ -35,7 +35,6 @@ reuturn (P-x).dot(n)==0;
 - DDvtk cannot interrupt autoplay
 - New time integrator
 - Natural Cubic Splines
-- Merge loops on same plane
 - Non-convex domains (each grain convex?)
 - Documentation
 - Hoffman2 documentation (see emails between Yinan and Raffaella)

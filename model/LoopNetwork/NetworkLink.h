@@ -30,7 +30,7 @@ namespace model
         typedef typename TypeTraits<Derived>::NodeType NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
-        typedef typename TypeTraits<Derived>::FlowType FlowType;
+//        typedef typename TypeTraits<Derived>::FlowType FlowType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         
         typedef LoopLink<Derived> LoopLinkType;
@@ -187,37 +187,17 @@ namespace model
         
         
         /**********************************************************************/
-        void addLink(LoopLinkType* const pL)
+        void addLoopLink(LoopLinkType* const pL)
         {
             const bool success=loopLinks().insert(pL).second;
             assert(success && "Could not insert LoopLink in NetworkLink");
-            
-//            if(pL->source()->sID==source->sID)
-//            {
-//                _flow+=pL->flow();
-//            }
-//            else
-//            {
-//                _flow-=pL->flow();
-//            }
-            
-            
         }
         
         /**********************************************************************/
-        void removeLink(LoopLinkType* const pL)
+        void removeLoopLink(LoopLinkType* const pL)
         {
             const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase LoopLink from NetworkLink");
-            
-//            if(pL->source()->sID==source->sID)
-//            {
-//                _flow-=pL->flow();
-//            }
-//            else
-//            {
-//                _flow+=pL->flow();
-//            }
         }
         
         /**********************************************************************/
@@ -225,11 +205,6 @@ namespace model
         {
             return std::to_string(source->sID)+"->"+std::to_string(sink->sID);
         }
-        
-//        const FlowType& flow() const
-//        {
-//            return _flow;
-//        }
         
     };
     

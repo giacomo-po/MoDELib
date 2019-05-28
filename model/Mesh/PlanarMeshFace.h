@@ -32,7 +32,8 @@ namespace model
     /**************************************************************************/
     template<int dim>
     struct PlanarMeshFace : public StaticID<PlanarMeshFace<dim>>
-    /*                  */,public std::set<const Simplex<dim,dim-1>*>
+    /*                   */,public std::set<const Simplex<dim,dim-1>*>
+//    /*                   */,public std::vector<const Simplex<dim,dim-2>*>
     {
      
         
@@ -61,6 +62,22 @@ namespace model
             this->insert(pS);
         }
         
+        
+//        const std::vector<const Simplex<dim,dim-2>*>& boundaryEdges() const
+//        {
+//            return *this;
+//        }
+//
+//        std::vector<const Simplex<dim,dim-2>*>& boundaryEdges()
+//        {
+//            return *this;
+//        }
+        
+        const std::set<const Simplex<dim,dim-1>*>& internalSimplices() const
+        {
+            return *this;
+        }
+        
 //        /**********************************************************************/
 //        ~PlanarMeshFace()
 //        {
@@ -73,12 +90,56 @@ namespace model
             return _hull;
         }
         
+        
+        
+//        void walkEdge()
+//        {
+//            for(const auto& parent : boundaryEdges.back()->child(1).parents())
+//            {
+//                if(parent.second->isBoundarySimplex() || parent.second->isRegionBoundarySimplex())
+//                {
+//                    if(internalSimplices().find(parent.second)==internalSimplices().end())
+//                    {// boundary parent not found in this face, then child is an edge
+//                        boundaryEdges().insert(child);
+//                        boundaryEdges().push_back(child);
+//                        walkEdge();
+//                    }
+//                }
+//            }
+//        }
+//
+//        /**********************************************************************/
+//        void buildEdges()
+//        {
+//            bool found
+//            for(const auto& simplex : internalSimplices())
+//            {
+//                for(const auto& child : simplex->children())
+//                {
+//                        for(const auto& parent : child->parents())
+//                        {
+//                            if(parent.second->isBoundarySimplex() || parent.second->isRegionBoundarySimplex())
+//                            {
+//                                if(internalSimplices().find(parent.second)==internalSimplices().end())
+//                                {// boundary parent not found in this face, then child is an edge
+//                                    boundaryEdges().insert(child);
+//                                    boundaryEdges().push_back(child);
+//                                    walkEdge();
+//                                }
+//                            }
+//                        }
+//                }
+//            }
+//        }
+        
         /**********************************************************************/
         void finalize()
         {/*!\todo This function uses ConvexHull and therefore will yield a wrong
           * face boundary for non-convex faces. In order to support non-convex faces
           * we need to have a structure with face edges.
           */
+            
+//            buildEdges();
             
             // Recompute c and n to minimize floating point errors
             n.setZero();

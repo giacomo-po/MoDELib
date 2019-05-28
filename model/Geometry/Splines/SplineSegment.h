@@ -101,7 +101,7 @@ namespace model
         typedef Eigen::Matrix<double,Ndof,Ndof>	MatrixNdof;
         typedef typename NetworkLink<Derived>::NodeType NodeType;
         typedef typename NetworkLink<Derived>::LinkType LinkType;
-        typedef typename NetworkLink<Derived>::FlowType FlowType;
+//        typedef typename NetworkLink<Derived>::FlowType FlowType;
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
         typedef ParametricCurve<Derived,dim> ParametricCurveType;
         

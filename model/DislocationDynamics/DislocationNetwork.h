@@ -54,7 +54,7 @@
 //#include <SingleFieldPoint.h>
 #include <DDtimeIntegrator.h>
 #include <EqualIteratorRange.h>
-#include <BoundingLineSegments.h>
+//#include <BoundingLineSegments.h>
 #include <GrainBoundaryTransmission.h>
 //#include <GrainBoundaryDissociation.h>
 #include <BVPsolver.h>

@@ -35,12 +35,12 @@
 #include <UniqueOutputFile.h>
 #include <GrainBoundary.h>
 #include <LineSimplexIntersection.h>
-#include <BoundingLineSegments.h>
-#include <BoundingLineSegments.h>
+//#include <BoundingLineSegments.h>
+//#include <BoundingLineSegments.h>
 #include <MeshPlane.h>
 #include <DislocationQuadraturePoint.h>
 #include <StraightDislocationSegment.h>
-
+#include <ConfinedDislocationObject.h>
 
 #ifndef NDEBUG
 #define VerbosePlanarDislocationSegment(N,x) if(verbosePlanarDislocationSegment>=N){model::cout<<x;}
@@ -55,19 +55,22 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <typename Derived>
-    class PlanarDislocationSegment : public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
-    /*                      */,private std::set<const MeshPlane<TypeTraits<Derived>::dim>*>
-    /*                      */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
-    /*                      */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
-    /*                      */,private BoundingLineSegments<TypeTraits<Derived>::dim>
-    /*                      */,public DislocationQuadraturePointContainer<TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    class PlanarDislocationSegment : public ConfinedDislocationObject<TypeTraits<Derived>::dim>
+    /*                            */,public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    //    /*                            */,private std::set<const GlidePlane<TypeTraits<Derived>::dim>*>
+    ////    /*                      */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
+    //    /*                            */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
+    //    /*                            */,private std::set<const PlanarMeshFace<TypeTraits<Derived>::dim>*>
+    //    /*                            */,private BoundingLineSegments<TypeTraits<Derived>::dim>
+    /*                            */,public DislocationQuadraturePointContainer<TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
     {
-
+        
     public:
         
         static constexpr int dim=TypeTraits<Derived>::dim; // make dim available outside class
         static constexpr int corder=TypeTraits<Derived>::corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
+        typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
         typedef Derived LinkType;
         typedef StraightDislocationSegment<dim> StraightDislocationSegmentType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
@@ -90,26 +93,28 @@ namespace model
         typedef DislocationParticle<dim> DislocationParticleType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
-        typedef std::set<const Grain<dim>*> GrainContainerType;
-        typedef GlidePlane<dim> GlidePlaneType;
-        typedef MeshPlane<dim> MeshPlaneType;
-        typedef std::set<const MeshPlaneType*> MeshPlaneContainerType;
+        //        typedef std::set<const GrainBoundary<dim>*> GrainBoundaryContainerType;
+        //        typedef std::set<const Grain<dim>*> GrainContainerType;
+        //        typedef GlidePlane<dim> GlidePlaneType;
+        //        typedef MeshPlane<dim> MeshPlaneType;
+        //        typedef std::set<const GlidePlaneType*> GlidePlaneContainerType;
         typedef typename TypeTraits<LinkType>::MeshLocation MeshLocation;
+        //        typename std::set<const PlanarMeshFace<TypeTraits<Derived>::dim>*> PlanarMeshFaceContainerType;
         
     private:
         
         std::map<size_t,
         /*    */ std::pair<VectorNcoeff,VectorDim>,
         /*    */ std::less<size_t>
-//        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
+        //        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
         /*    */ > h2posMap;
         Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         MatrixNdof Kqq; //! Segment Stiffness Matrix
         VectorNdof Fq; //! Segment Nodal Force Vector
         VectorDim Burgers; //! The Burgers vector
         double BurgersNorm;
-        bool _isBoundarySegment;
+        //        bool _isBoundarySegment;
+        //        bool _isGrainBoundarySegment;
         
     public:
         
@@ -136,20 +141,22 @@ namespace model
         /******************************************************************/
         PlanarDislocationSegment(const std::shared_ptr<NodeType>& nI,
                                  const std::shared_ptr<NodeType>& nJ) :
-        /* init */ SplineSegmentType(nI,nJ)
+        /* init */ ConfinedDislocationObjectType(nI->network())
+        /* init */,SplineSegmentType(nI,nJ)
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
-        /* init */,_isBoundarySegment(this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P())))
+        //        /* init */,_isBoundarySegment(false)
+        //        /* init */,_isGrainBoundarySegment(false)
         /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
           */
             VerbosePlanarDislocationSegment(1,"Creating PlanarDislocationSegment "<<this->tag()<<std::endl;);
-            VerbosePlanarDislocationSegment(2,"_isBoundarySegment "<<_isBoundarySegment<<std::endl;);
-            VerbosePlanarDislocationSegment(3,"source->isBoundaryNode() "<<this->source->isBoundaryNode()<<std::endl;);
-            VerbosePlanarDislocationSegment(3,"sink->isBoundaryNode() "<<this->sink->isBoundaryNode()<<std::endl;);
-            VerbosePlanarDislocationSegment(3,"midpoint is boundary "<<boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()))<<std::endl;);
+            //            VerbosePlanarDislocationSegment(3,"source->isBoundaryNode() "<<this->source->isBoundaryNode()<<std::endl;);
+            //            VerbosePlanarDislocationSegment(3,"sink->isBoundaryNode() "<<this->sink->isBoundaryNode()<<std::endl;);
+            //            VerbosePlanarDislocationSegment(2,"_isBoundarySegment "<<_isBoundarySegment<<std::endl;);
+            //            VerbosePlanarDislocationSegment(3,"midpoint is boundary "<<boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()))<<std::endl;);
         }
         
         /**********************************************************************/
@@ -162,87 +169,22 @@ namespace model
         void updateGeometry()
         {
             SplineSegmentType::updateGeometry();
+            ConfinedDislocationObjectType::updateGeometry(typename ConfinedDislocationObjectType::PositionCointainerType{this->source->get_P(),this->sink->get_P()});
             straight.updateGeometry();
-            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
+            //            addMeshFaces();
+            //            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
+            //            _isBoundarySegment=boundingBoxSegments().boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P())).squaredNorm()>FLT_EPSILON;
         }
         
-        /**********************************************************************/
-        const MeshPlaneContainerType& meshPlanes() const
-        {
-            return *this;
-        }
+        
         
         /**********************************************************************/
-        MeshPlaneContainerType& meshPlanes()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const GrainContainerType& grains() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        GrainContainerType& grains()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        GrainBoundaryContainerType& grainBoundaries()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const GrainBoundaryContainerType& grainBoundaries() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const BoundingLineSegments<dim>& boundingBoxSegments() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        BoundingLineSegments<dim>& boundingBoxSegments()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        bool addMeshPlane(const MeshPlaneType& gp)
-        {
-            const bool success=meshPlanes().insert(&gp).second;
-            if(success)
-            {
-                const bool sourceContained(gp.contains(this->source->get_P()));
-                const bool   sinkContained(gp.contains(this->  sink->get_P()));
-                if(!(sourceContained && sinkContained))
-                {
-                    model::cout<<"PlanarDislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
-                    model::cout<<"sourceContained "<<sourceContained<<std::endl;
-                    model::cout<<"  sinkContained "<<sinkContained<<std::endl;
-                    assert(false &&  "Glide Plane does not contain source or sink");
-                }
-                boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
-                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
-                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
-            }
-            return success;
-        }
-        
-        /**********************************************************************/
-        void addLink(LoopLinkType* const pL)
+        void addLoopLink(LoopLinkType* const pL)
         {
             VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", adding LoopLink "<<pL->tag()<<std::endl;);
-            SplineSegmentType::addLink(pL); // forward to base class
+            SplineSegmentType::addLoopLink(pL); // forward to base class
             if(pL->source()->sID==this->source->sID)
-            {// Modify Burgers vector
+            {// Update Burgers vector
                 Burgers+=pL->flow().cartesian();
             }
             else
@@ -250,21 +192,18 @@ namespace model
                 Burgers-=pL->flow().cartesian();
             }
             BurgersNorm=Burgers.norm();
-            if(!pL->loop()->isVirtualBoundaryLoop())
-            {
-                if(pL->loop()->glidePlane)
-                {
-                    addMeshPlane(*pL->loop()->glidePlane.get());
-                }
-                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
-            }
+            
+            ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
         }
         
+
+        
         /**********************************************************************/
-        void removeLink(LoopLinkType* const pL)
+        void removeLoopLink(LoopLinkType* const pL)
         {
             VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", removing LoopLink "<<pL->tag()<<std::endl;);
-            SplineSegmentType::removeLink(pL);  // forward to base class
+            SplineSegmentType::removeLoopLink(pL);  // forward to base class
+            
             if(pL->source()->sID==this->source->sID)
             {// Modify Burgers vector
                 Burgers-=pL->flow().cartesian();
@@ -274,36 +213,39 @@ namespace model
                 Burgers+=pL->flow().cartesian();
             }
             BurgersNorm=Burgers.norm();
-            if(!pL->loop()->isVirtualBoundaryLoop())
+            
+            ConfinedDislocationObjectType::clear();
+            for(const auto& loopLink : this->loopLinks())
             {
-                meshPlanes().clear();
-                boundingBoxSegments().clear();
-                for(const auto& loopLink : this->loopLinks())
-                {
-                    if(loopLink->loop()->glidePlane)
-                    {
-                        addMeshPlane(*loopLink->loop()->glidePlane.get());
-                    }
-                }
-                addGrainBoundaryPlanes();
-                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
+                ConfinedDislocationObjectType::addGlidePlane(loopLink->loop()->glidePlane.get());
             }
+            
+            
+            //            if(!pL->loop()->isVirtualBoundaryLoop())
+            //            {
+            //                glidePlanes().clear();
+            //                grains().clear();
+            //                grainBoundaries.clear();
+            //                boundingBoxSegments().clear();
+            //                for(const auto& loopLink : this->loopLinks())
+            //                {
+            //                    if(loopLink->loop()->glidePlane)
+            //                    {
+            //                        addMeshPlane(*loopLink->loop()->glidePlane.get());
+            //                    }
+            //                }
+            ////                if(glidePlanes().size())
+            ////                {
+            ////                    addMeshFaces();
+            ////                }
+            //                addMeshFaces();
+            //
+            ////                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
+            ////                _isBoundarySegment=boundingBoxSegments().boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P())).squaredNorm()>FLT_EPSILON;
+            //            }
         }
         
-        /**********************************************************************/
-        size_t addGrainBoundaryPlanes()
-        {
-            size_t addedGp=0;
-            for(const auto& gb : this->source->grainBoundaries())
-            {
-                if(this->sink->grainBoundaries().find(gb)!=this->sink->grainBoundaries().end())
-                {
-                    grainBoundaries().insert(gb);
-                    addedGp+=addMeshPlane(*gb);
-                }
-            }
-            return addedGp;
-        }
+
         
         /**********************************************************************/
         void assemble()
@@ -323,7 +265,7 @@ namespace model
                 c++;
             }
         }
-
+        
         /**********************************************************************/
         void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,
                                  Eigen::VectorXd& FQ) const
@@ -417,9 +359,9 @@ namespace model
         /**********************************************************************/
         const VectorDim& glidePlaneNormal() const
         {
-            return meshPlanes().size()==1? (*meshPlanes().begin())->unitNormal : zeroVector;
+            return this->glidePlanes().size()==1? (*this->glidePlanes().begin())->unitNormal : zeroVector;
         }
-
+        
         /**********************************************************************/
         std::set<const LoopType*> virtualLoops() const
         {//!\returns a set of pointers to the virtualBoundaryLoops of this segment
@@ -441,17 +383,17 @@ namespace model
         }
         
         /**********************************************************************/
-        const bool& isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
           * on the boundary.
           */
-            return _isBoundarySegment;
+            return this->isOnExternalBoundary();
         }
         
         /**********************************************************************/
         bool isGrainBoundarySegment() const
         {
-            return grainBoundaries().size();
+            return this->isOnInternalBoundary();
         }
         
         /**********************************************************************/
@@ -468,7 +410,7 @@ namespace model
             }
             return temp;
         }
-
+        
         /**********************************************************************/
         bool isGlissile() const
         {/*\returns true if ALL the following conditions are met
@@ -476,7 +418,7 @@ namespace model
           * - its Burgers vector is non-zero
           * - all loops containing this segment are glissile
           */
-            bool temp(meshPlanes().size()==1 && !hasZeroBurgers() && !isVirtualBoundarySegment());
+            bool temp(this->glidePlanes().size()==1 && !hasZeroBurgers() && !isVirtualBoundarySegment());
             if(temp)
             {
                 for(const auto& loopLink : this->loopLinks())
@@ -490,37 +432,8 @@ namespace model
         /**********************************************************************/
         bool isSessile() const
         {
-            return    !isGlissile()
-            /*  */ && !isBoundarySegment()
-            /*  */ && !isGrainBoundarySegment()
-            /*  */ && !hasZeroBurgers()
-            /*  */ && !isVirtualBoundarySegment();
+            return !isGlissile();
         }
-        
-//        /**********************************************************************/
-//        MeshLocation meshLocation() const
-//        {/*!\returns the position of *this relative to the bonudary:
-//          * 1 = inside mesh
-//          * 2 = on mesh boundary
-//          */
-//            MeshLocation temp = MeshLocation::outsideMesh;
-//            if(isBoundarySegment())
-//            {
-//                temp=MeshLocation::onMeshBoundary;
-//            }
-//            else
-//            {
-//                if(isGrainBoundarySegment())
-//                {
-//                    temp=MeshLocation::onRegionBoundary;
-//                }
-//                else
-//                {
-//                    temp=MeshLocation::insideMesh;
-//                }
-//            }
-//            return temp;
-//        }
         
         /**********************************************************************/
         MeshLocation meshLocation() const
@@ -561,3 +474,246 @@ namespace model
     int PlanarDislocationSegment<Derived>::verbosePlanarDislocationSegment=0;
 }
 #endif
+
+
+//        /**********************************************************************/
+//        void addDislocationLoopLink(LoopLinkType* const pL)
+//        {
+//            VerbosePlanarDislocationSegment(2,"PlanarDislocationSegment "<<this->tag()<<", addDislocationLink "<<pL->tag()<<std::endl;);
+//
+//            if(pL->source()->sID==this->source->sID)
+//            {// Update Burgers vector
+//                Burgers+=pL->flow().cartesian();
+//            }
+//            else
+//            {
+//                Burgers-=pL->flow().cartesian();
+//            }
+//            BurgersNorm=Burgers.norm();
+//
+//            ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
+//
+//
+////            if(pL->loop()->glidePlane)
+////            {// a glidePlane exists
+////                //                addMeshPlane(*pL->loop()->glidePlane.get());
+////                const GlidePlaneType& gp(*pL->loop()->glidePlane);
+////                const bool success=glidePlanes().insert(&gp).second;
+////                if(success)
+////                {
+////                    const bool sourceContained(gp.contains(this->source->get_P()));
+////                    const bool   sinkContained(gp.contains(this->  sink->get_P()));
+////                    if(!(sourceContained && sinkContained))
+////                    {
+////                        model::cout<<"PlanarDislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+////                        model::cout<<"sourceContained "<<sourceContained<<std::endl;
+////                        model::cout<<"  sinkContained "<<sinkContained<<std::endl;
+////                        assert(false &&  "Glide Plane does not contain source or sink");
+////                    }
+////                    boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+//////                    grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
+//////                    grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
+////                }
+////            }
+////
+////            // update grains and meshFaces
+////            grains().insert(&pL->loop()->grain);
+////            addMeshFaces();
+//
+//
+////            if(!pL->loop()->isVirtualBoundaryLoop())
+////            {
+////
+////                // Update glide planes
+////                if(pL->loop()->glidePlane)
+////                {
+////                    addMeshPlane(*pL->loop()->glidePlane.get());
+////                }
+////
+////                // update grains and meshFaces
+////                grains().insert(&pL->loop()->grain);
+////                addMeshFaces();
+////
+////                //                _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
+////                //_isBoundarySegment=boundingBoxSegments().boundaryNormal(0.5*(this->source->get_P()+this->sink->get_P())).squaredNorm()>FLT_EPSILON;
+////            }
+//        }
+
+
+//        /**********************************************************************/
+//        bool isSessile() const
+//        {
+//            return    !isGlissile()
+//            /*  */ && !isBoundarySegment()
+//            /*  */ && !isGrainBoundarySegment()
+//            /*  */ && !hasZeroBurgers()
+//            /*  */ && !isVirtualBoundarySegment();
+//        }
+
+//        /**********************************************************************/
+//        MeshLocation meshLocation() const
+//        {/*!\returns the position of *this relative to the bonudary:
+//          * 1 = inside mesh
+//          * 2 = on mesh boundary
+//          */
+//            MeshLocation temp = MeshLocation::outsideMesh;
+//            if(isBoundarySegment())
+//            {
+//                temp=MeshLocation::onMeshBoundary;
+//            }
+//            else
+//            {
+//                if(isGrainBoundarySegment())
+//                {
+//                    temp=MeshLocation::onRegionBoundary;
+//                }
+//                else
+//                {
+//                    temp=MeshLocation::insideMesh;
+//                }
+//            }
+//            return temp;
+//        }
+
+
+//        /**********************************************************************/
+//        const GlidePlaneContainerType& glidePlanes() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        GlidePlaneContainerType& glidePlanes()
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const GrainContainerType& grains() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        GrainContainerType& grains()
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        GrainBoundaryContainerType& grainBoundaries()
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const GrainBoundaryContainerType& grainBoundaries() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const PlanarMeshFaceContainerType& meshFaces() const
+//        {
+//            return *this;
+//        }
+//
+//        PlanarMeshFaceContainerType& meshFaces()
+//        {
+//            return *this;
+//        }
+
+
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& boundingBoxSegments() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        BoundingLineSegments<dim>& boundingBoxSegments()
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        bool addMeshPlane(const MeshPlaneType& gp)
+//        {
+//            const bool success=glidePlanes().insert(&gp).second;
+//            if(success)
+//            {
+//                const bool sourceContained(gp.contains(this->source->get_P()));
+//                const bool   sinkContained(gp.contains(this->  sink->get_P()));
+//                if(!(sourceContained && sinkContained))
+//                {
+//                    model::cout<<"PlanarDislocationSegment "<<this->source->sID<<"->"<<this->sink->sID<<std::endl;
+//                    model::cout<<"sourceContained "<<sourceContained<<std::endl;
+//                    model::cout<<"  sinkContained "<<sinkContained<<std::endl;
+//                    assert(false &&  "Glide Plane does not contain source or sink");
+//                }
+//                boundingBoxSegments().updateWithMeshPlane(gp); // Update _boundingBoxSegments. This must be called before updateGlidePlaneIntersections
+//                grains().insert(&this->network().poly.grain(gp.regionIDs.first));    // Insert new grain in grainSet
+//                grains().insert(&this->network().poly.grain(gp.regionIDs.second));   // Insert new grain in grainSet
+//            }
+//            return success;
+//        }
+
+//
+////        /**********************************************************************/
+////        bool isGrainBoundarySegment() const
+////        {
+////            return grainBoundaries().size();
+////        }
+//
+
+//        /**********************************************************************/
+//        size_t addMeshFaces()
+//        {
+//            size_t addedGp=0;
+////            for(const auto& gb : this->source->grainBoundaries())
+////            {
+////                if(this->sink->grainBoundaries().find(gb)!=this->sink->grainBoundaries().end())
+////                {
+////                    std::cout<<"REMOVE THIS LOOP"<<std::endl;
+////
+////                    grainBoundaries().insert(gb);
+////                    addedGp+=addMeshPlane(*gb);
+////                }
+////            }
+//
+//            for(const auto& grain : grains())
+//            {
+//                for(const auto& face : grain.faces())
+//                {
+//                    if(faces().find(face.get())!=faces.end())
+//                    {// face is already a current confining face
+//                        assert(face->contains(this->source->get_P()) && face->contains(this->sink->get_P()) && "FACE MUS CONTAIN SOURCE AND SINK");
+//                    }
+//                    else
+//                    {// face not a current confining face
+//                        if(face->contains(this->source->get_P()) && face->contains(this->sink->get_P()))
+//                        {
+//                            addedGp+=faces().insert(face.get());
+//                            boundingBoxSegments().updateWithMeshFace(*face);
+//                        }
+//                    }
+//                }
+//            }
+//
+//
+//            _isBoundarySegment=false;
+//            _isGrainBoundarySegment=false;
+//            for(const auto& face : faces())
+//            {
+//                if(face->regionIDs.first==face->regionIDs.second)
+//                {
+//                    _isBoundarySegment=true;
+//                }
+//                else
+//                {
+//                    _isGrainBoundarySegment=true;
+//                }
+//            }
+//
+//            return addedGp;
+//        }

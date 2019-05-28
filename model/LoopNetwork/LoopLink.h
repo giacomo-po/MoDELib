@@ -80,8 +80,8 @@ namespace model
         /* init */ next(nullptr)
         {
             VerboseLoopLink(1,"Constructing LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
-            pLoop->addLink(this);
-            pLink->addLink(this);
+            pLoop->addLoopLink(this);
+            pLink->addLoopLink(this);
             _source->addLoopLink(this);
             _sink->addLoopLink(this);
         }
@@ -92,12 +92,12 @@ namespace model
         
         /**********************************************************************/
         ~LoopLink()
-        {
+        {// call removeLoopLink in inverse order compared to addLoopLink
             VerboseLoopLink(1,"Destroying LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
-            pLoop->removeLink(this);
-            pLink->removeLink(this);
-            _source->removeLoopLink(this);
             _sink->removeLoopLink(this);
+            _source->removeLoopLink(this);
+            pLink->removeLoopLink(this);
+            pLoop->removeLoopLink(this);
         }
         
         /**********************************************************************/

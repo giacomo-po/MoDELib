@@ -203,8 +203,27 @@ namespace model
             return temp;
         }
         
+
         /**********************************************************************/
-        std::set<const Simplex<dim,order>*> boundaryNeighbors() const
+        std::set<const Simplex<dim,order>*> spouses() const
+        {/*!\return the set of Simplices sharing children with this
+          */
+            std::set<const Simplex<dim,order>*> temp;
+            for(const auto& child : children())
+            {
+                    for(const auto& parent : child->parents())
+                    {
+                        if(parent.second!=this)
+                        {
+                            temp.insert(parent.second);
+                        }
+                    }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::set<const Simplex<dim,order>*> boundaryNeighbors() const // boundary spouse
         {
             std::set<const Simplex<dim,order>*> temp;
             for(const auto& child : children())
@@ -224,7 +243,7 @@ namespace model
         }
         
         /**********************************************************************/
-        std::set<const Simplex<dim,order>*> regionBoundaryNeighbors() const
+        std::set<const Simplex<dim,order>*> regionBoundaryNeighbors() const // region boundary spouse
         {
             std::set<const Simplex<dim,order>*> temp;
             for(const auto& child : children())

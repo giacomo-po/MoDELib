@@ -205,203 +205,206 @@ namespace model
         /**********************************************************************/
         size_t directTransmit()
         {
-            size_t nTransmitted=0;
-            if(grainBoundaryTransmissionModel)
-            {
-                model::cout<<"		GrainBounTransmission... "<<std::flush;
-                const auto t0=std::chrono::system_clock::now();
-                
-                
-                TransmissionDataContainerType transmissionDeq;
-                
-                for (const auto& link : DN.links() )
-                {
-                    LinkTransmissionDataContainerType transmissionMap;
-                    
-                    
-                    const VectorDim chord(link.second->chord());
-                    const VectorDim glidePlaneNormal(link.second->glidePlaneNormal());
-                    
-                    if(   link.second->isGrainBoundarySegment()
-                       && chord.norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
-                       )
-                    {
-                        const VectorDim unitChord(chord.normalized());
-                        
-                        for(const auto& grainBoundary : link.second->grainBoundaries())
-                        {
-                            for(const auto& grain : grainBoundary->grains())
-                            {
-                                for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
-                                {
-                                    const auto& slipSystem(grain.second->slipSystems()[ssID]);
-//                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem->n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
-                                        if(grainBoundary->outNormal(grain.second->grainID).cross(slipSystem->n.cartesian().normalized()).norm()>FLT_EPSILON // slip plane is not GB plane
-                                           //&& slipSystem->n.cartesian().normalized().cross(glidePlaneNormal).norm()>FLT_EPSILON
-                                           ) // NOT SAME PLANE, REMOVE THIS
-
-                                    {
-                                        if(fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON )
-                                        {// slip plane cointains chord -> direct or indirect (offset) transmit
-                                            const std::pair<bool,long int> temp=LatticePlane::computeHeight(slipSystem->n,0.5*(link.second->source->get_P()+link.second->sink->get_P()));
-                                            if(temp.first)
-                                            {// direct transmit possible
-                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,0,transmissionMap);
-                                            }
-                                            else
-                                            {// direct transmit not possible, use offset transmit
-                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,1,transmissionMap);
-                                            }
-                                        }
-                                        else
-                                        {// slip plane doesn't cointains chord -> indirect (incident) transmit
-                                            emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,2,transmissionMap);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        
-                    }
-                    
-                    if(transmissionMap.size())
-                    {
-                        transmissionDeq.push_back(transmissionMap.begin()->second); // best transmission choice for the segment
-                    }
-                    
-                }
-                
-                
-                
-                // Insert new loops
-                for(const auto& tup : transmissionDeq)
-                {
-                    const size_t& sourceID(std::get<0>(tup));
-                    const size_t& sinkID(std::get<1>(tup));
-                    const size_t& grainID(std::get<2>(tup));
-                    const size_t& slipID(std::get<3>(tup));
-                    const std::pair<int,int>& gbID(std::get<4>(tup));
-                    const int& transmissionType(std::get<5>(tup));
-                    
-                    const auto isLink(DN.link(sourceID,sinkID));
-                    if(isLink.first)
-                    {
-                        switch(transmissionType)
-                        {
-                            case 0:
-                            {
-                                std::cout<<"direct transmission"<<std::endl;
-                                
-                                
-                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
-                                const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized()).normalized();
-                                
-                                const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P())+dir*10.0);
-                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
-                                
-                                std::vector<size_t> nodeIDs;
-                                
-                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
-                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
-                                nodeIDs.push_back(newNodeID);
-                                
-                                DN.insertLoop(nodeIDs,
-                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-                                              DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
-                                              0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-                                              grainID);
-                                
-                                nTransmitted++;
-                                break;
-                            }
-                            case 1: // offset transmit
-                            {
-                                std::cout<<"indirect transmission"<<std::endl;
-                                
-                                
-                                const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID]->n,
-                                                                                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
-                                
-                                //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().norm();
-                                
-                                
-                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
-                                                                heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().squaredNorm(),
-                                                                DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian());
-                                
-                                assert(0 && "FINISH HERE");
-                                
-                                
-                                
-                                
-                                break;
-                            }
-                            default: // indirect (incident) transmit
-                            {
+            assert(false && "REWORK THIS");
+        }
+//        {
+//            size_t nTransmitted=0;
+//            if(grainBoundaryTransmissionModel)
+//            {
+//                model::cout<<"        GrainBounTransmission... "<<std::flush;
+//                const auto t0=std::chrono::system_clock::now();
+//
+//
+//                TransmissionDataContainerType transmissionDeq;
+//
+//                for (const auto& link : DN.links() )
+//                {
+//                    LinkTransmissionDataContainerType transmissionMap;
+//
+//
+//                    const VectorDim chord(link.second->chord());
+//                    const VectorDim glidePlaneNormal(link.second->glidePlaneNormal());
+//
+//                    if(   link.second->isGrainBoundarySegment()
+//                       && chord.norm()>chordTol*DislocationNetworkRemesh<DislocationNetworkType>::Lmin
+//                       )
+//                    {
+//                        const VectorDim unitChord(chord.normalized());
+//
+//                        for(const auto& grainBoundary : link.second->grainBoundaries())
+//                        {
+//                            for(const auto& grain : grainBoundary->grains())
+//                            {
+//                                for(size_t ssID=0;ssID<grain.second->slipSystems().size();++ssID)
+//                                {
+//                                    const auto& slipSystem(grain.second->slipSystems()[ssID]);
+////                                    if(grainBoundary->glidePlane(grain.second->grainID).unitNormal.cross(slipSystem->n.cartesian().normalized()).norm()>FLT_EPSILON) // slip plane is not GB plane
+//                                        if(grainBoundary->outNormal(grain.second->grainID).cross(slipSystem->n.cartesian().normalized()).norm()>FLT_EPSILON // slip plane is not GB plane
+//                                           //&& slipSystem->n.cartesian().normalized().cross(glidePlaneNormal).norm()>FLT_EPSILON
+//                                           ) // NOT SAME PLANE, REMOVE THIS
+//
+//                                    {
+//                                        if(fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON )
+//                                        {// slip plane cointains chord -> direct or indirect (offset) transmit
+//                                            const std::pair<bool,long int> temp=LatticePlane::computeHeight(slipSystem->n,0.5*(link.second->source->get_P()+link.second->sink->get_P()));
+//                                            if(temp.first)
+//                                            {// direct transmit possible
+//                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,0,transmissionMap);
+//                                            }
+//                                            else
+//                                            {// direct transmit not possible, use offset transmit
+//                                                emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,1,transmissionMap);
+//                                            }
+//                                        }
+//                                        else
+//                                        {// slip plane doesn't cointains chord -> indirect (incident) transmit
+//                                            emplaceData(*link.second,*grainBoundary,*grain.second,slipSystem,ssID,2,transmissionMap);
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//
+//                    }
+//
+//                    if(transmissionMap.size())
+//                    {
+//                        transmissionDeq.push_back(transmissionMap.begin()->second); // best transmission choice for the segment
+//                    }
+//
+//                }
+//
+//
+//
+//                // Insert new loops
+//                for(const auto& tup : transmissionDeq)
+//                {
+//                    const size_t& sourceID(std::get<0>(tup));
+//                    const size_t& sinkID(std::get<1>(tup));
+//                    const size_t& grainID(std::get<2>(tup));
+//                    const size_t& slipID(std::get<3>(tup));
+//                    const std::pair<int,int>& gbID(std::get<4>(tup));
+//                    const int& transmissionType(std::get<5>(tup));
+//
+//                    const auto isLink(DN.link(sourceID,sinkID));
+//                    if(isLink.first)
+//                    {
+//                        switch(transmissionType)
+//                        {
+//                            case 0:
+//                            {
+//                                std::cout<<"direct transmission"<<std::endl;
+//
+//
+//                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
+//                                const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized()).normalized();
+//
+//                                const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P())+dir*10.0);
+//                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//
+//                                std::vector<size_t> nodeIDs;
+//
+//                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+//                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+//                                nodeIDs.push_back(newNodeID);
+//
+//                                DN.insertLoop(nodeIDs,
+//                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                                              DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
+//                                              0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+//                                              grainID);
+//
+//                                nTransmitted++;
+//                                break;
+//                            }
+//                            case 1: // offset transmit
+//                            {
 //                                std::cout<<"indirect transmission"<<std::endl;
 //
 //
 //                                const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID]->n,
 //                                                                                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
 //
-//                                const VectorDim newLoopP(heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID]->n.interplaneVector());
-//                                const VectorDim newLoopN(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized());
-//
-////                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
-////                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
-////                                                                newLoopP,
-////                                                                newLoopN);
+//                                //                                const double planeSpacing=1.0/DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().norm();
 //
 //
-//                                MeshPlane<dim> mp(DN.mesh,grainID,newLoopP,newLoopN);
-//                                BoundingLineSegments<dim> bls(mp);
+//                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+//                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
+//                                                                heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian()/DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().squaredNorm(),
+//                                                                DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian());
 //
-//                                const VectorDim newSourceP(std::get<0>(bls.snap(isLink.second->source->get_P())));
-//                                const size_t newSourceID=DN.insertDanglingNode(newSourceP,VectorDim::Zero(),1.0).first->first;
-//
-//                                const VectorDim newSinkP(std::get<0>(bls.snap(isLink.second->sink->get_P())));
-//                                const size_t newSinkID=DN.insertDanglingNode(newSinkP,VectorDim::Zero(),1.0).first->first;
+//                                assert(0 && "FINISH HERE");
 //
 //
-////                                assert(0 && "FINISH HERE");
 //
-//                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
-//                                const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized()).normalized();
 //
-//                                const VectorDim newNodeP(0.5*(newSourceP+newSinkP)+dir*10.0);
-//                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//                                break;
+//                            }
+//                            default: // indirect (incident) transmit
+//                            {
+////                                std::cout<<"indirect transmission"<<std::endl;
 ////
-//                                std::vector<size_t> nodeIDs;
-//
-//                                nodeIDs.push_back(newSinkID);      // insert in reverse order, sink first, source second
-//                                nodeIDs.push_back(newSourceID);    // insert in reverse order, sink first, source second
-//                                nodeIDs.push_back(newNodeID);
 ////
-//                                DN.insertLoop(nodeIDs,
-//                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                                              DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
-//                                              newLoopP,
-//                                              grainID);
+////                                const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(DN.poly.grain(grainID).slipSystems()[slipID]->n,
+////                                                                                                      0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+////
+////                                const VectorDim newLoopP(heightPair.second*DN.poly.grain(grainID).slipSystems()[slipID]->n.interplaneVector());
+////                                const VectorDim newLoopN(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized());
+////
+//////                                PlanePlaneIntersection<dim> ppi(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()),
+//////                                                                DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID),
+//////                                                                newLoopP,
+//////                                                                newLoopN);
+////
+////
+////                                MeshPlane<dim> mp(DN.mesh,grainID,newLoopP,newLoopN);
+////                                BoundingLineSegments<dim> bls(mp);
+////
+////                                const VectorDim newSourceP(std::get<0>(bls.snap(isLink.second->source->get_P())));
+////                                const size_t newSourceID=DN.insertDanglingNode(newSourceP,VectorDim::Zero(),1.0).first->first;
+////
+////                                const VectorDim newSinkP(std::get<0>(bls.snap(isLink.second->sink->get_P())));
+////                                const size_t newSinkID=DN.insertDanglingNode(newSinkP,VectorDim::Zero(),1.0).first->first;
+////
+////
+//////                                assert(0 && "FINISH HERE");
+////
+////                                const VectorDim gbInNormal(-DN.poly.grainBoundary(gbID.first,gbID.second).outNormal(grainID));
+////                                const VectorDim dir=(gbInNormal-gbInNormal.dot(DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized())*DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian().normalized()).normalized();
+////
+////                                const VectorDim newNodeP(0.5*(newSourceP+newSinkP)+dir*10.0);
+////                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//////
+////                                std::vector<size_t> nodeIDs;
+////
+////                                nodeIDs.push_back(newSinkID);      // insert in reverse order, sink first, source second
+////                                nodeIDs.push_back(newSourceID);    // insert in reverse order, sink first, source second
+////                                nodeIDs.push_back(newNodeID);
+//////
+////                                DN.insertLoop(nodeIDs,
+////                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+////                                              DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
+////                                              newLoopP,
+////                                              grainID);
+////
+////                                nTransmitted++;
 //
-//                                nTransmitted++;
-
-                                
-                                
-                                break;
-                            }
-                        }
-                        
-                        
-                    }
-                }
-                
-                DN.clearDanglingNodes();
-                
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
-            return nTransmitted;
-        }
+//
+//
+//                                break;
+//                            }
+//                        }
+//
+//
+//                    }
+//                }
+//
+//                DN.clearDanglingNodes();
+//
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
+//            return nTransmitted;
+//        }
         
         
     };

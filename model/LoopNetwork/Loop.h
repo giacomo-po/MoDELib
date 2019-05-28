@@ -139,7 +139,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void addLink(LoopLinkType* const pL)
+        void addLoopLink(LoopLinkType* const pL)
         {
             const bool success=links().insert(std::make_pair(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID),pL)).second;
             if(!success)
@@ -151,7 +151,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void removeLink(LoopLinkType* const pL)
+        void removeLoopLink(LoopLinkType* const pL)
         {
             const size_t erased=links().erase(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID));
             assert(erased==1 && "Could not erase from linkMap");

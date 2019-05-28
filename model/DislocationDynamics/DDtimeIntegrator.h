@@ -79,7 +79,7 @@ namespace model
                 if(//   !nodeIter.second->isBoundaryNode()
                    //&& !nodeIter.second->isConnectedToBoundaryNodes()
                    //&&
-                   nodeIter.second->meshPlanes().size()<3
+                   nodeIter.second->glidePlanes().size()<3
 //                   && !nodeIter.second->isOscillating()
                    )
                 {

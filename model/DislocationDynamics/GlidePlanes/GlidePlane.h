@@ -86,18 +86,20 @@ namespace model
 
         static int verboseGlidePlane;
         GlidePlaneObserverType* const glidePlaneObserver;
+        const Grain<dim>& grain;
         const GlidePlaneKeyType glidePlaneKey;
 
         /**********************************************************************/
         GlidePlane(GlidePlaneObserverType* const gpo,
                    const SimplicialMesh<dim>& mesh,
-                   const Grain<dim>& grain,
+                   const Grain<dim>& _grain,
                    const VectorDim& P,
                    const VectorDim& N) :
-        /* init */ LatticePlane(P,grain.reciprocalLatticeDirection(N)), // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */ MeshPlane<dim>(mesh,grain.grainID,this->planeOrigin(),this->n.cartesian()),
-        /* init */ glidePlaneObserver(gpo),
-        /* init */ glidePlaneKey(getGlidePlaneKey(grain.grainID,*this))
+        /* init */ LatticePlane(P,grain.reciprocalLatticeDirection(N)) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */,MeshPlane<dim>(mesh,grain.grainID,this->planeOrigin(),this->n.cartesian())
+        /* init */,glidePlaneObserver(gpo)
+        /* init */,grain(_grain)
+        /* init */,glidePlaneKey(getGlidePlaneKey(grain.grainID,*this))
         {
             VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<std::endl;);
             glidePlaneObserver->addGlidePlane(this);
@@ -164,6 +166,18 @@ namespace model
 //            }
         }
 
+
+
+    };
+
+    template <int dim>
+    int GlidePlane<dim>::verboseGlidePlane=0;
+
+}
+#endif
+
+
+
 //        /**********************************************************************/
 //        template <class T>
 //        friend T& operator << (T& os, const GlidePlaneType& gp)
@@ -178,16 +192,6 @@ namespace model
 //
 //            return os;
 //        }
-
-    };
-
-    template <int dim>
-    int GlidePlane<dim>::verboseGlidePlane=0;
-
-}
-#endif
-
-
 
 
 //        /**********************************************************************/
