@@ -95,8 +95,8 @@ namespace model
                    const Grain<dim>& _grain,
                    const VectorDim& P,
                    const VectorDim& N) :
-        /* init */ LatticePlane(P,grain.reciprocalLatticeDirection(N)) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */,MeshPlane<dim>(mesh,grain.grainID,this->planeOrigin(),this->n.cartesian())
+        /* init */ LatticePlane(P,_grain.reciprocalLatticeDirection(N)) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */,MeshPlane<dim>(mesh,_grain.grainID,this->planeOrigin(),this->n.cartesian())
         /* init */,glidePlaneObserver(gpo)
         /* init */,grain(_grain)
         /* init */,glidePlaneKey(getGlidePlaneKey(grain.grainID,*this))

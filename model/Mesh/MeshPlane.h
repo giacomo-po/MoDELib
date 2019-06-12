@@ -41,12 +41,12 @@ namespace model
         //        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
         typedef std::pair<VectorDim,const Simplex<dim,1>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
-        typedef std::vector<MeshBoundarySegment<dim>, Eigen::aligned_allocator<MeshBoundarySegment<dim>>> MeshBoundarySegmentContainerType;
+//        typedef std::vector<MeshBoundarySegment<dim>, Eigen::aligned_allocator<MeshBoundarySegment<dim>>> MeshBoundarySegmentContainerType;
         
         /**********************************************************************/
-        static MeshBoundarySegmentContainerType getFaceBoundary(const PlanarMeshFace<dim>& face)
+        static BoundingMeshSegments<dim> getFaceBoundary(const PlanarMeshFace<dim>& face)
         {
-            MeshBoundarySegmentContainerType temp;
+            BoundingMeshSegments<dim> temp;
             for(size_t k=0;k<face.convexHull().size();++k)
             {
                 const size_t k1(k==face.convexHull().size()-1? 0 : k+1);
@@ -55,7 +55,7 @@ namespace model
             return temp;
         }
         
-//        static std::set<const PlanarMeshFace<dim>*> getFaces(const MeshBoundarySegmentContainerType& meshBoundaryContainer)
+//        static std::set<const PlanarMeshFace<dim>*> getFaces(const BoundingMeshSegments<dim>& meshBoundaryContainer)
 //        {
 //            std::set<const PlanarMeshFace<dim>*> temp;
 //            for(const auto& seg : meshBoundaryContainer)
@@ -67,7 +67,7 @@ namespace model
 
         
         /**********************************************************************/
-        static MeshBoundarySegmentContainerType getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
+        static BoundingMeshSegments<dim> getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
                                                                  const int& rID,
                                                                  const Plane<dim>& plane)
         {/*!\todo MeshFace and this function use ConvexHull and therefore will yield a intersection
@@ -79,7 +79,7 @@ namespace model
             //            std::cout<<"getMeshBoundarySegments start"<<std::endl;
             // Collect all intersection points
             //            Plane<dim> plane(p,n);
-            MeshBoundarySegmentContainerType temp;
+            BoundingMeshSegments<dim> temp;
             const MatrixDim R(plane.localRotationMatrix());
             
             for(const auto& face : mesh.region(rID)->faces())
@@ -171,7 +171,7 @@ namespace model
 
             assert(hullPts.size()==temp.size());
 
-            MeshBoundarySegmentContainerType sortedTemp;
+            BoundingMeshSegments<dim> sortedTemp;
 //            for(const auto& seg : hullPts)
 //            {
 //                sortedTemp.push_back(*seg.t);
@@ -190,7 +190,7 @@ namespace model
                     }
                     else
                     {
-                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces());
+                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
                     }
                 }
                 else
@@ -201,7 +201,7 @@ namespace model
                     }
                     else if((sortedTemp.back().P1-seg.P1).norm()<FLT_EPSILON)
                     {
-                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces());
+                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
                     }
                     else
                     {
@@ -223,11 +223,11 @@ namespace model
         
         const std::pair<int,int> regionIDs;
         //        const PlaneMeshIntersectionContainerType meshIntersections;
-        const MeshBoundarySegmentContainerType meshIntersections;
+        const BoundingMeshSegments<dim> meshIntersections;
 //        const std::set<const PlanarMeshFace<dim>*> meshFaces;
         
         /**********************************************************************/
-        static void checkPlaneIntersections(const MeshBoundarySegmentContainerType& temp)
+        static void checkPlaneIntersections(const BoundingMeshSegments<dim>& temp)
         {
             
             if(temp.size()<3)
@@ -641,11 +641,11 @@ namespace model
 //            return PlaneMeshIntersection<dim>::reducedPlaneMeshIntersection(temp);
 //        }
 
-//        static MeshBoundarySegmentContainerType sortMeshBoundarySegments(const MeshBoundarySegmentContainerType& vin)
+//        static BoundingMeshSegments<dim> sortMeshBoundarySegments(const BoundingMeshSegments<dim>& vin)
 //        {/*!\todo Remove this function when getMeshBoundarySegments uses FaceEdge to sort intersections
 //          */
 //
-//            MeshBoundarySegmentContainerType vout;
+//            BoundingMeshSegments<dim> vout;
 //            if(vin.size())
 //            {
 //                for(const auto& seg : vin)

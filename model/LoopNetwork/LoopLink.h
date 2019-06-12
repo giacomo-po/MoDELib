@@ -125,9 +125,9 @@ namespace model
             {
                 VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
                 
-                pLoop->removeLink(this);
+                pLoop->removeLoopLink(this);
                 pLoop=pL;
-                pLoop->addLink(this);
+                pLoop->addLoopLink(this);
                 VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
                 
                 if(next!=nullptr)
@@ -159,9 +159,9 @@ namespace model
                 if(source()->sID==startID)
                 {
                     VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
-                    pLoop->removeLink(this);
+                    pLoop->removeLoopLink(this);
                     pLoop=pL;
-                    pLoop->addLink(this);
+                    pLoop->addLoopLink(this);
                     VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
                     
                     if(sink()->sID!=endID)

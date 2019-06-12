@@ -29,6 +29,7 @@
 #include <DislocationLinkingNumber.h>
 #include <TextFileParser.h>
 #include <DislocationInjector.h>
+#include <MeshBoundarySegment.h>
 
 namespace model
 {
@@ -45,7 +46,7 @@ namespace model
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
         typedef Material<dim,Isotropic> MaterialType;
         
-        typedef typename MeshPlane<dim>::MeshBoundaryContainerType MeshBoundaryContainerType;
+        typedef BoundingMeshSegments<dim> MeshBoundaryContainerType;
         
 //        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
 

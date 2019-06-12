@@ -141,8 +141,8 @@ namespace model
         /******************************************************************/
         PlanarDislocationSegment(const std::shared_ptr<NodeType>& nI,
                                  const std::shared_ptr<NodeType>& nJ) :
-        /* init */ ConfinedDislocationObjectType(nI->network())
-        /* init */,SplineSegmentType(nI,nJ)
+//        /* init */ ConfinedDislocationObjectType(nI->network())
+        /* init */ SplineSegmentType(nI,nJ)
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
         //        /* init */,_isBoundarySegment(false)

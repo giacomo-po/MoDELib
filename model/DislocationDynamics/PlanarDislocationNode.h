@@ -25,7 +25,7 @@
 #include <GramSchmidt.h>
 #include <Simplex.h>
 #include <LatticeMath.h>
-#include <SimplexBndNormal.h>
+//#include <SimplexBndNormal.h>
 #include <Grain.h>
 #include <GlidePlane.h>
 #include <PlanePlaneIntersection.h>
@@ -204,7 +204,7 @@ namespace model
         
         /**********************************************************************/
         //        BoundingLineSegments<dim> _glidePlaneIntersections; //
-        std::unique_ptr<LineSegment<dim>> _glidePlaneIntersections; //
+//        std::unique_ptr<LineSegment<dim>> _glidePlaneIntersections; //
         
         
 //        bool _isGlissile;
@@ -246,8 +246,8 @@ namespace model
                               const VectorDim& Pin,
                               const VectorDofType& Vin,
                               const double& vrc) :
-        /* base */ ConfinedDislocationObjectType(*ln)
-        /* base */,NodeBaseType(ln,Pin)
+//        /* base */ ConfinedDislocationObjectType(*ln)
+        /* base */ NodeBaseType(ln,Pin)
 //        /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
         /* init */,velocity(Vin)
@@ -265,8 +265,8 @@ namespace model
         /**********************************************************************/
         PlanarDislocationNode(const LinkType& pL,
                               const double& u) :
-        /* base */ ConfinedDislocationObjectType(pL->network())
-        /* init */,NodeBaseType(pL.loopNetwork,pL.get_r(u))
+//        /* base */ ConfinedDislocationObjectType(pL.network())
+        /* init */ NodeBaseType(pL.loopNetwork,pL.get_r(u))
 //        /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -291,8 +291,8 @@ namespace model
         PlanarDislocationNode(LoopNetworkType* const ln,
                               const VectorDim& Pin,
                               const NodeType* const master) :
-        /* base */ ConfinedDislocationObjectType(*ln)
-        /* base */,NodeBaseType(ln,Pin)
+//        /* base */ ConfinedDislocationObjectType(*ln)
+        /* base */ NodeBaseType(ln,Pin)
 //        /* init */,_isGlissile(false)
         /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,velocity(VectorDim::Zero())
@@ -325,146 +325,81 @@ namespace model
         }
         
 //        /**********************************************************************/
-//        const GlidePlaneContainerType& glidePlanes() const
+//        const std::unique_ptr<LineSegment<dim>>& this->glidePlaneIntersections() const
 //        {
-//            return *this;
+//            return _glidePlaneIntersections;
 //        }
+        
+//        /**********************************************************************/
+//        VectorDim snapToGlidePlanes(const VectorDim& P)
+//        {/*!@param[in] P input positions
+//          *\returns the position P snapped to the (intersection of) glide planes
+//          */
+//            if(_glidePlaneIntersections)
+//            {
+//                return _glidePlaneIntersections->snap(P);
+//            }
+//            else
+//            {
+//                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
+//                assert(this->glidePlanes().size()==1);
+//                return (*this->glidePlanes().begin())->snapToPlane(P);
+//            }
 //
-//        /**********************************************************************/
-//        GlidePlaneContainerType& glidePlanes()
-//        {
-//            return *this;
+//            //            switch (_glidePlaneIntersections.size())
+//            //            {
+//            //                case 0:
+//            //                {
+//            //                    //                    assert(glidePlanes().size()>0);
+//            //                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
+//            //                    assert(glidePlanes().size()==1);
+//            //                    return meshPlane(0).snapToPlane(P);
+//            //                    break;
+//            //                }
+//            //
+//            //                case 1:
+//            //                {
+//            //                    const VectorDim D(_glidePlaneIntersections[0].P1-_glidePlaneIntersections[0].P0);
+//            //                    const double normD2(D.squaredNorm());
+//            //                    if(normD2>FLT_EPSILON)
+//            //                    {
+//            //                        const double u=(P-_glidePlaneIntersections[0].P0).dot(D)/normD2;
+//            //                        VerbosePlanarDislocationNode(3,"u="<<u<<std::endl;);
+//            //
+//            //                        if(u<0.0)
+//            //                        {
+//            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1a"<<std::endl;);
+//            //                            return _glidePlaneIntersections[0].P0;
+//            //                        }
+//            //                        else if(u>1.0)
+//            //                        {
+//            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1b"<<std::endl;);
+//            //                            return _glidePlaneIntersections[0].P1;
+//            //                        }
+//            //                        else
+//            //                        {
+//            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1c"<<std::endl;);
+//            //                            return _glidePlaneIntersections[0].P0+u*D;
+//            //                        }
+//            //                    }
+//            //                    else
+//            //                    {
+//            //                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1d"<<std::endl;);
+//            //                        return _glidePlaneIntersections[0].P0;
+//            //                    }
+//            //
+//            //                    break;
+//            //                }
+//            //
+//            //                default:
+//            //                {
+//            //                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 2"<<std::endl;);
+//            //                    assert(0 && "THERE CAN BE AT MOST ONE LINE OF INTERSECTION");
+//            //                    return VectorDim::Zero();
+//            //                    break;
+//            //                }
+//            //            }
 //        }
-        
-//        /**********************************************************************/
-//        const MeshPlaneType& meshPlane(const size_t& n) const
-//        {
-//            assert(n<glidePlanes().size());
-//            auto iter=glidePlanes().begin();
-//            std::advance(iter,n);
-//            return **iter;
-//        }
-        
-//        /**********************************************************************/
-//        const GrainContainerType& grains() const
-//        {
-//            return *this;
-//        }
-//
-//        /**********************************************************************/
-//        GrainContainerType& grains()
-//        {
-//            return *this;
-//        }
-        
-//        /**********************************************************************/
-//        GrainBoundaryContainerType& grainBoundaries()
-//        {
-//            return *this;
-//        }
-//
-//        /**********************************************************************/
-//        const GrainBoundaryContainerType& grainBoundaries() const
-//        {
-//            return *this;
-//        }
-        
-//        /**********************************************************************/
-//        const BoundingLineSegments<dim>& boundingBoxSegments() const
-//        {
-//            //            return _boundingLineSegments;
-//            return *this;
-//        }
-//
-//        /**********************************************************************/
-//        BoundingLineSegments<dim>& boundingBoxSegments()
-//        {
-//            //            return _boundingLineSegments;
-//            return *this;
-//        }
-        
-        //        /**********************************************************************/
-        //        const BoundingLineSegments<dim>& glidePlaneIntersections() const
-        //        {
-        //            return _glidePlaneIntersections;
-        //        }
-        
-        /**********************************************************************/
-        const std::unique_ptr<LineSegment<dim>>& glidePlaneIntersections() const
-        {
-            return _glidePlaneIntersections;
-        }
-        
-        /**********************************************************************/
-        VectorDim snapToGlidePlanes(const VectorDim& P)
-        {/*!@param[in] P input positions
-          *\returns the position P snapped to the (intersection of) glide planes
-          */
-            if(_glidePlaneIntersections)
-            {
-                return _glidePlaneIntersections->snap(P);
-            }
-            else
-            {
-                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
-                assert(this->glidePlanes().size()==1);
-                return (*this->glidePlanes().begin())->snapToPlane(P);
-            }
-            
-            //            switch (_glidePlaneIntersections.size())
-            //            {
-            //                case 0:
-            //                {
-            //                    //                    assert(glidePlanes().size()>0);
-            //                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
-            //                    assert(glidePlanes().size()==1);
-            //                    return meshPlane(0).snapToPlane(P);
-            //                    break;
-            //                }
-            //
-            //                case 1:
-            //                {
-            //                    const VectorDim D(_glidePlaneIntersections[0].P1-_glidePlaneIntersections[0].P0);
-            //                    const double normD2(D.squaredNorm());
-            //                    if(normD2>FLT_EPSILON)
-            //                    {
-            //                        const double u=(P-_glidePlaneIntersections[0].P0).dot(D)/normD2;
-            //                        VerbosePlanarDislocationNode(3,"u="<<u<<std::endl;);
-            //
-            //                        if(u<0.0)
-            //                        {
-            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1a"<<std::endl;);
-            //                            return _glidePlaneIntersections[0].P0;
-            //                        }
-            //                        else if(u>1.0)
-            //                        {
-            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1b"<<std::endl;);
-            //                            return _glidePlaneIntersections[0].P1;
-            //                        }
-            //                        else
-            //                        {
-            //                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1c"<<std::endl;);
-            //                            return _glidePlaneIntersections[0].P0+u*D;
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 1d"<<std::endl;);
-            //                        return _glidePlaneIntersections[0].P0;
-            //                    }
-            //
-            //                    break;
-            //                }
-            //
-            //                default:
-            //                {
-            //                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 2"<<std::endl;);
-            //                    assert(0 && "THERE CAN BE AT MOST ONE LINE OF INTERSECTION");
-            //                    return VectorDim::Zero();
-            //                    break;
-            //                }
-            //            }
-        }
         
 //        size_t addMeshFaces()
 //        {
@@ -1216,15 +1151,15 @@ namespace model
                     {// internal node, and newP is inside current grain
                         if(   (isConnectedToBoundaryNodes() || isConnectedToGrainBoundaryNodes())
                            && this->boundingBoxSegments().size()==2
-                           && glidePlaneIntersections())
+                           && this->glidePlaneIntersections())
                         {// force special case to boundary to get rid of small debris
-                            if((newP-glidePlaneIntersections()->P0).norm()<this->network().surfaceAttractionDistance)
+                            if((newP-this->glidePlaneIntersections()->P0).norm()<this->network().surfaceAttractionDistance)
                             {
-                                setToBoundary(glidePlaneIntersections()->P0);
+                                setToBoundary(this->glidePlaneIntersections()->P0);
                             }
-                            else if((newP-glidePlaneIntersections()->P1).norm()<this->network().surfaceAttractionDistance)
+                            else if((newP-this->glidePlaneIntersections()->P1).norm()<this->network().surfaceAttractionDistance)
                             {
-                                setToBoundary(glidePlaneIntersections()->P1);
+                                setToBoundary(this->glidePlaneIntersections()->P1);
                             }
                             else
                             {
@@ -1440,7 +1375,7 @@ namespace model
             {
                 
                 // Make sure that new position is at intersection of glidePlanes
-                const VectorDim newP=snapToGlidePlanes(this->get_P()+dX);
+                const VectorDim newP(this->snapToGlidePlanes(this->get_P()+dX));
                 set_P(newP);
             }
             else
@@ -1814,4 +1749,69 @@ namespace model
 ////
 ////            }
 //            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" finished addDislocationLoopLink "<<pL->tag()<<std::endl;);
+//        }
+
+//        /**********************************************************************/
+//        const GlidePlaneContainerType& glidePlanes() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        GlidePlaneContainerType& glidePlanes()
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        const MeshPlaneType& meshPlane(const size_t& n) const
+//        {
+//            assert(n<glidePlanes().size());
+//            auto iter=glidePlanes().begin();
+//            std::advance(iter,n);
+//            return **iter;
+//        }
+
+//        /**********************************************************************/
+//        const GrainContainerType& grains() const
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        GrainContainerType& grains()
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        GrainBoundaryContainerType& grainBoundaries()
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const GrainBoundaryContainerType& grainBoundaries() const
+//        {
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& boundingBoxSegments() const
+//        {
+//            //            return _boundingLineSegments;
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        BoundingLineSegments<dim>& boundingBoxSegments()
+//        {
+//            //            return _boundingLineSegments;
+//            return *this;
+//        }
+
+//        /**********************************************************************/
+//        const BoundingLineSegments<dim>& this->glidePlaneIntersections() const
+//        {
+//            return _glidePlaneIntersections;
 //        }

@@ -140,7 +140,10 @@ namespace model
                 if(nA->isOnBoundary() || nB->isOnBoundary())
                 {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node
                     
-                    BoundingMeshSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                    //BoundingMeshSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                    const ConfinedDislocationObject<dim> cdo(*nA,*nB);
+                    const BoundingMeshSegments<dim>& temp(cdo.boundingBoxSegments());
+
                     VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
                     
                     switch (temp.size())
@@ -298,22 +301,24 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
                         
-                        const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(nA->glidePlanes().begin(),nB->glidePlanes().begin()));
+                        const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(*nA->glidePlanes().begin(),*nB->glidePlanes().begin()));
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {// the contraction point can be the averago of nA and nB, which should be internal for convex domains
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8a"<<std::endl;);
-                            return contractToPosition(nA,nB,nA->snapToMeshPlaneIntersection(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                            return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                         }
                         else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                         {
                             VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
-                            BoundingMeshSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
+                            const ConfinedDislocationObject<dim> cdo(*nA,*nB);
+                            const BoundingMeshSegments<dim>& temp(cdo.boundingBoxSegments());
+//                            BoundingMeshSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
                             switch (temp.size())
                             {
                                 case 2:
                                 {
-                                    LineSegment<dim> cutLine(0.5*(temp.begin()->P0+temp.begin()->P1),0.5*(temp.rbegin()->second.P0+temp.rbegin()->second.P1));
+                                    LineSegment<dim> cutLine(0.5*(temp.begin()->P0+temp.begin()->P1),0.5*(temp.rbegin()->P0+temp.rbegin()->P1));
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }

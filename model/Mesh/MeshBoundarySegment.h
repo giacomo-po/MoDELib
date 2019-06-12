@@ -108,91 +108,151 @@ namespace model
         
     };
     
-    
-    template<int dim>
-    struct MeshBoundarySegmentIntersection : public std::unique_ptr<MeshBoundarySegment<dim>>
+    template <int dim>
+    struct BoundingMeshSegments : public std::vector<MeshBoundarySegment<dim>, Eigen::aligned_allocator<MeshBoundarySegment<dim>>>
     {
         
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         
-        MeshBoundarySegmentIntersection(const MeshBoundarySegment<dim>& s1,const MeshBoundarySegment<dim>& s2)
-        {// Constructs the intersection of two MeshBoundarySegment(s)
-            const SegmentSegmentDistance<dim> ssd(s1.P0,s1.P1,s2.P0,s2.P1);
-            const auto iSeg(ssd.intersectionSegment());
+        
+//        BoundingMeshSegments(){}
+        
+        //        BoundingMeshSegments(const BoundingMeshSegments<dim>& bb1,const BoundingMeshSegments<dim>& bb2)
+        //        {
+        //            assert(0 && "FINISH HERE");
+        //        }
+        
+        /**********************************************************************/
+        std::set<const MeshBoundarySegment<dim>*> containingSegments(const VectorDim& P) const
+        {
+            std::set<const MeshBoundarySegment<dim>*> temp;
             
-            switch (iSeg.size())
+            for(const auto& seg : *this)
             {
-                    std::set<const PlanarMeshFace<dim>*> allFaces;
-                    for(const auto& tup : iSeg)
-                    {// Make sure that each face cointais end points, and add to allFaces
-                        const auto& x(std::get<0>(tup));
-                        for(const auto& face : s1.faces)
-                        {
-                            assert(face->asPlane().contains(x) && "FACE DOES NOT CONTAIN INTERSECTION POINT");
-                            allFaces.insert(face);
-                        }
-                        for(const auto& face : s2.faces)
-                        {
-                            assert(face->asPlane().contains(x) && "FACE DOES NOT CONTAIN INTERSECTION POINT");
-                            allFaces.insert(face);
-                        }
-                    }
-                    
-                case 1:
-                {// Single intersection point. This point belongs must be common to all faces of the origina segments
-                    const auto& x(std::get<0>(iSeg[0]));
-                    this->reset(new MeshBoundarySegment<dim>(x,x,allFaces));
-                    break;
+                //                std::cout<<pair.first<<", d="<<pair.second.distanceTo(P)<<std::endl;
+                if(seg.contains(P))
+                {
+                    temp.insert(&seg);
                 }
-                    
-                case 2:
-                {// extended intersection segment
-                    const auto& x0(std::get<0>(iSeg[0]));
-                    const auto& x1(std::get<0>(iSeg[1]));
-                    this->reset(new MeshBoundarySegment<dim>(x0,x1,allFaces));
-                    break;
-                }
-                    
-                default:
-                    break;
             }
-            
-            
-            
+            return temp;
         }
         
-        MeshBoundarySegmentIntersection(const MeshBoundarySegment<dim>& seg,const PlanarMeshFace<dim>& face)
-        {// Constructs the intersection of a MeshBoundarySegment and a PlanarMeshFace
-            
-            const PlaneSegmentIntersection<dim> psi(face.asPlane(),seg);
-            if(psi.type==PlaneSegmentIntersection<dim>::COINCIDENT || psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
+        /**********************************************************************/
+        bool contains(const VectorDim& P) const
+        {
+            return containingSegments(P).size();
+        }
+        
+        /**********************************************************************/
+        const BoundingMeshSegments<dim>& boundingBoxSegments() const
+        {
+            return *this;
+        }
+        
+        BoundingMeshSegments<dim>& boundingBoxSegments()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const BoundingMeshSegments<dim>& bls)
+        {
+            for(const auto& seg : bls)
             {
-                std::set<const PlanarMeshFace<dim>*> allFaces(seg.faces);
-                allFaces.insert(face);
-                this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+                os<<seg<<std::endl;
             }
+            return os;
+        }
+        
+    };
+    
+    
+//    template<int dim>
+//    struct MeshBoundarySegmentIntersection : public std::unique_ptr<MeshBoundarySegment<dim>>
+//    {
 //
-//            switch (psi.type)
+//
+//        MeshBoundarySegmentIntersection(const MeshBoundarySegment<dim>& s1,const MeshBoundarySegment<dim>& s2)
+//        {// Constructs the intersection of two MeshBoundarySegment(s)
+//            const SegmentSegmentDistance<dim> ssd(s1.P0,s1.P1,s2.P0,s2.P1);
+//            const auto iSeg(ssd.intersectionSegment());
+//
+//            switch (iSeg.size())
 //            {
-//                case PlaneSegmentIntersection::COINCIDENT:
-//                {
-//                    std::set<const PlanarMeshFace<dim>*> allFaces(seg.faces);
-//                    allFaces.insert(face);
-//                    this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+//                    std::set<const PlanarMeshFace<dim>*> allFaces;
+//                    for(const auto& tup : iSeg)
+//                    {// Make sure that each face cointais end points, and add to allFaces
+//                        const auto& x(std::get<0>(tup));
+//                        for(const auto& face : s1.faces)
+//                        {
+//                            assert(face->asPlane().contains(x) && "FACE DOES NOT CONTAIN INTERSECTION POINT");
+//                            allFaces.insert(face);
+//                        }
+//                        for(const auto& face : s2.faces)
+//                        {
+//                            assert(face->asPlane().contains(x) && "FACE DOES NOT CONTAIN INTERSECTION POINT");
+//                            allFaces.insert(face);
+//                        }
+//                    }
+//
+//                case 1:
+//                {// Single intersection point. This point belongs must be common to all faces of the origina segments
+//                    const auto& x(std::get<0>(iSeg[0]));
+//                    this->reset(new MeshBoundarySegment<dim>(x,x,allFaces));
 //                    break;
 //                }
 //
-//                case PlaneSegmentIntersection::INCIDENT:
-//                {
-//                    this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+//                case 2:
+//                {// extended intersection segment
+//                    const auto& x0(std::get<0>(iSeg[0]));
+//                    const auto& x1(std::get<0>(iSeg[1]));
+//                    this->reset(new MeshBoundarySegment<dim>(x0,x1,allFaces));
 //                    break;
 //                }
 //
 //                default:
 //                    break;
 //            }
-        }
-        
-    };
+//
+//
+//
+//        }
+//
+//        MeshBoundarySegmentIntersection(const MeshBoundarySegment<dim>& seg,const PlanarMeshFace<dim>& face)
+//        {// Constructs the intersection of a MeshBoundarySegment and a PlanarMeshFace
+//
+//            const PlaneSegmentIntersection<dim> psi(face.asPlane(),seg);
+//            if(psi.type==PlaneSegmentIntersection<dim>::COINCIDENT || psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
+//            {
+//                std::set<const PlanarMeshFace<dim>*> allFaces(seg.faces);
+//                allFaces.insert(face);
+//                this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+//            }
+////
+////            switch (psi.type)
+////            {
+////                case PlaneSegmentIntersection::COINCIDENT:
+////                {
+////                    std::set<const PlanarMeshFace<dim>*> allFaces(seg.faces);
+////                    allFaces.insert(face);
+////                    this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+////                    break;
+////                }
+////
+////                case PlaneSegmentIntersection::INCIDENT:
+////                {
+////                    this->reset(new MeshBoundarySegment<dim>(psi.x0,psi.x1,allFaces));
+////                    break;
+////                }
+////
+////                default:
+////                    break;
+////            }
+//        }
+//
+//    };
     
     
 }
