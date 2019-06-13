@@ -646,7 +646,7 @@ namespace model
             
             
             //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
-            GrainBoundaryTransmission<DislocationNetworkType>(*this).directTransmit();
+            //GrainBoundaryTransmission<DislocationNetworkType>(*this).directTransmit();
             
             //
             //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();

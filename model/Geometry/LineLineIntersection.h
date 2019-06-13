@@ -11,6 +11,7 @@
 
 #include <tuple>
 #include <map>
+#include <stdexcept>
 #include <Eigen/Dense>
 
 namespace model
@@ -32,32 +33,41 @@ namespace model
         
         /**********************************************************************/
         static SolutionType findIntersections(const VectorDimD& A0,
-                                             const VectorDimD& D0,
-                                             const VectorDimD& A1,
-                                             const VectorDimD& D1)
-        {/*!\param[in] A0 start point of first segment
-          *\param[in] D0   line direction
-          *\param[in] A1 start point of second segment
-          *\param[in] D1   end point of second segment
-          *\returns a tuple, where the first element is the type of intersection.
+                                              const VectorDimD& D0,
+                                              const VectorDimD& A1,
+                                              const VectorDimD& D1)
+        {/*!\param[in] A0 start point of first line
+          *\param[in] D0  line direction of first line
+          *\param[in] A1 start point of second line
+          *\param[in] D1   line direction of second line
+          *\returns a tuple, where the first element is an elmenet of IntersectionType (the type of intersection).
           * Second and third elements depend of the type of intersection:
           * - For COINCIDENT lines
-          * - the second element is an intersection point
-          * - the third elements is the direction of the line of intersection
+          * - the second element is A0
+          * - the third elements is A1
           * - For SKEW lines
           * - the second element is the closest point on line 1
           * - the third elements is the closest point on line 2
           * - For INCIDENT lines
           * - the second element is the point of intersection
-          * - the third elements is set to zero (not used)
+          * - the third elements is the point of intersection
           * - For PARALLEL lines
-          * - the second element is the origin of line 1
-          * - the third elements is the origin of line 2
+          * - the second element is A0
+          * - the third elements is A1
           */
             
             const double normD0(D0.norm());
-            const VectorDimD d0(D0/normD0);
             const double normD1(D1.norm());
+            if(normD0<FLT_EPSILON)
+            {
+                throw std::runtime_error("Norm of line direction D0 is close to singular. norm(D0)="+std::to_string(normD0)+"\n");
+            }
+            if(normD1<FLT_EPSILON)
+            {
+                throw std::runtime_error("Norm of line direction D1 is close to singular. norm(D1)="+std::to_string(normD1)+"\n");
+            }
+            
+            const VectorDimD d0(D0/normD0);
             const VectorDimD d1(D1/normD1);
             const VectorDimD A0A1(A1-A0);
             
@@ -99,8 +109,13 @@ namespace model
                 }
             }
             else
-            {// both line and segment are non-degenerate
-                
+            {/* Both lines are non-degenerate. We search for the points x0 and x1
+              * that minimize the distance between the two lines:
+              * x0=A0+u0*d0
+              * x1=A1+u1*d1
+              * The scalar parameters u0 and u1 are found as
+              * [u0,u1]=argmin{1/2*(A0+u0*d0-A1-u1*d1)^2}
+              */
                 const double d0d1(d0.dot(d1));
                 const double det(1.0-d0d1*d0d1);
                 const double num0=d0.dot(A0A1)-d0d1*d1.dot(A0A1);
@@ -109,11 +124,11 @@ namespace model
                 {
                     const double u0=num0/det;
                     const double u1=num1/det;
-                    const VectorDimD x0=A0+u0*d0;
-                    const VectorDimD x1=A1+u1*d1;
+                    const VectorDimD x0(A0+u0*d0);
+                    const VectorDimD x1(A1+u1*d1);
                     if((x0-x1).squaredNorm()<FLT_EPSILON)
                     {
-                        return std::make_tuple(INCIDENT,0.5*(x0+x1),VectorDimD::Zero());
+                        return std::make_tuple(INCIDENT,x0,x1);
                     }
                     else
                     {
@@ -121,16 +136,29 @@ namespace model
                     }
                 }
                 else
-                {
-                    if(fabs(num0)<FLT_EPSILON && fabs(num0)<FLT_EPSILON)
+                {// A soulution could not be found. This means parallel or coincident lines
+                    const double A0A1norm(A0A1.norm());
+                    if(A0A1norm<FLT_EPSILON)
                     {
-                        return std::make_tuple(COINCIDENT,0.5*(A0+A1),D0);
+                        return std::make_tuple(COINCIDENT,A0,A1);
+                    }
+                    else if(fabs(fabs(d0.dot(A0A1))-A0A1norm)<FLT_EPSILON)
+                    {// coi
+                        return std::make_tuple(COINCIDENT,A0,A1);
                     }
                     else
-                    {// parallel segments
-                        
+                    {
                         return std::make_tuple(PARALLEL,A0,A1);
                     }
+//                        if(fabs(num0)<FLT_EPSILON && fabs(num1)<FLT_EPSILON)
+//                        {
+//                            return std::make_tuple(COINCIDENT,0.5*(A0+A1),D0);
+//                        }
+//                        else
+//                        {// parallel segments
+//
+//                            return std::make_tuple(PARALLEL,A0,A1);
+//                        }
                 }
                 
             }

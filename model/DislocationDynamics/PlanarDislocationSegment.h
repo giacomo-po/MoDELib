@@ -55,8 +55,8 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <typename Derived>
-    class PlanarDislocationSegment : public ConfinedDislocationObject<TypeTraits<Derived>::dim>
-    /*                            */,public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    class PlanarDislocationSegment : public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
+    /*                            */,public ConfinedDislocationObject<TypeTraits<Derived>::dim>
     //    /*                            */,private std::set<const GlidePlane<TypeTraits<Derived>::dim>*>
     ////    /*                      */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
     //    /*                            */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
@@ -143,6 +143,7 @@ namespace model
                                  const std::shared_ptr<NodeType>& nJ) :
 //        /* init */ ConfinedDislocationObjectType(nI->network())
         /* init */ SplineSegmentType(nI,nJ)
+        /* init */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->source->get_P(),this->sink->get_P()})
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
         //        /* init */,_isBoundarySegment(false)
@@ -193,6 +194,7 @@ namespace model
             }
             BurgersNorm=Burgers.norm();
             
+            VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
             ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
         }
         

@@ -47,8 +47,9 @@ namespace model
 {
     
     template <typename Derived,typename InterpolationType>
-    class PlanarDislocationNode : public ConfinedDislocationObject<TypeTraits<Derived>::dim>
-    /*                         */,public SplineNode<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder,InterpolationType>
+    class PlanarDislocationNode : //public ConfinedDislocationObject<TypeTraits<Derived>::dim>
+    /*                         */ public SplineNode<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder,InterpolationType>
+    /*                         */,public ConfinedDislocationObject<TypeTraits<Derived>::dim>
 //    /*                         */,private std::set<const GlidePlane<TypeTraits<Derived>::dim>*>
 ////    /*          */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
 //    /*          */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
@@ -248,6 +249,7 @@ namespace model
                               const double& vrc) :
 //        /* base */ ConfinedDislocationObjectType(*ln)
         /* base */ NodeBaseType(ln,Pin)
+        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
 //        /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
         /* init */,velocity(Vin)
@@ -265,8 +267,8 @@ namespace model
         /**********************************************************************/
         PlanarDislocationNode(const LinkType& pL,
                               const double& u) :
-//        /* base */ ConfinedDislocationObjectType(pL.network())
         /* init */ NodeBaseType(pL.loopNetwork,pL.get_r(u))
+        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
 //        /* init */,_isGlissile(true)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -293,6 +295,7 @@ namespace model
                               const NodeType* const master) :
 //        /* base */ ConfinedDislocationObjectType(*ln)
         /* base */ NodeBaseType(ln,Pin)
+        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
 //        /* init */,_isGlissile(false)
         /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,velocity(VectorDim::Zero())
