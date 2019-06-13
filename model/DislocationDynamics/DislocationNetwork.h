@@ -578,6 +578,27 @@ namespace model
         }
         
         /**********************************************************************/
+        void removeZeroAreaLoops()
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"        Removing zero-area loops "<<std::flush;
+            std::deque<size_t> loopIDs;
+            for(const auto& loop : this->loops())
+            {
+                if(loop.second->slippedArea()<FLT_EPSILON)
+                {
+                    loopIDs.push_back(loop.second->sID);
+                }
+            }
+            
+            for(const auto& loopID : loopIDs)
+            {
+                this->deleteLoop(loopID);
+            }
+            model::cout<<"("<<loopIDs.size()<<" removed)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        }
+        
+        /**********************************************************************/
         void singleStepDiscreteEvents(const long int& runID)
         {
             //! A simulation step consists of the following:
@@ -640,6 +661,11 @@ namespace model
             
             //! 9- Contract segments of zero-length
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
+            
+//            if(runID>0)
+//            {
+//                removeZeroAreaLoops();
+//            }
             
             //! 10- Cross Slip (needs upated PK force)
             DislocationCrossSlip<DislocationNetworkType>(*this);

@@ -67,8 +67,11 @@ namespace model
             for(const auto& link : DN.links())
             {
                 if(   !link.second->isBoundarySegment()
+                   && !link.second->source->isBoundaryNode()
+                   && !link.second->sink->isBoundaryNode()
                    && !link.second->isGrainBoundarySegment()
-//                   && !link.second->isGrainBoundarySegment()
+                   && !link.second->source->isGrainBoundaryNode()
+                   && !link.second->sink->isGrainBoundaryNode()
                    && !link.second->hasZeroBurgers()
                    && link.second->isGlissile()
                    && link.second->chord().normalized().cross(link.second->burgers().normalized()).norm()<=sinCrossSlipRad

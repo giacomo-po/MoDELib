@@ -106,9 +106,9 @@ parametrizationExponent=0.5;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-verboseJunctions=0;
+verboseJunctions=5;
 verboseRemesh=0;
-verbosePlanarDislocationNode=0;
+verbosePlanarDislocationNode=1;
 verboseNodeContraction=0;
 verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;

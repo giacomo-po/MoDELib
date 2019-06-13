@@ -223,6 +223,12 @@ namespace model
                     break;
                 }
                     
+                case colorNormal:
+                {
+                    clrVector=planeNormal;
+                    break;
+                }
+                    
                     //                case colorComponent:
                     //                {
                     //                    RGBcolor rgb(RGBmap::getColor(ids,sIDmin,sIDmax));

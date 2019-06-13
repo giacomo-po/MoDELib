@@ -390,7 +390,8 @@ namespace model
             {
                 VectorDimD chord(linkIter.second->chord()); // this is sink->get_P() - source->get_P()
                 double chordLength(chord.norm());
-                if (chordLength<=FLT_EPSILON)
+                if (chordLength<=FLT_EPSILON
+                    && (linkIter.second->source->get_V()-linkIter.second->  sink->get_V()).squaredNorm()<FLT_EPSILON)
                 {// toBeContracted part
                     toBeContracted.insert(std::make_pair(chordLength,linkIter.second->nodeIDPair));
                 }

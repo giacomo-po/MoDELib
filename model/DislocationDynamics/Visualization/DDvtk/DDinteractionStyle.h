@@ -553,7 +553,8 @@ namespace model
                 std::cout<<"      4 to color segments by Burgers vector "<<std::endl;
                 std::cout<<"      5 to color segments by glissile/sessile "<<std::endl;
                 std::cout<<"      6 to color segments by screw/edge "<<std::endl;
-                std::cout<<"      7 show/hide glide planes "<<std::endl;
+                std::cout<<"      7 to color segments by planeNormal "<<std::endl;
+                std::cout<<"      8 show/hide glide planes "<<std::endl;
 
             }
             
@@ -885,6 +886,13 @@ namespace model
                     //                    this->Interactor->Render();
                 }
                 if(key == "7")
+                {
+                    DislocationSegmentActor::clr=DislocationSegmentActor::colorNormal;
+                    std::cout<<"DislocationSegment color scheme = planeNormal. Reload frame to update colors."<<std::endl;
+                    //                    ddSegments->modify();
+                    //                    this->Interactor->Render();
+                }
+                if(key == "8")
                 {
                     DislocationSegmentActor::showGlidePlanes=!DislocationSegmentActor::showGlidePlanes;
                     std::cout<<"show GlidePlanes="<<DislocationSegmentActor::showGlidePlanes<<std::endl;
