@@ -60,8 +60,28 @@ namespace model
             
         }
         
+        double asDouble() const
+        {
+            return double(n)/double(d);
+        }
         
-        
+        bool operator==(const long int& other) const
+        {
+            switch (d)
+            {
+                case 0:
+                    return false;
+                    break;
+                    
+                case 1:
+                    return n==other;
+                    break;
+                    
+                default:
+                    return n==0 && other==0;
+                    break;
+            }
+        }
         
         /*************************************************************/
         // friend T& operator <<

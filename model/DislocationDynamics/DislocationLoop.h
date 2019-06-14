@@ -79,7 +79,7 @@ namespace model
         /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID)
         /* init */,slipSystem(nullptr)
         /* init */,isGlissile(true)
-        {
+        {// Virtual dislocation loop
         }
         
         /**********************************************************************/

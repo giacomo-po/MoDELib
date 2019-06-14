@@ -1292,7 +1292,7 @@ namespace model
                             }
                         }
                         else
-                        {// add [100] loop
+                        {// add [100] loop (by Yinan Cui)
                             std::vector<LatticeDirectionType> sessileb;
                             sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
                             sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian

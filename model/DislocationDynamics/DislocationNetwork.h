@@ -332,9 +332,13 @@ namespace model
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
         const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>>& periodicShifts;
+        DislocationNetworkRemesh<DislocationNetworkType> networkRemesher;
+        DislocationJunctionFormation<DislocationNetworkType> junctionsMaker;
+        DislocationNodeContraction<DislocationNetworkType> nodeContractor;
+        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         
         int timeIntegrationMethod;
-        int maxJunctionIterations;
+//        int maxJunctionIterations;
         //        long int runID;
         //        double totalTime;
         //        double dt;
@@ -390,8 +394,12 @@ namespace model
         /* init */,bvpSolver(_bvpSolver)
         /* init */,externalLoadController(_externalLoadController)
         /* init */,periodicShifts(_periodicShifts)
+        /* init */,networkRemesher(*this)
+        /* init */,junctionsMaker(*this)
+        /* init */,nodeContractor(*this)
+        /* init */,gbTransmission(*this)
         /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
-        /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
+        ///* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
         //        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
         //        /* init */,totalTime(0.0),
         //        /* init */ dt(0.0),
@@ -442,25 +450,6 @@ namespace model
             DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
             DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
             DislocationCrossSlip<DislocationNetworkType>::initFromFile("inputFiles/DD.txt");
-            //            SpatialCellObserverType::setCellSize(TextFileParser("inputFiles/DD.txt").readScalar<double>("dislocationCellSize",true));
-            //            DislocationDisplacement<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_DisplacementMultipole",true);
-            //            DislocationStress<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_StressMultipole",true);
-            //            DislocationEnergy<dim>::use_multipole=TextFileParser("inputFiles/DD.txt").readScalar<double>("use_EnergyMultipole",true);
-            
-            
-            //            EDR.readScalarInFile(fullName.str(),"use_DisplacementMultipole",DislocationDisplacement<dim>::use_multipole);
-            //            EDR.readScalarInFile(fullName.str(),"use_StressMultipole",DislocationStress<dim>::use_multipole);
-            //            EDR.readScalarInFile(fullName.str(),"use_EnergyMultipole",DislocationEnergy<dim>::use_multipole);
-            //            EDR.readScalarInFile(fullName.str(),"quadPerLength",LinkType::quadPerLength); // quadPerLength
-            //            LinkType::quadPerLength=TextFileParser("inputFiles/DD.txt").readScalar<double>("quadPerLength",true);
-            //            assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
-            
-            //                        EDR.readScalarInFile(fullName.str(),"coreSize",StressField::a); // core-width
-            //            StressField::a=TextFileParser("inputFiles/DD.txt").readScalar<double>("coreSize",true)
-            //            assert((StressField::a)>0.0 && "coreSize MUST BE > 0.");
-            //            StressField::a2=StressField::a*StressField::a;
-            
-            //            EDR.readScalarInFile(fullName.str(),"stochasticForceSeed",stochasticForceSeed);
             int stochasticForceSeed=TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true);
             if(stochasticForceSeed<0)
             {
@@ -474,38 +463,172 @@ namespace model
             if(argc>1)
             {
                 folderSuffix=argv[1];
-                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
+//                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
             }
-            
             //            ParticleSystemType::initMPI(argc,argv);
             
-            
-            
-            
-            
-            //            if(outputPlasticDistortion)
-            //            {
-            //                _userOutputColumn+=9;
-            //            }
-            //            if(outputPlasticDistortionRate)
-            //            {
-            //                _userOutputColumn+=9;
-            //            }
             //
-            //            if(outputDislocationLength)
-            //            {
-            //                _userOutputColumn+=4;
-            //            }
+            // Read Vertex and Edge information
+            EVLio<dim> evl;
+            evl.read(runID,folderSuffix);
+            createVertices(evl);
+            createEdges(evl);
+            updatePlasticDistortionFromAreas(simulationParameters.dt);
+            createEshelbyInclusions();
             
             // IO
-            io().read("./","DDinput.txt",runID);
-            
-            
-            
-            
-            
+//            io().read("./","DDinput.txt",runID);
+#ifdef _MODEL_MPI_
+            // Avoid that a processor starts writing before other are reading
+            MPI_Barrier(MPI_COMM_WORLD);
+#endif
             // Initializing configuration
             move(0.0);	// initial configuration
+        }
+        
+        /* readVertices *******************************************************/
+        void createVertices(const EVLio<dim>& evl)
+        {/*!Creates DislocationNode(s) based on the data read by the EVLio<dim>
+          * object.
+          */
+            size_t kk(1);
+            for (const auto& node : evl.nodes())
+            {
+                const size_t nodeIDinFile(node.sID);
+                NodeType::set_count(nodeIDinFile);
+                if(node.sID==node.masterID)
+                {// a regular node is created
+                    model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
+                    const size_t nodeID=this->insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
+                    assert(nodeID==nodeIDinFile);
+                }
+                else
+                {
+                    model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<"), virtual of "<<node.masterID<<std::endl;
+                    const auto isNode(this->node(node.masterID));
+                    assert(isNode.first);
+                    isNode.second->resetVirtualBoundaryNode();
+                }
+                kk++;
+            }
+        }
+        
+        /* readEdges **********************************************************/
+        void createEdges(const EVLio<dim>& evl)
+        {/*!
+          */
+            
+            
+            
+            std::map<size_t,std::map<size_t,size_t>> loopMap;
+            for(const auto& looplink : evl.links())
+            {
+                loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
+            }
+            
+            
+            
+            assert(loopMap.size()==evl.loops().size());
+            
+            size_t loopLumber=1;
+            for(const auto& loop : evl.loops())
+            {// for each loop in the EVLio<dim> object
+                
+                const auto loopFound=loopMap.find(loop.sID); // there must be an entry with key loopID in loopMap
+                assert(loopFound!=loopMap.end());
+                std::vector<size_t> nodeIDs;
+                nodeIDs.push_back(loopFound->second.begin()->first);
+                for(size_t k=0;k<loopFound->second.size();++k)
+                {
+                    const auto nodeFound=loopFound->second.find(*nodeIDs.rbegin());
+                    if(k<loopFound->second.size()-1)
+                    {
+                        nodeIDs.push_back(nodeFound->second);
+                    }
+                    else
+                    {
+                        assert(nodeFound->second==nodeIDs[0]);
+                    }
+                }
+                
+                LoopType::set_count(loop.sID);
+                
+                if(loop.N.squaredNorm()>FLT_EPSILON)
+                {
+                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
+                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
+                    assert(loop.sID==newLoopID);
+                }
+                else
+                {
+                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
+                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
+                    for(const size_t nodeID : nodeIDs)
+                    {// collect shared_ptrs to nodes
+                        const auto isNode(this->node(nodeID));
+                        assert(isNode.first);
+                        if(isNode.second->masterNode)
+                        {// a virtual node
+                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+                        }
+                        else
+                        {
+                            const auto isSharedNode(this->danglingNode(nodeID));
+                            if(!isSharedNode.first)
+                            {
+                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+                                assert(false && "node shared pointer not found");
+                            }
+                            sharedNodes.push_back(isSharedNode.second);
+                        }
+                    }
+                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID)->sID;
+                    assert(loop.sID==newLoopID);
+                }
+                loopLumber++;
+            }
+            
+            this->clearDanglingNodes();
+            
+            
+            
+            model::cout<<std::endl;
+        }
+        
+        /**********************************************************************/
+        void createEshelbyInclusions()
+        {
+            IDreader<'E',1,14,double> inclusionsReader;
+            inclusionsReader.read(0,true);
+            
+            const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
+            for(const auto& pair : inclusionsReader)
+            {
+                
+                const size_t& inclusionID(pair.first);
+                Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
+                
+                const VectorDim C(row.template segment<dim>(0));
+                const double a(row(dim+0));
+                MatrixDimD eT(MatrixDimD::Zero());
+                const int typeID(row(13));
+                int k=dim+1;
+                for(int i=0;i<dim;++i)
+                {
+                    for(int j=0;j<dim;++j)
+                    {
+                        eT(i,j)=row(k);
+                        k++;
+                    }
+                }
+                
+                
+                
+                EshelbyInclusion<dim>::set_count(inclusionID);
+                eshelbyInclusions().emplace(std::piecewise_construct,
+                                               std::make_tuple(inclusionID),
+                                               std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
+            }
         }
         
         /**********************************************************************/
@@ -671,8 +794,8 @@ namespace model
             DislocationCrossSlip<DislocationNetworkType>(*this);
             
             
-            //                        GrainBoundaryTransmission<DislocationNetworkType>(*this).transmit();
-            //GrainBoundaryTransmission<DislocationNetworkType>(*this).directTransmit();
+            //                        gbTransmission.transmit();
+            //gbTransmission.directTransmit();
             
             //
             //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
@@ -684,7 +807,7 @@ namespace model
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
             
             //! 12- Form Junctions
-            DislocationJunctionFormation<DislocationNetworkType>(*this).formJunctions(maxJunctionIterations,DDtimeIntegrator<0>::dxMax);
+            junctionsMaker.formJunctions(DDtimeIntegrator<0>::dxMax);
             
             //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
             //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
@@ -692,7 +815,7 @@ namespace model
             
             
             //! 13- Node redistribution
-            DislocationNetworkRemesh<DislocationNetworkType>(*this).remesh(runID);
+            networkRemesher.remesh(runID);
             
             updateVirtualBoundaryLoops();
 
@@ -735,7 +858,7 @@ namespace model
         bool contract(std::shared_ptr<NodeType> nA,
                       std::shared_ptr<NodeType> nB)
         {
-            return DislocationNodeContraction<DislocationNetworkType>(*this).contract(nA,nB);
+            return nodeContractor.contract(nA,nB);
         }
         
         //        /**********************************************************************/

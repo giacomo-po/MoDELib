@@ -15,7 +15,6 @@
 #include <SegmentSegmentDistance.h>
 #include <SweepPlane.h>
 
-//#include <DislocationSegmentIntersection.h>
 #include <DislocationNetworkRemesh.h>
 #include <MPIcout.h>
 #include <EqualIteratorRange.h>
@@ -44,15 +43,7 @@ namespace model
         typedef std::pair<size_t,size_t> EdgeIDType;
         
         typedef std::tuple<EdgeIDType,EdgeIDType,SegmentSegmentDistance<dim>> IntersectionType;
-        
-        
-        //        typedef std::pair<std::pair<size_t,size_t>, double> EdgeIntersectionType;
-        
-        //        typedef std::pair<EdgeIntersectionType,EdgeIntersectionType> EdgeIntersectionPairType;
-        //		typedef std::vector<EdgeIntersectionPairType> EdgeIntersectionPairContainerType;
         typedef std::deque<IntersectionType,Eigen::aligned_allocator<IntersectionType>> IntersectionTypeContainerType;
-        
-        
         
         /**********************************************************************/
         void insertIntersection(std::deque<IntersectionTypeContainerType>& intersectionContainer,
@@ -131,7 +122,7 @@ namespace model
           */
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Finding Junctions: sweep-line "<<std::flush;
+            model::cout<<"		Finding collisions "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
             SweepPlane<LinkType,dim> swp;
@@ -147,10 +138,9 @@ namespace model
                 }
             }
             swp.computeIntersectionPairs();
-            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" pairs)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::flush;
+            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
             
             
-            const auto t1= std::chrono::system_clock::now();
             std::deque<std::pair<const LinkType*,const LinkType*>> reducedIntersectionPairs;
             for(size_t k=0;k<swp.potentialIntersectionPairs().size();++k)
             {
@@ -173,7 +163,10 @@ namespace model
             }
             
             
-            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs). Pair-intersections  ("<<nThreads<<" threads) "<<std::flush;
+            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            
+            const auto t1= std::chrono::system_clock::now();
+            model::cout<<"          Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
@@ -380,7 +373,7 @@ namespace model
             {
                 nIntersections+=intersectionByThreadContainer.size();
             }
-            model::cout<<nIntersections<<" physical intersections. "<<std::flush;
+            model::cout<<nIntersections<<" physical junctions "<<std::flush;
             model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
@@ -399,7 +392,7 @@ namespace model
             VerboseJunctions(4,"Nfar="<<Nfar->sID<<std::endl;);
             if(t>FLT_EPSILON && t<1.0-FLT_EPSILON)
             {// intersection point is not an end node
-                if((Nclose->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                if((Nclose->get_P()-x).norm()>DN.networkRemesher.Lmin)
                 {
                     VerboseJunctions(4,"JunctionNode case a"<<std::endl;);
                     return std::make_pair(DN.expand(key.first,key.second,t),true);
@@ -413,7 +406,7 @@ namespace model
                     }
                     else
                     {
-                        if((Nfar->get_P()-x).norm()>DislocationNetworkRemesh<DislocationNetworkType>::Lmin)
+                        if((Nfar->get_P()-x).norm()>DN.networkRemesher.Lmin)
                         {
                             VerboseJunctions(4,"JunctionNode case c"<<std::endl;);
                             return std::make_pair(DN.expand(key.first,key.second,t),true);
@@ -634,20 +627,22 @@ namespace model
         
         
         static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
-        static int verboseJunctions;
+        const size_t maxJunctionIterations;
+        const int verboseJunctions;
         const double infiniteLineLength;
-        //        static size_t maxJunctionIterations;
         
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in)
-        /* init list */,infiniteLineLength(10000.0)
+        /* init */ DN(DN_in)
+        /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
+        /* init */,verboseJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
+        /* init */,infiniteLineLength(10000.0)
         {
             
         }
         
         /**********************************************************************/
-        void formJunctions(const bool& maxJunctionIterations, const double& dx)
+        void formJunctions(const double& dx)
         {
             size_t nContracted=1;
             size_t iterations=0;
@@ -664,352 +659,5 @@ namespace model
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-    
-    template <typename DislocationNetworkType>
-    int DislocationJunctionFormation<DislocationNetworkType>::verboseJunctions=0;
-    
 }
 #endif
-
-
-
-
-
-//        /**********************************************************************/
-//        void findIntersections(std::deque<IntersectionTypeContainerType>& intersectionContainer,
-//                               const size_t& nThreads)
-//
-//        {/*! @param[in]  avoidNodeIntersection
-//          *  Computes all the intersections between the edges of the DislocationNetwork
-//          */
-//
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"		Finding Junctions ("<<nThreads<<" threads)... "<<std::flush;
-//
-//            N2IteratorRange<typename NetworkLinkContainerType::const_iterator> eir(DN.links().begin(),DN.links().end(),nThreads);
-//
-//            //! 2- loop over all links and determine their intersections
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-//            for (size_t thread=0;thread<eir.size();thread++)
-//            {
-//                for (typename NetworkLinkContainerType::const_iterator linkIterA=eir[thread].first;linkIterA!=eir[thread].second;linkIterA++)
-//                {
-//                    if(!linkIterA->second->hasZeroBurgers()) // don't loop over zero-Burgers segments
-//                    {
-//                        for (typename NetworkLinkContainerType::const_iterator linkIterB=linkIterA;linkIterB!=DN.links().end();linkIterB++)
-//                        {
-//                            if (   linkIterA->second->sID!=linkIterB->second->sID           // don't intersect with itself
-//                                && !linkIterB->second->hasZeroBurgers()   // don't intersect with zero-Burgers segments
-//                                )
-//                            {
-//
-//                                const bool linkAisBnd(linkIterA->second->isBoundarySegment());
-//                                const bool linkBisBnd(linkIterB->second->isBoundarySegment());
-//                                const bool linkAisGBnd(linkIterA->second->grainBoundaries().size());
-//                                const bool linkBisGBnd(linkIterB->second->grainBoundaries().size());
-//
-//                                const bool frankRule(linkIterA->second->burgers().dot(linkIterB->second->burgers())*linkIterA->second->chord().dot(linkIterB->second->chord())<=0.0);
-//
-//                                const bool bndJunction(   (linkAisBnd || linkBisBnd)
-//                                                       &&  linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).norm()<FLT_EPSILON);
-//
-//                                const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
-//                                                       &&  linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).norm()<FLT_EPSILON);
-//
-//
-//                                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
-//                                                           || bndJunction   // junciton between parallel boundary segments
-//                                                           || gbndJunction  // junciton between parallel grain-boundary segments
-//                                                           );
-//
-//                                if(isValidJunction)
-//                                {
-//
-//
-//                                    double currentcCollisionTOL=collisionTol;
-//                                    if(   linkIterA->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-//                                       && linkIterB->second->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-//                                       && linkIterA->second->glidePlaneNormal().cross(linkIterB->second->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
-//                                    {// segments on parallel or coincident planes, reduce tolerance
-//                                        currentcCollisionTOL=FLT_EPSILON;
-//                                    }
-//
-//                                    const bool intersectionIsSourceSource(linkIterA->second->source->sID==linkIterB->second->source->sID);
-//                                    const bool intersectionIsSourceSink(linkIterA->second->source->sID==linkIterB->second->sink->sID);
-//                                    const bool intersectionIsSinkSource(linkIterA->second->sink->sID==linkIterB->second->source->sID);
-//                                    const bool intersectionIsSinkSink(linkIterA->second->sink->sID==linkIterB->second->sink->sID);
-//
-//                                    if(intersectionIsSourceSource)
-//                                    {
-//                                        if(!linkIterA->second->source->isSimple())
-//                                        {// non-simple common node, increase tolerance
-//                                            currentcCollisionTOL=0.5*collisionTol;
-//                                        }
-//
-//                                        // intersect sink of A with link B
-//                                        SegmentSegmentDistance<dim> ssdA(linkIterA->second->sink->get_P(), // fake degenerete segment at sink of A
-//                                                                         linkIterA->second->sink->get_P(),  // fake degenerete segment at sink of A
-//                                                                         linkIterB->second->source->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),
-//                                                                         1.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdA,currentcCollisionTOL);
-//
-//                                        // intersect sink of B with link A
-//                                        SegmentSegmentDistance<dim> ssdB(linkIterA->second->source->get_P(),
-//                                                                         linkIterA->second->sink->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),    // fake degenerete segment at sink of B
-//                                                                         linkIterB->second->sink->get_P(),    // fake degenerete segment at sink of B
-//                                                                         1.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdB,currentcCollisionTOL);
-//
-//                                    }
-//                                    else if(intersectionIsSourceSink)
-//                                    {
-//                                        if(!linkIterA->second->source->isSimple())
-//                                        {// non-simple common node, increase tolerance
-//                                            currentcCollisionTOL=0.5*collisionTol;
-//                                        }
-//
-//                                        // intersect sink of A with link B
-//                                        SegmentSegmentDistance<dim> ssdA(linkIterA->second->sink->get_P(), // fake degenerete segment at sink of A
-//                                                                         linkIterA->second->sink->get_P(),  // fake degenerete segment at sink of A
-//                                                                         linkIterB->second->source->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),
-//                                                                         1.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdA,currentcCollisionTOL);
-//
-//                                        // intersect source of B with link A
-//                                        SegmentSegmentDistance<dim> ssdB(linkIterA->second->source->get_P(),
-//                                                                         linkIterA->second->sink->get_P(),
-//                                                                         linkIterB->second->source->get_P(),    // fake degenerete segment at source of B
-//                                                                         linkIterB->second->source->get_P(),    // fake degenerete segment at source of B
-//                                                                         0.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdB,currentcCollisionTOL);
-//
-//
-//                                    }
-//                                    else if(intersectionIsSinkSource)
-//                                    {
-//                                        if(!linkIterA->second->sink->isSimple())
-//                                        {// non-simple common node, increase tolerance
-//                                            currentcCollisionTOL=0.5*collisionTol;
-//                                        }
-//
-//                                        // intersect source of A with link B
-//                                        SegmentSegmentDistance<dim> ssdA(linkIterA->second->source->get_P(), // fake degenerete segment at source of A
-//                                                                         linkIterA->second->source->get_P(),  // fake degenerete segment at source of A
-//                                                                         linkIterB->second->source->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),
-//                                                                         0.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdA,currentcCollisionTOL);
-//
-//
-//                                        // intersect sink of B with link A
-//                                        SegmentSegmentDistance<dim> ssdB(linkIterA->second->source->get_P(),
-//                                                                         linkIterA->second->sink->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),    // fake degenerete segment at sink of B
-//                                                                         linkIterB->second->sink->get_P(),    // fake degenerete segment at sink of B
-//                                                                         1.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdB,currentcCollisionTOL);
-//
-//
-//                                    }
-//                                    else if(intersectionIsSinkSink)
-//                                    {
-//
-//                                        if(!linkIterA->second->sink->isSimple())
-//                                        {// non-simple common node, increase tolerance
-//                                            currentcCollisionTOL=0.5*collisionTol;
-//                                        }
-//
-//                                        // intersect source of A with link B
-//                                        SegmentSegmentDistance<dim> ssdA(linkIterA->second->source->get_P(), // fake degenerete segment at source of A
-//                                                                         linkIterA->second->source->get_P(),  // fake degenerete segment at source of A
-//                                                                         linkIterB->second->source->get_P(),
-//                                                                         linkIterB->second->sink->get_P(),
-//                                                                         0.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdA,currentcCollisionTOL);
-//
-//
-//                                        // intersect source of B with link A
-//                                        SegmentSegmentDistance<dim> ssdB(linkIterA->second->source->get_P(),
-//                                                                         linkIterA->second->sink->get_P(),
-//                                                                         linkIterB->second->source->get_P(),    // fake degenerete segment at source of B
-//                                                                         linkIterB->second->source->get_P(),    // fake degenerete segment at source of B
-//                                                                         0.0);
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssdB,currentcCollisionTOL);
-//
-//                                    }
-//                                    else
-//                                    {// segments don't share vertices
-//
-//                                        SegmentSegmentDistance<dim> ssd(linkIterA->second->source->get_P(),
-//                                                                        linkIterA->second->sink->get_P(),
-//                                                                        linkIterB->second->source->get_P(),
-//                                                                        linkIterB->second->sink->get_P()
-//                                                                        );
-//                                        insertIntersection(intersectionContainer,linkIterA->second->nodeIDPair,linkIterB->second->nodeIDPair,ssd,currentcCollisionTOL);
-//                                    }
-//                                }
-//                            } // end don't self-intersect
-//                        }
-//                    }
-//                } // end loop over first segment
-//            }// end loop ever threads
-//
-//            int nIntersections=0;
-//            for (const auto& intersectionByThreadContainer : intersectionContainer)
-//            {
-//                nIntersections+=intersectionByThreadContainer.size();
-//            }
-//            model::cout<<nIntersections<<" physical intersections. "<<std::flush;
-//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//
-//        }
-
-//            /**********************************************************************/
-//            void breakZeroLengthJunctions()
-//            {
-//                static_assert(0,"THIS IS DDEPRECATED, USE NEW NODE-REMOVE FUNCTIONALITY INSTEAD");
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"		Breaking zero-length Junctions... "<<std::flush;
-//
-//                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompFirst;
-//                std::deque<std::pair<size_t,std::deque<std::pair<size_t,size_t> > > > nodeDecompSecond;
-//
-//
-//                // TO DO: PARALLELIZE THIS LOOP
-//                for (auto& nodePair : DN.nodes())
-//                {
-//                    const auto temp=nodePair.second.edgeDecomposition();
-//                    //std::deque<std::pair<size_t,size_t> > temp=nodePair.second.edgeDecomposition();
-//
-//                    if(temp.first.size() && temp.second.size())
-//                    {
-//                        nodeDecompFirst.emplace_back(nodePair.second.sID,temp.first);
-//                        nodeDecompSecond.emplace_back(nodePair.second.sID,temp.second);
-//                    }
-//                }
-//
-//                int broken=0;
-//
-//                for(size_t n=0;n<nodeDecompFirst.size();++n)
-//                {
-//                    const size_t& i=nodeDecompFirst[n].first;
-//                    auto Ni=DN.node(i);
-//                    assert(Ni.first);
-//                    //                size_t m=DN.insertVertex(Ni.second->get_P());
-//
-//                    // Check that Links still exist
-//                    //std::deque<VectorDimD> linkDirs;
-//
-//                    bool linksFirstexist=true;
-//                    VectorDimD avrFirst=VectorDimD::Zero();
-//                    for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
-//                    {
-//                        const size_t& j=nodeDecompFirst[n].second[d].first;
-//                        const size_t& k=nodeDecompFirst[n].second[d].second;
-//                        if(i==j)
-//                        {
-//                            auto Lik=DN.link(i,k);
-//                            if(Lik.first)
-//                            {
-//                                avrFirst+=Lik.second->chord().normalized();
-//                            }
-//                            linksFirstexist*=Lik.first;
-//                        }
-//                        else if(i==k)
-//                        {
-//                            auto Lji=DN.link(j,i);
-//                            if(Lji.first)
-//                            {
-//                                avrFirst-=Lji.second->chord().normalized();
-//                            }
-//                            linksFirstexist*=Lji.first;
-//                        }
-//                        else
-//                        {
-//                            assert(0 && "i must be equal to either j or k.");
-//                        }
-//                    }
-//                    const double avrFirstNorm=avrFirst.norm();
-//                    if(avrFirstNorm>FLT_EPSILON)
-//                    {
-//                        avrFirst/=avrFirstNorm;
-//                    }
-//
-//                    bool linksSecondexist=true;
-//                    VectorDimD avrSecond=VectorDimD::Zero();
-//                    for(size_t d=0;d<nodeDecompSecond[n].second.size();++d)
-//                    {
-//                        const size_t& j=nodeDecompSecond[n].second[d].first;
-//                        const size_t& k=nodeDecompSecond[n].second[d].second;
-//                        if(i==j)
-//                        {
-//                            auto Lik=DN.link(i,k);
-//                            if(Lik.first)
-//                            {
-//                                avrSecond+=Lik.second->chord().normalized();
-//                            }
-//                            linksSecondexist*=Lik.first;
-//                        }
-//                        else if(i==k)
-//                        {
-//                            auto Lji=DN.link(j,i);
-//                            if(Lji.first)
-//                            {
-//                                avrSecond-=Lji.second->chord().normalized();
-//                            }
-//                            linksSecondexist*=Lji.first;
-//                        }
-//                        else
-//                        {
-//                            assert(0 && "i must be equal to either j or k.");
-//                        }
-//                    }
-//                    const double avrSecondNorm=avrSecond.norm();
-//                    if(avrSecondNorm>FLT_EPSILON)
-//                    {
-//                        avrSecond/=avrSecondNorm;
-//                    }
-//
-//
-//                    if(linksFirstexist && linksSecondexist && avrSecond.dot(avrFirst)<-0.0)
-//                    {
-//                        std::cout<<"NodeBreaking "<<Ni.second->sID<<" "<<avrSecond.dot(avrFirst)<<std::endl;
-//
-//                        size_t m=DN.insertVertex(Ni.second->get_P(),Ni.second->grain.grainID).first->first;
-//
-//                        for(size_t d=0;d<nodeDecompFirst[n].second.size();++d)
-//                        {
-//                            const size_t& j=nodeDecompFirst[n].second[d].first;
-//                            const size_t& k=nodeDecompFirst[n].second[d].second;
-//                            if(i==j)
-//                            {
-//                                auto Lik=DN.link(i,k);
-//                                assert(Lik.first);
-//                                DN.connect(m,k,Lik.second->flow);
-//                                DN.template disconnect<0>(i,k);
-//                            }
-//                            else if(i==k)
-//                            {
-//                                auto Lji=DN.link(j,i);
-//                                assert(Lji.first);
-//                                DN.connect(j,m,Lji.second->flow);
-//                                DN.template disconnect<0>(j,i);
-//                            }
-//                            else
-//                            {
-//                                assert(0 && "i must be equal to either j or k.");
-//                            }
-//                        }
-//
-//
-//                        broken++;
-//                    }
-//                }
-//                model::cout<<broken<<" broken."<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//            }
-

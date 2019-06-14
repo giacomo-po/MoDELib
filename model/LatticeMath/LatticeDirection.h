@@ -31,9 +31,6 @@ namespace model
         
         /**********************************************************************/
         LatticeDirection(const LatticeVectorType& v) :
-//        /* base init */ LatticeGCDType(v),
-//        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
-//        /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
         /* base init */ LatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
         {
         }
@@ -51,9 +48,6 @@ namespace model
           * of dP on *this LatticeDirection.
           */
             const VectorDimD dc(this->cartesian());
-//            return LatticeVectorType((round(dP.dot(dc)/dc.squaredNorm())*dc).eval(),
-//                                     this->covBasis,
-//                                     this->contraBasis);
             return LatticeVectorType((round(dP.dot(dc)/dc.squaredNorm())*dc).eval(),
                                      this->lattice);
         }

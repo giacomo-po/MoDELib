@@ -110,13 +110,13 @@ namespace model
         
         
         /**********************************************************************/
-        static void emplaceData(const LinkType& seg,
+        void emplaceData(const LinkType& seg,
                                 const GrainBoundaryType& grainBoundary,
                                 const GrainType& grain,
                                 const std::shared_ptr<SlipSystem>& slipSystem,
                                 const size_t& ssID,
                                 const int& transmissionType,
-                                LinkTransmissionDataContainerType& transmissionMap)
+                                LinkTransmissionDataContainerType& transmissionMap) const
         {
             
             std::cout<<"GBsegment "<<seg.source->sID<<"->"<<seg.sink->sID<<" "<<grain.grainID<<" "<<ssID<<std::flush;
@@ -191,11 +191,12 @@ namespace model
         
     public:
         
-        static size_t grainBoundaryTransmissionModel;
+        const size_t grainBoundaryTransmissionModel;
         
         /**********************************************************************/
         GrainBoundaryTransmission(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
+        /* init */,grainBoundaryTransmissionModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("grainBoundaryTransmissionModel",true))
         {
             
         }
@@ -409,8 +410,8 @@ namespace model
         
     };
     
-    template <typename DislocationNetworkType>
-    size_t GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel=0;
+//    template <typename DislocationNetworkType>
+//    size_t GrainBoundaryTransmission<DislocationNetworkType>::grainBoundaryTransmissionModel=0;
     
     
 } // end namespace

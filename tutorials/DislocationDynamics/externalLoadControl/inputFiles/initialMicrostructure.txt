@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=0e12;
+targetStraightDislocationDensity=1e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -21,7 +21,7 @@ targetSingleArmDislocationDensity=0e12;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=1e12;
+targetPrismaticLoopDensity=1e13;
 
 #######################################
 # Individual straight dislocations
@@ -50,7 +50,7 @@ mobile111Loops=0;
 
 #######################################
 # Eshelby Inclusions. 
-# for each family, a random diameter d is generated from a 3-parameters log-normal distribution with probability
+# For each family, a random diameter d is generated from a 3-parameters log-normal distribution with probability
 # p(d)=A/(S*d*sqrt(2*pi))*exp(-(ln(d/M))^2/(2*S^2))
 targetInclusionDensities=0e21 0e21; # vector of densities, one value per family
 inclusionsDiameterLognormalDistribution_M=3.11e-8 3.11e-8; #[m] vector of log-normal diameter distribution parameters M. One entry per family 

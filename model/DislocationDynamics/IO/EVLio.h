@@ -615,7 +615,26 @@ namespace model
             
         }
 
-        
+        /**********************************************************************/
+        void read(const size_t& runID,const std::string& suffix="")
+        {
+            if(isBinGood(runID,suffix))
+            {
+                readBin(runID,suffix);
+            }
+            else
+            {
+                if(isTxtGood(runID,suffix))
+                {
+                    readTxt(runID,suffix);
+                }
+                else
+                {
+                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<runID<<".bin or evl/evl_"<<runID<<".txt"<<std::endl;
+                    assert(0 && "COULD NOT FIND INPUT FILEs.");
+                }
+            }
+        }
         
     };
     

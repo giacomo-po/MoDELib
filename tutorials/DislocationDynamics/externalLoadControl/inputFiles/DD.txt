@@ -50,7 +50,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
@@ -106,9 +106,9 @@ parametrizationExponent=0.5;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-verboseJunctions=5;
+verboseJunctions=0;
 verboseRemesh=0;
-verbosePlanarDislocationNode=1;
+verbosePlanarDislocationNode=0;
 verboseNodeContraction=0;
 verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;

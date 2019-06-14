@@ -29,20 +29,23 @@
 namespace model
 {
     template <typename DislocationNetworkType>
-    struct DislocationNodeContraction
+    class DislocationNodeContraction
     {
         
         static constexpr int dim=DislocationNetworkType::dim;
         typedef typename DislocationNetworkType::NodeType NodeType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
-        static int verboseNodeContraction;
-        
-        
         DislocationNetworkType& DN;
+
+    public:
         
+        const int verboseNodeContraction;
+
         /**********************************************************************/
-        DislocationNodeContraction(DislocationNetworkType& DN_in) : DN(DN_in)
+        DislocationNodeContraction(DislocationNetworkType& DN_in) :
+        /* init */ DN(DN_in)
+        /* init */,verboseNodeContraction(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseNodeContraction",true))
         {
             
         }
@@ -347,8 +350,8 @@ namespace model
     };
     
     // Static data
-    template <typename DislocationNetworkType>
-    int DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=0;
+//    template <typename DislocationNetworkType>
+//    int DislocationNodeContraction<DislocationNetworkType>::verboseNodeContraction=0;
     
 }
 #endif

@@ -415,19 +415,37 @@ namespace model
             
         }
         
+        /**********************************************************************/
+        static double minMeshSize(const SimplicialMesh<dim>& mesh)
+        {
+            return std::min(mesh.xMax(0)-mesh.xMin(0),std::min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
+        }
+        
     public:
         
-        static double Lmax;
-        static double Lmin;
-        static double cosRemove;
-        static double thetaDeg;
-        static double neighborRadius;
-        static short unsigned int remeshFrequency;
+        const double Lmax;
+        const double Lmin;
+        const double cosRemove;
+//        const double thetaDeg;
+//        const double neighborRadius;
+        const short unsigned int remeshFrequency;
         
         /**********************************************************************/
         DislocationNetworkRemesh(DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in)
+        /* init */ DN(DN_in)
+        /* init */,Lmax(TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmax",true)*minMeshSize(DN.mesh))
+        /* init */,Lmin(TextFileParser("inputFiles/DD.txt").readScalar<double>("Lmin",true)*minMeshSize(DN.mesh))
+        /* init */,cosRemove(cos(TextFileParser("inputFiles/DD.txt").readScalar<double>("nodeRemoveAngleDeg",true)*M_PI/180.0))
+//        /* init */,thetaDeg;
+//        /* init */,neighborRadius;
+        /* init */,remeshFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("remeshFrequency",true))
         {
+            
+            assert(Lmin<=Lmax);
+            assert(Lmax>3.0*Lmin);
+            assert(Lmin>=0.0);
+//            assert(Lmin>=2.0*DDtimeIntegrator<0>::dxMax && "YOU MUST CHOOSE Lmin>2*dxMax.");
+
         }
         
         
@@ -486,23 +504,23 @@ namespace model
     };
     
     // static data
-    template <typename DislocationNetworkType>
-    double DislocationNetworkRemesh<DislocationNetworkType>::Lmin=10.0;
-    
-    template <typename DislocationNetworkType>
-    double DislocationNetworkRemesh<DislocationNetworkType>::Lmax=100.0;
-    
-    template <typename DislocationNetworkType>
-    double DislocationNetworkRemesh<DislocationNetworkType>::cosRemove=0.7071;
-    
-    template <typename DislocationNetworkType>
-    double DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg=45.0;
-    
-    template <typename DislocationNetworkType>
-    double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
-    
-    template <typename DislocationNetworkType>
-    short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency=1;
+//    template <typename DislocationNetworkType>
+//    double DislocationNetworkRemesh<DislocationNetworkType>::Lmin=10.0;
+//
+//    template <typename DislocationNetworkType>
+//    double DislocationNetworkRemesh<DislocationNetworkType>::Lmax=100.0;
+//
+//    template <typename DislocationNetworkType>
+//    double DislocationNetworkRemesh<DislocationNetworkType>::cosRemove=0.7071;
+//
+//    template <typename DislocationNetworkType>
+//    double DislocationNetworkRemesh<DislocationNetworkType>::thetaDeg=45.0;
+//
+//    template <typename DislocationNetworkType>
+//    double DislocationNetworkRemesh<DislocationNetworkType>::neighborRadius=0.001;
+//
+//    template <typename DislocationNetworkType>
+//    short unsigned int DislocationNetworkRemesh<DislocationNetworkType>::remeshFrequency=1;
     
     
 } // namespace model
