@@ -27,7 +27,7 @@ int main (int argc, char* argv[])
     DefectiveCrystal<3,0,Hermite> DC(argc,argv);
     
     // Run time steps
-    DC.runSteps();
+    DC.runGlideSteps();
     
     return 0;
 }

@@ -12,7 +12,7 @@
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
 #include <StaticID.h>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 //#include <LatticeBase.h>
 //#include <ReciprocalLatticeVector.h>
 #include <LatticeVector.h>
@@ -170,7 +170,8 @@ namespace model
         LatticeVectorType snapToLattice(const VectorDimD& d) const
         {
             VectorDimD nd(reciprocalBasis.transpose()*d);
-            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),*this);
+//            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),*this);
+            return LatticeVectorType(nd.array().round().template cast<long int>(),*this);
         }
         
         /**********************************************************************/

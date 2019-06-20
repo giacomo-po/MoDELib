@@ -45,7 +45,7 @@
 #include <DislocationNetworkRemesh.h>
 #include <DislocationJunctionFormation.h>
 #include <DislocationCrossSlip.h>
-#include <Material.h>
+//#include <Material.h>
 #include <DislocationNetworkIO.h>
 #include <DislocationParticle.h>
 #include <DislocationStress.h>
@@ -68,6 +68,10 @@
 //#include <ExternalLoadController.h>
 #include <DislocationInjector.h>
 
+#ifdef _MODEL_GREATWHITE_
+#include <MooseSolution.h>
+#endif
+
 namespace model
 {
     
@@ -79,8 +83,6 @@ namespace model
     //    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
     /* base                 */,public std::map<size_t,EshelbyInclusion<_dim>>
     {
-        
-        
         
         
     public:
@@ -117,6 +119,10 @@ namespace model
         
 #ifdef DislocationNucleationFile
 #include DislocationNucleationFile
+#endif
+        
+#ifdef _MODEL_GREATWHITE_
+#include <DislocationNetworkGreatWhite.h>
 #endif
         
     private:
@@ -158,22 +164,21 @@ namespace model
                         
                         
                         // Now reconstruct virtual boundary loops
-                        std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t>> virtualLoopVector;
+                        std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
                         for(const auto& link : this->links())
                         {
                             if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
                             {
-                                
                                 virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
                                                                link.second->burgers(),
-                                                               (*link.second->grains().begin())->grainID);
-                                
+                                                               (*link.second->grains().begin())->grainID,
+                                                               DislocationLoopIO<dim>::VIRTUALLOOP);
                             }
                         }
                         
                         for(const auto& tup : virtualLoopVector)
                         {// Insert the new virtual loops
-                            this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                            this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
                         }
                         
 //                    }
@@ -517,17 +522,13 @@ namespace model
         void createEdges(const EVLio<dim>& evl)
         {/*!
           */
-            
-            
-            
+
             std::map<size_t,std::map<size_t,size_t>> loopMap;
             for(const auto& looplink : evl.links())
-            {
+            {// Collect LoopLinks by loop IDs
                 loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
             }
-            
-            
-            
+
             assert(loopMap.size()==evl.loops().size());
             
             size_t loopLumber=1;
@@ -553,38 +554,88 @@ namespace model
                 
                 LoopType::set_count(loop.sID);
                 
-                if(loop.N.squaredNorm()>FLT_EPSILON)
+                model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<std::endl;
+                switch (loop.loopType)
                 {
-                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
-                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
-                    assert(loop.sID==newLoopID);
-                }
-                else
-                {
-                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
-                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
-                    for(const size_t nodeID : nodeIDs)
-                    {// collect shared_ptrs to nodes
-                        const auto isNode(this->node(nodeID));
-                        assert(isNode.first);
-                        if(isNode.second->masterNode)
-                        {// a virtual node
-                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
-                        }
-                        else
-                        {
-                            const auto isSharedNode(this->danglingNode(nodeID));
-                            if(!isSharedNode.first)
-                            {
-                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
-                                assert(false && "node shared pointer not found");
-                            }
-                            sharedNodes.push_back(isSharedNode.second);
-                        }
+                    case DislocationLoopIO<dim>::GLISSILELOOP:
+                    {
+                        assert(loop.N.squaredNorm()>FLT_EPSILON && "GLISSILELOOP must have non-zero normal");
+                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
+                        assert(loop.sID==newLoopID);
+                        break;
                     }
-                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID)->sID;
-                    assert(loop.sID==newLoopID);
+                    
+                    case DislocationLoopIO<dim>::SESSILELOOP:
+                    {
+                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.grainID,loop.loopType)->sID;
+                        assert(loop.sID==newLoopID);
+                        break;
+                    }
+                        
+                    case DislocationLoopIO<dim>::VIRTUALLOOP:
+                    {
+                        std::vector<std::shared_ptr<NodeType>> sharedNodes;
+                        for(const size_t nodeID : nodeIDs)
+                        {// collect shared_ptrs to nodes
+                            const auto isNode(this->node(nodeID));
+                            assert(isNode.first);
+                            if(isNode.second->masterNode)
+                            {// a virtual node
+                                sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+                            }
+                            else
+                            {
+                                const auto isSharedNode(this->danglingNode(nodeID));
+                                if(!isSharedNode.first)
+                                {
+                                    model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+                                    assert(false && "node shared pointer not found");
+                                }
+                                sharedNodes.push_back(isSharedNode.second);
+                            }
+                        }
+                        const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
+                        assert(loop.sID==newLoopID);
+                        break;
+                    }
+                        
+                    default:
+                        assert(false && "Unknown DislocationLoop type");
+                        break;
                 }
+                
+//                if(loop.N.squaredNorm()>FLT_EPSILON)
+//                {// Regular loop
+////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
+//                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
+//                    assert(loop.sID==newLoopID);
+//                }
+//                else
+//                {// Virtual loop. Note that virtual nodes are not in the danglingNodes, but they are instead store in their master nodes
+////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
+//                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
+//                    for(const size_t nodeID : nodeIDs)
+//                    {// collect shared_ptrs to nodes
+//                        const auto isNode(this->node(nodeID));
+//                        assert(isNode.first);
+//                        if(isNode.second->masterNode)
+//                        {// a virtual node
+//                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+//                        }
+//                        else
+//                        {
+//                            const auto isSharedNode(this->danglingNode(nodeID));
+//                            if(!isSharedNode.first)
+//                            {
+//                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+//                                assert(false && "node shared pointer not found");
+//                            }
+//                            sharedNodes.push_back(isSharedNode.second);
+//                        }
+//                    }
+//                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
+//                    assert(loop.sID==newLoopID);
+//                }
                 loopLumber++;
             }
             
@@ -722,7 +773,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void singleStepDiscreteEvents(const long int& runID)
+        void singleGlideStepDiscreteEvents(const long int& runID)
         {
             //! A simulation step consists of the following:
             //            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
@@ -861,33 +912,12 @@ namespace model
             return nodeContractor.contract(nA,nB);
         }
         
-        //        /**********************************************************************/
-        //        const double& get_dt() const
-        //        {/*!\returns the current time step increment dt
-        //          */
-        //            return dt;
-        //        }
-        //
-        //        /**********************************************************************/
-        //        void set_dt(const double& dt_in,const double& vMax_in)
-        //        {/*!\param[in] dt_in
-        //          * Sets the time increment dt to dt_in
-        //          */
-        //            dt=dt_in;
-        //            vMax=vMax_in;
-        //        }
-        
-        //        /**********************************************************************/
-        //        const double& get_totalTime() const
-        //        {/*! The elapsed simulation time step in dimensionless units
-        //          */
-        //            return totalTime;
-        //        }
+
         
         
         
         /**********************************************************************/
-        void assembleAndSolve(const long int& runID)
+        void assembleAndSolveGlide(const long int& runID)
         {/*! Performs the following operatons:
           */
 #ifdef _OPENMP
@@ -1116,25 +1146,7 @@ namespace model
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-        //        /**********************************************************************/
-        //        void updateQuadraturePoints()
-        //        {
-        //            if(corder>0)
-        //            {// quadrature points only used for curved segments
-        //                model::cout<<"		Updating quadrature points... "<<std::flush;
-        //                const auto t0=std::chrono::system_clock::now();
-        //
-        //                // Clear DislocationParticles
-        //                this->clearParticles(); // this also destroys all cells
-        //
-        //                // Populate DislocationParticles
-        //                for(auto& linkIter : this->links())
-        //                {
-        //                    linkIter.second->updateQuadraturePoints(*this);
-        //                }
-        //                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //            }
-        //        }
+
         
         
         /**********************************************************************/
@@ -1145,7 +1157,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             for (auto& nodeIter : this->nodes())
             {
-                nodeIter.second->move(dt_in,DDtimeIntegrator<0>::dxMax);
+                nodeIter.second->move(dt_in);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
@@ -1322,94 +1334,6 @@ namespace model
             }
         }
         
-        /**********************************************************************/
-        double vacancyConcentration(const VectorDim& x) const
-        {
-            double temp(0.0);
-            for(const auto& link : this->links())
-            {// sum line-integral part of displacement field per segment
-                if(   !link.second->hasZeroBurgers()
-                   && !link.second->isBoundarySegment()
-                   && !link.second->isGrainBoundarySegment()
-                   )
-                {
-                    for(const auto& shift : periodicShifts)
-                    {
-                        temp+=link.second->vacancyConcentration(x+shift);
-                    }
-                }
-            }
-            return temp;
-        }
-        
-        /**********************************************************************/
-        void vacancyConcentrationAssembly() const
-        {
-            std::vector<Eigen::Triplet<double>> lhsT;
-            std::vector<Eigen::Triplet<double>> rhsT;
-            size_t globalRow(0);
-            for(const auto& fieldLink : this->links())
-            {// sum line-integral part of displacement field per segment
-                if(   !fieldLink.second->hasZeroBurgers()
-                   && !fieldLink.second->isBoundarySegment()
-                   && !fieldLink.second->isGrainBoundarySegment())
-                {
-                    for(const auto& qPoint : fieldLink.second->quadraturePoints())
-                    {
-                        for(const auto& sourceLink : this->links())
-                        {// sum line-integral part of displacement field per segment
-                            if(   !sourceLink.second->hasZeroBurgers()
-                               && !sourceLink.second->isBoundarySegment()
-                               && !sourceLink.second->isGrainBoundarySegment())
-                            {
-                                for(const auto& shift : periodicShifts)
-                                {
-                                    sourceLink.second->addToVacancyConcentrationAssembly(qPoint.r+shift,
-                                                                                   lhsT,
-                                                                                   globalRow);
-                                }
-                            }
-                        }
-//                        rhsT.emplace_back(globalRow,1,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-bvpSolver->vacancyConcentration(qPoint.r,fieldLink.second->source->includingSimplex()));
-                        rhsT.emplace_back(globalRow,0,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-1.0);
-                        globalRow++;
-                    }
-                }
-            }
-            
-//            for(const auto& trip : lhsT)
-//            {
-//                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
-//            }
-            Eigen::SparseMatrix<double> K(globalRow,this->nodes().size()*dim);
-            K.setFromTriplets(lhsT.begin(),lhsT.end());
-            std::ofstream kFile("K.txt");
-            kFile<<K.toDense()<<std::endl;
-            
-//            for(const auto& trip : rhsT)
-//            {
-//                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
-//            }
-            Eigen::SparseMatrix<double> F(globalRow,1);
-            F.setFromTriplets(rhsT.begin(),rhsT.end());
-            std::ofstream fFile("F.txt");
-            fFile<<F.toDense()<<std::endl;
-
-            
-            
-        }
-        
-        /**********************************************************************/
-        void vacancyConcentration(std::vector<FEMnodeEvaluation<ElementType,1,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,1,1>>>& fieldPoints) const
-        {
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-            for(size_t k=0;k<fieldPoints.size();++k)
-            {
-                fieldPoints[k](0,0)=vacancyConcentration(fieldPoints[k].P);
-            }
-        }
         
         /**********************************************************************/
         DislocationNetworkIOType io()
@@ -1427,6 +1351,96 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        double vacancyConcentration(const VectorDim& x) const
+//        {
+//            double temp(0.0);
+//            for(const auto& link : this->links())
+//            {// sum line-integral part of displacement field per segment
+//                if(   !link.second->hasZeroBurgers()
+//                   && !link.second->isBoundarySegment()
+//                   && !link.second->isGrainBoundarySegment()
+//                   )
+//                {
+//                    for(const auto& shift : periodicShifts)
+//                    {
+//                        temp+=link.second->vacancyConcentration(x+shift);
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+//
+//        /**********************************************************************/
+//        void vacancyConcentrationAssembly() const
+//        {
+//            std::vector<Eigen::Triplet<double>> lhsT;
+//            std::vector<Eigen::Triplet<double>> rhsT;
+//            size_t globalRow(0);
+//            for(const auto& fieldLink : this->links())
+//            {// sum line-integral part of displacement field per segment
+//                if(   !fieldLink.second->hasZeroBurgers()
+//                   && !fieldLink.second->isBoundarySegment()
+//                   && !fieldLink.second->isGrainBoundarySegment())
+//                {
+//                    for(const auto& qPoint : fieldLink.second->quadraturePoints())
+//                    {
+//                        for(const auto& sourceLink : this->links())
+//                        {// sum line-integral part of displacement field per segment
+//                            if(   !sourceLink.second->hasZeroBurgers()
+//                               && !sourceLink.second->isBoundarySegment()
+//                               && !sourceLink.second->isGrainBoundarySegment())
+//                            {
+//                                for(const auto& shift : periodicShifts)
+//                                {
+//                                    sourceLink.second->addToVacancyConcentrationAssembly(qPoint.r+shift,
+//                                                                                   lhsT,
+//                                                                                   globalRow);
+//                                }
+//                            }
+//                        }
+////                        rhsT.emplace_back(globalRow,1,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-bvpSolver->vacancyConcentration(qPoint.r,fieldLink.second->source->includingSimplex()));
+//                        rhsT.emplace_back(globalRow,0,qPoint.equilibriumVacancyConcentration(*fieldLink.second)-1.0);
+//                        globalRow++;
+//                    }
+//                }
+//            }
+//
+////            for(const auto& trip : lhsT)
+////            {
+////                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
+////            }
+//            Eigen::SparseMatrix<double> K(globalRow,this->nodes().size()*dim);
+//            K.setFromTriplets(lhsT.begin(),lhsT.end());
+//            std::ofstream kFile("K.txt");
+//            kFile<<K.toDense()<<std::endl;
+//
+////            for(const auto& trip : rhsT)
+////            {
+////                std::cout<<trip.row()<<","<<trip.col()<<" "<<trip.value()<<std::endl;
+////            }
+//            Eigen::SparseMatrix<double> F(globalRow,1);
+//            F.setFromTriplets(rhsT.begin(),rhsT.end());
+//            std::ofstream fFile("F.txt");
+//            fFile<<F.toDense()<<std::endl;
+//
+//
+//
+//        }
+//
+//        /**********************************************************************/
+//        void vacancyConcentration(std::vector<FEMnodeEvaluation<ElementType,1,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,1,1>>>& fieldPoints) const
+//        {
+//#ifdef _OPENMP
+//#pragma omp parallel for
+//#endif
+//            for(size_t k=0;k<fieldPoints.size();++k)
+//            {
+//                fieldPoints[k](0,0)=vacancyConcentration(fieldPoints[k].P);
+//            }
+//        }
+
 
 
 //        /**********************************************************************/
@@ -1558,4 +1572,47 @@ namespace model
 //            model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
 //            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 //
+//        }
+
+//        /**********************************************************************/
+//        const double& get_dt() const
+//        {/*!\returns the current time step increment dt
+//          */
+//            return dt;
+//        }
+//
+//        /**********************************************************************/
+//        void set_dt(const double& dt_in,const double& vMax_in)
+//        {/*!\param[in] dt_in
+//          * Sets the time increment dt to dt_in
+//          */
+//            dt=dt_in;
+//            vMax=vMax_in;
+//        }
+
+//        /**********************************************************************/
+//        const double& get_totalTime() const
+//        {/*! The elapsed simulation time step in dimensionless units
+//          */
+//            return totalTime;
+//        }
+
+//        /**********************************************************************/
+//        void updateQuadraturePoints()
+//        {
+//            if(corder>0)
+//            {// quadrature points only used for curved segments
+//                model::cout<<"        Updating quadrature points... "<<std::flush;
+//                const auto t0=std::chrono::system_clock::now();
+//
+//                // Clear DislocationParticles
+//                this->clearParticles(); // this also destroys all cells
+//
+//                // Populate DislocationParticles
+//                for(auto& linkIter : this->links())
+//                {
+//                    linkIter.second->updateQuadraturePoints(*this);
+//                }
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
 //        }

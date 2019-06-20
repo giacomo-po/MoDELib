@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=0e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -21,7 +21,7 @@ targetSingleArmDislocationDensity=0e12;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=1e13;
+targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
@@ -36,6 +36,13 @@ targetCircularLoopDensity=0e12;
 circularLoopRadiusMean=1e-07;
 circularLoopRadiusStd=0.0;     
 circularLoopSides=10;
+
+#######################################
+# Non-planar loops
+targetNonPlanarLoopDensity=1e12;
+nonPlanarLoopRadiusMean=1e-07;
+nonPlanarLoopRadiusStd=1e-8;     
+nonPlanarLoopSides=10;
 
 #######################################
 # Irradiation loops

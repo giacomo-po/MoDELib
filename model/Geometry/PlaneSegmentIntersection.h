@@ -14,7 +14,7 @@
 #include <Eigen/Dense>
 //#include <Eigen/Cholesky>
 #include <Plane.h>
-#include <LineSegment.h>
+#include <FiniteLineSegment.h>
 
 namespace model
 {
@@ -126,7 +126,7 @@ namespace model
         
         /**********************************************************************/
         PlaneSegmentIntersection(const Plane<dim>& plane,
-                                 const LineSegment<dim>& seg) :
+                                 const FiniteLineSegment<dim>& seg) :
         /* init */ sol(findIntersection(plane.P,plane.unitNormal,seg.P0,seg.P1)),
         /* init */ type(std::get<0>(sol)),
         /* init */ x0(std::get<1>(sol)),

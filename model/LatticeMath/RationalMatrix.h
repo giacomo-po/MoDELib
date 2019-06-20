@@ -14,7 +14,7 @@
 #include <assert.h> // FLT_EPSILON
 #include <utility>
 #include <Eigen/Dense>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 #include <BestRationalApproximation.h>
 
 namespace model

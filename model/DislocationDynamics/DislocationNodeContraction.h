@@ -18,7 +18,7 @@
 //#include <BoundingMeshSegments.h>
 #include <ConfinedDislocationObject.h>
 #include <Grain.h>
-#include <LineSegment.h>
+#include <FiniteLineSegment.h>
 
 #ifndef NDEBUG
 #define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}
@@ -249,7 +249,7 @@ namespace model
                         else if(iSeg.size()==2)
                         {// coincident intersection
                             VerboseNodeContraction(1,"DislocationNodeContraction case 5b"<<std::endl;);
-                            LineSegment<dim> ls(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
+                            FiniteLineSegment<dim> ls(std::get<0>(iSeg[0]),std::get<0>(iSeg[1]));
                             return contractToPosition(nA,nB,ls.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                         }
                         else
@@ -276,7 +276,7 @@ namespace model
                         else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
                         {// _glidePlaneIntersections becomes a singular point
                             VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
-                            LineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1);
+                            FiniteLineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1);
                             if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)
                             {// intersection point is inside mesh
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 6b1"<<std::endl;);
@@ -321,13 +321,13 @@ namespace model
                             {
                                 case 2:
                                 {
-                                    LineSegment<dim> cutLine(0.5*(temp.begin()->P0+temp.begin()->P1),0.5*(temp.rbegin()->P0+temp.rbegin()->P1));
+                                    FiniteLineSegment<dim> cutLine(0.5*(temp.begin()->P0+temp.begin()->P1),0.5*(temp.rbegin()->P0+temp.rbegin()->P1));
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }
                                 case 1:
                                 {
-                                    LineSegment<dim> cutLine(temp.begin()->P0,temp.begin()->P1);
+                                    FiniteLineSegment<dim> cutLine(temp.begin()->P0,temp.begin()->P1);
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }

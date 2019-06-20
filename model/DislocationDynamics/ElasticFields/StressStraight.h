@@ -15,7 +15,7 @@
 #endif
 
 #include <Eigen/Dense>
-#include <Material.h>
+#include <DislocatedMaterial.h>
 //#include <DislocationStress.h>
 
 namespace model
@@ -29,7 +29,7 @@ namespace model
     {
         typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
         typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
-        typedef Material<dim,Isotropic> MaterialType;
+        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
         
         /**********************************************************************/
         template<typename Derived>

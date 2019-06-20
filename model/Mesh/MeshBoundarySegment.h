@@ -12,7 +12,7 @@
 #include <cfloat>
 #include <set>
 #include <Eigen/Dense>
-#include <LineSegment.h>
+#include <FiniteLineSegment.h>
 #include <PlanarMeshFace.h>
 
 namespace model
@@ -21,11 +21,11 @@ namespace model
      * of PlanarMeshFaces
      */
     template <int dim>
-    struct MeshBoundarySegment : public LineSegment<dim>
+    struct MeshBoundarySegment : public FiniteLineSegment<dim>
 //    /*                        */,public std::set<const PlanarMeshFace<dim>*>
     {
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef LineSegment<dim> LineSegmentType;
+        typedef FiniteLineSegment<dim> FiniteLineSegmentType;
         typedef PlanarMeshFace<dim> PlanarMeshFaceType;
         typedef std::set<const PlanarMeshFace<dim>*> FaceContainerType;
         
@@ -52,7 +52,7 @@ namespace model
         MeshBoundarySegment(const VectorDim& p0,
                             const VectorDim& p1,
                             const PlanarMeshFaceType* const face) :
-        /* init */ LineSegmentType(p0,p1)
+        /* init */ FiniteLineSegmentType(p0,p1)
         /* init */,faces(FaceContainerType({face}))
         /* init */,boundaryNormal(getBoundaryNormal(faces))
         //        /* init */,face(face_in)
@@ -63,7 +63,7 @@ namespace model
         MeshBoundarySegment(const VectorDim& p0,
                             const VectorDim& p1,
                             const FaceContainerType& faces_in) :
-        /* init */ LineSegmentType(p0,p1)
+        /* init */ FiniteLineSegmentType(p0,p1)
         /* init */,faces(faces_in)
         /* init */,boundaryNormal(getBoundaryNormal(faces))
         {

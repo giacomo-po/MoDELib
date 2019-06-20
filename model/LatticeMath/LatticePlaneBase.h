@@ -108,8 +108,9 @@ namespace model
         {
             const Eigen::Matrix<double,3,2> B((Eigen::Matrix<double,2,3>()<<primitiveVectors.first.cartesian().transpose(),primitiveVectors.second.cartesian().transpose()).finished().transpose());
             const Eigen::Matrix<double,2,1> nd=(B.transpose()*B).inverse()*B.transpose()*P;
-            const Eigen::Matrix<double,3,1>  p=B*RoundEigen<double,2>::round(nd);
-//            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
+//            const Eigen::Matrix<double,3,1>  p=B*RoundEigen<double,2>::round(nd);
+            const Eigen::Matrix<double,3,1>  p=B*nd.array().round().matrix();
+            //            return LatticeVectorType(p,primitiveVectors.first.covBasis,primitiveVectors.second.contraBasis);
             return LatticeVectorType(p,primitiveVectors.first.lattice);
 
         }

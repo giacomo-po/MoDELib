@@ -35,6 +35,7 @@ namespace model
     //                            public PlanarPolygon
     {
         
+        
         constexpr static int dim=TypeTraits<Derived>::dim;
         
         
@@ -68,6 +69,7 @@ namespace model
         
         
         const Grain<dim>& grain;
+        const int loopType;
         const std::shared_ptr<GlidePlaneType> glidePlane;
         static int verbosePlanarDislocationLoop;
         
@@ -89,7 +91,7 @@ namespace model
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
         {
-            verbosePlanarDislocationLoop=TextFileParser("inputFiles/DD.txt").readScalar<int>("verbosePlanarDislocationLoop",true);
+            verbosePlanarDislocationLoop=TextFileParser(fileName).readScalar<int>("verbosePlanarDislocationLoop",true);
         }
         
         
@@ -100,14 +102,15 @@ namespace model
                               const VectorDim& N,
                               const VectorDim& P,
                               const int& grainID) :
-        /* base init */ BaseLoopType(dn,B),
+        /* base init */ BaseLoopType(dn,B)
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
-        /*      init */ nA(VectorDim::Zero()),
-        /*      init */ _slippedArea(0.0),
-        /*      init */ _rightHandedUnitNormal(VectorDim::Zero()),
-        /*      init */ _rightHandedNormal(dn->poly.grain(grainID)),
-        /*      init */ grain(dn->poly.grain(grainID)),
-        /*      init */ glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N))
+        /*      init */,nA(VectorDim::Zero())
+        /*      init */,_slippedArea(0.0)
+        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
+        /*      init */,grain(dn->poly.grain(grainID))
+        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+        /*      init */,glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N))
         //        /*      init */ glidePlane(*_glidePlane->get()),
         //        /*      init */,isGlissile(_isGlissile)
         {
@@ -123,39 +126,42 @@ namespace model
         template<typename FLowType>
         PlanarDislocationLoop(LoopNetworkType* const dn,
                               const FLowType& B,
-                              const int& grainID) :
-        /* base init */ BaseLoopType(dn,B),
+                              const int& grainID,
+                              const int& _loopType) :
+        /* base init */ BaseLoopType(dn,B)
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
-        /*      init */ nA(VectorDim::Zero()),
-        /*      init */ _slippedArea(0.0),
-        /*      init */ _rightHandedUnitNormal(VectorDim::Zero()),
-        /*      init */ _rightHandedNormal(dn->poly.grain(grainID)),
-        /*      init */ grain(dn->poly.grain(grainID)),
-        /*      init */ glidePlane(nullptr)
+        /*      init */,nA(VectorDim::Zero())
+        /*      init */,_slippedArea(0.0)
+        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
+        /*      init */,grain(dn->poly.grain(grainID))
+        /*      init */,loopType(_loopType)
+        /*      init */,glidePlane(nullptr)
         //        /*      init */ glidePlane(*_glidePlane->get()),
         //        /*      init */,isGlissile(true)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" without plane."<<std::endl;);
             
             //            glidePlane->addLoop(this);
-            if(!isVirtualBoundaryLoop())
-            {
-                glidePlane->addParentSharedPtr(&glidePlane);
-            }
+//            if(glidePlane)
+//            {
+//                glidePlane->addParentSharedPtr(&glidePlane);
+//            }
             //
             
         }
         
         /**********************************************************************/
         PlanarDislocationLoop(const PlanarDislocationLoop& other) :
-        /* base init */ BaseLoopType(other),
+        /* base init */ BaseLoopType(other)
         //        /*      init */ PlanarPolygon(other),
-        /* init */ nA(other.nA),
-        /* init */ _slippedArea(0.0),
-        /* init */ _rightHandedUnitNormal(VectorDim::Zero()),
-        /*      init */ _rightHandedNormal(other._rightHandedNormal),
-        /* init */ grain(other.grain),
-        /* init */ glidePlane(other.glidePlane)
+        /* init */,nA(other.nA)
+        /* init */,_slippedArea(0.0)
+        /* init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(other._rightHandedNormal)
+        /* init */,grain(other.grain)
+        /*      init */,loopType(other.loopType)
+        /* init */,glidePlane(other.glidePlane)
         //        /* init */ glidePlane(*_glidePlane->get()),
         //        /* init */,isGlissile(other.isGlissile)
         {
@@ -163,7 +169,7 @@ namespace model
             
             //            glidePlane->addLoop(this);
             
-            if(!isVirtualBoundaryLoop())
+            if(glidePlane)
             {
                 glidePlane->addParentSharedPtr(&glidePlane);
             }
@@ -175,7 +181,7 @@ namespace model
             VerbosePlanarDislocationLoop(1,"Destroying PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             //            glidePlane->removeLoop(this);
-            if(!isVirtualBoundaryLoop())
+            if(glidePlane)
             {
                 glidePlane->removeParentSharedPtr(&glidePlane);
             }
@@ -237,7 +243,7 @@ namespace model
         double solidAngle(const VectorDim& x) const
         {
             double temp(0.0);
-            if(!isVirtualBoundaryLoop())
+            if(glidePlane)
             {
                 if(_slippedArea>FLT_EPSILON)
                 {// a right-handed normal for the loop can be determined
@@ -325,10 +331,16 @@ namespace model
             return temp;
         }
         
+//        /**********************************************************************/
+//        bool isVirtualBoundaryLoop() const
+//        {
+//            return glidePlane.get()==nullptr;
+//        }
+
         /**********************************************************************/
         bool isVirtualBoundaryLoop() const
         {
-            return glidePlane.get()==nullptr;
+            return loopType==DislocationLoopIO<dim>::VIRTUALLOOP;
         }
         
         /**********************************************************************/

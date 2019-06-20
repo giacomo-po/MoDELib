@@ -11,7 +11,7 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 #include <SmithDecomposition.h>
 #include <Lattice.h>
 #include <RationalMatrix.h>

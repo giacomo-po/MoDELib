@@ -15,7 +15,7 @@
 
 #include <LatticeMath.h>
 #include <SlipSystem.h>
-#include <Material.h>
+#include <DislocatedMaterial.h>
 
 namespace model
 {
@@ -33,6 +33,7 @@ namespace model
         static constexpr int dim=3;
         static constexpr auto name="BCC";
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
 
         /**********************************************************************/
         BCClattice(const MatrixDim& Q) :
@@ -84,7 +85,7 @@ namespace model
 
         /**********************************************************************/
 //        template <int dim>
-        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
+        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const MaterialType& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */

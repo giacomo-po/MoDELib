@@ -121,10 +121,12 @@ namespace model
     };
 
     //template <>
+#ifndef _MODEL_GREATWHITE_
     double DDtimeIntegrator<0>::dxMax=10.0;
+    double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
+#endif
 
     //template <>
-    double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
 	
 //    /**********************************************************************/
 //    /**********************************************************************/

@@ -19,10 +19,10 @@
 #include <GlidePlane.h>
 #include <Grain.h>
 #include <PlanarMeshFace.h>
-#include <LineSegment.h>
+#include <FiniteLineSegment.h>
 #include <LineLineIntersection.h>
 
-//#include <BoundingLineSegments.h>
+//#include <BoundingFiniteLineSegments.h>
 
 namespace model
 {
@@ -166,7 +166,7 @@ namespace model
         
 //        GlidePlaneObserver<dim>& gpObserver;
         PositionCointainerType posCointainer;
-        std::unique_ptr<LineSegment<dim>> _glidePlaneIntersections;
+        std::unique_ptr<FiniteLineSegment<dim>> _glidePlaneIntersections;
         bool _isOnExternalBoundary;
         bool _isOnInternalBoundary;
         VectorDim _outNormal;
@@ -184,6 +184,29 @@ namespace model
         {
             updateGeometry(temp);
         }
+        
+        /**********************************************************************/
+        ConfinedDislocationObject(const VectorDim& P0) :
+        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
+        //        /* init */ gpObserver(gpo)
+        /* init */ _isOnExternalBoundary(false)
+        /* init */,_isOnInternalBoundary(false)
+        /* init */,_outNormal(VectorDim::Zero())
+        {
+            updateGeometry(P0);
+        }
+        
+        /**********************************************************************/
+        ConfinedDislocationObject(const VectorDim& P0,const VectorDim& P1) :
+        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
+        //        /* init */ gpObserver(gpo)
+        /* init */ _isOnExternalBoundary(false)
+        /* init */,_isOnInternalBoundary(false)
+        /* init */,_outNormal(VectorDim::Zero())
+        {
+            updateGeometry(P0,P1);
+        }
+        
         
         /**********************************************************************/
         ConfinedDislocationObject(const ConfinedDislocationObject<dim>& A,
@@ -262,7 +285,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::unique_ptr<LineSegment<dim>>& glidePlaneIntersections() const
+        const std::unique_ptr<FiniteLineSegment<dim>>& glidePlaneIntersections() const
         {
             return _glidePlaneIntersections;
         }
@@ -293,9 +316,19 @@ namespace model
         }
         
         /**********************************************************************/
-        void updateGeometry(const PositionCointainerType& temp)
+        void updateGeometry(const VectorDim& P0)
         {
-            posCointainer=temp;
+            posCointainer.clear();
+            posCointainer.push_back(P0);
+            updateConfinement();
+        }
+        
+        /**********************************************************************/
+        void updateGeometry(const VectorDim& P0,const VectorDim& P1)
+        {
+            posCointainer.clear();
+            posCointainer.push_back(P0);
+            posCointainer.push_back(P1);
             updateConfinement();
         }
         
@@ -369,7 +402,7 @@ namespace model
                                     }
                                 }
                                 assert(roots.size()==2 && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
-                                _glidePlaneIntersections.reset(new LineSegment<dim>(roots[0],roots[1]));
+                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
                                 this->boundingBoxSegments().emplace_back(roots[0],roots[1],gb.face.get());
                             }
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
@@ -396,7 +429,7 @@ namespace model
                                     }
                                     else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
                                     {// a coincident line was found, which means that the glide planes intersec on a boundary face
-                                        _glidePlaneIntersections.reset(new LineSegment<dim>(meshInt.P0,meshInt.P1));
+                                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(meshInt.P0,meshInt.P1));
                                         this->boundingBoxSegments().push_back(meshInt);
                                         break;
                                     }
@@ -413,7 +446,7 @@ namespace model
                                         }
                                         assert(false && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                     }
-                                    _glidePlaneIntersections.reset(new LineSegment<dim>(roots[0],roots[1]));
+                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
 
                                     for(const auto& root : roots)
                                     {
@@ -474,7 +507,7 @@ namespace model
                                 case PlaneSegmentIntersection<dim>::INCIDENT:
                                 {// _glidePlaneIntersections becomes a point (degenerate line)
                                     const VectorDim x(0.5*(pli.x0+pli.x1));
-                                    _glidePlaneIntersections.reset(new LineSegment<dim>(x,x));
+                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(x,x));
 
                                     // Update this->boundingBoxSegments()
                                     std::set<const PlanarMeshFace<dim>*> faces;
@@ -502,7 +535,7 @@ namespace model
                                     {
                                         model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<plane->P.transpose()<<", n="<<plane->unitNormal.transpose()<<std::endl;
                                         model::cout<<"Plane bounding box:"<<std::endl;
-                                        model::cout<<plane->meshIntersections<<std::endl;
+                                        std::cout<<plane->meshIntersections<<std::endl;
 
                                     }
                                     
@@ -561,7 +594,7 @@ namespace model
 //        /**********************************************************************/
 //        void updateMeshPlaneIntersections(const GlidePlaneType& lastGlidePlane)
 //        {
-//            //            BoundingLineSegments<dim> temp;
+//            //            BoundingFiniteLineSegments<dim> temp;
 //
 //            //            //VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections"<<std::endl;);
 //            //VerbosePlanarDislocationNode(2,"  lastGlidePlane.P="<<std::setprecision(15)<<std::scientific<<lastGlidePlane.P.transpose()<<std::endl;);
@@ -606,7 +639,7 @@ namespace model
 //                        //assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
 //                        //                        _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().begin()->second.P1);
 //                        //                        _glidePlaneIntersections.push_back(boundingBoxSegments()[0]);
-//                        _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second));
+//                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second));
 //                    }
 //                    else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
 //                    {/* If the two planes are incident then the intersection of
@@ -619,7 +652,7 @@ namespace model
 //                            {// the bounding boxes of the two planes intersect on a boundary segment. Add end points to _glidePlaneIntersections
 //                                //VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2b"<<std::endl;);
 //                                //                                _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().begin()->second.P1);
-//                                _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().begin()->second.P1));
+//                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().begin()->second.P1));
 //                                //VerbosePlanarDislocationNode(4,"  boundingBoxSegments().begin()->second.P0="<<boundingBoxSegments().begin()->second.P0.transpose()<<std::endl;);
 //                                //VerbosePlanarDislocationNode(4,"  boundingBoxSegments().begin()->second.P1="<<boundingBoxSegments().begin()->second.P1.transpose()<<std::endl;);
 //
@@ -635,7 +668,7 @@ namespace model
 //                                //VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2c"<<std::endl;);
 //                                assert((this->boundingBoxSegments(). begin()->second.P0-this->boundingBoxSegments(). begin()->second.P1).squaredNorm()<FLT_EPSILON);
 //                                assert((this->boundingBoxSegments().rbegin()->second.P0-this->boundingBoxSegments().rbegin()->second.P1).squaredNorm()<FLT_EPSILON);
-//                                _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().rbegin()->second.P0));
+//                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().rbegin()->second.P0));
 //                                //                                _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().rbegin()->second.P0);
 //                                break;
 //                            }
@@ -680,7 +713,7 @@ namespace model
 //                        case PlaneSegmentIntersection<dim>::INCIDENT:
 //                        {// _glidePlaneIntersections becomes a point (degenerate line)
 //                            const VectorDim x(0.5*(pli.x0+pli.x1));
-//                            _glidePlaneIntersections.reset(new LineSegment<dim>(x,x));
+//                            _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(x,x));
 //                            break;
 //                        }
 //
@@ -712,7 +745,7 @@ namespace model
 //        /**********************************************************************/
 //        void updateMeshPlaneIntersections(const GlidePlaneType& lastGlidePlane)
 //        {
-//            //            BoundingLineSegments<dim> temp;
+//            //            BoundingFiniteLineSegments<dim> temp;
 //
 //            //            //VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections"<<std::endl;);
 //            //VerbosePlanarDislocationNode(2,"  lastGlidePlane.P="<<std::setprecision(15)<<std::scientific<<lastGlidePlane.P.transpose()<<std::endl;);
@@ -757,7 +790,7 @@ namespace model
 //                        //assert(boundingBoxSegments().size()==1 && "There should be only one line in boundingBoxSegments()");
 //                        //                        _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().begin()->second.P1);
 //                        //                        _glidePlaneIntersections.push_back(boundingBoxSegments()[0]);
-//                        _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second));
+//                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second));
 //                    }
 //                    else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
 //                    {/* If the two planes are incident then the intersection of
@@ -770,7 +803,7 @@ namespace model
 //                            {// the bounding boxes of the two planes intersect on a boundary segment. Add end points to _glidePlaneIntersections
 //                                //VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2b"<<std::endl;);
 //                                //                                _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().begin()->second.P1);
-//                                _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().begin()->second.P1));
+//                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().begin()->second.P1));
 //                                //VerbosePlanarDislocationNode(4,"  boundingBoxSegments().begin()->second.P0="<<boundingBoxSegments().begin()->second.P0.transpose()<<std::endl;);
 //                                //VerbosePlanarDislocationNode(4,"  boundingBoxSegments().begin()->second.P1="<<boundingBoxSegments().begin()->second.P1.transpose()<<std::endl;);
 //
@@ -786,7 +819,7 @@ namespace model
 //                                //VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 2c"<<std::endl;);
 //                                assert((this->boundingBoxSegments(). begin()->second.P0-this->boundingBoxSegments(). begin()->second.P1).squaredNorm()<FLT_EPSILON);
 //                                assert((this->boundingBoxSegments().rbegin()->second.P0-this->boundingBoxSegments().rbegin()->second.P1).squaredNorm()<FLT_EPSILON);
-//                                _glidePlaneIntersections.reset(new LineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().rbegin()->second.P0));
+//                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(this->boundingBoxSegments().begin()->second.P0,this->boundingBoxSegments().rbegin()->second.P0));
 //                                //                                _glidePlaneIntersections.emplace_back(boundingBoxSegments().begin()->second.P0,boundingBoxSegments().rbegin()->second.P0);
 //                                break;
 //                            }
@@ -831,7 +864,7 @@ namespace model
 //                        case PlaneSegmentIntersection<dim>::INCIDENT:
 //                        {// _glidePlaneIntersections becomes a point (degenerate line)
 //                            const VectorDim x(0.5*(pli.x0+pli.x1));
-//                            _glidePlaneIntersections.reset(new LineSegment<dim>(x,x));
+//                            _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(x,x));
 //                            break;
 //                        }
 //

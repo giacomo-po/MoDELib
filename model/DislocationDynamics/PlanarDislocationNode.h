@@ -30,7 +30,7 @@
 #include <GlidePlane.h>
 #include <PlanePlaneIntersection.h>
 #include <PlaneLineIntersection.h>
-#include <LineSegment.h>
+#include <FiniteLineSegment.h>
 #include <DislocationNodeIO.h>
 //#include <BoundingLineSegments.h>
 #include <DefectiveCrystalParameters.h>
@@ -135,17 +135,23 @@ namespace model
             
             
             // Return the first point to which we can snap
+            VectorDim   snapPoint(P);
+            bool success(false);
             for(const auto& pair : snapMap)
             {
                 VerbosePlanarDislocationNode(4,"Checking snap point "<<pair.second.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
                 if(isMovableTo(pair.second))
                 {
                     VerbosePlanarDislocationNode(4,"Snapping to "<<pair.second.transpose()<<std::endl;);//<<", lineID="<<pLcontained.second<<std::endl;
-                    return pair.second;
+                    snapPoint=pair.second;
+                    success=true;
+                    break;
+                    //                    return pair.second;
                 }
             }
             
-            assert(false && "snapToBoundingBox FAILED.");
+            assert(success && "snapToBoundingBox FAILED.");
+            return snapPoint;
         }
         
         /**********************************************************************/
@@ -183,9 +189,9 @@ namespace model
                 if(!isApproxOnBoundary)
                 {
                     model::cout<<"PlanarDislocationNode "<<this->sID<<" @ "<<X.transpose()<<std::endl;
-                    model::cout<<"Simplex "<<temp.second->xID<<std::endl;
+                    std::cout<<"Simplex "<<temp.second->xID<<std::endl;
                     model::cout<<"bary "<<temp.second->pos2bary(X)<<std::endl;
-                    model::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
+                    std::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
                     model::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
                     model::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
                     assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
@@ -230,7 +236,7 @@ namespace model
                               const VectorDofType& Vin,
                               const double& vrc) :
         /* base */ NodeBaseType(ln,Pin)
-        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
+        /* base */,ConfinedDislocationObjectType(this->get_P())
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
         /* init */,velocity(Vin)
         /* init */,vOld(velocity)
@@ -246,7 +252,7 @@ namespace model
         PlanarDislocationNode(const LinkType& pL,
                               const double& u) :
         /* init */ NodeBaseType(pL.loopNetwork,pL.get_r(u))
-        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
+        /* base */,ConfinedDislocationObjectType(this->get_P())
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
         /* init */,vOld(velocity)
@@ -268,7 +274,7 @@ namespace model
                               const VectorDim& Pin,
                               const NodeType* const master) :
         /* base */ NodeBaseType(ln,Pin)
-        /* base */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()})
+        /* base */,ConfinedDislocationObjectType(this->get_P())
         /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,velocity(VectorDim::Zero())
         /* init */,vOld(velocity)
@@ -871,7 +877,7 @@ namespace model
         {
             VerbosePlanarDislocationNode(5,"PlanarDislocationNode "<<this->sID<<" setToBoundary @"<< X.transpose()<<std::endl;);
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
-            ConfinedDislocationObjectType::updateGeometry(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()});
+            ConfinedDislocationObjectType::updateGeometry(this->get_P());
             VerbosePlanarDislocationNode(5,"containingSegments "<< this->boundingBoxSegments().containingSegments(this->get_P()).size()<<std::endl;);
             
 //            _isOnBoundingBox=boundingBoxSegments().contains(this->get_P());
@@ -947,14 +953,14 @@ namespace model
                             {
                                 VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case D "<<std::endl;);
                                 NodeBaseType::set_P(newP);
-                                ConfinedDislocationObjectType::updateGeometry(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()});
+                                ConfinedDislocationObjectType::updateGeometry(this->get_P());
                             }
                         }
                         else
                         {
                             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case E "<<std::endl;);
                             NodeBaseType::set_P(newP);
-                            ConfinedDislocationObjectType::updateGeometry(typename ConfinedDislocationObjectType::PositionCointainerType{this->get_P()});
+                            ConfinedDislocationObjectType::updateGeometry(this->get_P());
                         }
                     }
                     else
@@ -1130,7 +1136,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void move(const double & dt,const double& dxMax)
+        void move(const double & dt)
         {
             
             //velocity=this->prjM*vNew; // kill numerical errors from the iterative solver

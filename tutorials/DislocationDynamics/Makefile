@@ -3,7 +3,9 @@
 ##########################################################
 USE_ICC = 0
 usePARDISO = 1
-MODEL_INCLUDE =../../../
+useGREATWHITE = 0
+MODEL_INCLUDE =../../..
+GREATWHITE_INCLUDE= $(MODEL_INCLUDE)/../GreatWhite
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
 
@@ -16,6 +18,7 @@ IDIR += -I./
 IDIR += -I$(all_header_dir)
 #IDIR += -I$(MODEL_INCLUDE)
 IDIR += -I$(EIGEN_INCLUDE)
+IDIR += -I$(GREATWHITE_INCLUDE)
 
 ##########################################################
 # COMPILER SETTINGS - DO NOT EDIT-
@@ -50,7 +53,7 @@ endif
 
 # enable warnings
 CFLAGS += -Wall 
-#CFLAGS += -Wextra
+CFLAGS += -Wextra
 
 ############################################
 # Compiler flags for MKL PARDISO, see also
@@ -65,6 +68,8 @@ ifeq ($(usePARDISO), 1)
 		LIBS += -L $(MKL_LIB) -L $(INTEL_LIB)
 #		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread 
 		LIBS += -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -liomp5 -lpthread -lm -ldl
+# export DYLD_LIBRARY_PATH=/opt/intel/mkl/lib:$DYLD_LIBRARY_PATH
+# export DYLD_LIBRARY_PATH=/opt/intel/lib:$DYLD_LIBRARY_PATH
 	endif
 
 	ifeq ($(OS),Linux)
@@ -77,6 +82,10 @@ ifeq ($(usePARDISO), 1)
 		endif
 	endif
 
+endif
+
+ifeq ($(useGREATWHITE), 1)
+	CFLAGS += -D _MODEL_GREATWHITE_
 endif
 
 ############################################

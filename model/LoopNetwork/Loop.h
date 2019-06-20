@@ -65,11 +65,16 @@ namespace model
 //            LoopObserverType::addLoop(this->p_derived());
         }
         
+//        Loop(const Loop<Derived>& other) =delete;
+        
+        Loop& operator=(const Loop<Derived>& other) =delete;
         
         /**********************************************************************/
         Loop(const Loop<Derived>& other) :
-        /* init */ _loopNetwork(other._loopNetwork),
-        /* init */ _flow(other._flow)
+        /* init */ StaticID<Derived>()
+        /* init */,LoopLinkContainerType()
+        /* init */,_loopNetwork(other._loopNetwork)
+        /* init */,_flow(other._flow)
 //        /* init */ loopNetwork(*_loopNetwork)
 //        /* init */ loopNetwork(*_loopNetwork)
         {

@@ -191,7 +191,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void singleStep()
+        void singleGlideStep()
         {
             model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
             /*                    */<< ", time="<<simulationParameters.totalTime;
@@ -210,7 +210,7 @@ namespace model
                 DN->updateGeometry(simulationParameters.dt);
                 updateLoadControllers(simulationParameters.runID);
                 
-                DN->assembleAndSolve(simulationParameters.runID);
+                DN->assembleAndSolveGlide(simulationParameters.runID);
                 simulationParameters.dt=DN->get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 simulationParameters.totalTime+=simulationParameters.dt;
                 
@@ -221,20 +221,20 @@ namespace model
                 DN->move(simulationParameters.dt);
                 
                 // menage discrete topological events
-                DN->singleStepDiscreteEvents(simulationParameters.runID);
+                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
             }
             ++simulationParameters.runID;
         }
         
         /**********************************************************************/
-        void runSteps()
+        void runGlideSteps()
         {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
           */
             const auto t0= std::chrono::system_clock::now();
             while (simulationParameters.runID<simulationParameters.Nsteps)
             {
                 model::cout<<std::endl; // leave a blank line
-                singleStep();
+                singleGlideStep();
             }
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }

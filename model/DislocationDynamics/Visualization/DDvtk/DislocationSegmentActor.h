@@ -216,7 +216,7 @@ namespace model
                     
                 case colorSessile:
                 {
-                    const bool isSessile=fabs(burgers.dot(planeNormal))>FLT_EPSILON;
+                    const bool isSessile= planeNormal.squaredNorm()<FLT_EPSILON || fabs(burgers.dot(planeNormal))>FLT_EPSILON;
                     clrVector(0)= isSessile? 1.0 : 0.1;
                     clrVector(1)= isSessile? 0.5 : 0.4;
                     clrVector(2)= isSessile? 0.0 : 0.9;

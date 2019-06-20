@@ -14,7 +14,7 @@
 
 #include <map>
 #include <memory> // std::shared_ptr (c++11)
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 #include <SpatialCell.h>
 #include <CellShift.h>
 
@@ -63,8 +63,10 @@ namespace model {
         {/*! \returns The CellIdType ID of the cell that contains P. The ID
           *  satisfies cellID <= P/cellSize < (cellID+1).
           */
-            return floorEigen<dim>(P/_cellSize+VectorDimD::Constant(0.5));
-		}
+//            return floorEigen<dim>(P/_cellSize+VectorDimD::Constant(0.5));
+            return (P/_cellSize+VectorDimD::Constant(0.5)).array().floor();
+//            return floorEigen<dim>(P/_cellSize+VectorDimD::Constant(0.5));
+        }
         
 		/**********************************************************************/
 		static SharedPtrType getCellByID(const CellIdType& cellID)

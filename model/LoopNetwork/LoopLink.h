@@ -139,13 +139,7 @@ namespace model
                 {
                     prev->resetLoop(pLoop);
                 }
-                //                else
-                //                {
-                //
-                //                }
-                
             }
-            
         }
         
         /**********************************************************************/
@@ -180,19 +174,6 @@ namespace model
                         assert(0 && "next cannot be nullptr for this function");
                     }
                 }
-                
-                
-                
-                
-                //                if(prev!=nullptr)
-                //                {
-                //                    prev->resetLoop(pLoop);
-                //                }
-                //                else
-                //                {
-                //
-                //                }
-                
             }
             
         }

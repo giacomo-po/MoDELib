@@ -16,8 +16,8 @@ namespace model
     struct SplineBase
     {
         static constexpr double chordal=1.0;
-        static constexpr double  centripetal=0.5;
-        static constexpr double  uniform    =0.0;
+        static constexpr double centripetal=0.5;
+        static constexpr double uniform=0.0;
         
         static constexpr int Ncoeff= 2*(corder+1);
         static constexpr int  pOrder= 2*corder+1;
@@ -25,12 +25,7 @@ namespace model
         //        static constexpr int  eigenSize=pOrder*pOrder;
         
     };
-    
-    
-    
-    //	class Hermite{};
-    //	class CatmullRom{};
-    
+        
 }
 
 #endif

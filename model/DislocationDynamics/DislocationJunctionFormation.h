@@ -435,7 +435,7 @@ namespace model
         }
         
         /**********************************************************************/
-        size_t junctionStep(const double& dx)
+        size_t junctionStep()
         {
             
 #ifdef _OPENMP
@@ -648,7 +648,7 @@ namespace model
             size_t iterations=0;
             while(nContracted && iterations<maxJunctionIterations)
             {
-                nContracted=junctionStep(dx);
+                nContracted=junctionStep();
                 glissileJunctions(dx);
                 iterations++;
             }

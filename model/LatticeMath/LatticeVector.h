@@ -11,7 +11,7 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 //#include <LatticeBase.h>
 //#include <ReciprocalLatticeVector.h>
 #include <Lattice.h>
@@ -179,7 +179,8 @@ namespace model
                                    const LatticeType& lat)
         {
             const VectorDimD nd(lat.reciprocalBasis.transpose()*d);
-            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+//            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+            const VectorDimD rd(nd.array().round());
             if((nd-rd).norm()>roundTol)
             {
                 std::cout<<"d2contra, nd="<<nd.transpose()<<std::endl;

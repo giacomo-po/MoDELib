@@ -14,7 +14,7 @@
 #include <deque>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 #include <SimplicialMesh.h>
 #include <MeshRegionObserver.h>
 #include <Grain.h>
@@ -477,9 +477,8 @@ namespace model
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const std::shared_ptr<PlanarMeshFace<dim>>& face_in,
                       Grain<dim>& grainFirst,
-                      Grain<dim>& grainSecond,
-//                      GlidePlaneObserver<dim>& dn,
-                      const SimplicialMesh<dim>& mesh) :
+                      Grain<dim>& grainSecond
+                      ) :
 //        /* init */ MeshPlane<dim>(getMeshPlane(regionbnd_in)),
 //        /* init */ MeshPlane<dim>(mesh,grainFirst.grainID,grainSecond.grainID),
         /* init */ MeshPlane<dim>(*face_in,grainFirst.grainID,grainSecond.grainID),

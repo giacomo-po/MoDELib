@@ -78,7 +78,7 @@ namespace model
 //        return Constant<Eigen::Matrix<double,rows,cols>,rows,cols>(std::move(c));
 //    }
 
-    Constant<double,1,1> make_constant(const double& c)
+    static inline Constant<double,1,1> make_constant(const double& c)
     {
         return Constant<double,1,1>(c);
     }

@@ -86,7 +86,7 @@ namespace model
         
         
         /**********************************************************************/
-        DefectiveCrystalParameters(int& argc, char* argv[]) :
+        DefectiveCrystalParameters(int& , char* []) :
         /* init */ simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
         /* init */,useDislocations(TextFileParser("inputFiles/DD.txt").readScalar<int>("useDislocations",true))
         /* init */,useCracks(TextFileParser("inputFiles/DD.txt").readScalar<int>("useCracks",true))

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <RoundEigen.h>
+//#include <RoundEigen.h>
 #include <Lattice.h>
 
 //#include <LatticeBase.h>
@@ -199,7 +199,8 @@ namespace model
                                 const LatticeType& lat)
         {
             const VectorDimD nd(lat.latticeBasis.transpose()*d);
-            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+//            const VectorDimD rd(RoundEigen<double,dim>::round(nd));
+            const VectorDimD rd(nd.array().round());
             if((nd-rd).norm()>roundTol)
             {
                 std::cout<<"d2cov, nd="<<nd.transpose()<<std::endl;

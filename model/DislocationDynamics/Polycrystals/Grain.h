@@ -17,8 +17,7 @@
 #include <MeshRegion.h>
 #include <LatticeMath.h>
 //#include <PeriodicElement.h>
-#include <FCClattice.h>
-#include <BCClattice.h>
+#include <DislocatedMaterial.h>
 #include <SlipSystem.h>
 #include <SingleCrystal.h>
 
@@ -66,7 +65,7 @@ namespace model
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
-              const Material<dim,Isotropic>& material,
+              const DislocatedMaterial<dim,Isotropic>& material,
               const std::string& polyFile
               ) :
         /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))

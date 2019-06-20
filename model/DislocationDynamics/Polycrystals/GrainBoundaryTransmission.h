@@ -207,6 +207,7 @@ namespace model
         size_t directTransmit()
         {
             assert(false && "REWORK THIS");
+            return 0;
         }
 //        {
 //            size_t nTransmitted=0;

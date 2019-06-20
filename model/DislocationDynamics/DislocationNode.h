@@ -49,6 +49,10 @@ namespace model
         
     public:
         
+#ifdef _MODEL_GREATWHITE_
+#include <DislocationNodeGreatWhite.h>
+#endif
+        
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
                         const VectorDim& Pin,

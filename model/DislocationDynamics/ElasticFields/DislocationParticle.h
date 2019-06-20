@@ -13,7 +13,7 @@
 #include <Eigen/Dense>
 
 #include <CellPropertiesBase.h>
-#include <Material.h>
+//#include <Material.h>
 #include <DislocationStress.h>
 #include <DislocationEnergy.h>
 #include <DislocationDisplacement.h>

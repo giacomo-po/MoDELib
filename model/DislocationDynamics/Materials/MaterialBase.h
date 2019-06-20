@@ -60,6 +60,7 @@ namespace model
 //        const double c0;        // shear wave speed [-]
 
         
+        /**********************************************************************/
         static const std::string& getMaterialFile(const std::string& fileName)
         {
             model::cout<<greenBoldColor<<"Reading material file: "<<fileName<<defaultColor<<std::endl;
@@ -70,25 +71,24 @@ namespace model
         static double atomicVolume(const std::string& structure)
         {
             
-//            if(structure=="BCC")
-//            {
+            if(structure=="BCC")
+            {
 //                return BCClattice<3>::getLatticeBasis().determinant();
-//            }
-//            else if(structure=="FCC")
-//            {
-//                return FCClattice<3>::getLatticeBasis().determinant();
-//            }
-//            else if(structure=="HEX")
-//            {
+            }
+            else if(structure=="FCC")
+            {
+ //               return FCClattice<3>::getLatticeBasis().determinant();
+            }
+            else if(structure=="HEX")
+            {
 //                return HEXlattice<3>::getLatticeBasis().determinant();
-//
-//            }
-//            else
-//            {
-//                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
-//                exit(EXIT_FAILURE);
-//                return 0.0;
-//            }
+            }
+            else
+            {
+                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
+                exit(EXIT_FAILURE);
+                return 0.0;
+            }
             
             std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
 

@@ -75,10 +75,11 @@ namespace model
         /**********************************************************************/
         DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
-                        const int& grainID) :
-        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID)
+                        const int& grainID,
+                        const int& _loopType) :
+        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID,_loopType)
         /* init */,slipSystem(nullptr)
-        /* init */,isGlissile(true)
+        /* init */,isGlissile(false)
         {// Virtual dislocation loop
         }
         

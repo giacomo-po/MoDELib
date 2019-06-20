@@ -20,7 +20,7 @@
 #include <Eigen/PardisoSupport>
 #endif
 #include <FiniteElement.h>
-#include <Material.h>
+//#include <Material.h>
 //#include <DislocationNegativeFields.h>
 #include <SimplicialMesh.h>
 #include <JGNselector.h>
@@ -57,7 +57,10 @@ namespace model
         typedef LagrangeElement<dim,sfOrder> ElementType;
         typedef FiniteElement<ElementType> FiniteElementType;
         typedef TrialFunction<'u',dim,FiniteElementType> TrialFunctionType;
-        typedef TrialFunction<'c',1,FiniteElementType> ConcentrationTrialFunctionType;
+        
+        typedef LagrangeElement<dim, 1> cElementType;   //for concentration, YUE
+        typedef FiniteElement<cElementType> cFiniteElementType; //for concentration, YUE
+        typedef TrialFunction<'c',1,cFiniteElementType> ConcentrationTrialFunctionType;
 
         //        typedef typename TrialFunctionType::DirichletConditionContainerType DirichletConditionContainerType;
         constexpr static int dofPerNode=TrialFunctionType::dofPerNode;
@@ -84,6 +87,7 @@ namespace model
     private:
         Eigen::Matrix<double,6,6> C; // matrix of elastic moduli
         FiniteElementType fe;
+        cFiniteElementType cfe;// for concentration, YUE
         TrialFunctionType  u;  // displacement field u=[u1 u2 u3]'
         TrialGradType  b;      // displacement gradient b=[u11 u12 u13 u21 u22 u23 u31 u32 u33]'
         TrialDefType  e;       // strain e=[e11 e22 e33 e12 e23 e13]'
@@ -306,11 +310,12 @@ namespace model
         /* init  */,gSize(0)
         /* init  */,C(get_C(DN.poly.mu,DN.poly.nu))
         /* init  */,fe(mesh)
+        /* init  */,cfe(mesh)
         /* init  */,u(fe.template trial<'u',dim>())
         /* init  */,b(grad(u))
         /* init  */,e(def(u))
         /* init  */,s(C*e)
-        /* init  */,c(fe.template trial<'c',1>())
+        /* init  */,c(cfe.template trial<'c',1>())
         /* init  */,tolerance(TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
         /* init  */,use_directSolver(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
         /* init  */,stepsBetweenBVPupdates(TextFileParser("inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
@@ -440,6 +445,9 @@ namespace model
         
         
 //#ifdef userBVPfile
+#ifdef _MODEL_GREATWHITE_
+#include <BVPsolverGreatWhite.h>
+#else
         /**********************************************************************/
         template <typename DislocationNetworkType,int qOrder>
         void assembleAndSolve(const DislocationNetworkType& DN)
@@ -452,7 +460,7 @@ namespace model
             
             // Add Dirichlet conditions by loadController
             lc->addDirichletConditions(DN);
-
+            
             // Modify Dirichlet conditions by subtracting dislocation displacement
             modifyDirichletConditions(DN);
             
@@ -460,13 +468,13 @@ namespace model
             model::cout<<"Computing DD boundary traction..."<<std::flush;
             auto ndA=fe.template boundary<ExternalBoundary,qOrder,GaussLegendre>();
             auto eb_list = ndA.template integrationList<FEMfaceEvaluation<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
-
+            
             const auto t0= std::chrono::system_clock::now();
             if(DN.corder==0)
             {
-//            REIMPLEMENT DD TRACTION
-//                assert(0 && "REIMPLEMENT DD TRACTION");
-//
+                //            REIMPLEMENT DD TRACTION
+                //                assert(0 && "REIMPLEMENT DD TRACTION");
+                //
                 DN.stress(eb_list);
             }
             else
@@ -474,7 +482,7 @@ namespace model
                 assert(0 && "REIMPLEMENT THIS");
             }
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
+            
             
             auto dislocationTraction=(test(u),eb_list);
             
@@ -482,6 +490,8 @@ namespace model
             displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());
             
         }
+#endif
+
 //#else
 //        /**********************************************************************/
 //        template <typename DislocationNetworkType,int qOrder>

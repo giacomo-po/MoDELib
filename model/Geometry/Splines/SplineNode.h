@@ -17,9 +17,9 @@
 namespace model
 {
     
-    double chordal    =1.0;
-    double centripetal=0.5;
-    double uniform    =0.0;
+//    double chordal    =1.0;
+//    double centripetal=0.5;
+//    double uniform    =0.0;
     
     
     /**************************************************************************/

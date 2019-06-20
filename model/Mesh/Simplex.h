@@ -52,7 +52,8 @@ namespace model
                 const SimplexIDType& vIN) :
         /* init list */ SimplexBase<dim,order>(m,vIN),
         //        /* init list */ P0(get_P0())
-        /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
+        /* init list */ P0(m->simplexReader().get_P0(this->xID))
+//        /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
           *
           * Constructur performs the following operations:

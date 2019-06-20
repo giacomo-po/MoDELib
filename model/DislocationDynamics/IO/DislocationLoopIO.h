@@ -18,6 +18,9 @@ namespace model
     struct DislocationLoopIO
     {
         
+        enum DislocationLoopType{GLISSILELOOP,SESSILELOOP,VIRTUALLOOP};
+
+        
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
          size_t sID;          // sID
@@ -25,17 +28,19 @@ namespace model
          VectorDim N;          // velocity
          VectorDim P;          // velocity
          size_t grainID;          // component ID
+        int loopType;
          std::tuple<double,double,double> loopLength;
         
         /**********************************************************************/
         template<typename DislocationLoopType>
         DislocationLoopIO(const DislocationLoopType& dL) :
-        /* init */ sID(dL.sID),
-        /* init */ B(dL.flow().cartesian()),
-        /* init */ N(dL.isVirtualBoundaryLoop()? dL.rightHandedUnitNormal() : (dL.slippedArea()>FLT_EPSILON? dL.rightHandedUnitNormal() : dL.glidePlane->unitNormal)),
-        /* init */ P(dL.isVirtualBoundaryLoop()? dL.links().begin()->second->source()->get_P() : dL.glidePlane->P),
-        /* init */ grainID(dL.grain.grainID),
-        /* init */ loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
+        /* init */ sID(dL.sID)
+        /* init */,B(dL.flow().cartesian())
+        /* init */,N(dL.glidePlane? (dL.slippedArea()>FLT_EPSILON? dL.rightHandedUnitNormal() : dL.glidePlane->unitNormal) : VectorDim::Zero())
+        /* init */,P(dL.glidePlane? dL.glidePlane->P : dL.links().begin()->second->source()->get_P() )
+        /* init */,grainID(dL.grain.grainID)
+        /* init */,loopType(dL.loopType)
+        /* init */,loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
         {
             
         }
@@ -45,37 +50,41 @@ namespace model
                           const VectorDim& B_in,          // position
                           const VectorDim& N_in,          // velocity
                           const VectorDim& P_in,          // velocity
-                          const size_t& grainID) :
-        /* init */ sID(sID_in),
-        /* init */ B(B_in),
-        /* init */ N(N_in),
-        /* init */ P(P_in),
-        /* init */ grainID(grainID),
-        /* init */ loopLength(std::make_tuple(0.0,0.0,0.0))
+                          const size_t& grainID_in,
+                          const int& loopType_in) :
+        /* init */ sID(sID_in)
+        /* init */,B(B_in)
+        /* init */,N(N_in)
+        /* init */,P(P_in)
+        /* init */,grainID(grainID_in)
+        /* init */,loopType(loopType_in)
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         {
             
         }
         
         /**********************************************************************/
         DislocationLoopIO() :
-        /* init */ sID(0),
-        /* init */ B(VectorDim::Zero()),
-        /* init */ N(VectorDim::Zero()),
-        /* init */ P(VectorDim::Zero()),
-        /* init */ grainID(0),
-        /* init */ loopLength(std::make_tuple(0.0,0.0,0.0))
+        /* init */ sID(0)
+        /* init */,B(VectorDim::Zero())
+        /* init */,N(VectorDim::Zero())
+        /* init */,P(VectorDim::Zero())
+        /* init */,grainID(0)
+        /* init */,loopType(0)
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         {
             
         }
         
         /**********************************************************************/
         DislocationLoopIO(std::stringstream& ss) :
-        /* init */ sID(0),
-        /* init */ B(VectorDim::Zero()),
-        /* init */ N(VectorDim::Zero()),
-        /* init */ P(VectorDim::Zero()),
-        /* init */ grainID(0),
-        /* init */ loopLength(std::make_tuple(0.0,0.0,0.0))
+        /* init */ sID(0)
+        /* init */,B(VectorDim::Zero())
+        /* init */,N(VectorDim::Zero())
+        /* init */,P(VectorDim::Zero())
+        /* init */,grainID(0)
+        /* init */,loopType(0)
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         {
             ss>>sID;
             for(int d=0;d<dim;++d)
@@ -91,6 +100,7 @@ namespace model
                 ss>>P(d);
             }
             ss>>grainID;
+            ss>>loopType;
             double l1,l2,l3;
             ss>>l1>>l2>>l3;
             loopLength=std::make_tuple(l1,l2,l3);
@@ -105,6 +115,7 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.N.transpose()<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
             /**/<< ds.grainID<<"\t"
+            /**/<< ds.loopType<<"\t"
             /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength);
             return os;
         }

@@ -51,6 +51,50 @@ namespace model
         VectorDim pkForce;
         VectorDim glideVelocity;
         
+#ifdef _MODEL_GREATWHITE_
+#include <DislocationQuadraturePointGreatWhite.h>
+#else
+        /**********************************************************************/
+        template<typename LinkType>
+        DislocationQuadraturePoint(const LinkType& parentSegment,
+                                   const int& q,const int& qOrder,
+                                   const MatrixNcoeff& SFCH,
+                                   const MatrixNcoeffDim& qH) :
+        /* init */ sourceID(parentSegment.source->sID)
+        /* init */,sinkID(parentSegment.sink->sID)
+        /* init */,qID(q)
+        /* init */,SF(QuadPowDynamicType::uPow(qOrder).row(qID)*SFCH)
+        /* init */,r(SF*qH)
+        /* init */,ru(QuadPowDynamicType::duPow(qOrder).row(qID)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH)
+        /* init */,j(ru.norm())
+        /* init */,rl(ru/j)
+        /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
+        /* init */,stress(MatrixDim::Zero())
+        /* init */,pkForce(VectorDim::Zero())
+        /* init */,glideVelocity(VectorDim::Zero())
+        {
+            
+        }
+        
+        /**********************************************************************/
+        DislocationQuadraturePoint() :
+        /* init */ sourceID(0)
+        /* init */,sinkID(0)
+        /* init */,qID(0)
+        /* init */,SF(Eigen::Matrix<double,1,Ncoeff>::Zero())
+        /* init */,r(VectorDim::Zero())
+        /* init */,ru(VectorDim::Zero())
+        /* init */,j(0.0)
+        /* init */,rl(VectorDim::Zero())
+        /* init */,dL(0.0)
+        /* init */,stress(MatrixDim::Zero())
+        /* init */,pkForce(VectorDim::Zero())
+        /* init */,glideVelocity(VectorDim::Zero())
+        {
+            
+        }
+#endif
+        
         /**********************************************************************/
         template <class T>
         friend T& operator << (T& os, const DislocationQuadraturePoint<dim,corder>& dqp)
@@ -159,64 +203,6 @@ namespace model
 //            return temp;
 //        }
         
-        /**********************************************************************/
-        template<typename LinkType>
-        DislocationQuadraturePoint(const LinkType& parentSegment,
-                                   const int& q,const int& qOrder,
-                                   const MatrixNcoeff& SFCH,
-                                   const MatrixNcoeffDim& qH) :
-        /* init */ sourceID(parentSegment.source->sID)
-        /* init */,sinkID(parentSegment.sink->sID)
-        /* init */,qID(q)
-        /* init */,SF(QuadPowDynamicType::uPow(qOrder).row(qID)*SFCH)
-        /* init */,r(SF*qH)
-        /* init */,ru(QuadPowDynamicType::duPow(qOrder).row(qID)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH)
-        /* init */,j(ru.norm())
-        /* init */,rl(ru/j)
-        /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
-        /* init */,stress(MatrixDim::Zero())
-        /* init */,pkForce(VectorDim::Zero())
-        /* init */,glideVelocity(VectorDim::Zero())
-        {
-            
-        }
-        
-        /**********************************************************************/
-        DislocationQuadraturePoint() :
-        /* init */ sourceID(0)
-        /* init */,sinkID(0)
-        /* init */,qID(0)
-        /* init */,SF(Eigen::Matrix<double,1,Ncoeff>::Zero())
-        /* init */,r(VectorDim::Zero())
-        /* init */,ru(VectorDim::Zero())
-        /* init */,j(0.0)
-        /* init */,rl(VectorDim::Zero())
-        /* init */,dL(0.0)
-        /* init */,stress(MatrixDim::Zero())
-        /* init */,pkForce(VectorDim::Zero())
-        /* init */,glideVelocity(VectorDim::Zero())
-        {
-            
-        }
-        
-        /**********************************************************************/
-        template<typename LinkType>
-        double equilibriumVacancyConcentration(const LinkType& parentSegment) const
-        {
-            
-            const VectorDim climbDir(rl.cross(parentSegment.burgers()));
-            const double climbDirNorm2(climbDir.squaredNorm());
-            if(climbDirNorm2>FLT_EPSILON)
-            {
-                const MaterialBase& mat(parentSegment.network().poly);
-                const double c0(exp(-(mat.Ufv-stress.trace()*mat.DVv*mat.Omega/3.0)/mat.kB/mat.T));
-                return c0*exp(-pkForce.dot(climbDir)/climbDirNorm2*mat.Omega/mat.kB/mat.T);
-            }
-            else
-            {// screw direction
-                return 0.0;
-            }
-        }
         
         /**********************************************************************/
         template<typename LinkType>
@@ -288,47 +274,9 @@ namespace model
         
     public:
         
-        /**********************************************************************/
-        template<typename LinkType>
-        void updateQuadraturePoints(const LinkType& parentSegment,
-                                    const double& quadPerLength)
-        {
-            
-            this->clear();
-            
-            if(    !parentSegment.hasZeroBurgers()
-               &&  !parentSegment.isBoundarySegment()
-               &&  !parentSegment.isSessile()
-               &&  !parentSegment.isVirtualBoundarySegment())
-            {
-                const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());
-                const MatrixNcoeff  SFCH(parentSegment.sfCoeffs());
-                const MatrixNcoeffDim qH(parentSegment.hermiteDofs());
-                for(int q=0;q<order;++q)
-                {
-                    this->emplace_back(parentSegment,q,order,SFCH,qH);
-                }
-            }
-        }
-        
-        /**********************************************************************/
-        const DislocationQuadraturePointContainerType& quadraturePoints() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        DislocationQuadraturePointContainerType& quadraturePoints()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const DislocationQuadraturePointType& quadraturePoint(const int& k) const
-        {
-            return this->operator[](k);
-        }
-        
+#ifdef _MODEL_GREATWHITE_
+#include <DislocationQuadraturePointContainerGreatWhite.h>
+#else
         /**********************************************************************/
         template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& parentSegment,
@@ -423,6 +371,51 @@ namespace model
                 }
             }
         }
+#endif
+
+        
+        /**********************************************************************/
+        template<typename LinkType>
+        void updateQuadraturePoints(const LinkType& parentSegment,
+                                    const double& quadPerLength)
+        {
+            
+            this->clear();
+            
+            if(    !parentSegment.hasZeroBurgers()
+               &&  !parentSegment.isBoundarySegment()
+               &&  !parentSegment.isSessile()
+               &&  !parentSegment.isVirtualBoundarySegment())
+            {
+                const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());
+                const MatrixNcoeff  SFCH(parentSegment.sfCoeffs());
+                const MatrixNcoeffDim qH(parentSegment.hermiteDofs());
+                for(int q=0;q<order;++q)
+                {
+                    this->emplace_back(parentSegment,q,order,SFCH,qH);
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        const DislocationQuadraturePointContainerType& quadraturePoints() const
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        DislocationQuadraturePointContainerType& quadraturePoints()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const DislocationQuadraturePointType& quadraturePoint(const int& k) const
+        {
+            return this->operator[](k);
+        }
+        
+
         
         /**********************************************************************/
         VectorNdof nodalVelocityVector() const

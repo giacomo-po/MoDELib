@@ -15,6 +15,8 @@
 
 #include <LatticeMath.h>
 #include <SlipSystem.h>
+#include <DislocatedMaterial.h>
+
 
 namespace model
 {
@@ -85,7 +87,7 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
+        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterial<dim,Isotropic>& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */

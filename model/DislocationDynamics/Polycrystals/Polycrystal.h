@@ -33,7 +33,7 @@
 #include <GlidePlane.h>
 #include <GlidePlaneObserver.h>
 #include <TextFileParser.h>
-#include <Material.h>
+#include <DislocatedMaterial.h>
 #include <DislocationMobilityFCC.h>
 #include <DislocationMobilityBCC.h>
 
@@ -43,12 +43,12 @@ namespace model
     
     
     template <int dim>
-    class Polycrystal : public  Material<dim,Isotropic>
+    class Polycrystal : public  DislocatedMaterial<dim,Isotropic>
     /*               */,private std::map<size_t,Grain<dim>>
     /*               */,private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
     /*               */,public  std::vector<StressStraight<dim> >
     {
-        typedef Material<dim,Isotropic> MaterialType;
+        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
@@ -59,7 +59,7 @@ namespace model
         typedef GrainBoundary<dim> GrainBoundaryType;
         
         /**********************************************************************/
-        static std::unique_ptr<DislocationMobilityBase> getMobility(const Material<dim,Isotropic>& material)
+        static std::unique_ptr<DislocationMobilityBase> getMobility(const DislocatedMaterial<dim,Isotropic>& material)
         {
             if(material.crystalStructure=="BCC")
             {
@@ -119,8 +119,9 @@ namespace model
                                               std::forward_as_tuple(rgnBnd.second,
                                                                     face.second,
                                                                     grain(rgnBnd.first.first),
-                                                                    grain(rgnBnd.first.second),
-                                                                    mesh));
+                                                                    grain(rgnBnd.first.second)
+                                                                    )
+                                              );
                 }
             }
             

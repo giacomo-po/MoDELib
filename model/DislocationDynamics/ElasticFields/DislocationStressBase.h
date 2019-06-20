@@ -39,7 +39,7 @@ namespace model
         typedef typename FieldBaseType::MatrixType MatrixType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
-        typedef Material<dim,Isotropic> MaterialType;
+        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
         
         static bool use_multipole;
         

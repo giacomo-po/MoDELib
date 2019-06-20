@@ -27,7 +27,7 @@
 #include <QuadPow.h>
 #include <DislocationNetworkTraits.h>
 #include <SplineSegment.h>
-#include <Material.h>
+//#include <Material.h>
 #include <GlidePlaneObserver.h>
 #include <GlidePlane.h>
 #include <Coeff2Hermite.h>
@@ -143,7 +143,7 @@ namespace model
                                  const std::shared_ptr<NodeType>& nJ) :
 //        /* init */ ConfinedDislocationObjectType(nI->network())
         /* init */ SplineSegmentType(nI,nJ)
-        /* init */,ConfinedDislocationObjectType(typename ConfinedDislocationObjectType::PositionCointainerType{this->source->get_P(),this->sink->get_P()})
+        /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
         //        /* init */,_isBoundarySegment(false)
@@ -170,7 +170,7 @@ namespace model
         void updateGeometry()
         {
             SplineSegmentType::updateGeometry();
-            ConfinedDislocationObjectType::updateGeometry(typename ConfinedDislocationObjectType::PositionCointainerType{this->source->get_P(),this->sink->get_P()});
+            ConfinedDislocationObjectType::updateGeometry(this->source->get_P(),this->sink->get_P());
             straight.updateGeometry();
             //            addMeshFaces();
             //            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));

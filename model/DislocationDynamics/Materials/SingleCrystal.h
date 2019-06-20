@@ -18,13 +18,13 @@
 #include <MPIcout.h> // defines mode::cout
 #include <TerminalColors.h> // defines mode::cout
 #include <MaterialSymmetry.h>
+#include <DislocatedMaterial.h>
 #include <BCClattice.h>
 #include <FCClattice.h>
 #include <HEXlattice.h>
 #include <LatticeMath.h>
 #include <SlipSystem.h>
 #include <TextFileParser.h>
-#include <Material.h>
 
 
 namespace model
@@ -42,7 +42,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         /**********************************************************************/
-        static Lattice<dim> getLattice(const Material<dim,Isotropic>& material,
+        static Lattice<dim> getLattice(const DislocatedMaterial<dim,Isotropic>& material,
                                        const MatrixDim& C2G)
         {
             if(material.crystalStructure=="BCC")
@@ -88,7 +88,7 @@ namespace model
         }
         
         /**********************************************************************/
-        static SlipSystemContainerType getSlipSystems(const Material<dim,Isotropic>& material,
+        static SlipSystemContainerType getSlipSystems(const DislocatedMaterial<dim,Isotropic>& material,
                                                       const LatticeType& lat)
         {
             if(material.crystalStructure=="BCC")
@@ -114,7 +114,7 @@ namespace model
         
 
         /**********************************************************************/
-        SingleCrystal(const Material<dim,Isotropic>& material,const MatrixDim& C2G) :
+        SingleCrystal(const DislocatedMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
         /* init */ LatticeType(getLattice(material,C2G))
         /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
         /* init */,SlipSystemContainerType(getSlipSystems(material,*this))

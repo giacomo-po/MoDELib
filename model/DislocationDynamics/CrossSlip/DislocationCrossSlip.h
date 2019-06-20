@@ -57,7 +57,7 @@ namespace model
 
         
         /**********************************************************************/
-        CrossSlipContainerType findCrossSlipSegments(const Material<dim,Isotropic>& material,
+        CrossSlipContainerType findCrossSlipSegments(const DislocatedMaterial<dim,Isotropic>& material,
                                                      const int& crossSlipModel) const
         {
             
@@ -109,9 +109,9 @@ namespace model
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
         {
-            crossSlipDeg=TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true);
+            crossSlipDeg=TextFileParser(fileName).readScalar<double>("crossSlipDeg",true);
             assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-            verboseCrossSlip=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseCrossSlip",true);            
+            verboseCrossSlip=TextFileParser(fileName).readScalar<int>("verboseCrossSlip",true);            
         }
         
         /**********************************************************************/

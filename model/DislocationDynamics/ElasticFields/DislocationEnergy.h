@@ -86,7 +86,7 @@ namespace model
           */
             
             assert(0 && "FINISH IMPLEMENTATION HERE"); // \todo Finish implementation here
-            
+            return MatrixType::Zero();
             //            MatrixType temp(MatrixType::Zero());
             //
             //            const Eigen::Matrix<double,_dim,1> r(field.P-source.P);

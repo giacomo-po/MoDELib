@@ -42,7 +42,7 @@ namespace model
         
         /**********************************************************************/
         RationalLatticeDirection(const LatticeVector<dim>& v) :
-        /* init */ rat(Rational(LatticeGCD<dim>::gcd(v)),1)
+        /* init */ rat(Rational(LatticeGCD<dim>::gcd(v),1))
         /* init */,dir(v)
         {
         }

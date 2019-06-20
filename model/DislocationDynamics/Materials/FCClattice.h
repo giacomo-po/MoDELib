@@ -10,12 +10,13 @@
 #ifndef model_FCClattice_H_
 #define model_FCClattice_H_
 
+#include <memory>
 #include <vector>
 #include <Eigen/Dense>
 
 #include <LatticeMath.h>
 #include <SlipSystem.h>
-#include <Material.h>
+#include <DislocatedMaterial.h>
 
 namespace model
 {
@@ -104,7 +105,7 @@ namespace model
 //        template <int dim>
         //        static std::vector<SlipSystem> slipSystems(const Eigen::Matrix<double,dim,dim>& covBasis,
         //                                                   const Eigen::Matrix<double,dim,dim>& contraBasis)
-        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const Material<dim,Isotropic>& material,const Lattice<dim>& lat)
+        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterial<dim,Isotropic>& material,const Lattice<dim>& lat)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip plane normals of the FCC lattice
           */
