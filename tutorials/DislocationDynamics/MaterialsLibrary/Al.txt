@@ -1,0 +1,22 @@
+materialName=Al;
+crystalStructure=FCC;
+b_SI=0.286e-9; # [m] 		Burgers vector magnitude 
+mu0_SI=27e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
+mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
+nu=0.347;		# [-]		Poisson's ratio
+rho_SI=2700.0;	# [kg/m^3]	mass density
+T=470;			# [K]		temperature
+Tm=933;		# [K]		melting temperature
+
+# Mobility parameters
+B0e_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for edge  dislocations			
+B1e_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for edge  dislocations			
+B0s_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for screw dislocations	
+B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations	
+
+# Vacancy diffusion
+Omega_SI=16.3;	# [A^3]	Atomic volume
+Ufv_eV=0.67;	# [eV]	Vacancy formation energy
+DVv=-0.405;	# [-]	Relative vacancy relaxation volume
+Udv_eV=0.61; 	# [eV]	Vacancy migration energy
+D0v_SI=1.18e-5;	    # [m^2/s]	vacancy diffusion coefficient

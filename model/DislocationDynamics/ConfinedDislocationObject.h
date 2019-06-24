@@ -392,18 +392,20 @@ namespace model
                                 assert(grain0.grainID!=grain1.grainID);
                                 const GrainBoundary<dim>& gb(*grain0.grainBoundaries().at(std::make_pair(grain0.grainID,grain1.grainID)));
                                 
-                                std::vector<VectorDim> roots;
+//                                std::vector<VectorDim> roots;
+                                std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > roots;
                                 for(const auto& meshInt : gb.meshIntersections)
                                 {
                                     PlaneSegmentIntersection<dim> psi(glidePlane0,meshInt);
                                     if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
                                     {
-                                        roots.push_back(psi.x0);
+//                                        roots.push_back(psi.x0);
+                                        roots.insert(psi.x0);
                                     }
                                 }
                                 assert(roots.size()==2 && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
-                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
-                                this->boundingBoxSegments().emplace_back(roots[0],roots[1],gb.face.get());
+                                _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
+                                this->boundingBoxSegments().emplace_back(*roots.begin(),*roots.rbegin(),gb.face.get());
                             }
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                             {/* If the two planes are incident then the intersection of
@@ -411,8 +413,9 @@ namespace model
                               * or a line segment on the boundary
                               */
                                 
-                                
-                                std::vector<VectorDim> roots;
+                                std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > roots;
+
+//                                std::vector<VectorDim> roots;
                                 for(const auto& meshInt : glidePlane0.meshIntersections)
                                 {
                                     const double segLength((meshInt.P1-meshInt.P0).norm());
@@ -424,7 +427,8 @@ namespace model
 //                                        std::cout<<u0<<std::endl;
                                         if(u0>=0.0 && u0<=segLength)
                                         {
-                                            roots.push_back(lli.x0);
+//                                            roots.push_back(lli.x0);
+                                            roots.insert(lli.x0);
                                         }
                                     }
                                     else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
@@ -446,7 +450,8 @@ namespace model
                                         }
                                         assert(false && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                     }
-                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
+//                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
+                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
 
                                     for(const auto& root : roots)
                                     {
