@@ -488,7 +488,7 @@ namespace model
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
             // Initializing configuration
-            move(0.0);	// initial configuration
+            moveGlide(0.0);	// initial configuration
         }
         
         /* readVertices *******************************************************/
@@ -722,33 +722,17 @@ namespace model
         /**********************************************************************/
         double get_dt() const
         {
-            
             switch (timeIntegrationMethod)
             {
                 case 0:
                     return DDtimeIntegrator<0>::get_dt(*this);
                     break;
-                    
-                    //                case 1:
-                    //                    dt=DDtimeIntegrator<1>::integrate(*this);
-                    //                    break;
-                    
+
                 default:
                     assert(0 && "time integration method not implemented");
+                    return 0;
                     break;
             }
-            
-            //            if(NodeType::use_velocityFilter)
-            //            {
-            //                assert(0 && "velocityFilter not implemented yet.");
-            //                //            for(auto& node : this->nodes())
-            //                //            {
-            //                //                node.second->applyVelocityFilter(vMax);
-            //                //            }
-            //            }
-            
-            
-            //            model::cout<<std::setprecision(3)<<std::scientific<<"		dt="<<dt<<std::endl;
         }
         
         /**********************************************************************/
@@ -987,13 +971,13 @@ namespace model
                 {
                     for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
                     {
-                        linkIter->second->assemble();
+                        linkIter->second->assembleGlide();
                     }
                 }
 #else
                 for (auto& linkIter : this->links())
                 {
-                    linkIter.second->assemble();
+                    linkIter.second->assembleGlide();
                 }
 #endif
                 model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
@@ -1150,14 +1134,14 @@ namespace model
         
         
         /**********************************************************************/
-        void move(const double & dt_in)
+        void moveGlide(const double & dt_in)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
             model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (auto& nodeIter : this->nodes())
             {
-                nodeIter.second->move(dt_in);
+                nodeIter.second->moveGlide(dt_in);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }

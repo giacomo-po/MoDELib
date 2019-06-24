@@ -44,8 +44,8 @@ namespace model
 
         
     private:
+        double _climbVelocityScalar;
         VectorDim _climbVelocity;
-
         
     public:
         
@@ -59,6 +59,7 @@ namespace model
                         const VectorDofType& Vin,
                         const double& vrc) :
         /* base constructor */ NodeBaseType(ln,Pin,Vin,vrc)
+        /* init */,_climbVelocityScalar(0.0)
         /* init */,_climbVelocity(VectorDim::UnitZ())
         {/*! Constructor from DOF
           */
@@ -68,6 +69,7 @@ namespace model
         DislocationNode(const LinkType& pL,
                         const double& u) :
         /* base constructor */ NodeBaseType(pL,u)
+        /* init */,_climbVelocityScalar(0.5*(pL.source->climbVelocityScalar()+pL.sink->climbVelocityScalar()))
         /* init */,_climbVelocity(0.5*(pL.source->climbVelocity()+pL.sink->climbVelocity()))
         {/*! Constructor from ExpandingEdge and DOF
           */
@@ -78,9 +80,16 @@ namespace model
                         const VectorDim& Pin,
                         const NodeType* const master) :
         /* base constructor */ NodeBaseType(ln,Pin,master)
+        /* init */,_climbVelocityScalar(0.0)
         /* init */,_climbVelocity(VectorDim::Zero())
         {/*! Constructor from DOF
           */
+        }
+        
+        /**********************************************************************/
+        const double& climbVelocityScalar() const
+        {
+            return _climbVelocityScalar;
         }
         
         /**********************************************************************/

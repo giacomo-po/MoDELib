@@ -63,21 +63,27 @@ namespace model
                                                                                           const DefectiveCrystalType& dc,
                                                                                           const long int& rID)
         {
-            // Set up periodic shifts
-            if(params.externalLoadControllerName=="UniformExternalLoadController")
-            {
-                return std::unique_ptr<ExternalLoadControllerBase<dim>>(new UniformExternalLoadController<DefectiveCrystalType>(dc,rID));
-            }
-            else if(params.externalLoadControllerName=="None")
+            
+            if(params.simulationType==DefectiveCrystalParameters::FINITE_FEM)
             {
                 return std::unique_ptr<ExternalLoadControllerBase<dim>>(nullptr);
             }
             else
             {
-                model::cout<<"Unknown externalLoadController name "<<params.externalLoadControllerName<<". Use 'None' for no-controller. EXITING."<<std::endl;
-                exit(EXIT_FAILURE);
+                if(params.externalLoadControllerName=="UniformExternalLoadController")
+                {
+                    return std::unique_ptr<ExternalLoadControllerBase<dim>>(new UniformExternalLoadController<DefectiveCrystalType>(dc,rID));
+                }
+                else if(params.externalLoadControllerName=="None")
+                {
+                    return std::unique_ptr<ExternalLoadControllerBase<dim>>(nullptr);
+                }
+                else
+                {
+                    model::cout<<"Unknown externalLoadController name "<<params.externalLoadControllerName<<". Use 'None' for no-controller. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
             }
-            
         }
         
         /**********************************************************************/
@@ -114,7 +120,7 @@ namespace model
         
         
         /**********************************************************************/
-        void updateLoadControllers(const long int& runID)
+        void updateLoadControllers(const long int& runID, const bool& isClimbStep)
         {/*! Updates bvpSolver using the stress and displacement fields of the
           *  current DD configuration.
           */
@@ -124,7 +130,7 @@ namespace model
                 if (!(runID%bvpSolver->stepsBetweenBVPupdates))
                 {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
                     model::cout<<"		Updating elastic bvp... "<<std::endl;
-                    bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*DN);
+                    bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*DN, isClimbStep);
                 }
             }
             if (externalLoadController)
@@ -208,7 +214,7 @@ namespace model
             if(DN)
             {
                 DN->updateGeometry(simulationParameters.dt);
-                updateLoadControllers(simulationParameters.runID);
+                updateLoadControllers(simulationParameters.runID, false);
                 
                 DN->assembleAndSolveGlide(simulationParameters.runID);
                 simulationParameters.dt=DN->get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
@@ -218,7 +224,7 @@ namespace model
                 DN->io().output(simulationParameters.runID);
                 
                 // move
-                DN->move(simulationParameters.dt);
+                DN->moveGlide(simulationParameters.dt);
                 
                 // menage discrete topological events
                 DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
@@ -238,6 +244,11 @@ namespace model
             }
             model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }
+        
+        /**********************************************************************/
+        #ifdef _MODEL_GREATWHITE_
+        #include <DefectiveCrystalGreatWhite.h>
+        #endif
         
         
         /**********************************************************************/

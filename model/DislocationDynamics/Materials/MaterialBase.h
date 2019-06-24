@@ -25,6 +25,7 @@ namespace model
     {
         
         static constexpr double kB_SI=1.38064852e-23; // Boltzmann constant [J/K]
+        static constexpr double eV2J=1.6021766208e-19;  // Convert [eV] to [J]
         const std::string materialFile;
         const std::string materialName;
         
@@ -63,7 +64,7 @@ namespace model
         /**********************************************************************/
         static const std::string& getMaterialFile(const std::string& fileName)
         {
-            model::cout<<greenBoldColor<<"Reading material file: "<<fileName<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<"Creating material from file: "<<fileName<<defaultColor<<std::endl;
             return fileName;
         }
         
@@ -114,17 +115,20 @@ namespace model
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-        /* init */,Omega(atomicVolume(crystalStructure))
-        /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_SI",true))
+        ///* init */,Omega(atomicVolume(crystalStructure))
+        /* init */,Omega(TextFileParser(materialFile).readScalar<double>("Omega_SI",true) * 1e-30 /std::pow(b_SI,3))
+        /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
         /* init */,DVv(TextFileParser(materialFile).readScalar<double>("DVv",true))
-        /* init */,Udv_SI(TextFileParser(materialFile).readScalar<double>("Udv_SI",true))
+        /* init */,Udv_SI(TextFileParser(materialFile).readScalar<double>("Udv_eV",true) * eV2J)
         /* init */,Udv(Udv_SI/mu_SI/std::pow(b_SI,3))
         /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
         /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Udv/kB/T))
         {
 //            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 
+            std::cout<<"FINISH CALCULATION OF ATOMIC VOLUME AND REMOVE IT FROM INPUT FILE"<<std::endl;
+            
         }
         
     };

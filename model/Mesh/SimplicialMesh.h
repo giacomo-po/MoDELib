@@ -80,8 +80,9 @@ namespace model
 //            if (success)
 //            {
                 const auto t0= std::chrono::system_clock::now();
-                
-                model::cout<<"Creating mesh..."<<std::flush;
+            
+            model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::endl;
+
                 //                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
                 //                     /*                                       */ eIter!=elementReader.end();++eIter)
                 for (const auto& eIter : this->simplexReader().elements())
@@ -277,13 +278,13 @@ namespace model
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
 //        typedef std::deque<SimplicialMeshFace<_dim>> MeshFacesContainerType;
         
-//        /**********************************************************************/
-//        SimplicialMesh() :
-//        /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
-//        /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
-//        /* init */,vol0(0.0)
-//        {
-//        }
+        /**********************************************************************/
+        SimplicialMesh() :
+        /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
+        /* init */,vol0(0.0)
+        {
+        }
         
         /**********************************************************************/
         SimplicialMesh(const int& meshID) :
@@ -295,6 +296,15 @@ namespace model
             createMesh();
             this->simplexReader().clear();
         }
+        
+                /**********************************************************************/
+               void readMesh(const int& meshID)
+                {
+                    simplices().clear();
+                    this->readTN(meshID);
+                    createMesh();
+                    this->simplexReader().clear();
+                }
                 
         /**********************************************************************/
         const SimplexMapType& simplices() const

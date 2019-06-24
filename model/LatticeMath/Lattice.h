@@ -171,7 +171,7 @@ namespace model
         {
             VectorDimD nd(reciprocalBasis.transpose()*d);
 //            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),*this);
-            return LatticeVectorType(nd.array().round().template cast<long int>(),*this);
+            return LatticeVectorType(nd.array().round().matrix().template cast<long int>(),*this);
         }
         
         /**********************************************************************/

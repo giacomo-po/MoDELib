@@ -19,7 +19,7 @@
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <Material.h>
+#include <DislocatedMaterial.h>
 #include <LatticeMath.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
@@ -44,7 +44,7 @@ namespace model
 
         typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
-        typedef Material<dim,Isotropic> MaterialType;
+        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
         
         typedef BoundingMeshSegments<dim> MeshBoundaryContainerType;
         

@@ -41,6 +41,7 @@
 #include <DislocationQuadraturePoint.h>
 #include <StraightDislocationSegment.h>
 #include <ConfinedDislocationObject.h>
+#include <DislocationLoopIO.h>
 
 #ifndef NDEBUG
 #define VerbosePlanarDislocationSegment(N,x) if(verbosePlanarDislocationSegment>=N){model::cout<<x;}
@@ -250,9 +251,9 @@ namespace model
 
         
         /**********************************************************************/
-        void assemble()
+        void assembleGlide()
         {
-            this->updateForcesAndVelocities(*this,quadPerLength);
+            this->updateForcesAndVelocities(*this,quadPerLength,false);
             Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
             Kqq=this->nodalVelocityMatrix(*this);
             h2posMap=this->hermite2posMap();
@@ -435,6 +436,17 @@ namespace model
         bool isSessile() const
         {
             return !isGlissile();
+        }
+        
+        /**********************************************************************/
+        bool isPureSessile() const
+        {
+            bool temp(true);
+            for(const auto& loopLink : this->loopLinks())
+            {
+                temp*=loopLink->loop()->loopType==DislocationLoopIO<dim>::SESSILELOOP;
+            }
+            return temp;
         }
         
         /**********************************************************************/

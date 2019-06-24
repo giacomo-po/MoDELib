@@ -280,9 +280,10 @@ namespace model
         /**********************************************************************/
         template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& parentSegment,
-                                       const double& quadPerLength)
+                                       const double& quadPerLength,
+                                       const double& isClimbStep)
         {
-            updateQuadraturePoints(parentSegment,quadPerLength);
+            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             
             
             if(this->size())
@@ -377,14 +378,15 @@ namespace model
         /**********************************************************************/
         template<typename LinkType>
         void updateQuadraturePoints(const LinkType& parentSegment,
-                                    const double& quadPerLength)
+                                    const double& quadPerLength,
+                                    const bool& isClimbStep)
         {
             
             this->clear();
             
             if(    !parentSegment.hasZeroBurgers()
                &&  !parentSegment.isBoundarySegment()
-               &&  !parentSegment.isSessile()
+               &&  (!parentSegment.isSessile() || isClimbStep)
                &&  !parentSegment.isVirtualBoundarySegment())
             {
                 const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());

@@ -35,6 +35,7 @@
 //#include <BoundingLineSegments.h>
 #include <DefectiveCrystalParameters.h>
 #include <ConfinedDislocationObject.h>
+#include <DislocationLoopIO.h>
 
 
 #ifndef NDEBUG
@@ -799,6 +800,17 @@ namespace model
             return velocityReductionCoeff;
         }
         
+        /**********************************************************************/
+        bool isPureSessile() const
+        {
+            bool temp(true);
+            for(const auto& loopLink : this->loopLinks())
+            {
+                temp*=*loopLink->loop()->loopType==DislocationLoopIO<dim>::SESSILELOOP;
+            }
+            return temp;
+        }
+        
 //        /**********************************************************************/
 //        bool isGlissile() const
 //        {
@@ -1136,7 +1148,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void move(const double & dt)
+        void moveGlide(const double & dt)
         {
             
             //velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
