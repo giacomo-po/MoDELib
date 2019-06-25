@@ -51,50 +51,50 @@ namespace model
         /**********************************************************************/
         void updateBoundingBoxWithMeshFace(const PlanarMeshFace<dim>& face)
         {
-//            std::cout<<"pdateBoundingBoxWithMeshFace "<<face.sID<<std::endl;
-//            std::cout<<this->boundingBoxSegments()<<std::endl;
+            //            std::cout<<"pdateBoundingBoxWithMeshFace "<<face.sID<<std::endl;
+            //            std::cout<<this->boundingBoxSegments()<<std::endl;
             assert(this->boundingBoxSegments().size() && "boundingBoxSegments() cannot be empty");
-
+            
             BoundingMeshSegments<dim> temp;
-
+            
             Plane<dim> plane(face.asPlane());
             for(const auto& seg : this->boundingBoxSegments())
             {// PRBLEM HERE IS THAT THIS ALGORITHM DOES NOT CHECK THAT TEMP ALREADY ONCLUDE "OVERLAPPING" BOUNDING BOX POINTS
                 auto newFaces(seg.faces);
                 newFaces.insert(&face);
                 
-//                if(seg.faces.find(&face)!=seg.faces.end())
-//                {// intersection segment is defined on face
-                    const bool P0contained(plane.contains(seg.P0));
-                    const bool P1contained(plane.contains(seg.P1));
-//                    auto faces(seg.faces());
-//                    faces.insert(face);
-                    if(P0contained && P1contained)
-                    {// the whole segment is contained
-                        temp.emplace_back(seg.P0,seg.P1,newFaces);
-//                        const bool success(.second);
-//                        assert(success && "COULD NOT INSERT IN TEMP DURING FACE UPDATE");
-                    }
-                    else if(P0contained)
-                    {
-                        temp.emplace_back(seg.P0,seg.P0,newFaces);
-//                        assert(false && "FINISH HERE1");
-                    }
-                    else if(P1contained)
-                    {
-                        temp.emplace_back(seg.P1,seg.P1,newFaces);
-//                        assert(false && "FINISH HERE2");
-                    }
-                    else
-                    {// do nothing, this excludes seg from new bounding box
- //                                               assert(false && "FINISH HERE3");
-                    }
-//                }
+                //                if(seg.faces.find(&face)!=seg.faces.end())
+                //                {// intersection segment is defined on face
+                const bool P0contained(plane.contains(seg.P0));
+                const bool P1contained(plane.contains(seg.P1));
+                //                    auto faces(seg.faces());
+                //                    faces.insert(face);
+                if(P0contained && P1contained)
+                {// the whole segment is contained
+                    temp.emplace_back(seg.P0,seg.P1,newFaces);
+                    //                        const bool success(.second);
+                    //                        assert(success && "COULD NOT INSERT IN TEMP DURING FACE UPDATE");
+                }
+                else if(P0contained)
+                {
+                    temp.emplace_back(seg.P0,seg.P0,newFaces);
+                    //                        assert(false && "FINISH HERE1");
+                }
+                else if(P1contained)
+                {
+                    temp.emplace_back(seg.P1,seg.P1,newFaces);
+                    //                        assert(false && "FINISH HERE2");
+                }
+                else
+                {// do nothing, this excludes seg from new bounding box
+                    //                                               assert(false && "FINISH HERE3");
+                }
+                //                }
             }
-
+            
             this->boundingBoxSegments().swap(temp);
-//            std::cout<<"Now bounding box is"<<std::endl;
-//            std::cout<<this->boundingBoxSegments()<<std::endl;
+            //            std::cout<<"Now bounding box is"<<std::endl;
+            //            std::cout<<this->boundingBoxSegments()<<std::endl;
             assert(this->boundingBoxSegments().size() && "boundingBoxSegments cannot be empty");
         }
         
@@ -161,10 +161,10 @@ namespace model
                 _outNormal.setZero();
             }
         }
-
-
         
-//        GlidePlaneObserver<dim>& gpObserver;
+        
+        
+        //        GlidePlaneObserver<dim>& gpObserver;
         PositionCointainerType posCointainer;
         std::unique_ptr<FiniteLineSegment<dim>> _glidePlaneIntersections;
         bool _isOnExternalBoundary;
@@ -176,8 +176,8 @@ namespace model
         
         /**********************************************************************/
         ConfinedDislocationObject(const PositionCointainerType& temp) :
-//        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
-//        /* init */ gpObserver(gpo)
+        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
+        //        /* init */ gpObserver(gpo)
         /* init */ _isOnExternalBoundary(false)
         /* init */,_isOnInternalBoundary(false)
         /* init */,_outNormal(VectorDim::Zero())
@@ -211,7 +211,7 @@ namespace model
         /**********************************************************************/
         ConfinedDislocationObject(const ConfinedDislocationObject<dim>& A,
                                   const ConfinedDislocationObject<dim>& B) :
-//        /* init */ gpObserver(A.gpObserver)
+        //        /* init */ gpObserver(A.gpObserver)
         /* init */ _isOnExternalBoundary(A.isOnExternalBoundary() || B.isOnExternalBoundary())
         /* init */,_isOnInternalBoundary(A.isOnInternalBoundary() || B.isOnInternalBoundary())
         /* init */,_outNormal(VectorDim::Zero())
@@ -232,7 +232,7 @@ namespace model
             {
                 meshFaces().insert(face);
             }
-
+            
         }
         
         /**********************************************************************/
@@ -277,7 +277,7 @@ namespace model
             }
             else
             {
-//                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
+                //                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
                 assert(this->glidePlanes().size()==1);
                 return (*this->glidePlanes().begin())->snapToPlane(P);
             }
@@ -340,8 +340,8 @@ namespace model
                 const bool success(glidePlanes().insert(lastGlidePlane).second);
                 if(success)
                 {// A new glide plane was added
-//                    updateBoundingBoxWithGlidePlane(*glidePlane);
-//                    updateMeshPlaneIntersections(*glidePlane);
+                    //                    updateBoundingBoxWithGlidePlane(*glidePlane);
+                    //                    updateMeshPlaneIntersections(*glidePlane);
                     
                     
                     switch (glidePlanes().size())
@@ -372,34 +372,34 @@ namespace model
                             //                    assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                             _glidePlaneIntersections.reset(nullptr);
                             this->boundingBoxSegments().clear();
-//
-//                            assert(!_glidePlaneIntersections && "_glidePlaneIntersections must be empty");
+                            //
+                            //                            assert(!_glidePlaneIntersections && "_glidePlaneIntersections must be empty");
                             
                             // Grab the infinite line of intersection between the two planes
-//                            const PlanePlaneIntersection<dim>& ppi(gpObserver.glidePlaneIntersection(*glidePlanes().begin(),*glidePlanes().rbegin()));
+                            //                            const PlanePlaneIntersection<dim>& ppi(gpObserver.glidePlaneIntersection(*glidePlanes().begin(),*glidePlanes().rbegin()));
                             const PlanePlaneIntersection<dim> ppi(**glidePlanes().begin(),**glidePlanes().rbegin());
                             const GlidePlane<dim>& glidePlane0(**glidePlanes().begin());
                             const GlidePlane<dim>& glidePlane1(**glidePlanes().rbegin());
-
+                            
                             if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                             {/* Two distinct glide planes can be coincident only if they belong to different grains
                               */
                                 
                                 const Grain<dim>& grain0(glidePlane0.grain);
                                 const Grain<dim>& grain1(glidePlane1.grain);
-
+                                
                                 
                                 assert(grain0.grainID!=grain1.grainID);
                                 const GrainBoundary<dim>& gb(*grain0.grainBoundaries().at(std::make_pair(grain0.grainID,grain1.grainID)));
                                 
-//                                std::vector<VectorDim> roots;
+                                //                                std::vector<VectorDim> roots;
                                 std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > roots;
                                 for(const auto& meshInt : gb.meshIntersections)
                                 {
                                     PlaneSegmentIntersection<dim> psi(glidePlane0,meshInt);
                                     if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
                                     {
-//                                        roots.push_back(psi.x0);
+                                        //                                        roots.push_back(psi.x0);
                                         roots.insert(psi.x0);
                                     }
                                 }
@@ -414,8 +414,8 @@ namespace model
                               */
                                 
                                 std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > roots;
-
-//                                std::vector<VectorDim> roots;
+                                
+                                //                                std::vector<VectorDim> roots;
                                 for(const auto& meshInt : glidePlane0.meshIntersections)
                                 {
                                     const double segLength((meshInt.P1-meshInt.P0).norm());
@@ -424,10 +424,10 @@ namespace model
                                     if(lli.type==LineLineIntersection<dim>::INCIDENT)
                                     {
                                         const double u0((lli.x0-meshInt.P0).dot(D0));
-//                                        std::cout<<u0<<std::endl;
+                                        //                                        std::cout<<u0<<std::endl;
                                         if(u0>=0.0 && u0<=segLength)
                                         {
-//                                            roots.push_back(lli.x0);
+                                            //                                            roots.push_back(lli.x0);
                                             roots.insert(lli.x0);
                                         }
                                     }
@@ -450,9 +450,9 @@ namespace model
                                         }
                                         assert(false && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                     }
-//                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
+                                    //                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
                                     _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
-
+                                    
                                     for(const auto& root : roots)
                                     {
                                         std::set<const PlanarMeshFace<dim>*> faces;
@@ -485,80 +485,91 @@ namespace model
                                 assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
                             }
                             
-//                            assert(_glidePlaneIntersections && "_glidePlaneIntersections must exist");
+                            //                            assert(_glidePlaneIntersections && "_glidePlaneIntersections must exist");
                             
                             break;
                         }
                             
                         default:
-                        {// Case of more that 2 planes. A _glidePlaneIntersections must exist
-                            assert(_glidePlaneIntersections && "_glidePlaneIntersections must exist");
-                            
-                            
-                            PlaneSegmentIntersection<dim> pli(lastGlidePlane->P,
-                                                              lastGlidePlane->unitNormal,
-                                                              _glidePlaneIntersections->P0, // segment start
-                                                              _glidePlaneIntersections->P1 // segment end
-                                                              );
-                            
-                            
-                            switch (pli.type)
-                            {
-                                case PlaneSegmentIntersection<dim>::COINCIDENT:
-                                {// nothing to do, _glidePlaneIntersections and bounding box remains unchanged
-                                    break;
-                                }
-                                    
-                                case PlaneSegmentIntersection<dim>::INCIDENT:
-                                {// _glidePlaneIntersections becomes a point (degenerate line)
-                                    const VectorDim x(0.5*(pli.x0+pli.x1));
-                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(x,x));
-
-                                    // Update this->boundingBoxSegments()
-                                    std::set<const PlanarMeshFace<dim>*> faces;
-                                    const auto containingSegments(this->boundingBoxSegments().containingSegments(x));
-                                    for(const auto& meshInt : containingSegments)
-                                    {
-                                        for(const auto& curFace : meshInt->faces)
-                                        {
-                                            faces.insert(curFace);
-                                        }
-                                    }
-                                    this->boundingBoxSegments().clear();
-                                    if(faces.size())
-                                    {
-                                        this->boundingBoxSegments().emplace_back(x,x,faces);
-                                    }
-                                    break;
-                                }
-                                    
-                                default:
+                        {// Case of more that 2 planes.
+                            if(_glidePlaneIntersections)
+                            {// A _glidePlaneIntersections must exist, otherwise interseciton of glide planes was already found empty
+                                
+                                
+                                PlaneSegmentIntersection<dim> pli(lastGlidePlane->P,
+                                                                  lastGlidePlane->unitNormal,
+                                                                  _glidePlaneIntersections->P0, // segment start
+                                                                  _glidePlaneIntersections->P1 // segment end
+                                                                  );
+                                
+                                
+                                switch (pli.type)
                                 {
-//                                    model::cout<<"PlanarDislocationNode "<<this->sID<<std::endl;
-                                    model::cout<<"MeshPlanes are:"<<std::endl;
-                                    for(const auto& plane : glidePlanes())
-                                    {
-                                        model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<plane->P.transpose()<<", n="<<plane->unitNormal.transpose()<<std::endl;
-                                        model::cout<<"Plane bounding box:"<<std::endl;
-                                        std::cout<<plane->meshIntersections<<std::endl;
-
+                                    case PlaneSegmentIntersection<dim>::COINCIDENT:
+                                    {// nothing to do, _glidePlaneIntersections and bounding box remains unchanged
+                                        break;
                                     }
-                                    
-                                    model::cout<<"lastGlidePlane is:"<<std::endl;
-                                    model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<lastGlidePlane->P.transpose()<<", n="<<lastGlidePlane->unitNormal.transpose()<<std::endl;
-                                    
-                                    model::cout<<"MeshPlane intersection is:"<<std::endl;
-                                    model::cout<<std::setprecision(15)<<std::scientific<<"  P0="<<_glidePlaneIntersections->P0.transpose()<<", P1="<<_glidePlaneIntersections->P1.transpose()<<std::endl;
-                                    
-                                    assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
-                                    break;
+                                        
+                                    case PlaneSegmentIntersection<dim>::INCIDENT:
+                                    {// _glidePlaneIntersections becomes a point (degenerate line)
+                                        const VectorDim x(0.5*(pli.x0+pli.x1));
+                                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(x,x));
+                                        
+                                        // Update this->boundingBoxSegments()
+                                        std::set<const PlanarMeshFace<dim>*> faces;
+                                        const auto containingSegments(this->boundingBoxSegments().containingSegments(x));
+                                        for(const auto& meshInt : containingSegments)
+                                        {
+                                            for(const auto& curFace : meshInt->faces)
+                                            {
+                                                faces.insert(curFace);
+                                            }
+                                        }
+                                        this->boundingBoxSegments().clear();
+                                        if(faces.size())
+                                        {
+                                            this->boundingBoxSegments().emplace_back(x,x,faces);
+                                        }
+                                        break;
+                                    }
+                                        
+                                    default:
+                                    {
+                                        _glidePlaneIntersections.reset(nullptr);
+                                        this->boundingBoxSegments().clear();
+                                        
+                                        if(posCointainer.size())
+                                        {// an actual dislocation object is being confined
+                                            //                                    model::cout<<"PlanarDislocationNode "<<this->sID<<std::endl;
+                                            model::cout<<"MeshPlanes are:"<<std::endl;
+                                            for(const auto& plane : glidePlanes())
+                                            {
+                                                model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<plane->P.transpose()<<", n="<<plane->unitNormal.transpose()<<std::endl;
+                                                model::cout<<"Plane bounding box:"<<std::endl;
+                                                std::cout<<plane->meshIntersections<<std::endl;
+                                                
+                                            }
+                                            
+                                            model::cout<<"lastGlidePlane is:"<<std::endl;
+                                            model::cout<<std::setprecision(15)<<std::scientific<<"  P="<<lastGlidePlane->P.transpose()<<", n="<<lastGlidePlane->unitNormal.transpose()<<std::endl;
+                                            
+                                            model::cout<<"MeshPlane intersection is:"<<std::endl;
+                                            model::cout<<std::setprecision(15)<<std::scientific<<"  P0="<<_glidePlaneIntersections->P0.transpose()<<", P1="<<_glidePlaneIntersections->P1.transpose()<<std::endl;
+                                            
+                                            assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
+                                        }
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
+                            else
+                            {
+                                this->boundingBoxSegments().clear();
+                            }
                         }
                             
                     }
-                    
                     
                     updateConfinement();
                 }
@@ -576,7 +587,7 @@ namespace model
             return temp;
         }
         
-
+        
         
         
     };

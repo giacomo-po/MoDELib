@@ -139,6 +139,9 @@ namespace model
 
                 const double maxRange=4.0*(nA->get_P()-nB->get_P()).norm();
                 
+                VerboseNodeContraction(1,nA->sID<<" isOnBoundary()"<<nA->isOnBoundary()<<std::endl;);
+                VerboseNodeContraction(1,nB->sID<<" isOnBoundary()"<<nB->isOnBoundary()<<std::endl;);
+
                 
                 if(nA->isOnBoundary() || nB->isOnBoundary())
                 {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node

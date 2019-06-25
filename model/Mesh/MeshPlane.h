@@ -23,6 +23,7 @@
 #include <PlaneSegmentIntersection.h>
 #include <PlanePlaneIntersection.h>
 #include <MeshBoundarySegment.h>
+#include <LineLineIntersection.h>
 
 //#include <MeshPlaneIntersection.h>
 
@@ -41,6 +42,7 @@ namespace model
         //        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
         typedef std::pair<VectorDim,const Simplex<dim,1>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
+        typedef std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > UniquePointContainer;
 //        typedef std::vector<MeshBoundarySegment<dim>, Eigen::aligned_allocator<MeshBoundarySegment<dim>>> MeshBoundarySegmentContainerType;
         
         /**********************************************************************/
@@ -54,172 +56,368 @@ namespace model
             }
             return temp;
         }
-        
-//        static std::set<const PlanarMeshFace<dim>*> getFaces(const BoundingMeshSegments<dim>& meshBoundaryContainer)
-//        {
-//            std::set<const PlanarMeshFace<dim>*> temp;
-//            for(const auto& seg : meshBoundaryContainer)
+
+//        /**********************************************************************/
+//        static BoundingMeshSegments<dim> getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
+//                                                                 const int& rID,
+//                                                                 const Plane<dim>& plane)
+//        {/*!\todo MeshFace and this function use ConvexHull and therefore will yield a intersection
+//          * for non-convex faces. In order to support non-convex faces
+//          * we need to have a structure with face edges.
+//          */
+//
+//            BoundingMeshSegments<dim> temp;
+//            const MatrixDim R(plane.localRotationMatrix());
+//
+//            for(const auto& face : mesh.region(rID)->faces())
 //            {
-//                temp.insert(seg.face);
+//                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
+//
+//                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+//                {// plane and mesh-face are coincident
+//
+//                    UniquePointContainer roots;
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//                        // Pick face boundary segment
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        const VectorDim& P0(face.second->convexHull()[k]->P0);
+//                        const VectorDim& P1(face.second->convexHull()[k1]->P0);
+//                        const double segLength((P1-P0).norm());
+//                        const VectorDim D0((P1-P0)/segLength);
+//                        // Compute intersection between bonudary segment and line of intersection of the two planes
+//                        LineLineIntersection<dim> lli(P0,D0,ppi.P,ppi.d);
+//                        if(lli.type==LineLineIntersection<dim>::INCIDENT)
+//                        {
+//                            const double u0((lli.x0-P0).dot(D0));
+//                            if(u0>0.0-FLT_EPSILON && u0<segLength+FLT_EPSILON)
+//                            {// intersection within segment
+//                                roots.insert(lli.x0);
+//                            }
+//                        }
+//                        else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
+//                        {// a coincident line was found, which means that the glide planes intersec on a boundary face
+//                            roots.insert(P0);
+//                            roots.insert(P1);
+//                        }
+//                    }
+//
+//                    switch (roots.size())
+//                    {
+//                        case 0:
+//                        {// no intersaction between plane and face
+//                            break;
+//                        }
+//
+//                        case 2:
+//                        {// an intersection segment
+//                            temp.emplace_back(*roots.begin(),*roots.rbegin(),face.second.get());
+//                            break;
+//                        }
+//
+//                        default:
+//                        {
+//                            std::cout<<"FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE"<<std::endl;
+//                            std::cout<<"plane.P="<<plane.P.transpose()<<std::endl;
+//                            std::cout<<"plane.unitNormal="<<plane.unitNormal.transpose()<<std::endl;
+//                            std::cout<<"IN INTERSECTING PLANE AND FACE"<<std::endl;
+//                            std::cout<<face.second->outNormal()<<std::endl;
+//                            std::cout<<"ROOTS ARE"<<std::endl;
+//                            for(const auto& root : roots)
+//                            {
+//                                std::cout<<root.transpose()<<std::endl;
+//                            }
+//                            break;
+//                        }
+//                    }
+//                }
+//                else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
+//                {
+//                    temp.clear();
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        temp.emplace_back(face.second->convexHull()[k]->P0,face.second->convexHull()[k1]->P0,face.second.get());
+//                    }
+//                    break; // loop over faces
+//                }
 //            }
-//            return temp;
+//
+//            // We now need to clean temp. First remove singular points
+//
+//            ConvexHull<2,MeshBoundarySegment<dim>> finalHull;
+//            //std::cout<<"unsorted hull"<<std::endl;
+//            for(const auto& pt : temp)
+//            {
+//
+//                VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
+//                finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt); // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
+//                //std::cout<<pt.P0.transpose()<<","<<pt.P1.transpose()<<std::endl;
+//            }
+//            const auto hullPts=finalHull.getPoints();
+//
+//            if(hullPts.size()!=temp.size())
+//            {
+//
+//                std::cout<<"plane.P="<<plane.P.transpose()<<std::endl;
+//                std::cout<<"plane.n="<<plane.unitNormal.transpose()<<std::endl;
+//
+//                std::cout<<"temp:\n";
+//                for(const auto& pt : temp)
+//                {
+//                    VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
+//                    std::cout<<x.transpose()<<" "<<pt.P0.transpose()<<" "<<pt.P1.transpose()<<"\n";
+//                }
+//
+//                std::cout<<"finalHull:\n";
+//                for(const auto& pt : finalHull)
+//                {
+//                    std::cout<<pt[0]<<" "<<pt[1]<<"\n";
+//                }
+//
+//                std::cout<<"hullPts:\n";
+//                for(const auto& pt : hullPts)
+//                {
+//                    std::cout<<pt[0]<<" "<<pt[1]<<"\n";
+//                }
+//
+//                assert(hullPts.size()==temp.size());
+//            }
+//
+//
+//            BoundingMeshSegments<dim> sortedTemp;
+//            //            for(const auto& seg : hullPts)
+//            //            {
+//            //                sortedTemp.push_back(*seg.t);
+//            //            }
+//            //std::cout<<"sorted hull"<<std::endl;
+//            for(size_t k=0;k<hullPts.size();++k)
+//            {
+//                const auto& seg(*hullPts[k].t);
+//                if(k==0)
+//                {
+//                    const auto& seg1(*hullPts[1].t);
+//
+//                    if((seg.P1-seg1.P0).norm()<FLT_EPSILON || (seg.P1-seg1.P1).norm()<FLT_EPSILON)
+//                    {// first segment is oriented in the right direction
+//                        sortedTemp.push_back(seg);
+//                    }
+//                    else
+//                    {
+//                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
+//                    }
+//                }
+//                else
+//                {
+//                    if((sortedTemp.back().P1-seg.P0).norm()<FLT_EPSILON)
+//                    {
+//                        sortedTemp.push_back(seg);
+//                    }
+//                    else if((sortedTemp.back().P1-seg.P1).norm()<FLT_EPSILON)
+//                    {
+//                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
+//                    }
+//                    else
+//                    {
+//                        //std::cout<<"k="<<k<<" of "<<hullPts.size()<<std::endl;
+//                        assert(false && "DISCONNECTED FACE BOUNDARY");
+//                    }
+//                }
+//                //std::cout<<sortedTemp.back().P0.transpose()<<","<<sortedTemp.back().P1.transpose()<<std::endl;
+//
+//            }
+//            assert((sortedTemp.back().P1-sortedTemp.front().P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
+//
+//            assert(sortedTemp.size()==temp.size());
+//
+//
+//            return sortedTemp;
+//
 //        }
-
         
-        /**********************************************************************/
-        static BoundingMeshSegments<dim> getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
-                                                                 const int& rID,
-                                                                 const Plane<dim>& plane)
-        {/*!\todo MeshFace and this function use ConvexHull and therefore will yield a intersection
-          * for non-convex faces. In order to support non-convex faces
-          * we need to have a structure with face edges.
-          */
-            
-            //
-            //            std::cout<<"getMeshBoundarySegments start"<<std::endl;
-            // Collect all intersection points
-            //            Plane<dim> plane(p,n);
-            BoundingMeshSegments<dim> temp;
-            const MatrixDim R(plane.localRotationMatrix());
-            
-            for(const auto& face : mesh.region(rID)->faces())
-            {
-                //std::cout<<face.second->outNormal()<<std::endl;
-                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
-                
-                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
-                {// Collect all intersection points with lines defined by convexHull of face
-                                        //std::cout<<"incident"<<std::endl;
-                    std::vector<VectorDim> pts;
-                    //std::cout<<"face.second->convexHull().size()="<<face.second->convexHull().size()<<std::endl;
-
-                    for(size_t k=0;k<face.second->convexHull().size();++k)
-                    {
-                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
-                        PlaneSegmentIntersection<dim> psi(plane.P,plane.unitNormal,face.second->convexHull()[k]->P0,face.second->convexHull()[k1]->P0);
-                        
-                        if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
-                        {
-                            pts.push_back(psi.x0);
-                        }
-                        else if(psi.type==PlaneSegmentIntersection<dim>::COINCIDENT)
-                        {
-                            pts.push_back(psi.x0);
-                            pts.push_back(psi.x1);
-                            break;
-                        }
-                    }
-
-                    // Compute ConvexHull of intersection points
-                    ConvexHull<2,VectorDim> hull;
-                    for(const auto& pt : pts)
-                    {
-                        VectorDim x(R*(pt-plane.P));
-//                        HullPoint<2,VectorDim> hp({x[0],x[1]},&pt);
-//                        hull.push_back(hp);
-                        hull.emplace(std::array<double,2>{x[0],x[1]},&pt);
-                    }
-
-                    const auto hullPts=hull.getPoints();
-                    if(hullPts.size()==2)
-                    {
-                        //std::cout<<"a"<<std::endl;
-                        temp.emplace_back(*hullPts[0].t,*hullPts[1].t,face.second.get());
-                    }
-                    else if(hullPts.size()>2)
-                    {
-                                                //std::cout<<"b"<<std::endl;
-                        for(size_t k=0;k<hullPts.size();++k)
-                        {
-                            const size_t k1(k==hullPts.size()-1? 0 : k+1);
-                            temp.emplace_back(*hullPts[k].t,*hullPts[k1].t,face.second.get());
-                        }
-                    }
-                    else
-                    {// don't push points
-                                                //std::cout<<"c"<<std::endl;
-                    }
-                    
-                }
-                else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
-                {
-                                                            //std::cout<<"coincident"<<std::endl;
-                    temp.clear();
-                    for(size_t k=0;k<face.second->convexHull().size();++k)
-                    {
-                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
-                        temp.emplace_back(face.second->convexHull()[k]->P0,face.second->convexHull()[k1]->P0,face.second.get());
-                    }
-                    break;
-                }
-                
-                
-            }
-            
-
-            
-            ConvexHull<2,MeshBoundarySegment<dim>> finalHull;
-            //std::cout<<"unsorted hull"<<std::endl;
-            for(const auto& pt : temp)
-            {
-                
-                VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
-                finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt); // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
-                //std::cout<<pt.P0.transpose()<<","<<pt.P1.transpose()<<std::endl;
-            }
-            const auto hullPts=finalHull.getPoints();
-
-            assert(hullPts.size()==temp.size());
-
-            BoundingMeshSegments<dim> sortedTemp;
-//            for(const auto& seg : hullPts)
+//        /**********************************************************************/
+//        static BoundingMeshSegments<dim> getMeshBoundarySegments(const SimplicialMesh<dim>& mesh,
+//                                                                 const int& rID,
+//                                                                 const Plane<dim>& plane)
+//        {/*!\todo MeshFace and this function use ConvexHull and therefore will yield a intersection
+//          * for non-convex faces. In order to support non-convex faces
+//          * we need to have a structure with face edges.
+//          */
+//
+//            //
+//            //            std::cout<<"getMeshBoundarySegments start"<<std::endl;
+//            // Collect all intersection points
+//            //            Plane<dim> plane(p,n);
+//            BoundingMeshSegments<dim> temp;
+//            const MatrixDim R(plane.localRotationMatrix());
+//
+//            for(const auto& face : mesh.region(rID)->faces())
 //            {
-//                sortedTemp.push_back(*seg.t);
+//                std::cout<<face.second->outNormal()<<std::endl;
+//                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
+//
+//                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+//                {// Collect all intersection points with lines defined by convexHull of face
+//                                        //std::cout<<"incident"<<std::endl;
+//                    std::vector<VectorDim> pts;
+//                    //std::cout<<"face.second->convexHull().size()="<<face.second->convexHull().size()<<std::endl;
+//
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        PlaneSegmentIntersection<dim> psi(plane.P,plane.unitNormal,face.second->convexHull()[k]->P0,face.second->convexHull()[k1]->P0);
+//
+//                        if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
+//                        {
+//                            std::cout<<"incident"<<std::endl;
+//                            pts.push_back(psi.x0);
+//                        }
+//                        else if(psi.type==PlaneSegmentIntersection<dim>::COINCIDENT)
+//                        {
+//                                                        std::cout<<"coincident"<<std::endl;
+//                            pts.push_back(psi.x0);
+//                            pts.push_back(psi.x1);
+//                            break;
+//                        }
+//                    }
+//
+//                    // Compute ConvexHull of intersection points
+//                    ConvexHull<2,VectorDim> hull;
+//                    for(const auto& pt : pts)
+//                    {
+//                        VectorDim x(R*(pt-plane.P));
+////                        HullPoint<2,VectorDim> hp({x[0],x[1]},&pt);
+////                        hull.push_back(hp);
+//                        hull.emplace(std::array<double,2>{x[0],x[1]},&pt);
+//                    }
+//
+//                    const auto hullPts=hull.getPoints();
+//                    if(hullPts.size()==2)
+//                    {
+//                        //std::cout<<"a"<<std::endl;
+//                        temp.emplace_back(*hullPts[0].t,*hullPts[1].t,face.second.get());
+//                    }
+//                    else if(hullPts.size()>2)
+//                    {
+//                                                //std::cout<<"b"<<std::endl;
+//                        for(size_t k=0;k<hullPts.size();++k)
+//                        {
+//                            const size_t k1(k==hullPts.size()-1? 0 : k+1);
+//                            temp.emplace_back(*hullPts[k].t,*hullPts[k1].t,face.second.get());
+//                        }
+//                    }
+//                    else
+//                    {// don't push points
+//                                                //std::cout<<"c"<<std::endl;
+//                    }
+//
+//                }
+//                else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
+//                {
+//                                                            //std::cout<<"coincident"<<std::endl;
+//                    temp.clear();
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        temp.emplace_back(face.second->convexHull()[k]->P0,face.second->convexHull()[k1]->P0,face.second.get());
+//                    }
+//                    break;
+//                }
+//
+//
 //            }
-                        //std::cout<<"sorted hull"<<std::endl;
-            for(size_t k=0;k<hullPts.size();++k)
-            {
-                const auto& seg(*hullPts[k].t);
-                if(k==0)
-                {
-                    const auto& seg1(*hullPts[1].t);
-
-                    if((seg.P1-seg1.P0).norm()<FLT_EPSILON || (seg.P1-seg1.P1).norm()<FLT_EPSILON)
-                    {// first segment is oriented in the right direction
-                        sortedTemp.push_back(seg);
-                    }
-                    else
-                    {
-                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
-                    }
-                }
-                else
-                {
-                    if((sortedTemp.back().P1-seg.P0).norm()<FLT_EPSILON)
-                    {
-                        sortedTemp.push_back(seg);
-                    }
-                    else if((sortedTemp.back().P1-seg.P1).norm()<FLT_EPSILON)
-                    {
-                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
-                    }
-                    else
-                    {
-                        //std::cout<<"k="<<k<<" of "<<hullPts.size()<<std::endl;
-                        assert(false && "DISCONNECTED FACE BOUNDARY");
-                    }
-                }
-                //std::cout<<sortedTemp.back().P0.transpose()<<","<<sortedTemp.back().P1.transpose()<<std::endl;
-
-            }
-            assert((sortedTemp.back().P1-sortedTemp.front().P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
-
-            assert(sortedTemp.size()==temp.size());
-
-            
-            return sortedTemp;
-            
-        }
+//
+//
+//
+//            ConvexHull<2,MeshBoundarySegment<dim>> finalHull;
+//            //std::cout<<"unsorted hull"<<std::endl;
+//            for(const auto& pt : temp)
+//            {
+//
+//                VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
+//                finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt); // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
+//                //std::cout<<pt.P0.transpose()<<","<<pt.P1.transpose()<<std::endl;
+//            }
+//            const auto hullPts=finalHull.getPoints();
+//
+//            if(hullPts.size()!=temp.size())
+//            {
+//
+//                std::cout<<"plane.P="<<plane.P.transpose()<<std::endl;
+//                std::cout<<"plane.n="<<plane.unitNormal.transpose()<<std::endl;
+//
+//                std::cout<<"temp:\n";
+//                for(const auto& pt : temp)
+//                {
+//                    VectorDim x(R*(0.5*(pt.P0+pt.P1)-plane.P));
+//                    std::cout<<x.transpose()<<" "<<pt.P0.transpose()<<" "<<pt.P0.transpose()<<"\n";
+//                }
+//
+//                std::cout<<"finalHull:\n";
+//                for(const auto& pt : finalHull)
+//                {
+//                    std::cout<<pt[0]<<" "<<pt[1]<<"\n";
+//                }
+//
+//                std::cout<<"hullPts:\n";
+//                for(const auto& pt : hullPts)
+//                {
+//                    std::cout<<pt[0]<<" "<<pt[1]<<"\n";
+//                }
+//
+//                            assert(hullPts.size()==temp.size());
+//            }
+//
+//
+//            BoundingMeshSegments<dim> sortedTemp;
+////            for(const auto& seg : hullPts)
+////            {
+////                sortedTemp.push_back(*seg.t);
+////            }
+//                        //std::cout<<"sorted hull"<<std::endl;
+//            for(size_t k=0;k<hullPts.size();++k)
+//            {
+//                const auto& seg(*hullPts[k].t);
+//                if(k==0)
+//                {
+//                    const auto& seg1(*hullPts[1].t);
+//
+//                    if((seg.P1-seg1.P0).norm()<FLT_EPSILON || (seg.P1-seg1.P1).norm()<FLT_EPSILON)
+//                    {// first segment is oriented in the right direction
+//                        sortedTemp.push_back(seg);
+//                    }
+//                    else
+//                    {
+//                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
+//                    }
+//                }
+//                else
+//                {
+//                    if((sortedTemp.back().P1-seg.P0).norm()<FLT_EPSILON)
+//                    {
+//                        sortedTemp.push_back(seg);
+//                    }
+//                    else if((sortedTemp.back().P1-seg.P1).norm()<FLT_EPSILON)
+//                    {
+//                        sortedTemp.emplace_back(seg.P1,seg.P0,seg.faces);
+//                    }
+//                    else
+//                    {
+//                        //std::cout<<"k="<<k<<" of "<<hullPts.size()<<std::endl;
+//                        assert(false && "DISCONNECTED FACE BOUNDARY");
+//                    }
+//                }
+//                //std::cout<<sortedTemp.back().P0.transpose()<<","<<sortedTemp.back().P1.transpose()<<std::endl;
+//
+//            }
+//            assert((sortedTemp.back().P1-sortedTemp.front().P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
+//
+//            assert(sortedTemp.size()==temp.size());
+//
+//
+//            return sortedTemp;
+//
+//        }
         
         const std::pair<int,int> regionIDs;
         //        const PlaneMeshIntersectionContainerType meshIntersections;
@@ -251,7 +449,9 @@ namespace model
                   const VectorDim& n) :
         /* init */ Plane<dim>(p,n)
         /* init */,regionIDs(rID,rID)
-        /* init */,meshIntersections(getMeshBoundarySegments(mesh,rID,*this))
+//        /* init */,meshIntersections(getMeshBoundarySegments(mesh,rID,*this))
+        /* init */,meshIntersections(mesh,rID,*this)
+
 //        /* init */,meshFaces(getFaces(meshIntersections))
         {/*!\param[in] mesh
           * \param[in] rID the region ID where the plane is defined
