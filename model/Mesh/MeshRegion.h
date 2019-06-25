@@ -66,6 +66,10 @@ namespace model
         {/*!Constructs and stores the external PlanarMeshFace(s) of this MeshRegion
           * This function supports non-convex regions.
           */
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"MeshRegion "<<regionID<<" buiding faces "<<std::flush;
+
+
             faces().clear();
             std::map<typename Simplex<dim,dim-1>::SimplexIDType,const Simplex<dim,dim-1>*> allSimplices;
             for(const auto& simplex : simplices())
@@ -89,6 +93,7 @@ namespace model
             {
                 face.second->finalize();
             }
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
         
         MeshRegionObserverType& regionObserver;

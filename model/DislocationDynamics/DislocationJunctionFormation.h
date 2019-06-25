@@ -166,7 +166,7 @@ namespace model
             model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             const auto t1= std::chrono::system_clock::now();
-            model::cout<<"          Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
+            model::cout<<"              Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP

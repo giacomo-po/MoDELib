@@ -81,7 +81,7 @@ namespace model
 //            {
                 const auto t0= std::chrono::system_clock::now();
             
-            model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::flush;
 
                 //                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
                 //                     /*                                       */ eIter!=elementReader.end();++eIter)
@@ -103,7 +103,7 @@ namespace model
                     //                    binFile.write(std::make_pair(eIter->first,eIter->second));
                     
                 }
-                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
                 
                 this->info(); // print mesh info
 //                SimplexReader<dim>::nodeReader.clear();

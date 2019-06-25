@@ -67,6 +67,9 @@ namespace model
         {/*!Constructs and stores the PlanarMeshFace(s) of this MeshRegionBoundary
           * This function supports non-convex regions.
           */
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"MeshRegionBoundary ("<<regionBndID.first<<","<<regionBndID.second<<") buiding faces "<<std::flush;
+
             faces().clear();
             std::set<const Simplex<dim,dim-1>*> allSimplices(simplices()); //copy simplices
             while(allSimplices.size())
@@ -85,6 +88,8 @@ namespace model
             {
                 face.second->finalize();
             }
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
         }
         
         
