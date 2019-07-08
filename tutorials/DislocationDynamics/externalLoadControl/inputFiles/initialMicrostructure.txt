@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e14;
+targetStraightDislocationDensity=0e12;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -21,13 +21,13 @@ targetSingleArmDislocationDensity=0e12;
 
 #######################################
 # Prismatic loops (dipolar glissile loops)
-targetPrismaticLoopDensity=0e13;
+targetPrismaticLoopDensity=5e12;
 
 #######################################
 # Individual straight dislocations
 straightDislocationsSlipSystemIDs=-1 -1;
 straightDislocationsAngleFromScrewOrientation=90.0 90.0;
-pointsAlongStraightDislocations=2000.0 2000.0 2000.0
+pointsAlongStraightDislocations=0.0 0.0 2000.0
 						   		0.0 0.0 0.0;
 						   		
 #######################################

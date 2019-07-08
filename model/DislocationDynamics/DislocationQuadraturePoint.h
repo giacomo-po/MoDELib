@@ -166,7 +166,7 @@ namespace model
             {
                 double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
                                                                           parentSegment.network().poly.T,
-                                                                          dL,parentSegment.network().get_dt(),parentSegment.network().use_stochasticForce);
+                                                                          dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
                 assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                 const bool useNonLinearVelocity=true;
                 if(useNonLinearVelocity && v>FLT_EPSILON)
@@ -295,7 +295,9 @@ namespace model
                     for(const auto& link : parentSegment.network().links())
                     {
                         if(   !link.second->hasZeroBurgers()
-                           && !link.second->isBoundarySegment())
+                           && !link.second->isBoundarySegment()
+                           && !(link.second->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                           )
                         {
                             
                             const StraightDislocationSegment<dim>& ss(link.second->straight);

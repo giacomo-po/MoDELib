@@ -22,7 +22,7 @@ namespace model
     struct DefectiveCrystalParameters
     {
         
-        enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC=2};
+        enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC_IMAGES=2,PERIODIC_FEM=3};
 
         
         const int simulationType;
@@ -33,6 +33,8 @@ namespace model
         const int periodicImages_y;
         const int periodicImages_z;
         const long int Nsteps;
+        const int timeIntegrationMethod;
+
         const std::string externalLoadControllerName;
         const double virtualSegmentDistance;
 
@@ -90,12 +92,13 @@ namespace model
         /* init */ simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
         /* init */,useDislocations(TextFileParser("inputFiles/DD.txt").readScalar<int>("useDislocations",true))
         /* init */,useCracks(TextFileParser("inputFiles/DD.txt").readScalar<int>("useCracks",true))
-        /* init */,periodicImages_x(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_x",true) : 0)
-        /* init */,periodicImages_y(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_y",true) : 0)
-        /* init */,periodicImages_z(simulationType==PERIODIC? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
+        /* init */,periodicImages_x(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_x",true) : 0)
+        /* init */,periodicImages_y(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_y",true) : 0)
+        /* init */,periodicImages_z(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
         /* init */,Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true))
+        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         /* init */,externalLoadControllerName(TextFileParser("inputFiles/DD.txt").readString("externalLoadControllerName",true))
-        /* init */,virtualSegmentDistance(simulationType==FINITE_FEM? TextFileParser("inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
+        /* init */,virtualSegmentDistance((simulationType==FINITE_FEM || simulationType==PERIODIC_FEM || simulationType==PERIODIC_IMAGES)? TextFileParser("inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
         /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<long int>("startAtTimeStep",true))
         /* init */,totalTime(0.0)
         /* init */,dt(10.0)

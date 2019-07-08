@@ -18,7 +18,7 @@ namespace model
     struct DislocationLoopIO
     {
         
-        enum DislocationLoopType{GLISSILELOOP,SESSILELOOP,VIRTUALLOOP};
+        enum DislocationLoopType{GLISSILELOOP,SESSILELOOP,VIRTUALLOOP,PERIODICLOOP};
 
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;

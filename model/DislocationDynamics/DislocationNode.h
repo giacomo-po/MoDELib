@@ -87,6 +87,17 @@ namespace model
         }
         
         /**********************************************************************/
+        DislocationNode(LoopNetworkType* const ln,
+                              const NodeType* const master,
+                              const LinkType* masterSegment) :
+        /* base */ NodeBaseType(ln,master,masterSegment)
+        /* init */,_climbVelocityScalar(0.0)
+        /* init */,_climbVelocity(VectorDim::Zero())
+        {/*! Constructor from DOF
+          */
+        }
+        
+        /**********************************************************************/
         const double& climbVelocityScalar() const
         {
             return _climbVelocityScalar;

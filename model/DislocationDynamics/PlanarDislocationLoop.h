@@ -116,6 +116,7 @@ namespace model
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
+            assert(this->flow().dot(glidePlane->n)==0);
             //            glidePlane->addLoop(this);
             //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
             glidePlane->addParentSharedPtr(&glidePlane);

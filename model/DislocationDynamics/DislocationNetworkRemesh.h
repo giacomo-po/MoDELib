@@ -66,7 +66,7 @@ namespace model
             
             
             if (((endsAreApproaching || segment.isBoundarySegment())// ends are approaching
-                 && dv.norm()*DN.get_dt()>vTolcont*chordLength // contraction is large enough compared to segment length
+                 && dv.norm()*DN.simulationParameters.dt>vTolcont*chordLength // contraction is large enough compared to segment length
                  && chordLength<currentLmin // segment is small
                  )
                 //                || segment.isSimpleBndSegment()

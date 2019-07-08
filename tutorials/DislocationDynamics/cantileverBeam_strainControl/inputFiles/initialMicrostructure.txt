@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=1e12;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -36,6 +36,13 @@ targetCircularLoopDensity=0e12;
 circularLoopRadiusMean=1e-7;
 circularLoopRadiusStd=0.0;     
 circularLoopSides=10;
+
+#######################################
+# Non-planar loops
+targetNonPlanarLoopDensity=0e12;
+nonPlanarLoopRadiusMean=1e-07;
+nonPlanarLoopRadiusStd=1e-8;     
+nonPlanarLoopSides=10;
 
 #######################################
 # Irradiation loops

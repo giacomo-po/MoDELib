@@ -1,0 +1,123 @@
+This is BibTeX, Version 0.99d (TeX Live 2018)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: MoDELib_manual.aux
+A level-1 auxiliary file: fourierSphere.aux
+The style file: plainnat.bst
+Database file #1: references_GP.bib
+Database file #2: references_GP2.bib
+Database file #3: references_GP3.bib
+Repeated entry---line 254 of file references_GP3.bib
+ : @book{Slattery:2006wn
+ :                      ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1804 of file references_GP3.bib
+ : @book{Mura:1987wt
+ :                  ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 1964 of file references_GP3.bib
+ : @article{Deng:2008fs
+ :                     ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 2996 of file references_GP3.bib
+ : @article{deWit:1960vb
+ :                      ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 5445 of file references_GP3.bib
+ : @article{Burgers:1939vn
+ :                        ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 5455 of file references_GP3.bib
+ : @article{Burgers:1939ui
+ :                        ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 6907 of file references_GP3.bib
+ : @techreport{Scovazzi:2007tc
+ :                            ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 7152 of file references_GP3.bib
+ : @article{Lubarda:1993uc
+ :                        ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 8859 of file references_GP3.bib
+ : @article{Lazar:2013jb
+ :                      ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 10938 of file references_GP3.bib
+ : @article{Blin:1955wh
+ :                     ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 11309 of file references_GP3.bib
+ : @article{Weinberger:2009fk
+ :                           ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 11319 of file references_GP3.bib
+ : @article{Weygand:2002tq
+ :                        ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 12326 of file references_GP3.bib
+ : @article{vanderGiessen:1995tm
+ :                              ,
+I'm skipping whatever remains of this entry
+Database file #4: references_ML.bib
+I was expecting an "="---line 4 of file references_ML.bib
+ :          in: 
+ :              {\it Dislocations 1984},
+I'm skipping whatever remains of this entry
+You're missing a field name---line 9 of file references_ML.bib
+ : 
+ : %author = {Lazar, M},
+(Error may have been on previous line)
+I'm skipping whatever remains of this entry
+Database file #5: references_NA.bib
+Database file #6: references_NG2.bib
+Database file #7: references_MM.bib
+Database file #8: references_tamer.bib
+Warning--I didn't find a database entry for "Kirchner:1983"
+Warning--I didn't find a database entry for "Asvestas:wt"
+Warning--I didn't find a database entry for "Slattery2006"
+Warning--I didn't find a database entry for "Scovazzi2007"
+Warning--I didn't find a database entry for "Lifshitz:1947aa"
+Warning--I didn't find a database entry for "Synge:1957aa"
+Warning--empty institution in Scovazzi:2007tc
+You've used 15 entries,
+            2773 wiz_defined-function locations,
+            719 strings with 7375 characters,
+and the built_in function-call counts, 6548 in all, are:
+= -- 596
+> -- 314
+< -- 11
++ -- 110
+- -- 94
+* -- 523
+:= -- 1013
+add.period$ -- 46
+call.type$ -- 15
+change.case$ -- 76
+chr.to.int$ -- 14
+cite$ -- 31
+duplicate$ -- 313
+empty$ -- 573
+format.name$ -- 115
+if$ -- 1360
+int.to.chr$ -- 2
+int.to.str$ -- 1
+missing$ -- 17
+newline$ -- 84
+num.names$ -- 62
+pop$ -- 145
+preamble$ -- 2
+purify$ -- 61
+quote$ -- 0
+skip$ -- 219
+stack$ -- 0
+substring$ -- 300
+swap$ -- 26
+text.length$ -- 1
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 150
+warning$ -- 1
+while$ -- 69
+width$ -- 0
+write$ -- 204
+(There were 15 error messages)

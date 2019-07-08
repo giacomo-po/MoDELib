@@ -58,7 +58,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 
-        const bool isGlissile;
+//        const bool isGlissile;
         
         /**********************************************************************/
         DislocationLoop(LoopNetworkType* const dn,
@@ -68,7 +68,7 @@ namespace model
                         const int& grainID) :
         /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
         /* init */,slipSystem(nullptr)
-        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
+//        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
         {
         }
         
@@ -79,7 +79,7 @@ namespace model
                         const int& _loopType) :
         /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID,_loopType)
         /* init */,slipSystem(nullptr)
-        /* init */,isGlissile(false)
+//        /* init */,isGlissile(false)
         {// Virtual dislocation loop
         }
         
@@ -87,7 +87,7 @@ namespace model
         DislocationLoop(const DislocationLoop& other) :
         /* base init */ BaseLoopType(other)
         /* init */,slipSystem(other.slipSystem)
-        /* init */,isGlissile(other.isGlissile)
+//        /* init */,isGlissile(other.isGlissile)
         {
         }
         

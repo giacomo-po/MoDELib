@@ -74,7 +74,7 @@ namespace model
     struct ConvexHull
     {
         
-     //   static_assert("ConvexHull not implemented for thid dimension");
+        static_assert("ConvexHull not implemented for thid dimension");
     };
     
     template <typename T>

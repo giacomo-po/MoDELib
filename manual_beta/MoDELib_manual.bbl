@@ -1,0 +1,98 @@
+\newcommand{\noopsort}[1]{}
+\begin{thebibliography}{15}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Blin(1955)]{Blin:1955wh}
+J~Blin.
+\newblock {Energie Mutuelle De Deux Dislocations}.
+\newblock \emph{Acta Metall Mater}, 3\penalty0 (2):\penalty0 199--200, 1955.
+
+\bibitem[Burgers(1939{\natexlab{a}})]{Burgers:1939ui}
+Johannes~Martinus Burgers.
+\newblock {Some considerations on the fields of stress connected with
+  dislocations in a regular crystal lattice I}.
+\newblock \emph{P K Ned Akad Wetensc}, 42\penalty0 (1/5):\penalty0 293--325,
+  1939{\natexlab{a}}.
+
+\bibitem[Burgers(1939{\natexlab{b}})]{Burgers:1939vn}
+Johannes~Martinus Burgers.
+\newblock {Some considerations on the fields of stress connected with
+  dislocations in a regular crystal lattice II }.
+\newblock \emph{P K Ned Akad Wetensc}, 42\penalty0 (1/5):\penalty0 378--399,
+  1939{\natexlab{b}}.
+
+\bibitem[de~Wit(1960)]{deWit:1960vb}
+Roland de~Wit.
+\newblock {The Continuum Theory of Stationary Dislocations}.
+\newblock \emph{Solid state physics}, 10:\penalty0 249--292, 1960.
+
+\bibitem[Deng et~al.(2008)Deng, El-Azab, and Larson]{Deng:2008fs}
+J~Deng, A~El-Azab, and B~C Larson.
+\newblock {On the elastic boundary value problem of dislocations in bounded
+  crystals}.
+\newblock \emph{Philosophical Magazine}, 88:\penalty0 3527--3548, 2008.
+
+\bibitem[Eshelby(1979)]{eshelby1979boundary}
+JD~Eshelby.
+\newblock Boundary problems.
+\newblock In Frank Reginald~Nunes Nabarro, editor, \emph{Dislocations in Solids
+  V1}, pages 167--221. North-Holland, Amsterdam, 1979.
+
+\bibitem[Lazar and Kirchner(2013)]{Lazar:2013jb}
+Markus Lazar and Helmut O~K Kirchner.
+\newblock {Dislocation loops in anisotropic elasticity: displacement field,
+  stress function tensor and interaction energy}.
+\newblock \emph{Philosophical Magazine}, 93\penalty0 (1-3):\penalty0 174--185,
+  2013.
+
+\bibitem[Lubarda et~al.(1993)Lubarda, Blume, and Needleman]{Lubarda:1993uc}
+V~A Lubarda, J~A Blume, and A~Needleman.
+\newblock {An analysis of equilibrium dislocation distributions}.
+\newblock \emph{Acta Metall Mater}, 41\penalty0 (2):\penalty0 625--642, 1993.
+
+\bibitem[Mura(1987)]{Mura:1987wt}
+Toshio Mura.
+\newblock \emph{{Micromechanics of Defects in Solids}}.
+\newblock Kluwer Academic Publishers, Dordrecht, The Netherlands, 2nd edition,
+  1987.
+
+\bibitem[Scovazzi and Hughes(2007)]{Scovazzi:2007tc}
+G~Scovazzi and T.~J.~R. Hughes.
+\newblock {Lecture Notes on Continuum Mechanics on Arbitrary Moving Domains}.
+\newblock Technical report, 2007.
+
+\bibitem[Slattery et~al.(2006)Slattery, Sagis, and Oh]{Slattery:2006wn}
+John~C. Slattery, Leonard Sagis, and Eun-Suok Oh.
+\newblock \emph{{Interfacial Transport Phenomena}}.
+\newblock Springer, 2 edition, December 2006.
+
+\bibitem[Van~der Giessen and Needleman(1995)]{vanderGiessen:1995tm}
+Erik Van~der Giessen and A~Needleman.
+\newblock {Discrete Dislocation Plasticity - a Simple Planar Model}.
+\newblock \emph{Model Simul Mater Sc}, 3\penalty0 (5):\penalty0 689--735, 1995.
+
+\bibitem[Vladimirov(1971)]{Wl}
+V.S. Vladimirov.
+\newblock \emph{{Equations of Mathematical Physics}}.
+\newblock Marcel Dekker, Inc., New York, 1971.
+
+\bibitem[Weinberger et~al.(2009)Weinberger, Aubry, Lee, Nix, and
+  Cai]{Weinberger:2009fk}
+Christopher~R Weinberger, Sylvie Aubry, Seok-Woo Lee, William~D. Nix, and Wei
+  Cai.
+\newblock {Modelling dislocations in a free-standing thin film}.
+\newblock \emph{Model Simul Mater Sc}, 17\penalty0 (7):\penalty0 --, 2009.
+
+\bibitem[Weygand et~al.(2002)Weygand, Friedman, Van~der Giessen, and
+  Needleman]{Weygand:2002tq}
+Daniel Weygand, LH~Friedman, Erik Van~der Giessen, and A~Needleman.
+\newblock {Aspects of boundary-value problem solutions with three-dimensional
+  dislocation dynamics}.
+\newblock \emph{Model Simul Mater Sc}, 10\penalty0 (4):\penalty0 437--468,
+  2002.
+
+\end{thebibliography}

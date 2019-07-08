@@ -200,6 +200,7 @@ namespace model
             
             updateRegions();
             updateRegionBoundaries();
+            identifyParallelFaces();
             
             
             
@@ -217,6 +218,11 @@ namespace model
                 {
                     model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
                     bndFaceSimplexSum+=face.second->size();
+                }
+                model::cout<<"    parallel faces:"<<std::endl;
+                for(const auto& pair : region.second->parallelFaces())
+                {
+                    model::cout<<"      "<<pair.first<<"<->"<<pair.second<<std::endl;
                 }
             }
             
@@ -341,6 +347,15 @@ namespace model
                     region2->faces().emplace(face.second->sID,face.second);
 
                 }
+            }
+        }
+        
+        /**********************************************************************/
+        void identifyParallelFaces()
+        {
+            for(auto region : MeshRegionObserverType::regions())
+            {
+                region.second->identifyParallelFaces();
             }
         }
         

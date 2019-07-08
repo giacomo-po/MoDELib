@@ -53,114 +53,56 @@ namespace model
         {
             //            std::cout<<"pdateBoundingBoxWithMeshFace "<<face.sID<<std::endl;
             //            std::cout<<this->boundingBoxSegments()<<std::endl;
-            assert(this->boundingBoxSegments().size() && "boundingBoxSegments() cannot be empty");
-            
-            BoundingMeshSegments<dim> temp;
-            
-            Plane<dim> plane(face.asPlane());
-            for(const auto& seg : this->boundingBoxSegments())
-            {// PRBLEM HERE IS THAT THIS ALGORITHM DOES NOT CHECK THAT TEMP ALREADY ONCLUDE "OVERLAPPING" BOUNDING BOX POINTS
-                auto newFaces(seg.faces);
-                newFaces.insert(&face);
+            if(this->boundingBoxSegments().size())
+            {// A bounding box already exists
+//                assert(this->boundingBoxSegments().size() && "boundingBoxSegments() cannot be empty");
                 
-                //                if(seg.faces.find(&face)!=seg.faces.end())
-                //                {// intersection segment is defined on face
-                const bool P0contained(plane.contains(seg.P0));
-                const bool P1contained(plane.contains(seg.P1));
-                //                    auto faces(seg.faces());
-                //                    faces.insert(face);
-                if(P0contained && P1contained)
-                {// the whole segment is contained
-                    temp.emplace_back(seg.P0,seg.P1,newFaces);
-                    //                        const bool success(.second);
-                    //                        assert(success && "COULD NOT INSERT IN TEMP DURING FACE UPDATE");
-                }
-                else if(P0contained)
-                {
-                    temp.emplace_back(seg.P0,seg.P0,newFaces);
-                    //                        assert(false && "FINISH HERE1");
-                }
-                else if(P1contained)
-                {
-                    temp.emplace_back(seg.P1,seg.P1,newFaces);
-                    //                        assert(false && "FINISH HERE2");
-                }
-                else
-                {// do nothing, this excludes seg from new bounding box
-                    //                                               assert(false && "FINISH HERE3");
-                }
-                //                }
-            }
-            
-            this->boundingBoxSegments().swap(temp);
-            //            std::cout<<"Now bounding box is"<<std::endl;
-            //            std::cout<<this->boundingBoxSegments()<<std::endl;
-            assert(this->boundingBoxSegments().size() && "boundingBoxSegments cannot be empty");
-        }
-        
-        /**********************************************************************/
-        void updateConfinement()
-        {
-            for(const auto& glidePlane : glidePlanes())
-            {
+                BoundingMeshSegments<dim> temp;
                 
-                for(const auto& pos : posCointainer)
-                {
-                    assert(glidePlane->contains(pos) && "glidePlane MUS CONTAIN POSITION");
-                }
-                
-                for(const auto& face : glidePlane->grain.region.faces())
-                {
-                    if(meshFaces().find(face.second.get())!=meshFaces().end())
-                    {// face is already a current confining face
-                        for(const auto& pos : posCointainer)
-                        {
-                            assert(face.second->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
-                        }
+                Plane<dim> plane(face.asPlane());
+                for(const auto& seg : this->boundingBoxSegments())
+                {// PRBLEM HERE IS THAT THIS ALGORITHM DOES NOT CHECK THAT TEMP ALREADY ONCLUDE "OVERLAPPING" BOUNDING BOX POINTS
+                    auto newFaces(seg.faces);
+                    newFaces.insert(&face);
+                    
+                    //                if(seg.faces.find(&face)!=seg.faces.end())
+                    //                {// intersection segment is defined on face
+                    const bool P0contained(plane.contains(seg.P0));
+                    const bool P1contained(plane.contains(seg.P1));
+                    //                    auto faces(seg.faces());
+                    //                    faces.insert(face);
+                    if(P0contained && P1contained)
+                    {// the whole segment is contained
+                        temp.emplace_back(seg.P0,seg.P1,newFaces);
+                        //                        const bool success(.second);
+                        //                        assert(success && "COULD NOT INSERT IN TEMP DURING FACE UPDATE");
+                    }
+                    else if(P0contained)
+                    {
+                        temp.emplace_back(seg.P0,seg.P0,newFaces);
+                        //                        assert(false && "FINISH HERE1");
+                    }
+                    else if(P1contained)
+                    {
+                        temp.emplace_back(seg.P1,seg.P1,newFaces);
+                        //                        assert(false && "FINISH HERE2");
                     }
                     else
-                    {// face not a current confining face
-                        bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
-                        for(const auto& pos : posCointainer)
-                        {
-                            cointained*=face.second->asPlane().contains(pos);
-                        }
-                        if(cointained)
-                        {// faces contains all positions
-                            meshFaces().insert(face.second.get());
-                            updateBoundingBoxWithMeshFace(*face.second);
-                        }
+                    {// do nothing, this excludes seg from new bounding box
+                        //                                               assert(false && "FINISH HERE3");
                     }
+                    //                }
                 }
+                
+                this->boundingBoxSegments().swap(temp);
+                //            std::cout<<"Now bounding box is"<<std::endl;
+                //            std::cout<<this->boundingBoxSegments()<<std::endl;
+                assert(this->boundingBoxSegments().size() && "boundingBoxSegments cannot be empty");
             }
-            
-            
-            // Update _isOnExternalBoundary, _isOnInternalBoundary, and _outNormal
-            _isOnExternalBoundary=false;
-            _isOnInternalBoundary=false;
-            _outNormal.setZero();
-            for(const auto& face : meshFaces())
-            {
-                if(face->regionIDs.first==face->regionIDs.second)
-                {
-                    _isOnExternalBoundary=true;
-                }
-                else
-                {
-                    _isOnInternalBoundary=true;
-                }
-                _outNormal+=face->outNormal();
-            }
-            const double _outNormalNorm(_outNormal.norm());
-            if(_outNormalNorm>FLT_EPSILON)
-            {
-                _outNormal/=_outNormalNorm;
-            }
-            else
-            {
-                _outNormal.setZero();
-            }
+
         }
+        
+
         
         
         
@@ -573,6 +515,82 @@ namespace model
                     
                     updateConfinement();
                 }
+            }
+        }
+        
+        /**********************************************************************/
+        void updateConfinement()
+        {
+            for(const auto& glidePlane : glidePlanes())
+            {
+                
+                for(const auto& pos : posCointainer)
+                {
+                    assert(glidePlane->contains(pos) && "glidePlane MUS CONTAIN POSITION");
+                }
+                
+                for(const auto& face : glidePlane->grain.region.faces())
+                {
+                    //                    if(meshFaces().find(face.second.get())!=meshFaces().end())
+                    //                    {// face is already a current confining face
+                    //                        for(const auto& pos : posCointainer)
+                    //                        {
+                    //                            assert(face.second->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
+                    //                        }
+                    //                    }
+                    if(meshFaces().find(face.second.get())==meshFaces().end())
+                    {// face not a current confining face
+                        bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
+                        for(const auto& pos : posCointainer)
+                        {
+                            cointained*=face.second->asPlane().contains(pos);
+                        }
+                        if(cointained)
+                        {// faces contains all positions
+                            meshFaces().insert(face.second.get());
+                            //                            updateBoundingBoxWithMeshFace(*face.second);
+                        }
+                    }
+                }
+            }
+            
+            
+            //            updateBoundingBoxWithMeshFaces();
+            
+            
+            
+            // Update _isOnExternalBoundary, _isOnInternalBoundary, and _outNormal
+            _isOnExternalBoundary=false;
+            _isOnInternalBoundary=false;
+            _outNormal.setZero();
+            for(const auto& face : meshFaces())
+            {
+                
+                for(const auto& pos : posCointainer)
+                {// A face must include all positions
+                    assert(face->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
+                }
+                
+                updateBoundingBoxWithMeshFace(*face);
+                
+                if(face->regionIDs.first==face->regionIDs.second)
+                {
+                    _isOnExternalBoundary=true;
+                }
+                else
+                {
+                    _isOnInternalBoundary=true;
+                }
+                _outNormal+=face->outNormal();
+            }
+            const double _outNormalNorm(_outNormal.norm());
+            if(_outNormalNorm>FLT_EPSILON)
+            {
+                _outNormal/=_outNormalNorm;
+            }
+            else
+            {
+                _outNormal.setZero();
             }
         }
         

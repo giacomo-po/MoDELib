@@ -98,6 +98,8 @@ namespace model
         
         MeshRegionObserverType& regionObserver;
         
+        std::map<size_t,size_t> _parallelFaces;
+        
     public:
         const int regionID;
         
@@ -122,6 +124,30 @@ namespace model
         void update()
         {
             buildFaces();
+        }
+        
+        /**********************************************************************/
+        void identifyParallelFaces()
+        {
+            for(const auto& face1 : faces())
+            {
+                for(const auto& face2 : faces())
+                {
+                    if(face1.second.get()!=face2.second.get())
+                    {
+                        if(abs(face1.second->outNormal().dot(face2.second->outNormal())+1.0)<FLT_EPSILON)
+                        {
+                            _parallelFaces.emplace(face1.first,face2.first);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        const std::map<size_t,size_t>& parallelFaces() const
+        {
+            return _parallelFaces;
         }
         
         /**********************************************************************/

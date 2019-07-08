@@ -1,0 +1,128 @@
+
+\appendix
+\chapter{Appendices}
+
+
+\section{Convolution integrals}
+Throughout this document, the symbol $*$ stands for the convolution operator over the infinite three-dimensional space $\mathbb{R}^3$:
+\begin{align}
+f*g=\int_{\mathbb{R}^3}f(\bm x-\bm x')g(\bm x')\dV'
+\end{align}
+Convolution enjoys the following properties
+\begin{align}
+f*g=\int_{\mathbb{R}^3}f(\bm x-\bm x')g(\bm x')\dV'=-\int_{-\mathbb{R}^3}f(\bm x'')g(\bm x-\bm x'')\dV''=g*f
+\end{align}
+
+\begin{align}
+(f*g)_{,i}=\int_{\mathbb{R}^3}f_{,i}(\bm x-\bm x')g(\bm x')\dV'=f_{,i}*g=f*g_{,i}
+\end{align}
+
+\begin{align}
+(f*g)*h=f*(g*h)
+\end{align}
+
+\section{The nabla operator}
+
+
+\section{The Green's  tensor and the F-tensor in classical  anisotropic elasticity}
+
+\begin{figure}[t]
+\centering
+\include{fourierSphere}
+%\includegraphics[width=0.4\textwidth]{fourierSphere}
+\caption{The unit sphere in Fourier space. The unit vector $\bm \kappa(\theta,\phi)$ is defined by the azimuth angle $\phi$, and the  zenith angle $\theta$  measured from the axis $\hat{\bm e}_3=\bm R/R$.}
+\label{kSpace}
+\end{figure}
+
+In classical  elasticity, the Green's  tensor of the anisotropic Navier operator $G^0_{ij}$ satisfies the following inhomogeneous PDE:
+\begin{align}
+L_{ik}G^0_{kj}+\delta_{ij}\delta=0\, .
+\end{align}
+In Fourier space\footnote{
+The  Fourier transform  and its inverse are defined as, respectively ~\citep{Wl}:
+\begin{align}
+\hat{f}(\bm k)=\int_{\mathbb{R}^3} f(\bm x)\, \text{e}^{-\text{i}\bm k\cdot\bm x}\dV\,, &&
+f(\bm x)=\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3} \hat{f}(\bm k)\, \text{e}^{\text{i}\bm k\cdot\bm x}\, \text{d}\hat{V}\,.
+\end{align}
+} this reads:
+\begin{align}
+\hat{G}^0_{ik}(\bm k)=\frac{1}{k^2}\,\hat{L}^{-1}_{ik}(\bm \kappa)\, .
+\end{align}
+where $\hat{L}_{ik}(\bm \kappa)=\mathbb{C}_{ijkl}\kappa_j\kappa_l$, $\bm \kappa=\bm k/k$, and $k=\sqrt{\bm k\cdot\bm k}$. The Green's  tensor in real space  is obtained by inverse  Fourier transform. Expressing the elementary volume element in Fourier space as  $\text{d}\hat{V}=k^2\, \text{d}k\, \text{d}\omega$, where $\text{d}\omega$ is an elementary surface element of the unit sphere $\mathcal{S}$, we obtain:
+\begin{align}
+G^0_{ik}(\bm R)
+&=\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3} \frac{\hat{L}^{-1}_{ik}(\bm \kappa)}{k^2}\, \text{e}^{\text{i}\bm k\cdot\bm x} \, \text{d}\hat{V}
+=\frac{1}{(2\pi)^3}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\, \int_0^\infty \cos(k\bm\kappa\cdot\bm R)\, \text{d}k  \, \text{d}\omega\nonumber
+=\frac{1}{8\pi^2R}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\, \delta(\bm\kappa\cdot\bm R)  \, \text{d}\omega\, .
+\end{align}
+Choosing a reference system with $\hat{\bm e}_3$ aligned with $\bm R$, as shown in Fig.~\ref{kSpace}, and using the sifting property of the Dirac $\delta$-function, we finally obtain the expression for the Green tensor as:
+\begin{align}
+G^0_{ik}(\bm R)= \frac{1}{8\pi^2R}\int_0^{2\pi} \hat{L}^{-1}_{ik}(\bm n)\,  \text{d}\phi\,.
+ \label{G0}
+\end{align}
+Here, $\bm n$ indicates a unit vector on the equatorial plane of the unit sphere in Fourier space. This result was first obtained by \cite{Lifshitz:1947aa} and \cite{Synge:1957aa}.
+
+The classical $\bm F$-tensor, introduced by  \cite{Kirchner:1983}, is defined by Eq. \eqref{F_classical}, which in Fourier space reads:
+\begin{align}
+\hat{F}^0_{ijkl}=-\hat{G}^0_{kl}\,k_ik_j\,\hGP=-\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,k_ik_j\, \frac{1}{k^2}=-\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, .
+\end{align}
+The  classical $\bm F$-tensor in real space is obtained by inverse Fourier transform:
+\begin{align}
+F^0_{ijkl}(\bm R)&=-\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3}\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, \text{e}^{\text{i}\bm k\cdot\bm R} \, \text{d}\hat{V}
+=-\frac{1}{(2\pi)^3}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\,\, \int_0^\infty \cos(k\bm\kappa\cdot\bm R)\, \text{d}k  \, \text{d}\omega\nonumber\\
+&=-\frac{1}{8\pi^2R}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, \delta(\bm\kappa\cdot\bm R)  \, \text{d}\omega\, .
+\end{align}
+In the reference system of Fig.~\ref{kSpace}, we finally obtain:
+\begin{align}
+F^0_{ijkl}(\bm R)&=-\frac{1}{8\pi^2R}\int_0^{2\pi}\hat{L}^{-1}_{kl}(\bm n)\,n_in_j\,   \, \text{d}\phi\, .
+\label{F0}
+\end{align}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Analytical expression of the matrix $M_{ki}$\label{ap1} for straight segments}
+To evaluate $M_{ki}$, two integrals over segment $S^j$ needs to be worked out analytically:
+\begin{align}
+I_1^j(\bm x)&=\int_0^1\frac{1}{||\bm x- \bm x'(u)||} du=\int_0^1\frac{1}{\sqrt{(\bm x^{jA} - \bm x^{jB})^2u^2+2(\bm x - \bm x^{jA})(\bm x^{jA}-\bm x^{jB})u+(\bm x - \bm x^{jA})^2}}du\\
+I_2^j(\bm x)&=\int_0^1\frac{u}{||\bm x- \bm x'(u)||} du=\int_0^1\frac{u}{\sqrt{(\bm x^{jA} - \bm x^{jB})^2u^2+2(\bm x - \bm x^{jA})(\bm x^{jA}-\bm x^{jB})u+(\bm x - \bm x^{jA})^2}}du
+\end{align}
+Denote $a^j=(\bm x^{jA}-\bm x^{jB})^2$, $b^j(\bm x)=2(\bm x - \bm x^{jA})(\bm x^{jA}- \bm x^{jB})$, $c^j(\bm x)=(\bm x - \bm x^{jA})^2$. The two integrals can be computed with the help of integral tables (for simplicity, all superscript $j$ is dropped in the following equations):
+\begin{align}
+I_1(\bm x)&=\int^1_0\frac{1}{\sqrt{au^2+bu+c}}du\\
+&=
+\begin{cases}
+\frac{1}{\sqrt{a}}\text{ln}\frac{2\sqrt{a^2+ab+ac}+2a+b}{2\sqrt{ac}+b}  & \text{if } 2\sqrt{ac}+b \ne 0\\
+\frac{1}{\sqrt{a}}\text{ln}\frac{2a+b}{b} & \text{if } 2\sqrt{ac}+b = 0
+\end{cases}
+\\
+I_2(\bm x)&=\int^1_0\frac{u}{\sqrt{au^2+bu+c}}du\\
+&=
+\begin{cases}
+\frac{\sqrt{a+b+c}}{a}-\frac{\sqrt{c}}{a}-\frac{b}{2a\sqrt{a}}\text{ln}\frac{2\sqrt{a^2+ab+ac}+2a+b}{2\sqrt{ac}+b}  & \text{if } 2\sqrt{ac}+b \ne 0\\
+\frac{1}{\sqrt{a}}\left[1+\frac{b}{2a}\text{ln}\frac{b}{2a+b}\right] & \text{if } 2\sqrt{ac}+b = 0
+\end{cases}
+\end{align}
+For the source node, $N(u)=1-u$,
+\begin{align}
+M_0(\bm x) &= \ell_0\int_0^1\frac{1-u}{\sqrt{au^2+bu+c}}du\\
+		   &=\sqrt{a}(I_1(\bm x) - I_2(\bm x))\\
+		   &=(1+\frac{b}{2a})\text{ln}\frac{2\sqrt{a^2+ab+ac}+2a+b}{2\sqrt{ac}+b}
+		   	-\sqrt{1+\frac{b}{a}+\frac{c}{a}} + \sqrt{\frac{c}{a}}\\
+		  &=(1+\frac{b}{2a})\text{ln}\frac{2\sqrt{1+\frac{b}{a}+\frac{c}{a}}+2+\frac{b}{a}}{2\sqrt{\frac{c}{a}}+\frac{b}{a}}
+		   	-\sqrt{1+\frac{b}{a}+\frac{c}{a}} + \sqrt{\frac{c}{a}}
+\end{align}
+Similarly, for the sink node, $N(u)=u$,
+\begin{align}
+M_1(\bm x) &= \ell_0\int_0^1\frac{u}{\sqrt{au^2+bu+c}}l_0 du\\
+		  &=\sqrt{a}I_2(\bm x)\\
+		  &=\sqrt{1+\frac{b}{a}+\frac{c}{a}}-\sqrt{\frac{c}{a}}
+		   	-\frac{b}{2a}\text{ln}\frac{2\sqrt{a^2+ab+ac}+2a+b}{2\sqrt{ac}+b}
+\end{align}
+
+
+
+
+
+
+

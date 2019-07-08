@@ -66,11 +66,11 @@ namespace model
                     break;
                 }
                     
-                case DefectiveCrystalParameters::PERIODIC:
-                {
-                 // FINISH HERE
-                    break;
-                }
+//                case DefectiveCrystalParameters::PERIODIC:
+//                {
+//                 // FINISH HERE
+//                    break;
+//                }
             }
             return DN.contractSecond(nA,nB);
         }
@@ -139,9 +139,6 @@ namespace model
 
                 const double maxRange=4.0*(nA->get_P()-nB->get_P()).norm();
                 
-                VerboseNodeContraction(1,nA->sID<<" isOnBoundary()"<<nA->isOnBoundary()<<std::endl;);
-                VerboseNodeContraction(1,nB->sID<<" isOnBoundary()"<<nB->isOnBoundary()<<std::endl;);
-
                 
                 if(nA->isOnBoundary() || nB->isOnBoundary())
                 {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node
@@ -237,6 +234,7 @@ namespace model
                 }
                 else
                 {// neither a nor b are on bounding box
+                    VerboseNodeContraction(1,"DislocationNodeContraction case 5"<<std::endl;);
                     if(nA->glidePlaneIntersections() && nB->glidePlaneIntersections())
                     {// both nodes confined by more then one plane
                         

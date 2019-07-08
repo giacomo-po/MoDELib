@@ -157,44 +157,87 @@ namespace model
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
             
             
-            switch (simulationParameters.simulationType)
-            {// Initilization based on type of simulation
-                    
-                    
-                case DefectiveCrystalParameters::FINITE_NO_FEM:
+            if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
+               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
+            {
+                assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
+                
+                for(const auto& rIter : mesh.regions())
                 {
-                    //                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
-                    break;
-                }
-                    
-                case DefectiveCrystalParameters::FINITE_FEM:
-                {
-                    //                    bvpSolver->init(DN);
-                    break;
-                }
-                    
-                case DefectiveCrystalParameters::PERIODIC:
-                {
-                    assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
-                    model::cout<<"Checking that mesh and lattice are commensurate"<<std::endl;
-                    const VectorDim meshSize(mesh.xMax()-mesh.xMin());
-                    for(int d=0;d<dim;++d)
+                    for(const auto& pair : rIter.second->parallelFaces())
                     {
-                        VectorDim v(VectorDim::Zero());
-                        v(d)=1*meshSize(d);
-                        LatticeVector<dim> lv(v,poly.grains().begin()->second);
+                        model::cout<<"Checking that parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
+                        const PlanarMeshFace<dim>& face1(*rIter.second->faces().at(pair.first));
+                        const PlanarMeshFace<dim>& face2(*rIter.second->faces().at(pair.second));
+                        const VectorDim cc(face1.center()-face2.center());
+                        const VectorDim ccc(cc.dot(face1.outNormal())*face1.outNormal());
+                        LatticeVector<dim> lv(ccc,poly.grains().begin()->second);
                     }
-                    break;
-                }
-                    
-                default:
-                {
-                    model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
-                    exit(EXIT_FAILURE);
-                    break;
                 }
             }
+            
+//            switch (simulationParameters.simulationType)
+//            {// Initilization based on type of simulation
+//                    
+//                    
+//                case DefectiveCrystalParameters::FINITE_NO_FEM:
+//                {
+//                    //                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
+//                    break;
+//                }
+//                    
+//                case DefectiveCrystalParameters::FINITE_FEM:
+//                {
+//                    //                    bvpSolver->init(DN);
+//                    break;
+//                }
+//                    
+//                case DefectiveCrystalParameters::PERIODIC_WITH_IMAGES:
+//                {
+//                    
+////
+////                    const VectorDim meshSize(mesh.xMax()-mesh.xMin());
+////                    for(int d=0;d<dim;++d)
+////                    {
+////                        VectorDim v(VectorDim::Zero());
+////                        v(d)=1*meshSize(d);
+////                        LatticeVector<dim> lv(v,poly.grains().begin()->second);
+////                    }
+//                    break;
+//                }
+//                    
+//                default:
+//                {
+//                    model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
+//                    exit(EXIT_FAILURE);
+//                    break;
+//                }
+//            }
         }
+        
+//        /**********************************************************************/
+//        double compute_dt() const
+//        {
+//            if(DN)
+//            {
+//            switch (simulationParameters.timeIntegrationMethod)
+//            {
+//                case 0:
+//                    return DDtimeIntegrator<0>::get_dt(*DN);
+//                    break;
+//
+//                default:
+//                    assert(0 && "time integration method not implemented");
+//                    return 0;
+//                    break;
+//            }
+//            }
+//            else
+//            {
+//                assert(0 && "dt calculation not implemented");
+//                return 0;
+//            }
+//        }
         
         /**********************************************************************/
         void singleGlideStep()
@@ -217,7 +260,7 @@ namespace model
                 updateLoadControllers(simulationParameters.runID, false);
                 
                 DN->assembleAndSolveGlide(simulationParameters.runID);
-                simulationParameters.dt=DN->get_dt(); // TO DO: MAKE THIS std::min between DN and CrackSystem
+                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 simulationParameters.totalTime+=simulationParameters.dt;
                 
                 // output

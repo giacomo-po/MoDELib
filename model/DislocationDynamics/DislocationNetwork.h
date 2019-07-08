@@ -128,202 +128,405 @@ namespace model
     private:
         
         
+        /**********************************************************************/
+        void updateImageLoops()
+        {
+            if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
+               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
+            {
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"        Updating image  loops "<<std::flush;
+                
+                assert(mesh.regions().size()==1);
+                const auto& region(*mesh.regions().begin()->second);
+                
+                
+                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> imageLoopVector;
+
+                
+                for(const auto& link : this->links())
+                {
+                    if(    link.second->isBoundarySegment()
+                       && !link.second->hasZeroBurgers()
+                       && !link.second->hasPeriodicLoop()
+                       //&& !link.second->sink->isVirtualBoundaryNode && !link.second->source->isVirtualBoundaryNode
+                       )
+                    {// First make the check whether the nodes connected to the sinks are not virtualNodes and they lie on the boundary
+                    
+                        
+                        
+                        //model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
+//                        const size_t nodeID=this->insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
+
+                        
+                        
+//                        const VectorDim imageSourceP(NodeType::imagePosition(link.second->source.get(),link.second->meshFaces()));
+//                        const VectorDim imageSinkP(NodeType::imagePosition(link.second->sink.get(),link.second->meshFaces()));
+//
+//                        std::shared_ptr<NodeType> sourceImage;
+//                        
+//                        // search for imageSourceP among images of either source or sink
+//                        
+//                        if()
+//                        {// position imageSourceP found
+//                            // reset sourceImage to that image node
+//                        }
+                        
+                        std::shared_ptr<NodeType> sourceImage(new NodeType(this,link.second->source.get(),link.second));
+                        std::shared_ptr<NodeType>   sinkImage(new NodeType(this,link.second->  sink.get(),link.second));
+
+                        
+                        link.second->source->imageNodeContainer.insert(sourceImage->sID,sourceImage);
+                        link.second->sink->imageNodeContainer.insert(sinkImage->sID,sinkImage);
+
+                        std::vector<std::shared_ptr<NodeType>> imageNodes;
+                        imageNodes.push_back(sourceImage);
+                        imageNodes.push_back(sinkImage);
+                        imageNodes.push_back(link.second->  sink);
+                        imageNodes.push_back(link.second->source);
+                        
+                        imageLoopVector.emplace_back(imageNodes,
+                                                       VectorDim::Zero(),
+                                                       region.regionID,
+                                                       DislocationLoopIO<dim>::PERIODICLOOP);
+                    }
+                }
+                
+                size_t nLoops(0);
+                for(const auto& tup : imageLoopVector)
+                {// Insert the new virtual loops
+                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+                    nLoops++;
+                }
+                
+                model::cout<<"("<<nLoops<<" periodic loops)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                
+            }
+        }
         
         
-        
+        void createImageLoops()
+        {
+            if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
+               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
+            {
+                
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"        Creating image  loops "<<std::flush;
+
+                assert(mesh.regions().size()==1);
+                const auto& region(*mesh.regions().begin()->second);
+                
+                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim>> imageLoopVector;
+
+                
+                for(const auto& link : this->links())
+                {
+                    if(    link.second->isBoundarySegment()
+                       && !link.second->hasZeroBurgers()
+                       && link.second->isGlissile()
+                       )
+                    {
+                        if(!link.second->source->masterNode && !link.second->sink->masterNode)
+                        {
+                            std::set<size_t> key;
+                            for(const auto& face : link.second->meshFaces())
+                            {
+                                key.insert(face->sID);
+                            }
+                            
+                            const auto sourceIter(link.second->source->imageNodeContainer.find(key));
+                            assert(sourceIter!=link.second->source->imageNodeContainer.end());
+                            
+                            const auto sinkIter(link.second->sink->imageNodeContainer.find(key));
+                            assert(sinkIter!=link.second->sink->imageNodeContainer.end());
+                            
+                            const VectorDim bndNormal(link.second->bndNormal());
+                            const VectorDim glideNormal((*link.second->glidePlanes().begin())->unitNormal);
+
+                            
+                            const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
+                            
+                            const VectorDim centerNodePos(0.5*(sourceIter->second->get_P()+sinkIter->second->get_P())+glideDir.normalized()*10.0);
+                            
+                            
+                            
+                            std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
+                            
+                            std::vector<std::shared_ptr<NodeType>> imageNodes;
+                            imageNodes.push_back(sinkIter->second);
+                            imageNodes.push_back(sourceIter->second);
+                            imageNodes.push_back(centerNode);
+                            
+                            imageLoopVector.emplace_back(imageNodes,
+                                                         link.second->burgers(),
+                                                         glideNormal);
+                        }
+                        else
+                        {
+                            assert(false && "FINISH HERE");
+                        }
+
+                    }
+                    
+                    
+
+                }
+                
+                size_t nLoops(0);
+                for(const auto& tup : imageLoopVector)
+                {// Insert the new virtual loops
+                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<0>(tup)[0]->get_P(),region.regionID);
+                    nLoops++;
+                }
+                model::cout<<"("<<nLoops<<" image loops)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
+            }
+        }
         
         /**********************************************************************/
         void updateVirtualBoundaryLoops()
         {
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Updating virtual boundary loops "<<std::flush;
-
-            switch (simulationParameters.simulationType)
+            
+            
+            if(   simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM
+               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM
+               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
             {
-                case DefectiveCrystalParameters::FINITE_FEM:
+                //                    if(useVirtualExternalLoops)
+                //                    {
+                
+                const auto t0= std::chrono::system_clock::now();
+                model::cout<<"        Updating virtual boundary loops "<<std::flush;
+                
+                
+                // First clean up outdated boundary loops
+                std::set<size_t> removeLoops;
+                for(const auto& loop : this->loops())
                 {
-//                    if(useVirtualExternalLoops)
-//                    {
-                    
-                        // First clean up outdated boundary loops
-                        std::set<size_t> removeLoops;
-                        for(const auto& loop : this->loops())
-                        {
-                            if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
-                            {// clean up left over loops from topological operations
-                                removeLoops.insert(loop.second->sID);
-                            }
-                        }
-                        
-                        
-                        
-                        for(const size_t& loopID : removeLoops)
-                        {// Remove the virtual loops with ID in removeLoops
-                            this->deleteLoop(loopID);
-                        }
-                        
-                        
-                        // Now reconstruct virtual boundary loops
-                        std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
-                        for(const auto& link : this->links())
-                        {
-                            if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
-                            {
-                                virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
-                                                               link.second->burgers(),
-                                                               (*link.second->grains().begin())->grainID,
-                                                               DislocationLoopIO<dim>::VIRTUALLOOP);
-                            }
-                        }
-                        
-                        for(const auto& tup : virtualLoopVector)
-                        {// Insert the new virtual loops
-                            this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
-                        }
-                        
-//                    }
-                    break;
+                    if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
+                    {// clean up left over loops from topological operations
+                        removeLoops.insert(loop.second->sID);
+                    }
                 }
-                    
-                case DefectiveCrystalParameters::PERIODIC:
+                
+                for(const size_t& loopID : removeLoops)
+                {// Remove the virtual loops with ID in removeLoops
+                    this->deleteLoop(loopID);
+                }
+                
+                
+                
+                // Now reconstruct virtual boundary loops
+                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
+                for(const auto& link : this->links())
                 {
-                    
-                    std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim,VectorDim,size_t>> DislocationLoopVector;
-                    for(const auto& link : this->links())
+                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
                     {
-                        
-                        if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers() && !link.second->sink->isVirtualBoundaryNode && !link.second->source->isVirtualBoundaryNode)
-                        {// First make the check whether the nodes connected to the sinks are not virtualNodes and they lie on the boundary
-                            
-                            
-                            const auto virtualLink(this->link(std::min(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID),std::max(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID)));
-                            
-                            if(!virtualLink.first)
-                            {// Checking whether the virtual nodes of the original link are already connected or not
-                                //						std::cout<<"Size of virtual boundary loop from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loops().size()<<std::endl;
-                                //						std::cout<<"Size of loopLinks from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loopLinks().size()<<std::endl;
-                                //						std::cout<<"Size of neighbors from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->neighbors().size()<<std::endl;
-                                //						std::cout<<"Size of virtual boundary loop from sink ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loops().size()<<std::endl;
-                                //						std::cout<<"Size of loopLinks from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loopLinks().size()<<std::endl;
-                                //						std::cout<<"Size of neighbors from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->neighbors().size()<<std::endl;
-                                
-                                if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
-                                   && link.second->source->virtualBoundaryNode()->loops().size()==0)
-                                {// If the virtual nodes are not connected to any loops, create a midnode based on the two virtual nodes and form a loop between them
-                                    
-                                    VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
-                                    // Direction along which the new node should be placed
-                                    VectorDim X=(-link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P()).cross(N).normalized();
-                                    // Make sure the node is placed inside the simulation domain
-                                    if (!(X.dot(link.second->source->bndNormal().normalized()) > 0)) X = -X;
-                                    X=X*(10);
-                                    // Create a new node based on two virtual nodes
-                                    std::shared_ptr<NodeType> midNode(new NodeType(this,X+0.5*(link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P())
-                                                                                   ,0.5*(link.second->source->virtualBoundaryNode()->get_V()+link.second->sink->virtualBoundaryNode()->get_V()),1));
-                                    //                                    std::cout<<"Creating the mid node"<<midNode->sID<<std::endl;
-                                    // Create a container to store the nodes and the direction of the loop to be inserted
-                                    DislocationLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->source->virtualBoundaryNode(),midNode,link.second->sink->virtualBoundaryNode()},
-                                                                       link.second->burgers(),N,link.second->source->virtualBoundaryNode()->get_P(),
-                                                                       (*link.second->grains().begin())->grainID);
-                                    //                                    std::cout<<"Creating the dislocationloop"<<std::endl;
-                                }
-                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()!=0
-                                        && link.second->source->virtualBoundaryNode()->loops().size()==0)
-                                {
-                                    // Loop over the links associated with the virtual node that has a loop
-                                    std::cout<<"The node to which expansion is taking place is"<<link.second->source->virtualBoundaryNode()->sID<<std::endl;
-                                    for(const auto& pair: link.second->sink->virtualBoundaryNode()->linksByLoopID())
-                                    {
-                                        VectorDim N1 = (*pair.second.begin())->loop()->glidePlane->unitNormal;
-                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
-                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
-                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
-                                        if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
-                                        {
-                                            std::cout<<"New loop needs to be merged on source"<<std::endl; //TODO not checked for the slip system for node expansion for the periodic loops
-                                        }
-                                        // Find the link which is a boundary segment
-                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
-                                        {
-                                            // Change the link of the other segment by using expand
-                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
-                                            break;
-                                        }
-                                    }
-                                    
-                                    // Second case - Expand the existing loop on the virtual node instead of creating a new loop
-                                    //                                    // Check is made to see whether one of the node has any loop associated with it
-                                    //                                    if(link.second->source->virtualBoundaryNode()->loops().size()==0)
-                                    //                                    {
-                                    //
-                                    //                                    }
-                                    //
-                                    //                                    else
-                                    //                                    {
-                                    //
-                                    //                                    }
-                                    
-                                }
-                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
-                                        && link.second->source->virtualBoundaryNode()->loops().size()!=0)
-                                {
-                                    // Same procedure done for the other case
-                                    std::cout<<"The node to which expansion is taking place is"<<link.second->sink->virtualBoundaryNode()->sID<<std::endl;
-                                    for(const auto& pair: link.second->source->virtualBoundaryNode()->linksByLoopID())
-                                    {
-//                                        VectorDim N1 = (*pair.second.begin())->loop()->rightHandedUnitNormal();
-//                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
-//                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->rightHandedUnitNormal();
-//                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
-                                        //									if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
-                                        //									{
-                                        //										std::cout<<"New loop needs to be merged on sink"<<std::endl;
-                                        //									}
-                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
-                                        {
-                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
-                                            break;
-                                        }
-                                        else
-                                        {
-                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
-                                            break;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    
-                                    assert(0 && "CASE NOT CONSIDERED SO FAR");
-                                    
-                                }
-                            }
-                        }
-                        
-                        
+                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+                                                       link.second->burgers(),
+                                                       (*link.second->grains().begin())->grainID,
+                                                       DislocationLoopIO<dim>::VIRTUALLOOP);
                     }
-                    for(const auto& tup : DislocationLoopVector)
-                    {// Insert the new loops
-                        this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
-                    }
-                    
-                    
-                    break;
                 }
-                    
-                default:
-                {
-                    break;
+                
+                for(const auto& tup : virtualLoopVector)
+                {// Insert the new virtual loops
+                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
                 }
+                
+                //                    }
+                //                break;
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+                
             }
             
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-
+            
+            //            switch (simulationParameters.simulationType)
+            //            {
+            //                case DefectiveCrystalParameters::FINITE_FEM:
+            //                {
+            ////                    if(useVirtualExternalLoops)
+            ////                    {
+            //
+            //                        // First clean up outdated boundary loops
+            //                        std::set<size_t> removeLoops;
+            //                        for(const auto& loop : this->loops())
+            //                        {
+            //                            if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
+            //                            {// clean up left over loops from topological operations
+            //                                removeLoops.insert(loop.second->sID);
+            //                            }
+            //                        }
+            //
+            //
+            //
+            //                        for(const size_t& loopID : removeLoops)
+            //                        {// Remove the virtual loops with ID in removeLoops
+            //                            this->deleteLoop(loopID);
+            //                        }
+            //
+            //
+            //                        // Now reconstruct virtual boundary loops
+            //                        std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
+            //                        for(const auto& link : this->links())
+            //                        {
+            //                            if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+            //                            {
+            //                                virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+            //                                                               link.second->burgers(),
+            //                                                               (*link.second->grains().begin())->grainID,
+            //                                                               DislocationLoopIO<dim>::VIRTUALLOOP);
+            //                            }
+            //                        }
+            //
+            //                        for(const auto& tup : virtualLoopVector)
+            //                        {// Insert the new virtual loops
+            //                            this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+            //                        }
+            //
+            ////                    }
+            //                    break;
+            //                }
+            //
+            //                case DefectiveCrystalParameters::PERIODIC_IMAGES:
+            //                {
+            //
+            //                    std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim,VectorDim,size_t>> DislocationLoopVector;
+            //                    for(const auto& link : this->links())
+            //                    {
+            //
+            //                        if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers() && !link.second->sink->isVirtualBoundaryNode && !link.second->source->isVirtualBoundaryNode)
+            //                        {// First make the check whether the nodes connected to the sinks are not virtualNodes and they lie on the boundary
+            //
+            //
+            //                            const auto virtualLink(this->link(std::min(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID),std::max(link.second->sink->virtualBoundaryNode()->sID,link.second->source->virtualBoundaryNode()->sID)));
+            //
+            //                            if(!virtualLink.first)
+            //                            {// Checking whether the virtual nodes of the original link are already connected or not
+            //                                //                        std::cout<<"Size of virtual boundary loop from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loops().size()<<std::endl;
+            //                                //                        std::cout<<"Size of loopLinks from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->loopLinks().size()<<std::endl;
+            //                                //                        std::cout<<"Size of neighbors from source  ID"<<link.second->source->virtualBoundaryNode()->sID<<"is"<<link.second->source->virtualBoundaryNode()->neighbors().size()<<std::endl;
+            //                                //                        std::cout<<"Size of virtual boundary loop from sink ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loops().size()<<std::endl;
+            //                                //                        std::cout<<"Size of loopLinks from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->loopLinks().size()<<std::endl;
+            //                                //                        std::cout<<"Size of neighbors from sink  ID"<<link.second->sink->virtualBoundaryNode()->sID<<"is"<<link.second->sink->virtualBoundaryNode()->neighbors().size()<<std::endl;
+            //
+            //                                if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
+            //                                   && link.second->source->virtualBoundaryNode()->loops().size()==0)
+            //                                {// If the virtual nodes are not connected to any loops, create a midnode based on the two virtual nodes and form a loop between them
+            //
+            //                                    VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
+            //                                    // Direction along which the new node should be placed
+            //                                    VectorDim X=(-link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P()).cross(N).normalized();
+            //                                    // Make sure the node is placed inside the simulation domain
+            //                                    if (!(X.dot(link.second->source->bndNormal().normalized()) > 0)) X = -X;
+            //                                    X=X*(10);
+            //                                    // Create a new node based on two virtual nodes
+            //                                    std::shared_ptr<NodeType> midNode(new NodeType(this,X+0.5*(link.second->source->virtualBoundaryNode()->get_P()+link.second->sink->virtualBoundaryNode()->get_P())
+            //                                                                                   ,0.5*(link.second->source->virtualBoundaryNode()->get_V()+link.second->sink->virtualBoundaryNode()->get_V()),1));
+            //                                    //                                    std::cout<<"Creating the mid node"<<midNode->sID<<std::endl;
+            //                                    // Create a container to store the nodes and the direction of the loop to be inserted
+            //                                    DislocationLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->source->virtualBoundaryNode(),midNode,link.second->sink->virtualBoundaryNode()},
+            //                                                                       link.second->burgers(),N,link.second->source->virtualBoundaryNode()->get_P(),
+            //                                                                       (*link.second->grains().begin())->grainID);
+            //                                    //                                    std::cout<<"Creating the dislocationloop"<<std::endl;
+            //                                }
+            //                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()!=0
+            //                                        && link.second->source->virtualBoundaryNode()->loops().size()==0)
+            //                                {
+            //                                    // Loop over the links associated with the virtual node that has a loop
+            //                                    std::cout<<"The node to which expansion is taking place is"<<link.second->source->virtualBoundaryNode()->sID<<std::endl;
+            //                                    for(const auto& pair: link.second->sink->virtualBoundaryNode()->linksByLoopID())
+            //                                    {
+            //                                        VectorDim N1 = (*pair.second.begin())->loop()->glidePlane->unitNormal;
+            //                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
+            //                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->glidePlane->unitNormal;
+            //                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
+            //                                        if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
+            //                                        {
+            //                                            std::cout<<"New loop needs to be merged on source"<<std::endl; //TODO not checked for the slip system for node expansion for the periodic loops
+            //                                        }
+            //                                        // Find the link which is a boundary segment
+            //                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
+            //                                        {
+            //                                            // Change the link of the other segment by using expand
+            //                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
+            //                                            break;
+            //                                        }
+            //                                        else
+            //                                        {
+            //                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->source->virtualBoundaryNode());
+            //                                            break;
+            //                                        }
+            //                                    }
+            //
+            //                                    // Second case - Expand the existing loop on the virtual node instead of creating a new loop
+            //                                    //                                    // Check is made to see whether one of the node has any loop associated with it
+            //                                    //                                    if(link.second->source->virtualBoundaryNode()->loops().size()==0)
+            //                                    //                                    {
+            //                                    //
+            //                                    //                                    }
+            //                                    //
+            //                                    //                                    else
+            //                                    //                                    {
+            //                                    //
+            //                                    //                                    }
+            //
+            //                                }
+            //                                else if(   link.second->  sink->virtualBoundaryNode()->loops().size()==0
+            //                                        && link.second->source->virtualBoundaryNode()->loops().size()!=0)
+            //                                {
+            //                                    // Same procedure done for the other case
+            //                                    std::cout<<"The node to which expansion is taking place is"<<link.second->sink->virtualBoundaryNode()->sID<<std::endl;
+            //                                    for(const auto& pair: link.second->source->virtualBoundaryNode()->linksByLoopID())
+            //                                    {
+            ////                                        VectorDim N1 = (*pair.second.begin())->loop()->rightHandedUnitNormal();
+            ////                                        VectorDim B1 = (*pair.second.begin())->loop()->burgers();
+            ////                                        VectorDim N = (*link.second->loopLinks().begin())->loop()->rightHandedUnitNormal();
+            ////                                        VectorDim B = (*link.second->loopLinks().begin())->loop()->burgers();
+            //                                        //                                    if ((N-N1).norm()==FLT_EPSILON && (B-B1).norm()==FLT_EPSILON )
+            //                                        //                                    {
+            //                                        //                                        std::cout<<"New loop needs to be merged on sink"<<std::endl;
+            //                                        //                                    }
+            //                                        if ((*pair.second.begin())->pLink->isBoundarySegment())
+            //                                        {
+            //                                            this->expand((*pair.second.rbegin())->pLink->source->sID,(*pair.second.rbegin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
+            //                                            break;
+            //                                        }
+            //                                        else
+            //                                        {
+            //                                            this->expand((*pair.second.begin())->pLink->source->sID,(*pair.second.begin())->pLink->sink->sID,link.second->sink->virtualBoundaryNode());
+            //                                            break;
+            //                                        }
+            //                                    }
+            //                                }
+            //                                else
+            //                                {
+            //
+            //                                    assert(0 && "CASE NOT CONSIDERED SO FAR");
+            //
+            //                                }
+            //                            }
+            //                        }
+            //
+            //
+            //                    }
+            //                    for(const auto& tup : DislocationLoopVector)
+            //                    {// Insert the new loops
+            //                        this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup),std::get<4>(tup));
+            //                    }
+            //
+            //
+            //                    break;
+            //                }
+            //
+            //                default:
+            //                {
+            //                    break;
+            //                }
+            //            }
+            
+            
             
         }
         
@@ -342,8 +545,8 @@ namespace model
         DislocationNodeContraction<DislocationNetworkType> nodeContractor;
         GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         
-        int timeIntegrationMethod;
-//        int maxJunctionIterations;
+        //        int timeIntegrationMethod;
+        //        int maxJunctionIterations;
         //        long int runID;
         //        double totalTime;
         //        double dt;
@@ -358,7 +561,7 @@ namespace model
         int crossSlipModel;
         //        bool use_boundary;
         //        unsigned int use_bvp;
-//        bool useVirtualExternalLoops;
+        //        bool useVirtualExternalLoops;
         //        bool use_externalStress;
         //        bool use_extraStraightSegments;
         //        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> ssdeq;
@@ -381,7 +584,7 @@ namespace model
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
         double surfaceAttractionDistance;
-//        bool computePlasticDistortionRateFromVelocities;
+        //        bool computePlasticDistortionRateFromVelocities;
         std::string folderSuffix;
         
         /**********************************************************************/
@@ -403,7 +606,7 @@ namespace model
         /* init */,junctionsMaker(*this)
         /* init */,nodeContractor(*this)
         /* init */,gbTransmission(*this)
-        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
+        //        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
         ///* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
         //        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
         //        /* init */,totalTime(0.0),
@@ -419,7 +622,7 @@ namespace model
         /* init */,crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
         //        /* init */ use_boundary(true),
         //        /* init */ use_bvp(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_bvp",true)),
-//        /* init */,useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true))
+        //        /* init */,useVirtualExternalLoops(TextFileParser("inputFiles/DD.txt").readScalar<int>("useVirtualExternalLoops",true))
         //        /* init */,use_externalStress(false)
         //        /* init */,use_extraStraightSegments(false)
         /* init */,outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true))
@@ -440,7 +643,7 @@ namespace model
         //        /* init */ _userOutputColumn(3)
         /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
         /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
-//        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
+        //        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
         /* init */,folderSuffix("")
         {
             
@@ -468,7 +671,7 @@ namespace model
             if(argc>1)
             {
                 folderSuffix=argv[1];
-//                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
+                //                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
             }
             //            ParticleSystemType::initMPI(argc,argv);
             
@@ -482,7 +685,7 @@ namespace model
             createEshelbyInclusions();
             
             // IO
-//            io().read("./","DDinput.txt",runID);
+            //            io().read("./","DDinput.txt",runID);
 #ifdef _MODEL_MPI_
             // Avoid that a processor starts writing before other are reading
             MPI_Barrier(MPI_COMM_WORLD);
@@ -522,13 +725,13 @@ namespace model
         void createEdges(const EVLio<dim>& evl)
         {/*!
           */
-
+            
             std::map<size_t,std::map<size_t,size_t>> loopMap;
             for(const auto& looplink : evl.links())
             {// Collect LoopLinks by loop IDs
                 loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
             }
-
+            
             assert(loopMap.size()==evl.loops().size());
             
             size_t loopLumber=1;
@@ -564,7 +767,7 @@ namespace model
                         assert(loop.sID==newLoopID);
                         break;
                     }
-                    
+                        
                     case DislocationLoopIO<dim>::SESSILELOOP:
                     {
                         const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.grainID,loop.loopType)->sID;
@@ -604,38 +807,38 @@ namespace model
                         break;
                 }
                 
-//                if(loop.N.squaredNorm()>FLT_EPSILON)
-//                {// Regular loop
-////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
-//                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
-//                    assert(loop.sID==newLoopID);
-//                }
-//                else
-//                {// Virtual loop. Note that virtual nodes are not in the danglingNodes, but they are instead store in their master nodes
-////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
-//                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
-//                    for(const size_t nodeID : nodeIDs)
-//                    {// collect shared_ptrs to nodes
-//                        const auto isNode(this->node(nodeID));
-//                        assert(isNode.first);
-//                        if(isNode.second->masterNode)
-//                        {// a virtual node
-//                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
-//                        }
-//                        else
-//                        {
-//                            const auto isSharedNode(this->danglingNode(nodeID));
-//                            if(!isSharedNode.first)
-//                            {
-//                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
-//                                assert(false && "node shared pointer not found");
-//                            }
-//                            sharedNodes.push_back(isSharedNode.second);
-//                        }
-//                    }
-//                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
-//                    assert(loop.sID==newLoopID);
-//                }
+                //                if(loop.N.squaredNorm()>FLT_EPSILON)
+                //                {// Regular loop
+                ////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
+                //                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
+                //                    assert(loop.sID==newLoopID);
+                //                }
+                //                else
+                //                {// Virtual loop. Note that virtual nodes are not in the danglingNodes, but they are instead store in their master nodes
+                ////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
+                //                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
+                //                    for(const size_t nodeID : nodeIDs)
+                //                    {// collect shared_ptrs to nodes
+                //                        const auto isNode(this->node(nodeID));
+                //                        assert(isNode.first);
+                //                        if(isNode.second->masterNode)
+                //                        {// a virtual node
+                //                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+                //                        }
+                //                        else
+                //                        {
+                //                            const auto isSharedNode(this->danglingNode(nodeID));
+                //                            if(!isSharedNode.first)
+                //                            {
+                //                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+                //                                assert(false && "node shared pointer not found");
+                //                            }
+                //                            sharedNodes.push_back(isSharedNode.second);
+                //                        }
+                //                    }
+                //                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
+                //                    assert(loop.sID==newLoopID);
+                //                }
                 loopLumber++;
             }
             
@@ -677,8 +880,8 @@ namespace model
                 
                 EshelbyInclusion<dim>::set_count(inclusionID);
                 eshelbyInclusions().emplace(std::piecewise_construct,
-                                               std::make_tuple(inclusionID),
-                                               std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
+                                            std::make_tuple(inclusionID),
+                                            std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
             }
         }
         
@@ -699,7 +902,7 @@ namespace model
                         break;
                     }
                         
-                    case DefectiveCrystalParameters::PERIODIC:
+                    case DefectiveCrystalParameters::PERIODIC_IMAGES:
                     {
                         // FINISH HERE
                         break;
@@ -719,21 +922,21 @@ namespace model
             updatePlasticDistortionFromAreas(dt);
         }
         
-        /**********************************************************************/
-        double get_dt() const
-        {
-            switch (timeIntegrationMethod)
-            {
-                case 0:
-                    return DDtimeIntegrator<0>::get_dt(*this);
-                    break;
-
-                default:
-                    assert(0 && "time integration method not implemented");
-                    return 0;
-                    break;
-            }
-        }
+        //        /**********************************************************************/
+        //        double get_dt() const
+        //        {
+        //            switch (timeIntegrationMethod)
+        //            {
+        //                case 0:
+        //                    return DDtimeIntegrator<0>::get_dt(*this);
+        //                    break;
+        //
+        //                default:
+        //                    assert(0 && "time integration method not implemented");
+        //                    return 0;
+        //                    break;
+        //            }
+        //        }
         
         /**********************************************************************/
         void removeZeroAreaLoops()
@@ -820,10 +1023,10 @@ namespace model
             //! 9- Contract segments of zero-length
             //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
             
-//            if(runID>0)
-//            {
-//                removeZeroAreaLoops();
-//            }
+            //            if(runID>0)
+            //            {
+            //                removeZeroAreaLoops();
+            //            }
             
             //! 10- Cross Slip (needs upated PK force)
             DislocationCrossSlip<DislocationNetworkType>(*this);
@@ -852,8 +1055,10 @@ namespace model
             //! 13- Node redistribution
             networkRemesher.remesh(runID);
             
+            createImageLoops();
+//            updateImageLoops();
             updateVirtualBoundaryLoops();
-
+            
             //            mergeLoopsAtNodes();
             
             //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
@@ -896,7 +1101,7 @@ namespace model
             return nodeContractor.contract(nA,nB);
         }
         
-
+        
         
         
         
@@ -1130,7 +1335,7 @@ namespace model
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-
+        
         
         
         /**********************************************************************/
@@ -1151,23 +1356,23 @@ namespace model
         /**********************************************************************/
         void updatePlasticDistortionFromAreas(const double& dt)
         {
-//            if(!computePlasticDistortionRateFromVelocities)
-//            {
-                const MatrixDimD old(_plasticDistortionFromAreas);
-                _plasticDistortionFromAreas.setZero();
-                for(const auto& loop : this->loops())
-                {
-                    _plasticDistortionFromAreas+= loop.second->plasticDistortion();
-                }
-                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
-//            }
+            //            if(!computePlasticDistortionRateFromVelocities)
+            //            {
+            const MatrixDimD old(_plasticDistortionFromAreas);
+            _plasticDistortionFromAreas.setZero();
+            for(const auto& loop : this->loops())
+            {
+                _plasticDistortionFromAreas+= loop.second->plasticDistortion();
+            }
+            _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
+            //            }
         }
         
-//        /**********************************************************************/
-//        const MatrixDimD& plasticDistortionRate() const
-//        {
-//            return computePlasticDistortionRateFromVelocities? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
-//        }
+        //        /**********************************************************************/
+        //        const MatrixDimD& plasticDistortionRate() const
+        //        {
+        //            return computePlasticDistortionRateFromVelocities? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
+        //        }
         
         /**********************************************************************/
         const MatrixDimD& plasticDistortionRate() const
@@ -1250,7 +1455,9 @@ namespace model
             for(const auto& link : this->links())
             {// sum stress field per segment
                 if(   !link.second->hasZeroBurgers()
-                   && !link.second->isBoundarySegment())
+                   && !link.second->isBoundarySegment()
+                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                   )
                 {
                     for(const auto& shift : periodicShifts)
                     {
@@ -1285,16 +1492,21 @@ namespace model
             
             for(const auto& loop : this->loops())
             {// sum solid angle of each loop
-                for(const auto& shift : periodicShifts)
+                if(!(loop.second->isVirtualBoundaryLoop() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES))
                 {
-                    temp-=loop.second->solidAngle(x+shift)/4.0/M_PI*loop.second->burgers();
+                    for(const auto& shift : periodicShifts)
+                    {
+                        temp-=loop.second->solidAngle(x+shift)/4.0/M_PI*loop.second->burgers();
+                    }
                 }
             }
             
             for(const auto& link : this->links())
             {// sum line-integral part of displacement field per segment
                 if(   !link.second->hasZeroBurgers()
-                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM))
+                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM)
+                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                   )
                 {
                     for(const auto& shift : periodicShifts)
                     {

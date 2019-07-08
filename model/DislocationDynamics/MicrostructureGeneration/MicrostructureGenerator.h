@@ -805,7 +805,7 @@ namespace model
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     //                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
                     const VectorDimD b(poly.grain(grainID).latticeDirection(slipSystem.n.cartesian()).cartesian()); // Frank loop
-                    const VectorDimD sessileAxis(b.normalized());
+                    const VectorDimD sessileAxis(b.normalized()*randomSign());
                     
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
@@ -867,7 +867,7 @@ namespace model
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
 //                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
                     const VectorDimD b(poly.grain(grainID).latticeDirection(slipSystem.n.cartesian()).cartesian()); // Frank loop
-                    const VectorDimD sessileAxis(b.normalized());
+                    const VectorDimD sessileAxis(b.normalized()*randomSign());
 
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));

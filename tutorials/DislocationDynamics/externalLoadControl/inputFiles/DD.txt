@@ -1,7 +1,7 @@
 ######################################
 # GENERAL SETTINGS
 # Simulation type 
-simulationType=0; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
+simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
@@ -14,7 +14,6 @@ externalLoadControllerName=UniformExternalLoadController;
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
 stepsBetweenBVPupdates = 10;
-useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
 use_directSolver_FEM=0;
 solverTolerance=0.0001;
@@ -50,7 +49,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;

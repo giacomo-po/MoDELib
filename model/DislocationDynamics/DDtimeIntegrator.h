@@ -47,7 +47,7 @@ namespace model
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        static double get_dt(const DislocationNetworkType& DN)
+        static double getGlideTimeIncrement(const DislocationNetworkType& DN)
         {
             //! Compute and store DislocaitonNode velocities
 //            DN.assembleAndSolve(runID,straightSegmentsDeq);
@@ -83,6 +83,7 @@ namespace model
 //                   && !nodeIter.second->isOscillating()
                    )
                 {
+//                    std::cout<<nodeIter.second->sID<<" ";
                     const double vNorm(nodeIter.second->get_V().norm());
 //                    vmean +=vNorm;
 //                    nVmean++;
@@ -93,7 +94,22 @@ namespace model
                     }
                 }
             }
+//            std::cout<<std::endl;
 //            vmean/=nVmean;
+            
+//            double dt(dxMax/vmax);
+//            if(dt<dtMin)
+//            {
+//                return dtMin;
+//            }
+//            else if(dt>dtMax)
+//            {
+//                return dtMax;
+//            }
+//            else
+//            {
+//                return dt;
+//            }
             
             return vmax > DN.poly.cs*shearWaveSpeedFraction? dxMax/vmax : dxMax/(DN.poly.cs*shearWaveSpeedFraction);
             
@@ -116,6 +132,96 @@ namespace model
 //            }
             
 //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+        }
+        
+        /**********************************************************************/
+        template <typename DislocationNetworkType>
+        static double getClimbTimeIncrement(const DislocationNetworkType& DN)
+        {
+            //! Compute and store DislocaitonNode velocities
+            //            DN.assembleAndSolve(runID,straightSegmentsDeq);
+            
+            /*! Computes the time step size \f$dt\f$ for the current simulation step,
+             *  based on maximum nodal velocity \f$v_{max}\f$.
+             *
+             *  The time step is calculated according to:
+             *    \f[
+             *  dt=
+             *  \begin{cases}
+             *        \frac{dx}{v_{max}} & v_{max} > fc_s\\
+             *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
+             *  \end{cases}
+             *    \f]
+             *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
+             */
+            
+            //            double vmax(0.0);
+            //            int vMaxID=-1;
+            double vmax=0.0;
+            //            int nVmean=0;
+            //            double vmean=0.0;
+            //            double dt_mean=0.0;
+            
+            //            std::cout<<"computing vMax for nodes: ";
+            for (const auto& nodeIter : DN.nodes())
+            {
+                if(//   !nodeIter.second->isBoundaryNode()
+                   //&& !nodeIter.second->isConnectedToBoundaryNodes()
+                   //&&
+                   nodeIter.second->glidePlanes().size()<3
+                   //                   && !nodeIter.second->isOscillating()
+                   )
+                {
+                    //                    std::cout<<nodeIter.second->sID<<" ";
+                    const double vNorm(nodeIter.second->get_V().norm());
+                    //                    vmean +=vNorm;
+                    //                    nVmean++;
+                    if (vNorm>vmax)
+                    {
+                        vmax=vNorm;
+                        //                        vMaxID=nodeIter.first;
+                    }
+                }
+            }
+            //            std::cout<<std::endl;
+            //            vmean/=nVmean;
+            
+            //            double dt(dxMax/vmax);
+            //            if(dt<dtMin)
+            //            {
+            //                return dtMin;
+            //            }
+            //            else if(dt>dtMax)
+            //            {
+            //                return dtMax;
+            //            }
+            //            else
+            //            {
+            //                return dt;
+            //            }
+            
+            return dxMax/vmax;
+            //vmax > DN.poly.cs*shearWaveSpeedFraction? dxMax/vmax : dxMax/(DN.poly.cs*shearWaveSpeedFraction);
+            
+            //            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
+            //            {
+            //                DN.set_dt(dxMax/vmax,vmax);
+            //            }
+            //            else
+            //            {
+            //                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
+            //            }
+            //
+            //            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
+            //            {
+            //                dt_mean=dxMax/vmean;
+            //            }
+            //            else
+            //            {
+            //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
+            //            }
+            
+            //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
         }
         
     };
