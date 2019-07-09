@@ -17,6 +17,7 @@
 #include <SegmentSegmentDistance.h>
 #include <StraightDislocationSegment.h>
 #include <EshelbyInclusion.h>
+#include <DefectiveCrystalParameters.h>
 
 namespace model
 {

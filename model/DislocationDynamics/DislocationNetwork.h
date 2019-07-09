@@ -142,7 +142,7 @@ namespace model
                 
                 
                 std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> imageLoopVector;
-
+                
                 
                 for(const auto& link : this->links())
                 {
@@ -152,33 +152,33 @@ namespace model
                        //&& !link.second->sink->isVirtualBoundaryNode && !link.second->source->isVirtualBoundaryNode
                        )
                     {// First make the check whether the nodes connected to the sinks are not virtualNodes and they lie on the boundary
-                    
+                        
                         
                         
                         //model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
-//                        const size_t nodeID=this->insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
-
+                        //                        const size_t nodeID=this->insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
                         
                         
-//                        const VectorDim imageSourceP(NodeType::imagePosition(link.second->source.get(),link.second->meshFaces()));
-//                        const VectorDim imageSinkP(NodeType::imagePosition(link.second->sink.get(),link.second->meshFaces()));
-//
-//                        std::shared_ptr<NodeType> sourceImage;
-//                        
-//                        // search for imageSourceP among images of either source or sink
-//                        
-//                        if()
-//                        {// position imageSourceP found
-//                            // reset sourceImage to that image node
-//                        }
+                        
+                        //                        const VectorDim imageSourceP(NodeType::imagePosition(link.second->source.get(),link.second->meshFaces()));
+                        //                        const VectorDim imageSinkP(NodeType::imagePosition(link.second->sink.get(),link.second->meshFaces()));
+                        //
+                        //                        std::shared_ptr<NodeType> sourceImage;
+                        //
+                        //                        // search for imageSourceP among images of either source or sink
+                        //
+                        //                        if()
+                        //                        {// position imageSourceP found
+                        //                            // reset sourceImage to that image node
+                        //                        }
                         
                         std::shared_ptr<NodeType> sourceImage(new NodeType(this,link.second->source.get(),link.second));
                         std::shared_ptr<NodeType>   sinkImage(new NodeType(this,link.second->  sink.get(),link.second));
-
+                        
                         
                         link.second->source->imageNodeContainer.insert(sourceImage->sID,sourceImage);
                         link.second->sink->imageNodeContainer.insert(sinkImage->sID,sinkImage);
-
+                        
                         std::vector<std::shared_ptr<NodeType>> imageNodes;
                         imageNodes.push_back(sourceImage);
                         imageNodes.push_back(sinkImage);
@@ -186,9 +186,9 @@ namespace model
                         imageNodes.push_back(link.second->source);
                         
                         imageLoopVector.emplace_back(imageNodes,
-                                                       VectorDim::Zero(),
-                                                       region.regionID,
-                                                       DislocationLoopIO<dim>::PERIODICLOOP);
+                                                     VectorDim::Zero(),
+                                                     region.regionID,
+                                                     DislocationLoopIO<dim>::PERIODICLOOP);
                     }
                 }
                 
@@ -213,12 +213,12 @@ namespace model
                 
                 const auto t0= std::chrono::system_clock::now();
                 model::cout<<"        Creating image  loops "<<std::flush;
-
+                
                 assert(mesh.regions().size()==1);
                 const auto& region(*mesh.regions().begin()->second);
                 
                 std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim>> imageLoopVector;
-
+                
                 
                 for(const auto& link : this->links())
                 {
@@ -227,50 +227,79 @@ namespace model
                        && link.second->isGlissile()
                        )
                     {
-                        if(!link.second->source->masterNode && !link.second->sink->masterNode)
-                        {
-                            std::set<size_t> key;
-                            for(const auto& face : link.second->meshFaces())
-                            {
-                                key.insert(face->sID);
-                            }
-                            
-                            const auto sourceIter(link.second->source->imageNodeContainer.find(key));
-                            assert(sourceIter!=link.second->source->imageNodeContainer.end());
-                            
-                            const auto sinkIter(link.second->sink->imageNodeContainer.find(key));
-                            assert(sinkIter!=link.second->sink->imageNodeContainer.end());
-                            
-                            const VectorDim bndNormal(link.second->bndNormal());
-                            const VectorDim glideNormal((*link.second->glidePlanes().begin())->unitNormal);
+                        
+                        const auto imageKey(link.second->imageFaceIDs());
 
-                            
-                            const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
-                            
-                            const VectorDim centerNodePos(0.5*(sourceIter->second->get_P()+sinkIter->second->get_P())+glideDir.normalized()*10.0);
-                            
-                            
-                            
-                            std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
-                            
-                            std::vector<std::shared_ptr<NodeType>> imageNodes;
-                            imageNodes.push_back(sinkIter->second);
-                            imageNodes.push_back(sourceIter->second);
-                            imageNodes.push_back(centerNode);
-                            
-                            imageLoopVector.emplace_back(imageNodes,
-                                                         link.second->burgers(),
-                                                         glideNormal);
-                        }
-                        else
-                        {
-                            assert(false && "FINISH HERE");
-                        }
+                        const auto isSourceImage(link.second->source->image(imageKey));
+                        assert(isSourceImage.first && "Source Image not found");
+                        
+                        const auto isSinkImage(link.second->sink->image(imageKey));
+                        assert(isSinkImage.first && "Sink Image not found");
+                        
+                        
+                        const VectorDim bndNormal(link.second->bndNormal());
+                        const VectorDim glideNormal((*link.second->glidePlanes().begin())->unitNormal);
+                        const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
+                        const VectorDim centerNodePos(0.5*(isSourceImage.second->get_P()+isSinkImage.second->get_P())+glideDir.normalized()*10.0);
+                        std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
 
+                        std::vector<std::shared_ptr<NodeType>> imageNodes;
+                        imageNodes.push_back(isSinkImage.second);
+                        imageNodes.push_back(isSourceImage.second);
+                        imageNodes.push_back(centerNode);
+                        
+                        imageLoopVector.emplace_back(imageNodes,
+                                                     link.second->burgers(),
+                                                     glideNormal);
+                        
+                        
+                        
+                        
+                        
+//                        const bool sourceIsReal(!link.second->source->masterNode);
+//                        const bool sinkIsReal(!link.second->sink->masterNode);
+//
+//                        const NodeType& sourceMaster(sourceIsReal? *link.second->source : *link.second->source->masterNode);
+//                        const NodeType&   sinkMaster(sinkIsReal? *link.second->  sink  : *link.second->  sink->masterNode);
+//
+//
+//
+//                        const auto sourceIter(sourceMaster.imageNodeContainer.find(imageKey));
+//                        assert(sourceIter!=sourceMaster.imageNodeContainer.end());
+//
+//                        const auto sinkIter(sinkMaster.imageNodeContainer.find(imageKey));
+//                        assert(sinkIter!=sinkMaster.imageNodeContainer.end());
+//
+//                        const VectorDim bndNormal(link.second->bndNormal());
+//                        const VectorDim glideNormal((*link.second->glidePlanes().begin())->unitNormal);
+//
+//
+//                        const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
+//
+//                        const VectorDim centerNodePos(0.5*(sourceIter->second->get_P()+sinkIter->second->get_P())+glideDir.normalized()*10.0);
+//
+//
+//
+//                        std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
+//
+//                        std::vector<std::shared_ptr<NodeType>> imageNodes;
+//
+//
+//                        const auto sourceSharedIter(sourceMaster.imageSharedNodeContainer.find(sourceIter->first));
+//                        std::shared_ptr<NodeType> sourceImage(sourceSharedIter!=sourceMaster.imageSharedNodeContainer.end()? sourceSharedIter->second : this->sharedNode(sourceIter->second->sID).second);
+//
+//                        const auto sinkSharedIter(sinkMaster.imageSharedNodeContainer.find(sinkIter->first));
+//                        std::shared_ptr<NodeType> sinkImage(sinkSharedIter!=sinkMaster.imageSharedNodeContainer.end()? sinkSharedIter->second : this->sharedNode(sinkIter->second->sID).second);
+//
+//                        imageNodes.push_back(sinkImage);
+//                        imageNodes.push_back(sourceImage);
+//                        imageNodes.push_back(centerNode);
+//
+//                        imageLoopVector.emplace_back(imageNodes,
+//                                                     link.second->burgers(),
+//                                                     glideNormal);
                     }
                     
-                    
-
                 }
                 
                 size_t nLoops(0);
@@ -280,7 +309,7 @@ namespace model
                     nLoops++;
                 }
                 model::cout<<"("<<nLoops<<" image loops)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-
+                
             }
         }
         
@@ -1056,7 +1085,7 @@ namespace model
             networkRemesher.remesh(runID);
             
             createImageLoops();
-//            updateImageLoops();
+            //            updateImageLoops();
             updateVirtualBoundaryLoops();
             
             //            mergeLoopsAtNodes();
