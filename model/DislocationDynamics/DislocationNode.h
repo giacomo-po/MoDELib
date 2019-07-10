@@ -78,7 +78,7 @@ namespace model
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
                         const VectorDim& Pin,
-                        const NodeType* const master) :
+                        NodeType* const master) :
         /* base constructor */ NodeBaseType(ln,Pin,master)
         /* init */,_climbVelocityScalar(0.0)
         /* init */,_climbVelocity(VectorDim::Zero())
@@ -88,9 +88,10 @@ namespace model
         
         /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
-                              const NodeType* const master,
-                              const LinkType* masterSegment) :
-        /* base */ NodeBaseType(ln,master,masterSegment)
+                              NodeType* const master,
+//                              const LinkType* masterSegment
+                        const std::set<const PlanarMeshFace<dim>*>& confiningFaces) :
+        /* base */ NodeBaseType(ln,master,confiningFaces)
         /* init */,_climbVelocityScalar(0.0)
         /* init */,_climbVelocity(VectorDim::Zero())
         {/*! Constructor from DOF

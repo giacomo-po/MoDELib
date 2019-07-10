@@ -174,6 +174,16 @@ namespace model
             return *this;
         }
         
+        VectorDim outNormal(const std::set<size_t>& faceIDs) const
+        {
+            VectorDim temp(VectorDim::Zero());
+            for(const auto& val : faceIDs)
+            {
+                temp+=faces().at(val)->outNormal();
+            }
+            const double tempNorm(temp.norm());
+            return tempNorm>FLT_EPSILON? (temp/tempNorm).eval() : VectorDim::Zero();
+        }
     };
     
 }	// close namespace

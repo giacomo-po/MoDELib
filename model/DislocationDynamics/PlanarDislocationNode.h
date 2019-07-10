@@ -171,13 +171,13 @@ namespace model
         std::shared_ptr<NodeType> virtualNode;
         
         
-        const NodeType* const masterNode;
-//        const std::set<const PlanarMeshFace<dim>*> imageFaceContainer;
-
+        NodeType* const masterNode;
+        //        const std::set<const PlanarMeshFace<dim>*> imageFaceContainer;
+        
         std::map<std::set<size_t>,std::shared_ptr<NodeType>> imageSharedNodeContainer;
-        std::map<std::set<size_t>,NodeType* const> imageNodeContainer;
-
-//        const bool isVirtualBoundaryNode;
+        //        std::map<std::set<size_t>,NodeType* const> imageNodeContainer;
+        
+        //        const bool isVirtualBoundaryNode;
         
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -204,7 +204,7 @@ namespace model
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(vrc)
         /* init */,masterNode(nullptr)
-//        /* init */,isVirtualBoundaryNode(false)
+        //        /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from DOF
           */
             VerbosePlanarDislocationNode(1,"Creating PlanarDislocationNode "<<this->sID<<" from position"<<std::endl;);
@@ -220,7 +220,7 @@ namespace model
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction()))
         /* init */,masterNode(nullptr)
-//        /* init */,isVirtualBoundaryNode(false)
+        //        /* init */,isVirtualBoundaryNode(false)
         {/*! Constructor from ExpandingEdge and DOF
           */
             VerbosePlanarDislocationNode(1,"Creating PlanarDislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
@@ -234,16 +234,16 @@ namespace model
         /**********************************************************************/
         PlanarDislocationNode(LoopNetworkType* const ln,
                               const VectorDim& Pin,
-                              const NodeType* const master) :
+                              NodeType* const master) :
         /* base */ NodeBaseType(ln,Pin)
         /* base */,ConfinedDislocationObjectType(this->get_P())
-//        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
+        //        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,p_Simplex(NULL)
         /* init */,velocity(VectorDim::Zero())
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(1.0)
         /* init */,masterNode(master)
-//        /* init */,isVirtualBoundaryNode(true)
+        //        /* init */,isVirtualBoundaryNode(true)
         {/*! Constructor from DOF
           */
             VerbosePlanarDislocationNode(1,"Creating VirtualPlanarDislocationNode "<<this->sID<<" (of master "<<masterNode->sID<<")"<<std::endl;);
@@ -251,11 +251,11 @@ namespace model
         
         /**********************************************************************/
         PlanarDislocationNode(LoopNetworkType* const ln,
-                              const NodeType* const master,
-                              const LinkType* const masterSegment
-//                              const std::set<const PlanarMeshFace<dim>*>& imageFaceContainer
+                              NodeType* const master,
+                              //                              const LinkType* const masterSegment
+                              const std::set<const PlanarMeshFace<dim>*>& confiningFaces
                               ) :
-        /* base */ NodeBaseType(ln,imagePosition(master,masterSegment->imageFaces()))
+        /* base */ NodeBaseType(ln,imagePosition(master,confiningFaces))
         /* base */,ConfinedDislocationObjectType(this->get_P())
         //        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
@@ -263,22 +263,23 @@ namespace model
         /* init */,vOld(velocity)
         /* init */,velocityReductionCoeff(1.0)
         /* init */,masterNode(master)
-//        /* init */,imageFaceContainer(masterSegment->meshFaces())
-//        /* init */,isVirtualBoundaryNode(true)
+        //        /* init */,imageFaceContainer(masterSegment->meshFaces())
+        //        /* init */,isVirtualBoundaryNode(true)
         {/*! Constructor from DOF
           */
             VerbosePlanarDislocationNode(1,"Creating ImagePlanarDislocationNode "<<this->sID<<" (of master "<<masterNode->sID<<")"<<std::endl;);
             
-//            assert(this->network().mesh.regions().size()==1);
-//            const auto& region(*this->network().mesh.regions().begin()->second);
-
-            for(const auto& face : masterSegment->imageFaces())
+            //            assert(this->network().mesh.regions().size()==1);
+            //            const auto& region(*this->network().mesh.regions().begin()->second);
+            
+            for(const auto& face : confiningFaces)
             {// Insert the image faces of masterSegment as confining faces of this
-//                const PlanarMeshFace<dim>& currentFace(**imageFaceContainer.begin());
-//                const PlanarMeshFace<dim>& imageFace(*);
+                //                const PlanarMeshFace<dim>& currentFace(**imageFaceContainer.begin());
+                //                const PlanarMeshFace<dim>& imageFace(*);
                 this->meshFaces().insert(face);
             }
             this->updateConfinement();
+            resetVirtualBoundaryNode();
         }
         
         /**********************************************************************/
@@ -290,6 +291,12 @@ namespace model
             //            {
             //                this->network().remove(virtualNode->sID);
             //            }
+            
+            for(const auto& pair : imageSharedNodeContainer)
+            {
+                assert(pair.second.use_count()==1);
+            }
+            
         }
         
         
@@ -307,31 +314,26 @@ namespace model
         static VectorDim imagePosition(const NodeType* const master,
                                        const std::set<const PlanarMeshFace<dim>*>& imageFaces)
         {
-//            assert(master->network().mesh.regions().size()==1);
-//            const auto& region(*master->network().mesh.regions().begin()->second);
-
             
             switch(imageFaces.size())
             {
                     
                 case 1:
                 {
-                    
-//                    const PlanarMeshFace<dim>& currentFace(**imageFaceContainer.begin());
-//                    const PlanarMeshFace<dim>& imageFace(*region.faces().at(region.parallelFaces().at(currentFace.sID)));
                     return (*imageFaces.begin())->asPlane().snapToPlane(master->get_P());
                     break;
                 }
                     
                 case 2:
                 {
+                    assert(false && "FINISH HERE, SNAP TO INTERSECTION LINE");
                     return VectorDim::Zero();
-
                     break;
                 }
                     
                 default:
                 {
+                    std::cout<<"imageFaces.size()="<<imageFaces.size()<<std::endl;
                     assert(false && "meshFaces must be 1 or 2");
                     return VectorDim::Zero();
                     break;
@@ -403,6 +405,7 @@ namespace model
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" addLoopLink "<<pL->tag()<<std::endl;);
             NodeBaseType::addLoopLink(pL); // forward to base class
             this->addGlidePlane(pL->loop()->glidePlane.get());
+            
         }
         
         
@@ -479,11 +482,11 @@ namespace model
                     velocity.setZero();
                     break;
                 }
-//                else
-//                {
-//                    velocity.setZero();
-//                    break;
-//                }
+                //                else
+                //                {
+                //                    velocity.setZero();
+                //                    break;
+                //                }
             }
             
             if(this->glidePlanes().size()>=dim)
@@ -841,6 +844,11 @@ namespace model
                           )
                       );
             
+            for (const auto& pair :imageSharedNodeContainer)
+            {
+                temp*=pair.second->isRemovable(Lmin,cosRemove);
+            }
+            
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" isRemovable "<<temp<<std::endl;);
             
             
@@ -905,8 +913,189 @@ namespace model
             return velocityReductionCoeff;
         }
         
+        
+        
+        
         /**********************************************************************/
-        void resetImageNodes()
+        std::set<const PlanarMeshFace<dim>*> imageMeshFaces(const std::set<size_t>& originalFaceIDs) const
+        {
+            assert(this->network().mesh.regions().size()==1);
+            const auto& region(*this->network().mesh.regions().begin()->second);
+            
+            std::set<const PlanarMeshFace<dim>*> originalFaces;
+            for(const auto& val : originalFaceIDs)
+            {
+                const auto& originalFace(region.faces().at(val).get());
+                assert(this->meshFaces().find(originalFace)!=this->meshFaces().end()); // original face MUST be a confining face for this node. We can insert new face if contains node
+                originalFaces.insert(originalFace);
+            }
+            
+            std::set<const PlanarMeshFace<dim>*> temp;
+            for(const auto& face : this->meshFaces())
+            {
+                if(originalFaces.find(face)!=originalFaces.end())
+                {
+                    temp.insert(region.faces().at(region.parallelFaces().at(face->sID)).get());
+                }
+                else
+                {
+                    temp.insert(face);
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::set<size_t> imageMeshFaceIDs(const std::set<size_t>& originalFaceIDs) const
+        {
+            const auto faces(imageMeshFaces(originalFaceIDs));
+            std::set<size_t> temp;
+            for(const auto& face : faces)
+            {
+                temp.insert(face->sID);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isOnMeshFaces(const std::set<size_t>& faceIDs) const
+        {
+            std::set<size_t> nodeFaceIDs;
+            for(const auto& face : this->meshFaces())
+            {
+                nodeFaceIDs.insert(face->sID);
+            }
+            
+            bool temp(true);
+            for(const auto& val : faceIDs)
+            {
+                temp*=(nodeFaceIDs.find(val)!=nodeFaceIDs.end());
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
+        }
+        
+//        /**********************************************************************/
+//        std::set<size_t> imageFaceIDs(const std::set<size_t>& originalFaceIDs) const
+//        {
+//            assert(this->network().mesh.regions().size()==1);
+//            const auto& region(*this->network().mesh.regions().begin()->second);
+//            std::set<size_t> temp;
+//            for(const auto& face : this->meshFaces())
+//            {
+//                if(originalFaceIDs.find(face->sID)!=faceIDs.end())
+//                {
+//                    temp.insert(region.parallelFaces().at(face->sID));
+//                }
+//                else
+//                {
+//                    temp.insert(face->sID);
+//                }
+//            }
+//            return temp;
+//        }
+//
+//        /**********************************************************************/
+//        std::set<size_t> imageFaces(const std::set<size_t>& originalFaceIDs) const
+//        {
+//            assert(this->network().mesh.regions().size()==1);
+//            const auto& region(*this->network().mesh.regions().begin()->second);
+//            std::set<size_t> temp;
+//            for(const auto& face : this->meshFaces())
+//            {
+//                if(originalFaceIDs.find(face->sID)!=faceIDs.end())
+//                {
+//                    temp.insert(region.parallelFaces().at(face->sID));
+//                }
+//                else
+//                {
+//                    temp.insert(face->sID);
+//                }
+//            }
+//            return temp;
+//        }
+        
+//        /**********************************************************************/
+//        std::pair<bool,std::shared_ptr<NodeType>> image(const LinkType& link)
+//        {
+//            return image(imageFaceIDs(link));
+//        }
+        
+        /**********************************************************************/
+        std::shared_ptr<NodeType> sharedImage(const std::set<size_t>& originalFaceIDs)
+        {
+            //std::pair<bool,std::shared_ptr<NodeType>> temp(std::make_pair(false,std::shared_ptr<NodeType>(nullptr)));
+            NodeType* const master(masterNode? masterNode : this->p_derived());
+            
+            std::cout<<"this->sID="<<this->sID<<std::endl;
+            std::cout<<"master->sID="<<master->sID<<std::endl;
+            
+            const std::set<size_t> imgFaceIDs(imageMeshFaceIDs(originalFaceIDs));
+
+            for(const auto& pair : master->imageSharedNodeContainer)
+            {
+                for(const auto& intKey : pair.first)
+                {
+                    std::cout<<intKey<<" "<<std::flush;
+                }
+                std::cout<<"is node "<<pair.second->sID<<std::endl;
+            }
+            
+//            const auto imgFaceIDs(imageFaceIDs(link));
+            
+            std::cout<<"requested original faces are "<<std::flush;
+            for(const auto& intKey : originalFaceIDs)
+            {
+                std::cout<<intKey<<" "<<std::flush;
+            }
+            std::cout<<std::endl;
+            
+            std::cout<<"requested image key is "<<std::flush;
+            for(const auto& intKey : imgFaceIDs)
+            {
+                std::cout<<intKey<<" "<<std::flush;
+            }
+            std::cout<<std::endl;
+            
+            const auto imageIter(master->imageSharedNodeContainer.find(imgFaceIDs));
+            if(imageIter==master->imageSharedNodeContainer.end())
+            {// image not exisintg
+                std::cout<<"case a"<<std::endl;
+                std::set<size_t> masterFaceIDs;
+                for(const auto& face : master->meshFaces())
+                {
+                    masterFaceIDs.insert(face->sID);
+                }
+                
+                if(masterFaceIDs==imgFaceIDs)
+                {// image is master itself
+                    std::cout<<"case a1"<<std::endl;
+                    const auto isSharedNode(this->network().sharedNode(master->sID));
+                    assert(isSharedNode.first && "MASTER SHARED PTR NOT FOUND");
+                    return isSharedNode.second;
+                }
+                else
+                {// new image is needed
+                    std::cout<<"case a2"<<std::endl;
+                    const auto confiningFaces(imageMeshFaces(originalFaceIDs));
+                    const auto newSharedNodePair(master->imageSharedNodeContainer.emplace(imgFaceIDs,new NodeType(&this->network(),master,confiningFaces)));
+                    assert(newSharedNodePair.second && "COULD NOT INSERT NEW NODE IMAGE IN MASTER.imageSharedNodeContainer");
+                    return newSharedNodePair.first->second;
+                }
+            }
+            else
+            {// image exists
+                std::cout<<"case b"<<std::endl;
+                std::cout<<". imageIter->second->sID="<<imageIter->second->sID<<std::endl;
+                return imageIter->second;
+            }
+        }
+        
+        /**********************************************************************/
+        void updateImageNodes()
         {
             
             if(   this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
@@ -914,127 +1103,112 @@ namespace model
             {
                 if(isBoundaryNode() && !masterNode)
                 {
-//                    assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
+                    //                    assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
                     
                     
-//                    for(auto& pair : this->neighbors())
-//                    {
-//                        const LinkType& link(*std::get<1>(pair.second));
-//                        NodeType& otherNode(*std::get<0>(pair.second));
-//
-//                        if(link.isBoundarySegment())
-//                        {
-//                            std::set<size_t> key;
-//                            for(const auto& face : link.meshFaces())
-//                            {
-//                                key.insert(face->sID);
-//                            }
-//
-//                            const auto iter(imageNodeContainer.find(key));
-//                            if(iter==imageNodeContainer.end())
-//                            {
-//                                const auto iterPair(imageNodeContainer.emplace(key,new NodeType(&this->network(),this->p_derived(),&link)));
-//                                iterPair.first->second->resetVirtualBoundaryNode();
-//                            }
-//                            else
-//                            {
-//                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->imageFaceContainer));
-//                                static_cast<NodeBaseType*>(iter->second.get())->set_P(imageP);
-//                                iter->second->resetVirtualBoundaryNode();
-//                            }
-//
-//                            const auto iterOther(otherNode.imageNodeContainer.find(key));
-//                            if(iterOther==otherNode.imageNodeContainer.end())
-//                            {
-//                                const auto iterPair(otherNode.imageNodeContainer.emplace(key,new NodeType(&this->network(),&otherNode,&link)));
-//                                iterPair.first->second->resetVirtualBoundaryNode();
-//                            }
-//                            else
-//                            {
-//                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->imageFaceContainer));
-//                                static_cast<NodeBaseType*>(iterOther->second.get())->set_P(imageP);
-//                                iterOther->second->resetVirtualBoundaryNode();
-//                            }
-//
-//                        }
-//                    }
+                    //                    for(auto& pair : this->neighbors())
+                    //                    {
+                    //                        const LinkType& link(*std::get<1>(pair.second));
+                    //                        NodeType& otherNode(*std::get<0>(pair.second));
+                    //
+                    //                        if(link.isBoundarySegment())
+                    //                        {
+                    //                            std::set<size_t> key;
+                    //                            for(const auto& face : link.meshFaces())
+                    //                            {
+                    //                                key.insert(face->sID);
+                    //                            }
+                    //
+                    //                            const auto iter(imageNodeContainer.find(key));
+                    //                            if(iter==imageNodeContainer.end())
+                    //                            {
+                    //                                const auto iterPair(imageNodeContainer.emplace(key,new NodeType(&this->network(),this->p_derived(),&link)));
+                    //                                iterPair.first->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->imageFaceContainer));
+                    //                                static_cast<NodeBaseType*>(iter->second.get())->set_P(imageP);
+                    //                                iter->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //
+                    //                            const auto iterOther(otherNode.imageNodeContainer.find(key));
+                    //                            if(iterOther==otherNode.imageNodeContainer.end())
+                    //                            {
+                    //                                const auto iterPair(otherNode.imageNodeContainer.emplace(key,new NodeType(&this->network(),&otherNode,&link)));
+                    //                                iterPair.first->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->imageFaceContainer));
+                    //                                static_cast<NodeBaseType*>(iterOther->second.get())->set_P(imageP);
+                    //                                iterOther->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //
+                    //                        }
+                    //                    }
                     
-                    for(auto& pair : this->neighbors())
+                    //                    for(auto& pair : this->neighbors())
+                    //                    {
+                    //                        const LinkType& link(*std::get<1>(pair.second));
+                    //                        NodeType& otherNode(*std::get<0>(pair.second));
+                    //
+                    //                        if(link.isBoundarySegment())
+                    //                        {
+                    //
+                    //                            const auto realKey(link.faceIDs());
+                    //                            const auto imageKey(link.imageFaceIDs());
+                    //
+                    //
+                    //                            const auto iter(imageNodeContainer.find(imageKey));
+                    //                            const auto iterOther(otherNode.imageNodeContainer.find(imageKey));
+                    //
+                    //
+                    //
+                    //                            if(iter==imageNodeContainer.end())
+                    //                            {
+                    //                                const auto iterPair(imageSharedNodeContainer.emplace(imageKey,new NodeType(&this->network(),this->p_derived(),&link)));
+                    //                                imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
+                    //                                imageNodeContainer.emplace(realKey,this->p_derived());
+                    //                                iterPair.first->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->meshFaces()));
+                    //                                static_cast<NodeBaseType*>(iter->second)->set_P(imageP);
+                    //                                iter->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //
+                    //                            if(iterOther==otherNode.imageNodeContainer.end())
+                    //                            {
+                    //                                const auto iterPair(otherNode.imageSharedNodeContainer.emplace(imageKey,new NodeType(&otherNode.network(),&otherNode,&link)));
+                    //                                otherNode.imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
+                    //                                otherNode.imageNodeContainer.emplace(realKey,&otherNode);
+                    //                                iterPair.first->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //                            else
+                    //                            {
+                    //                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->meshFaces()));
+                    //                                static_cast<NodeBaseType*>(iterOther->second)->set_P(imageP);
+                    //                                iterOther->second->resetVirtualBoundaryNode();
+                    //                            }
+                    //
+                    //                        }
+                    //                    }
+                    
+                    for(const auto& pair : imageSharedNodeContainer)
                     {
-                        const LinkType& link(*std::get<1>(pair.second));
-                        NodeType& otherNode(*std::get<0>(pair.second));
-                        
-                        if(link.isBoundarySegment())
-                        {
-
-                            const auto realKey(link.faceIDs());
-                            const auto imageKey(link.imageFaceIDs());
-
-                            
-                            const auto iter(imageNodeContainer.find(imageKey));
-                            const auto iterOther(otherNode.imageNodeContainer.find(imageKey));
-
-                            
-                            
-                            if(iter==imageNodeContainer.end())
-                            {
-                                const auto iterPair(imageSharedNodeContainer.emplace(imageKey,new NodeType(&this->network(),this->p_derived(),&link)));
-                                imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
-                                imageNodeContainer.emplace(realKey,this->p_derived());
-                                iterPair.first->second->resetVirtualBoundaryNode();
-                            }
-                            else
-                            {
-                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->meshFaces()));
-                                static_cast<NodeBaseType*>(iter->second)->set_P(imageP);
-                                iter->second->resetVirtualBoundaryNode();
-                            }
-                            
-                            if(iterOther==otherNode.imageNodeContainer.end())
-                            {
-                                const auto iterPair(otherNode.imageSharedNodeContainer.emplace(imageKey,new NodeType(&otherNode.network(),&otherNode,&link)));
-                                otherNode.imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
-                                otherNode.imageNodeContainer.emplace(realKey,&otherNode);
-                                iterPair.first->second->resetVirtualBoundaryNode();
-                            }
-                            else
-                            {
-                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->meshFaces()));
-                                static_cast<NodeBaseType*>(iterOther->second)->set_P(imageP);
-                                iterOther->second->resetVirtualBoundaryNode();
-                            }
-                            
-                        }
+                        const VectorDim imageP(imagePosition(this->p_derived(),pair.second->meshFaces()));
+                        static_cast<NodeBaseType*>(pair.second.get())->set_P(imageP);
+                        static_cast<ConfinedDislocationObjectType*>(pair.second.get())->updateGeometry(imageP); // update confinement of image
+                        pair.second->resetVirtualBoundaryNode();
                     }
                     
                 }
             }
         }
         
-        /**********************************************************************/
-        std::pair<bool,std::shared_ptr<NodeType>> image(const std::set<size_t>& imageFaceIDs)
-        {
-            std::pair<bool,std::shared_ptr<NodeType>> temp(std::make_pair(false,std::shared_ptr<NodeType>(nullptr)));
-            const NodeType& master(masterNode? *masterNode : this->derived());
-            
-            const auto imageIter(master.imageNodeContainer.find(imageFaceIDs));
-            if(imageIter!=imageNodeContainer.end())
-            {
-                const auto sharedImageIter(master.imageSharedNodeContainer.find(imageFaceIDs));
-                
-                
-                if(sharedImageIter!=master.imageSharedNodeContainer.end())
-                {
-                    temp.first=true;
-                    temp.second=sharedImageIter->second;
-                }
-                else
-                {
-                    temp=this->network().sharedNode(imageIter->second->sID);
-                }
-            }
-            return temp;
-        }
+        
         
         /**********************************************************************/
         void resetVirtualBoundaryNode()
@@ -1061,46 +1235,46 @@ namespace model
             }
             
             
-//
-//            if(isBoundaryNode() && !isVirtualBoundaryNode)
-//            {
-//                assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
-//
-//
-//
-//
-//                switch (this->network().simulationParameters.simulationType)
-//                {
-//                    case DefectiveCrystalParameters::FINITE_FEM:
-//                    {
-//                        if(virtualNode)
-//                        {
-//                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal());
-//                        }
-//                        else
-//                        {
-//                            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-//                            virtualNode.reset(new NodeType(&this->network(),this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal(),this->p_derived()));
-//                        }
-//                        break;
-//                    }
-//                    case DefectiveCrystalParameters::PERIODIC:
-//                    {
-//                        if(virtualNode)
-//                        {
-//                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(this->get_P() - ((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(this->bndNormal())));
-//                        }
-//                        else
-//                        {
-//                            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
-//                            virtualNode.reset(new NodeType(&this->network(),this->get_P()-((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(this->bndNormal())),this->p_derived()));
-//                        }
-//                        break;
-//                    }
-//                    default:
-//                        break;
-//                }
-//            }
+            //
+            //            if(isBoundaryNode() && !isVirtualBoundaryNode)
+            //            {
+            //                assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
+            //
+            //
+            //
+            //
+            //                switch (this->network().simulationParameters.simulationType)
+            //                {
+            //                    case DefectiveCrystalParameters::FINITE_FEM:
+            //                    {
+            //                        if(virtualNode)
+            //                        {
+            //                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal());
+            //                        }
+            //                        else
+            //                        {
+            //                            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+            //                            virtualNode.reset(new NodeType(&this->network(),this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal(),this->p_derived()));
+            //                        }
+            //                        break;
+            //                    }
+            //                    case DefectiveCrystalParameters::PERIODIC:
+            //                    {
+            //                        if(virtualNode)
+            //                        {
+            //                            static_cast<NodeBaseType*>(virtualNode.get())->set_P(this->get_P() - ((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(this->bndNormal())));
+            //                        }
+            //                        else
+            //                        {
+            //                            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" resetting virtualBoundaryNode"<<std::endl;);
+            //                            virtualNode.reset(new NodeType(&this->network(),this->get_P()-((this->network().mesh.xMax()-this->network().mesh.xMin()).cwiseProduct(this->bndNormal())),this->p_derived()));
+            //                        }
+            //                        break;
+            //                    }
+            //                    default:
+            //                        break;
+            //                }
+            //            }
         }
         
         /**********************************************************************/
@@ -1177,7 +1351,7 @@ namespace model
             
             p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
             
-            resetImageNodes();
+            updateImageNodes();
             resetVirtualBoundaryNode();
             
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" this->isOnBoundary()="<<this->isOnBoundary()<<std::endl;);
@@ -1326,7 +1500,7 @@ namespace model
         {
             VerbosePlanarDislocationNode(3,"moving PlanarDislocationNode "<<this->sID<<std::endl;);
             const VectorDim P_old(this->get_P());
-
+            
             if(!masterNode)
             {
                 VectorDim dX=velocity.template segment<dim>(0)*dt;
@@ -1334,11 +1508,11 @@ namespace model
                 const VectorDim newP(this->snapToGlidePlanes(this->get_P()+dX));
                 set_P(newP);
             }
-//            else
-//            {
-//                const VectorDim imageP(imagePosition(masterNode,imageFaceContainer));
-//                static_cast<NodeBaseType*>(this)->set_P(imageP);
-//            }
+            //            else
+            //            {
+            //                const VectorDim imageP(imagePosition(masterNode,imageFaceContainer));
+            //                static_cast<NodeBaseType*>(this)->set_P(imageP);
+            //            }
             
             
             //            if (dX.squaredNorm()>0.0 /*&& this->isGlissile()*/) // move a node only if |v|!=0

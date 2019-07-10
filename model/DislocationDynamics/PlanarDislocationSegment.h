@@ -400,7 +400,7 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isBoundarySegment() const // THIS IS CALLED MANY TIMES< CONSIDER STORING
+        bool isBoundarySegment() const 
         {/*!\returns true if both nodes are boundary nodes, and the midpoint is
           * on the boundary.
           */
@@ -464,44 +464,44 @@ namespace model
             return temp;
         }
         
-        /**********************************************************************/
-        std::set<size_t> faceIDs() const
-        {
-            std::set<size_t> key;
-            for(const auto& face : this->meshFaces())
-            {
-                key.insert(face->sID);
-            }
-            return key;
-        }
-        
-        /**********************************************************************/
-        std::set<size_t> imageFaceIDs() const
-        {
-            assert(this->network().mesh.regions().size()==1);
-            const auto& region(*this->network().mesh.regions().begin()->second);
-
-            std::set<size_t> key;
-            for(const auto& face : this->meshFaces())
-            {
-                key.insert(region.parallelFaces().at(face->sID));
-            }
-            return key;
-        }
-        
-        /**********************************************************************/
-        std::set<const PlanarMeshFace<dim>*> imageFaces() const
-        {
-            assert(this->network().mesh.regions().size()==1);
-            const auto& region(*this->network().mesh.regions().begin()->second);
-            
-            std::set<const PlanarMeshFace<dim>*> temp;
-            for(const auto& face : this->meshFaces())
-            {
-                temp.insert(region.faces().at(region.parallelFaces().at(face->sID)).get());
-            }
-            return temp;
-        }
+//        /**********************************************************************/
+//        std::set<size_t> faceIDs() const
+//        {
+//            std::set<size_t> key;
+//            for(const auto& face : this->meshFaces())
+//            {
+//                key.insert(face->sID);
+//            }
+//            return key;
+//        }
+//
+//        /**********************************************************************/
+//        std::set<size_t> imageFaceIDs() const
+//        {
+//            assert(this->network().mesh.regions().size()==1);
+//            const auto& region(*this->network().mesh.regions().begin()->second);
+//
+//            std::set<size_t> key;
+//            for(const auto& face : this->meshFaces())
+//            {
+//                key.insert(region.parallelFaces().at(face->sID));
+//            }
+//            return key;
+//        }
+//
+//        /**********************************************************************/
+//        std::set<const PlanarMeshFace<dim>*> imageFaces() const
+//        {
+//            assert(this->network().mesh.regions().size()==1);
+//            const auto& region(*this->network().mesh.regions().begin()->second);
+//
+//            std::set<const PlanarMeshFace<dim>*> temp;
+//            for(const auto& face : this->meshFaces())
+//            {
+//                temp.insert(region.faces().at(region.parallelFaces().at(face->sID)).get());
+//            }
+//            return temp;
+//        }
         
         /**********************************************************************/
         MeshLocation meshLocation() const

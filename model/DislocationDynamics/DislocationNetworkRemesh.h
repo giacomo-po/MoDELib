@@ -88,9 +88,12 @@ namespace model
             for(const auto& node : DN.nodes())
             {
                 //                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
-                if(node.second->isRemovable(Lmin,cosRemove))
+                if(!node.second->masterNode)
                 {
-                    toBeRemoved.push_back(node.second->sID);
+                    if(node.second->isRemovable(Lmin,cosRemove))
+                    {
+                        toBeRemoved.push_back(node.second->sID);
+                    }
                 }
             }
             
@@ -100,9 +103,12 @@ namespace model
                 const auto isNode=DN.node(nodeID);
                 if(isNode.first)
                 {// Removing may have deleted the node, check that it exists
-                    if(isNode.second->isRemovable(Lmin,cosRemove))
-                    {// Removing may have altered the isSimpleBoundaryNode, check again
-                        Nremoved+=DN.remove(nodeID);
+                    if(!isNode.second->masterNode)
+                    {
+                        if(isNode.second->isRemovable(Lmin,cosRemove))
+                        {// Removing may have altered the isSimpleBoundaryNode, check again
+                            Nremoved+=DN.remove(nodeID);
+                        }
                     }
                 }
             }

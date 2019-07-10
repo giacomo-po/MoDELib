@@ -57,10 +57,14 @@ namespace model
         
         
         //        constexpr static int dim=_dim;
+        
         typedef PlanarDislocationLoop<Derived> PlanarDislocationLoopType;
         typedef Loop<Derived> BaseLoopType;
         typedef typename BaseLoopType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+        typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::NodeType NodeType;
+
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef GlidePlane<dim> GlidePlaneType;
@@ -72,6 +76,101 @@ namespace model
         const int loopType;
         const std::shared_ptr<GlidePlaneType> glidePlane;
         static int verbosePlanarDislocationLoop;
+        
+        
+        std::map<std::set<size_t>,std::deque<std::deque<const LoopLinkType*>>> boundaryLinkSequenceMap;
+        
+        /******************************************************************/
+        void updateBoundaryDecomposition()
+        {
+            boundaryLinkSequenceMap.clear();
+            for(const auto& link : this->linkSequence())
+            {
+                std::set<size_t> key;
+                for(const auto& face : link->pLink->meshFaces())
+                {
+                    key.insert(face->sID);
+                }
+                
+                const auto& linkPrev(link->prev);
+                std::set<size_t> keyPrev;
+                for(const auto& face : linkPrev->pLink->meshFaces())
+                {
+                    keyPrev.insert(face->sID);
+                }
+                
+                
+                if(link->pLink->isBoundarySegment())
+                {
+                    if(!linkPrev->pLink->isBoundarySegment())
+                    {
+                        boundaryLinkSequenceMap[key].emplace_back();
+                        boundaryLinkSequenceMap[key].back().push_back(link);
+                    }
+                    else
+                    {
+                        if(key==keyPrev)
+                        {
+                            if(boundaryLinkSequenceMap[key].empty())
+                            {
+                                boundaryLinkSequenceMap[key].emplace_back();
+                            }
+                            boundaryLinkSequenceMap[key].back().push_back(link);
+                        }
+                        else
+                        {
+                            boundaryLinkSequenceMap[key].emplace_back();
+                            boundaryLinkSequenceMap[key].back().push_back(link);
+                        }
+                    }
+                }
+
+                
+            }
+            
+            for(auto& pair : boundaryLinkSequenceMap)
+            {
+                if(pair.second.size()>1)
+                {
+                    if(pair.second.back().back()->next == pair.second.front().front())
+                    {
+                        for(const auto& link : pair.second.front())
+                        {
+                            pair.second.back().push_back(link);
+                        }
+                        pair.second.pop_front();
+                    }
+                }
+                
+            }
+            
+            if(true)
+            {
+            std::cout<<"Loop "<<this->sID<<" boundaryLinkSequenceMap:"<<std::endl;
+            for(auto& pair : boundaryLinkSequenceMap)
+            {
+                std::cout<<"face "<<std::flush;
+                for(const auto& val : pair.first)
+                {
+                    std::cout<<val<<" "<<std::endl;
+                }
+                
+                for(const auto& deq : pair.second)
+                {
+                    for(const auto& link : deq)
+                    {
+                        std::cout<<link->tag()<<std::endl;
+                    }
+                    std::cout<<"---------"<<std::endl;
+
+                }
+                
+
+                
+            }
+            }
+            
+        }
         
         //        const GlidePlaneType& glidePlane;
         //        const bool isGlissile;
@@ -87,6 +186,55 @@ namespace model
         //
         //            return true;
         //        }
+        
+        /******************************************************************/
+        const LoopType* imageLoop(const std::set<size_t>& faceIDs) const
+        {
+            const LoopType* temp(nullptr);
+            
+            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+            {
+            std::set<const LoopType*> imageLoops;
+            for(const auto& link : this->links())
+            {
+                const auto node(link.second->source());
+                
+//                std::set<size_t> nodeFaceIDs;
+//                for(const auto& face : node->meshFaces())
+//                {
+//                    nodeFaceIDs.insert(face->sID);
+//                }
+//
+//                bool isNodeOnFaces(true);
+//                for(const auto& val : faceIDs)
+//                {
+//                    isNodeOnFaces*=(nodeFaceIDs.find(val)!=nodeFaceIDs.end());
+//                }
+                if(node->isOnMeshFaces(faceIDs))
+                {
+                    const NodeType& nodeImage(*node->sharedImage(faceIDs));
+                    for(const auto& loop : nodeImage.loops())
+                    {
+                        if(loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+                        {
+                            if(   (this->flow()-loop->flow()).squaredNorm()==0
+                               && (glidePlane->unitNormal-loop->glidePlane->unitNormal).squaredNorm()<FLT_EPSILON
+                               ) // MORE CONDITIONS MAY BE NEEDED
+                            {
+                                imageLoops.insert(loop);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            assert(imageLoops.size()<=1);
+            temp=*imageLoops.begin();
+        }
+            
+            return temp;
+        }
+        
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
