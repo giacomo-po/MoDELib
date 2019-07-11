@@ -46,6 +46,7 @@ namespace model
         typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
 		typedef DislocationNode      <dim,corder,InterpolationType>	NodeType;
 		typedef DislocationSegment   <dim,corder,InterpolationType>	LinkType;
+        typedef LoopLink<LinkType> LoopLinkType;
         typedef DislocationLoop      <dim,corder,InterpolationType> LoopType;
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
         typedef LatticeVector<3>                                                            FlowType;

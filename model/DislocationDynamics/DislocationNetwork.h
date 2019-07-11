@@ -212,7 +212,6 @@ namespace model
             {
                 
                 
-                
                 const auto t0= std::chrono::system_clock::now();
                 model::cout<<"        Creating image  loops "<<std::flush;
 
@@ -229,70 +228,139 @@ namespace model
                 const auto& region(*mesh.regions().begin()->second);
 
                 
-                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,VectorDim>> imageLoopVector;
-
+                std::set<const PeriodicDislocationLoopPair<BoundaryLoopLinkSequence<LoopType>>*> loopPairContainer;
                 for(auto& loop : this->loops())
                 {
-                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+                    for(const auto& sequence : loop.second->boundaryLinkSequenceMap)
                     {
-                        model::cout<<"        Creating image  of loop "<<loop.second->sID<<std::endl;
-
-                    for(const auto& pair : loop.second->boundaryLinkSequenceMap)
+                        loopPairContainer.insert(sequence.second.loopPair.get());
+                    }
+                }
+                
+                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,
+                /*                  */ BoundaryLoopLinkSequence<LoopType>,
+                /*                  */ VectorDim>> imageLoopVector;
+                
+                for(const auto& loopPair : loopPairContainer)
+                {
+                    switch (loopPair->size())
                     {
-                        const auto mirrorLoop(loop.second->imageLoop(pair.first));
-                        if(mirrorLoop)
-                        {// mirror loops exists
-                           
-                        }
-                        else
-                        {// nucleate new loops
-                           
+                        case 1:
+                        {// nucleate the new loop
+                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+                            
                             std::vector<std::shared_ptr<NodeType>> imageNodes;
-                            const VectorDim bndNormal(region.outNormal(pair.first));
-                            const VectorDim glideNormal(loop.second->glidePlane->unitNormal);
+                            const BoundaryLoopLinkSequence<LoopType>& loopLinkSequence(**loopPair->begin());
+                            const VectorDim bndNormal(region.outNormal(loopLinkSequence.faceIDs));
+                            const VectorDim glideNormal(loopLinkSequence.loop->glidePlane->unitNormal);
                             const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
-
-                            for(const auto& linkSequence : pair.second)
+                            
+                            
+                            for(const auto& linkSequence : loopLinkSequence)
                             {
-                                std::cout<<"face "<<std::flush;
-                                for(const auto& val : pair.first)
-                                {
-                                    std::cout<<val<<" "<<std::endl;
-                                }
-                                
-                                for(const auto& deq : pair.second)
-                                {
-                                    for(const auto& link : deq)
-                                    {
-                                        std::cout<<link->tag()<<std::endl;
-                                    }
-                                    std::cout<<"---------"<<std::endl;
-                                    
-                                }
-                                
-                                const auto startImage(linkSequence.front()->source()->sharedImage(pair.first));
-                                const auto   endImage(linkSequence.back()   ->sink()->sharedImage(pair.first));
 
+                                
+                                const auto startImage(linkSequence.front()->source()->sharedImage(loopLinkSequence.faceIDs));
+                                const auto   endImage(linkSequence.back()   ->sink()->sharedImage(loopLinkSequence.faceIDs));
+                                
                                 const VectorDim centerNodePos(0.5*(startImage->get_P()+endImage->get_P())+glideDir.normalized()*10.0);
                                 std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
-
+                                
                                 
                                 imageNodes.push_back(startImage);
                                 imageNodes.push_back(centerNode);
                                 imageNodes.push_back(endImage);
-
+                                
                             }
                             
                             imageLoopVector.emplace_back(imageNodes,
-                                                         loop.second->flow().cartesian(),
+                                                         loopLinkSequence,
                                                          glideNormal);
 
+                            break;
+                        }
                             
+                        case 2:
+                        {// update loops
+                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+                            break;
+                        }
                             
+                        default:
+                        {
+                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+                            assert(false && "LoopPair must gave size 1 or 2");
+                            break;
                         }
                     }
                 }
-                }
+                
+                
+
+//                for(auto& loop : this->loops())
+//                {
+//                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//                    {
+//                        model::cout<<"        Creating image  of loop "<<loop.second->sID<<std::endl;
+//
+//                    for(const auto& pair : loop.second->boundaryLinkSequenceMap)
+//                    {
+//                        const auto mirrorLoop(loop.second->imageLoop(pair.first));
+//                        if(mirrorLoop)
+//                        {// mirror loops exists
+//
+//
+//
+//                        }
+//                        else
+//                        {// nucleate new loops
+//
+//                            std::vector<std::shared_ptr<NodeType>> imageNodes;
+//                            const VectorDim bndNormal(region.outNormal(pair.first));
+//                            const VectorDim glideNormal(loop.second->glidePlane->unitNormal);
+//                            const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
+//
+//                            for(const auto& linkSequence : pair.second)
+//                            {
+//                                std::cout<<"face "<<std::flush;
+//                                for(const auto& val : pair.first)
+//                                {
+//                                    std::cout<<val<<" "<<std::endl;
+//                                }
+//
+//                                for(const auto& deq : pair.second)
+//                                {
+//                                    for(const auto& link : deq)
+//                                    {
+//                                        std::cout<<link->tag()<<std::endl;
+//                                    }
+//                                    std::cout<<"---------"<<std::endl;
+//
+//                                }
+//
+//                                const auto startImage(linkSequence.front()->source()->sharedImage(pair.first));
+//                                const auto   endImage(linkSequence.back()   ->sink()->sharedImage(pair.first));
+//
+//                                const VectorDim centerNodePos(0.5*(startImage->get_P()+endImage->get_P())+glideDir.normalized()*10.0);
+//                                std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
+//
+//
+//                                imageNodes.push_back(startImage);
+//                                imageNodes.push_back(centerNode);
+//                                imageNodes.push_back(endImage);
+//
+//                            }
+//
+//                            imageLoopVector.emplace_back(imageNodes,
+//                                                         loop.second->flow().cartesian(),
+//                                                         glideNormal);
+//
+//
+//
+//                        }
+//                    }
+//                }
+//                }
                 
                 
 
@@ -300,7 +368,7 @@ namespace model
                 size_t nLoops(0);
                 for(const auto& tup : imageLoopVector)
                 {// Insert the new virtual loops
-                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<0>(tup)[0]->get_P(),region.regionID);
+                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<0>(tup)[0]->get_P());
                     nLoops++;
                 }
                 model::cout<<"("<<nLoops<<" image loops)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;

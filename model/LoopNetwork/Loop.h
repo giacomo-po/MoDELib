@@ -169,11 +169,20 @@ namespace model
             //RECODE THIS USING prev/next
             //typename LoopLinkContainerType::const_iterator iter;
             LoopLinkSequenceType temp;
-            const LoopLinkType* pL=links().begin()->second;
-            for(size_t k=0;k<links().size();++k)
+            if(links().size())
             {
-                temp.push_back(pL);
-                pL=pL->next;
+                const LoopLinkType* pL=links().begin()->second;
+                for(size_t k=0;k<links().size();++k)
+                {
+                    if(pL)
+                    {
+                        if(pL->next)
+                        {
+                            temp.push_back(pL);
+                            pL=pL->next;
+                        }
+                    }
+                }
             }
             return temp;
         }

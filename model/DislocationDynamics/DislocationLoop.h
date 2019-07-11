@@ -30,6 +30,8 @@ namespace model
     template <int _dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoop : public PlanarDislocationLoop<DislocationLoop<_dim,corder,InterpolationType>>
     {
+        
+        typedef DislocationLoop<_dim,corder,InterpolationType> LoopType;
     
         constexpr static int dim=_dim;
 
@@ -69,6 +71,16 @@ namespace model
         /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
         /* init */,slipSystem(nullptr)
 //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
+        {
+        }
+        
+        DislocationLoop(LoopNetworkType* const dn,
+                        const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
+                              const VectorDim& N,
+                              const VectorDim& P) :
+        /* init */ BaseLoopType(dn,bndLinkSequence,N,P)
+        /* init */,slipSystem(bndLinkSequence.loop->slipSystem)
+        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
         {
         }
         
