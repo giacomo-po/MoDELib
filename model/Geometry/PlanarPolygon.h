@@ -56,8 +56,8 @@ namespace model
         
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
-        PlanarPolygon(const Eigen::Vector3d& x,
-                      const Eigen::Vector3d& z) :
+        PlanarPolygon(const Eigen::Vector3d& x,        // global coordinate of the x axis on the plane
+                      const Eigen::Vector3d& z) :       // global z coordinate
         R(getR(x,z)),
         n(R.col(2))
         {
@@ -100,6 +100,30 @@ namespace model
             }
             return temp;
         }
+        
+//        bool isInside(const Eigen::Vector3d& P)
+//        {
+//            return isInside(projectRotate(P))
+//        }
+//
+//
+//
+//
+//
+//
+//        bool isInside(const std::array<double, 2>& P)
+//        {
+//
+//            std::array<double, 2> ca;
+//            Eigen::Map<Eigen::Vector2d> c(ca.data());
+//            for(const auto& point)
+//
+//
+//            return isInside(projectRotate(P))
+//        }
+        
+        
+        
         
     };
     

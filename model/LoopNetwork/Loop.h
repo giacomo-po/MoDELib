@@ -228,8 +228,8 @@ namespace model
         /**********************************************************************/
         bool isLoop() const
         {
-            bool temp=true;
             const LoopLinkSequenceType linkSeq(linkSequence());
+            bool temp(linkSeq.size()>=3);
             for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
             {
                 auto next=std::next(iter,1);
@@ -239,7 +239,10 @@ namespace model
                 }
                 
                 temp*=((*iter)->sink()->sID==(*next)->source()->sID);
-                
+                if(!temp)
+                {
+                    break;
+                }
             }
             return temp;
         }

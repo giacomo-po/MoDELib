@@ -39,6 +39,9 @@ namespace model
             this->erase(linkSequence);
         }
         
+        
+        //void findSequenceStart()
+        
     };
 }
 #endif

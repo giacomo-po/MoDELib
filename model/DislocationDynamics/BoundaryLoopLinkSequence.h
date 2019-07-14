@@ -43,14 +43,90 @@ namespace model
         /* init */,faceIDs(faceIDs_in)
         /* init */,loopPair(loopPair_in)
         {
+            assert(loopPair->size()==1);
             loopPair->insertLoop(this);
         }
         
         /**********************************************************************/
         ~BoundaryLoopLinkSequence()
          {
+             std::cout<<"Destroying BoundaryLoopLinkSequence of loop "<<loop->sID<<std::endl;
+             std::cout<<"current loopPair->size()="<<loopPair->size()<<std::endl;
              loopPair->eraseLoop(this);
+             std::cout<<"new loopPair->size()="<<loopPair->size()<<std::endl;
+
+             print();
+
          }
+        
+        
+//        void imageLinkAtSequenceStart(const std::deque<const typename TypeTraits<LoopType>::LoopLinkType*>& otherSeq,
+//                                 const std::set<size_t>& otherFaceIDs) const
+//        {
+//            
+//            if(otherSeq.size())
+//            {
+//                if(!otherSeq.front()->masterNode)
+//                {
+//                    for(const auto& otherLink : otherSeq)
+//                    {
+//                        const auto& otherSource(otherLink->source());
+//                        //                if(!otherSource->masterNode)
+//                        //                {// start of otherSeq is not an image
+//                        const auto& otherSourceImage(otherSource->sharedImage(otherFaceIDs));
+//                        bool found(false);
+//
+//                        if(otherSourceImage->meshFaceIDs()==faceIDs)
+//                        {
+//                            
+//                            for(const auto& linkDeq : *this)
+//                            {
+//                                for(const auto& link : linkDeq)
+//                                {
+//                                    found=(link->source()->sID==otherSourceImage->sID);
+//                                    if(found)
+//                                    {
+//                                        break;
+//                                    }
+//                                }
+//                                if(found)
+//                                {
+//                                    break;
+//                                }
+//                            }
+//                            
+//                            
+//                        }
+//                        
+//                        
+//                        FINISH HERE
+//                        
+//                        //                }
+//                    }
+//                }
+//            }
+//            
+//
+//            
+//        }
+        
+        void print() const
+        {
+            std::cout<<"face "<<std::flush;
+            for(const auto& val : faceIDs)
+            {
+                std::cout<<val<<" "<<std::endl;
+            }
+            
+            for(const auto& deq : *this)
+            {
+                for(const auto& link : deq)
+                {
+                    std::cout<<link->tag()<<std::endl;
+                }
+                std::cout<<"---------"<<std::endl;
+            }
+        }
         
     };
 }

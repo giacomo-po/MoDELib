@@ -836,7 +836,8 @@ namespace model
             
             
             bool temp(   !isVirtualBoundaryNode()
-                      && (   isSimpleBoundaryNode()
+                      && (   this->loopLinks().size()==0 // isolated node
+                          || isSimpleBoundaryNode()
                           || isSimpleGrainBoundaryNode()
                           || isSimpleSessileNode()
                           || isSimpleZeroBurgersNode()
@@ -917,13 +918,13 @@ namespace model
         
         
         /**********************************************************************/
-        std::set<const PlanarMeshFace<dim>*> imageMeshFaces(const std::set<size_t>& originalFaceIDs) const
+        std::set<const PlanarMeshFace<dim>*> imageMeshFaces(const std::set<size_t>& mirroringFaceIDs) const
         {
             assert(this->network().mesh.regions().size()==1);
             const auto& region(*this->network().mesh.regions().begin()->second);
             
             std::set<const PlanarMeshFace<dim>*> originalFaces;
-            for(const auto& val : originalFaceIDs)
+            for(const auto& val : mirroringFaceIDs)
             {
                 const auto& originalFace(region.faces().at(val).get());
                 assert(this->meshFaces().find(originalFace)!=this->meshFaces().end()); // original face MUST be a confining face for this node. We can insert new face if contains node
@@ -946,9 +947,9 @@ namespace model
         }
         
         /**********************************************************************/
-        std::set<size_t> imageMeshFaceIDs(const std::set<size_t>& originalFaceIDs) const
+        std::set<size_t> imageMeshFaceIDs(const std::set<size_t>& mirroringFaceIDs) const
         {
-            const auto faces(imageMeshFaces(originalFaceIDs));
+            const auto faces(imageMeshFaces(mirroringFaceIDs));
             std::set<size_t> temp;
             for(const auto& face : faces)
             {
@@ -958,13 +959,24 @@ namespace model
         }
         
         /**********************************************************************/
-        bool isOnMeshFaces(const std::set<size_t>& faceIDs) const
+        std::set<size_t> meshFaceIDs() const
         {
-            std::set<size_t> nodeFaceIDs;
+            std::set<size_t> temp;
             for(const auto& face : this->meshFaces())
             {
-                nodeFaceIDs.insert(face->sID);
+                temp.insert(face->sID);
             }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isOnMeshFaces(const std::set<size_t>& faceIDs) const
+        {
+            std::set<size_t> nodeFaceIDs(meshFaceIDs());
+//            for(const auto& face : this->meshFaces())
+//            {
+//                nodeFaceIDs.insert(face->sID);
+//            }
             
             bool temp(true);
             for(const auto& val : faceIDs)
@@ -979,14 +991,14 @@ namespace model
         }
         
 //        /**********************************************************************/
-//        std::set<size_t> imageFaceIDs(const std::set<size_t>& originalFaceIDs) const
+//        std::set<size_t> imageFaceIDs(const std::set<size_t>& mirroringFaceIDs) const
 //        {
 //            assert(this->network().mesh.regions().size()==1);
 //            const auto& region(*this->network().mesh.regions().begin()->second);
 //            std::set<size_t> temp;
 //            for(const auto& face : this->meshFaces())
 //            {
-//                if(originalFaceIDs.find(face->sID)!=faceIDs.end())
+//                if(mirroringFaceIDs.find(face->sID)!=faceIDs.end())
 //                {
 //                    temp.insert(region.parallelFaces().at(face->sID));
 //                }
@@ -999,14 +1011,14 @@ namespace model
 //        }
 //
 //        /**********************************************************************/
-//        std::set<size_t> imageFaces(const std::set<size_t>& originalFaceIDs) const
+//        std::set<size_t> imageFaces(const std::set<size_t>& mirroringFaceIDs) const
 //        {
 //            assert(this->network().mesh.regions().size()==1);
 //            const auto& region(*this->network().mesh.regions().begin()->second);
 //            std::set<size_t> temp;
 //            for(const auto& face : this->meshFaces())
 //            {
-//                if(originalFaceIDs.find(face->sID)!=faceIDs.end())
+//                if(mirroringFaceIDs.find(face->sID)!=faceIDs.end())
 //                {
 //                    temp.insert(region.parallelFaces().at(face->sID));
 //                }
@@ -1025,7 +1037,7 @@ namespace model
 //        }
         
         /**********************************************************************/
-        std::shared_ptr<NodeType> sharedImage(const std::set<size_t>& originalFaceIDs)
+        std::shared_ptr<NodeType> sharedImage(const std::set<size_t>& mirroringFaceIDs)
         {
             //std::pair<bool,std::shared_ptr<NodeType>> temp(std::make_pair(false,std::shared_ptr<NodeType>(nullptr)));
             NodeType* const master(masterNode? masterNode : this->p_derived());
@@ -1033,8 +1045,9 @@ namespace model
             std::cout<<"this->sID="<<this->sID<<std::endl;
             std::cout<<"master->sID="<<master->sID<<std::endl;
             
-            const std::set<size_t> imgFaceIDs(imageMeshFaceIDs(originalFaceIDs));
+            const std::set<size_t> imgFaceIDs(imageMeshFaceIDs(mirroringFaceIDs));
 
+            std::cout<<"master imageSharedNodeContainer:"<<std::endl;
             for(const auto& pair : master->imageSharedNodeContainer)
             {
                 for(const auto& intKey : pair.first)
@@ -1047,7 +1060,7 @@ namespace model
 //            const auto imgFaceIDs(imageFaceIDs(link));
             
             std::cout<<"requested original faces are "<<std::flush;
-            for(const auto& intKey : originalFaceIDs)
+            for(const auto& intKey : mirroringFaceIDs)
             {
                 std::cout<<intKey<<" "<<std::flush;
             }
@@ -1060,27 +1073,36 @@ namespace model
             }
             std::cout<<std::endl;
             
+            
+            std::set<size_t> masterFaceIDs;
+            for(const auto& face : master->meshFaces())
+            {
+                masterFaceIDs.insert(face->sID);
+            }
+            
+            assert(master->imageSharedNodeContainer.size()<=std::pow(2,masterFaceIDs.size())-1);
+            for(const auto& pair : master->imageSharedNodeContainer)
+            {
+                assert(masterFaceIDs.size()==pair.first.size());
+            }
+            
             const auto imageIter(master->imageSharedNodeContainer.find(imgFaceIDs));
             if(imageIter==master->imageSharedNodeContainer.end())
-            {// image not exisintg
+            {// image not existing
                 std::cout<<"case a"<<std::endl;
-                std::set<size_t> masterFaceIDs;
-                for(const auto& face : master->meshFaces())
-                {
-                    masterFaceIDs.insert(face->sID);
-                }
+
                 
                 if(masterFaceIDs==imgFaceIDs)
                 {// image is master itself
-                    std::cout<<"case a1"<<std::endl;
+                    std::cout<<"case a1, master itself"<<std::endl;
                     const auto isSharedNode(this->network().sharedNode(master->sID));
                     assert(isSharedNode.first && "MASTER SHARED PTR NOT FOUND");
                     return isSharedNode.second;
                 }
                 else
                 {// new image is needed
-                    std::cout<<"case a2"<<std::endl;
-                    const auto confiningFaces(imageMeshFaces(originalFaceIDs));
+                    std::cout<<"case a2, new image"<<std::endl;
+                    const auto confiningFaces(imageMeshFaces(mirroringFaceIDs));
                     const auto newSharedNodePair(master->imageSharedNodeContainer.emplace(imgFaceIDs,new NodeType(&this->network(),master,confiningFaces)));
                     assert(newSharedNodePair.second && "COULD NOT INSERT NEW NODE IMAGE IN MASTER.imageSharedNodeContainer");
                     return newSharedNodePair.first->second;
@@ -1088,7 +1110,7 @@ namespace model
             }
             else
             {// image exists
-                std::cout<<"case b"<<std::endl;
+                std::cout<<"case b, existing image"<<std::endl;
                 std::cout<<". imageIter->second->sID="<<imageIter->second->sID<<std::endl;
                 return imageIter->second;
             }
@@ -1103,6 +1125,8 @@ namespace model
             {
                 if(isBoundaryNode() && !masterNode)
                 {
+                    VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" updateImageNodes: "<<std::endl;);
+
                     //                    assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
                     
                     
@@ -1198,6 +1222,7 @@ namespace model
                     
                     for(const auto& pair : imageSharedNodeContainer)
                     {
+                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updating image "<<pair.second->sID<<std::endl;);
                         const VectorDim imageP(imagePosition(this->p_derived(),pair.second->meshFaces()));
                         static_cast<NodeBaseType*>(pair.second.get())->set_P(imageP);
                         static_cast<ConfinedDislocationObjectType*>(pair.second.get())->updateGeometry(imageP); // update confinement of image

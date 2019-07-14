@@ -236,6 +236,52 @@ namespace model
             return nDisconnected;
         }
         
+        
+        /**********************************************************************/
+        bool replaceNodeInLoop(const std::shared_ptr<NodeType>& nodeToReplace,
+                               const std::shared_ptr<LoopType>& loopToModify,
+                               const std::deque<std::shared_ptr<NodeType>>& newNodesToInsert)
+        {
+            
+            const auto linkByLoopID(nodeToReplace->linksByLoopID());
+            const auto loopIter(linkByLoopID.find(loopToModify->sID));
+            bool temp(false);
+            if(loopIter!=linkByLoopID.end())
+            {
+                if(loopIter->second.size()!=2)
+                {
+                    std::cout<<"FATAL ERROR. LoopNetwork::remove "<<nodeToReplace->sID<<std::endl;
+                    std::cout<<"loop "<<loopIter->first<<" has "<<loopIter->second.size()<<" links"<<std::endl;
+                    for(const auto& temp : loopIter->second)
+                    {
+                        std::cout<<temp->tag()<<std::endl;
+                    }
+                    std::cout<<"EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                LoopLinkType* const link0(*loopIter->second.begin());
+                LoopLinkType* const link1(*loopIter->second.rbegin());
+                
+                const std::shared_ptr<NodeType> startNode(link0->sink()->sID==nodeToReplace->sID? link0->source() : link1->source());
+                const std::shared_ptr<NodeType>   endNode(link0->sink()->sID==nodeToReplace->sID? link1   ->sink(): link0  ->sink());
+
+                disconnect(startNode,nodeToReplace,loopToModify);
+                disconnect(nodeToReplace,endNode,loopToModify);
+                
+                
+                for(size_t k=0;k<newNodesToInsert.size();++k)
+                {
+                    std::shared_ptr<NodeType> currentSource(k==0? startNode : newNodesToInsert[k-1]);
+                    std::shared_ptr<NodeType> currentSink(k==newNodesToInsert.size()-1? endNode : newNodesToInsert[k]);
+                    connect(currentSource,currentSink,loopToModify);
+                }
+
+                assert(loopToModify->isLoop());
+                temp=true;
+            }
+            return temp;
+        }
+        
         /**********************************************************************/
         bool remove(const std::shared_ptr<NodeType>& node)
         {/*!\param[in] nodeID the StaticID of the node to be removed
@@ -605,6 +651,18 @@ namespace model
                 connect(std::get<0>(tup),newNode, std::get<2>(tup));
                 connect(newNode,std::get<1>(tup), std::get<2>(tup));
             }
+            return newNode;
+        }
+        
+        /**********************************************************************/
+        SharedNodePtrType expandLoopLink(const LoopLinkType* const Lij, const SharedNodePtrType& newNode)
+        {
+            const SharedNodePtrType source(Lij->source());
+            const SharedNodePtrType sink(Lij->sink());
+            const std::shared_ptr<LoopType> loop(Lij->loop());
+            disconnect(source,sink,loop);
+            connect(source,newNode,loop);
+            connect(newNode,sink,loop);
             return newNode;
         }
         

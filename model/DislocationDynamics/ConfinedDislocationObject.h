@@ -181,7 +181,7 @@ namespace model
         void clear()
         {
             glidePlanes().clear();
-            meshFaces().clear();
+//            meshFaces().clear(); // NEVER CLEAR CONFINING FACES !!!
             _glidePlaneIntersections.reset(nullptr);
             this->boundingBoxSegments().clear();
         }

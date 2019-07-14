@@ -204,22 +204,8 @@ namespace model
                         std::cout<<"Loop "<<this->sID<<" boundaryLinkSequenceMap:"<<std::endl;
                         for(auto& pair : boundaryLinkSequenceMap)
                         {
-                            std::cout<<"face "<<std::flush;
-                            for(const auto& val : pair.first)
-                            {
-                                std::cout<<val<<" "<<std::endl;
-                            }
-                            
-                            for(const auto& deq : pair.second)
-                            {
-                                for(const auto& link : deq)
-                                {
-                                    std::cout<<link->tag()<<std::endl;
-                                }
-                                std::cout<<"---------"<<std::endl;
-                                
-                            }
-                            
+
+                            pair.second.print();
                             
                             
                         }

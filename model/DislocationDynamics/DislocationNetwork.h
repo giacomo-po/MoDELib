@@ -67,6 +67,7 @@
 #include <ExternalLoadControllerBase.h>
 //#include <ExternalLoadController.h>
 #include <DislocationInjector.h>
+#include <PeriodicDislocationSuperLoop.h>
 
 #ifdef _MODEL_GREATWHITE_
 #include <MooseSolution.h>
@@ -224,8 +225,6 @@ namespace model
                     }
                 }
                 
-                assert(mesh.regions().size()==1);
-                const auto& region(*mesh.regions().begin()->second);
 
                 
                 std::set<const PeriodicDislocationLoopPair<BoundaryLoopLinkSequence<LoopType>>*> loopPairContainer;
@@ -237,62 +236,69 @@ namespace model
                     }
                 }
                 
-                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,
-                /*                  */ BoundaryLoopLinkSequence<LoopType>,
-                /*                  */ VectorDim>> imageLoopVector;
+//                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,
+//                /*                  */ BoundaryLoopLinkSequence<LoopType>,
+//                /*                  */ VectorDim>> imageLoopVector;
                 
                 for(const auto& loopPair : loopPairContainer)
                 {
-                    switch (loopPair->size())
-                    {
-                        case 1:
-                        {// nucleate the new loop
-                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
-                            
-                            std::vector<std::shared_ptr<NodeType>> imageNodes;
-                            const BoundaryLoopLinkSequence<LoopType>& loopLinkSequence(**loopPair->begin());
-                            const VectorDim bndNormal(region.outNormal(loopLinkSequence.faceIDs));
-                            const VectorDim glideNormal(loopLinkSequence.loop->glidePlane->unitNormal);
-                            const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
-                            
-                            
-                            for(const auto& linkSequence : loopLinkSequence)
-                            {
-
-                                
-                                const auto startImage(linkSequence.front()->source()->sharedImage(loopLinkSequence.faceIDs));
-                                const auto   endImage(linkSequence.back()   ->sink()->sharedImage(loopLinkSequence.faceIDs));
-                                
-                                const VectorDim centerNodePos(0.5*(startImage->get_P()+endImage->get_P())+glideDir.normalized()*10.0);
-                                std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
-                                
-                                
-                                imageNodes.push_back(startImage);
-                                imageNodes.push_back(centerNode);
-                                imageNodes.push_back(endImage);
-                                
-                            }
-                            
-                            imageLoopVector.emplace_back(imageNodes,
-                                                         loopLinkSequence,
-                                                         glideNormal);
-
-                            break;
-                        }
-                            
-                        case 2:
-                        {// update loops
-                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
-                            break;
-                        }
-                            
-                        default:
-                        {
-                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
-                            assert(false && "LoopPair must gave size 1 or 2");
-                            break;
-                        }
-                    }
+                    
+                    PeriodicDislocationSuperLoop<DislocationNetworkType> periodicSuperLoop(*this,*loopPair);
+                    periodicSuperLoop.repair();
+                    
+//                    switch (loopPair->size())
+//                    {
+//                        case 1:
+//                        {// nucleate the new loop
+//                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+//
+//                            std::vector<std::shared_ptr<NodeType>> imageNodes;
+//                            const BoundaryLoopLinkSequence<LoopType>& loopLinkSequence(**loopPair->begin());
+//                            const VectorDim bndNormal(region.outNormal(loopLinkSequence.faceIDs));
+//                            const VectorDim glideNormal(loopLinkSequence.loop->glidePlane->unitNormal);
+//                            const VectorDim glideDir(bndNormal-bndNormal.dot(glideNormal)*glideNormal);
+//
+//
+//                            for(const auto& linkSequence : loopLinkSequence)
+//                            {
+//
+//
+//                                const auto startImage(linkSequence.front()->source()->sharedImage(loopLinkSequence.faceIDs));
+//                                const auto   endImage(linkSequence.back()   ->sink()->sharedImage(loopLinkSequence.faceIDs));
+//
+//                                const VectorDim centerNodePos(0.5*(startImage->get_P()+endImage->get_P())+glideDir.normalized()*10.0);
+//                                std::shared_ptr<NodeType> centerNode(new NodeType(this,centerNodePos,VectorDim::Zero(),1.0));
+//
+//
+//                                imageNodes.push_back(startImage);
+//                                imageNodes.push_back(centerNode);
+//                                imageNodes.push_back(endImage);
+//
+//                            }
+//
+//                            imageLoopVector.emplace_back(imageNodes,
+//                                                         loopLinkSequence,
+//                                                         glideNormal);
+//
+//                            break;
+//                        }
+//
+//                        case 2:
+//                        {// update loops
+//                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+//
+//
+//
+//                            break;
+//                        }
+//
+//                        default:
+//                        {
+//                            std::cout<<"LoopPair size="<<loopPair->size()<<std::endl;
+//                            assert(false && "LoopPair must gave size 1 or 2");
+//                            break;
+//                        }
+//                    }
                 }
                 
                 
@@ -365,13 +371,13 @@ namespace model
                 
 
                 
-                size_t nLoops(0);
-                for(const auto& tup : imageLoopVector)
-                {// Insert the new virtual loops
-                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<0>(tup)[0]->get_P());
-                    nLoops++;
-                }
-                model::cout<<"("<<nLoops<<" image loops)"<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+//                size_t nLoops(0);
+//                for(const auto& tup : imageLoopVector)
+//                {// Insert the new virtual loops
+//                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<0>(tup)[0]->get_P());
+//                    nLoops++;
+//                }
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
                 
             }
         }
@@ -1434,6 +1440,84 @@ namespace model
         void moveGlide(const double & dt_in)
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
+            
+//            model::cout<<"        Computing loop-boundary collision ... "<<std::flush;
+//            std::deque<std::pair<LinkType*,std::shared_ptr<NodeType>>> expandContainer;
+//            std::set<size_t> removeContainer;
+//            std::set<size_t> snapContainer;
+//
+//            for(const auto& loop : this->loops())
+//            {
+//                if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//                {
+//                    const BoundingMeshSegments<dim>& meshIntersections(loop.second->meshIntersections);
+//                    for(const auto& link : loop.second->linkSequence())
+//                    {
+//                            const VectorDim newSourceP(link.second->source->get_P()+link.second->source->get_V()*dt);
+//
+//
+//                        bool isInside(true);
+//                        for(const auto& lineSegment : meshIntersections)
+//                        {
+//                            isInside*=((newSourceP-lineSegment.snap(newSourceP)).dot(lineSegment.outNormal())<=0.0);
+//                        }
+//
+//                        if(isInside)
+//                        {
+//                            const VectorDim   newSinkP(link.second->  sink->get_P()+link.second->  sink->get_V()*dt);
+//                            FiniteLineSegment<dim> newLinkSeg(newSourceP,newSinkP);
+//
+//                            for(const auto& lineSegment : meshIntersections)
+//                            {
+//                                const auto ssi(SegmentSegmentDistance<dim>(newLinkSeg.P0,newLinkSeg.P1,lineSegment.P0,lineSegment.P1).intersectionSegment());
+//
+//                                switch (ssi.size())
+//                                {
+//                                    case 0:
+//                                    {// sink is inside
+//
+//                                        break;
+//                                    }
+//
+//                                    case 1:
+//                                    {// sink is outside or on boundary
+//
+//                                        if(link.second->  sink->isRemovable())
+//                                        {
+//                                            removeContainer.insert(sink->sID);
+//                                        }
+//                                        else
+//                                        {
+//                                            snapContainer.insert(sink->sID);
+//                                        }
+//                                        break;
+//                                    }
+//
+//                                    case 2:
+//                                    {
+//
+//                                        break;
+//                                    }
+//
+//                                    default:
+//                                        assert(false && "IMPOSSIBLE");
+//                                        break;
+//                                }
+//
+//
+//
+//                            }
+//
+//                        }
+//
+//
+//
+//                    }
+//                    loop.second->updateBoundaryDecomposition();
+//                }
+//            }
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
             model::cout<<"		Moving DislocationNodes (dt="<<dt_in<< ")... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             for (auto& nodeIter : this->nodes())

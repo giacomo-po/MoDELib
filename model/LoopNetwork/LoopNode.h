@@ -34,6 +34,20 @@
 
 namespace model
 {
+    
+//    template<typename LoopLinkType>
+//    struct LoopLinkNodeConnection
+//    {// USE THIS CLASS TO STORE LOOPLINKS IN A NODE. MAKE MAP WITH KEY LOOPID, AND THIS AS VALUE
+//      
+//        LoopType* const loop;
+//        LoopLinkType*  inLink;
+//        LoopLinkType* outLink;
+//        
+////        LoopLinkNodeConnection
+//        
+//    };
+    
+    
     template<typename Derived>
     class LoopNode : public  StaticID<Derived>,
     /*            */ public  CRTP<Derived>,
