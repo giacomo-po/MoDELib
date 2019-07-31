@@ -31,9 +31,7 @@ namespace model
         
         SimplicialMesh<dim>* const mesh;
         const SimplexIDType xID;
-        
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
+                
 		/**********************************************************************/
         SimplexBase(SimplicialMesh<dim>* const m,
                     const SimplexIDType& vIN) :

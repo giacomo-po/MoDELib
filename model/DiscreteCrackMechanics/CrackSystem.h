@@ -34,7 +34,7 @@ namespace model
         
         /**********************************************************************/
         template<typename ElementType>
-        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>>& fieldPoints) const
+        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
         {
 
         }

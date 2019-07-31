@@ -36,6 +36,7 @@ DDmpi
 #DDviewer
 tetgen
 DDvtk
+microstructureGenerator
 
 # Folders
 docs/HTML

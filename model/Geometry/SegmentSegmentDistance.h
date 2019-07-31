@@ -29,7 +29,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         typedef std::tuple<VectorDim,double,double> IntersectionPointType;
-        typedef std::deque<IntersectionPointType,Eigen::aligned_allocator<IntersectionPointType>> IntersectionContainerType;
+        typedef std::deque<IntersectionPointType> IntersectionContainerType;
         
         static constexpr double tol=FLT_EPSILON;
         
@@ -138,7 +138,6 @@ namespace model
         const VectorDim x0;
         const VectorDim x1;
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /**********************************************************************/
         SegmentSegmentDistance(const VectorDim& A0,

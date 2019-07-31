@@ -110,7 +110,6 @@ namespace model
 		//! The cellID(s) of the neighboring SpatialCell(s) (in column)
 		const Eigen::Matrix<int,dim, CellShiftType::Nneighbors> neighborCellIDs;
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
 		/**********************************************************************/
 		SpatialCell(const CellIdType& cellID_in) :

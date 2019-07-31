@@ -18,10 +18,6 @@ Repeated entry---line 1964 of file references_GP3.bib
  : @article{Deng:2008fs
  :                     ,
 I'm skipping whatever remains of this entry
-Repeated entry---line 2996 of file references_GP3.bib
- : @article{deWit:1960vb
- :                      ,
-I'm skipping whatever remains of this entry
 Repeated entry---line 5445 of file references_GP3.bib
  : @article{Burgers:1939vn
  :                        ,
@@ -73,44 +69,44 @@ Database file #6: references_NG2.bib
 Database file #7: references_MM.bib
 Database file #8: references_tamer.bib
 Warning--I didn't find a database entry for "Kirchner:1983"
-Warning--I didn't find a database entry for "Asvestas:wt"
 Warning--I didn't find a database entry for "Slattery2006"
 Warning--I didn't find a database entry for "Scovazzi2007"
 Warning--I didn't find a database entry for "Lifshitz:1947aa"
 Warning--I didn't find a database entry for "Synge:1957aa"
+Warning--I didn't find a database entry for "Asvestas:wt"
 Warning--empty institution in Scovazzi:2007tc
 You've used 15 entries,
             2773 wiz_defined-function locations,
-            719 strings with 7375 characters,
-and the built_in function-call counts, 6548 in all, are:
-= -- 596
-> -- 314
-< -- 11
-+ -- 110
-- -- 94
-* -- 523
-:= -- 1013
+            720 strings with 7455 characters,
+and the built_in function-call counts, 6686 in all, are:
+= -- 604
+> -- 343
+< -- 10
++ -- 119
+- -- 103
+* -- 545
+:= -- 1037
 add.period$ -- 46
 call.type$ -- 15
-change.case$ -- 76
+change.case$ -- 79
 chr.to.int$ -- 14
 cite$ -- 31
-duplicate$ -- 313
-empty$ -- 573
-format.name$ -- 115
-if$ -- 1360
+duplicate$ -- 314
+empty$ -- 571
+format.name$ -- 124
+if$ -- 1385
 int.to.chr$ -- 2
 int.to.str$ -- 1
 missing$ -- 17
 newline$ -- 84
 num.names$ -- 62
-pop$ -- 145
+pop$ -- 150
 preamble$ -- 2
-purify$ -- 61
+purify$ -- 64
 quote$ -- 0
-skip$ -- 219
+skip$ -- 222
 stack$ -- 0
-substring$ -- 300
+substring$ -- 291
 swap$ -- 26
 text.length$ -- 1
 text.prefix$ -- 0
@@ -120,4 +116,4 @@ warning$ -- 1
 while$ -- 69
 width$ -- 0
 write$ -- 204
-(There were 15 error messages)
+(There were 14 error messages)

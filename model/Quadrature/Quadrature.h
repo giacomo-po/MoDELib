@@ -50,7 +50,6 @@ namespace model
     template<short unsigned int dim, size_t qOrder, template <short unsigned int, size_t> class QuadratureRule = GaussLegendre>
     struct Quadrature
     {
-        //EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         constexpr static size_t quadratureOrder=qOrder;
         

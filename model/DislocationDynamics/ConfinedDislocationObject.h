@@ -15,7 +15,6 @@
 #include <vector>
 #include <algorithm>
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
 #include <GlidePlane.h>
 #include <Grain.h>
 #include <PlanarMeshFace.h>
@@ -43,7 +42,7 @@ namespace model
         typedef PlanarMeshFace<dim> PlanarMeshFaceType;
         typedef std::set<const PlanarMeshFaceType*> PlanarMeshFaceContainerType;
         typedef MeshBoundarySegment<dim> MeshBoundarySegmentType;
-        typedef std::vector<VectorDim, Eigen::aligned_allocator<VectorDim>> PositionCointainerType;
+        typedef std::vector<VectorDim> PositionCointainerType;
         
         
     private:
@@ -62,29 +61,29 @@ namespace model
                 Plane<dim> plane(face.asPlane());
                 for(const auto& seg : this->boundingBoxSegments())
                 {// PRBLEM HERE IS THAT THIS ALGORITHM DOES NOT CHECK THAT TEMP ALREADY ONCLUDE "OVERLAPPING" BOUNDING BOX POINTS
-                    auto newFaces(seg.faces);
+                    auto newFaces(seg->faces);
                     newFaces.insert(&face);
                     
                     //                if(seg.faces.find(&face)!=seg.faces.end())
                     //                {// intersection segment is defined on face
-                    const bool P0contained(plane.contains(seg.P0));
-                    const bool P1contained(plane.contains(seg.P1));
+                    const bool P0contained(plane.contains(seg->P0));
+                    const bool P1contained(plane.contains(seg->P1));
                     //                    auto faces(seg.faces());
                     //                    faces.insert(face);
                     if(P0contained && P1contained)
                     {// the whole segment is contained
-                        temp.emplace_back(seg.P0,seg.P1,newFaces);
+                        temp.emplace_back(new MeshBoundarySegment<dim>(seg->P0,seg->P1,newFaces));
                         //                        const bool success(.second);
                         //                        assert(success && "COULD NOT INSERT IN TEMP DURING FACE UPDATE");
                     }
                     else if(P0contained)
                     {
-                        temp.emplace_back(seg.P0,seg.P0,newFaces);
+                        temp.emplace_back(new MeshBoundarySegment<dim>(seg->P0,seg->P0,newFaces));
                         //                        assert(false && "FINISH HERE1");
                     }
                     else if(P1contained)
                     {
-                        temp.emplace_back(seg.P1,seg.P1,newFaces);
+                        temp.emplace_back(new MeshBoundarySegment<dim>(seg->P1,seg->P1,newFaces));
                         //                        assert(false && "FINISH HERE2");
                     }
                     else
@@ -206,6 +205,45 @@ namespace model
         PlanarMeshFaceContainerType& meshFaces()
         {
             return *this;
+        }
+        
+//        /**********************************************************************/
+//        std::set<size_t> imageMeshFaceIDs(const std::set<size_t>& mirroringFaceIDs) const
+//        {
+//            const auto faces(imageMeshFaces(mirroringFaceIDs));
+//            std::set<size_t> temp;
+//            for(const auto& face : faces)
+//            {
+//                temp.insert(face->sID);
+//            }
+//            return temp;
+//        }
+        
+        /**********************************************************************/
+        std::set<size_t> meshFaceIDs() const
+        {
+            std::set<size_t> temp;
+            for(const auto& face : this->meshFaces())
+            {
+                temp.insert(face->sID);
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        bool isOnMeshFaces(const std::set<size_t>& faceIDs) const
+        {
+            std::set<size_t> theseFaceIDs(meshFaceIDs());
+            bool temp(true);
+            for(const auto& val : faceIDs)
+            {
+                temp*=(theseFaceIDs.find(val)!=theseFaceIDs.end());
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/
@@ -338,7 +376,7 @@ namespace model
                                 std::set<Eigen::Matrix<double,dim,1>,CompareVectorsByComponent<double,dim,float> > roots;
                                 for(const auto& meshInt : gb.meshIntersections)
                                 {
-                                    PlaneSegmentIntersection<dim> psi(glidePlane0,meshInt);
+                                    PlaneSegmentIntersection<dim> psi(glidePlane0,*meshInt);
                                     if(psi.type==PlaneSegmentIntersection<dim>::INCIDENT)
                                     {
                                         //                                        roots.push_back(psi.x0);
@@ -347,7 +385,7 @@ namespace model
                                 }
                                 assert(roots.size()==2 && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                 _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
-                                this->boundingBoxSegments().emplace_back(*roots.begin(),*roots.rbegin(),gb.face.get());
+                                this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(*roots.begin(),*roots.rbegin(),gb.face.get()));
                             }
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                             {/* If the two planes are incident then the intersection of
@@ -360,12 +398,12 @@ namespace model
                                 //                                std::vector<VectorDim> roots;
                                 for(const auto& meshInt : glidePlane0.meshIntersections)
                                 {
-                                    const double segLength((meshInt.P1-meshInt.P0).norm());
-                                    const VectorDim D0((meshInt.P1-meshInt.P0)/segLength);
-                                    LineLineIntersection<dim> lli(meshInt.P0,D0,ppi.P,ppi.d);
+                                    const double segLength((meshInt->P1-meshInt->P0).norm());
+                                    const VectorDim D0((meshInt->P1-meshInt->P0)/segLength);
+                                    LineLineIntersection<dim> lli(meshInt->P0,D0,ppi.P,ppi.d);
                                     if(lli.type==LineLineIntersection<dim>::INCIDENT)
                                     {
-                                        const double u0((lli.x0-meshInt.P0).dot(D0));
+                                        const double u0((lli.x0-meshInt->P0).dot(D0));
                                         //                                        std::cout<<u0<<std::endl;
                                         if(u0>=0.0 && u0<=segLength)
                                         {
@@ -375,7 +413,7 @@ namespace model
                                     }
                                     else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
                                     {// a coincident line was found, which means that the glide planes intersec on a boundary face
-                                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(meshInt.P0,meshInt.P1));
+                                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(meshInt->P0,meshInt->P1));
                                         this->boundingBoxSegments().push_back(meshInt);
                                         break;
                                     }
@@ -418,7 +456,7 @@ namespace model
                                             }
                                         }
                                         
-                                        this->boundingBoxSegments().emplace_back(root,root,faces);
+                                        this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(root,root,faces));
                                     }
                                 }
                             }
@@ -470,7 +508,7 @@ namespace model
                                         this->boundingBoxSegments().clear();
                                         if(faces.size())
                                         {
-                                            this->boundingBoxSegments().emplace_back(x,x,faces);
+                                            this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(x,x,faces));
                                         }
                                         break;
                                     }

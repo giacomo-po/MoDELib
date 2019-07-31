@@ -18,7 +18,6 @@
 #include <SequentialOutputFile.h>
 #include <SequentialBinFile.h>
 #include <TerminalColors.h>
-#include <GlidePlaneObserver.h>
 #include <MPIcout.h>
 #include <LatticeMath.h>
 #include <LatticeMath.h>
@@ -28,7 +27,8 @@
 #include <DislocationNodeContraction.h>
 #include <GrainBoundaryTransmission.h>
 #include <DislocationLinkingNumber.h>
-#include <EVLio.h>
+//#include <EVLio.h>
+#include <DDconfigIO.h>
 #include <EshelbyInclusion.h>
 //#include <DisplacementPoint.h>
 #include <FEMnodeEvaluation.h>
@@ -47,12 +47,9 @@ namespace model
         enum {dim=DislocationNetworkType::dim};
         
         //    public:
-        typedef typename DislocationNetworkType::VectorDimD VectorDimD;
-        typedef typename DislocationNetworkType::MatrixDimD MatrixDimD;
+//        typedef typename DislocationNetworkType::VectorDim VectorDim;
+//        typedef typename DislocationNetworkType::MatrixDim MatrixDim;
         typedef typename DislocationNetworkType::NodeType NodeType;
-        typedef typename DislocationNetworkType::GlidePlaneObserverType GlidePlaneObserverType;
-        //        typedef typename DislocationNetworkType::SpatialCellObserverType SpatialCellObserverType;
-        //        typedef typename SpatialCellObserverType::CellMapType CellMapType;
         typedef typename DislocationNetworkType::BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
         typedef typename DislocationNetworkType::BvpSolverType::TrialFunctionType TrialFunctionType;
@@ -65,11 +62,11 @@ namespace model
         enum {NdofXnode=NodeType::NdofXnode};
         
         
-        DislocationNetworkType& DN;
+        const DislocationNetworkType& DN;
         const std::string suffix;
         
         /**********************************************************************/
-        DislocationNetworkIO(DislocationNetworkType& DN_in,
+        DislocationNetworkIO(const DislocationNetworkType& DN_in,
                              const std::string& suffix_in="") :
         /* init */ DN(DN_in),
         /* init */ suffix(suffix_in)
@@ -187,9 +184,9 @@ namespace model
 //            //                    for (const auto& vIter : vReader)
 //            //                    {
 //            //                        Eigen::Map<const Eigen::Matrix<double,1,9>> row(vIter.second.data());
-//            //                        VectorDimD P0(row.template segment<dim>(0));// P0 position
-//            //                        VectorDimD P1(row.template segment<dim>(dim)); // P1 position
-//            //                        VectorDimD B(row.template segment<dim>(dim*2));  // Burgers vector
+//            //                        VectorDim P0(row.template segment<dim>(0));// P0 position
+//            //                        VectorDim P1(row.template segment<dim>(dim)); // P1 position
+//            //                        VectorDim B(row.template segment<dim>(dim*2));  // Burgers vector
 //            //                        DN.ssdeq.emplace_back(StressStraight<dim>(P0,P1,B));
 //            //                    }
 //            //                }
@@ -432,7 +429,7 @@ namespace model
 ////                const size_t& inclusionID(pair.first);
 ////                Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
 ////
-////                const VectorDimD C(row.template segment<dim>(0));
+////                const VectorDim C(row.template segment<dim>(0));
 ////                const double a(row(dim+0));
 ////                MatrixDimD eT(MatrixDimD::Zero());
 ////                const int typeID(row(13));
@@ -611,13 +608,14 @@ namespace model
             model::cout<<"		Writing to "<<std::flush;
             
             //            EVLio<dim> evl;
+            DDconfigIO<dim> configIO(suffix);
             if (DN.outputBinary)
             {
-                EVLio<dim>::writeBin(DN,runID,suffix);
+                configIO.writeBin(DN,runID);
             }
             else
             {
-                EVLio<dim>::writeTxt(DN,runID,suffix);
+                configIO.writeTxt(DN,runID);
             }
             
             //            if (DN.outputBinary)
@@ -708,12 +706,6 @@ namespace model
             {
                 assert(false && "TO-DO: RE-IMPLEMENT THIS");
                 
-                //! 4- Outputs the glide planes
-                //                SequentialOutputFile<'G',1>::set_count(runID); // GlidePlanes_file;
-                //                SequentialOutputFile<'G',1>::set_increment(DN.outputFrequency); // GlidePlanes_file;
-                //                SequentialOutputFile<'G',1> glide_file;
-                //                glide_file << *dynamic_cast<const GlidePlaneObserverType*>(&DN);
-                //                model::cout<<", G/G_"<<glide_file.sID<<std::flush;
             }
             
             //            if(DN.outputPKforce)
@@ -779,7 +771,7 @@ namespace model
                 model::SequentialOutputFile<'D',true> d_file;
                 model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
                 
-                std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>> fieldPoints; // the container of field points
+                std::vector<FEMnodeEvaluation<ElementType,dim,1>> fieldPoints; // the container of field points
                 fieldPoints.reserve(DN.mesh.template observer<0>().size());
                 for (const auto& sIter : DN.mesh.template observer<0>())
                 {

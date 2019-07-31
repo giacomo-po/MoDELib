@@ -9,8 +9,6 @@
 #ifndef _model_DislocationStress_h_
 #define _model_DislocationStress_h_
 
-#include <Eigen/StdVector>
-#include <Eigen/StdDeque>
 #include <tuple>
 #include <FieldBase.h>
 #include <FieldPoint.h>

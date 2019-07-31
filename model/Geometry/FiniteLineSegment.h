@@ -24,9 +24,7 @@ namespace model
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
+                
         VectorDim P0;
         VectorDim P1;
         

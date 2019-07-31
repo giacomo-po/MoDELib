@@ -5,15 +5,23 @@ class NodeSelectorBase
 virtual bool contains(x) const =0;
 
 Then 
-class HalfSpace : public NodeSelectorBase
+class HalfSpaceSelector : public NodeSelectorBase
 P
 n
 bool contains(x) const override
 {
-reuturn (P-x).dot(n)><0;
+reuturn (P-x).dot(n)>=0;
 }
 
-class Plane : public NodeSelectorBase
+class PlaneSelector : public NodeSelectorBase
+P
+n
+bool contains(x) const override
+{
+reuturn (P-x).dot(n)==0;
+}
+
+class MeshFaceSelector : public NodeSelectorBase
 P
 n
 bool contains(x) const override
@@ -36,6 +44,10 @@ reuturn (P-x).dot(n)==0;
 - New time integrator
 - Natural Cubic Splines
 - Non-convex domains (each grain convex?)
+- mesh search algorithms for non-convex domains (e.g. foam)
+- Convex decomposition of Mesh (http://masc.cs.gmu.edu/wiki/ACD)
+- Non convex domains changes: barycentric search algorithm, PlaneMeshIntersection::planeMeshIntersection, virtual segments, initial microstructure
+- Use CGAL?
 - Documentation
 - Hoffman2 documentation (see emails between Yinan and Raffaella)
 - SpaceDecompositin based on KD-tree
@@ -43,14 +55,10 @@ reuturn (P-x).dot(n)==0;
 - Make all quadratures constexpr
 - Use constexpr std::array for quadrature
 - Make LatticePlane and LatticePlaneBase templated by dim
-- mesh search algorithms for non-convex domains (e.g. foam)
 - GPU computation
 - Implement cracks
 - Assemble and solve is taking too long (> particle interaction). Can we assemble scalar system of equations? Null-space solver?
 - display help in DDvtk
-- Convex decomposition of Mesh (http://masc.cs.gmu.edu/wiki/ACD)
-- Non convex domains changes: barycentric search algorithm, PlaneMeshIntersection::planeMeshIntersection, virtual segments, initial microstructure
-- Use CGAL
 - SplineIntersection::planePlaneType uses the wrong tolerance (10x)
 - If T0=0 or T1=0, then rl(0)=0/0=NaN !!!!! This is not true since rl still tends to a finite vector. Remove class Parametric curve and implement special case of rl at 0 and 1 for vanishing nodal tangents
 - cellSize should depend on applied load. Or better the number of cell neighbors used in each cell should depend on the applied stress to that cell
@@ -58,20 +66,20 @@ reuturn (P-x).dot(n)==0;
 - iterate on JunctionFormation until no junctions if found
 - iterate on Remesh
 - Optimize Remesh
-- clean up BoundingLineSegments. Use LineSegment class instead of pair<VectorDim,VectorDim>
 - DislocationJunctions: IF CONTRACT DID NOT HAPPEN REMOVE NODES THAT WERE CREATED BY EXPANSION. STORE IDS IN CONTAINER AND THEN REMOV
 - Form GB junctions??
 - Stress field is absent in some segments for evaluation of transmission criterion
 - bring createNodeList to TrialFunction (node lists are in created to set a dirichlet condition for a particular trial function). Make fe const in trial function.
-- add FiniteElement::mesh2femNode(const size_t& meshNodeID)
 - IMPLEMENT FUNCTION TO DEFINE THE OUT-DIR FOR EACH LOOP LINK. THIS IS BASED ON THE INTERSECTION OF A SEM-ILINE WITH THE LOOP IN THE PLANE. NUMBER OF INTERSECTIONS TELLS INSIDE OR OUTSIDE
-- junction detection using linking number
 - topological operation to split a node into many nodes, one per loops connected. Similar to “remove”. This is actually a remove followed by many expansions
 -THE PROBLEM IS THAT IF F FOR A NODE IS ZERO, THE VELOCITY IS NOT ZERO, THIS IS WHY PURE ZERO-B NODES MOVE
 - RELATED TO THIS, WE NEED TO MERGE LOOPS ON THE SAME PLANE
 -THERE IS ALSO A PROBLEM WITH THE TRIANGULATION FOR CROSSING LOOPS
 - We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
+- Remove Observer patter and substitute with weak_ptr
+- Remove DanglingNodes
+
 
 ISSUES:
 - Should form finite length junctions

@@ -123,11 +123,11 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::vector<Eigen::Matrix<double,dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim+1,degree+1>> >  get_sfCoeffsVector()
+        static std::vector<Eigen::Matrix<double,dim+1,degree+1>>  get_sfCoeffsVector()
         {/*!\returns a vector of Matrices of shape function coefficients. Each
           * entry in the vector corresponds to a node.
           */
-            std::vector<Eigen::Matrix<double,dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim+1,degree+1>> > temp;
+            std::vector<Eigen::Matrix<double,dim+1,degree+1>> temp;
             for (int n=0;n<nodesPerElement;++n)
             {
                 temp.push_back(getSFcoeffs(baryStarsAndBars.row(n)));
@@ -194,7 +194,7 @@ namespace model
         
         static const Eigen::Matrix<int   ,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryStarsAndBars;
         static const Eigen::Matrix<double,CombinationWithRepetition<_dim+1,degree>::value,_dim+1> baryNodalCoordinates;
-        static const std::vector<Eigen::Matrix<double,_dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,_dim+1,degree+1>> >  sfCoeffsVector;
+        static const std::vector<Eigen::Matrix<double,_dim+1,degree+1>>  sfCoeffsVector;
         
         //! A const reference to the Simplex that this element refers to
         const Simplex<dim,dim>& simplex;
@@ -447,7 +447,7 @@ namespace model
     const Eigen::Matrix<double,CombinationWithRepetition<dim+1,degree>::value,dim+1> DiscontinuousLagrangeElement<dim,degree,MappingType>::baryNodalCoordinates=DiscontinuousLagrangeElement<dim,degree>::baryStarsAndBars.template cast<double>()/degree;
     
     template<int dim,int degree, template<typename T> class MappingType>
-    const std::vector<Eigen::Matrix<double,dim+1,degree+1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim+1,degree+1>> >  DiscontinuousLagrangeElement<dim,degree,MappingType>::sfCoeffsVector=DiscontinuousLagrangeElement<dim,degree,MappingType>::get_sfCoeffsVector();
+    const std::vector<Eigen::Matrix<double,dim+1,degree+1>>  DiscontinuousLagrangeElement<dim,degree,MappingType>::sfCoeffsVector=DiscontinuousLagrangeElement<dim,degree,MappingType>::get_sfCoeffsVector();
     
 }	// close namespace
 #endif

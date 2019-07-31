@@ -17,7 +17,6 @@
 #include <LatticePlane.h>
 #include <Grain.h>
 #include <GlidePlane.h>
-#include <GlidePlaneObserver.h>
 #include <DislocationLoopIO.h>
 #include <PlanarDislocationLoop.h>
 #include <SlipSystem.h>
@@ -62,24 +61,34 @@ namespace model
 
 //        const bool isGlissile;
         
+//        /**********************************************************************/
+//        DislocationLoop(LoopNetworkType* const dn,
+//                        const VectorDim& B,
+//                        const VectorDim& N,
+//                        const VectorDim& P,
+//                        const int& grainID) :
+//        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
+//        /* init */,slipSystem(nullptr)
+////        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
+//        {
+//        }
+        
+//        DislocationLoop(LoopNetworkType* const dn,
+//                        const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
+//                              const VectorDim& N,
+//                              const VectorDim& P) :
+//        /* init */ BaseLoopType(dn,bndLinkSequence,N,P)
+//        /* init */,slipSystem(bndLinkSequence.loop->slipSystem)
+//        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
+//        {
+//        }
+        
         /**********************************************************************/
         DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
-                        const VectorDim& N,
-                        const VectorDim& P,
-                        const int& grainID) :
-        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
+                        const std::shared_ptr<GlidePlane<dim>>& glidePlane) :
+        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane)
         /* init */,slipSystem(nullptr)
-//        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
-        {
-        }
-        
-        DislocationLoop(LoopNetworkType* const dn,
-                        const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
-                              const VectorDim& N,
-                              const VectorDim& P) :
-        /* init */ BaseLoopType(dn,bndLinkSequence,N,P)
-        /* init */,slipSystem(bndLinkSequence.loop->slipSystem)
         //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
         {
         }

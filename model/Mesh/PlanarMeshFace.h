@@ -220,13 +220,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const Eigen::Matrix<double,dim,1> outNormal() const
+        Eigen::Matrix<double,dim,1> outNormal() const
         {
             return isExternal()? n : Eigen::Matrix<double,dim,1>::Zero();
         }
         
         /**********************************************************************/
-        const Eigen::Matrix<double,dim,1> outNormal(const int& k) const
+        Eigen::Matrix<double,dim,1> outNormal(const int& k) const
         {
             return k==regionIDs.first? n : (k==regionIDs.second? -n : Eigen::Matrix<double,dim,1>::Zero());
         }

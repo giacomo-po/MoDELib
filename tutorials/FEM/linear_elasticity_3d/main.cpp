@@ -105,7 +105,7 @@ int main(int argc, char** argv)
     auto b=grad(u);             // displacement gradient b=[u1,1; u1,2; u2,1; u2,2]
     auto e=def(u);              // engineering strain e=[u1,1; u2,2; u3,3; u1,2+u2,1; u2,3+u3,2; u1,3+u3,1]
     auto s=C*e;                 // stress field s=[s11; s22; s33; s12; s23; s13]
-    
+        
     /**************************************************************************/
     // Create the BilinearWeakForm bWF_u=int(test(e)^T*s)dV
     auto dV=fe.domain<EntireDomain,4,GaussLegendre>();

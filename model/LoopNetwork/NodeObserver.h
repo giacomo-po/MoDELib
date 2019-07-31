@@ -25,7 +25,7 @@ namespace model
         typedef std::pair<bool,SharedNodePtrType> IsSharedNodeType;
 
         /**********************************************************************/
-        IsNodeType node(const size_t& i)
+        IsNodeType node(const size_t& i) __attribute__ ((deprecated)) // USE WEAK_PTR pattern instead of Observer
         {
             typename NodeContainerType::const_iterator nodeIter(this->find(i));
             return (nodeIter==this->end())?  std::make_pair(false,static_cast<NodeType* const>(nullptr)) :

@@ -14,7 +14,6 @@
 #include <tuple>
 #include <vector>
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
 #include <SimplicialMesh.h>
 #include <PlanarMeshFace.h>
 #include <Plane.h>
@@ -41,7 +40,6 @@ namespace model
         //        typedef typename PlaneMeshIntersection<dim>::PlaneMeshIntersectionContainerType PlaneMeshIntersectionContainerType;
         typedef std::pair<VectorDim,const Simplex<dim,1>* const> RootType;
         typedef std::deque<RootType> RootContainerType;
-//        typedef std::vector<MeshBoundarySegment<dim>, Eigen::aligned_allocator<MeshBoundarySegment<dim>>> MeshBoundarySegmentContainerType;
         
         /**********************************************************************/
         static BoundingMeshSegments<dim> getFaceBoundary(const PlanarMeshFace<dim>& face)

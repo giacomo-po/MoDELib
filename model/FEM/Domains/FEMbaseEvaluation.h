@@ -19,7 +19,6 @@ namespace model
     template <typename ElementType,int rows,int cols>
     struct FEMbaseEvaluation : public Eigen::Matrix<double,rows,cols>
     {
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         typedef Eigen::Matrix<double,ElementType::dim,1> VectorDim;
         

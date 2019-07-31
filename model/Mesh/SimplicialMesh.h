@@ -43,11 +43,7 @@ namespace model
     /*                  */,public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>   // make sure this is destroyed after map of Simplex<_dim,_dim>
     /*                  */,public SimplexReader<_dim>
     /*                  */,public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
-    /*                                */ const Simplex<_dim,_dim> // value
-//    /*                                */ CompareVectorsByComponent<typename SimplexTraits<_dim,_dim>::ScalarIDType,
-//    /*                                */ SimplexTraits<_dim,_dim>::nVertices> // key compare
-//    /*                                */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
-    /*                                */ >
+    /*                                */ const Simplex<_dim,_dim>>
     /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
 //    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
@@ -261,17 +257,12 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         static constexpr int dim=_dim;
         
         
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
-        /*            */ const Simplex<dim,dim> // value
-//        /*            */ CompareVectorsByComponent<typename SimplexTraits<dim,dim>::ScalarIDType,
-//        /*                                      */ SimplexTraits<dim,dim>::nVertices> // key compare
-//        /*            */ Eigen::aligned_allocator<std::pair<typename SimplexTraits<_dim,_dim>::SimplexIDType, const Simplex<_dim,_dim>> >
-        /*            */ >  SimplexMapType;
+        /*            */ const Simplex<dim,dim>>  SimplexMapType;
         
         //        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
         typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;

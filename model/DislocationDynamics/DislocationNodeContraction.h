@@ -161,17 +161,18 @@ namespace model
                             
                         case 1:
                         {
-                            if((temp.begin()->P0-temp.begin()->P1).norm()<FLT_EPSILON)
+                            const std::shared_ptr<MeshBoundarySegment<dim>>& mbs(temp.front());
+                            if((mbs->P0-mbs->P1).norm()<FLT_EPSILON)
                             {// a unique intersection point of the bounding boxes exist
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 1d"<<std::endl;);
-                                const VectorDim X=0.5*(temp.begin()->P0+temp.begin()->P1);
+                                const VectorDim X=0.5*(mbs->P0+mbs->P1);
                                 return contractToPosition(nA,nB,X,maxRange);
                             }
                             else
                             {// two possible intersection points of the bounding boxes exist
-                                const bool firstIsCloser=(nA->get_P()-temp.begin()->P0).norm()+(nB->get_P()-temp.begin()->P0).norm()<(nA->get_P()-temp.begin()->P1).norm()+(nB->get_P()-temp.begin()->P1).norm();
-                                const VectorDim X= firstIsCloser? temp.begin()->P0 : temp.begin()->P1;
-                                const VectorDim Y= firstIsCloser? temp.begin()->P1 : temp.begin()->P0;
+                                const bool firstIsCloser=(nA->get_P()-mbs->P0).norm()+(nB->get_P()-mbs->P0).norm()<(nA->get_P()-mbs->P1).norm()+(nB->get_P()-mbs->P1).norm();
+                                const VectorDim X= firstIsCloser? mbs->P0 : mbs->P1;
+                                const VectorDim Y= firstIsCloser? mbs->P1 : mbs->P0;
                                 
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 1dX"<<std::endl;);
                                 const bool Xcontracted=contractToPosition(nA,nB,X,maxRange);
@@ -202,16 +203,16 @@ namespace model
                             std::map<double,VectorDim> vertexMap;
                             for(const auto& seg : temp)
                             {
-                                const double firstRange=(nA->get_P()-seg.P0).norm()+(nB->get_P()-seg.P0).norm();
+                                const double firstRange=(nA->get_P()-seg->P0).norm()+(nB->get_P()-seg->P0).norm();
                                 if(firstRange<maxRange)
                                 {
-                                    vertexMap.insert(std::make_pair(firstRange,seg.P0));
+                                    vertexMap.insert(std::make_pair(firstRange,seg->P0));
                                 }
                                 
-                                const double secondRange=(nA->get_P()-seg.P1).norm()+(nB->get_P()-seg.P1).norm();
+                                const double secondRange=(nA->get_P()-seg->P1).norm()+(nB->get_P()-seg->P1).norm();
                                 if(secondRange<maxRange)
                                 {
-                                    vertexMap.insert(std::make_pair(secondRange,seg.P1));
+                                    vertexMap.insert(std::make_pair(secondRange,seg->P1));
                                 }
                             }
                             
@@ -305,7 +306,7 @@ namespace model
                         assert(nA->glidePlanes().size()==1);
                         assert(nB->glidePlanes().size()==1);
                         
-                        const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneIntersection(*nA->glidePlanes().begin(),*nB->glidePlanes().begin()));
+                        const PlanePlaneIntersection<dim>& ppi(DN.glidePlaneFactory.glidePlaneIntersection(*nA->glidePlanes().begin(),*nB->glidePlanes().begin()));
                         
                         if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                         {// the contraction point can be the averago of nA and nB, which should be internal for convex domains
@@ -322,13 +323,18 @@ namespace model
                             {
                                 case 2:
                                 {
-                                    FiniteLineSegment<dim> cutLine(0.5*(temp.begin()->P0+temp.begin()->P1),0.5*(temp.rbegin()->P0+temp.rbegin()->P1));
+                                    const std::shared_ptr<MeshBoundarySegment<dim>>& seg0(temp.front());
+                                    const std::shared_ptr<MeshBoundarySegment<dim>>& seg1(temp.back());
+                                    
+                                    FiniteLineSegment<dim> cutLine(0.5*(seg0->P0+seg0->P1),0.5*(seg1->P0+seg1->P1));
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }
                                 case 1:
                                 {
-                                    FiniteLineSegment<dim> cutLine(temp.begin()->P0,temp.begin()->P1);
+                                    const std::shared_ptr<MeshBoundarySegment<dim>>& seg0(temp.front());
+                                    
+                                    FiniteLineSegment<dim> cutLine(seg0->P0,seg0->P1);
                                     return contractToPosition(nA,nB,cutLine.snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                     break;
                                 }

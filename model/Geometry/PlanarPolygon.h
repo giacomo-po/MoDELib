@@ -13,8 +13,6 @@
 #include <tuple>
 #include <map>
 #include <Eigen/Dense>
-//#include <Eigen/StdVector>
-#include <Eigen/StdDeque>
 #include <assert.h>
 #include <earcut.hpp>
 
@@ -54,7 +52,6 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         PlanarPolygon(const Eigen::Vector3d& x,        // global coordinate of the x axis on the plane
                       const Eigen::Vector3d& z) :       // global z coordinate
@@ -65,7 +62,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void assignPoints(const std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>>& points)
+        void assignPoints(const std::deque<Eigen::Vector3d>& points)
         {
             //assert(this->size()==0 && "Polygon must be empty before adding external points. Call clear first.");
             this->clear();
@@ -77,7 +74,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void addHole(const std::deque<Eigen::Vector3d,Eigen::aligned_allocator<Eigen::Vector3d>>& hole)
+        void addHole(const std::deque<Eigen::Vector3d>& hole)
         {
             assert(this->size()==1 && "Call assignPoints before adding holes.");
             this->push_back(std::deque<std::array<double, 2>>()); // first vector is external polyline, further vectors define holes

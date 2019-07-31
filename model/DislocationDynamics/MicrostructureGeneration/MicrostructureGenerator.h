@@ -9,9 +9,11 @@
 #ifndef model_MicrostructureGenerator_H_
 #define model_MicrostructureGenerator_H_
 
+
 #include <chrono>
 #include <random>
 #include <cmath>
+#include <list>
 #include <assert.h>
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
@@ -25,11 +27,16 @@
 #include <DislocationNodeIO.h>
 #include <DislocationLoopIO.h>
 #include <DislocationEdgeIO.h>
-#include <EVLio.h>
+#include <DDconfigIO.h>
+#include <DDauxIO.h>
+
 #include <DislocationLinkingNumber.h>
 #include <TextFileParser.h>
 #include <DislocationInjector.h>
 #include <MeshBoundarySegment.h>
+
+#include <PeriodicGlidePlane.h>
+
 
 namespace model
 {
@@ -62,101 +69,6 @@ namespace model
             return a>b? a : b;
         }
 
-//        /**********************************************************************/
-//        static std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> straightLineBoundaryClosure(const VectorDimD& P0,
-//                                                                                                const VectorDimD& d,
-//                                                                                                const VectorDimD& n,
-//                                                                                                const int& grainID,
-//                                                                                                const SimplicialMesh<dim>& msh)
-//        {
-//
-//
-//            // Define line AB containing dislocaiton and piercing the mesh
-//            const VectorDimD A=P0+3.0*maxSize*d;
-//            const VectorDimD B=P0-3.0*maxSize*d;
-//
-//            MeshPlane<dim> plane(msh,grainID,P0,n);
-//            const auto& segDeq(plane.meshIntersections);
-//
-//            // Compute interseciton between mesh and glide plane
-////            PlaneMeshIntersection<dim> pmi(mesh,P0,n,grainID);
-////            std::deque<std::pair<VectorDimD,VectorDimD>> segDeq;
-////
-////            for(size_t k=0;k<pmi.size();++k)
-////            {
-////                const size_t k1=(k+1)<pmi.size()? k+1 :0;
-////                segDeq.emplace_back(pmi[k].second,pmi[k1].second);
-////            }
-//
-//
-////            std::cout<<"P0"<<std::endl;
-////            for(const auto& pair : segDeq)
-////            {
-////                std::cout<<pair.P0.transpose()<<std::endl;
-////            }
-////
-////            std::cout<<"P1"<<std::endl;
-////            for(const auto& pair : segDeq)
-////            {
-////                std::cout<<pair.P1.transpose()<<std::endl;
-////            }
-//            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
-//            int nIntersections=0;
-//            for(const auto& pair : segDeq)
-//            {
-//
-//                SegmentSegmentDistance<dim> ssi(A,B,pair.P0,pair.P1);
-//
-//                if(nIntersections==0)
-//                {
-//                    if(ssi.dMin>FLT_EPSILON) // no intersection
-//                    {
-//
-//                    }
-//                    else //if(ssi.size==1)
-//                    {
-//                        nIntersections++;
-//                        nodePos.push_back((ssi.x0+ssi.x1)*0.5);
-//                    }
-//                }
-//                else if(nIntersections==1)
-//                {
-//                    if(ssi.dMin>FLT_EPSILON)
-//                    {// no intersection
-//                        if((pair.P0-nodePos.back()).norm()>FLT_EPSILON)
-//                        {
-//                            nodePos.push_back(pair.P0);
-//                        }
-//                    }
-//                    else
-//                    {// intersection
-//                        const VectorDimD X((ssi.x0+ssi.x1)*0.5);
-//                        if((X-nodePos.back()).norm()>FLT_EPSILON)
-//                        {
-//                            nIntersections++;
-//                            nodePos.push_back(pair.P0);
-//                            if((X-pair.P0).norm()>FLT_EPSILON)
-//                            {
-//                                nodePos.push_back(X);
-//                            }
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//
-//                }
-//            }
-//
-////            std::cout<<"Node Positions"<<std::endl;
-////            for(const auto& node : nodePos)
-////            {
-////                std::cout<<node.transpose()<<std::endl;
-////            }
-//
-//            return nodePos;
-//        }
-
         /**********************************************************************/
         void addStraightDislocations()
         {
@@ -169,6 +81,7 @@ namespace model
                 std::cout<<magentaBoldColor<<"Generating straight dislocations"<<defaultColor<<std::endl;
                 while(density<targetStraightDislocationDensity)
                 {
+                    
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const int& grainID=rp.second;   // random grain ID
                     const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
@@ -192,7 +105,7 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-                    const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
+                    const std::deque<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
 
                     const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
@@ -211,21 +124,21 @@ namespace model
                         // write node and edge file
                         for(size_t k=0;k<nodePos.size();++k)
                         {
-                            nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             //                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             //                        vertexFile<<dlIO<<"\n";
                             //                        vertexFile.write(dlIO);
                             //                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
 
                             const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                             //                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
 
                         }
                         nodeID+=nodePos.size();
 
                         // write loop file
-                        loopsIO.emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                        configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
                         if(enforceMonotonicHelicity)
                         {
@@ -248,6 +161,7 @@ namespace model
                             helicity+=dh;
                             std::cout<<"helicity="<<helicity<<std::endl;
                         }
+                        
                     }
                 }
             }
@@ -325,7 +239,7 @@ namespace model
                             const auto search3(mesh.search(P3));
 
                             double dh=0.0;
-                            std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos;
+                            std::deque<VectorDimD> nodePos;
                             if(enforceMonotonicHelicity)
                             {
                                 nodePos.push_back(P0);
@@ -354,29 +268,29 @@ namespace model
                                 const VectorDimD n1=slipSystem.unitNormal;
                                 const VectorDimD n2=d2.cross(d1).cartesian().normalized();
 
-                                nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                nodesIO.emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                nodesIO.emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 
-                                loopsIO.emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-                                loopsIO.emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                                loopsIO.emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                                edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+1,0);
-                                edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+4,0);
-                                edgesIO.emplace_back(loopID+0,nodeID+4,nodeID+0,0);
+                                configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+1,0);
+                                configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+4,0);
+                                configIO.links().emplace_back(loopID+0,nodeID+4,nodeID+0,0);
 
-                                edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+3,0);
-                                edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+2,0);
-                                edgesIO.emplace_back(loopID+1,nodeID+2,nodeID+1,0);
-                                edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+0,0);
+                                configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+3,0);
+                                configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+2,0);
+                                configIO.links().emplace_back(loopID+1,nodeID+2,nodeID+1,0);
+                                configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+0,0);
 
-                                edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+5,0);
-                                edgesIO.emplace_back(loopID+2,nodeID+5,nodeID+2,0);
-                                edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+3,0);
+                                configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+5,0);
+                                configIO.links().emplace_back(loopID+2,nodeID+5,nodeID+2,0);
+                                configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+3,0);
 
                                 nodeID+=6;
                                 loopID+=3;
@@ -471,60 +385,60 @@ namespace model
                              * ID Px Py Pz Vx Vy Vz velReducCoeff snID meshLocation grainID
                              */
                             const size_t refNodeID=nodeID;
-                            nodesIO.emplace_back(refNodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            nodesIO.emplace_back(refNodeID+1,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            nodesIO.emplace_back(refNodeID+2,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            nodesIO.emplace_back(refNodeID+3,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            nodesIO.emplace_back(refNodeID+4,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            nodesIO.emplace_back(refNodeID+5,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+1,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+2,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+3,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+4,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(refNodeID+5,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             nodeID+=6;
 
                             if (P12.size()==0)
                             {
-                                edgesIO.emplace_back(loopID,refNodeID+4,refNodeID+5,0);
+                                configIO.links().emplace_back(loopID,refNodeID+4,refNodeID+5,0);
                             }
                             else if (P12.size()==1)
                             {
-                                nodesIO.emplace_back(nodeID,P12.begin()->second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                edgesIO.emplace_back(loopID,refNodeID+4,nodeID,0);
-                                edgesIO.emplace_back(loopID,nodeID,refNodeID+5,0);
+                                configIO.nodes().emplace_back(nodeID,P12.begin()->second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.links().emplace_back(loopID,refNodeID+4,nodeID,0);
+                                configIO.links().emplace_back(loopID,nodeID,refNodeID+5,0);
                                 nodeID++;
                             }
                             else
                             {
                                 for(const auto pair : P12)
                                 {
-                                    nodesIO.emplace_back(nodeID,pair.second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                    configIO.nodes().emplace_back(nodeID,pair.second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                     nodeID++;
                                     if (pair.first==P12.begin()->first)
                                     {
-                                        edgesIO.emplace_back(loopID,refNodeID+4,nodeID,0);
-                                        edgesIO.emplace_back(loopID,nodeID,nodeID+1,0);
+                                        configIO.links().emplace_back(loopID,refNodeID+4,nodeID,0);
+                                        configIO.links().emplace_back(loopID,nodeID,nodeID+1,0);
                                     }
                                     else if (pair.first==P12.rbegin()->first )
                                     {
-                                        edgesIO.emplace_back(loopID,nodeID,refNodeID+5,0);
+                                        configIO.links().emplace_back(loopID,nodeID,refNodeID+5,0);
                                     }
                                     else
                                     {
-                                        edgesIO.emplace_back(loopID,nodeID,nodeID+1,0);
+                                        configIO.links().emplace_back(loopID,nodeID,nodeID+1,0);
                                     }
                                 }
                             }
-                            loopsIO.emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-                            edgesIO.emplace_back(loopID,refNodeID+5,refNodeID+1,0);
-                            edgesIO.emplace_back(loopID,refNodeID+1,refNodeID+0,0);
-                            edgesIO.emplace_back(loopID,refNodeID+0,refNodeID+4,0);
+                            configIO.loops().emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                            configIO.links().emplace_back(loopID,refNodeID+5,refNodeID+1,0);
+                            configIO.links().emplace_back(loopID,refNodeID+1,refNodeID+0,0);
+                            configIO.links().emplace_back(loopID,refNodeID+0,refNodeID+4,0);
 
-                            loopsIO.emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                            edgesIO.emplace_back(loopID+1,refNodeID+0,refNodeID+2,0);
-                            edgesIO.emplace_back(loopID+1,refNodeID+2,refNodeID+4,0);
-                            edgesIO.emplace_back(loopID+1,refNodeID+4,refNodeID+0,0);
+                            configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                            configIO.links().emplace_back(loopID+1,refNodeID+0,refNodeID+2,0);
+                            configIO.links().emplace_back(loopID+1,refNodeID+2,refNodeID+4,0);
+                            configIO.links().emplace_back(loopID+1,refNodeID+4,refNodeID+0,0);
 
-                            loopsIO.emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-                            edgesIO.emplace_back(loopID+2,refNodeID+1,refNodeID+5,0);
-                            edgesIO.emplace_back(loopID+2,refNodeID+5,refNodeID+3,0);
-                            edgesIO.emplace_back(loopID+2,refNodeID+3,refNodeID+1,0);
+                            configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                            configIO.links().emplace_back(loopID+2,refNodeID+1,refNodeID+5,0);
+                            configIO.links().emplace_back(loopID+2,refNodeID+5,refNodeID+3,0);
+                            configIO.links().emplace_back(loopID+2,refNodeID+3,refNodeID+1,0);
 
                             loopID+=3;
                             snID++;
@@ -585,8 +499,8 @@ namespace model
                         //                        sizeVector.emplace_back(10000);
                     }
 
-                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> posVector;
-                    std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> normalsVector;
+                    std::deque<VectorDimD> posVector;
+                    std::deque<VectorDimD> normalsVector;
 
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
@@ -629,11 +543,11 @@ namespace model
                         // Add nodes (two for-loops are needed)
                         for(size_t k=0;k<posVector.size();++k)
                         {
-                            nodesIO.emplace_back(nodeID+k,posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(nodeID+k,posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         }
                         for(size_t k=0;k<posVector.size();++k)
                         {
-                            nodesIO.emplace_back(nodeID+k+posVector.size(),posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.nodes().emplace_back(nodeID+k+posVector.size(),posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         }
 
 
@@ -641,12 +555,12 @@ namespace model
                         for(size_t k=0;k<posVector.size();++k)
                         {
                             const int nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
-                            edgesIO.emplace_back(loopID+k,nodeID+k,nextNodeID,0);
-                            edgesIO.emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
-                            edgesIO.emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
-                            edgesIO.emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
+                            configIO.links().emplace_back(loopID+k,nodeID+k,nextNodeID,0);
+                            configIO.links().emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
+                            configIO.links().emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
+                            configIO.links().emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
 
-                            loopsIO.emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                            configIO.loops().emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
                         }
 
@@ -655,9 +569,9 @@ namespace model
                         for(size_t k=0;k<posVector.size();++k)
                         {
                             const size_t nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
-                            edgesIO.emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
+                            configIO.links().emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
                         }
-                        loopsIO.emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                        configIO.loops().emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID,DislocationLoopIO<dim>::SESSILELOOP);
 
 
 
@@ -746,7 +660,7 @@ namespace model
                         const VectorDimD b(slipSystem.s.cartesian());
 
                         const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
-                        const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
+                        const std::deque<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
 
                         const double lineLength=(nodePos.back()-nodePos.front()).norm();
 
@@ -756,11 +670,11 @@ namespace model
 
                             for(size_t k=0;k<nodePos.size();++k)
                             {// write node and edge file
-                                nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                                edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                             }
-                            loopsIO.emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);  // write loop file
+                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);  // write loop file
 
                             nodeID+=nodePos.size();
                             loopID+=1;
@@ -831,10 +745,10 @@ namespace model
                         for(size_t k=0;k<nonPlanarLoopSides;++k)
                         {
                             const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                         }
-                        loopsIO.emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
+                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
                         nodeID+=nodePos.size();
                         loopID+=1;
                         snID+=1;
@@ -849,7 +763,65 @@ namespace model
         }
         
         /**********************************************************************/
-        void addCircularLoops()
+        void addPeriodicLoops()
+        {
+
+            
+            if(targetPeriodicLoopDensity>0.0)
+            {
+                std::cout<<magentaBoldColor<<"Generating periodic loops"<<defaultColor<<std::endl;
+                assert(poly.grains().size()==1 && "PeriodicLoops only supported in single crystals.");
+                double density=0.0;
+                size_t periodicNodeID(0);
+                while(density<targetPeriodicLoopDensity)
+                {
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
+                    const VectorDimD P0(L0.cartesian());
+                    const int grainID=rp.second;
+                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
+                    const int rSS=distribution(generator); // a random SlipSystem
+                    const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+                    const VectorDimD b(slipSystem.s.cartesian());
+                    const VectorDimD loopAxis(slipSystem.n.cartesian());
+
+                    std::normal_distribution<double> sizeDistribution(periodicLoopRadiusMean/poly.b_SI,periodicLoopRadiusStd/poly.b_SI);
+                    const double radius(sizeDistribution(generator));
+
+//                    std::vector<VectorDimD> nodePos;
+                    std::vector<DislocationNodeIO<dim>> periodicNodesIO;
+
+                    for(int k=0;k<periodicLoopSides;++k)
+                    {
+                        // Sessile loop
+//                        nodePos.push_back();
+                        
+                        const VectorDimD P(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, loopAxis)*slipSystem.s.cartesian().normalized()*radius);
+                        periodicNodesIO.emplace_back(periodicNodeID,P,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+
+
+                        periodicNodeID++;
+                    }
+                    
+
+                    
+                    GlidePlaneKey<3> referencePlaneKey(grainID,P0,slipSystem.n);
+                    std::shared_ptr<GlidePlane<3>> referencePlane(glidePlaneFactory.get(referencePlaneKey));
+                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
+                    pgp.addPatchesContainingPolygon(periodicNodesIO);
+
+                    // Yash: Here decompose periodic loop into individual loops
+                    
+                    auxIO.addPeriodicGlidePlane(pgp);
+                    density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
+                    std::cout<<"periodicLoop density="<<density<<std::endl;
+                }
+            }
+            
+        }
+        
+        /**********************************************************************/
+        void addCircularSessileLoops()
         {
             if(targetCircularLoopDensity>0.0)
             {
@@ -888,10 +860,10 @@ namespace model
                         for(size_t k=0;k<circularLoopSides;++k)
                         {
                             const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            nodesIO.emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                         }
-                        loopsIO.emplace_back(loopID+0, b,sessileAxis,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
+                        configIO.loops().emplace_back(loopID+0, b,sessileAxis,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
                         nodeID+=nodePos.size();
                         loopID+=1;
                         snID+=1;
@@ -1006,23 +978,29 @@ namespace model
         size_t nodeID;
         size_t snID;
         size_t loopID;
-        std::vector<DislocationNodeIO<dim>> nodesIO;
-        std::vector<DislocationLoopIO<dim>> loopsIO;
-        std::vector<DislocationEdgeIO<dim>> edgesIO;
-        std::deque<std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>>> loopPoints;
-        std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>> loopBurgers;
+//        std::vector<DislocationNodeIO<dim>> nodesIO;
+//        std::vector<DislocationLoopIO<dim>> loopsIO;
+//        std::vector<DislocationEdgeIO<dim>> edgesIO;
+        std::list<PeriodicGlidePlane<dim>> periodicGlidePlaneContainer;
+        
+        std::deque<std::deque<VectorDimD>> loopPoints;
+        std::deque<VectorDimD> loopBurgers;
         const bool enforceMonotonicHelicity;
         double helicity;
 
     public:
+        
+        DDconfigIO<3> configIO;
+        DDauxIO<dim> auxIO;
+
 
         const bool outputBinary;
         const int meshID;
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
-        //        GlidePlaneObserver<dim> gpo;
         Polycrystal<dim> poly;
+         GlidePlaneFactory<dim> glidePlaneFactory;
 
         // Straight Dislocations
         const double targetStraightDislocationDensity;
@@ -1053,11 +1031,16 @@ namespace model
         const double circularLoopSides;
         
         // NonPlanar  Loops
-        
         const double targetNonPlanarLoopDensity;
         const double nonPlanarLoopRadiusMean;
         const double nonPlanarLoopRadiusStd;
         const double nonPlanarLoopSides;
+        
+        // Periodic  Loops
+        const double targetPeriodicLoopDensity;
+        const double periodicLoopRadiusMean;
+        const double periodicLoopRadiusStd;
+        const double periodicLoopSides;
         
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
@@ -1108,6 +1091,7 @@ namespace model
         /* init*/,minSize(0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,maxSize(max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,poly("./inputFiles/polycrystal.txt",mesh)
+        /* init*/,glidePlaneFactory(poly)
         /* Straight Dislocations */
         /* init*/,targetStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetStraightDislocationDensity",true))
         /* init*/,fractionSessileStraightDislocationDensity(targetStraightDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true) : 0.0)
@@ -1135,6 +1119,11 @@ namespace model
         /* init*/,nonPlanarLoopRadiusMean(targetNonPlanarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("nonPlanarLoopRadiusMean",true) : 0.0)
         /* init*/,nonPlanarLoopRadiusStd(targetNonPlanarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("nonPlanarLoopRadiusStd",true) : 0.0)
         /* init*/,nonPlanarLoopSides(targetNonPlanarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("nonPlanarLoopSides",true) : 0.0)
+        /* PeriodicLoops */
+        /* init*/,targetPeriodicLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetPeriodicLoopDensity",true))
+        /* init*/,periodicLoopRadiusMean(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("periodicLoopRadiusMean",true) : 0.0)
+        /* init*/,periodicLoopRadiusStd(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("periodicLoopRadiusStd",true) : 0.0)
+        /* init*/,periodicLoopSides(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("periodicLoopSides",true) : 0.0)
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
         /* init*/,irradiationLoopsDiameterLognormalDistribution_M(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_M",true) : 0.0)
@@ -1154,6 +1143,9 @@ namespace model
         //        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
         {
 
+            
+
+            
             // Some sanity checks
             if(mesh.volume()==0.0)
             {
@@ -1161,29 +1153,43 @@ namespace model
                 exit(EXIT_FAILURE);
             }
 
-            model::cout<<greenBoldColor<<"Generating initial microstructure"<<defaultColor<<std::endl;
+            std::cout<<greenBoldColor<<"Generating initial microstructure"<<defaultColor<<std::endl;
             // Call individual generators
             addStraightDislocations();
             addFrankReadSources();
             addSingleArmDislocations();
             addPrismaticLoops();
             addIndividualStraightDislocations();
-            addCircularLoops();
+            addCircularSessileLoops();
             addNonPlanarLoops();
+            addPeriodicLoops();
             addIrradiationLoops();
             addStackingFaultTetrahedra();
             addEshelbyInclusions();
-
-            // Output to evl/evl_0
+            writeConfigFiles(0);
+            
+        }
+        
+        /**********************************************************************/
+        void writeConfigFiles(const size_t& fileID)
+        {
+//            DDconfigIO<3> configIO;
+//            DDauxIO<dim> auxIO;
+            
+            auxIO.setGlidePlaneBoundaries(glidePlaneFactory); // change this function to take a GlidePlaneFactory during write
+            
             if(outputBinary)
             {
-                EVLio<dim>::writeBin(0,nodesIO,loopsIO,edgesIO);
+                std::cout<<greenBoldColor<<"Writing configuration to "<<configIO.getBinFilename(fileID)<<defaultColor<<std::endl;
+                configIO.writeBin(fileID);
+                auxIO.writeBin(fileID);
             }
             else
             {
-                EVLio<dim>::writeTxt(0,nodesIO,loopsIO,edgesIO);
+                std::cout<<greenBoldColor<<"Writing configuration to "<<configIO.getTxtFilename(fileID)<<defaultColor<<std::endl;
+                configIO.writeTxt(fileID);
+                auxIO.writeTxt(fileID);
             }
-
         }
 
         /**********************************************************************/
@@ -1227,30 +1233,30 @@ namespace model
                         
                         VectorDimD b=L0.cartesian();
 
-                        nodesIO.emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        nodesIO.emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        configIO.nodes().emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        configIO.nodes().emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                        configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 
-                        edgesIO.emplace_back(loopID+0,nodeID+0,nodeID+2,0);
-                        edgesIO.emplace_back(loopID+0,nodeID+2,nodeID+1,0);
-                        edgesIO.emplace_back(loopID+0,nodeID+1,nodeID+0,0);
-                        loopsIO.emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                        configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+2,0);
+                        configIO.links().emplace_back(loopID+0,nodeID+2,nodeID+1,0);
+                        configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        edgesIO.emplace_back(loopID+1,nodeID+0,nodeID+1,0);
-                        edgesIO.emplace_back(loopID+1,nodeID+1,nodeID+3,0);
-                        edgesIO.emplace_back(loopID+1,nodeID+3,nodeID+0,0);
-                        loopsIO.emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                        configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+1,0);
+                        configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+3,0);
+                        configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        edgesIO.emplace_back(loopID+2,nodeID+0,nodeID+3,0);
-                        edgesIO.emplace_back(loopID+2,nodeID+3,nodeID+2,0);
-                        edgesIO.emplace_back(loopID+2,nodeID+2,nodeID+0,0);
-                        loopsIO.emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                        configIO.links().emplace_back(loopID+2,nodeID+0,nodeID+3,0);
+                        configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+2,0);
+                        configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        edgesIO.emplace_back(loopID+3,nodeID+1,nodeID+2,0);
-                        edgesIO.emplace_back(loopID+3,nodeID+2,nodeID+3,0);
-                        edgesIO.emplace_back(loopID+3,nodeID+3,nodeID+1,0);
-                        loopsIO.emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                        configIO.links().emplace_back(loopID+3,nodeID+1,nodeID+2,0);
+                        configIO.links().emplace_back(loopID+3,nodeID+2,nodeID+3,0);
+                        configIO.links().emplace_back(loopID+3,nodeID+3,nodeID+1,0);
+                        configIO.loops().emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
 
                         snID++;
@@ -1334,11 +1340,11 @@ namespace model
 
                                     for(int k=0;k<6;++k)
                                     {// inser the back loop
-                                        nodesIO.emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                        configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                         const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                        edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                                        configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                                     }
-                                    loopsIO.emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                    configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                                     loopID++;
 
 
@@ -1346,14 +1352,14 @@ namespace model
                                     {// insert loops on the six sides
                                         for(int k=0;k<6;++k)
                                         {// inser lateral loops
-                                            nodesIO.emplace_back(nodeID+k+6,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                            configIO.nodes().emplace_back(nodeID+k+6,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                             const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                            edgesIO.emplace_back(loopID,nodeID+k,nodeID+k+6,0);
-                                            edgesIO.emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
-                                            edgesIO.emplace_back(loopID,nextNodeID+6,nextNodeID,0);
-                                            edgesIO.emplace_back(loopID,nextNodeID,nodeID+k,0);
+                                            configIO.links().emplace_back(loopID,nodeID+k,nodeID+k+6,0);
+                                            configIO.links().emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
+                                            configIO.links().emplace_back(loopID,nextNodeID+6,nextNodeID,0);
+                                            configIO.links().emplace_back(loopID,nextNodeID,nodeID+k,0);
 
-                                            loopsIO.emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                            configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                                             loopID++;
                                         }
                                         nodeID+=2*points.size();
@@ -1412,14 +1418,14 @@ namespace model
 
                                 for(int k=0;k<4;++k)
                                 {
-                                    nodesIO.emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                    configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 
                                     const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
-                                    edgesIO.emplace_back(loopID,nodeID+k,nextNodeID,0);
+                                    configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
 
                                 }
 
-                                loopsIO.emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
 
 
                                 snID++;
@@ -1441,7 +1447,7 @@ namespace model
         }
 
         /**********************************************************************/
-        double deltaHelicity(const std::deque<VectorDimD,Eigen::aligned_allocator<VectorDimD>>& newPoints,
+        double deltaHelicity(const std::deque<VectorDimD>& newPoints,
                              const VectorDimD& newBurgers) const
         {
 
@@ -1500,16 +1506,16 @@ namespace model
             std::map<double,VectorDimD> temp; // keep points sorted by parameter u1
             for(size_t m=0;m<pp.size();++m)
             {
-                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m].P0-P0));
+                const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*(pp[m]->P0-P0));
                 if(x(0)>FLT_EPSILON && x(0)<1.0-FLT_EPSILON && x(1)>FLT_EPSILON)
                 {
-                    temp.emplace(x(0),pp[m].P0);
+                    temp.emplace(x(0),pp[m]->P0);
                 }
 
-                const Eigen::Matrix<double,2,1> y=llt.solve(A.transpose()*(pp[m].P1-P0));
+                const Eigen::Matrix<double,2,1> y=llt.solve(A.transpose()*(pp[m]->P1-P0));
                 if(y(0)>FLT_EPSILON && y(0)<1.0-FLT_EPSILON && y(1)>FLT_EPSILON)
                 {
-                    temp.emplace(y(0),pp[m].P1);
+                    temp.emplace(y(0),pp[m]->P1);
                 }
 
             }
@@ -1536,8 +1542,8 @@ namespace model
             for(size_t k=0;k<pp.size();++k)
             {
 //                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
-                const VectorDimD& v0=pp[k].P0;
-                const VectorDimD& v1=pp[k].P1;
+                const VectorDimD& v0=pp[k]->P0;
+                const VectorDimD& v1=pp[k]->P1;
                 // line2 is v0+u2*(v1-v0), 0<=u2<=1
 
                 //P+u1*dir=v0+u2*(v1-v0)

@@ -66,7 +66,6 @@ namespace model
         
         
     public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         const Eigen::Matrix<double,2,polyCoeff> coeffs;
         const MatrixPolyDeg Mx;

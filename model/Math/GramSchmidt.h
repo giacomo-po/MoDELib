@@ -13,12 +13,11 @@
 #include <iomanip>
 #include <vector>
 #include <Eigen/Dense>
-#include <Eigen/StdVector>
 
 namespace model
 {
     
-    struct GramSchmidt //: public std::vector<Eigen::Matrix<double,dim,1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim,1> > >
+    struct GramSchmidt
     {
         /*! \brief A class template that performs a modified Gram-Schmidt (MGS)
          * orthonormalization (with reorthogonalization) of a given set of vectors
@@ -26,11 +25,10 @@ namespace model
          */
         
         
-//        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /********************************************************************/
         template <int dim>
-        static void orthoNormalize(std::vector<Eigen::Matrix<double,dim,1>,Eigen::aligned_allocator<Eigen::Matrix<double,dim,1>> >& NV,
+        static void orthoNormalize(std::vector<Eigen::Matrix<double,dim,1>>& NV,
                               const double& tol=Eigen::NumTraits<double>::dummy_precision())
         {/*
           * Ref:
@@ -39,7 +37,7 @@ namespace model
           * Computers & Mathematics with Applications, 50(7), 1069–1075.
           */
             typedef Eigen::Matrix<double,dim,1> VectorDim;
-            typedef std::vector<VectorDim,Eigen::aligned_allocator<VectorDim> > VectorOfNormalsType;
+            typedef std::vector<VectorDim> VectorOfNormalsType;
             VectorOfNormalsType NV_new;
             
             for (size_t i=0;i<NV.size();++i)

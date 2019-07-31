@@ -17,7 +17,6 @@
 #include <LatticePlane.h>
 #include <Grain.h>
 #include <GlidePlane.h>
-#include <GlidePlaneObserver.h>
 //#include <PeriodicDislocationLoopPair.h>
 #include <BoundaryLoopLinkSequence.h>
 //#include <PlanarDislocationLoopIO.h>
@@ -37,9 +36,33 @@ namespace model
     //                            public PlanarPolygon
     {
         
+    public:
         
+        
+        
+        //        constexpr static int dim=_dim;
         constexpr static int dim=TypeTraits<Derived>::dim;
+
+        typedef PlanarDislocationLoop<Derived> PlanarDislocationLoopType;
+        typedef Loop<Derived> BaseLoopType;
+        typedef typename BaseLoopType::LoopLinkType LoopLinkType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+        typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::NodeType NodeType;
         
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef GlidePlane<dim> GlidePlaneType;
+        typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
+        
+        const std::shared_ptr<GlidePlaneType> glidePlane;
+        const Grain<dim>& grain;
+        const int loopType;
+        
+        static int verbosePlanarDislocationLoop;
+
+        
+    private:
         
         Eigen::Matrix<double,dim,1> nA;
         double _slippedArea;
@@ -55,61 +78,23 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
-        
-        //        constexpr static int dim=_dim;
-        
-        typedef PlanarDislocationLoop<Derived> PlanarDislocationLoopType;
-        typedef Loop<Derived> BaseLoopType;
-        typedef typename BaseLoopType::LoopLinkType LoopLinkType;
-        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef typename TypeTraits<Derived>::LoopType LoopType;
-        typedef typename TypeTraits<Derived>::NodeType NodeType;
-        
-        typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        typedef GlidePlane<dim> GlidePlaneType;
-        typedef GlidePlaneObserver<dim> GlidePlaneObserverType;
-        typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
-        
-        
-        const Grain<dim>& grain;
-        const int loopType;
-        const std::shared_ptr<GlidePlaneType> glidePlane;
-        static int verbosePlanarDislocationLoop;
-        
-        
         //std::map<std::set<size_t>,std::deque<std::deque<const LoopLinkType*>>> boundaryLinkSequenceMap;
         std::map<std::set<size_t>,BoundaryLoopLinkSequence<LoopType>> boundaryLinkSequenceMap;
         
-        
-        /**********************************************************************/
-        void addLoopLink(LoopLinkType* const pL)
-        {
-            Loop<Derived>::addLoopLink(pL); // forward to base class
-            updateBoundaryDecomposition();
-        }
-        
-        /**********************************************************************/
-        void removeLoopLink(LoopLinkType* const pL)
-        {
-            Loop<Derived>::removeLoopLink(pL); // forward to base class
-            updateBoundaryDecomposition();
-        }
+    
         
         /******************************************************************/
         void updateBoundaryDecomposition()
         {
-            //            boundaryLinkSequenceMap.clear();
+                        boundaryLinkSequenceMap.clear();
             if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
             {
                 if(this->isLoop())
                 {
-                    for(auto& pair : boundaryLinkSequenceMap)
-                    {// clear the deque of links in BoundaryLoopLinkSequence, without killing shared_ptr
-                        pair.second.clear();
-                    }
+//                    for(auto& pair : boundaryLinkSequenceMap)
+//                    {// clear the deque of links in BoundaryLoopLinkSequence, without killing shared_ptr
+//                        pair.second.clear();
+//                    }
                     
                     
                     
@@ -172,7 +157,7 @@ namespace model
                         
                     }
                     
-                    std::vector<std::set<size_t>> toBeDeleted;
+                    //std::vector<std::set<size_t>> toBeDeleted;
                     for(auto& pair : boundaryLinkSequenceMap)
                     {
                         if(pair.second.size()>1)
@@ -187,17 +172,17 @@ namespace model
                             }
                         }
                         
-                        if(pair.second.empty())
-                        {
-                            toBeDeleted.push_back(pair.first);
-                        }
+//                        if(pair.second.empty())
+//                        {
+//                            toBeDeleted.push_back(pair.first);
+//                        }
                         
                     }
                     
-                    for(const auto& key : toBeDeleted)
-                    {
-                        boundaryLinkSequenceMap.erase(key);
-                    }
+//                    for(const auto& key : toBeDeleted)
+//                    {
+//                        boundaryLinkSequenceMap.erase(key);
+//                    }
                     
                     if(true)
                     {
@@ -216,69 +201,6 @@ namespace model
             
         }
         
-        //        const GlidePlaneType& glidePlane;
-        //        const bool isGlissile;
-        
-        
-        //        /**********************************************************************/
-        //        static bool allowedSlipSystem(const LatticeVector<dim>& b,
-        //                                      const ReciprocalLatticeDirection<dim>& n,
-        //                                      const Grain<dim>& gr)
-        //        {
-        //
-        //            std::cout<<"PlanarDislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
-        //
-        //            return true;
-        //        }
-        
-        /******************************************************************/
-        const LoopType* imageLoop(const std::set<size_t>& faceIDs) const
-        {
-            const LoopType* temp(nullptr);
-            
-            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-            {
-                std::set<const LoopType*> imageLoops;
-                for(const auto& link : this->links())
-                {
-                    const auto node(link.second->source());
-                    
-                    //                std::set<size_t> nodeFaceIDs;
-                    //                for(const auto& face : node->meshFaces())
-                    //                {
-                    //                    nodeFaceIDs.insert(face->sID);
-                    //                }
-                    //
-                    //                bool isNodeOnFaces(true);
-                    //                for(const auto& val : faceIDs)
-                    //                {
-                    //                    isNodeOnFaces*=(nodeFaceIDs.find(val)!=nodeFaceIDs.end());
-                    //                }
-                    if(node->isOnMeshFaces(faceIDs))
-                    {
-                        const NodeType& nodeImage(*node->sharedImage(faceIDs));
-                        for(const auto& loop : nodeImage.loops())
-                        {
-                            if(loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-                            {
-                                if(   (this->flow()-loop->flow()).squaredNorm()==0
-                                   && (glidePlane->unitNormal-loop->glidePlane->unitNormal).squaredNorm()<FLT_EPSILON
-                                   ) // MORE CONDITIONS MAY BE NEEDED
-                                {
-                                    imageLoops.insert(loop);
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                assert(imageLoops.size()<=1);
-                temp=*imageLoops.begin();
-            }
-            
-            return temp;
-        }
-        
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
@@ -291,69 +213,20 @@ namespace model
         template<typename FLowType>
         PlanarDislocationLoop(LoopNetworkType* const dn,
                               const FLowType& B,
-                              const VectorDim& N,
-                              const VectorDim& P,
-                              const int& grainID) :
+                              const std::shared_ptr<GlidePlaneType>& glidePlane_in) :
         /* base init */ BaseLoopType(dn,B)
         //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
-        /*      init */,nA(VectorDim::Zero())
-        /*      init */,_slippedArea(0.0)
-        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
-        /*      init */,grain(dn->poly.grain(grainID))
+        /*      init */,glidePlane(glidePlane_in)
+        /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-        /*      init */,glidePlane(dn->sharedGlidePlane(dn->mesh,dn->poly.grain(grainID),P,N))
-        //        /*      init */ glidePlane(*_glidePlane->get()),
-        //        /*      init */,isGlissile(_isGlissile)
-        {
-            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
-            
-            assert(this->flow().dot(glidePlane->n)==0);
-            //            glidePlane->addLoop(this);
-            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
-            glidePlane->addParentSharedPtr(&glidePlane);
-            
-        }
-        
-        /**********************************************************************/
-        PlanarDislocationLoop(LoopNetworkType* const dn,
-                              const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
-                              const VectorDim& N,
-                              const VectorDim& P) :
-        /* base init */ BaseLoopType(dn,bndLinkSequence.loop->flow())
-        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-        /*      init */,_rightHandedNormal(bndLinkSequence.loop->grain)
-        /*      init */,grain(bndLinkSequence.loop->grain)
-        /*      init */,loopType(bndLinkSequence.loop->loopType)
-        /*      init */,glidePlane(dn->sharedGlidePlane(dn->mesh,bndLinkSequence.loop->grain,P,N))
-        //        /*      init */ glidePlane(*_glidePlane->get()),
-        //        /*      init */,isGlissile(_isGlissile)
+        /*      init */,_rightHandedNormal(grain)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             assert(this->flow().dot(glidePlane->n)==0);
-            //            glidePlane->addLoop(this);
-            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
-            glidePlane->addParentSharedPtr(&glidePlane);
-            
-            assert(this->network().mesh.regions().size()==1);
-            const auto& region(*this->network().mesh.regions().begin()->second);
-            
-            std::set<size_t> imageFaceIDs;
-            for(const auto& val : bndLinkSequence.faceIDs)
-            {
-                imageFaceIDs.insert(region.parallelFaces().at(val));
-            }
-            
-            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
-                                            std::forward_as_tuple(imageFaceIDs),
-                                            std::forward_as_tuple(this->p_derived(),
-                                                                  imageFaceIDs,
-                                                                  bndLinkSequence.loopPair
-                                                                  ));
         }
         
         /**********************************************************************/
@@ -363,71 +236,38 @@ namespace model
                               const int& grainID,
                               const int& _loopType) :
         /* base init */ BaseLoopType(dn,B)
-        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
+        /*      init */,glidePlane(nullptr)
+        /*      init */,grain(dn->poly.grain(grainID))
+        /*      init */,loopType(_loopType)
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
-        /*      init */,grain(dn->poly.grain(grainID))
-        /*      init */,loopType(_loopType)
-        /*      init */,glidePlane(nullptr)
-        //        /*      init */ glidePlane(*_glidePlane->get()),
-        //        /*      init */,isGlissile(true)
+        /*      init */,_rightHandedNormal(grain)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" without plane."<<std::endl;);
-            
-            //            glidePlane->addLoop(this);
-            //            if(glidePlane)
-            //            {
-            //                glidePlane->addParentSharedPtr(&glidePlane);
-            //            }
-            //
-            
         }
         
         /**********************************************************************/
         PlanarDislocationLoop(const PlanarDislocationLoop& other) :
         /* base init */ BaseLoopType(other)
-        //        /*      init */ PlanarPolygon(other),
-        /* init */,nA(other.nA)
-        /* init */,_slippedArea(0.0)
-        /* init */,_rightHandedUnitNormal(VectorDim::Zero())
-        /*      init */,_rightHandedNormal(other._rightHandedNormal)
-        /* init */,grain(other.grain)
+        /*      init */,glidePlane(other.glidePlane)
+        /*      init */,grain(other.grain)
         /*      init */,loopType(other.loopType)
-        /* init */,glidePlane(other.glidePlane)
-        //        /* init */ glidePlane(*_glidePlane->get()),
-        //        /* init */,isGlissile(other.isGlissile)
+        /*      init */,nA(other.nA)
+        /*      init */,_slippedArea(0.0)
+        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(grain)
         {
             VerbosePlanarDislocationLoop(1,"Copy-constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
-            
-            //            glidePlane->addLoop(this);
-            
-            if(glidePlane)
-            {
-                glidePlane->addParentSharedPtr(&glidePlane);
-            }
         }
         
         /**********************************************************************/
         ~PlanarDislocationLoop()
         {
             VerbosePlanarDislocationLoop(1,"Destroying PlanarDislocationLoop "<<this->sID<<std::endl;);
-            
-            //            glidePlane->removeLoop(this);
-            if(glidePlane)
-            {
-                glidePlane->removeParentSharedPtr(&glidePlane);
-            }
         }
         
-        //        /**********************************************************************/
-        //        VectorDim diracStringDirection(const VectorDim& x) const
-        //        {
-        //            VectorDim temp(VectorDim::Zero());
-        //
-        //            return temp;
-        //        }
+
         
         /**********************************************************************/
         static double planarSolidAngle(const VectorDim& x,
@@ -564,13 +404,7 @@ namespace model
             }
             return temp;
         }
-        
-        //        /**********************************************************************/
-        //        bool isVirtualBoundaryLoop() const
-        //        {
-        //            return glidePlane.get()==nullptr;
-        //        }
-        
+                
         /**********************************************************************/
         bool isVirtualBoundaryLoop() const
         {
@@ -661,3 +495,159 @@ namespace model
     
 }
 #endif
+
+//        /**********************************************************************/
+//        VectorDim diracStringDirection(const VectorDim& x) const
+//        {
+//            VectorDim temp(VectorDim::Zero());
+//
+//            return temp;
+//        }
+
+//        /**********************************************************************/
+//        template<typename FLowType>
+//        PlanarDislocationLoop(LoopNetworkType* const dn,
+//                              const FLowType& B,
+//                              const VectorDim& N,
+//                              const VectorDim& P,
+//                              const int& grainID) :
+//        /* base init */ BaseLoopType(dn,B)
+//        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
+//        /*      init */,nA(VectorDim::Zero())
+//        /*      init */,_slippedArea(0.0)
+//        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+//        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
+//        /*      init */,grain(dn->poly.grain(grainID))
+//        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+//        /*      init */,glidePlane(dn->glidePlaneFactory.get(dn->mesh,dn->poly.grain(grainID),P,N))
+//        //        /*      init */ glidePlane(*_glidePlane->get()),
+//        //        /*      init */,isGlissile(_isGlissile)
+//        {
+//            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
+//
+//            assert(this->flow().dot(glidePlane->n)==0);
+//            //            glidePlane->addLoop(this);
+//            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
+//            glidePlane->addParentSharedPtr(&glidePlane);
+//
+//        }
+
+//        /**********************************************************************/
+//        PlanarDislocationLoop(LoopNetworkType* const dn,
+//                              const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
+//                              const VectorDim& N,
+//                              const VectorDim& P) :
+//        /* base init */ BaseLoopType(dn,bndLinkSequence.loop->flow())
+//        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
+//        /*      init */,nA(VectorDim::Zero())
+//        /*      init */,_slippedArea(0.0)
+//        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+//        /*      init */,_rightHandedNormal(bndLinkSequence.loop->grain)
+//        /*      init */,grain(bndLinkSequence.loop->grain)
+//        /*      init */,loopType(bndLinkSequence.loop->loopType)
+//        /*      init */,glidePlane(dn->sharedGlidePlane(dn->mesh,bndLinkSequence.loop->grain,P,N))
+//        //        /*      init */ glidePlane(*_glidePlane->get()),
+//        //        /*      init */,isGlissile(_isGlissile)
+//        {
+//            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
+//
+//            assert(this->flow().dot(glidePlane->n)==0);
+//            //            glidePlane->addLoop(this);
+//            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
+//            glidePlane->addParentSharedPtr(&glidePlane);
+//
+//            assert(this->network().mesh.regions().size()==1);
+//            const auto& region(*this->network().mesh.regions().begin()->second);
+//
+//            std::set<size_t> imageFaceIDs;
+//            for(const auto& val : bndLinkSequence.faceIDs)
+//            {
+//                imageFaceIDs.insert(region.parallelFaces().at(val));
+//            }
+//
+//            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
+//                                            std::forward_as_tuple(imageFaceIDs),
+//                                            std::forward_as_tuple(this->p_derived(),
+//                                                                  imageFaceIDs,
+//                                                                  bndLinkSequence.loopPair
+//                                                                  ));
+//        }
+
+
+//        /**********************************************************************/
+//        void addLoopLink(LoopLinkType* const pL)
+//        {
+//            Loop<Derived>::addLoopLink(pL); // forward to base class
+//            updateBoundaryDecomposition();
+//        }
+//
+//        /**********************************************************************/
+//        void removeLoopLink(LoopLinkType* const pL)
+//        {
+//            Loop<Derived>::removeLoopLink(pL); // forward to base class
+//            updateBoundaryDecomposition();
+//        }
+
+
+//        const GlidePlaneType& glidePlane;
+//        const bool isGlissile;
+
+
+//        /**********************************************************************/
+//        static bool allowedSlipSystem(const LatticeVector<dim>& b,
+//                                      const ReciprocalLatticeDirection<dim>& n,
+//                                      const Grain<dim>& gr)
+//        {
+//
+//            std::cout<<"PlanarDislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
+//
+//            return true;
+//        }
+
+//        /******************************************************************/
+//        const LoopType* imageLoop(const std::set<size_t>& faceIDs) const
+//        {
+//            const LoopType* temp(nullptr);
+//
+//            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//            {
+//                std::set<const LoopType*> imageLoops;
+//                for(const auto& link : this->links())
+//                {
+//                    const auto node(link.second->source());
+//
+//                    //                std::set<size_t> nodeFaceIDs;
+//                    //                for(const auto& face : node->meshFaces())
+//                    //                {
+//                    //                    nodeFaceIDs.insert(face->sID);
+//                    //                }
+//                    //
+//                    //                bool isNodeOnFaces(true);
+//                    //                for(const auto& val : faceIDs)
+//                    //                {
+//                    //                    isNodeOnFaces*=(nodeFaceIDs.find(val)!=nodeFaceIDs.end());
+//                    //                }
+//                    if(node->isOnMeshFaces(faceIDs))
+//                    {
+//                        const NodeType& nodeImage(*node->sharedImage(faceIDs));
+//                        for(const auto& loop : nodeImage.loops())
+//                        {
+//                            if(loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//                            {
+//                                if(   (this->flow()-loop->flow()).squaredNorm()==0
+//                                   && (glidePlane->unitNormal-loop->glidePlane->unitNormal).squaredNorm()<FLT_EPSILON
+//                                   ) // MORE CONDITIONS MAY BE NEEDED
+//                                {
+//                                    imageLoops.insert(loop);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                assert(imageLoops.size()<=1);
+//                temp=*imageLoops.begin();
+//            }
+//
+//            return temp;
+//        }

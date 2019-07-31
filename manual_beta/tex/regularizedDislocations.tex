@@ -1,0 +1,23 @@
+\chapter{Regularization of singular fields}
+%\subsubsection{Stress field}
+\begin{equation}
+\sigma^\text{ns}_{ij}(\bm F)=\frac{\mu b_n}{8\pi}\int_\mathcal{S} \left[R_{a,mpp}\left(\in_{jmn}\xi_i+\in_{imn}\xi_j\right)+\frac{2}{1-\nu}\in_{kmn}\left(R_{a,ijm}-\delta_{ij}R_{a,ppm}\right)\xi_k\right]dl^s
+\end{equation}
+where $\bm R=\bm F-\bm S$ is the vector connecting the source point to the field point and $\xi=\frac{d\bm S}{dl^s}$ s the unit tangent along the source dislocation. 
+
+Substituting 
+\begin{equation}
+R_{,ijk}=-\frac{\delta_{ij}R_k+\delta_{jk}R_i+\delta_{ki}R_j}{R_a^3}+\frac{3R_iR_jR_k}{R_a^5} \ \ \ \ \ \ \    R_{a,ipp}=-\left(2+\frac{3a^2}{R_a^2}\right)\frac{R_i}{R_a^3}
+\end{equation}
+we find
+\begin{equation}
+\sigma_{ij}(\bm F)=\frac{\mu b_n}{4\pi}\int_\mathcal{S} \left[-\left(1+\frac{3a^2}{2R_a^2}\right)\frac{R_m}{R_a^3}\left(\in_{jmn}\xi_i+\in_{imn}\xi_j\right)+\frac{1}{1-\nu}\in_{kmn}\left(\frac{\delta_{ij}\left(1+\frac{3a^2}{R_a^2}\right)R_m-\delta_{jm}R_i-\delta_{mi}R_j}{R_a^3}+\frac{3R_iR_jR_m}{R_a^5}\right)\xi_k\right]dl^s
+\end{equation}
+In dyadic form
+\begin{align}
+\frac{d\bm \sigma}{d L}=\frac{\mu }{4\pi (1-\nu)R_a^2}&\left\{(1-\nu)\left(1+\frac{3a^2}{2R_a^2}\right)\left(\hat{\bm\xi}\otimes (\bm b\times \tilde{\bm R})+ (\bm b\times \tilde{\bm R})\otimes\hat{\bm\xi}\right)\right.\nonumber\\
+&\left.+\left(\tilde{\bm R}\otimes(\hat{\bm\xi}\times\bm b)+(\hat{\bm\xi}\times\bm b)\otimes \tilde{\bm R}\right)\right\}\nonumber\\
+%
+&\left.+[(\tilde{\bm R}\times\bm b)\cdot\hat{\bm \xi}]\left[\left(1+\frac{3a^2}{R_a^2}\right)\bm I+3\tilde{\bm R}\otimes \tilde {\bm R}\right]\right\}
+\end{align}
+where $\tilde{\bm R}=\bm R/R_a$

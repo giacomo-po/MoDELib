@@ -32,7 +32,7 @@ ifeq ($(USE_ICC), 1)
 	CFLAGS	+= -xhost
 	#CFLAGS	+= -fast
 	CFLAGS	+= -qopenmp 
-	CFLAGS	+= -std=c++14
+	CFLAGS	+= -std=c++17
 else
 	CC= g++
 	mpiCC = mpicxx

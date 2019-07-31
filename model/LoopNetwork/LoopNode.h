@@ -23,7 +23,6 @@
 //#include <iomanip>
 //#include <vector>
 //#include <Eigen/Dense>
-//#include <Eigen/StdVector>
 #include <NetworkComponent.h>
 #include <MPIcout.h>
 #include <NodeObserver.h>

@@ -25,7 +25,6 @@ namespace model
     struct DislocationQuadraturePoint
     {
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         static constexpr int Ncoeff= SplineBase<dim,corder>::Ncoeff;
         static constexpr int pOrder= SplineBase<dim,corder>::pOrder;
@@ -296,8 +295,8 @@ namespace model
                     for(const auto& link : parentSegment.network().links())
                     {
                         if(   !link.second->hasZeroBurgers()
-                           && !link.second->isBoundarySegment()
-                           && !(link.second->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                           && !(link.second->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
+//                           && !(link.second->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
                            )
                         {
                             

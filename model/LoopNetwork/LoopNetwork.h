@@ -63,7 +63,6 @@ namespace model
     /*               */ private std::multimap<std::pair<size_t,size_t>,
     /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>,
     /*                                     */ std::less<std::pair<size_t,size_t>>
-//    /*                                     */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
     /*                                     */ >
     {
         
@@ -79,7 +78,6 @@ namespace model
         typedef std::multimap<std::pair<size_t,size_t>,
         /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
         /*                 */ std::less<std::pair<size_t,size_t>>
-//        /*                 */ Eigen::aligned_allocator<std::pair<std::pair<size_t,size_t>, LoopLink<typename TypeTraits<Derived>::LinkType>>>
         /*                 */ > LoopLinkContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
@@ -383,18 +381,18 @@ namespace model
         static int verboseLevel;
         
         /**********************************************************************/
-        DanglingNodeContainerType& danglingNodes()
+        DanglingNodeContainerType& danglingNodes() __attribute__ ((deprecated)) // INSERT USING VECTOR OF SHARED PTR INSTEAD
         {
             return *this;
         }
         
-        const DanglingNodeContainerType& danglingNodes() const
+        const DanglingNodeContainerType& danglingNodes() const __attribute__ ((deprecated)) // INSERT USING VECTOR OF SHARED PTR INSTEAD
         {
             return *this;
         }
         
         /**********************************************************************/
-        IsSharedNodeType danglingNode(const size_t & k)
+        IsSharedNodeType danglingNode(const size_t & k) __attribute__ ((deprecated)) // INSERT USING VECTOR OF SHARED PTR INSTEAD
         {/*!\returns A <bool,NodeType* const> pair, where pair.first is true
           * if node k is in the network, in which case pair.second is a pointer
           * the the node
@@ -404,7 +402,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void clearDanglingNodes()
+        void clearDanglingNodes() __attribute__ ((deprecated)) // INSERT USING VECTOR OF SHARED PTR INSTEAD
         {
             danglingNodes().clear();
         }
@@ -478,7 +476,7 @@ namespace model
         /**********************************************************************/
         template <typename ...LoopArgTypes>
         std::shared_ptr<LoopType> insertLoop(const std::vector<size_t> nodeIDs,
-                                             const LoopArgTypes&... loopInput)
+                                             const LoopArgTypes&... loopInput) //__attribute__ ((deprecated)) // INSERT USING VECTOR OF SHARED PTR INSTEAD
         {/*!@param[in] nodeIDs IDs of the nodes in the loop
           * @param[in] f the loop flow
           * @param[loopInput] additional Loop constructor arguments

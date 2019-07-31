@@ -1,0 +1,33 @@
+\section{Kunin identity}
+see Berdichevsky, Victor: Variational Principles of Continuum Mechanics: I. Fundamentals, 2009. p.239.
+\begin{align}
+\int\varphi(\bm x)e^{jkl}\frac{\partial}{\partial x_k}\int_\mathcal{S} \delta(\bm x-\bm x')\hat{n}_ldS'dV&=\int_\mathcal{S} \int\varphi(\bm x)e^{jkl}\frac{\partial}{\partial x_k}\delta(\bm x-\bm x')\hat{n}_ldVdS'\nonumber\\
+&=-\int_\mathcal{S} \int\frac{\partial\varphi}{\partial x_k}(\bm x)e^{jkl}\delta(\bm x-\bm x')\hat{n}_ldVdS'\nonumber\\
+&=-\int_\mathcal{S} \frac{\partial\varphi}{\partial x_k}(\bm x')e^{jkl}\hat{n}_ldS'\nonumber\\
+\end{align}
+
+
+\section{OLD}
+
+Now, since 
+\begin{align}
+\delta(R)=-\frac{1}{4\pi}\nabla^2\left(\frac{1}{R}\right)=-\frac{1}{8\pi}\nabla^2(R_{,pp})=-\frac{1}{8\pi}R_{,ppqq}
+\end{align}
+then:
+\begin{align}
+\beta^p_{kl}(\bm x')=\frac{b_k}{8\pi}\int_\mathcal{S} R_{,ppqq}\hat{n}_ldS''
+\label{plasticStrainRderivative}
+\end{align}
+
+
+
+Consider the derivative of the solid angle using eq.~(\ref{KelvinStokesCorollary})
+\begin{align}
+\Omega_{,j}=-\frac{1}{2}\int R_{,ppkj}\hat{n}_kdS&=-\frac{1}{2}\int R_{,ppkk}\hat{n}_jdS-\frac{1}{2}\oint\epsilon_{mkj}R_{,ppk}\xi_mdl
+\end{align}
+then, from eq.~(\ref{plasticStrainRderivative})
+\begin{align}
+-\frac{b_i}{4\pi}\Omega_{,j}&=\frac{b_i}{8\pi}\int R_{,ppkk}\hat{n}_jdS+\frac{b_i}{4\pi}\oint\epsilon_{kjm}R_{,ppk}\xi_mdl\nonumber\\
+&=\beta^p_{ij}+\frac{b_i}{4\pi}\oint\epsilon_{kjm}R_{,ppk}\xi_mdl
+\end{align}
+

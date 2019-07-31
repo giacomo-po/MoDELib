@@ -28,7 +28,6 @@
 #include <DislocationNetworkTraits.h>
 #include <SplineSegment.h>
 //#include <Material.h>
-#include <GlidePlaneObserver.h>
 #include <GlidePlane.h>
 #include <Coeff2Hermite.h>
 #include <DislocationParticle.h>
@@ -107,7 +106,6 @@ namespace model
         std::map<size_t,
         /*    */ std::pair<VectorNcoeff,VectorDim>,
         /*    */ std::less<size_t>
-        //        /*    */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
         /*    */ > h2posMap;
         Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         MatrixNdof Kqq; //! Segment Stiffness Matrix
@@ -126,7 +124,6 @@ namespace model
         StraightDislocationSegment<dim> straight;
         
     public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)

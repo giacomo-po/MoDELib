@@ -25,11 +25,6 @@ Johannes~Martinus Burgers.
 \newblock \emph{P K Ned Akad Wetensc}, 42\penalty0 (1/5):\penalty0 378--399,
   1939{\natexlab{b}}.
 
-\bibitem[de~Wit(1960)]{deWit:1960vb}
-Roland de~Wit.
-\newblock {The Continuum Theory of Stationary Dislocations}.
-\newblock \emph{Solid state physics}, 10:\penalty0 249--292, 1960.
-
 \bibitem[Deng et~al.(2008)Deng, El-Azab, and Larson]{Deng:2008fs}
 J~Deng, A~El-Azab, and B~C Larson.
 \newblock {On the elastic boundary value problem of dislocations in bounded
@@ -59,6 +54,12 @@ Toshio Mura.
 \newblock \emph{{Micromechanics of Defects in Solids}}.
 \newblock Kluwer Academic Publishers, Dordrecht, The Netherlands, 2nd edition,
   1987.
+
+\bibitem[Po et~al.(2018)Po, Lazar, Admal, and Ghoniem]{po2018non}
+Giacomo Po, Markus Lazar, Nikhil~Chandra Admal, and Nasr Ghoniem.
+\newblock A non-singular theory of dislocations in anisotropic crystals.
+\newblock \emph{International Journal of Plasticity}, 103:\penalty0 1--22,
+  2018.
 
 \bibitem[Scovazzi and Hughes(2007)]{Scovazzi:2007tc}
 G~Scovazzi and T.~J.~R. Hughes.

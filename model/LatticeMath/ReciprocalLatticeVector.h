@@ -49,7 +49,6 @@ namespace model
         }
         
     public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         static constexpr double roundTol=FLT_EPSILON;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;

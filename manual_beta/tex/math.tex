@@ -1,0 +1,252 @@
+
+\chapter{Review of tensor calculus}
+
+
+
+
+\section{Mathematical preliminaries}
+
+\subsection{Kelvin-Stokes Theorem}
+\begin{mytheorem} (Kelvin-Stokes Theorem)
+\begin{align}
+\int_\mathcal{S} \epsilon_{ikl}f_{,l}\hat{n}_kds=\oint_{\partial\mathcal{S}} f dl_i
+\label{KelvinStokes}
+\end{align}
+\end{mytheorem}
+
+\begin{mytheorem} (Corollary)
+\begin{align}
+\int_\mathcal{S} \left(f_{,q}\hat{n}_p-f_{,p}\hat{n}_q\right)ds=\oint_{\partial\mathcal{S}} \epsilon_{ipq}f dl_i
+\label{KelvinStokesCorollary}
+\end{align}
+\end{mytheorem}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Surface Divergence Theorem}
+In this section we recall some useful theorems in surface integration. \cite{Slattery2006}, \cite{Scovazzi2007}.
+
+See \cite{Slattery:2006wn} p. 669.
+\begin{mytheorem} (Surface Divergence Theorem)
+fdsfsd
+\end{mytheorem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Surface Transport Theorem}
+
+\begin{mytheorem} (Surface Transport Theorem)
+\begin{align}
+\frac{d}{dt}\int_{\mathcal{S}_x=\bm \varphi (\mathcal{S}_X)}\alpha \hat{n}_ids&=\int_{\mathcal{S}_x}\left(\frac{\partial \alpha}{\partial t}+\left(\alpha \dot \varphi_k\right)_{,k}\right)\hat{n}_ids-\int_{\mathcal{S}_x}\alpha \dot\varphi_{k,i}\hat{n}_kds
+\label{STT2}
+\end{align}
+\end{mytheorem}
+
+\begin{proof}
+From \cite{Scovazzi:2007tc}.
+\end{proof}
+
+
+\begin{mytheorem} (Surface Transport Theorem (alternative form))
+\begin{align}
+\frac{d}{dt}\int_{\mathcal{S}_x}\alpha ds&=\int_{\mathcal{S}_x}\frac{\partial \alpha}{\partial t}\hat{n}_ids+\oint\epsilon_{ikm}\alpha v_k dl_m+\int_{\mathcal{S}_x}\alpha_{,i} v_{k}\hat{n}_kds
+\label{STT2L}
+\end{align}
+\end{mytheorem}
+
+\begin{proof}
+Consider the second term on the r.h.s. of~\ref{STT2} and use (\ref{KelvinStokesCorollary}):
+\begin{align}
+\int_{\mathcal{S}_x}\left(\alpha \dot \varphi_k\right)_{,k}\hat{n}_ids&=
+\int_{\mathcal{S}_x}\left(\alpha \dot \varphi_k\right)_{,i}\hat{n}_kds+\oint\epsilon_{mik}\alpha v_k dl_m
+\nonumber\\
+\end{align}
+Now consider the third term on the r.h.s. of~\ref{STT2} 
+\begin{align}
+\int_{\mathcal{S}_x}\alpha \dot\varphi_{k,i}\hat{n}_kds=\int_{\mathcal{S}_x}\left(\alpha v_{k}\right)_{,i}\hat{n}_kds-\int_{\mathcal{S}_x}\alpha_{,i} v_{k}\hat{n}_kds
+\end{align}
+Subtract to obtain result
+\end{proof}
+
+
+\begin{mytheorem} (Surface Transport Theorem (alternative form))
+\begin{align}
+\frac{d}{dt}\int_{\mathcal{S}_x=\bm \varphi (\mathcal{S}_X)}\alpha ds&=
+\label{STT1}
+\end{align}
+\end{mytheorem}
+
+\begin{proof}
+See  \cite{Slattery:2006wn} p 61.
+\end{proof}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Solid angles and line integration}
+
+\begin{mytheorem} (Surface to Line integration)
+Let $\mathcal{S}$ be a surface bounded by the closed contour $\Gamma$. Then let $\bm R=\bm R_s-\bm R_f$ where $\bm R_f$ is the field point and $\bm R_s$ is the source point on $\mathcal{S}$. If $\bm s$ is a unit vector applied at $\bm R_f$ such that the direction containing it never intersects $\mathcal{S}$ nor $\Gamma$, then: 
+\begin{align}
+-\int\frac{\bm R}{R^3} \cdot\hat{n}dS=\oint\frac{\bm s\times\bm R}{R(R-\bm s\cdot\bm R)}\cdot d\bm l
+\label{solidAngle2Line}
+\end{align}
+Obviously if $\bm R$ has opposite definition, i.e. $\bm R=\bm R_f-\bm R_s$ then
+\begin{align}
+\int\frac{\bm R}{R^3} \cdot\hat{n}dS=-\oint\frac{\bm s\times\bm R}{R(R+\bm s\cdot\bm R)}\cdot d\bm l
+\label{solidAngle2Line2}
+\end{align}
+
+\end{mytheorem}
+
+
+
+Note that for unit vector $\bm s$ we have $\left(\bm R-R\bm s\right)^2=R^2+R^2-2R\bm R\cdot\bm s=2R(R-\bm R\cdot\bm s)$. This means that $2R(R-\bm R\cdot\bm s)=0$ only when $\bm R$ is aligned with $\bm s$.
+
+\begin{proof}
+From Stokes theorem:
+\begin{align}
+\oint\frac{\bm s\times\bm R}{R(R-\bm s\cdot\bm R)}\cdot d\bm l=\int\nabla\times\left[\frac{\bm s\times\bm R}{R(R-\bm s\cdot\bm R)}\right]ds
+\end{align}
+Now exapand the curl
+\begin{align}
+\nabla\times\left[\frac{\bm s\times\bm R}{R(R-\bm s\cdot\bm R)}\right]&=\epsilon_{ijk}\partial_j\left[\frac{\epsilon_{kmn}s_mR_n}{R(R-s_pR_p)}\right]=\left(\delta_{im}\delta_{jn}-\delta_{in}\delta_{jm}\right)\partial_j\left[\frac{s_mR_n}{R(R-s_pR_p)}\right]\nonumber\\
+&=\left(\delta_{im}\delta_{jn}-\delta_{in}\delta_{jm}\right)\left[\frac{s_mR_{n,j}}{R(R-s_pR_p)}-\frac{s_mR_{n}\left[R_{,j}(R-s_pR_p)+R(R_{,j}-s_pR_{p,j})\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&=\left(\delta_{im}\delta_{jn}-\delta_{in}\delta_{jm}\right)\left[\frac{s_m\delta_{nj}}{R(R-s_pR_p)}-\frac{s_mR_{n}\left[\frac{R_j}{R}(R-s_pR_p)+R(\frac{R_j}{R}-s_p\delta_{pj})\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&=\left(\delta_{im}\delta_{jn}-\delta_{in}\delta_{jm}\right)\left[\frac{s_m\delta_{nj}}{R(R-s_pR_p)}-\frac{s_mR_{n}\left[\frac{R_j}{R}(R-s_pR_p)+(R_j-Rs_j)\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&=\left[\frac{\delta_{im}\delta_{jn}s_m\delta_{nj}}{R(R-s_pR_p)}-\frac{\delta_{im}\delta_{jn}s_mR_{n}\left[\frac{R_j}{R}(R-s_pR_p)+(R_j-Rs_j)\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&-\left[\frac{\delta_{in}\delta_{jm}s_m\delta_{nj}}{R(R-s_pR_p)}-\frac{\delta_{in}\delta_{jm}s_mR_{n}\left[\frac{R_j}{R}(R-s_pR_p)+(R_j-Rs_j)\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&=\left[\frac{3s_i}{R(R-s_pR_p)}-\frac{s_i\left[R(R-s_pR_p)+R(R-R_{j}s_j)\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&-\left[\frac{s_i}{R(R-s_pR_p)}-\frac{R_{i}\left[\frac{R_js_j}{R}(R-s_pR_p)+(R_js_j-R)\right]}{R^2(R-s_pR_p)^2}\right]\nonumber\\
+&=\frac{3s_i}{R(R-s_pR_p)}-\frac{2s_i}{R(R-s_pR_p)}\nonumber\\
+&-\frac{s_i}{R(R-s_pR_p)}+R_{i}\frac{\left[-R-\frac{R_js_js_pR_p}{R}+2R_js_j\right]}{R^2(R^2+s_pR_ps_jR_j-2Rs_pR_p)}\nonumber\\
+&=-\frac{R_i}{R^3}
+\end{align}
+\end{proof}
+
+   
+   
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{OLD NOTES: Elastic Energy of a Dislocation Loop}
+\subsection{Volume to Surface}
+(Eshelby) Let's consider a body delimited by a closed surface $S_0$ having a source of eigenstress\footnote{ no external surface traction}  $I$ enclosed within the surface $S$ and a source of stress $II$ outside $S$.
+
+%and $V_I$ be a volume enclosing source $I$ then
+
+\begin{eqnarray}
+E&=&\frac{1}{2}\int_V\sigma_{ij}\epsilon_{ij}dV=\frac{1}{2}\int_V\left(\sigma^I_{ij}+\sigma^{II}_{ij}\right)\left(\epsilon^I_{ij}+\epsilon^{II}_{ij}\right)dV\nonumber\\
+&=&\frac{1}{2}\int_V\sigma^I_{ij}\epsilon^{I}_{ij}dV+\frac{1}{2}\int_V\sigma^{II}_{ij}\epsilon^{II}_{ij}dV+\underbrace{\frac{1}{2}\int_V\sigma^{I}_{ij}\epsilon^{II}_{ij}dV+\frac{1}{2}\int_V\sigma^{II}_{ij}\epsilon^{I}_{ij}dV}_{\mbox{equal for reciprocity theorem}}\nonumber\\
+&=&\underbrace{\frac{1}{2}\int_V\sigma^I_{ij}\epsilon^{I}_{ij}dV}_{E_I}+\underbrace{\frac{1}{2}\int_V\sigma^{II}_{ij}\epsilon^{II}_{ij}dV}_{E_{II}}+\underbrace{\int_V\sigma^{I}_{ij}\epsilon^{II}_{ij}dV}_{E_{int}}
+\end{eqnarray}
+Away from their respective sources strains are gradients of displacement fields therefore $\epsilon^{I}_{ij}=\frac{1}{2}\left(u^I_{i,j}+u^I_{j,i}\right)$ in $V_{II}$ and $\epsilon^{II}_{ij}=\frac{1}{2}\left(u^{II}_{i,j}+u^{II}_{j,i}\right)$ in $V_{I}$, but not conversely.
+\begin{eqnarray}
+E_{int}&=&\int_{V_I}\sigma^{I}_{ij}u^{II}_{i,j}dV_I+\int_{V_{II}}\sigma^{II}_{ij}u^{I}_{i,j}dV_{II}\noindent\\
+&=&\oint_{S}\sigma^{I}_{ij}u^{II}_{i}\hat{n}_jdS-\underbrace{\int_{V_I}\sigma^{I}_{i,j}u^{II}_{i}dV_I}_{\mbox{equilibrium}}\nonumber\\
+&+&\oint_{S_0}\sigma^{II}_{ij}u^{I}_{i}\hat{n}_jdS-\oint_{S}\sigma^{II}_{ij}u^{I}_{i}\hat{n}_jdS+\underbrace{\int_{V_{II}}\sigma^{II}_{i,j}u^{I}_{i}dV_{II}}_{\mbox{equilibrium}}\nonumber\\
+&=&\oint_{S}\left(\sigma^{I}_{ij}u^{II}_{i}-\sigma^{II}_{ij}u^{I}_{i}\right)\hat{n}_jdS+\underbrace{\oint_{S_0}t_i^{II}u_i^{I}dS}_{\mbox{no surface tractions}}
+\end{eqnarray}
+
+
+the end result is
+
+\begin{equation}
+E_{int}=b_i\int_\mathcal{S} \sigma^{II}_{ij}\hat{n}_jdS
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\bibliographystyle{chicago} % authors sorted alphabetically
+%\bibliography{references}
+
+%\begin{thebibliography}{99}
+
+%\bibitem{Slattery2006} Slattery, J. C., Sagis, L.,  Oh, E.-S. (2006). Interfacial Transport Phenomena, 2nd ed., Springer.
+
+%
+%\bibitem{Scovazzi2007} Scovazzi, G., Hughes, T. J. R. (2007). Lecture Notes on Continuum Mechanics on Arbitrary Moving Domains. cs.sandia.gov.
+
+
+
+
+
+
+\section{Convolution integrals}
+Throughout this document, the symbol $*$ stands for the convolution operator over the infinite three-dimensional space $\mathbb{R}^3$:
+\begin{align}
+f*g=\int_{\mathbb{R}^3}f(\bm x-\bm x')g(\bm x')\dV'
+\end{align}
+Convolution enjoys the following properties
+\begin{align}
+f*g=\int_{\mathbb{R}^3}f(\bm x-\bm x')g(\bm x')\dV'=-\int_{-\mathbb{R}^3}f(\bm x'')g(\bm x-\bm x'')\dV''=g*f
+\end{align}
+
+\begin{align}
+(f*g)_{,i}=\int_{\mathbb{R}^3}f_{,i}(\bm x-\bm x')g(\bm x')\dV'=f_{,i}*g=f*g_{,i}
+\end{align}
+
+\begin{align}
+(f*g)*h=f*(g*h)
+\end{align}
+
+\section{The nabla operator}
+
+
+\section{The Green's  tensor and the F-tensor in classical  anisotropic elasticity}
+
+\begin{figure}[t]
+\centering
+\include{fourierSphere}
+%\includegraphics[width=0.4\textwidth]{fourierSphere}
+\caption{The unit sphere in Fourier space. The unit vector $\bm \kappa(\theta,\phi)$ is defined by the azimuth angle $\phi$, and the  zenith angle $\theta$  measured from the axis $\hat{\bm e}_3=\bm R/R$.}
+\label{kSpace}
+\end{figure}
+
+In classical  elasticity, the Green's  tensor of the anisotropic Navier operator $G^0_{ij}$ satisfies the following inhomogeneous PDE:
+\begin{align}
+L_{ik}G^0_{kj}+\delta_{ij}\delta=0\, .
+\end{align}
+In Fourier space\footnote{
+The  Fourier transform  and its inverse are defined as, respectively ~\citep{Wl}:
+\begin{align}
+\hat{f}(\bm k)=\int_{\mathbb{R}^3} f(\bm x)\, \text{e}^{-\text{i}\bm k\cdot\bm x}\dV\,, &&
+f(\bm x)=\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3} \hat{f}(\bm k)\, \text{e}^{\text{i}\bm k\cdot\bm x}\, \text{d}\hat{V}\,.
+\end{align}
+} this reads:
+\begin{align}
+\hat{G}^0_{ik}(\bm k)=\frac{1}{k^2}\,\hat{L}^{-1}_{ik}(\bm \kappa)\, .
+\end{align}
+where $\hat{L}_{ik}(\bm \kappa)=\mathbb{C}_{ijkl}\kappa_j\kappa_l$, $\bm \kappa=\bm k/k$, and $k=\sqrt{\bm k\cdot\bm k}$. The Green's  tensor in real space  is obtained by inverse  Fourier transform. Expressing the elementary volume element in Fourier space as  $\text{d}\hat{V}=k^2\, \text{d}k\, \text{d}\omega$, where $\text{d}\omega$ is an elementary surface element of the unit sphere $\mathcal{S}$, we obtain:
+\begin{align}
+G^0_{ik}(\bm R)
+&=\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3} \frac{\hat{L}^{-1}_{ik}(\bm \kappa)}{k^2}\, \text{e}^{\text{i}\bm k\cdot\bm x} \, \text{d}\hat{V}
+=\frac{1}{(2\pi)^3}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\, \int_0^\infty \cos(k\bm\kappa\cdot\bm R)\, \text{d}k  \, \text{d}\omega\nonumber
+=\frac{1}{8\pi^2R}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\, \delta(\bm\kappa\cdot\bm R)  \, \text{d}\omega\, .
+\end{align}
+Choosing a reference system with $\hat{\bm e}_3$ aligned with $\bm R$, as shown in Fig.~\ref{kSpace}, and using the sifting property of the Dirac $\delta$-function, we finally obtain the expression for the Green tensor as:
+\begin{align}
+G^0_{ik}(\bm R)= \frac{1}{8\pi^2R}\int_0^{2\pi} \hat{L}^{-1}_{ik}(\bm n)\,  \text{d}\phi\,.
+ \label{G0}
+\end{align}
+Here, $\bm n$ indicates a unit vector on the equatorial plane of the unit sphere in Fourier space. This result was first obtained by \cite{Lifshitz:1947aa} and \cite{Synge:1957aa}.
+
+The classical $\bm F$-tensor, introduced by  \cite{Kirchner:1983}, is defined by Eq. \eqref{F_classical}, which in Fourier space reads:
+\begin{align}
+\hat{F}^0_{ijkl}=-\hat{G}^0_{kl}\,k_ik_j\,\hGP=-\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,k_ik_j\, \frac{1}{k^2}=-\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, .
+\end{align}
+The  classical $\bm F$-tensor in real space is obtained by inverse Fourier transform:
+\begin{align}
+F^0_{ijkl}(\bm R)&=-\frac{1}{(2\pi)^3}\int_{\mathbb{R}^3}\frac{1}{k^2}\,\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, \text{e}^{\text{i}\bm k\cdot\bm R} \, \text{d}\hat{V}
+=-\frac{1}{(2\pi)^3}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\,\, \int_0^\infty \cos(k\bm\kappa\cdot\bm R)\, \text{d}k  \, \text{d}\omega\nonumber\\
+&=-\frac{1}{8\pi^2R}\int_\mathcal{S}\hat{L}^{-1}_{kl}(\bm \kappa)\,\kappa_i\kappa_j\, \delta(\bm\kappa\cdot\bm R)  \, \text{d}\omega\, .
+\end{align}
+In the reference system of Fig.~\ref{kSpace}, we finally obtain:
+\begin{align}
+F^0_{ijkl}(\bm R)&=-\frac{1}{8\pi^2R}\int_0^{2\pi}\hat{L}^{-1}_{kl}(\bm n)\,n_in_j\,   \, \text{d}\phi\, .
+\label{F0}
+\end{align}
+
+
+
+
+
+
+

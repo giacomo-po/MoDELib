@@ -29,7 +29,7 @@ namespace model
 {
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DefectiveCrystal //: public GlidePlaneObserver<dim>
+    class DefectiveCrystal 
     {
         
     public:
@@ -49,13 +49,12 @@ namespace model
         
         
         const SimplicialMesh<dim> mesh;
-        const std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> periodicShifts;
+        const std::vector<VectorDim> periodicShifts;
         const Polycrystal<dim> poly;
         const std::unique_ptr<DislocationNetworkType> DN;
         const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
-        //        std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>> straightSegmentsDeq;
         
         
         /**********************************************************************/
@@ -87,11 +86,11 @@ namespace model
         }
         
         /**********************************************************************/
-        static std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> getPeriodicShifts(const SimplicialMesh<dim>& m,
+        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,
                                                                                             const DefectiveCrystalParameters& params)
         {
             // Set up periodic shifts
-            std::vector<VectorDim,Eigen::aligned_allocator<VectorDim>> temp;
+            std::vector<VectorDim> temp;
             const VectorDim meshDimensions(m.xMax()-m.xMin());
             model::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
             for(int i=-params.periodicImages_x;i<=params.periodicImages_x;++i)
@@ -266,6 +265,15 @@ namespace model
                 // output
                 DN->io().output(simulationParameters.runID);
                 
+                
+//                for(const auto& loop : DN->loops())
+//                {
+//                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//                    {
+//                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
+//                    }
+//                }
+                
                 // move
                 DN->moveGlide(simulationParameters.dt);
                 
@@ -312,7 +320,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>>& fieldPoints) const
+        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
         {
             if(DN)
             {

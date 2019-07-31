@@ -43,7 +43,7 @@ namespace model
         typedef std::pair<size_t,size_t> EdgeIDType;
         
         typedef std::tuple<EdgeIDType,EdgeIDType,SegmentSegmentDistance<dim>> IntersectionType;
-        typedef std::deque<IntersectionType,Eigen::aligned_allocator<IntersectionType>> IntersectionTypeContainerType;
+        typedef std::deque<IntersectionType> IntersectionTypeContainerType;
         
         /**********************************************************************/
         void insertIntersection(std::deque<IntersectionTypeContainerType>& intersectionContainer,
@@ -192,12 +192,12 @@ namespace model
                 
                 const bool bndJunction(   (linkAisBnd || linkBisBnd)
                                        &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON // same plane
-                                       &&  linkA->chord().cross(linkB->chord()).norm()<FLT_EPSILON // aligned on boundary
+                                       &&  linkA->chord().cross(linkB->chord()).norm()<FLT_EPSILON // colinear on boundary
                                        );
                 
                 const bool gbndJunction(   (linkAisGBnd || linkBisGBnd)
                                         &&  linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).norm()<FLT_EPSILON
-                                        &&  linkA->chord().cross(linkB->chord()).norm()<FLT_EPSILON // aligned on grain-boundary
+                                        &&  linkA->chord().cross(linkB->chord()).norm()<FLT_EPSILON // colinear on grain-boundary
                                         );
                 
                 //                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
@@ -598,11 +598,12 @@ namespace model
                     nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
                     nodeIDs.push_back(newNodeID);
                     
+                    LatticePlane glissilePlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+                    GlidePlaneKey<dim> glissilePlaneKey(grainID,glissilePlane);
+
                     DN.insertLoop(nodeIDs,
                                   DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-                                  DN.poly.grain(grainID).slipSystems()[slipID]->n.cartesian(),
-                                  newNodeP,
-                                  grainID);
+                                  DN.glidePlaneFactory.get(glissilePlaneKey));
                     
                     formedJunctions++;
                 }

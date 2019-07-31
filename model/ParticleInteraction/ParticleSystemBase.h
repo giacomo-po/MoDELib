@@ -26,7 +26,7 @@ namespace model
     
     template <typename _ParticleType>
     class ParticleSystemBase :
-    /* inheritance          */  public std::deque<_ParticleType,Eigen::aligned_allocator<_ParticleType>> // iteration and fast insertion are priority
+    /* inheritance          */  public std::deque<_ParticleType> // iteration and fast insertion are priority
     {
         
     public:
@@ -35,7 +35,7 @@ namespace model
         typedef typename _ParticleType::PositionType PositionType;
         typedef SpatialCellObserver<_ParticleType,_ParticleType::dim> SpatialCellObserverType;
         typedef typename SpatialCellObserverType::SpatialCellType SpatialCellType;
-        typedef std::deque<_ParticleType,Eigen::aligned_allocator<_ParticleType>> ParticleContainerType;
+        typedef std::deque<_ParticleType> ParticleContainerType;
         
         /**********************************************************************/
         template <typename ...AdditionalConstructorTypes>

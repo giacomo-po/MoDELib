@@ -49,7 +49,6 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         typedef double Scalar;
         typedef _FiniteElementType FiniteElementType;

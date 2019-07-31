@@ -126,8 +126,8 @@ namespace model
         }
         
         /**********************************************************************/
-        static double loopPairLN(const std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>>& loop1,
-                                 const std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>>& loop2)
+        static double loopPairLN(const std::deque<VectorDim>& loop1,
+                                 const std::deque<VectorDim>& loop2)
         {
             
             double temp(0.0);
@@ -152,9 +152,9 @@ namespace model
         }
         
         /**********************************************************************/
-        static double loopPairHelicity(const std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>>& loop1,
+        static double loopPairHelicity(const std::deque<VectorDim>& loop1,
                                        const VectorDim& b1,
-                                 const std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>>& loop2,
+                                 const std::deque<VectorDim>& loop2,
                                        const VectorDim& b2)
         {
         

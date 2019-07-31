@@ -30,7 +30,7 @@ namespace model
 //        }
         
         /**********************************************************************/
-        static std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> straightLineBoundaryClosure(const VectorDim& P0,
+        static std::deque<VectorDim> straightLineBoundaryClosure(const VectorDim& P0,
                                                                                                        const VectorDim& d,
                                                                                                        const VectorDim& n,
                                                                                                        const int& grainID,
@@ -48,12 +48,12 @@ namespace model
             MeshPlane<dim> plane(mesh,grainID,P0,n);
 //            const auto& segDeq(plane.meshIntersections);
             
-            std::deque<VectorDim,Eigen::aligned_allocator<VectorDim>> nodePos;
+            std::deque<VectorDim> nodePos;
             int nIntersections=0;
             for(const auto& pair : plane.meshIntersections)
             {
                 
-                SegmentSegmentDistance<dim> ssi(A,B,pair.P0,pair.P1);
+                SegmentSegmentDistance<dim> ssi(A,B,pair->P0,pair->P1);
                 
                 if(nIntersections==0)
                 {
@@ -71,9 +71,9 @@ namespace model
                 {
                     if(ssi.dMin>FLT_EPSILON)
                     {// no intersection
-                        if((pair.P0-nodePos.back()).norm()>FLT_EPSILON)
+                        if((pair->P0-nodePos.back()).norm()>FLT_EPSILON)
                         {
-                            nodePos.push_back(pair.P0);
+                            nodePos.push_back(pair->P0);
                         }
                     }
                     else
@@ -82,8 +82,8 @@ namespace model
                         if((X-nodePos.back()).norm()>FLT_EPSILON)
                         {
                             nIntersections++;
-                            nodePos.push_back(pair.P0);
-                            if((X-pair.P0).norm()>FLT_EPSILON)
+                            nodePos.push_back(pair->P0);
+                            if((X-pair->P0).norm()>FLT_EPSILON)
                             {
                                 nodePos.push_back(X);
                             }

@@ -9,8 +9,7 @@
 #ifndef _model_DislocationStressBase_h_
 #define _model_DislocationStressBase_h_
 
-#include <Eigen/StdVector>
-#include <Eigen/StdDeque>
+
 #include <tuple>
 #include <FieldBase.h>
 #include <FieldPoint.h>
@@ -85,7 +84,7 @@ namespace model
         /**********************************************************************/
         template <typename ParticleType>
         static MatrixType addSourceContribution(const ParticleType& field,
-                                                const std::deque<StressStraight<dim>,Eigen::aligned_allocator<StressStraight<dim>>>& ssdeq)
+                                                const std::deque<StressStraight<dim>>& ssdeq)
         {
 			MatrixType temp(MatrixType::Zero());
 			for (const auto& sStaight: ssdeq)

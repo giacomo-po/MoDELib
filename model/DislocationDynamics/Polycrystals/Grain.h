@@ -55,7 +55,6 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         
         static constexpr double roundTol=FLT_EPSILON;

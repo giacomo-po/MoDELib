@@ -1,0 +1,492 @@
+
+\chapter{Elastic fields of piecewise-straight dislocations loop}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Straight segments}
+For a straight segment starting at $\bm A$ and ending at $\bm B$, it is useful to preliminary compute the function
+\begin{align}
+q(\bm x)=\int_{\bm A}^{\bm B}R_a\ d\ell'
+\end{align}
+where $R_a=\sqrt{\bm R\cdot\bm R+a^2}$, $\bm R=\bm x-\bm x'$. Integration is performed on the primed variable along the segment $\bm A\bm B$. This can be parametrized as a function of a scalar variable $u$ as
+\begin{align}
+\bm x'(u)=\bm A(1-u)+\bm Bu=\bm A+(\bm B-\bm A)u\hspace{1cm} u\in[0,1]
+\end{align}
+Therefore
+\begin{align}
+q(\bm x)&=L\int_0^1\sqrt{[(\bm A-\bm x)+(\bm B-\bm A)u]^2+a^2}\ du\nonumber\\
+&=L\int_0^1\sqrt{(\bm B-\bm A)^2u^2+2(\bm A-\bm x)\cdot(\bm B-\bm A)u+(\bm A-\bm x)^2+a^2}\ du
+\end{align}
+Now
+\begin{align}
+\int\sqrt{du^2+bu+c}\ du=\left(\frac{b}{4d}+\frac{u}{2}\right)\sqrt{du^2+bu+c}+\frac{4dc-b^2}{8d^\frac{3}{2}}\ln\left(\frac{2du+b}{\sqrt{d}}+2\sqrt{du^2+bu+c}\right)
+\end{align}
+So
+\begin{align}
+\int_0^1\sqrt{du^2+bu+c}\ du=&\frac{2d+b}{4d}\sqrt{d+b+c}-\frac{b}{4d}\sqrt{c}+\frac{4dc-b^2}{8d^\frac{3}{2}}\ln\left(\frac{\frac{2d+b}{\sqrt{d}}+2\sqrt{d+b+c}}{\frac{b}{\sqrt{d}}+2\sqrt{c}}\right)
+\end{align}
+
+Note that in our case
+\begin{align}
+d&=(\bm B-\bm A)^2=L^2\\
+b&=2(\bm A-\bm x)\cdot(\bm B-\bm A)=2L(\bm A-\bm x)\cdot\hat{\bm\xi}\\
+c&=(\bm A-\bm x)^2+a^2\\
+d+b+c&=(\bm B-\bm x)^2+a^2\\
+2d+b&=2(\bm B-\bm x)\cdot(\bm B-\bm A)=2L(\bm B-\bm x)\cdot{\hat{\bm \xi}}\\
+4dc-b^2&=4(\bm B-\bm A)^2(\bm A-\bm x)^2-[2(\bm A-\bm x)\cdot(\bm B-\bm A)]^2+4da^2\nonumber\\
+&=4L^2[(\bm A-\bm x)^2-((\bm A-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2[(\bm A-\bm B+\bm B-\bm x)^2-((\bm A-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2[(\bm A-\bm B)^2+2(\bm A-\bm B)\cdot(\bm B-\bm x)+(\bm B-\bm x)^2-((\bm A-\bm B)\cdot\hat{\bm\xi}+(\bm B-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2[L^2-2L\hat{\bm\xi}\cdot(\bm B-\bm x)+(\bm B-\bm x)^2-(-L+(\bm B-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2[L^2-2L\hat{\bm\xi}\cdot(\bm B-\bm x)+(\bm B-\bm x)^2-L^2+2L(\bm B-\bm x)\cdot\hat{\bm\xi}-((\bm B-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2[(\bm B-\bm x)^2-((\bm B-\bm x)\cdot\hat{\bm\xi})^2+a^2]\nonumber\\
+&=4L^2\rho^2_a
+\end{align}
+where 
+\begin{align}
+\rho^2_a=(\bm B-\bm x)^2-((\bm B-\bm x)\cdot\hat{\bm\xi})^2+a^2=(\bm A-\bm x)^2-((\bm A-\bm x)\cdot\hat{\bm\xi})^2+a^2
+\end{align}
+$\rho^2$ is the regularized distance of $\bm x$ from the line passing through $\bm A$ and $\bm B$.
+
+%\begin{align}
+%\left(\frac{b}{4\, a} + \frac{1}{2}\right)\, \sqrt{a + b + c} - \left(\frac{b}{4\, a} - \frac{1}{2}\right)\, \sqrt{a - b + c} + \frac{\ln\!\left(\frac{a + \frac{b}{2}}{\sqrt{a}} + \sqrt{a + b + c}\right)\, \left(a\, c - \frac{b^2}{4}\right)}{2\, a^{\frac{3}{2}}} - \frac{\ln\!\left(\sqrt{a - b + c} - \frac{a - \frac{b}{2}}{\sqrt{a}}\right)\, \left(a\, c - \frac{b^2}{4}\right)}{2\, a^{\frac{3}{2}}}
+%\end{align}
+
+
+Therefore
+\begin{align}
+\int_0^1\sqrt{du^2+bu+c}\ du
+%\frac{2a+b}{4a}\sqrt{a+b+c}-\frac{b}{4a}\sqrt{c}+\frac{4ac-b^2}{8a^\frac{3}{2}}\ln\left(\frac{\frac{2a+b}{\sqrt{a}}+2\sqrt{a+b+c}}{\frac{b}{\sqrt{a}}+2\sqrt{c}}\right)\nonumber\\
+%&-\frac{4ac-b^2}{8a^\frac{3}{2}}\ln\left(\frac{b}{\sqrt{a}}+2\sqrt{c}\right)\nonumber\\
+=&\frac{(\bm B-\bm x)\cdot(\bm B-\bm A)}{2(\bm B-\bm A)^2}\sqrt{(\bm B-\bm x)^2+a^2}-\frac{(\bm A-\bm x)\cdot(\bm B-\bm A)}{2(\bm B-\bm A)^2}\sqrt{(\bm A-\bm x)^2+a^2}\nonumber\\
+&+\frac{4dc-b^2}{8L^3}\ln\left(\frac{\frac{2(\bm B-\bm x)\cdot(\bm B-\bm A)}{\sqrt{d}}+2\sqrt{(\bm B-\bm x)^2+a^2}}{\frac{2(\bm A-\bm x)\cdot(\bm B-\bm A)}{\sqrt{d}}+2\sqrt{(\bm A-\bm x)^2+a^2}}\right)\nonumber\\
+=&\frac{(\bm B-\bm x)\cdot\hat{\bm\xi}}{2L}\sqrt{(\bm B-\bm x)^2+a^2}-\frac{(\bm A-\bm x)\cdot\hat{\bm\xi}}{2L}\sqrt{(\bm A-\bm x)^2+a^2}\nonumber\\
+&+\frac{\rho^2_a}{2L}\ln\left(\frac{(\bm B-\bm x)\cdot\hat{\bm\xi}+\sqrt{(\bm B-\bm x)^2+a^2}}{(\bm A-\bm x)\cdot\hat{\bm\xi}+\sqrt{(\bm A-\bm x)^2+a^2}}\right)
+\end{align}
+
+If we define
+\begin{align}
+f(\bm z)
+&=\frac{\bm z\cdot\hat{\bm\xi}}{2}z_a + \frac{\rho^2_a}{2}\ln\left(\bm z\cdot\hat{\bm\xi}+z_a\right)\nonumber\\
+&=\frac{\bm z\cdot\hat{\bm\xi}}{2}z_a + \frac{\rho^2_a}{2}\ln\left(\bm Y_a\cdot\hat{\bm \xi}\right)
+\end{align}
+and
+\begin{align}
+\bm Y_a&=\bm z+z_a\hat{\bm\xi}\\
+\rho_a^2&=\bm \rho_a\cdot\bm \rho_a=z^2-(\bm z\cdot\hat{\bm \xi})^2+a^2\\
+\bm \rho_a&=\bm z-(\bm z\cdot\hat{\bm\xi}\pm a)\hat{\bm\xi}
+\end{align}
+then  we have
+\begin{align}
+q(\bm x)=f(\bm B-\bm x)-f(\bm A-\bm x)
+\end{align}
+
+Now consider the following identities:
+\begin{align}
+%\rho^2(\bm z)&=\bm \rho(\bm z)\cdot\bm \rho(\bm z)=z^2-(\bm z\cdot\hat{\bm \xi})^2\nonumber\\
+\bm\rho_a\cdot\hat{\bm\xi}&=\mp a\\
+%\rho_i{z}_i&=z^2-(\bm z\cdot\hat{\bm \xi})^2=\rho^2\\
+\bm Y_a\cdot\hat{\bm \xi}&=\bm z\cdot\hat{\bm\xi}+z_a\\
+Y^2_a&=2z_a\bm Y_a\cdot\hat{\bm \xi}-a^2\\
+%\bm Y_a\cdot\bm z&=z(z+\bm z\cdot\hat{\bm\xi})=z\bm Y\cdot\hat{\bm \xi}\\
+%\end{align}
+%\begin{align}
+\frac{\partial \rho_{ai}}{\partial z_j}&=\delta_{ij}-\hat{\xi}_i\hat{\xi}_j\\
+%\end{align}
+%\begin{align}
+\frac{\partial \rho^2_a}{\partial z_i}&=2\rho_{ak} \frac{\partial  \rho_{ak}}{\partial z_i}=2\rho_{ak}\left(\delta_{ki}-\hat{\xi}_i\hat{\xi}_k\right)
+%=2\left(\rho_i-\hat{\xi}_i\hat{\xi}_k\rho_k\right)\nonumber\\
+%&=2\left[z_i-z_k\hat{\xi}_k\hat{\xi}_i-\hat{\xi}_i\left(z_m\hat{\xi}_m-z_k\hat{\xi}_k\hat{\xi}_m\hat{\xi}_m\right)\right]
+=2(\underbrace{z_i-(\bm z\cdot\hat{\bm \xi})\hat{ \xi}_i}_{\rho_i})=2\rho_{i}\\
+\frac{\partial \rho_{i}}{\partial z_j}&=\delta_{ij}-\hat{\xi}_i\hat{\xi}_j\\
+%\end{align}
+%\begin{align}
+\frac{\partial Y_{ai}}{\partial z_j}&=\delta_{ij}+\frac{z_j\hat{\xi}_i}{z_a}\\
+\frac{\partial (\bm Y_a \cdot \hat{\bm \xi})}{\partial z_i}&=\frac{ Y_{ai}}{z_a}\\
+\frac{\partial }{\partial z_i}\ln (\bm Y_a \cdot \hat{\bm \xi})&=\frac{ Y_{ai}}{z_a \bm Y_a \cdot \hat{\bm \xi}}
+\end{align}
+
+First derivative
+\begin{align}
+\frac{\partial f}{\partial  z_i}
+&=\frac{z_a\hat{\xi}_i}{2}+\frac{z_p\hat{\xi}_p z_i}{2z_a}+\rho_i\ln(\bm Y_a \cdot \hat{\bm \xi})+\frac{\rho^2_a}{2}\frac{ Y_{ai}}{z_a \bm Y_a \cdot \hat{\bm \xi}}\nonumber\\
+&=\frac{z_a\hat{\xi}_i}{2}+\frac{z_p\hat{\xi}_p z_i}{2z_a}+\rho_i\ln(\bm Y_a \cdot \hat{\bm \xi})+\frac{(z^2-(z_q\hat{\xi}_q)^2+a^2)}{2}\frac{ Y_{ai}}{z_a (z_a+z_p\hat{\xi}_p)}\nonumber\\
+&=\frac{z_a\hat{\xi}_i}{2}+\frac{z_p\hat{\xi}_p z_i}{2z_a}+\rho_i\ln(\bm Y_a \cdot \hat{\bm \xi})+\frac{(z_a-z_q\hat{\xi}_q)}{2}\frac{ Y_{ai}}{z_a }\nonumber\\
+&=\frac{z_a^2\hat{\xi}_i+z_p\hat{\xi}_p z_i+(z_a-z_q\hat{\xi}_q)(z_i+z_a\hat{\xi}_i)}{2z_a}+\rho_i\ln(\bm Y_a \cdot \hat{\bm \xi})\nonumber\\
+&=\frac{\rho_i}{2}+z_a\hat{\xi}_i+\rho_i\ln(\bm Y_a \cdot \hat{\bm \xi})
+\end{align}
+
+
+Second derivative
+\begin{align}
+\frac{\partial^2 f}{\partial  z_i\partial  z_j}
+&=
+\frac{\rho_{i,j}}{2}
++\frac{z_j}{z_a}\hat{\xi}_i
++ \rho_{i,j}\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{\rho_iY_{aj}}{z_a \bm Y_a \cdot \hat{\bm \xi}}\nonumber\\
+%
+&=
+\frac{ \delta_{ij}-\hat{\xi}_i\hat{\xi}_j}{2}
++\frac{z_j}{z_a}\hat{\xi}_i
++ (\delta_{ij}-\hat{\xi}_i\hat{\xi}_j)\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{\rho_iY_{aj}}{z_a \bm Y_a \cdot \hat{\bm \xi}}\nonumber\\
+&=
+\frac{ \delta_{ij}-\hat{\xi}_i\hat{\xi}_j}{2}
++ (\delta_{ij}-\hat{\xi}_i\hat{\xi}_j)\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{\rho_iY_{aj}+z_j\hat{\xi}_i \bm Y_a \cdot \hat{\bm \xi}}{z_a \bm Y_a \cdot \hat{\bm \xi}}
+\nonumber\\
+&=
+\frac{ \delta_{ij}-\hat{\xi}_i\hat{\xi}_j}{2}
++ (\delta_{ij}-\hat{\xi}_i\hat{\xi}_j)\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{1}{ \bm Y_a \cdot \hat{\bm \xi}}\left(\frac{z_iz_j}{z_a}+z_i\hat{\xi}_j+z_j\hat{\xi}_i-z_q\hat{\xi}_q\hat{\xi}_i\hat{\xi}_j\right)
+\end{align}
+
+\begin{align}
+\frac{\partial^2 f}{\partial  z_p\partial  z_p}
+&=1+ 2\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)+ \frac{1}{ \bm Y_a \cdot \hat{\bm \xi}}\left(\frac{z^2}{z_a}+\bm z\cdot\hat{\bm\xi}\right)\nonumber\\
+&=1+ 2\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)+ \frac{1}{ \bm Y_a \cdot \hat{\bm \xi}}\left(z_a+\bm z\cdot\hat{\bm\xi}-\frac{a^2}{z_a}\right)\nonumber\\
+&=2+ 2\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)-\frac{a^2}{z_a \bm Y_a \cdot \hat{\bm \xi}}
+\label{laplacianFz}
+\end{align}
+
+Third derivative
+\begin{align}
+\frac{\partial^3 f}{\partial  z_i\partial  z_j z_m}
+&=\frac{\delta_{jm}Y_{ai}+\delta_{im}Y_{aj}+\delta_{ij}Y_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\\
+&+\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}\left(\frac{\bm z\cdot{\hat{\bm \xi}}}{\bm Y_a\cdot \hat{\bm \xi}}-2\right)\hat{\xi}_i\hat{\xi}_j\hat{\xi}_m\\
+&-\frac{1}{z_a^2\bm Y_a\cdot \hat{\bm \xi}}\left(\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}+\frac{1}{z_a}\right)z_iz_jz_m\\
+&-\frac{\hat{\xi}_iz_mY_{aj}+\hat{\xi}_jz_iY_{am}+\hat{\xi}_mz_jY_{ai}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}\\
+\end{align}
+
+Letting $i=j$
+\begin{align}
+\frac{\partial^3 f}{\partial  z_p\partial  z_p z_m}
+&=\frac{5Y_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\\
+&+\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}\left(\frac{\bm z\cdot{\hat{\bm \xi}}}{\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a\bm Y_a\cdot \hat{\bm \xi}}-2\right)\hat{\xi}_m\\
+&-\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}\left(\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}+\frac{1}{z_a}\right)\left(1-\frac{a^2}{z_a^2}\right)z_m\\
+&-\frac{z_a+2(\bm z\cdot\hat{\bm \xi})}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}Y_{am}\nonumber\\
+%
+&=\frac{5Y_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\\
+&-\frac{z^2+z_a \bm Y_a\cdot \hat{\bm \xi}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}\hat{\xi}_m\\
+&-\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}\left(1-\frac{a^2}{z_a^2}\right)z_m\\
+&-\frac{z_a+2(\bm z\cdot\hat{\bm \xi})}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}Y_{am}\\
+%
+&=\frac{5Y_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\\
+%&-\frac{z^2+z_a \bm Y_a\cdot \hat{\bm \xi}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}\hat{\xi}_m\\
+%&-\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}\left(1-\frac{a^2}{z_a^2}\right)z_m\\
+&-\frac{z^2+z_a\bm Y_a\cdot \hat{\bm \xi}}{z_a^2(\bm Y_a\cdot \hat{\bm \xi})^2}Y_{am}+\frac{a^2}{z_a^3 \bm Y_a\cdot \hat{\bm \xi}}z_m\nonumber\\
+&-\frac{z_a+2(\bm z\cdot\hat{\bm \xi})}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}Y_{am}\nonumber\\
+%
+&=\left(\frac{2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2(\bm Y_a\cdot \hat{\bm \xi})^2}\right)Y_{am}+\frac{a^2}{z_a^3 \bm Y_a\cdot \hat{\bm \xi}}z_m
+\end{align}
+
+
+
+%Combining terms and using $\rho_m=Y_m-(\bm Y\cdot\hat{\bm \xi})\hat{\xi}_m$
+%\begin{align}
+%\frac{\partial^3 f}{\partial  z_p\partial  z_p z_m}
+%&=\frac{1}{z(\bm Y\cdot \hat{\bm \xi})}\left(3-\frac{\bm z\cdot\hat{\bm\xi}}{(\bm Y\cdot \hat{\bm \xi})}\right)Y_m-\frac{1}{\bm Y\cdot \hat{\bm \xi}}\left(\frac{\rho_m}{\bm Y\cdot \hat{\bm \xi}}+\hat{\xi}_m\right)\nonumber\\
+%&=\frac{2Y_m}{z\bm Y\cdot \hat{\bm \xi}}
+%\end{align}
+
+Since   $\epsilon_{klm}\hat{\xi}_l\hat{\xi}_m=0$, then $\epsilon_{klm}\hat{\xi}_lY_m=\epsilon_{klm}\hat{\xi}_lY_{am}=\epsilon_{klm}\hat{\xi}_l\rho_m=\epsilon_{klm}\hat{\xi}_lz_m$. Therefore 
+\begin{align}
+\epsilon_{klm}\hat{\xi}_l\frac{\partial^3 f}{\partial  z_i\partial  z_j z_m}
+&=\frac{\epsilon_{klj}\hat{\xi}_lY_{ai}+\epsilon_{kli}\hat{\xi}_lY_{aj}+\epsilon_{klm}\hat{\xi}_l\delta_{ij}Y_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\\
+&-\epsilon_{klm}\hat{\xi}_l\frac{1}{z_a^2\bm Y_a\cdot \hat{\bm \xi}}\left(\frac{1}{\bm Y_a\cdot \hat{\bm \xi}}+\frac{1}{z_a}\right)z_iz_jY_{am}\\
+&-\frac{\epsilon_{klm}\hat{\xi}_l\hat{\xi}_iY_{am}Y_{aj}+\epsilon_{klm}\hat{\xi}_l\hat{\xi}_jz_iY_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})^2}
+\end{align}
+and
+\begin{align}
+\epsilon_{klm}\hat{\xi}_l\frac{\partial^3 f}{\partial  z_p\partial  z_p z_m}&=\epsilon_{klm}\hat{\xi}_l\left(\frac{2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2(\bm Y_a\cdot \hat{\bm \xi})^2}+\frac{a^2}{z_a^3 \bm Y_a\cdot \hat{\bm \xi}}\right)Y_{am}
+\end{align}
+
+Simplifying:
+\begin{align}
+\epsilon_{klm}\hat{\xi}_l\frac{\partial^3 f}{\partial  z_i\partial  z_j z_m}&=
+\frac{\epsilon_{klj}\hat{\xi}_lY_{ai}+\epsilon_{kli}\hat{\xi}_lY_{aj}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\nonumber\\
+&+\frac{\epsilon_{klm}\hat{\xi}_lY_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\left[\delta_{ij}-\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a^2\bm Y_a\cdot \hat{\bm \xi}}z_iz_j-\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z_a\hat{\xi}_i\hat{\xi}_j}{\bm Y_a\cdot \hat{\bm \xi}}\right]\\
+\end{align}
+
+
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Stress field of a straight segment}
+
+
+The stress field of the segment $\bm A\rightarrow\bm B$ is
+\begin{align}
+\sigma_{ij}(\bm x)=b_k\int_{\bm A}^{\bm B}S_{ijkl}R_a\ d\ell'_l
+\end{align}
+\begin{align}
+S_{ijkl}=\frac{\mu}{8\pi}\left[\left(\delta_{il}\epsilon_{jmk}+\delta_{jl}\epsilon_{imk}\right)\partial_m\Delta+\frac{2}{1-\nu}\epsilon_{klm}\left(\partial_{i}\partial_j\partial_m-\delta_{ij}\partial_m\Delta\right)\right]
+\end{align}
+Now notice that differentiation is in $\bm x$, while integration is in $\bm x'$. Therefore they commute. 
+\begin{align}
+\sigma_{ij}(\bm x)
+&=b_k\hat{\xi}_lS_{ijkl}q(\bm x)\nonumber\\
+&=\hat{\xi}_lb_k\frac{\mu}{8\pi}\left[\left(\delta_{il}\epsilon_{jmk}+\delta_{jl}\epsilon_{imk}\right)\partial_m\Delta+\frac{2}{1-\nu}\epsilon_{klm}\left(\partial_{i}\partial_j\partial_m-\delta_{ij}\partial_m\Delta\right)\right]\left[f(\bm B-\bm x)-f(\bm A-\bm x)\right]\nonumber\\
+&=\hat{\xi}_lb_k\frac{\mu}{8\pi}\left[\left(\delta_{il}\epsilon_{jmk}+\delta_{jl}\epsilon_{imk}\right)\partial_m\Delta+\frac{2}{1-\nu}\epsilon_{klm}\left(\partial_{i}\partial_j\partial_m-\delta_{ij}\partial_m\Delta\right)\right]\left[f(\bm z)\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}\nonumber\\
+&=\frac{\mu}{4\pi(1-\nu)}\left[\frac{1-\nu}{2}\left(\hat{\xi}_ib_k\epsilon_{jmk}+\hat{\xi}_jb_k\epsilon_{imk}\right)\frac{\partial^3 f}{\partial z_p\partial z_p\partial z_m}+\epsilon_{klm}\hat{\xi}_lb_k\left(\frac{\partial^3 f}{\partial z_i\partial z_j\partial z_m}-\delta_{ij}\frac{\partial^3 f}{\partial z_p\partial z_p\partial z_m}\right)\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+\label{stressStraightDerivation}
+\end{align}
+ 
+Plugging back in \eqref{stressStraightDerivation} we obtain
+\begin{align}
+\sigma_{ij}(\bm x)
+=\frac{\mu}{4\pi(1-\nu)}&\left[\frac{1-\nu}{2}\left(\hat{\xi}_ib_k\epsilon_{jmk}+\hat{\xi}_jb_k\epsilon_{imk}\right)\left[\left(\frac{2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2(\bm Y_a\cdot \hat{\bm \xi})^2}\right)Y_{am}+\frac{a^2}{z_a^3 \bm Y_a\cdot \hat{\bm \xi}}z_m\right]\right.\nonumber\\
+&+\frac{\epsilon_{klj}b_k\hat{\xi}_lY_{ai}+\epsilon_{kli}b_k\hat{\xi}_lY_{aj}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\nonumber\\
+&+\frac{\epsilon_{klm}b_k\hat{\xi}_lY_{am}}{z_a(\bm Y_a\cdot \hat{\bm \xi})}\left(\delta_{ij}-\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a^2\bm Y_a\cdot \hat{\bm \xi}}z_iz_j-\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z_a\hat{\xi}_i\hat{\xi}_j}{\bm Y_a\cdot \hat{\bm \xi}}\right)\nonumber\\
+&\left.-\epsilon_{klm}b_k\hat{\xi}_lY_{am}\delta_{ij}\left(\frac{2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2(\bm Y_a\cdot \hat{\bm \xi})^2}+\frac{a^2}{z_a^3 \bm Y_a\cdot \hat{\bm \xi}}\right)\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+\end{align}
+Factoring the term $z_a\bm Y_a\cdot \hat{\bm \xi}=(Y_a^2+a^2)/2$ we obtain
+\begin{align}
+\sigma_{ij}(\bm x)
+=\frac{\mu}{4\pi(1-\nu)}&\left[\frac{2}{Y_a^2+a^2}\left\{(1-\nu)\left(\hat{\xi}_ib_k\epsilon_{jmk}+\hat{\xi}_jb_k\epsilon_{imk}\right)\left[\left(1+\frac{a^2}{Y_a^2+a^2}\right)Y_{am}+\frac{a^2}{2z_a^2 }z_m\right]\right.\right.\nonumber\\
+&+\epsilon_{klj}b_k\hat{\xi}_lY_{ai}+\epsilon_{kli}b_k\hat{\xi}_lY_{aj}\nonumber\\
+&\left.\left.-\epsilon_{klm}b_k\hat{\xi}_lY_{am}\left(\left(1+2\frac{a^2}{Y_a^2+a^2}+\frac{a^2}{z_a^2 }\right)\delta_{ij}+2\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a(Y_a^2+a^2)}z_iz_j+\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z_a\hat{\xi}_i\hat{\xi}_j}{\bm Y_a\cdot \hat{\bm \xi}}\right)
+\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+%\nonumber\\
+%
+%&\left.\left.-\epsilon_{klm}b_k\hat{\xi}_lY_{am}\delta_{ij}\left(2+\frac{a^2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2 }\right)\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+\end{align}
+
+
+%\begin{align}
+%\sigma_{ij}(\bm x)
+%=\frac{\mu}{4\pi(1-\nu)}&\left[\frac{2}{Y^2}\left\{(1-\nu)\left(\hat{\xi}_i\epsilon_{jmk}Y_mb_k+\epsilon_{imk}Y_mb_k\hat{\xi}_j\right)\right.\right.\nonumber\\
+%&+Y_i\epsilon_{jkl}b_k\hat{\xi}_l+\epsilon_{ikl}b_k\hat{\xi}_lY_j\nonumber\\
+%&\left.\left.-\epsilon_{klm}b_k\hat{\xi}_lY_m\left(\delta_{ij}+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}z_iz_j+\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z\hat{\xi}_i\hat{\xi}_j}{\bm Y\cdot \hat{\bm \xi}}\right)\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+%&\left.\left.-\epsilon_{klm}\hat{\xi}_lb_k\delta_{ij}\frac{2Y_m}{Y^2}\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+%\end{align}
+Inverting the order of evaluation, and changing the sign within the square bracket we have
+\begin{align}
+\sigma_{ij}(\bm x)
+=\frac{\mu}{4\pi(1-\nu)}&\left[\frac{2}{Y_a^2+a^2}\left\{(1-\nu)\left(\hat{\xi}_ib_k\epsilon_{jkm}+\hat{\xi}_jb_k\epsilon_{ikm}\right)\left[\left(1+\frac{a^2}{Y_a^2+a^2}\right)Y_{am}+\frac{a^2}{2z_a^2 }z_m\right]\right.\right.\nonumber\\
+&-(Y_{ai}\epsilon_{jkl}b_k\hat{\xi}_l+\epsilon_{ikl}b_k\hat{\xi}_lY_{aj})\nonumber\\
+&\left.\left.-\epsilon_{klm}b_kY_{al}\hat{\xi}_m\left(\left(1+2\frac{a^2}{Y_a^2+a^2}+\frac{a^2}{z_a^2 }\right)\delta_{ij}+2\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a(Y_a^2+a^2)}z_iz_j+\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z_a\hat{\xi}_i\hat{\xi}_j}{\bm Y_a\cdot \hat{\bm \xi}}\right)
+\right\}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+%\nonumber\\
+%
+%&\left.\left.-\epsilon_{klm}b_k\hat{\xi}_lY_{am}\delta_{ij}\left(2+\frac{a^2}{z_a\bm Y_a\cdot \hat{\bm \xi}}+\frac{a^2}{z_a^2 }\right)\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+\end{align}
+
+%\begin{align}
+%\sigma_{ij}(\bm x)
+%=\frac{\mu}{4\pi(1-\nu)}&\left[\frac{2}{Y^2}\left\{(1-\nu)\left(\hat{\xi}_i\epsilon_{jkm}b_kY_m+\epsilon_{ikm}b_kY_m\hat{\xi}_j\right)\right.\right.\nonumber\\
+%&-\left(Y_i\epsilon_{jkl}b_k\hat{\xi}_l+\epsilon_{ikl}b_k\hat{\xi}_lY_j\right)\nonumber\\
+%&\left.\left.-\epsilon_{klm}b_kY_l\hat{\xi}_m\left(\delta_{ij}+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}z_iz_j+\frac{\hat{\xi}_iz_j+\hat{\xi}_jz_i+z\hat{\xi}_i\hat{\xi}_j}{\bm Y\cdot \hat{\bm \xi}}\right)\right\}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+%&\left.\left.-\epsilon_{klm}\hat{\xi}_lb_k\delta_{ij}\frac{2Y_m}{Y^2}\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+%\end{align}
+It is more efficient to compute the stress field as
+\begin{align}
+\bm\sigma(\bm x)=\frac{\mu}{4\pi(1-\nu)}\left(\bm s(\bm x)+\bm s^T(\bm x)\right)
+\end{align}
+where
+\begin{align}
+\bm s(\bm x)=\tilde {\bm s}(\bm B-\bm x)-\tilde {\bm s}(\bm A-\bm x)
+\end{align}
+and
+\begin{align}
+\tilde{\bm s}(\bm z)
+=\frac{2}{Y_a^2+a^2}&
+\left\{
+(1-\nu)\left(1+\frac{a^2}{Y_a^2+a^2}\right)\hat{\bm\xi}\otimes\left(\bm b\times \bm Y_a\right)\right.\nonumber\\
+&+(1-\nu)\frac{a^2}{2z_a^2 }\hat{\bm\xi}\otimes\left(\bm b\times \bm z\right)\nonumber\\
+&-\bm Y_a\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+&-\frac{\left[\left(\bm b\times\bm Y_a\right)\cdot\hat{\bm \xi}\right]}{\bm Y_a\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z\nonumber\\
+&\left.-\frac{\left[\left(\bm b\times\bm Y_a\right)\cdot\hat{\bm \xi}\right]}{2}\left(\left(1+2\frac{a^2}{Y_a^2+a^2}+\frac{a^2}{z_a^2 }\right)\bm I+2\frac{z_a+\bm Y_a\cdot \hat{\bm \xi}}{z_a(Y_a^2+a^2)}\bm z\otimes\bm z+\frac{z_a}{\bm Y_a\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm\xi}\right)\right\}%\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+%&\left.\left.-\epsilon_{klm}\hat{\xi}_lb_k\delta_{ij}\frac{2Y_m}{Y^2}\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+\end{align}
+with
+\begin{align}
+\bm Y_a(\bm z)&=\bm z+z_a\hat{\bm\xi}\\
+ Y^2_a(\bm z)&=2z_a\bm Y_a\cdot\hat{\bm \xi}-a^2\\
+\end{align}
+
+\subsubsection{Stress of a straight segment on a distant point}
+Suppose that we want to compute the stress field of a segment $\bm A\bm B$ at a point $\bm x$, which is located at distance $d$ from the center $\bm C$ of the segment. Let the length of the segment be $AB=2L$, then
+\begin{align}
+\bm B-\bm x&=\bm C-\bm x+\bm C-\bm B=\bm C-\bm x-L\hat{\bm\xi}=d\left(\hat{\bm r}_c-\frac{L}{d}\hat{\bm\xi}\right)\\
+\bm A-\bm x&=\bm C-\bm x+\bm C-\bm A=\bm C-\bm x+L\hat{\bm\xi}=d\left(\hat{\bm r}_c+\frac{L}{d}\hat{\bm\xi}\right)
+\end{align}
+where $\hat{\bm r}_c=(\bm C-\bm x)/\|\bm C-\bm x\|=(\bm C-\bm x)/d$. Therefore we have
+\begin{align}
+\bm s(\bm x)=\tilde {\bm s}\left(d\left(\hat{\bm r}_c-\frac{L}{d}\hat{\bm\xi}\right)\right)-
+\tilde {\bm s}\left(d\left(\hat{\bm r}_c+\frac{L}{d}\hat{\bm\xi}\right)\right)
+%\tilde {\bm s}(\bm A-\bm x)
+\end{align}
+%\begin{align}
+%\bm s(\bm x)
+%=\left[\frac{2}{Y^2}\right.&
+%\left\{
+%(1-\nu)\hat{\bm\xi}\otimes\left(\bm b\times \bm Y\right)\right.\nonumber\\
+%&-\bm Y\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+%&-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z\nonumber\\
+%&\left.\left.-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{2}\left(\bm I+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}\bm z\otimes\bm z+\frac{z}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm\xi}\right)\right\}\right]^{\bm z=d\left(\hat{\bm r}_c-\frac{L}{d}\hat{\bm\xi}\right)}_{\bm z=d\left(\hat{\bm r}_c+\frac{L}{d}\hat{\bm\xi}\right)}
+%\end{align}
+If $d$ is large compared to the segment length, that is 
+\begin{align}
+\frac{L}{d}\ll1
+\end{align}
+then the difference above can be approximated  as
+\begin{align}
+\bm s(\bm x)\approx \left.\frac{\partial \tilde {\bm s}(\bm z)}{\partial \bm z}\right|_{\bm z=\bm C-\bm x}\cdot(-2L\hat{\bm \xi})
+%\left(d\left(\hat{\bm r}_c-\frac{L}{d}\hat{\bm\xi}\right)\right)-
+%\tilde {\bm s}\left(d\left(\hat{\bm r}_c+\frac{L}{d}\hat{\bm\xi}\right)\right)
+%\tilde {\bm s}(\bm A-\bm x)
+\end{align}
+Note that 
+\begin{align}
+\frac{\partial {Y_i}}{\partial z_j}\hat{\xi}_j=\frac{\bm Y\cdot\hat{\bm\xi}}{z}\hat{\xi}_i
+\end{align}
+then
+\begin{align}
+\frac{\partial \tilde {\bm s}(\bm z)}{\partial \bm z}
+=\frac{\partial}{\partial \bm z}\left[\frac{2}{Y^2}\right.&
+\left\{
+(1-\nu)\hat{\bm\xi}\otimes\left(\bm b\times \bm Y\right)\right.\nonumber\\
+&-\bm Y\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+&-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z\nonumber\\
+&\left.\left.-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{2}\left(\bm I+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}\bm z\otimes\bm z+\frac{z}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm\xi}\right)\right\}\right]\cdot(-2L\hat{\bm \xi})\nonumber\\
+%
+&=\left[-\frac{2}{Y}\frac{\partial Y}{\partial \bm z}\cdot\left(-2L\hat{\bm \xi}\right)\right]\tilde{\bm s}(\bm z)\nonumber\\
+&+\frac{2}{Y^2}\left[\frac{\partial}{\partial \bm z}
+\left\{
+(1-\nu)\hat{\bm\xi}\otimes\left(\bm b\times \bm Y\right)\right.\right.\nonumber\\
+&-\bm Y\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+&-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z\nonumber\\
+&\left.\left.-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{2}\left(\bm I+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}\bm z\otimes\bm z+\frac{z}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm\xi}\right)\right\}\right]\cdot(-2L\hat{\bm \xi})\nonumber\\
+%
+&=\frac{4L}{zY^2}\left(\bm Y\cdot\hat{\bm \xi}\right)^2\tilde{\bm s}(\bm z)\nonumber\\
+&-\frac{4L}{Y^2}\left[
+\left\{
+(1-\nu)\frac{\bm Y\cdot\hat{\bm \xi}}{z}\hat{\bm\xi}\otimes\left(\bm b\times \hat{\bm \xi}\right)\right.\right.\nonumber\\
+&-\frac{\bm Y\cdot\hat{\bm \xi}}{z}\hat{\bm \xi}\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+&+\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{z\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z
+-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm \xi}\nonumber\\
+&\left.\left.-\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]\left(\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}\bm z\otimes\bm z\right)\cdot\hat{\bm \xi}\right\}\right]\nonumber\\
+&\left.\left.-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{2}\frac{\partial}{\partial \bm z}\left(\frac{z}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\hat{\bm\xi}\right)\cdot\hat{\bm \xi}\right\}\right]\nonumber\\
+\end{align}
+
+Now let $C$ be the center of the segment $\bm A\bm B$, so that  
+
+
+\subsubsection{Stress of a straight segment in the neighborhood of a far point}
+
+Suppose that we want to compute the stress field of segment $\bm A\bm B$ at a point $\bm x$ which is in the neighborhood of a point $\bm x_0$. Let the distance from $\bm x_0$ to the segment $\bm A\bm B$ be $d$. Then we work under the assumption $AB\ll d$ and $\|\bm x-\bm x_0\|\ll d$. 
+
+
+%\begin{align}
+%\bm s(\bm x)
+%=&\left[\frac{2}{Y^2}\left\{(1-\nu)\hat{\bm\xi}\otimes\left(\bm b\times \bm Y\right)\right.\right.\nonumber\\
+%&-\bm Y\otimes\left(\bm b\times\hat{\bm \xi}\right)\nonumber\\
+%&-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{\bm Y\cdot \hat{\bm \xi}}\hat{\bm\xi}\otimes\bm z\nonumber\\
+%&\left.\left.-\frac{\left[\left(\bm b\times\bm Y\right)\cdot\hat{\bm \xi}\right]}{2}\left(\bm I+2\frac{z+\bm Y\cdot \hat{\bm \xi}}{zY^2}\bm z\otimes\bm z+\frac{z\hat{\xi}_i\hat{\xi}_j}{\bm Y\cdot \hat{\bm \xi}}\right)\right\}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+%&\left.\left.-\epsilon_{klm}\hat{\xi}_lb_k\delta_{ij}\frac{2Y_m}{Y^2}\right\}\right]^{\bm z=\bm A-\bm x}_{\bm z=\bm B-\bm x}
+%\end{align}
+
+%$\rho_iY_j=(z_i-\bm z\cdot\hat{\bm \xi} \hat{\xi}_i)(z_j+z\hat{\xi}_j)=z_iz_j+zz_i\hat{\xi}_j-\bm z\cdot\hat{\bm \xi}\hat{\xi}_iz_j-z\bm z\cdot\hat{\bm \xi}\hat{\xi}_i\hat{\xi}_j$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Straight Displacement}
+\begin{align}
+ u_i
+ &=-\frac{ b_i\Omega}{4\pi}-b_k\hat{\xi}_lU_{ikl}\oint_\mathcal{L}R_adL'\nonumber\\
+ &=-\frac{ b_i\Omega}{4\pi}-b_k\hat{\xi}_l\frac{1}{8\pi}\epsilon_{klm}\left[ \delta_{im}\Delta  -\frac{1}{1-\nu} \partial_i\partial_m  \right]\left[f(\bm B-\bm x)-f(\bm A-\bm x)\right)\nonumber\\
+ &=-\frac{ b_i\Omega}{4\pi}-b_k\hat{\xi}_l\frac{1}{8\pi}\epsilon_{klm}\left[ \delta_{im}\frac{\partial^2f}{\partial z_p\partial z_p}  -\frac{1}{1-\nu} \frac{\partial^2 f}{\partial z_i\partial z_m}  \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}\nonumber\\
+ &=-\frac{ b_i\Omega}{4\pi}+\epsilon_{ilk}\hat{\xi}_lb_k\frac{1}{8\pi}\left[ \frac{\partial^2f}{\partial z_p\partial z_p}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}  +\frac{1}{8\pi}\frac{1}{1-\nu} \epsilon_{klm}b_k\hat{\xi}_l\left[\frac{\partial^2 f}{\partial z_i\partial z_m}  \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+\end{align}
+From Eq.~\eqref{laplacianFz}
+\begin{align}
+ u_i &=-\frac{ b_i\Omega}{4\pi}\nonumber\\
+ &+\epsilon_{ilk}\hat{\xi}_lb_k\frac{1}{8\pi}\left[2+ 2\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)-\frac{a^2}{z_a \bm Y_a \cdot \hat{\bm \xi}}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}  \nonumber\\
+ &+\frac{1}{8\pi}\frac{1}{1-\nu} \epsilon_{klm}b_k\hat{\xi}_l\left[\frac{ \delta_{im}-\hat{\xi}_i\hat{\xi}_m}{2}
++ (\delta_{im}-\hat{\xi}_i\hat{\xi}_m)\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{1}{ \bm Y_a \cdot \hat{\bm \xi}}\left(\frac{z_iz_m}{z_a}+z_i\hat{\xi}_m+z_m\hat{\xi}_i-z_q\hat{\xi}_q\hat{\xi}_i\hat{\xi}_m\right) \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+\end{align}
+Dropping vanishing terms of containing $\epsilon_{klm}b_k\hat{\xi}_l\hat{\xi}_m$
+\begin{align}
+ u_i &=-\frac{ b_i\Omega}{4\pi}\nonumber\\
+ &+\epsilon_{ilk}\hat{\xi}_lb_k\frac{1}{8\pi}\left[2+ 2\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)-\frac{a^2}{z_a \bm Y_a \cdot \hat{\bm \xi}}\right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}  \nonumber\\
+ &+\frac{1}{8\pi}\frac{1}{1-\nu} \epsilon_{klm}b_k\hat{\xi}_l\left[\frac{ \delta_{im}}{2}
++ \delta_{im}\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)
++ \frac{1}{ \bm Y_a \cdot \hat{\bm \xi}}\left(\frac{z_iz_m}{z_a}+z_m\hat{\xi}_i\right) \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+\end{align}
+Factoring common terms
+\begin{align}
+ u_i &=-\frac{ b_i\Omega}{4\pi}\nonumber\\
+ &-\epsilon_{ikl}b_k\hat{\xi}_l\frac{1}{8\pi}\left[2-\frac{1}{2}\frac{1}{1-\nu}+ \left(2-\frac{1}{1-\nu}\right)\ln\left(\bm Y_a \cdot \hat{\bm \xi}\right)-\frac{a^2}{z_a \bm Y_a \cdot \hat{\bm \xi}}
+ \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}  \nonumber\\
+ &+\frac{1}{8\pi}\frac{1}{1-\nu} \epsilon_{klm}b_k\hat{\xi}_l\left[
+ \frac{z_m}{ \bm Y_a \cdot \hat{\bm \xi}}\frac{Y_{ai}}{z_a} \right]^{\bm z=\bm B-\bm x}_{\bm z=\bm A-\bm x}
+\end{align}
+
+\subsubsection{Straight Solid Angle}
+
+\begin{align}
+\Omega=-\oint\frac{\epsilon_{ijk}\hat{s}_jR_k}{R(R+\hat{s}_pR_p)}dL'_k
+\end{align}
+where $\bm R=\bm x-\bm x'$. We'll follow the integration method proposed by \cite{Asvestas:wt}. To do this we work with $\bm Y=-\bm R$ and $\hat{\bm Y}=\bm Y/Y$ to obtain  
+\begin{align}
+\Omega
+=\oint\frac{\epsilon_{ijk}\hat{s}_jY_k}{Y(Y-\hat{s}_pY_p)}dL'_k
+=\oint\frac{\epsilon_{ijk}\hat{s}_j\hat{Y}_k}{Y(1-\hat{s}_p\hat{Y}_p)}dL'_k
+\end{align}
+This integral can be evaluated by summing over straight segments. Each segment can be evaluated on unit sphere where $Y=1$, therefore
+\begin{align}
+\Omega_n=\int_0^{\alpha_n}\frac{\epsilon_{ijk}\hat{s}_j\hat{Y}_k}{(1-\hat{s}_p\hat{Y}_p)}\hat{t}'_kd\alpha
+\end{align}
+where $\cos\alpha_n=\bm Y_n\cdot \bm Y_{n+1}$.
+If we let 
+\begin{align}
+\hat{\bm e}_1=\hat{\bm Y_n} && \hat{\bm e}_3=\frac{\hat{\bm Y}_n\times\hat{\bm Y}_{n+1}}{| \hat{\bm Y}_n\times\hat{\bm Y}_{n+1}|}  && \hat{\bm e}_2=\hat{\bm e}_3\times \hat{\bm e}_1
+\end{align}
+then
+\begin{align}
+\hat{\bm Y}(\alpha)&=\cos\alpha \, \hat{\bm e}_1+\sin \alpha \, \hat{\bm e}_2\\
+\hat{\bm t}(\alpha)&=-\sin\alpha \, \hat{\bm e}_1+\cos \alpha \, \hat{\bm e}_2\\
+\hat{\bm s}&=s_1 \hat{\bm e}_1+s_2 \hat{\bm e}_2+s_3 \hat{\bm e}_3
+\end{align}
+Substituting
+\begin{align}
+\Omega_n=\int_0^{\alpha_n}\frac{s_3}{1-s_1\cos\alpha-s_2\sin\alpha}d\alpha
+\end{align}
+This integral is evaluated using the transformation 
+\begin{align}
+\alpha =2\tan^{-1} w && \cos\alpha=\frac{1-w^2}{1+w^2} && \sin\alpha=\frac{2w}{1+w^2} && d\alpha=\frac{2dw}{1+w^2}
+\end{align}
+which gives
+\begin{align}
+\Omega_n
+&=2s_3\int_0^{w^*}\frac{1}{1+w^2-s_1(1-w^2)-s_22w}d\alpha
+=2s_3\int_0^{w^*}\frac{1}{(1+s_1)w^2-2s_2w+1-s_1}d\alpha\nonumber\\
+&=2s_3\left[\frac{2}{\sqrt{4-4s_1^2-4s_2^2}}\tan^{-1}\left(\frac{2(1+s_1)w-2s_2}{\sqrt{4-4s_1^2-4s_2^2}}\right)\right]_0^{w^*}\nonumber\\
+&=2\frac{s_3}{|s_3|}\left[\tan^{-1}\left(\frac{(1+s_1)w-s_2}{|s_3|}\right)\right]_0^{w^*}\nonumber\\
+&=2\frac{s_3}{|s_3|}\tan^{-1}\left(\frac{\frac{(1+s_1)w^*-s_2}{|s_3|}+\frac{s_2}{|s_3|}}{1+\frac{(1+s_1)w^*-s_2}{|s_3|}\frac{-s_2}{|s_3|}}\right)\nonumber\\
+&=2\frac{s_3}{|s_3|}\tan^{-1}\left(\frac{(1+s_1)w^*}{|s_3|-s_2\frac{(1+s_1)w^*-s_2}{|s_3|}}\right)\nonumber\\
+&=2\frac{s_3}{|s_3|}\tan^{-1}\left(\frac{|s_3|(1+s_1)w^*}{s_3^2-s_2((1+s_1)w^*-s_2)}\right)\nonumber\\
+&=2\frac{s_3}{|s_3|}\tan^{-1}\left(\frac{|s_3|w^*}{1-s_1-s_2w^*}\right)\nonumber\\
+&=2\tan^{-1}\left(\frac{s_3w^*}{1-s_1-s_2w^*}\right)
+\end{align}
+where
+\begin{align}
+w^*=\sqrt{\frac{1-\bm Y_n\cdot \bm Y_{n+1}}{1+\bm Y_n\cdot \bm Y_{n+1}}}
+\end{align}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Non-singular Straight Solid Angle}
+\begin{align}
+\Omega=-\oint\frac{\epsilon_{ijk}\hat{s}_jR_k}{R_a(R_a+\hat{s}_pR_p)}dL'_k=\oint\frac{\epsilon_{ijk}\hat{s}_jY_k}{Y_a(Y_a-\hat{s}_pY_p)}dL'_k
+\end{align}
+If we now evaluate this expression on the unit sphere where $Y=1$ and $Y_a=\sqrt{1+a^2}$ we have
+\begin{align}
+\Omega_n=\int_0^{\alpha_n}\frac{\epsilon_{ijk}\hat{s}_j\hat{Y}_k}{\sqrt{1+a^2}(\sqrt{1+a^2}-\hat{s}_p\hat{Y}_p)}\hat{t}'_kd\alpha
+\end{align}
+We can then proceed as before and finally find
+\begin{align}
+\Omega_n
+&=\frac{2}{\sqrt{1+a^2}\sqrt{s_3^2+a^2}}\tan^{-1}\left(\frac{\sqrt{s_3^2+a^2}w^*}{\sqrt{1+a^2}-s_1-s_2w^*}\right)
+\end{align}

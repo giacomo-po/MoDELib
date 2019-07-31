@@ -411,7 +411,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             
             // Add the (negative) dislocation displacement
-            std::vector<FEMnodeEvaluation<ElementType,dim,1>,Eigen::aligned_allocator<FEMnodeEvaluation<ElementType,dim,1>>> fieldPoints;
+            std::vector<FEMnodeEvaluation<ElementType,dim,1>> fieldPoints;
             fieldPoints.reserve(displacement().dirichletNodeMap().size());
             
             for (const auto& pair : displacement().dirichletNodeMap()) // range-based for loop (C++11)

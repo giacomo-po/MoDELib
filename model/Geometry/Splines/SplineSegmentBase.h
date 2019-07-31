@@ -47,7 +47,6 @@ namespace model
         typedef std::map<size_t,
         /*            */ std::pair<VectorNcoeff,VectorDim>,
         /*            */ std::less<size_t>
-//        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
         /*            */ > H2PmapType;
         
         /**********************************************************************/
@@ -194,9 +193,7 @@ namespace model
         
         typedef std::map<size_t,
         /*            */ std::pair<VectorNcoeff,VectorDim>,
-        /*            */ std::less<size_t>,
-        /*            */ Eigen::aligned_allocator<std::pair<size_t, std::pair<VectorNcoeff,VectorDim>> >
-        /*            */ > H2PmapType;
+        /*            */ std::less<size_t>> H2PmapType;
         
         /**********************************************************************/
         static RowNcoeff powers(const double & uin)

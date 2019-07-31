@@ -37,7 +37,6 @@ namespace model
         
     public:
         
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         
         typedef std::pair<size_t,size_t> KeyType;
         
