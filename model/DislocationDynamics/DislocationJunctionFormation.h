@@ -515,7 +515,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             model::cout<<"		Forming Glissile Junctions: "<<std::flush;
             
-            std::deque<std::tuple<size_t,size_t,size_t,size_t>> glissDeq;
+            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t>> glissDeq;
             
             for(const auto& link : DN.links())
             {
@@ -567,7 +567,7 @@ namespace model
                                     {
                                         //                                        std::cout<<"here 4"<<std::endl;
                                         
-                                        glissDeq.emplace_back(link.second->source->sID,link.second->sink->sID,gr->grainID,s);
+                                        glissDeq.emplace_back(link.second->source,link.second->sink,gr->grainID,s);
                                     }
                                 }
                             }
@@ -580,8 +580,10 @@ namespace model
             size_t formedJunctions=0;
             for(const auto& tup : glissDeq)
             {
-                const size_t& sourceID(std::get<0>(tup));
-                const size_t& sinkID(std::get<1>(tup));
+                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
+                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
+                const size_t& sourceID(source->sID);
+                const size_t& sinkID(sink->sID);
                 const size_t& grainID(std::get<2>(tup));
                 const size_t& slipID(std::get<3>(tup));
                 
@@ -590,20 +592,32 @@ namespace model
                 {
                     
                     const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
-                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
                     
-                    std::vector<size_t> nodeIDs;
+                    std::vector<std::shared_ptr<NodeType>> loopNodes;
+//                    std::vector<size_t> nodeIDs;
+  
+                    loopNodes.push_back(sink);      // insert in reverse order, sink first, source second
+                    loopNodes.push_back(source);    // insert in reverse order, sink first, source second
+                    loopNodes.push_back(newNode);
+
                     
-                    nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
-                    nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
-                    nodeIDs.push_back(newNodeID);
+//                    nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+//                    nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+//                    nodeIDs.push_back(newNodeID);
                     
                     LatticePlane glissilePlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
                     GlidePlaneKey<dim> glissilePlaneKey(grainID,glissilePlane);
 
-                    DN.insertLoop(nodeIDs,
+//                    DN.insertLoop(nodeIDs,
+//                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                                  DN.glidePlaneFactory.get(glissilePlaneKey));
+
+                    DN.insertLoop(loopNodes,
                                   DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
                                   DN.glidePlaneFactory.get(glissilePlaneKey));
+
                     
                     formedJunctions++;
                 }
@@ -612,7 +626,7 @@ namespace model
                 
             }
             
-            DN.clearDanglingNodes();
+//            DN.clearDanglingNodes();
             
             
 //            std::cout<<"glissDeq.size="<<glissDeq.size()<<std::endl;

@@ -774,8 +774,9 @@ namespace model
 //            DDconfigIO<dim> evl;
             DDconfigIO<dim> evl(folderSuffix);
             evl.read(runID);
-            createVertices(evl);
-            createEdges(evl);
+            std::map<size_t,std::shared_ptr<NodeType>> tempNodes;
+            createVertices(evl,tempNodes);
+            createEdges(evl,tempNodes);
             updatePlasticDistortionFromAreas(simulationParameters.dt);
             createEshelbyInclusions();
             
@@ -790,7 +791,7 @@ namespace model
         }
         
         /* readVertices *******************************************************/
-        void createVertices(const DDconfigIO<dim>& evl)
+        void createVertices(const DDconfigIO<dim>& evl,std::map<size_t,std::shared_ptr<NodeType>>& tempNodes)
         {/*!Creates DislocationNode(s) based on the data read by the DDconfigIO<dim>
           * object.
           */
@@ -802,7 +803,14 @@ namespace model
                 if(node.sID==node.masterID)
                 {// a regular node is created
                     model::cout<<"Creating DislocationNode "<<nodeIDinFile<<" ("<<kk<<" of "<<evl.nodes().size()<<")"<<std::endl;
-                    const size_t nodeID=this->insertDanglingNode(node.P,node.V,node.velocityReduction).first->first;
+                    
+                    const size_t nodeID(StaticID<NodeType>::nextID());
+                    const auto inserted(tempNodes.emplace(std::piecewise_construct,
+                                                          std::make_tuple(nodeID),
+                                                          std::make_tuple(new NodeType(this,node.P,node.V,node.velocityReduction))));
+                    assert(inserted.second && "COULD NOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");
+                    assert(inserted.first->first == nodeID && "KEY != nodeID");
+                    assert(inserted.first->second->sID == nodeID && "sID != nodeID");
                     assert(nodeID==nodeIDinFile);
                 }
                 else
@@ -816,8 +824,35 @@ namespace model
             }
         }
         
+        std::shared_ptr<NodeType> getSharedNode(const size_t& nodeID,
+                                                const std::map<size_t,std::shared_ptr<NodeType>>& tempNodes)
+        {
+            const auto isNode(this->node(nodeID));
+            assert(isNode.first);
+            if(isNode.second->masterNode)
+            {// a virtual node
+                return isNode.second->masterNode->virtualBoundaryNode();
+//                loopNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+            }
+            else
+            {
+                const auto tempNodesFound(tempNodes.find(nodeID));
+                if(tempNodesFound==tempNodes.end())
+                {
+                    model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+                    assert(false && "node shared pointer not found");
+                    return nullptr;
+                }
+                else
+                {
+                    return tempNodesFound->second;
+                }
+//                loopNodes.push_back(isSharedNode.second);
+            }
+        }
+        
         /* readEdges **********************************************************/
-        void createEdges(const DDconfigIO<dim>& evl)
+        void createEdges(const DDconfigIO<dim>& evl,const std::map<size_t,std::shared_ptr<NodeType>>& tempNodes)
         {/*!
           */
             
@@ -835,18 +870,40 @@ namespace model
                 
                 const auto loopFound=loopMap.find(loop.sID); // there must be an entry with key loopID in loopMap
                 assert(loopFound!=loopMap.end());
-                std::vector<size_t> nodeIDs;
-                nodeIDs.push_back(loopFound->second.begin()->first);
+                std::vector<std::shared_ptr<NodeType>> loopNodes;
+//                std::vector<size_t> nodeIDs;
+//                size_t currentNodeID(loopFound->second.begin()->first);
+//                const auto isNode(this->node(currentNodeID));
+//                assert(isNode.first);
+//                if(isNode.second->masterNode)
+//                {// a virtual node
+//                    loopNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+//                }
+//                else
+//                {
+//                    const auto isSharedNode(this->danglingNode(nodeID));
+//                    if(!isSharedNode.first)
+//                    {
+//                        model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+//                        assert(false && "node shared pointer not found");
+//                    }
+//                    loopNodes.push_back(isSharedNode.second);
+//                }
+                loopNodes.push_back(getSharedNode(loopFound->second.begin()->first,tempNodes));
+//                nodeIDs.push_back(loopFound->second.begin()->first); // push back source of first link
                 for(size_t k=0;k<loopFound->second.size();++k)
                 {
-                    const auto nodeFound=loopFound->second.find(*nodeIDs.rbegin());
+//                    const auto nodeFound=loopFound->second.find(*nodeIDs.rbegin());
+                    const auto nodeFound=loopFound->second.find(loopNodes.back()->sID);
                     if(k<loopFound->second.size()-1)
                     {
-                        nodeIDs.push_back(nodeFound->second);
+//                        nodeIDs.push_back(nodeFound->second);
+                        loopNodes.push_back(getSharedNode(nodeFound->second,tempNodes));
                     }
                     else
                     {
-                        assert(nodeFound->second==nodeIDs[0]);
+//                        assert(nodeFound->second==nodeIDs[0]);
+                        assert(nodeFound->second==loopNodes[0]->sID);
                     }
                 }
                 
@@ -857,45 +914,46 @@ namespace model
                 {
                     case DislocationLoopIO<dim>::GLISSILELOOP:
                     {
-                        assert(loop.N.squaredNorm()>FLT_EPSILON && "GLISSILELOOP must have non-zero normal");
                         LatticePlane loopPlane(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
                         GlidePlaneKey<dim> loopPlaneKey(loop.grainID,loopPlane);
 //                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
-                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,glidePlaneFactory.get(loopPlaneKey))->sID;
+//                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,glidePlaneFactory.get(loopPlaneKey))->sID;
+                        const size_t newLoopID=this->insertLoop(loopNodes,loop.B,glidePlaneFactory.get(loopPlaneKey))->sID;
                         assert(loop.sID==newLoopID);
                         break;
                     }
                         
                     case DislocationLoopIO<dim>::SESSILELOOP:
                     {
-                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.grainID,loop.loopType)->sID;
+//                        const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.grainID,loop.loopType)->sID;
+                        const size_t newLoopID=this->insertLoop(loopNodes,loop.B,loop.grainID,loop.loopType)->sID;
                         assert(loop.sID==newLoopID);
                         break;
                     }
                         
                     case DislocationLoopIO<dim>::VIRTUALLOOP:
                     {
-                        std::vector<std::shared_ptr<NodeType>> sharedNodes;
-                        for(const size_t nodeID : nodeIDs)
-                        {// collect shared_ptrs to nodes
-                            const auto isNode(this->node(nodeID));
-                            assert(isNode.first);
-                            if(isNode.second->masterNode)
-                            {// a virtual node
-                                sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
-                            }
-                            else
-                            {
-                                const auto isSharedNode(this->danglingNode(nodeID));
-                                if(!isSharedNode.first)
-                                {
-                                    model::cout<<"node "<<nodeID<<" not found"<<std::endl;
-                                    assert(false && "node shared pointer not found");
-                                }
-                                sharedNodes.push_back(isSharedNode.second);
-                            }
-                        }
-                        const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
+//                        std::vector<std::shared_ptr<NodeType>> loopNodes;
+//                        for(const size_t nodeID : nodeIDs)
+//                        {// collect shared_ptrs to nodes
+//                            const auto isNode(this->node(nodeID));
+//                            assert(isNode.first);
+//                            if(isNode.second->masterNode)
+//                            {// a virtual node
+//                                loopNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
+//                            }
+//                            else
+//                            {
+//                                const auto isSharedNode(this->danglingNode(nodeID));
+//                                if(!isSharedNode.first)
+//                                {
+//                                    model::cout<<"node "<<nodeID<<" not found"<<std::endl;
+//                                    assert(false && "node shared pointer not found");
+//                                }
+//                                loopNodes.push_back(isSharedNode.second);
+//                            }
+//                        }
+                        const size_t newLoopID=this->insertLoop(loopNodes,loop.B,loop.grainID,loop.loopType)->sID;
                         assert(loop.sID==newLoopID);
                         break;
                     }
@@ -905,42 +963,10 @@ namespace model
                         break;
                 }
                 
-                //                if(loop.N.squaredNorm()>FLT_EPSILON)
-                //                {// Regular loop
-                ////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<")"<<std::endl;
-                //                    const size_t newLoopID=this->insertLoop(nodeIDs,loop.B,loop.N,loop.P,loop.grainID)->sID;
-                //                    assert(loop.sID==newLoopID);
-                //                }
-                //                else
-                //                {// Virtual loop. Note that virtual nodes are not in the danglingNodes, but they are instead store in their master nodes
-                ////                    model::cout<<"Creating Dislocation Loop "<<loop.sID<<" ("<<loopLumber<<" of "<<evl.loops().size()<<") virtual"<<std::endl;
-                //                    std::vector<std::shared_ptr<NodeType>> sharedNodes;
-                //                    for(const size_t nodeID : nodeIDs)
-                //                    {// collect shared_ptrs to nodes
-                //                        const auto isNode(this->node(nodeID));
-                //                        assert(isNode.first);
-                //                        if(isNode.second->masterNode)
-                //                        {// a virtual node
-                //                            sharedNodes.push_back(isNode.second->masterNode->virtualBoundaryNode());
-                //                        }
-                //                        else
-                //                        {
-                //                            const auto isSharedNode(this->danglingNode(nodeID));
-                //                            if(!isSharedNode.first)
-                //                            {
-                //                                model::cout<<"node "<<nodeID<<" not found"<<std::endl;
-                //                                assert(false && "node shared pointer not found");
-                //                            }
-                //                            sharedNodes.push_back(isSharedNode.second);
-                //                        }
-                //                    }
-                //                    const size_t newLoopID=this->insertLoop(sharedNodes,loop.B,loop.grainID,loop.loopType)->sID;
-                //                    assert(loop.sID==newLoopID);
-                //                }
                 loopLumber++;
             }
             
-            this->clearDanglingNodes();
+//            this->clearDanglingNodes();
             
             
             

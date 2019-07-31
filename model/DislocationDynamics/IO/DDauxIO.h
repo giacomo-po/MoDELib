@@ -58,7 +58,6 @@ namespace model
             {
                 periodicGlidePlanePatches().emplace_back(*patch.second);
             }
-//            std::cout<<"added "<<pgp.patches().size()<<" patches, now size="<<periodicGlidePlanePatches().size()<<std::endl;
         }
         
         /**********************************************************************/
@@ -95,7 +94,7 @@ namespace model
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
 
-                // Write Nodes
+                // Write body
                 for(const auto& gpBnd : glidePlanesBoundaries())
                 {
                     file<<gpBnd<<"\n";
@@ -126,7 +125,7 @@ namespace model
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());
 
-                // Write Nodes
+                // Write body
                 for(const auto& gpb : glidePlanesBoundaries())
                 {
                     binWrite(file,gpb);

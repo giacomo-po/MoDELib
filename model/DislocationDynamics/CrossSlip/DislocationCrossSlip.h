@@ -47,7 +47,9 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
         
-        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
+//        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
+        typedef std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t> CrossSlipTupleType;
+
         typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
         
         //! A reference to the DislocationNetwork
@@ -128,8 +130,10 @@ namespace model
                 
                 for(const auto& tup : crossSlipDeq)
                 {
-                    const size_t& sourceID(std::get<0>(tup));
-                    const size_t& sinkID(std::get<1>(tup));
+                    const std::shared_ptr<NodeType>& source(std::get<0>(tup));
+                    const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
+                    const size_t& sourceID(source->sID);
+                    const size_t& sinkID(sink->sID);
                     const size_t& grainID(std::get<2>(tup));
                     const size_t& slipID(std::get<3>(tup));
                     
@@ -183,33 +187,38 @@ namespace model
                                 
                                 // Construct and insert new loop in conjugate plane
                                 const VectorDim newNodeP(0.5*(isSource.second->get_P()+isSink.second->get_P()));
-                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+                                std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
                                 
-                                std::vector<size_t> nodeIDs;
+//                                std::vector<size_t> nodeIDs;
+                                std::vector<std::shared_ptr<NodeType>> loopNodes;
+                                loopNodes.push_back(sink);
+                                loopNodes.push_back(source);
+                                loopNodes.push_back(newNode);
                                 
-                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
-                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
-                                nodeIDs.push_back(newNodeID);
+//                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
+//                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
+//                                nodeIDs.push_back(newNodeID);
                                 
                                 LatticePlane loopPlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
                                 GlidePlaneKey<dim> loopPlaneKey(grainID,loopPlane);
 
                                 
+                                
 //                                DN.insertLoop(nodeIDs,
 //                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                                              DN.poly.grain(grainID).slipSystems()[slipID]->unitNormal,
-//                                              newNodeP,
-//                                              grainID);
-                                
-                                DN.insertLoop(nodeIDs,
+//                                              DN.glidePlaneFactory.get(loopPlaneKey));
+
+                                DN.insertLoop(loopNodes,
                                               DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
                                               DN.glidePlaneFactory.get(loopPlaneKey));
+
                             }
                         }
                     }
                 }
                 
-                DN.clearDanglingNodes();
+//                DN.clearDanglingNodes();
                 
                 std::cout<<"crossSlipDeq.size="<<crossSlipDeq.size()<<std::endl;
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;

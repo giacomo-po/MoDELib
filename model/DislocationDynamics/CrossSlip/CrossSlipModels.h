@@ -32,11 +32,13 @@ namespace model
     template<>
     struct CrossSlipModels<FCClattice<3>>
     {
-        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
-        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
+//        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
+//        typedef std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t> CrossSlipTupleType;
+
+//        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
         
         /**********************************************************************/
-        template<typename LinkType>
+        template<typename LinkType,typename CrossSlipContainerType>
         static void addToCrossSlip(const LinkType& link,
                                    CrossSlipContainerType& crossSlipDeq,
                                    const int& modelID)
@@ -76,8 +78,8 @@ namespace model
                         const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
                         if(crosSlipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
                         {// cross slip system is different than original system
-                            crossSlipDeq.emplace_back(link.source->sID,
-                                                      link.sink->sID,
+                            crossSlipDeq.emplace_back(link.source,
+                                                      link.sink,
                                                       grain.grainID,
                                                       ssMap.rbegin()->second);
                         }
@@ -101,11 +103,11 @@ namespace model
     struct CrossSlipModels<BCClattice<3>>
     {
         
-        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
-        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
+//        typedef std::tuple<size_t,size_t,size_t,size_t> CrossSlipTupleType;
+//        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
         
         /**********************************************************************/
-        template<typename LinkType>
+        template<typename LinkType,typename CrossSlipContainerType>
         static void addToCrossSlip(const LinkType& link,
                                    CrossSlipContainerType& crossSlipDeq,
                                    const int& modelID)
@@ -145,8 +147,8 @@ namespace model
                         const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
                         if(crosSlipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
                         {// cross slip system is different than original system
-                            crossSlipDeq.emplace_back(link.source->sID,
-                                                      link.sink->sID,
+                            crossSlipDeq.emplace_back(link.source,
+                                                      link.sink,
                                                       grain.grainID,
                                                       ssMap.rbegin()->second);
                         }
