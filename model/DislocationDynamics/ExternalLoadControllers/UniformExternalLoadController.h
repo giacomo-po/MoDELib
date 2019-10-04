@@ -1,7 +1,7 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
+ * Copyright (C) 2017 by Yinan Cui <cuiyinan@ucla.edu>.
  * Copyright (C) 2017 by Giacomo Po <gpo@ucla.edu>.
- *                       Yinan Cui <cuiyinan@ucla.edu>.
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -55,10 +55,9 @@ namespace model
         Eigen::Matrix<double,voigtSize,voigtSize> strainmultimachinestiffness;
         double last_update_time;
         double lambda;  //unit is mu, lambda=2*v/(1-2*v)
-        // Number of DD steps before applying strain.
         double nu_use;
-        //        double sample_volume;
-        int relaxSteps;
+        const bool enable;
+        const int relaxSteps;
         
         
     public:
@@ -82,6 +81,7 @@ namespace model
         /* init list */,last_update_time(0.0)
         /* init list */,lambda(1.0)
         /* init list */,nu_use(0.12)
+        /* init list */,enable(TextFileParser(this->inputFileName).readScalar<int>("enable",true))
         /* init list */,relaxSteps(TextFileParser(this->inputFileName).readScalar<int>("relaxSteps",true))
         {
             //            const long int runID=DN.runningID();
@@ -290,7 +290,7 @@ namespace model
         /**************************************************************************/
         MatrixDim stress(const VectorDim&) const override
         {
-            return ExternalStress;
+            return enable? ExternalStress : MatrixDim::Zero();
         }
         
         /*************************************************************************/

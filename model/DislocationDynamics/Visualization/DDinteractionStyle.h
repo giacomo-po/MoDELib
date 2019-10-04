@@ -26,7 +26,7 @@
 #include <vtkObjectFactory.h>
 
 #include <DislocationSegmentActor.h>
-#include <PKActor.h>
+//#include <PKActor.h>
 //#include <GlidePlaneActor.h>
 #include <InclusionActor.h>
 #include <TerminalColors.h>
@@ -50,7 +50,7 @@ namespace model
     {
         
         std::unique_ptr<DislocationSegmentActor> ddSegments;
-        std::unique_ptr<PKActor> ddPK;
+//        std::unique_ptr<PKActor> ddPK;
 //        std::unique_ptr<GlidePlaneActor> ddAux;
         std::unique_ptr<DDauxVtk> ddAux;
         
@@ -206,7 +206,7 @@ namespace model
                 // Update ddActors
                 meshActor.update(frameID/*,lastFrameID,degPerStep,spinAxis*/);
                 ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
-                ddPK.reset(new PKActor(frameID,ddRenderer));
+//                ddPK.reset(new PKActor(frameID,ddRenderer));
                 ddAux.reset(new DDauxVtk(frameID,ddRenderer));
                 inclusions.reset(new InclusionActor(0,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
@@ -555,7 +555,7 @@ namespace model
             }
             else if(key == "g")
             {
-                if(selectedKey=="g")
+                if(selectedKey[0]=='g')
                 {
                     selectedKey=" ";
                     if(ddAux!=nullptr)
@@ -615,32 +615,76 @@ namespace model
                 std::cout<<"    2 to show/hide region boundaries"<<std::endl;
                 
             }
-            else if(key == "p")
+            else if(key == "q")
             {
-                if(selectedKey=="p")
+                if(selectedKey[0]=='q')
                 {
                     selectedKey=" ";
-                    if(ddPK.get()!=nullptr)
+                    if(ddAux.get()!=nullptr)
                     {
-                        PKActor::showPK=false;
-                        ddPK->modify();
+                        DDauxVtk::showPkforces=false;
+                        DDauxVtk::showGlideVelocities=false;
+                        ddAux->modify();
                         this->Interactor->Render();
                     }
                 }
                 else
                 {
-                    selectedKey="p";
-                    std::cout<<"selecting objects: pk forces"<<std::endl;
-                    std::cout<<"    +/- to increase vector size"<<std::endl;
-                    std::cout<<"    0 show forces"<<std::endl;
-                    std::cout<<"    1 show velocities"<<std::endl;
-                    if(ddPK.get()!=nullptr)
-                    {
-                        PKActor::showPK=true;
-                        ddPK->modify();
-                        this->Interactor->Render();
-                    }
+                    selectedKey="q";
+                    std::cout<<"selecting objects: quadrature points"<<std::endl;
+                    std::cout<<"    0 show/hide PK-forces"<<std::endl;
+                    std::cout<<"    1 show/hide glide velocities"<<std::endl;
+//                    if(ddPK.get()!=nullptr)
+//                    {
+//                        PKActor::showPK=true;
+//                        ddPK->modify();
+//                        this->Interactor->Render();
+//                    }
                     
+                }
+            }
+            else if(key == "0" && selectedKey[0]=='q')
+            {
+                if(selectedKey=="q0")
+                {
+//                    selectedKey=" ";
+                    DDauxVtk::showPkforces=!DDauxVtk::showPkforces;
+                }
+                else
+                {
+                    selectedKey="q0";
+                    DDauxVtk::showPkforces=true;
+                }
+//                selectedKey="q0";
+//                DDauxVtk::showPkforces=!DDauxVtk::showPkforces;
+                std::cout<<"quadrature PK forces="<<DDauxVtk::showPkforces<<std::endl;
+                ddAux->modify();
+                this->Interactor->Render();
+                if(DDauxVtk::showPkforces)
+                {
+                    std::cout<<"    +/- to increase PK forces size"<<std::endl;
+                }
+            }
+            else if(key == "1" && selectedKey[0]=='q')
+            {
+                if(selectedKey=="q1")
+                {
+//                    selectedKey=" ";
+                    DDauxVtk::showGlideVelocities=!DDauxVtk::showGlideVelocities;
+                }
+                else
+                {
+                    selectedKey="q1";
+                    DDauxVtk::showGlideVelocities=true;
+                }
+//                selectedKey="q1";
+//                DDauxVtk::showGlideVelocities=!DDauxVtk::showGlideVelocities;
+                std::cout<<"quadrature glide velocities="<<DDauxVtk::showGlideVelocities<<std::endl;
+                ddAux->modify();
+                this->Interactor->Render();
+                if(DDauxVtk::showGlideVelocities)
+                {
+                    std::cout<<"    +/- to increase glide velocities size"<<std::endl;
                 }
             }
             else if(key == "r")
@@ -656,7 +700,6 @@ namespace model
             }
             else if(key == "s")
             {
-                
                 selectedKey="s";
                 //saveImage=true;
                 std::cout<<"Save images menu:"<<std::endl;
@@ -704,7 +747,7 @@ namespace model
             }
             else if(key == "t")
             {
-                if(selectedKey=="t")
+                if(selectedKey[0]=='t')
                 {
                     selectedKey=" ";
                     if(ddSegments.get()!=nullptr)
@@ -731,7 +774,7 @@ namespace model
             }
             else if(key == "v")
             {
-                if(selectedKey=="v")
+                if(selectedKey[0]=='v')
                 {
                     selectedKey=" ";
                     if(ddSegments.get()!=nullptr)
@@ -759,7 +802,7 @@ namespace model
             }
             else if(key == "w")
             {
-                if(selectedKey=="w")
+                if(selectedKey[0]=='w')
                 {
                     selectedKey=" ";
                     if(ddSegments.get()!=nullptr)
@@ -786,7 +829,7 @@ namespace model
                 }
             }
             
-            if(selectedKey=="e")
+            if(selectedKey[0]=='e')
             {
                 
                 if(key == "equal")
@@ -867,7 +910,7 @@ namespace model
 //                }
                 
             }
-            else if(selectedKey=="m")
+            else if(selectedKey[0]=='m')
             {
                 if(key == "equal")
                 {
@@ -899,39 +942,41 @@ namespace model
                 }
                 
             }
-            else if(selectedKey=="p")
+            else if(selectedKey=="q0")
             {
-                if(key == "equal" && ddPK.get()!=nullptr)
+                if(key == "equal" && ddAux.get()!=nullptr)
                 {
-                    PKActor::pkFactor*=2.0;
-                    ddPK->modify();
-                    std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
+                    ddAux->pkFactor*=2.0;
+                    ddAux->modify();
+                    std::cout<<"PK force scaling="<<ddAux->pkFactor<<std::endl;
                     this->Interactor->Render();
                 }
-                if(key == "minus" && ddPK.get()!=nullptr)
+                if(key == "minus" && ddAux.get()!=nullptr)
                 {
-                    PKActor::pkFactor*=0.5;
-                    ddPK->modify();
-                    std::cout<<"force scaling="<<PKActor::pkFactor<<std::endl;
+                    ddAux->pkFactor*=0.5;
+                    ddAux->modify();
+                    std::cout<<"PK force scaling="<<ddAux->pkFactor<<std::endl;
                     this->Interactor->Render();
                 }
-                if(key == "0" && ddPK.get()!=nullptr)
-                {
-                    PKActor::vectorType=0;
-                    //                    ddPK->modify();
-                    std::cout<<"selected quadrature forces (reload frame)"<<std::endl;
-                    this->Interactor->Render();
-                }
-                if(key == "1" && ddPK.get()!=nullptr)
-                {
-                    PKActor::vectorType=1;
-//                    ddPK->modify();
-                    std::cout<<"selected quadrature velocities (reload frame)"<<std::endl;
-                    this->Interactor->Render();
-                }
-                
             }
-            else if(selectedKey=="s")
+            else if(selectedKey=="q1")
+            {
+                if(key == "equal" && ddAux.get()!=nullptr)
+                {
+                    ddAux->glideVelocitiesFactor*=2.0;
+                    ddAux->modify();
+                    std::cout<<"glide velocity scaling="<<ddAux->glideVelocitiesFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+                if(key == "minus" && ddAux.get()!=nullptr)
+                {
+                    ddAux->glideVelocitiesFactor*=0.5;
+                    ddAux->modify();
+                    std::cout<<"glide velocity scaling="<<ddAux->glideVelocitiesFactor<<std::endl;
+                    this->Interactor->Render();
+                }
+            }
+            else if(selectedKey[0]=='s')
             {
                 if(key == "space")
                 {
@@ -995,7 +1040,7 @@ namespace model
                 }
                 
             }
-            else if(selectedKey=="v")
+            else if(selectedKey[0]=='v')
             {
                 if(key == "1")
                 {
@@ -1017,7 +1062,7 @@ namespace model
                     this->Interactor->Render();
                 }
             }
-            else if(selectedKey=="w")
+            else if(selectedKey[0]=='w')
             {
                 if(key == "equal" && ddSegments.get()!=nullptr)
                 {
@@ -1035,7 +1080,7 @@ namespace model
                 }
                 
             }
-            else if(selectedKey=="g")
+            else if(selectedKey[0]=='g')
             {
                 if(key == "equal" && ddAux!=nullptr)
                 {
@@ -1059,7 +1104,7 @@ namespace model
                     std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
                 }
             }
-            else if(selectedKey=="t")
+            else if(selectedKey[0]=='t')
             {
                 if(key == "equal" && ddSegments.get()!=nullptr)
                 {

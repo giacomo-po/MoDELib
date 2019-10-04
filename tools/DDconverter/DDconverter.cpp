@@ -8,7 +8,7 @@
 
 #include <string>
 #include <experimental/filesystem>
-#include <EVLio.h>
+#include <DDconfigIO.h>
 
 using namespace model;
 
@@ -36,8 +36,8 @@ int main(int argc, char** argv)
         {
             const std::string stringID=p.path().string().substr(found1+subS1.length(),found2-(found1+subS1.length()));
             const size_t runID=std::stol(stringID);
-            EVLio<3> evlio;
-            evlio.bin2txt(runID,writeSegments);
+            DDconfigIO<3> converter;
+            converter.bin2txt(runID,writeSegments);
             
         }
     }

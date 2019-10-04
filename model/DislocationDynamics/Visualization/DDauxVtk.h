@@ -44,11 +44,32 @@ namespace model
         vtkSmartPointer<vtkPolyData> periodicGlidePlanePolydata;
         vtkSmartPointer<vtkPolyDataMapper> periodicGlidePlaneMapper;
         vtkSmartPointer<vtkActor> periodicGlidePlaneActor;
+        
+        vtkSmartPointer<vtkPoints> quadraturePositions;
+        vtkSmartPointer<vtkArrowSource> arrowSource;
+
+        vtkSmartPointer<vtkDoubleArray> quadraturePk;
+        vtkSmartPointer<vtkPolyData> quadraturePkPolyData;
+        vtkSmartPointer<vtkGlyph3D> quadraturePkGlyph;
+        vtkSmartPointer<vtkPolyDataMapper> quadraturePkMapper;
+        vtkSmartPointer<vtkActor> quadraturePkActor;
+        
+        vtkSmartPointer<vtkDoubleArray> quadratureGlideVelocities;
+        vtkSmartPointer<vtkPolyData> quadratureGlideVelocitiesPolyData;
+        vtkSmartPointer<vtkGlyph3D> quadratureGlideVelocitiesGlyph;
+        vtkSmartPointer<vtkPolyDataMapper> quadratureGlideVelocitiesMapper;
+        vtkSmartPointer<vtkActor> quadratureGlideVelocitiesActor;
 
         std::map<size_t,std::vector<const GlidePlaneBoundaryIO<3>*>> glidePlaneBoundaryMap;
+        
         static bool showGlidePlanes;
-        static bool showPeriodicGlidePlanes;
         static float glidePlaneOpacity;
+        static bool showPeriodicGlidePlanes;
+        static bool showPkforces;
+        static bool showGlideVelocities;
+        static float pkFactor;
+        static float glideVelocitiesFactor;
+
 
         /**********************************************************************/
         DDauxVtk(const size_t& frameID,
@@ -62,7 +83,30 @@ namespace model
         /* init */,periodicGlidePlanePolydata(vtkSmartPointer<vtkPolyData>::New())
         /* init */,periodicGlidePlaneMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,periodicGlidePlaneActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,quadraturePositions(vtkSmartPointer<vtkPoints>::New())
+        /* init */,arrowSource(vtkSmartPointer<vtkArrowSource>::New())
+        /* init */,quadraturePk(vtkSmartPointer<vtkDoubleArray>::New())
+        /* init */,quadraturePkPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,quadraturePkGlyph(vtkSmartPointer<vtkGlyph3D>::New())
+        /* init */,quadraturePkMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,quadraturePkActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,quadratureGlideVelocities(vtkSmartPointer<vtkDoubleArray>::New())
+        /* init */,quadratureGlideVelocitiesPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,quadratureGlideVelocitiesGlyph(vtkSmartPointer<vtkGlyph3D>::New())
+        /* init */,quadratureGlideVelocitiesMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,quadratureGlideVelocitiesActor(vtkSmartPointer<vtkActor>::New())
         {
+            
+            std::cout<<"Creating DDauxVtk"<<std::endl;
+            std::cout<<showPkforces<<std::endl;
+            std::cout<<showGlideVelocities<<std::endl;
+
+            quadraturePk->SetNumberOfComponents(3);
+            quadraturePk->SetName("PkForce");
+            
+            quadratureGlideVelocities->SetNumberOfComponents(3);
+            quadratureGlideVelocities->SetName("glideVelocity");
+
             if(this->isBinGood(frameID))
             {
                 this->readBin(frameID);
@@ -72,8 +116,9 @@ namespace model
                 this->readTxt(frameID);
             }
             
-            makeGlidePlaneBoundaries();
-            makePeriodicGlidePlaneBoundaries();
+            plotGlidePlaneBoundaries();
+            plotPeriodicGlidePlaneBoundaries();
+            plotQuadraturePointData();
 
         }
         
@@ -82,10 +127,12 @@ namespace model
         {
             renderer->RemoveActor(glidePlaneActor);
             renderer->RemoveActor(periodicGlidePlaneActor);
+            renderer->RemoveActor(quadraturePkActor);
+            renderer->RemoveActor(quadratureGlideVelocitiesActor);
         }
         
         /**********************************************************************/
-        void makeGlidePlaneBoundaries()
+        void plotGlidePlaneBoundaries()
         {
             glidePlanePolydata->Allocate();
             size_t connectivityID=0;
@@ -118,7 +165,7 @@ namespace model
         }
 
         /**********************************************************************/
-        void makePeriodicGlidePlaneBoundaries()
+        void plotPeriodicGlidePlaneBoundaries()
         {
             periodicGlidePlanePolydata->Allocate();
             size_t connectivityID=0;
@@ -153,11 +200,67 @@ namespace model
         }
         
         /**********************************************************************/
+        void plotQuadraturePointData()
+        {
+            for(const auto& q : this->quadraturePoints())
+            {
+                quadraturePositions->InsertNextPoint(q.r.data());  // origin of arrow
+                quadraturePk->InsertNextTuple(q.pkForce.data()); // arrow vactor
+                quadratureGlideVelocities->InsertNextTuple(q.glideVelocity.data()); // arrow vactor
+            }
+            
+            quadraturePkPolyData->SetPoints(quadraturePositions);
+            quadraturePkPolyData->GetPointData()->SetVectors(quadraturePk);
+            quadraturePkPolyData->Modified();
+            quadraturePkGlyph->SetSourceConnection(arrowSource->GetOutputPort());
+            quadraturePkGlyph->SetInputData(quadraturePkPolyData);
+            quadraturePkGlyph->ScalingOn();
+            quadraturePkGlyph->SetScaleModeToScaleByVector();
+            quadraturePkGlyph->OrientOn();
+            quadraturePkGlyph->ClampingOff();
+            quadraturePkGlyph->SetVectorModeToUseVector();
+            quadraturePkGlyph->SetIndexModeToOff();
+            quadraturePkGlyph->SetScaleFactor(pkFactor);
+            quadraturePkMapper->SetInputConnection(quadraturePkGlyph->GetOutputPort());
+            quadraturePkMapper->ScalarVisibilityOff();
+            quadraturePkActor->SetMapper(quadraturePkMapper);
+            quadraturePkActor->GetProperty()->SetColor(0.0,0.0,1.0);
+            quadraturePkActor->SetVisibility(showPkforces);
+            renderer->AddActor(quadraturePkActor);
+            
+            quadratureGlideVelocitiesPolyData->SetPoints(quadraturePositions);
+            quadratureGlideVelocitiesPolyData->GetPointData()->SetVectors(quadratureGlideVelocities);
+            quadratureGlideVelocitiesPolyData->Modified();
+            quadratureGlideVelocitiesGlyph->SetSourceConnection(arrowSource->GetOutputPort());
+            quadratureGlideVelocitiesGlyph->SetInputData(quadratureGlideVelocitiesPolyData);
+            quadratureGlideVelocitiesGlyph->ScalingOn();
+            quadratureGlideVelocitiesGlyph->SetScaleModeToScaleByVector();
+            quadratureGlideVelocitiesGlyph->OrientOn();
+            quadratureGlideVelocitiesGlyph->ClampingOff();
+            quadratureGlideVelocitiesGlyph->SetVectorModeToUseVector();
+            quadratureGlideVelocitiesGlyph->SetIndexModeToOff();
+            quadratureGlideVelocitiesGlyph->SetScaleFactor(glideVelocitiesFactor);
+            quadratureGlideVelocitiesMapper->SetInputConnection(quadratureGlideVelocitiesGlyph->GetOutputPort());
+            quadratureGlideVelocitiesMapper->ScalarVisibilityOff();
+            quadratureGlideVelocitiesActor->SetMapper(quadratureGlideVelocitiesMapper);
+            quadratureGlideVelocitiesActor->GetProperty()->SetColor(0.0,1.0,0.0);
+            quadratureGlideVelocitiesActor->SetVisibility(showGlideVelocities);
+            renderer->AddActor(quadratureGlideVelocitiesActor);
+
+        }
+        
+        /**********************************************************************/
         void modify()
         {
             glidePlaneActor->SetVisibility(showGlidePlanes);
             glidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
 
+            quadraturePkGlyph->SetScaleFactor(pkFactor);
+            quadraturePkActor->SetVisibility(showPkforces);
+            
+            quadratureGlideVelocitiesGlyph->SetScaleFactor(glideVelocitiesFactor);
+            quadratureGlideVelocitiesActor->SetVisibility(showGlideVelocities);
+            
             periodicGlidePlaneActor->SetVisibility(showPeriodicGlidePlanes);
             periodicGlidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
 
@@ -166,8 +269,12 @@ namespace model
     };
     
     bool DDauxVtk::showGlidePlanes=false;
-    bool DDauxVtk::showPeriodicGlidePlanes=false;
     float DDauxVtk::glidePlaneOpacity=0.5;
+    bool DDauxVtk::showPeriodicGlidePlanes=false;
+    bool DDauxVtk::showPkforces=false;
+    bool DDauxVtk::showGlideVelocities=false;
+    float DDauxVtk::pkFactor=0.5;
+    float DDauxVtk::glideVelocitiesFactor=0.5;
 
 }
 #endif

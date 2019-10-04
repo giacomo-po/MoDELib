@@ -125,15 +125,8 @@ namespace model
                         for(size_t k=0;k<nodePos.size();++k)
                         {
                             configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            //                        DislocationNodeIO<dim> dlIO(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            //                        vertexFile<<dlIO<<"\n";
-                            //                        vertexFile.write(dlIO);
-                            //                        vertexFile << nodeID+k<<"\t" << std::setprecision(15)<<std::scientific<<nodePos[k].transpose()<<"\t"<<Eigen::Matrix<double,1,3>::Zero()<<"\t"<<1.0<<"\t"<< snID <<"\t"<< 0<<"\n";
-
                             const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
                             configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                            //                        edgeFile << loopID<<"\t" <<    nodeID+k<<"\t"<< nextNodeID<<"\n";
-
                         }
                         nodeID+=nodePos.size();
 

@@ -54,7 +54,24 @@ Repeated entry---line 12326 of file references_GP3.bib
  : @article{vanderGiessen:1995tm
  :                              ,
 I'm skipping whatever remains of this entry
-Database file #4: references_ML.bib
+Database file #4: references_GP4.bib
+Repeated entry---line 629 of file references_GP4.bib
+ : @book{Mura:1987wt
+ :                  ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 750 of file references_GP4.bib
+ : @article{Lubarda:1993uc
+ :                        ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 760 of file references_GP4.bib
+ : @article{vanderGiessen:1995tm
+ :                              ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 770 of file references_GP4.bib
+ : @article{Deng:2008fs
+ :                     ,
+I'm skipping whatever remains of this entry
+Database file #5: references_ML.bib
 I was expecting an "="---line 4 of file references_ML.bib
  :          in: 
  :              {\it Dislocations 1984},
@@ -64,10 +81,14 @@ You're missing a field name---line 9 of file references_ML.bib
  : %author = {Lazar, M},
 (Error may have been on previous line)
 I'm skipping whatever remains of this entry
-Database file #5: references_NA.bib
-Database file #6: references_NG2.bib
-Database file #7: references_MM.bib
-Database file #8: references_tamer.bib
+Database file #6: references_NA.bib
+Database file #7: references_NG2.bib
+Repeated entry---line 21 of file references_NG2.bib
+ : @incollection{eshelby1979boundary
+ :                                  ,
+I'm skipping whatever remains of this entry
+Database file #8: references_MM.bib
+Database file #9: references_tamer.bib
 Warning--I didn't find a database entry for "Kirchner:1983"
 Warning--I didn't find a database entry for "Slattery2006"
 Warning--I didn't find a database entry for "Scovazzi2007"
@@ -77,7 +98,7 @@ Warning--I didn't find a database entry for "Asvestas:wt"
 Warning--empty institution in Scovazzi:2007tc
 You've used 15 entries,
             2773 wiz_defined-function locations,
-            720 strings with 7455 characters,
+            721 strings with 7469 characters,
 and the built_in function-call counts, 6686 in all, are:
 = -- 604
 > -- 343
@@ -116,4 +137,4 @@ warning$ -- 1
 while$ -- 69
 width$ -- 0
 write$ -- 204
-(There were 14 error messages)
+(There were 19 error messages)

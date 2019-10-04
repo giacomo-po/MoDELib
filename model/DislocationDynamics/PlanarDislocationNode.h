@@ -799,6 +799,22 @@ namespace model
         }
         
         /**********************************************************************/
+        VectorDim invariantDirectionOfMotion() const
+        {/*!\returns the direction of alignment if all links connected to this node are geometrically aligned.
+          * Otherwise it returns the zero vector.
+          */
+            VectorDim temp(this->neighbors().size()? std::get<1>(this->neighbors().begin()->second)->chord().normalized() : VectorDim::Zero());
+            for (const auto& neighborIter : this->neighbors())
+            {
+                if(std::get<1>(neighborIter.second)->chord().normalized().cross(temp).norm()>FLT_EPSILON)
+                {
+                    temp.setZero();
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         bool isSimpleSessileNode() const
         {
             VerbosePlanarDislocationNode(4,"PlanarDislocationNode "<<this->sID<<" isSimpleSessileNode "<<std::flush;);
@@ -1482,7 +1498,7 @@ namespace model
             VerbosePlanarDislocationNode(3,"moving PlanarDislocationNode "<<this->sID<<std::endl;);
             const VectorDim P_old(this->get_P());
             
-            if(!masterNode)
+            if(!masterNode && this->glidePlanes().size())
             {
                 VectorDim dX=velocity.template segment<dim>(0)*dt;
                 VerbosePlanarDislocationNode(3,"moving PlanarDislocationNode "<<this->sID<<", dX="<<dX.transpose()<<std::endl;);

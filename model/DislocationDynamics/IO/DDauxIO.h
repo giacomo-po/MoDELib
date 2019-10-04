@@ -17,6 +17,7 @@
 #include <GlidePlaneBoundaryIO.h>
 #include <GlidePlaneFactory.h>
 #include <PeriodicGlidePlane.h>
+#include <DislocationQuadraturePointIO.h>
 
 namespace model
 {
@@ -26,6 +27,8 @@ namespace model
     struct DDauxIO : public DDbaseIO
     /*            */,private std::vector<GlidePlaneBoundaryIO<dim>>
     /*            */,private std::vector<PeriodicPlanePatchIO<dim>>
+    /*            */,private std::vector<DislocationQuadraturePointIO<dim>>
+
     {
         
         DDauxIO(const std::string& suffix="") :
@@ -61,6 +64,12 @@ namespace model
         }
         
         /**********************************************************************/
+        void addDislocationQuadraturePoint(const DislocationQuadraturePointIO<dim>& qPoint)
+        {
+            quadraturePoints().push_back(qPoint);
+        }
+        
+        /**********************************************************************/
         const std::vector<GlidePlaneBoundaryIO<dim>>& glidePlanesBoundaries() const
         {
             return *this;
@@ -83,6 +92,17 @@ namespace model
         }
         
         /**********************************************************************/
+        const std::vector<DislocationQuadraturePointIO<dim>>& quadraturePoints() const
+        {
+            return *this;
+        }
+        
+        std::vector<DislocationQuadraturePointIO<dim>>& quadraturePoints()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
         void writeTxt(const long int& runID)
         {
             
@@ -93,6 +113,7 @@ namespace model
                 // Write header
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
+                file<<quadraturePoints().size()<<"\n";
 
                 // Write body
                 for(const auto& gpBnd : glidePlanesBoundaries())
@@ -103,7 +124,10 @@ namespace model
                 {
                     file<<patch<<"\n";
                 }
-
+                for(const auto& qPoint : quadraturePoints())
+                {
+                    file<<qPoint<<"\n";
+                }
                 file.close();
             }
             else
@@ -124,6 +148,7 @@ namespace model
                 // Write header
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());
+                binWrite(file,quadraturePoints().size());
 
                 // Write body
                 for(const auto& gpb : glidePlanesBoundaries())
@@ -133,6 +158,10 @@ namespace model
                 for(const auto& patch : periodicGlidePlanePatches())
                 {
                     binWrite(file,patch);
+                }
+                for(const auto& qPoint : quadraturePoints())
+                {
+                    binWrite(file,qPoint);
                 }
                 
                 file.close();
@@ -161,13 +190,17 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeGP), 1*sizeof(sizeGP));
                 size_t sizePPP;
                 infile.read (reinterpret_cast<char*>(&sizePPP), 1*sizeof(sizePPP));
+                size_t sizeQP;
+                infile.read (reinterpret_cast<char*>(&sizeQP), 1*sizeof(sizeQP));
 
                 // Read body
                 glidePlanesBoundaries().resize(sizeGP);
                 infile.read (reinterpret_cast<char*>(glidePlanesBoundaries().data()),glidePlanesBoundaries().size()*sizeof(GlidePlaneBoundaryIO<dim>));
                 periodicGlidePlanePatches().resize(sizePPP);
                 infile.read (reinterpret_cast<char*>(periodicGlidePlanePatches().data()),periodicGlidePlanePatches().size()*sizeof(PeriodicPlanePatchIO<dim>));
-                
+                quadraturePoints().resize(sizeQP);
+                infile.read (reinterpret_cast<char*>(quadraturePoints().data()),quadraturePoints().size()*sizeof(DislocationQuadraturePointIO<dim>));
+
                 infile.close();
                 printLog(t0);
             }
@@ -205,7 +238,13 @@ namespace model
                 ss<<line;
                 ss >> sizePPP;
                 ss.clear();
-
+                
+                size_t sizeQP;
+                std::getline(infile, line);
+                ss<<line;
+                ss >> sizeQP;
+                ss.clear();
+                
                 glidePlanesBoundaries().clear();
                 glidePlanesBoundaries().reserve(sizeGP);
                 for(size_t k=0;k<sizeGP;++k)
@@ -226,6 +265,16 @@ namespace model
                     ss.clear();
                 }
                 
+                quadraturePoints().clear();
+                quadraturePoints().reserve(sizeQP);
+                for(size_t k=0;k<sizeQP;++k)
+                {
+                    std::getline(infile, line);
+                    ss<<line;
+                    quadraturePoints().emplace_back(ss);
+                    ss.clear();
+                }
+                
                 infile.close();
                 printLog(t0);
             }
@@ -242,6 +291,7 @@ namespace model
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             model::cout<<"  "<<glidePlanesBoundaries().size()<<" glidePlanesBoundaries "<<std::endl;
             model::cout<<"  "<<periodicGlidePlanePatches().size()<<" periodicPlanePatches"<<std::endl;
+            model::cout<<"  "<<quadraturePoints().size()<<" quadraturePoints"<<std::endl;
         }
 
         /**********************************************************************/

@@ -165,7 +165,7 @@ namespace model
                 {
                     for(const auto& pair : rIter.second->parallelFaces())
                     {
-                        model::cout<<"Checking that parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
+                        model::cout<<"Checking if parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
                         const PlanarMeshFace<dim>& face1(*rIter.second->faces().at(pair.first));
                         const PlanarMeshFace<dim>& face2(*rIter.second->faces().at(pair.second));
                         const VectorDim cc(face1.center()-face2.center());

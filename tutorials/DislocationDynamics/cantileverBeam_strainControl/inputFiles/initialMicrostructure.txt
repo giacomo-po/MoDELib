@@ -4,14 +4,14 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e12;
+targetStraightDislocationDensity=5e13;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=0e13;
+targetFrankReadDislocationDensity=5e13;
 FrankReadSizeMean=0.5e-6;
-FrankReadSizeStd=0.25e-6;
+FrankReadSizeStd=0.05e-6;
 FrankReadAspectRatioMean=2.0;
 FrankReadAspectRatioStd=1.0;
 
@@ -43,6 +43,13 @@ targetNonPlanarLoopDensity=0e12;
 nonPlanarLoopRadiusMean=1e-07;
 nonPlanarLoopRadiusStd=1e-8;     
 nonPlanarLoopSides=10;
+
+#######################################
+# Periodic loops
+targetPeriodicLoopDensity=0e11;
+periodicLoopRadiusMean=1e-05;
+periodicLoopRadiusStd=0;     
+periodicLoopSides=20;
 
 #######################################
 # Irradiation loops

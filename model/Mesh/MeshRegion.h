@@ -142,12 +142,6 @@ namespace model
                     }
                 }
             }
-            
-            std::cout<<"Face addresses are:"<<std::endl;
-            for(const auto& face : faces())
-            {
-                std::cout<<face.second->sID<<" @ "<<face.second.get()<<std::endl;
-            }
         }
         
         /**********************************************************************/

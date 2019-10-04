@@ -268,7 +268,7 @@ namespace model
         void bin2txt(const size_t& runID,const bool& writeSegments)
         {
             readBin(runID);
-            writeTxt(runID,nodes(),loops(),links());
+            writeTxt(runID);
             if(writeSegments)
             {// std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
                 const std::string segmentsFilename(getTxtSegmentFilename(runID));

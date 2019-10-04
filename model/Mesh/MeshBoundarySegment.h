@@ -173,6 +173,11 @@ namespace model
                             break;
                         }
                             
+                        case 1:
+                        {// single-point intersection, not a valid boundary segment, so don't consider it
+                            break;
+                        }
+                            
                         case 2:
                         {// an intersection segment
                             const VectorDim& P0(*roots.begin());
@@ -184,14 +189,14 @@ namespace model
                         default:
                         {
                             std::cout<<"FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE"<<std::endl;
-                            std::cout<<"plane.P="<<plane.P.transpose()<<std::endl;
-                            std::cout<<"plane.unitNormal="<<plane.unitNormal.transpose()<<std::endl;
+                            std::cout<<"plane.P="<<std::setprecision(15)<<std::scientific<<plane.P.transpose()<<std::endl;
+                            std::cout<<"plane.unitNormal="<<std::setprecision(15)<<std::scientific<<plane.unitNormal.transpose()<<std::endl;
                             std::cout<<"IN INTERSECTING PLANE AND FACE"<<std::endl;
-                            std::cout<<face.second->outNormal()<<std::endl;
+                            std::cout<<face.second->sID<<", n="<<std::setprecision(15)<<std::scientific<<face.second->outNormal()<<std::endl;
                             std::cout<<"ROOTS ARE"<<std::endl;
                             for(const auto& root : roots)
                             {
-                                std::cout<<root.transpose()<<std::endl;
+                                std::cout<<std::setprecision(15)<<std::scientific<<root.transpose()<<std::endl;
                             }
                             assert(false && "FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE");
                             break;

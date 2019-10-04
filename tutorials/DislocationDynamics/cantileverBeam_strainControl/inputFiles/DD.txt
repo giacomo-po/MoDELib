@@ -7,18 +7,19 @@ useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
-useDislocations=1;
 
 ######################################
+# Settings for simulationType=0 (finite sample without FEM)
 externalLoadControllerName=None;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
-stepsBetweenBVPupdates = 10;
+stepsBetweenBVPupdates = 1;
 useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
 use_directSolver_FEM=1;
 solverTolerance=0.0001;
+
 # Surface nucleation model (0=no nucleation)
 surfaceNucleationModel=0;
 
@@ -105,7 +106,7 @@ computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;
-verbosePlanarDislocationNode=1;
+verbosePlanarDislocationNode=0;
 verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;
 verboseCrossSlip=0;

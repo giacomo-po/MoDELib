@@ -88,19 +88,6 @@ ifeq ($(useGREATWHITE), 1)
 	CFLAGS += -D _MODEL_GREATWHITE_
 endif
 
-############################################
-# Compiler flags for DDviewer (OpenGL flags)
-ifeq ($(OS),Darwin)
-	VIEWERLIBS += -framework GLUT
-	VIEWERLIBS += -framework OpenGL 
-endif
-
-ifeq ($(OS),Linux)
-	VIEWERLIBS += -L/usr/lib/
-	VIEWERLIBS += -lGL
-	VIEWERLIBS += -lGLU
-	VIEWERLIBS += -lglut
-endif
 
 ##########################################################
 # MAKE ALL
@@ -185,6 +172,8 @@ empty:
 	@echo emptying folder evl
 	@find evl/ -name evl_\*.txt ! -name evl_0.txt -exec rm {} +;
 	@find evl/ -name evl_\*.bin ! -name evl_0.bin -exec rm {} +;
+	@find evl/ -name ddAux_\*.txt ! -name ddAux_0.txt -exec rm {} +;
+	@find evl/ -name ddAux_\*.bin ! -name ddAux_0.bin -exec rm {} +;
 ifeq ($(Eexists),1)
 	@echo emptying folder E
 	@find E/ -name E_\*.txt -exec rm {} +;
@@ -194,11 +183,6 @@ ifeq ($(Fexists),1)
 	@echo emptying folder F
 	@find F/ -name F_\*.txt -exec rm {} +;
 	@find F/ -name F_\*.bin -exec rm {} +;
-endif
-ifeq ($(Gexists),1)
-	@echo emptying folder G
-	@find G/ -name G_\*.txt -exec rm {} +;
-	@find G/ -name G_\*.bin -exec rm {} +;
 endif
 ifeq ($(Cexists),1)
 	@echo emptying folder C
@@ -210,11 +194,6 @@ ifeq ($(Kexists),1)
 	@find K/ -name K_\*.txt -exec rm {} +;
 	@find K/ -name K_\*.bin -exec rm {} +;
 endif
-ifeq ($(Pexists),1)
-	@echo emptying folder P
-	@find P/ -name P_\*.txt -exec rm {} +;
-	@find P/ -name P_\*.bin -exec rm {} +;
-endif	
 ifeq ($(Dexists),1)
 	@echo emptying folder D
 	@find D/ -name D_\*.txt -exec rm {} +;
@@ -235,11 +214,6 @@ ifeq ($(Zexists),1)
 	@find Z/ -name Z_\*.txt -exec rm {} +;
 	@find Z/ -name Z_\*.bin -exec rm {} +;
 endif
-ifeq ($(Qexists),1)
-	@echo emptying folder Q
-	@find Q/ -name Q_\*.txt -exec rm {} +;
-	@find Q/ -name Q_\*.bin -exec rm {} +;
-endif	
 ifeq ($(TGAexists),1)
 	@echo emptying folder tga
 	@find tga/ -name image_\*.tga -exec rm {} +;

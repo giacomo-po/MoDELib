@@ -14,11 +14,7 @@ filename='cylinder'; % this creates file cylinder.stl
 meshID=1;
 targetElements=1e3;
 
-% (a) Cylinder diameter & length  r/l = [0.25:3] e.g. r X l = 250b X 1000b
-% (b) Twist & extension rates   dot E_12/dot E_11 = [0,inf] e.g. e_12/e_11 = 1e-9/1e-9
-% (c) Max twist & extension strains ~ 10-20% i.e. large strain & rotations
-% (d) Shear modulus - use Al
-% (e) Initial dislocation density & distribution ~ 1.e14-1.e15
+
 
 R=4000; % radius of cylinder (units of Burgers vector)
 H=3*R;    % height of cylinder (units of Burgers vector)

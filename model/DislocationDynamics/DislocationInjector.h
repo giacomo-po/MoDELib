@@ -91,6 +91,16 @@ namespace model
                 }
             }
             
+            if(nodePos.size()<3)
+            {
+                std::cout<<"nodePos.size="<<nodePos.size()<<std::endl;
+                std::cout<<"plane.meshIntersections are:"<<std::endl;
+                std::cout<<std::setprecision(15)<<std::scientific<<plane.meshIntersections<<std::endl;
+                std::cout<<"P0="<<std::setprecision(15)<<std::scientific<<P0.transpose()<<std::endl;
+                std::cout<<"d="<<std::setprecision(15)<<std::scientific<<d.transpose()<<std::endl;
+                assert(false && "LOOP DOES NOT HAVE ENOUGH POINTS");
+            }
+            
             return nodePos;
         }
         

@@ -1,7 +1,7 @@
 ######################################
 # GENERAL SETTINGS
 # Simulation type 
-simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
+simulationType=0; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
@@ -50,7 +50,7 @@ ddSolverType=0;
 # OUTPUT
 # Options for output files:
 outputFrequency=1;
-outputBinary=0;
+outputBinary=1;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
@@ -58,14 +58,14 @@ outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreSize=2.0;
+coreSize=5.0;
 
 ######################################
 # NETWORK REMESHING
@@ -92,7 +92,7 @@ surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=0;
+crossSlipModel=1;
 crossSlipDeg=2.0;
 
 ######################################
@@ -106,10 +106,10 @@ parametrizationExponent=0.5;
 # DEBUGGING
 computeDDinteractions=1;
 verboseJunctions=0;
-verboseRemesh=1;
-verbosePlanarDislocationNode=1;
+verboseRemesh=0;
+verbosePlanarDislocationNode=0;
 verboseNodeContraction=0;
-verbosePlanarDislocationSegment=1;
+verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;
 verboseCrossSlip=0;
 outputSegmentPairDistances=0;

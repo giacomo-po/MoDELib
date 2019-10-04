@@ -29,6 +29,8 @@
 #include <DislocationLinkingNumber.h>
 //#include <EVLio.h>
 #include <DDconfigIO.h>
+#include <DDauxIO.h>
+
 #include <EshelbyInclusion.h>
 //#include <DisplacementPoint.h>
 #include <FEMnodeEvaluation.h>
@@ -609,13 +611,29 @@ namespace model
             
             //            EVLio<dim> evl;
             DDconfigIO<dim> configIO(suffix);
+            DDauxIO<dim> auxIO(suffix);
+            
+            if (DN.outputQuadraturePoints)
+            {
+                for (const auto& link : DN.links())
+                {
+                    for(const auto& qPoint : link.second->quadraturePoints())
+                    {
+                        auxIO.addDislocationQuadraturePoint(DislocationQuadraturePointIO<dim>(qPoint));
+                    }
+                }
+            }
+            
             if (DN.outputBinary)
             {
                 configIO.writeBin(DN,runID);
+                auxIO.writeBin(runID);
+
             }
             else
             {
                 configIO.writeTxt(DN,runID);
+                auxIO.writeTxt(runID);
             }
             
             //            if (DN.outputBinary)
@@ -707,27 +725,6 @@ namespace model
                 assert(false && "TO-DO: RE-IMPLEMENT THIS");
                 
             }
-            
-            //            if(DN.outputPKforce)
-            //            {
-            //                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
-            ////                SequentialOutputFile<'P',1>::set_count(runID); // Edges_file;
-            ////                SequentialOutputFile<'P',1>::set_increment(DN.outputFrequency); // Edges_file;
-            ////                SequentialOutputFile<'P',1> p_file;
-            ////                for (const auto& linkIter : DN.links())
-            ////                {
-            ////                    const int qOrder(linkIter.second->rgauss.cols());
-            ////                    for (int q=0;q<qOrder;++q)
-            ////                    {
-            ////                        p_file << linkIter.second->source->sID<<" "
-            ////                        /*  */ << linkIter.second->sink->sID<<" "
-            ////                        /*  */ <<q<<" "
-            ////                        /*  */ << linkIter.second->rgauss.col(q).transpose()<<" "
-            ////                        /*  */ <<linkIter.second->pkGauss.col(q).transpose()<<"\n";
-            ////                    }
-            ////                }
-            ////                model::cout<<", P/P_"<<p_file.sID<<std::flush;
-            //            }
             
             if(DN.outputElasticEnergy)
             {
@@ -847,53 +844,7 @@ namespace model
                 }
             }
             
-            if (DN.outputQuadraturePoints)
-            {
-                if(DislocationNetworkType::corder==0)
-                {
-                    if (DN.outputBinary)
-                    {
-                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_count(runID);
-                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true>::set_increment(DN.outputFrequency);
-                        SequentialBinFile<'Q',DislocationQuadraturePoint<dim,DislocationNetworkType::corder>,true> binQuadratureFile;
-                        for (const auto& link : DN.links())
-                        {
-                            for(const auto& qPoint : link.second->quadraturePoints())
-                            {
-                                binQuadratureFile.write(qPoint);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        SequentialOutputFile<'Q',true>::set_count(runID);
-                        SequentialOutputFile<'Q',true>::set_increment(DN.outputFrequency);
-                        SequentialOutputFile<'Q',true> txtQuadratureFile;
-                        for (const auto& link : DN.links())
-                        {
-                            for(const auto& qPoint : link.second->quadraturePoints())
-                            {
-                                txtQuadratureFile<<qPoint<<"\n";
-                            }
-                        }
 
-                    }
-
-                }
-                else
-                {
-                    assert(false && "FINISH HERE");
-                    //                    model::SequentialOutputFile<'Q',1>::set_count(runID); // Vertices_file;
-                    //                    model::SequentialOutputFile<'Q',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                    //                    model::SequentialOutputFile<'Q',true> q_file;
-                    //                    for (const auto& particle : DN.particles())
-                    //                    {
-                    //                        q_file<<particle<<"\n";
-                    //                    }
-                }
-                
-                
-            }
             
             if (DN.outputLinkingNumbers)
             {
