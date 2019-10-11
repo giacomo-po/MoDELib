@@ -44,8 +44,10 @@ namespace model
         {
         }
         
+
         /**********************************************************************/
-        Eigen::VectorXd globalVector() const
+        template <typename DislocationNetworkType>
+        Eigen::VectorXd globalVector(const DislocationNetworkType&) const
         {
             return Eigen::VectorXd();
         }

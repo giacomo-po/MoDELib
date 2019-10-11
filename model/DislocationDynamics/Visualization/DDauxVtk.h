@@ -97,10 +97,6 @@ namespace model
         /* init */,quadratureGlideVelocitiesActor(vtkSmartPointer<vtkActor>::New())
         {
             
-            std::cout<<"Creating DDauxVtk"<<std::endl;
-            std::cout<<showPkforces<<std::endl;
-            std::cout<<showGlideVelocities<<std::endl;
-
             quadraturePk->SetNumberOfComponents(3);
             quadraturePk->SetName("PkForce");
             

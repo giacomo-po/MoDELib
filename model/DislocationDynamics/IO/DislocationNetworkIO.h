@@ -596,136 +596,26 @@ namespace model
             
         }
         
+        /**********************************************************************/
+        DDconfigIO<dim> configIO() const
+        {
+            return DDconfigIO<dim>(DN,suffix);
+        }
+        
+        /**********************************************************************/
+        DDauxIO<dim> auxIO() const
+        {
+            return DDauxIO<dim>(DN,suffix);
+        }
+        
         /* outputTXT **********************************************************/
         void outputFiles(const size_t& runID) const
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
-          * ./E/E_x.txt (DislocationSegment(s) are always outputted)
-          * ./V/V_x.txt (DislocationNode(s) are always outputted)
-          * ./C/C_x.txt (DislocationCell(s) only if outputSpatialCells==true)
-          * ./G/G_x.txt (GlidePlane(s) only if outputGlidePlanes==true)
-          * ./P/P_x.txt (PK forces only if outputPKforce==true)
-          * ./W/W_x.txt (elastic energy only if outputElasticEnergy==true)
-          * ./D/D_x.txt (mesh displacement only if outputMeshDisplacement==true)
           */
             model::cout<<"		Writing to "<<std::flush;
-            
-            //            EVLio<dim> evl;
-            DDconfigIO<dim> configIO(suffix);
-            DDauxIO<dim> auxIO(suffix);
-            
-            if (DN.outputQuadraturePoints)
-            {
-                for (const auto& link : DN.links())
-                {
-                    for(const auto& qPoint : link.second->quadraturePoints())
-                    {
-                        auxIO.addDislocationQuadraturePoint(DislocationQuadraturePointIO<dim>(qPoint));
-                    }
-                }
-            }
-            
-            if (DN.outputBinary)
-            {
-                configIO.writeBin(DN,runID);
-                auxIO.writeBin(runID);
+            configIO().write(runID,DN.outputBinary);
+            auxIO().write(runID,DN.outputBinary);
 
-            }
-            else
-            {
-                configIO.writeTxt(DN,runID);
-                auxIO.writeTxt(runID);
-            }
-            
-            //            if (DN.outputBinary)
-            //            {
-            //                assert(0 && "FINISH BIN OUTPUT");
-            //
-            //                typedef DislocationNodeIO<dim> BinVertexType;
-            //                SequentialBinFile<'V',BinVertexType>::set_count(runID);
-            //                SequentialBinFile<'V',BinVertexType>::set_increment(DN.outputFrequency);
-            //                SequentialBinFile<'V',BinVertexType> binVertexFile;
-            //                //                for (typename NetworkNodeContainerType::const_iterator nodeIter=DN.nodeBegin();nodeIter!=DN.nodeEnd();++nodeIter)
-            //                for (const auto& node : DN.nodes())
-            //                {
-            //                    binVertexFile.write(BinVertexType(*node.second));
-            //                }
-            //                model::cout<<" V/V_"<<binVertexFile.sID<<".bin"<<std::flush;
-            //
-            //            }
-            //            else
-            //            {
-            //                SequentialOutputFile<'V',1>::set_count(runID); // vertexFile;
-            //                SequentialOutputFile<'V',1>::set_increment(DN.outputFrequency); // vertexFile;
-            //                SequentialOutputFile<'V',1> vertexFile;
-            //                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-            //                for (const auto& node : DN.nodes())
-            //                {
-            //                    vertexFile << *node.second<<"\n";
-            //                }
-            //                model::cout<<", V/V_"<<vertexFile.sID<<".txt"<<std::flush;
-            //
-            //                SequentialOutputFile<'L',1>::set_count(runID); // vertexFile;
-            //                SequentialOutputFile<'L',1>::set_increment(DN.outputFrequency); // vertexFile;
-            //                SequentialOutputFile<'L',1> loopFile;
-            //                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-            //                for (const auto& loop : DN.loops())
-            //                {
-            //                    loopFile << *loop.second<<"\n";
-            //                }
-            //                model::cout<<", L/L_"<<loopFile.sID<<".txt"<<std::flush;
-            //
-            //                SequentialOutputFile<'E',1>::set_count(runID); // vertexFile;
-            //                SequentialOutputFile<'E',1>::set_increment(DN.outputFrequency); // vertexFile;
-            //                SequentialOutputFile<'E',1> loopLinkFile;
-            //                //vertexFile << *(const NetworkNodeContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-            //                for (const auto& loopLink : DN.loopLinks())
-            //                {
-            //                    loopLinkFile << loopLink.second <<"\n";
-            //                }
-            //                model::cout<<", E/E_"<<loopLinkFile.sID<<".txt"<<std::flush;
-            //
-            //                SequentialOutputFile<'K',1>::set_count(runID); // linkFile;
-            //                SequentialOutputFile<'K',1>::set_increment(DN.outputFrequency); // linkFile;
-            //                SequentialOutputFile<'K',1> linkFile;
-            //                //linkFile << *(const NetworkLinkContainerType*)(&DN); // intel compiler doesn't accept this, so use following loop
-            //                for (const auto& linkIter : DN.networkLinks())
-            //                {
-            //                    linkFile<< *linkIter.second<<"\n";
-            //                }
-            //                model::cout<<" K/K_"<<linkFile.sID<<".txt"<<std::flush;
-            //
-            //            }
-            
-            
-            //            if(DN.outputSpatialCells)
-            //            {
-            //                //! 3- Outputs the nearest neighbor Cell structures to file C_*.txt where * is the current simulation step
-            //                SequentialOutputFile<'C',1>::set_count(runID); // Cell_file;
-            //                SequentialOutputFile<'C',1>::set_increment(DN.outputFrequency); // Cell_file;
-            //                SequentialOutputFile<'C',1> Cell_file;
-            //                //              SpatialCellObserverType SPC;
-            //                int cID(0);
-            //                //for (typename CellMapType::const_iterator cellIter=SpatialCellObserverType::cellBegin();cellIter!=SpatialCellObserverType::cellEnd();++cellIter)
-            //                for (const auto& cell : SpatialCellObserverType::cells())
-            //                {
-            //                    Cell_file<<cID<<"\t"<<cell.second->cellID.transpose()<<"\t"<<SpatialCellObserverType::cellSize()
-            //#ifndef _MODEL_ENABLE_CELL_VERTEX_ALPHA_TENSORS_
-            //                    /*     */<<"\t"<<std::get<0>(*cell.second).row(0)
-            //                    /*     */<<"\t"<<std::get<0>(*cell.second).row(1)
-            //                    /*     */<<"\t"<<std::get<0>(*cell.second).row(2)
-            //#endif
-            //                    <<"\n";
-            //                    ++cID;
-            //                }
-            //                model::cout<<", C/C_"<<Cell_file.sID<<std::flush;
-            //            }
-            
-            if(DN.outputGlidePlanes)
-            {
-                assert(false && "TO-DO: RE-IMPLEMENT THIS");
-                
-            }
-            
             if(DN.outputElasticEnergy)
             {
                 //                this->template computeNeighborField<ElasticEnergy>();

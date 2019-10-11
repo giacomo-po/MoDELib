@@ -387,15 +387,20 @@ namespace model
                                     return false;
                                 }
                             }
+                            else
+                            {
+                                return false;
+                            }
                         }
                         else if(nA->glidePlanes().size()==0 && nB->glidePlanes().size()==0)
                         {// nB has no GlidePlane
-
+                            return false;
                         }
                         else
                         {// neither nA nor nB have a GlidePlane
                             assert(nA->glidePlanes().size()<=1);
                             assert(nB->glidePlanes().size()<=1);
+                            return false;
                         }
                         
 

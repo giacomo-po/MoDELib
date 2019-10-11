@@ -44,7 +44,6 @@ namespace model
         /* init */ masterID(dn.masterNode? dn.masterNode->sID : sID)
         {
          
-//            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
             
         }
         
@@ -77,7 +76,6 @@ namespace model
         {
         }
 
-        
         /**********************************************************************/
         DislocationNodeIO(std::stringstream& ss) :
         /* init */ sID(0),
@@ -88,7 +86,6 @@ namespace model
         /* init */ meshLocation(0),
         /* init */ masterID(0)
         {
-            
             ss>>sID;
             for(int d=0;d<dim;++d)
             {

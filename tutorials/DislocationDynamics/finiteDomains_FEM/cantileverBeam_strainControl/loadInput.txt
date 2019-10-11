@@ -1,0 +1,7 @@
+######################################
+# Settings for BVP controller
+epsilonDot=1.0e-12;
+initialDisplacement=0;
+enable=1;
+relaxSteps=0;
+

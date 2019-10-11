@@ -31,6 +31,7 @@ namespace model
 
     {
         
+        /**********************************************************************/
         DDauxIO(const std::string& suffix="") :
         /* init */ DDbaseIO("evl","ddAux",suffix)
         {
@@ -38,10 +39,35 @@ namespace model
         }
         
         /**********************************************************************/
-        void setGlidePlaneBoundaries(const GlidePlaneFactory<dim>& dn)
+        template<typename DislocationNodeType>
+        DDauxIO(const DislocationNodeType& DN,
+                   const std::string& suffix="") :
+        /* init */ DDbaseIO("evl","ddAux",suffix)
+        {
+
+            if (DN.outputQuadraturePoints)
+            {
+                for (const auto& link : DN.links())
+                {
+                    for(const auto& qPoint : link.second->quadraturePoints())
+                    {
+                        quadraturePoints().push_back(qPoint);
+                    }
+                }
+            }
+            
+            if(DN.outputGlidePlanes)
+            {
+                setGlidePlaneBoundaries(DN.glidePlaneFactory);
+            }
+            
+        }
+        
+        /**********************************************************************/
+        void setGlidePlaneBoundaries(const GlidePlaneFactory<dim>& gpf)
         {
             glidePlanesBoundaries().clear();
-            for(const auto& pair : dn.glidePlanes())
+            for(const auto& pair : gpf.glidePlanes())
             {
                 const auto glidePlane(pair.second.lock());
                 if(glidePlane)
@@ -63,11 +89,11 @@ namespace model
             }
         }
         
-        /**********************************************************************/
-        void addDislocationQuadraturePoint(const DislocationQuadraturePointIO<dim>& qPoint)
-        {
-            quadraturePoints().push_back(qPoint);
-        }
+//        /**********************************************************************/
+//        void addDislocationQuadraturePoint(const DislocationQuadraturePointIO<dim>& qPoint)
+//        {
+//            quadraturePoints().push_back(qPoint);
+//        }
         
         /**********************************************************************/
         const std::vector<GlidePlaneBoundaryIO<dim>>& glidePlanesBoundaries() const
@@ -103,13 +129,27 @@ namespace model
         }
         
         /**********************************************************************/
+        void write(const size_t& runID,const bool& outputBinary)
+        {
+            if(outputBinary)
+            {
+                writeBin(runID);
+            }
+            else
+            {
+                writeTxt(runID);
+            }
+        }
+        
+        /**********************************************************************/
         void writeTxt(const long int& runID)
         {
-            
+            const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getTxtFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
+                std::cout<<"writing "<<filename<<std::flush;
                 // Write header
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
@@ -129,6 +169,7 @@ namespace model
                     file<<qPoint<<"\n";
                 }
                 file.close();
+                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             else
             {
@@ -140,11 +181,12 @@ namespace model
         /**********************************************************************/
         void writeBin(const size_t& runID)
         {
-            
+            const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getBinFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
+                std::cout<<"writing "<<filename<<std::flush;
                 // Write header
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());
@@ -165,6 +207,7 @@ namespace model
                 }
                 
                 file.close();
+                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             else
             {

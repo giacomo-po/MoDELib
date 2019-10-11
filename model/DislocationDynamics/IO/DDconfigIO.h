@@ -50,15 +50,42 @@ namespace model
             {
                 loopMap().emplace(loop.sID,&loop);
             }
-
         }
 
         
     public:
         
+        /**********************************************************************/
         DDconfigIO(const std::string& suffix="") :
         /* init */ DDbaseIO("evl","evl",suffix)
         {
+            
+        }
+        
+        /**********************************************************************/
+        template<typename DislocationNodeType>
+        DDconfigIO(const DislocationNodeType& dn,
+                   const std::string& suffix="") :
+        /* init */ DDbaseIO("evl","evl",suffix)
+        {
+            
+            // Write Nodes
+            for(const auto& node : dn.nodes())
+            {
+                nodes().emplace_back(*node.second);
+            }
+            
+            // Write Loops
+            for(const auto& loop : dn.loops())
+            {
+                loops().emplace_back(*loop.second);
+            }
+            
+            // Write Edges
+            for(const auto& link : dn.loopLinks())
+            {
+                links().emplace_back(link.second);
+            }
             
         }
         
@@ -175,64 +202,29 @@ namespace model
             return temp;
         }
         
-
-        
         /**********************************************************************/
-        template<typename DislocationNodeType>
-        void writeTxt(const DislocationNodeType& dn,
-                             const long int& runID)
+        void write(const size_t& runID,const bool& outputBinary)
         {
-            
-            
-            const std::string filename(this->getTxtFilename(runID));
-            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            if(file.is_open())
+            if(outputBinary)
             {
-                // Write header
-                file<<dn.nodes().size()<<"\n";
-                file<<dn.loops().size()<<"\n";
-                file<<dn.loopLinks().size()<<"\n";
-                
-                // Write Nodes
-                for(const auto& node : dn.nodes())
-                {
-                    file<<DislocationNodeIO<dim>(*node.second)<<"\n";
-                }
-                
-                // Write Loops
-                for(const auto& loop : dn.loops())
-                {
-                    file<<DislocationLoopIO<dim>(*loop.second)<<"\n";
-                }
-                
-                // Write Edges
-                for(const auto& link : dn.loopLinks())
-                {
-                    file<<DislocationEdgeIO<dim>(link.second)<<"\n";
-                }
-                
-                file.close();
+                writeBin(runID);
             }
             else
             {
-                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
-                assert(false && "CANNOT OPEN FILE.");
+                writeTxt(runID);
             }
         }
-        
+                
         /**********************************************************************/
-        void writeTxt(const size_t& runID
-//                             const std::vector<DislocationNodeIO<dim>> nodesIO,
-//                             const std::vector<DislocationLoopIO<dim>> loopsIO,
-//                             const std::vector<DislocationEdgeIO<dim>> edgesIO
-                      )
+        void writeTxt(const size_t& runID)
         {
-            
+            const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getTxtFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-//            std::cout<<"Writing to "<<filename<<std::endl;
             if(file.is_open())
             {
+                std::cout<<"writing "<<filename<<std::flush;
+
                 // Write header
                 file<<nodes().size()<<"\n";
                 file<<loops().size()<<"\n";
@@ -256,6 +248,7 @@ namespace model
                 }
                 
                 file.close();
+                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             else
             {
@@ -265,78 +258,15 @@ namespace model
         }
         
         /**********************************************************************/
-        void bin2txt(const size_t& runID,const bool& writeSegments)
+        void writeBin(const size_t& runID)
         {
-            readBin(runID);
-            writeTxt(runID);
-            if(writeSegments)
-            {// std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
-                const std::string segmentsFilename(getTxtSegmentFilename(runID));
-                const auto segmts(segments());
-                std::ofstream segFile(segmentsFilename.c_str());
-                for(const auto& seg : segmts)
-                {
-                    segFile<<seg.second<<"\n";
-                }
-            }
-        }
-        
-        /**********************************************************************/
-        template<typename DislocationNodeType>
-        void writeBin(const DislocationNodeType& dn,
-                             const long int& runID)
-        {
+            const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getBinFilename(runID));
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
-                // Write header
-                const size_t nV(dn.nodes().size());
-                const size_t nL(dn.loops().size());
-                const size_t nE(dn.loopLinks().size());
-                binWrite(file,nV);
-                binWrite(file,nL);
-                binWrite(file,nE);
-                
-                // Write Nodes
-                for(const auto& node : dn.nodes())
-                {
-                    binWrite(file,DislocationNodeIO<dim>(*node.second));
-                }
-                
-                // Write Loops
-                for(const auto& loop : dn.loops())
-                {
-                    binWrite(file,DislocationLoopIO<dim>(*loop.second));
-                }
-                
-                // Write Edges
-                for(const auto& link : dn.loopLinks())
-                {
-                    binWrite(file,DislocationEdgeIO<dim>(link.second));
-                }
-                
-                file.close();
-            }
-            else
-            {
-                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
-                assert(false && "CANNOT OPEN FILE.");
-            }
-        }
-        
-        /**********************************************************************/
-        void writeBin(const size_t& runID
-//                             const std::vector<DislocationNodeIO<dim>> nodesIO,
-//                             const std::vector<DislocationLoopIO<dim>> loopsIO,
-//                             const std::vector<DislocationEdgeIO<dim>> edgesIO
-        )
-        {
-            
-            const std::string filename(this->getBinFilename(runID));
-            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-            if(file.is_open())
-            {
+                std::cout<<"writing "<<filename<<std::flush;
+
                 // Write header
                 const size_t nV(nodes().size());
                 const size_t nL(loops().size());
@@ -344,26 +274,28 @@ namespace model
                 binWrite(file,nV);
                 binWrite(file,nL);
                 binWrite(file,nE);
-                
+
                 // Write Nodes
                 for(const auto& node : nodes())
                 {
                     binWrite(file,node);
                 }
-                
+
                 // Write Loops
                 for(const auto& loop : loops())
                 {
                     binWrite(file,loop);
                 }
-                
+
                 // Write Edges
                 for(const auto& link : links())
                 {
                     binWrite(file,link);
                 }
-                
+
                 file.close();
+                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
             }
             else
             {
@@ -372,6 +304,26 @@ namespace model
             }
         }
         
+        /**********************************************************************/
+        void read(const size_t& runID)
+        {
+            if(isBinGood(runID))
+            {
+                readBin(runID);
+            }
+            else
+            {
+                if(isTxtGood(runID))
+                {
+                    readTxt(runID);
+                }
+                else
+                {
+                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<runID<<".bin or evl/evl_"<<runID<<".txt"<<std::endl;
+                    assert(0 && "COULD NOT FIND INPUT FILEs.");
+                }
+            }
+        }
         
         /**********************************************************************/
         void readBin(const size_t& runID)
@@ -497,22 +449,18 @@ namespace model
         }
 
         /**********************************************************************/
-        void read(const size_t& runID)
+        void bin2txt(const size_t& runID,const bool& writeSegments)
         {
-            if(isBinGood(runID))
-            {
-                readBin(runID);
-            }
-            else
-            {
-                if(isTxtGood(runID))
+            readBin(runID);
+            writeTxt(runID);
+            if(writeSegments)
+            {// std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
+                const std::string segmentsFilename(getTxtSegmentFilename(runID));
+                const auto segmts(segments());
+                std::ofstream segFile(segmentsFilename.c_str());
+                for(const auto& seg : segmts)
                 {
-                    readTxt(runID);
-                }
-                else
-                {
-                    std::cout<<"COULD NOT FIND INPUT FILEs evl/evl_"<<runID<<".bin or evl/evl_"<<runID<<".txt"<<std::endl;
-                    assert(0 && "COULD NOT FIND INPUT FILEs.");
+                    segFile<<seg.second<<"\n";
                 }
             }
         }
@@ -555,4 +503,87 @@ namespace model
 //        static std::string getTxtSegmentFilename(const size_t& runID,const std::string& suffix="")
 //        {
 //            return "evl"+suffix+"/S_"+std::to_string(runID)+".txt";
+//        }
+
+//        /**********************************************************************/
+//        void writeBin(const long int& runID)
+//        {
+//            const std::string filename(this->getBinFilename(runID));
+//            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
+//            if(file.is_open())
+//            {
+//                // Write header
+//                const size_t nV(nodes().size());
+//                const size_t nL(loops().size());
+//                const size_t nE(links().size());
+//                binWrite(file,nV);
+//                binWrite(file,nL);
+//                binWrite(file,nE);
+//
+//                // Write Nodes
+//                for(const auto& node : nodes())
+//                {
+//                    binWrite(file,node);
+//                }
+//
+//                // Write Loops
+//                for(const auto& loop : loops())
+//                {
+//                    binWrite(file,loop);
+//                }
+//
+//                // Write Edges
+//                for(const auto& link : links())
+//                {
+//                    binWrite(file,link);
+//                }
+//
+//                file.close();
+//            }
+//            else
+//            {
+//                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
+//                assert(false && "CANNOT OPEN FILE.");
+//            }
+//        }
+
+//        /**********************************************************************/
+//        void writeTxt(const long int& runID)
+//        {
+//
+//
+//            const std::string filename(this->getTxtFilename(runID));
+//            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
+//            if(file.is_open())
+//            {
+//                // Write header
+//                file<<nodes().size()<<"\n";
+//                file<<loops().size()<<"\n";
+//                file<<links().size()<<"\n";
+//
+//                // Write Nodes
+//                for(const auto& node : nodes())
+//                {
+//                    file<<node<<"\n";
+//                }
+//
+//                // Write Loops
+//                for(const auto& loop : loops())
+//                {
+//                    file<<loop<<"\n";
+//                }
+//
+//                // Write Edges
+//                for(const auto& link : links)
+//                {
+//                    file<<link<<"\n";
+//                }
+//
+//                file.close();
+//            }
+//            else
+//            {
+//                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
+//                assert(false && "CANNOT OPEN FILE.");
+//            }
 //        }

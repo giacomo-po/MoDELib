@@ -29,7 +29,7 @@ namespace model
 {
     
     template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DefectiveCrystal 
+    class DefectiveCrystal
     {
         
     public:
@@ -87,22 +87,29 @@ namespace model
         
         /**********************************************************************/
         static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,
-                                                                                            const DefectiveCrystalParameters& params)
+                                                        const DefectiveCrystalParameters& params)
         {
             // Set up periodic shifts
             std::vector<VectorDim> temp;
-            const VectorDim meshDimensions(m.xMax()-m.xMin());
-            model::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
-            for(int i=-params.periodicImages_x;i<=params.periodicImages_x;++i)
+            if(params.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
             {
-                for(int j=-params.periodicImages_y;j<=params.periodicImages_y;++j)
+                const VectorDim meshDimensions(m.xMax()-m.xMin());
+                model::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
+                for(int i=-params.periodicImages_x;i<=params.periodicImages_x;++i)
                 {
-                    for(int k=-params.periodicImages_z;k<=params.periodicImages_z;++k)
+                    for(int j=-params.periodicImages_y;j<=params.periodicImages_y;++j)
                     {
-                        const Eigen::Array<int,dim,1> cellID((Eigen::Array<int,dim,1>()<<i,j,k).finished());
-                        temp.push_back((meshDimensions.array()*cellID.template cast<double>()).matrix());
+                        for(int k=-params.periodicImages_z;k<=params.periodicImages_z;++k)
+                        {
+                            const Eigen::Array<int,dim,1> cellID((Eigen::Array<int,dim,1>()<<i,j,k).finished());
+                            temp.push_back((meshDimensions.array()*cellID.template cast<double>()).matrix());
+                        }
                     }
                 }
+            }
+            else
+            {
+                temp.push_back(VectorDim::Zero());
             }
             
             model::cout<<"periodic shift vectors:"<<std::endl;
@@ -175,68 +182,68 @@ namespace model
                 }
             }
             
-//            switch (simulationParameters.simulationType)
-//            {// Initilization based on type of simulation
-//                    
-//                    
-//                case DefectiveCrystalParameters::FINITE_NO_FEM:
-//                {
-//                    //                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
-//                    break;
-//                }
-//                    
-//                case DefectiveCrystalParameters::FINITE_FEM:
-//                {
-//                    //                    bvpSolver->init(DN);
-//                    break;
-//                }
-//                    
-//                case DefectiveCrystalParameters::PERIODIC_WITH_IMAGES:
-//                {
-//                    
-////
-////                    const VectorDim meshSize(mesh.xMax()-mesh.xMin());
-////                    for(int d=0;d<dim;++d)
-////                    {
-////                        VectorDim v(VectorDim::Zero());
-////                        v(d)=1*meshSize(d);
-////                        LatticeVector<dim> lv(v,poly.grains().begin()->second);
-////                    }
-//                    break;
-//                }
-//                    
-//                default:
-//                {
-//                    model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
-//                    exit(EXIT_FAILURE);
-//                    break;
-//                }
-//            }
+            //            switch (simulationParameters.simulationType)
+            //            {// Initilization based on type of simulation
+            //
+            //
+            //                case DefectiveCrystalParameters::FINITE_NO_FEM:
+            //                {
+            //                    //                    externalLoadController->init(DN,runID);  // have to initialize it after mesh!
+            //                    break;
+            //                }
+            //
+            //                case DefectiveCrystalParameters::FINITE_FEM:
+            //                {
+            //                    //                    bvpSolver->init(DN);
+            //                    break;
+            //                }
+            //
+            //                case DefectiveCrystalParameters::PERIODIC_WITH_IMAGES:
+            //                {
+            //
+            ////
+            ////                    const VectorDim meshSize(mesh.xMax()-mesh.xMin());
+            ////                    for(int d=0;d<dim;++d)
+            ////                    {
+            ////                        VectorDim v(VectorDim::Zero());
+            ////                        v(d)=1*meshSize(d);
+            ////                        LatticeVector<dim> lv(v,poly.grains().begin()->second);
+            ////                    }
+            //                    break;
+            //                }
+            //
+            //                default:
+            //                {
+            //                    model::cout<<"simulationType MUST BE 0,1, or 2. EXITING."<<std::endl;
+            //                    exit(EXIT_FAILURE);
+            //                    break;
+            //                }
+            //            }
         }
         
-//        /**********************************************************************/
-//        double compute_dt() const
-//        {
-//            if(DN)
-//            {
-//            switch (simulationParameters.timeIntegrationMethod)
-//            {
-//                case 0:
-//                    return DDtimeIntegrator<0>::get_dt(*DN);
-//                    break;
-//
-//                default:
-//                    assert(0 && "time integration method not implemented");
-//                    return 0;
-//                    break;
-//            }
-//            }
-//            else
-//            {
-//                assert(0 && "dt calculation not implemented");
-//                return 0;
-//            }
-//        }
+        //        /**********************************************************************/
+        //        double compute_dt() const
+        //        {
+        //            if(DN)
+        //            {
+        //            switch (simulationParameters.timeIntegrationMethod)
+        //            {
+        //                case 0:
+        //                    return DDtimeIntegrator<0>::get_dt(*DN);
+        //                    break;
+        //
+        //                default:
+        //                    assert(0 && "time integration method not implemented");
+        //                    return 0;
+        //                    break;
+        //            }
+        //            }
+        //            else
+        //            {
+        //                assert(0 && "dt calculation not implemented");
+        //                return 0;
+        //            }
+        //        }
         
         /**********************************************************************/
         void singleGlideStep()
@@ -260,19 +267,17 @@ namespace model
                 
                 DN->assembleAndSolveGlide(simulationParameters.runID);
                 simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
-                simulationParameters.totalTime+=simulationParameters.dt;
-                
                 // output
                 DN->io().output(simulationParameters.runID);
+
                 
-                
-//                for(const auto& loop : DN->loops())
-//                {
-//                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-//                    {
-//                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
-//                    }
-//                }
+                //                for(const auto& loop : DN->loops())
+                //                {
+                //                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+                //                    {
+                //                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
+                //                    }
+                //                }
                 
                 // move
                 DN->moveGlide(simulationParameters.dt);
@@ -280,6 +285,7 @@ namespace model
                 // menage discrete topological events
                 DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
             }
+            simulationParameters.totalTime+=simulationParameters.dt;
             ++simulationParameters.runID;
         }
         
@@ -297,9 +303,9 @@ namespace model
         }
         
         /**********************************************************************/
-        #ifdef _MODEL_GREATWHITE_
-        #include <DefectiveCrystalGreatWhite.h>
-        #endif
+#ifdef _MODEL_GREATWHITE_
+#include <DefectiveCrystalGreatWhite.h>
+#endif
         
         
         /**********************************************************************/

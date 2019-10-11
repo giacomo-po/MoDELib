@@ -1,0 +1,83 @@
+#######################################
+# General settings
+enforceMonotonicHelicity=0;
+
+#######################################
+# Straight dislocations from boundary to boundary
+targetStraightDislocationDensity=1e12;
+fractionSessileStraightDislocationDensity=0.0;
+
+#######################################
+# Frank-Read sources
+targetFrankReadDislocationDensity=0e13;
+FrankReadSizeMean=0.5e-6;
+FrankReadSizeStd=0.05e-6;
+FrankReadAspectRatioMean=2.0;
+FrankReadAspectRatioStd=1.0;
+
+#######################################
+# Single-arm sources
+targetSingleArmDislocationDensity=0e13;
+
+#######################################
+# Prismatic loops (dipolar glissile loops)
+targetPrismaticLoopDensity=0e13;
+
+#######################################
+# Individual straight dislocations
+straightDislocationsSlipSystemIDs=-1 -1;
+straightDislocationsAngleFromScrewOrientation=90.0 90.0;
+pointsAlongStraightDislocations=2000.0 2000.0 2000.0
+						   		0.0 0.0 0.0;
+						   		
+#######################################
+# Circular loops
+targetCircularLoopDensity=0e12;
+circularLoopRadiusMean=1e-7;
+circularLoopRadiusStd=0.0;     
+circularLoopSides=10;
+
+#######################################
+# Non-planar loops
+targetNonPlanarLoopDensity=0e12;
+nonPlanarLoopRadiusMean=1e-07;
+nonPlanarLoopRadiusStd=1e-8;     
+nonPlanarLoopSides=10;
+
+#######################################
+# Periodic loops
+targetPeriodicLoopDensity=0e11;
+periodicLoopRadiusMean=1e-05;
+periodicLoopRadiusStd=0;     
+periodicLoopSides=20;
+
+#######################################
+# Irradiation loops
+# A random diameter d is generated from a 3-parameters log-normal distribution with probability
+# p(d)=A/(S*d*sqrt(2*pi))*exp(-(ln(d/M))^2/(2*S^2))
+targetIrradiationLoopDensity=0e19;
+irradiationLoopsDiameterLognormalDistribution_M=3.37e-9;	#[m] log-normal diameter distribution parameter M
+irradiationLoopsDiameterLognormalDistribution_S=0.47;		#[-] log-normal diameter distribution parameter S
+irradiationLoopsDiameterLognormalDistribution_A=1.0e-9;		#[m] log-normal diameter distribution parameter A 
+fraction111Loops=1;
+mobile111Loops=0;
+
+#######################################
+# Eshelby Inclusions. 
+# for each family, a random diameter d is generated from a 3-parameters log-normal distribution with probability
+# p(d)=A/(S*d*sqrt(2*pi))*exp(-(ln(d/M))^2/(2*S^2))
+targetInclusionDensities=0e20 0e19; # vector of densities, one value per family
+inclusionsDiameterLognormalDistribution_M=3.11e-8 3.11e-8; #[m] vector of log-normal diameter distribution parameters M. One entry per family 
+inclusionsDiameterLognormalDistribution_S=0.38    0.38;    #[-] vector of log-normal distribution parameters S. One entry per family 
+inclusionsDiameterLognormalDistribution_A=1.05e-8 1.05e-8; #[m] vector of log-normal distribution parameters A. One entry per family  
+# Array inclusion transformation strains (dimensionless), one row per family with format (exx exy exz eyx eyy eyz ezx exy ezz)
+inclusionsTransformationStrains = 0.06 0.0 0.0 0.0 0.06 0.0 0.0 0.0 0.06
+                                  0.03 0.0 0.0 0.0 0.03 0.0 0.0 0.0 0.03;                          
+inclusionsPatterns = 0.1e-6 0.1e-6 0.1e-6
+                     0 0 0;
+inclusionsMobilityReduction=1.0 1.0;
+
+#######################################
+# Stacking Fault Tetrahedra
+targetSFTdensity=0e19;
+

@@ -92,7 +92,7 @@ namespace model
         TrialFunction(FiniteElementType& fe)
 //        /* init list */ fe(fe_in)
         {
-            model::cout<<greenBoldColor<<"Creating TrialFunction..."<<std::flush;
+            model::cout<<greenBoldColor<<"Creating TrialFunction "<< _name <<" "<<std::flush;
             assert(this->counter()==1 && "More of one TrialFunction of the same type exist. Change char template parameter.");
             TrialBase<TrialFunctionType>::init(fe);
 //            dofvector.setZero(this->gSize());

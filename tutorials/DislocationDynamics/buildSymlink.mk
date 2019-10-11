@@ -1,7 +1,7 @@
 # Add all header symlinks as dependencies to this target
 header_symlinks::
 
-MODEL_DIR := $(CURDIR)/../../..
+MODEL_DIR := $(CURDIR)/../../../..
 depend_dirs := $(MODEL_DIR)/model
 
 # header files

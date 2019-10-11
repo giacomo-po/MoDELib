@@ -1,0 +1,114 @@
+######################################
+# GENERAL SETTINGS
+# Simulation type 
+simulationType=1; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic prism
+useDislocations=1;
+useCracks=0;
+Nsteps=100000;		# total number of simulation steps
+startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
+
+
+######################################
+# Settings for simulationType=0 (finite sample without FEM)
+externalLoadControllerName=None;
+
+######################################
+# Settings for simulationType=1 (finite sample with FEM)
+stepsBetweenBVPupdates = 10;
+useVirtualExternalLoops=1;
+virtualSegmentDistance=500;
+use_directSolver_FEM=1;
+solverTolerance=0.0001;
+
+# Surface nucleation model (0=no nucleation)
+surfaceNucleationModel=0;
+
+######################################
+# Settings for simulationType=2 (PERIODIC)
+periodicImages_x=0;
+periodicImages_y=0;
+periodicImages_z=0;
+
+######################################
+quadPerLength=0.1;
+
+######################################
+# TIME STEP
+# Maximum nodal displacement per time step (this controls time step size) 
+timeIntegrationMethod=0;
+dxMax=10;
+use_velocityFilter=1;
+velocityReductionFactor=0.75;
+use_stochasticForce=0;
+stochasticForceSeed=-1;
+
+######################################
+# DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
+# 0=lumped solver (fast but approximate. K is lumped into a diagonal matrix)
+# 1=iterative solver (CG), 
+# 2=direct solver (LLT)
+ddSolverType=0;
+
+######################################
+# OUTPUT
+outputFrequency=1;
+outputBinary=1;
+outputGlidePlanes=0;
+outputElasticEnergy=0;
+outputMeshDisplacement=0;
+outputFEMsolution=0;
+outputPlasticDistortion=0;
+outputPlasticDistortionRate=0;
+outputDislocationLength=0;
+outputQuadraturePoints=0;
+outputLinkingNumbers=0;
+outputLoopLength=0;
+
+######################################
+# DISLOCATION ELASTIC FIELDS
+# The dislocation core width, used in the non-singular expression of the dislocation stress field
+coreSize=2.0;
+
+######################################
+# NETWORK REMESHING
+remeshFrequency=1; # nodal remeshing every n steps. Seto to 0 to disable nodal remeshing
+Lmin=0.025; # minimum segment length relative to box size
+Lmax=0.080; # maximum segment length relative to box size
+nodeRemoveAngleDeg=60;
+
+######################################
+# DISLOCATION JUNCTIONS
+# Enable/disable the use of dislocation junction formation
+maxJunctionIterations=1;
+# Tolerance used in detecting collisions between dislocation segments in different planes
+collisionTol=3;
+
+######################################
+# BOUNDARY MESH
+meshID=0; # Mesh files are read from N/N_meshID.txt and T/T_meshID.txt.
+surfaceAttractionDistance=20;
+
+######################################
+# Enable/disable cross-slip
+crossSlipModel=0;
+crossSlipDeg=2.0;
+
+######################################
+# GRAIN-BOUNDARY MODEL
+grainBoundaryTransmissionModel=0;
+
+######################################
+parametrizationExponent=0.5;
+
+#####################################
+# DEBUGGING
+computeDDinteractions=1;
+verboseJunctions=0;
+verboseRemesh=0;
+verboseNodeContraction=0;
+verbosePlanarDislocationNode=0;
+verbosePlanarDislocationSegment=0;
+verbosePlanarDislocationLoop=0;
+verboseCrossSlip=0;
+outputSegmentPairDistances=0;
+outputDislocationStiffnessAndForce=0;

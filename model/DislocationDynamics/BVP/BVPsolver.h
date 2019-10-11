@@ -487,7 +487,7 @@ namespace model
             auto dislocationTraction=(test(u),eb_list);
             
             // Assemble loadController and dislocaiton tractions and solve
-            displacement()=solve(lc->globalVector()-dislocationTraction.globalVector(),displacement());
+            displacement()=solve(lc->globalVector(DN)-dislocationTraction.globalVector(),displacement());
             
         }
 #endif

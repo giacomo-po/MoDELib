@@ -4,7 +4,7 @@
 USE_ICC = 0
 usePARDISO = 1
 useGREATWHITE = 0
-MODEL_INCLUDE =../../..
+MODEL_INCLUDE =../../../..
 GREATWHITE_INCLUDE= $(MODEL_INCLUDE)/../GreatWhite
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
@@ -13,7 +13,7 @@ MKL_INCLUDE=/opt/intel/mkl/include
 ##########################################################
 # INCLUDE SETTINGS - DO NOT EDIT-
 ##########################################################
-include ../buildSymlink.mk
+include ../../buildSymlink.mk
 IDIR += -I./
 IDIR += -I$(all_header_dir)
 #IDIR += -I$(MODEL_INCLUDE)

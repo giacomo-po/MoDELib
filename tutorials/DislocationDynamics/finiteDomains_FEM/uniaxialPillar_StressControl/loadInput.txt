@@ -1,0 +1,7 @@
+######################################
+# Settings for BVP controller
+sigmaDot=1.0e-12;
+initialStress=0;
+enable=1;
+relaxSteps=0;
+
