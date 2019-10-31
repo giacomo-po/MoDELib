@@ -1,2 +1,2 @@
 #!/bin/bash
-sh ../../../../scripts/renameJpg.sh
+sh ../../../../../scripts/renameJpg.sh

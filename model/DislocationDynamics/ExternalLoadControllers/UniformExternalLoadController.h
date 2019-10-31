@@ -65,7 +65,7 @@ namespace model
         template <typename DislocationNetworkType>
         UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
         //        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
-        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>("./externalLoadControl/UniformExternalLoadController.txt")
+        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>("./inputFiles/uniformExternalLoadController.txt")
         /* init list */,DN(_DN)
         /* init list */,ExternalStress(MatrixDim::Zero())
         /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
@@ -97,39 +97,10 @@ namespace model
             
             //            model::EigenDataReader EDR;
             TextFileParser parser(this->inputFileName);
-            //TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true);
-            
-            //            DN.use_externalStress=parser.readScalar<int>("use_externalStress",true);
-            //            if(DN.use_externalStress)
-            //            {
-            //            EDR.readScalarInFile(this->inputFileName,"use_externalStress",DN.use_externalStress);
-            //            EDR.readMatrixInFile(this->inputFileName,"ExternalStress0",ExternalStress0);
             assert((ExternalStress0-ExternalStress0.transpose()).norm()<DBL_EPSILON && "ExternalStress0 is not symmetric.");
-            //           EDR.readMatrixInFile(this->inputFileName,"ExternalStressRate",ExternalStressRate);
             assert((ExternalStressRate-ExternalStressRate.transpose()).norm()<DBL_EPSILON && "ExternalStressRate is not symmetric.");
-            //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrain0",ExternalStrain0);
             assert((ExternalStrain0-ExternalStrain0.transpose()).norm()<DBL_EPSILON && "ExternalStrain0 is not symmetric.");
-            //           EDR.readMatrixInFile(this->inputFileName,"ExternalStrainRate",ExternalStrainRate);
             assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
-            //            EDR.readMatrixInFile(this->inputFileName,"MachineStiffnessRatio",MachineStiffnessRatio);
-            //            EDR.readScalarInFile(this->inputFileName,"relaxSteps",relaxSteps);
-            
-            //                    DN._userOutputColumn+=18;  //put here in order for right bvp restart
-            
-            //                if (DN.use_boundary)
-            //                {
-            ////                    sample_volume=DN.mesh.volume();
-            //                }
-            //                else
-            //                {
-            //                    MachineStiffnessRatio.setZero();
-            //                    model::cout<<"Notice: There is no boundary, can only use pure stress control!"<<std::endl;
-            //                }
-            
-            // if (std::abs(ExternalStressRate.maxCoeff())<1e-20 && std::abs(ExternalStressRate.maxCoeff())<1e-20)
-            // {
-            //    USEchangingExternalStress=false;   //donot calculate the update of the external Stress field.
-            // }
             
             
             // initilize the default voigt order

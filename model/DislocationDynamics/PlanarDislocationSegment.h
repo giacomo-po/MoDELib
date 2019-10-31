@@ -191,6 +191,7 @@ namespace model
                 Burgers-=pL->flow().cartesian();
             }
             BurgersNorm=Burgers.norm();
+            straight.updateGeometry();
             
             VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
             ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
@@ -213,6 +214,7 @@ namespace model
                 Burgers+=pL->flow().cartesian();
             }
             BurgersNorm=Burgers.norm();
+            straight.updateGeometry(); // update b x t
             
             ConfinedDislocationObjectType::clear();
             for(const auto& loopLink : this->loopLinks())

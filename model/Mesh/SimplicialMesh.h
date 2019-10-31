@@ -212,7 +212,7 @@ namespace model
                 std::cout<<"    simplices: "<<region.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
                 for(auto& face : region.second->faces())
                 {
-                    model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
+                    model::cout<<"    face "<<face.second->sID<<": size="<<face.second->size()<<",hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
                     bndFaceSimplexSum+=face.second->size();
                 }
                 model::cout<<"    parallel faces:"<<std::endl;

@@ -774,23 +774,31 @@ namespace model
 //            DDconfigIO<dim> evl;
             DDconfigIO<dim> evl(folderSuffix);
             evl.read(runID);
+            setConfiguration(evl);
+//            std::map<size_t,std::shared_ptr<NodeType>> tempNodes;
+//            createVertices(evl,tempNodes);
+//            createEdges(evl,tempNodes);
+//            updatePlasticDistortionFromAreas(simulationParameters.dt);
+            createEshelbyInclusions();
+        }
+        
+        /**********************************************************************/
+        void setConfiguration(const DDconfigIO<dim>& evl)
+        {
+            this->loopLinks().clear(); // erase base network
             std::map<size_t,std::shared_ptr<NodeType>> tempNodes;
             createVertices(evl,tempNodes);
             createEdges(evl,tempNodes);
             updatePlasticDistortionFromAreas(simulationParameters.dt);
-            createEshelbyInclusions();
-            
-            // IO
-            //            io().read("./","DDinput.txt",runID);
 #ifdef _MODEL_MPI_
-            // Avoid that a processor starts writing before other are reading
+            // Avoid that a processor starts writing before other are done reading
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
             // Initializing configuration
-            moveGlide(0.0);	// initial configuration
+            moveGlide(0.0);    // initial configuration
         }
         
-        /* readVertices *******************************************************/
+        /**********************************************************************/
         void createVertices(const DDconfigIO<dim>& evl,std::map<size_t,std::shared_ptr<NodeType>>& tempNodes)
         {/*!Creates DislocationNode(s) based on the data read by the DDconfigIO<dim>
           * object.
@@ -851,7 +859,7 @@ namespace model
             }
         }
         
-        /* readEdges **********************************************************/
+        /**********************************************************************/
         void createEdges(const DDconfigIO<dim>& evl,const std::map<size_t,std::shared_ptr<NodeType>>& tempNodes)
         {/*!
           */

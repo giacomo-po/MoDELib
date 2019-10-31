@@ -58,7 +58,7 @@ namespace model
     public:
         /**************************************************************************/
         SequentialTorsionTensionController():
-        /* init list */ inputFileName("./externalLoadControl/SequentialTorsionTensionController.txt")
+        /* init list */ inputFileName("./inputFiles/sequentialTorsionTensionController.txt")
         /* init list */,last_update_time(0.0)
         /* init list */,lambda(1.0)
         /* init list */,sample_volume(0.0)

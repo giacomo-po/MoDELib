@@ -14,7 +14,7 @@ externalLoadControllerName=None;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
-stepsBetweenBVPupdates = 1;
+stepsBetweenBVPupdates = 10;
 useVirtualExternalLoops=1;
 virtualSegmentDistance=500;
 use_directSolver_FEM=1;
@@ -51,7 +51,7 @@ ddSolverType=0;
 
 ######################################
 # OUTPUT
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=1;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
