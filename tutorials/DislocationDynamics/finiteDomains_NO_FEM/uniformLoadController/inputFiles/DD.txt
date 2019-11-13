@@ -65,7 +65,7 @@ outputLoopLength=0;
 ######################################
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreSize=5.0;
+coreSize=2.0;
 
 ######################################
 # NETWORK REMESHING

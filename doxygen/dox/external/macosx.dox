@@ -15,7 +15,7 @@ Then, list the available gcc versions in your system:
 \verbatim
 port select --list gcc
 \endverbatim
-And finally select the most current version, say mp-gcc6:
+And finally select the most current version, say mp-gcc8:
 \verbatim
 sudo port select --set gcc mp-gcc8
 \endverbatim

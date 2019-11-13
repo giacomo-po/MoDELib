@@ -83,10 +83,10 @@ struct LoadController
         const long int runID=DN.simulationParameters.runID;
         model::cout<<greenColor<<"Initializing LoadController at runID="<<runID<<defaultColor<<std::endl;
         
-        epsilonDot=TextFileParser("./loadInput.txt").readScalar<double>("epsilonDot",true);
-        initialDisplacement=TextFileParser("./loadInput.txt").readScalar<double>("initialDisplacement",true);
-        relaxSteps=TextFileParser("./loadInput.txt").readScalar<int>("relaxSteps",true);
-        enable=TextFileParser("./loadInput.txt").readScalar<int>("enable",true);
+        epsilonDot=TextFileParser("./inputFiles/loadControllerInput.txt").readScalar<double>("epsilonDot",true);
+        initialDisplacement=TextFileParser("./inputFiles/loadControllerInput.txt").readScalar<double>("initialDisplacement",true);
+        relaxSteps=TextFileParser("./inputFiles/loadControllerInput.txt").readScalar<int>("relaxSteps",true);
+        enable=TextFileParser("./inputFiles/loadControllerInput.txt").readScalar<int>("enable",true);
         
         if(runID>0)
         {// a restart

@@ -9,39 +9,44 @@ clc
 close all
 clear all
 
-MODEL_DIR='../../../../../';
+MODEL_DIR='../../../../';
 addpath([MODEL_DIR '/matlab/']);
 
-%% Define output file 
-meshID=0;          % mesh will be stored as T/T_meshID.txt and N/N_meshID.txt
+%% Define output file name
+meshID=0;
 filename='prism'; % this creates file cube.stl
-targetElements=2e4; % target number of elements (approximate)
+nElements=1e4;
 
 %% Size and position of the cube
+L1=2828*sqrt(2); % the side length of the cube, in units of Burgers vector
+L2=1414*sqrt(2); % the side length of the cube, in units of Burgers vector
+L3=2000*sqrt(2); % the side length of the cube, in units of Burgers vector
+
 L1=2000; % the side length of the cube, in units of Burgers vector
-L2=2000; % the side length of the cube, in units of Burgers vector
+L2=4000; % the side length of the cube, in units of Burgers vector
 L3=4000; % the side length of the cube, in units of Burgers vector
+
 
 %% Compute element size
 V=L1*L2*L3;
-averageElementVolume=V/targetElements;
+averageElementVolume=V/nElements;
 
-%% coordinates of the vertices.
+% coordinates of the 8 vertices of the cube.
 % The base of the cube is at z=0. The cube is centered in x and y
-v0=[0 0 0]-[L1 L2 0]/2;
-v1=[L1 0 0]-[L1 L2 0]/2;
-v2=[L1 L2 0]-[L1 L2 0]/2;
-v3=[0 L2 0]-[L1 L2 0]/2;
-v4=[0 0 L3]-[L1 L2 0]/2;
-v5=[L1 0 L3]-[L1 L2 0]/2;
-v6=[L1 L2 L3]-[L1 L2 0]/2;
-v7=[0 L2 L3]-[L1 L2 0]/2;
-v8=[L1/2 L2/2 0]-[L1 L2 0]/2;
-v9=[L1/2 L2/2 L3]-[L1 L2 0]/2;
-v10=[L1/2 0 L3/2]-[L1 L2 0]/2;
-v11=[L1/2 L2 L3/2]-[L1 L2 0]/2;
-v12=[0 L2/2 L3/2]-[L1 L2 0]/2;
-v13=[L1 L2/2 L3/2]-[L1 L2 0]/2;
+v0=[0 0 0]-[L1 L2 L3]/2;
+v1=[L1 0 0]-[L1 L2 L3]/2;
+v2=[L1 L2 0]-[L1 L2 L3]/2;
+v3=[0 L2 0]-[L1 L2 L3]/2;
+v4=[0 0 L3]-[L1 L2 L3]/2;
+v5=[L1 0 L3]-[L1 L2 L3]/2;
+v6=[L1 L2 L3]-[L1 L2 L3]/2;
+v7=[0 L2 L3]-[L1 L2 L3]/2;
+v8=[L1/2 L2/2 0]-[L1 L2 L3]/2;
+v9=[L1/2 L2/2 L3]-[L1 L2 L3]/2;
+v10=[L1/2 0 L3/2]-[L1 L2 L3]/2;
+v11=[L1/2 L2 L3/2]-[L1 L2 L3]/2;
+v12=[0 L2/2 L3/2]-[L1 L2 L3]/2;
+v13=[L1 L2/2 L3/2]-[L1 L2 L3]/2;
 
 
 % Create 12 facets by splitting each face of the cube in two triangles
@@ -95,4 +100,3 @@ system([MODEL_DIR '/scripts/tetgenSTL.sh ' filename ' ' num2str(averageElementVo
 
 %% Create T and N files and clean tetgent output
 system([MODEL_DIR '/scripts/tetgen2TN.sh ' filename ' ' num2str(meshID)]);
-

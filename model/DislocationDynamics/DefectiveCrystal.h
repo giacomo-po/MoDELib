@@ -177,7 +177,19 @@ namespace model
                         const PlanarMeshFace<dim>& face2(*rIter.second->faces().at(pair.second));
                         const VectorDim cc(face1.center()-face2.center());
                         const VectorDim ccc(cc.dot(face1.outNormal())*face1.outNormal());
-                        LatticeVector<dim> lv(ccc,poly.grains().begin()->second);
+                        
+                        const LatticeDirection<dim> ld(poly.grains().begin()->second.latticeDirection(face1.outNormal()));
+                        const double normRatio(ccc.norm()/ld.cartesian().norm());
+                        if(std::fabs(std::round(normRatio)-normRatio)>FLT_EPSILON)
+                        {
+//                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
+                            std::cout<<"Mesh in direction "<< std::setprecision(15)<<std::scientific<<ld.cartesian().normalized().transpose()<<" is not commensurate for periodicity"<<std::endl;
+                            std::cout<<"Mesh size in that direction must be a multiple of "<< std::setprecision(15)<<std::scientific<<ld.cartesian().norm()<<std::endl;
+                            std::cout<<"Size detected="<< std::setprecision(15)<<std::scientific<<ccc.norm()<<std::endl;
+                            std::cout<<"Closest commensurate size="<< std::setprecision(15)<<std::scientific<<std::round(normRatio)*ld.cartesian().norm()<<std::endl;
+                            assert(false && "MESH NOT COMMENSURATE");
+                        }
+//                        LatticeVector<dim> lv(ccc,poly.grains().begin()->second);
                     }
                 }
             }

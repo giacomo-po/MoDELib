@@ -259,6 +259,14 @@ namespace model
                     }
                     else
                     {
+                        std::cout<<(sortedTemp.back()->P1-seg->P0).norm()<<std::endl;
+                        std::cout<<(sortedTemp.back()->P1-seg->P1).norm()<<std::endl;
+                        for(size_t k=0;k<hullPts.size();++k)
+                        {
+                            const auto& segTemp(*hullPts[k].t);
+
+                            std::cout<<segTemp->P0.transpose()<<" "<<segTemp->P1.transpose()<<std::endl;
+                        }
                         assert(false && "DISCONNECTED FACE BOUNDARY");
                     }
                 }

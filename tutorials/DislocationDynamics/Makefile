@@ -172,8 +172,8 @@ empty:
 	@echo emptying folder evl
 	@find evl/ -name evl_\*.txt ! -name evl_0.txt -exec rm {} +;
 	@find evl/ -name evl_\*.bin ! -name evl_0.bin -exec rm {} +;
-	@find evl/ -name ddAux_\*.txt ! -name ddAux_0.txt -exec rm {} +;
-	@find evl/ -name ddAux_\*.bin ! -name ddAux_0.bin -exec rm {} +;
+	@find evl/ -name ddAux_\*.txt -exec rm {} +;
+	@find evl/ -name ddAux_\*.bin -exec rm {} +;
 ifeq ($(Eexists),1)
 	@echo emptying folder E
 	@find E/ -name E_\*.txt -exec rm {} +;
