@@ -80,6 +80,8 @@ ifeq ($(usePARDISO), 1)
 		else
 			LIBS += -Wl,--start-group -lmkl_intel_lp64 -lmkl_core -lmkl_gnu_thread -Wl,--end-group 
 		endif
+# export LD_LIBRARY_PATH=/opt/intel/mkl/lib/intel64:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/opt/intel/lib/intel64:$LD_LIBRARY_PATH
 	endif
 
 endif

@@ -143,36 +143,3 @@ namespace model
 }
 #endif
 
-
-//        HullPointContainerType getPoints()
-//        {
-//            if(this->size()<=3)
-//            {
-//                return *this;
-//            }
-//            else
-//            {
-//                std::sort(this->begin(), this->end());
-//                HullPointContainerType H;
-//                size_t k(0);
-//
-//                // Build lower hull
-//                for (size_t i = 0; i < this->size(); ++i)
-//                {
-//                    while (k >= 2 && cross(H[k-2], H[k-1], this->operator[](i)) <= tol) k--;
-//                    k++;
-//                    H.push_back(this->operator[](i));
-//                }
-//
-//                // Build upper hull
-//                for (size_t i = this->size()-1, t = k+1; i > 0; --i)
-//                {
-//                    while (k >= t && cross(H[k-2], H[k-1], this->operator[](i-1)) <= tol) k--;
-//                    k++;
-//                    H.push_back(this->operator[](i-1));
-//                }
-//
-////                H.resize(k-1);
-//                return H;
-//            }
-//        }

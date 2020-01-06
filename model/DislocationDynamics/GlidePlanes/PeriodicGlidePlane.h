@@ -84,7 +84,7 @@ namespace model
     /**********************************************************************/
     template<int dim>
     class PeriodicPlaneNode : public StaticID<PeriodicPlaneNode<dim>>
-    /*                   */,public Eigen::Matrix<double,dim-1,1>
+    /*                     */,public Eigen::Matrix<double,dim-1,1>
     {
         
     public:
@@ -873,7 +873,6 @@ namespace model
         
         /**********************************************************************/
         template<typename NodeType>
-        //        void addPatchesContainingPolygon(const std::vector<std::shared_ptr<NodeType>>& polyPoints)
         void addPatchesContainingPolygon(const std::vector<NodeType>& polyPoints)
         {
             
@@ -946,8 +945,8 @@ namespace model
                 
                 for(size_t k=0;k<polyPoints.size();++k)
                 {
-                    const VectorLowerDim& startPoint(this->getLocalPosition(polyPoints[k].P));
-                    const VectorLowerDim& endPoint(k==polyPoints.size()-1? this->getLocalPosition(polyPoints[0].P) : this->getLocalPosition(polyPoints[k+1].P));
+                    const VectorLowerDim startPoint(this->getLocalPosition(polyPoints[k].P));
+                    const VectorLowerDim endPoint(k==polyPoints.size()-1? this->getLocalPosition(polyPoints[0].P) : this->getLocalPosition(polyPoints[k+1].P));
                     while(true)
                     {
 //                        std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
@@ -962,7 +961,7 @@ namespace model
                         }
                         
                         if(crossdEdges.size()==0)
-                        {
+                        {// No untwinned edges have been crossed, break and move to next pair of polyPoints
                             break;
                         }
                         else
@@ -974,7 +973,7 @@ namespace model
                                 {
                                     shift+=getShift(*edge);
                                 }
-                                getPatch(shift);
+                                getPatch(shift); // this will change untwinnedEdges. Remain in while loop
 
                             }
                         }

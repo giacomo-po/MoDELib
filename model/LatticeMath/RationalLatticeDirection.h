@@ -14,6 +14,8 @@
 #include <ReciprocalLatticeVector.h>
 #include <LatticeGCD.h>
 #include <Rational.h>
+#include <BestRationalApproximation.h>
+//#include <ReciprocalLatticeVector.h>
 
 namespace model
 {
@@ -23,7 +25,7 @@ namespace model
 //        typedef LatticeGCD<dim> LatticeGCDType;
 //        typedef LatticeBase<dim> LatticeBaseType;
 //        typedef LatticeVector<dim> LatticeVectorType;
-//        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
 
@@ -46,6 +48,10 @@ namespace model
         /* init */,dir(v)
         {
         }
+        
+        /**********************************************************************/
+        RationalLatticeDirection(const RationalLatticeDirection& other) = default;
+        RationalLatticeDirection(RationalLatticeDirection&& other) =default;
         
         VectorDimD cartesian() const
         {

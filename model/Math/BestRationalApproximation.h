@@ -18,16 +18,16 @@ namespace model
     
     class BestRationalApproximation
     {
-        
+    public:
         typedef int64_t LongIntType;
         
+    private:
         static std::pair<LongIntType,LongIntType> rat_approx(double f, LongIntType md)
         {
             if(fabs(f)<1.0/md)
             {
                 return std::pair<LongIntType,LongIntType>(0,1);
             }
-            //std::cout<<"f="<<f<<std::endl;
 
             
             /*  a: continued fraction coefficients. */
@@ -46,36 +46,28 @@ namespace model
                 f = -f;
             }
             
-            //std::cout<<"I'm here 1"<<std::endl;
             
             while (f != floor(f))
             {
                 n <<= 1;
                 f *= 2;
             }
-            //std::cout<<"f="<<f<<std::endl;
 
             d = f;
             
-                        //std::cout<<"d="<<d<<std::endl;
             
             /* continued fraction and check denominator each step */
             for (i = 0; i < 64; i++)
             {
-                            //std::cout<<"I'm here 2"<<std::endl;
                 
                 a = n ? d / n : 0;
                 if (i && !a) break;
                 
-                            //std::cout<<"I'm here 2a"<<std::endl;
                 x = d;
                 d = n;
                 
-                            //std::cout<<"I'm here 2aa"<<std::endl;
-                //std::cout<<x<<" "<<n<<std::endl;
+
                 n = x % n;
-                
-                            //std::cout<<"I'm here 2b"<<std::endl;
                 
                 x = a;
                 if (k[1] * a + k[0] >= md)
@@ -86,8 +78,6 @@ namespace model
                     else
                         break;
                 }
-                
-                            //std::cout<<"I'm here 3"<<std::endl;
                 
                 h[2] = x * h[1] + h[0]; h[0] = h[1]; h[1] = h[2];
                 k[2] = x * k[1] + k[0]; k[0] = k[1]; k[1] = k[2];

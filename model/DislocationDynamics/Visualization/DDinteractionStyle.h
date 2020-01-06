@@ -150,13 +150,13 @@ namespace model
         }
         
         
-        void init(vtkRenderer* _ddRenderer,vtkRenderer* _plotRenderer,const int& meshID)
+        void init(vtkRenderer* _ddRenderer,vtkRenderer* _plotRenderer)
         {
         
             ddRenderer=_ddRenderer;
             plotRenderer=_plotRenderer;
             
-            meshActor.init(meshID,ddRenderer);
+            meshActor.init(ddRenderer);
             
             loadFrame(0);
             

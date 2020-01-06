@@ -16,7 +16,6 @@
 
 #include <UniqueOutputFile.h>
 #include <SequentialOutputFile.h>
-#include <SequentialBinFile.h>
 #include <TerminalColors.h>
 #include <MPIcout.h>
 #include <LatticeMath.h>
@@ -612,8 +611,9 @@ namespace model
         void outputFiles(const size_t& runID) const
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           */
-            model::cout<<"		Writing to "<<std::flush;
+            model::cout<<"		";
             configIO().write(runID,DN.outputBinary);
+            model::cout<<"        ";
             auxIO().write(runID,DN.outputBinary);
 
             if(DN.outputElasticEnergy)

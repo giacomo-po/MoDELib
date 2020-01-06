@@ -163,7 +163,7 @@ namespace model
 
         /**********************************************************************/
         size_t gSize() const
-        {/*!\returns the number of elements in the FiniteElement
+        {/*!\returns the total number of dof of this TrialFunction
           */
             return TrialBase<TrialFunctionType>::gSize();
         }

@@ -20,6 +20,9 @@
 
 // http://stackoverflow.com/questions/2181418/computing-the-null-space-of-a-matrix-as-fast-as-possible
 
+// To  get just the matrix Z, and not Y
+// https://stackoverflow.com/questions/34662940/how-to-compute-basis-of-nullspace-with-eigen-library
+
 namespace model
 {
     /*!Class template for the calculation of the null space of a sparse matrix

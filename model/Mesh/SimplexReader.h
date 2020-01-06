@@ -21,16 +21,16 @@
 namespace model
 {
     
-    
     /**************************************************************************/
     /**************************************************************************/
     template<int dim>
-    struct SimplexReader : private std::map<size_t,Eigen::Matrix<double,dim,1>>
-    /*                  */,private std::map<size_t,std::pair<typename SimplexTraits<dim,dim>::SimplexIDType,size_t>>
+    struct SimplexReaderBase : private std::map<size_t,Eigen::Matrix<double,dim,1>>
+    /*                      */,private std::map<size_t,std::pair<typename SimplexTraits<dim,dim>::SimplexIDType,size_t>>
     {
         
         typedef std::map<size_t,Eigen::Matrix<double,dim,1>> NodeContainerType;
         typedef std::map<size_t,std::pair<typename SimplexTraits<dim,dim>::SimplexIDType,size_t>> ElementContainerType;
+        
         
         /**********************************************************************/
         const NodeContainerType& nodes() const
@@ -56,26 +56,53 @@ namespace model
             return *this;
         }
         
-//        /**********************************************************************/
-//        void readGmsh(const std::string& meshFileName)
-//        {
-//            std::cout<<"Reading mesh file "<<meshFileName<<std::endl;
-//            GmshReader gmsh(meshFileName);
-//            this->nodes()=gmsh.nodes();
-//            f//or()
-//        }
+        /**********************************************************************/
+        void clear()
+        {
+            nodes().clear();
+            elements().clear();
+        }
+        
+        SimplexReaderBase<dim>& simplexReader()
+        {
+            return *this;
+        }
+        
+        const SimplexReaderBase<dim>& simplexReader() const
+        {
+            return *this;
+        }
+        
+        //        static IDreader<'N',1,dim,double> nodeReader;
         
         /**********************************************************************/
-        void readTN(const int& meshID)
+        const Eigen::Matrix<double,dim,1>& get_P0(const typename SimplexTraits<dim,0>::SimplexIDType& xID)
         {
-            clear();
+            //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((xID)(0)));
+            const auto nIter(nodes().find((xID)(0)));
+            assert((nIter!=nodes().end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
+            return nIter->second;
+        }
+    };
+    
+    /**************************************************************************/
+    /**************************************************************************/
+    template<int dim>
+    struct SimplexReader : public SimplexReaderBase<dim>
+    {
+        
+        /**********************************************************************/
+        void read(const int& meshID)
+        {
+            
+            this->clear();
             IDreader<'N',1,dim,double> nodeReader;
             nodeReader.read(meshID,true);
             for(const auto& node : nodeReader)
             {
-                nodes().emplace(node.first,Eigen::Map<const Eigen::Matrix<double,dim,1>>(node.second.data()));
+                this->nodes().emplace(node.first,Eigen::Map<const Eigen::Matrix<double,dim,1>>(node.second.data()));
             }
-            assert(nodeReader.size()==nodes().size());
+            assert(nodeReader.size()==this->nodes().size());
             
             IDreader<'T',1,dim+2,size_t> elementReader;
             elementReader.read(meshID,true);
@@ -87,54 +114,46 @@ namespace model
                     key[d]=eIter.second[d];
                 }
                 size_t regionID(eIter.second[dim+1]);
-                elements().emplace(eIter.first,std::make_pair(key,regionID));
+                this->elements().emplace(eIter.first,std::make_pair(key,regionID));
             }
-            assert(elementReader.size()==elements().size());
+            //            assert(elementReader.size()==this->elements().size());
         }
-        
-        /**********************************************************************/
-        void clear()
-        {
-            nodes().clear();
-            elements().clear();
-        }
-        
-        SimplexReader& simplexReader()
-        {
-            return *this;
-        }
-        
-        const SimplexReader& simplexReader() const
-        {
-            return *this;
-        }
-        
-//        static IDreader<'N',1,dim,double> nodeReader;
-        
-        /**********************************************************************/
-        const Eigen::Matrix<double,dim,1>& get_P0(const typename SimplexTraits<dim,0>::SimplexIDType& xID)
-        {
-            //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((xID)(0)));
-            const auto nIter(nodes().find((xID)(0)));
-            assert((nIter!=nodes().end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-            return nIter->second;
-        }
-        
-//        /**********************************************************************/
-//        static Eigen::Matrix<double,dim,1> get_P0(const typename SimplexTraits<dim,0>::SimplexIDType& xID)
-//        {
-//            //            const typename VertexReader<'N',dim+1,double>::const_iterator nIter(nodeReader.find((xID)(0)));
-//            const typename IDreader<'N',1,dim,double>::const_iterator nIter(nodeReader.find((xID)(0)));
-//            assert((nIter!=nodeReader.end()) && "MESH VERTEX NOT FOUND IN N/N_x.txt.");
-//            return Eigen::Map<const Eigen::Matrix<double,dim,1>>(nIter->second.data());
-//        }
         
     };
     
-//    template<int dim>
-//    //    VertexReader<'N',dim+1,double> SimplexReader<dim>::nodeReader;
-//    IDreader<'N',1,dim,double> SimplexReader<dim>::nodeReader;
-    
+    template<>
+    struct SimplexReader<3> : public SimplexReaderBase<3>
+    {
+        
+        static constexpr int dim=3;
+        
+        /**********************************************************************/
+        void read(const std::string& meshFileName)
+        {
+            this->clear();
+            GmshReader gmshReader(meshFileName);
+            this->nodes()=gmshReader.nodes();
+            //assert(nodeReader.size()==this->nodes().size());
+            
+            for(const auto& eIter : gmshReader.elements())
+            {
+                if(   eIter.second.type==4  // 4-node (linear) tetrahedron
+                   || eIter.second.type==11 //11-node (quadratic) tetrahedron
+                   )
+                {
+                    typename SimplexTraits<dim,dim>::SimplexIDType key;
+                    for(int d=0;d<dim+1;++d)
+                    {
+                        key[d]=eIter.second.nodeIDs[d]; // first dim+1 nodes are the principa vertex nodes. See Node order in http://gmsh.info/doc/texinfo/gmsh.html#Node-ordering
+                    }
+                    size_t regionID(eIter.second.tags[1]); // FINISH HERE, WHAT IS THE RIGHT TAG FOR A POLYCRYSTAL
+                    this->elements().emplace(eIter.first,std::make_pair(key,regionID));
+                    
+                }
+            }
+        }
+        
+    };
     
 }	// close namespace
 #endif

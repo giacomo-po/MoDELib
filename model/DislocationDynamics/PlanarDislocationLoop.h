@@ -17,8 +17,10 @@
 #include <LatticePlane.h>
 #include <Grain.h>
 #include <GlidePlane.h>
+#include <SlipSystem.h>
 //#include <PeriodicDislocationLoopPair.h>
-#include <BoundaryLoopLinkSequence.h>
+//#include <BoundaryLoopLinkSequence.h>
+#include <PeriodicDislocationLoop.h>
 //#include <PlanarDislocationLoopIO.h>
 //#include <PlanarPolygon.h>
 
@@ -33,14 +35,11 @@ namespace model
 {
     template <typename Derived>
     class PlanarDislocationLoop : public Loop<Derived>
-    //                            public PlanarPolygon
     {
         
     public:
         
         
-        
-        //        constexpr static int dim=_dim;
         constexpr static int dim=TypeTraits<Derived>::dim;
 
         typedef PlanarDislocationLoop<Derived> PlanarDislocationLoopType;
@@ -54,11 +53,14 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef GlidePlane<dim> GlidePlaneType;
         typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
-        
+        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
+
         const std::shared_ptr<GlidePlaneType> glidePlane;
         const Grain<dim>& grain;
         const int loopType;
-        
+        const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
+        const VectorDim periodicShift;
+
         static int verbosePlanarDislocationLoop;
 
         
@@ -68,7 +70,8 @@ namespace model
         double _slippedArea;
         Eigen::Matrix<double,dim,1> _rightHandedUnitNormal;
         ReciprocalLatticeDirection<dim> _rightHandedNormal;
-        
+        std::shared_ptr<SlipSystem> _slipSystem;
+
         
         template <typename T>
         static int sgn(const T& val)
@@ -78,129 +81,44 @@ namespace model
         
     public:
         
-        //std::map<std::set<size_t>,std::deque<std::deque<const LoopLinkType*>>> boundaryLinkSequenceMap;
-        std::map<std::set<size_t>,BoundaryLoopLinkSequence<LoopType>> boundaryLinkSequenceMap;
         
-    
-        
-        /******************************************************************/
-        void updateBoundaryDecomposition()
+        std::shared_ptr<SlipSystem> searchSlipSystem() const
         {
-                        boundaryLinkSequenceMap.clear();
-            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+            for(const auto& ss : grain.slipSystems())
             {
-                if(this->isLoop())
+                if(ss->isSameAs(this->flow(),_rightHandedNormal))
                 {
-//                    for(auto& pair : boundaryLinkSequenceMap)
-//                    {// clear the deque of links in BoundaryLoopLinkSequence, without killing shared_ptr
-//                        pair.second.clear();
-//                    }
-                    
-                    
-                    
-                    for(const auto& link : this->linkSequence())
-                    {
-                        std::set<size_t> key;
-                        for(const auto& face : link->pLink->meshFaces())
-                        {
-                            key.insert(face->sID);
-                        }
-                        
-                        const auto& linkPrev(link->prev);
-                        std::set<size_t> keyPrev;
-                        for(const auto& face : linkPrev->pLink->meshFaces())
-                        {
-                            keyPrev.insert(face->sID);
-                        }
-                        
-                        //                if(boundaryLinkSequenceMap.find(key)==boundaryLinkSequenceMap.end())
-                        //                {
-                        //                    boundaryLinkSequenceMap.emplace(key,this);
-                        //                }
-                        
-                        if(link->pLink->isBoundarySegment())
-                        {
-                            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
-                                                            std::forward_as_tuple(key),
-                                                            std::forward_as_tuple(this->p_derived(),
-                                                                                  key)
-                                                            );
-                            
-                            
-                            
-                            if(!linkPrev->pLink->isBoundarySegment())
-                            {
-                                //
-                                //                        boundaryLinkSequenceMap.emplace(key,this);
-                                boundaryLinkSequenceMap.at(key).emplace_back();
-                                boundaryLinkSequenceMap.at(key).back().push_back(link);
-                            }
-                            else
-                            {
-                                if(key==keyPrev)
-                                {
-                                    if(boundaryLinkSequenceMap.at(key).empty())
-                                    {
-                                        boundaryLinkSequenceMap.at(key).emplace_back();
-                                    }
-                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
-                                }
-                                else
-                                {
-                                    //                            boundaryLinkSequenceMap.emplace(key,this);
-                                    boundaryLinkSequenceMap.at(key).emplace_back();
-                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
-                                }
-                            }
-                        }
-                        
-                        
-                    }
-                    
-                    //std::vector<std::set<size_t>> toBeDeleted;
-                    for(auto& pair : boundaryLinkSequenceMap)
-                    {
-                        if(pair.second.size()>1)
-                        {
-                            if(pair.second.back().back()->next == pair.second.front().front())
-                            {
-                                for(const auto& link : pair.second.front())
-                                {
-                                    pair.second.back().push_back(link);
-                                }
-                                pair.second.pop_front();
-                            }
-                        }
-                        
-//                        if(pair.second.empty())
-//                        {
-//                            toBeDeleted.push_back(pair.first);
-//                        }
-                        
-                    }
-                    
-//                    for(const auto& key : toBeDeleted)
-//                    {
-//                        boundaryLinkSequenceMap.erase(key);
-//                    }
-                    
-                    if(true)
-                    {
-                        std::cout<<"Loop "<<this->sID<<" boundaryLinkSequenceMap:"<<std::endl;
-                        for(auto& pair : boundaryLinkSequenceMap)
-                        {
+                    return ss;
+                }
+            }
+            return std::shared_ptr<SlipSystem>(nullptr);
+        }
 
-                            pair.second.print();
-                            
-                            
-                        }
+        /******************************************************************/
+        void updateSlipSystem()
+        {
+            if(glidePlane)
+            {// a glide plane exists
+                if(_slipSystem)
+                {// a current slip system exists
+                    if(_slipSystem->isSameAs(this->flow(),_rightHandedNormal))
+                    {// currenst slip system still valid, don't do anything
+                    }
+                    else
+                    {// currenst slip system not valid
+                        _slipSystem=searchSlipSystem();
                     }
                 }
-                
+                else
+                {// a current slip system does not exist
+                    _slipSystem=searchSlipSystem();
+                }
             }
-            
+            else
+            {// no glide plane
+                _slipSystem=nullptr;
+            }
         }
-        
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
@@ -215,18 +133,47 @@ namespace model
                               const FLowType& B,
                               const std::shared_ptr<GlidePlaneType>& glidePlane_in) :
         /* base init */ BaseLoopType(dn,B)
-        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+        /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
         /*      init */,_rightHandedNormal(grain)
+        /*      init */,_slipSystem(nullptr)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
             
             assert(this->flow().dot(glidePlane->n)==0);
+        }
+        
+        /**********************************************************************/
+        template<typename FLowType>
+        PlanarDislocationLoop(LoopNetworkType* const dn,
+                              const FLowType& B,
+                              const std::shared_ptr<GlidePlaneType>& glidePlane_in,
+                              const std::shared_ptr<PeriodicDislocationLoopType>& pLoop_in,
+                              const VectorDim& shift_in
+                              ) :
+        /* base init */ BaseLoopType(dn,B)
+        /*      init */,glidePlane(glidePlane_in)
+        /*      init */,grain(glidePlane->grain)
+        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+        /*      init */,periodicLoop(pLoop_in)
+        /*      init */,periodicShift(shift_in)
+        /*      init */,nA(VectorDim::Zero())
+        /*      init */,_slippedArea(0.0)
+        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(grain)
+        /*      init */,_slipSystem(nullptr)
+        {
+            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" of PeriodicLoop "<<periodicLoop->sID<<std::endl;);
+            
+            assert(this->flow().dot(glidePlane->n)==0);
+            
+            periodicLoop->addLoop(this->p_derived());
         }
         
         /**********************************************************************/
@@ -239,10 +186,13 @@ namespace model
         /*      init */,glidePlane(nullptr)
         /*      init */,grain(dn->poly.grain(grainID))
         /*      init */,loopType(_loopType)
+        /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
         /*      init */,_rightHandedNormal(grain)
+        /*      init */,_slipSystem(nullptr)
         {
             VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" without plane."<<std::endl;);
         }
@@ -253,10 +203,13 @@ namespace model
         /*      init */,glidePlane(other.glidePlane)
         /*      init */,grain(other.grain)
         /*      init */,loopType(other.loopType)
+        /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,nA(other.nA)
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
         /*      init */,_rightHandedNormal(grain)
+        /*      init */,_slipSystem(nullptr)
         {
             VerbosePlanarDislocationLoop(1,"Copy-constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
         }
@@ -265,6 +218,12 @@ namespace model
         ~PlanarDislocationLoop()
         {
             VerbosePlanarDislocationLoop(1,"Destroying PlanarDislocationLoop "<<this->sID<<std::endl;);
+            
+            if(periodicLoop)
+            {
+                periodicLoop->removeLoop(this->p_derived());
+            }
+
         }
         
 
@@ -434,6 +393,13 @@ namespace model
         {
             return this->flow().cartesian();
         }
+
+        /**********************************************************************/
+        const std::shared_ptr<SlipSystem>&  slipSystem() const
+        {
+            return _slipSystem;
+        }
+
         
         /**********************************************************************/
         void updateGeometry()
@@ -462,6 +428,7 @@ namespace model
                 const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
                 _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
                 _rightHandedUnitNormal=_rightHandedNormal.cartesian().normalized();
+                updateSlipSystem();
             }
         }
         
@@ -650,4 +617,129 @@ namespace model
 //            }
 //
 //            return temp;
+//        }
+
+
+
+//std::map<std::set<size_t>,std::deque<std::deque<const LoopLinkType*>>> boundaryLinkSequenceMap;
+//        std::map<std::set<size_t>,BoundaryLoopLinkSequence<LoopType>> boundaryLinkSequenceMap;
+
+
+
+//        /******************************************************************/
+//        void updateBoundaryDecomposition()
+//        {
+//                        boundaryLinkSequenceMap.clear();
+//            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//            {
+//                if(this->isLoop())
+//                {
+////                    for(auto& pair : boundaryLinkSequenceMap)
+////                    {// clear the deque of links in BoundaryLoopLinkSequence, without killing shared_ptr
+////                        pair.second.clear();
+////                    }
+//
+//
+//
+//                    for(const auto& link : this->linkSequence())
+//                    {
+//                        std::set<size_t> key;
+//                        for(const auto& face : link->pLink->meshFaces())
+//                        {
+//                            key.insert(face->sID);
+//                        }
+//
+//                        const auto& linkPrev(link->prev);
+//                        std::set<size_t> keyPrev;
+//                        for(const auto& face : linkPrev->pLink->meshFaces())
+//                        {
+//                            keyPrev.insert(face->sID);
+//                        }
+//
+//                        //                if(boundaryLinkSequenceMap.find(key)==boundaryLinkSequenceMap.end())
+//                        //                {
+//                        //                    boundaryLinkSequenceMap.emplace(key,this);
+//                        //                }
+//
+//                        if(link->pLink->isBoundarySegment())
+//                        {
+//                            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
+//                                                            std::forward_as_tuple(key),
+//                                                            std::forward_as_tuple(this->p_derived(),
+//                                                                                  key)
+//                                                            );
+//
+//
+//
+//                            if(!linkPrev->pLink->isBoundarySegment())
+//                            {
+//                                //
+//                                //                        boundaryLinkSequenceMap.emplace(key,this);
+//                                boundaryLinkSequenceMap.at(key).emplace_back();
+//                                boundaryLinkSequenceMap.at(key).back().push_back(link);
+//                            }
+//                            else
+//                            {
+//                                if(key==keyPrev)
+//                                {
+//                                    if(boundaryLinkSequenceMap.at(key).empty())
+//                                    {
+//                                        boundaryLinkSequenceMap.at(key).emplace_back();
+//                                    }
+//                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
+//                                }
+//                                else
+//                                {
+//                                    //                            boundaryLinkSequenceMap.emplace(key,this);
+//                                    boundaryLinkSequenceMap.at(key).emplace_back();
+//                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
+//                                }
+//                            }
+//                        }
+//
+//
+//                    }
+//
+//                    //std::vector<std::set<size_t>> toBeDeleted;
+//                    for(auto& pair : boundaryLinkSequenceMap)
+//                    {
+//                        if(pair.second.size()>1)
+//                        {
+//                            if(pair.second.back().back()->next == pair.second.front().front())
+//                            {
+//                                for(const auto& link : pair.second.front())
+//                                {
+//                                    pair.second.back().push_back(link);
+//                                }
+//                                pair.second.pop_front();
+//                            }
+//                        }
+//
+////                        if(pair.second.empty())
+////                        {
+////                            toBeDeleted.push_back(pair.first);
+////                        }
+//
+//                    }
+//
+////                    for(const auto& key : toBeDeleted)
+////                    {
+////                        boundaryLinkSequenceMap.erase(key);
+////                    }
+//
+//                    if(true)
+//                    {
+//                        std::cout<<"Loop "<<this->sID<<" boundaryLinkSequenceMap:"<<std::endl;
+//                        for(auto& pair : boundaryLinkSequenceMap)
+//                        {
+//
+//                            pair.second.print();
+//
+//
+//                        }
+//                    }
+//                }
+//
+//            }
+//
 //        }

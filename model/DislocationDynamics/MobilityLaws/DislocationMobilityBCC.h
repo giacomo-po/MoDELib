@@ -15,7 +15,7 @@
 
 namespace model
 {
-    struct DislocationMobilityBCC : DislocationMobilityBase
+    struct DislocationMobilityBCC : public DislocationMobilityBase
     {
         
         typedef Eigen::Matrix<double,3,3> MatrixDim;
@@ -84,7 +84,7 @@ namespace model
 
         
         /**********************************************************************/
-        DislocationMobilityBCC(const MaterialBase& material) :
+        DislocationMobilityBCC(const DislocatedMaterialBase& material) :
                 /* init */ DislocationMobilityBase("BCC DislocationMobility for "+material.materialName),
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b

@@ -50,7 +50,7 @@ ddSolverType=0;
 # OUTPUT
 # Options for output files:
 outputFrequency=10;
-outputBinary=1;
+outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
@@ -58,7 +58,7 @@ outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 
@@ -87,7 +87,6 @@ collisionTol=3;
 
 ######################################
 # BOUNDARY MESH
-meshID=0; # Mesh files are read from N/N_meshID.txt and T/T_meshID.txt.
 surfaceAttractionDistance=20;
 
 ######################################

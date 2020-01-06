@@ -149,7 +149,7 @@ namespace model
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
-                std::cout<<"writing "<<filename<<std::flush;
+                std::cout<<"Writing "<<filename<<std::flush;
                 // Write header
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
@@ -186,7 +186,7 @@ namespace model
             std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
             if(file.is_open())
             {
-                std::cout<<"writing "<<filename<<std::flush;
+                std::cout<<"Writing "<<filename<<std::flush;
                 // Write header
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());

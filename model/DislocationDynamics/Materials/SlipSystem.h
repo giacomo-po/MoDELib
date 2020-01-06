@@ -19,7 +19,7 @@
 namespace model
 {
     
-    struct SlipSystem
+    struct SlipSystem : StaticID<SlipSystem>
     {
         
 
@@ -38,6 +38,13 @@ namespace model
         /* init */,unitNormal(n.cartesian().normalized())
         /* init */,mobility(mobility_in)
         {
+            
+            model::cout<<greenColor<<"Creating SlipSystem "<<this->sID<<defaultColor<<std::endl;
+            model::cout<<"  s= "<<s.cartesian().transpose()<<std::endl;
+            model::cout<<"  n= "<<n.cartesian().transpose()<<std::endl;
+            model::cout<<"  mobility= "<<mobility->name<<std::endl;
+
+            
             if(n.dot(s)!=0)
             {
                 model::cout<<"PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL. EXITING."<<std::endl;
@@ -48,6 +55,25 @@ namespace model
                 model::cout<<"MOBILITY CANNOT BE A NULLPTR. EXITING."<<std::endl;
                 exit(EXIT_FAILURE);
             }
+        }
+        
+        bool isSameAs(const LatticeVector<3>& s1,const ReciprocalLatticeDirection<3>& n1)
+        {
+            if(   ((s-s1).squaredNorm()==0 && (n-n1).squaredNorm()==0)
+               || ((s+s1).squaredNorm()==0 && (n+n1).squaredNorm()==0)
+               )
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        bool isSameAs(const RationalLatticeDirection<3>& s1,const ReciprocalLatticeDirection<3>& n1)
+        {
+            return isSameAs(s1.dir,n1);
         }
         
     };

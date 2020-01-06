@@ -37,6 +37,7 @@
 #include <vtkPlane.h>
 #include <random>
 
+#include <TextFileParser.h>
 
 #include <SimplicialMesh.h>
 //#include <VertexReader.h>
@@ -111,9 +112,9 @@ namespace model
         }
         
         /**************************************************************************/
-        void init(const int& meshID,vtkRenderer* renderer)
+        void init(vtkRenderer* renderer)
         {
-            mesh.readMesh(meshID);
+            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
             
             polydata->Allocate();
             

@@ -19,7 +19,6 @@
 #include <map>
 //#include <VertexReader.h>
 #include <TerminalColors.h>
-#include <SequentialBinFile.h>
 #include <SimplexTraits.h>
 #include <Simplex.h>
 #include <SimplexReader.h>
@@ -60,50 +59,18 @@ namespace model
             
             vol0=0.0;
             
-//            model::cout<<greenBoldColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
-//            simplices().clear();
-//
-//            SimplexReader<dim>::nodeReader.read(meshID,true);
-//
-//            simplices().clear();
-//
-//            //            VertexReader<'T',dim+2,size_t> elementReader;
-//            ElementReaderType elementReader; // exaple in 3d: [elementID v1 v2 v3 v4 regionID]
-//            const bool success=elementReader.read(meshID,true);
-            
-            //            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
-            
-//            if (success)
-//            {
+
                 const auto t0= std::chrono::system_clock::now();
             
             model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::flush;
-
-                //                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
-                //                     /*                                       */ eIter!=elementReader.end();++eIter)
                 for (const auto& eIter : this->simplexReader().elements())
                 {
-                    //                    insertSimplex(eIter->second);
-                    //                    Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
-                    //                    insertSimplex(row.template segment<dim+1>(0),row(dim+1));
-                    
-//                    typename SimplexTraits<dim,dim>::SimplexIDType key;
-//                    for(int d=0;d<dim+1;++d)
-//                    {
-//                        key[d]=eIter.second[d];
-//                    }
-//                    insertSimplex(key,eIter.second[dim+1]);
                     insertSimplex(eIter.second.first,eIter.second.second);
-                    //                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
-                    
-                    //                    binFile.write(std::make_pair(eIter->first,eIter->second));
-                    
                 }
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
                 
                 this->info(); // print mesh info
-//                SimplexReader<dim>::nodeReader.clear();
-                
+            
                 if(simplices().size())
                 {
                     _xMin=this->template observer<0>().begin()->second->P0;
@@ -128,12 +95,6 @@ namespace model
                 {
                     model::cout<<"Mesh is empty."<<std::endl;
                 }
-//            }
-//            else
-//            {
-//                //                assert(0);
-//                model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
-//            }
             model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
             
@@ -149,25 +110,6 @@ namespace model
                 
                 if(simpl.second->isBoundarySimplex())
                 {// count number of bonudary simplices for later check
-                    //                    const Eigen::Matrix<double,_dim,1> n(simpl.second->outNormal());
-                    //                    const Eigen::Matrix<double,_dim,1> c(simpl.second->center());
-                    //                    SimplicialMeshFace<_dim>* faceFound=nullptr;
-                    //                    for(auto& face : faces())
-                    //                    {
-                    //                        if(fabs(n.dot(face.outNormal())-1.0)<FLT_EPSILON && fabs((c-face.center()).dot(n))<FLT_EPSILON)
-                    //                        {// same normal, and c contained in face
-                    //                            faceFound=&face;
-                    //                            break;
-                    //                        }
-                    //                    }
-                    //                    if(faceFound)
-                    //                    {
-                    //                        faceFound->insert(simpl.second);
-                    //                    }
-                    //                    else
-                    //                    {
-                    //                        faces().emplace_back(simpl.second);
-                    //                    }
                     bndSimplexCount++;
                 }
                 
@@ -183,12 +125,6 @@ namespace model
                     else
                     {
                         regionBoundaries().emplace(regionIDs,regionIDs).first->second.simplices().insert(simpl.second);
-                        //                        regionBoundaries().emplace(std::piecewise_construct,
-                        //                                         std::forward_as_tuple(regionIDs),
-                        //                                         std::forward_as_tuple(regionIDs,simpl.second));
-                        //                        regionBoundaries().emplace(regionIDs,regionIDs);
-                        
-                        
                     }
                     rgnBndSimplexCount++;
                 }
@@ -197,12 +133,6 @@ namespace model
             updateRegions();
             updateRegionBoundaries();
             identifyParallelFaces();
-            
-            
-            
-            //            model::cout<<"mesh volume="<<volume()<<std::endl;
-            
-            //            model::cout<<"mesh faces: "<<faces().size()<<std::endl;
             
             
             size_t bndFaceSimplexSum=0;
@@ -263,17 +193,12 @@ namespace model
         
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
         /*            */ const Simplex<dim,dim>>  SimplexMapType;
-        
-        //        typedef VertexReader<'T',dim+3,size_t> ElementReaderType;
         typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;
-        
         typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
-        
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
-//        typedef std::deque<SimplicialMeshFace<_dim>> MeshFacesContainerType;
         
         /**********************************************************************/
         SimplicialMesh() :
@@ -284,21 +209,21 @@ namespace model
         }
         
         /**********************************************************************/
-        SimplicialMesh(const int& meshID) :
+        SimplicialMesh(const std::string& meshFileName) :
         /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
         /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
         /* init */,vol0(0.0)
         {
-            this->readTN(meshID);
+            this->read(meshFileName);
             createMesh();
             this->simplexReader().clear();
         }
         
                 /**********************************************************************/
-               void readMesh(const int& meshID)
+        void readMesh(const std::string& meshFileName)
                 {
                     simplices().clear();
-                    this->readTN(meshID);
+                    this->read(meshFileName);
                     createMesh();
                     this->simplexReader().clear();
                 }
@@ -349,201 +274,6 @@ namespace model
                 region.second->identifyParallelFaces();
             }
         }
-        
-//        /**********************************************************************/
-//        void readMesh(const int& meshID)
-//        {/*!
-//          */
-//
-//            vol0=0.0;
-//
-//            model::cout<<greenBoldColor<<"Reading mesh "<<meshID<<defaultColor<<std::endl;
-//            simplices().clear();
-//
-//            SimplexReader<dim>::nodeReader.read(meshID,true);
-//
-//            simplices().clear();
-//
-//            //            VertexReader<'T',dim+2,size_t> elementReader;
-//            ElementReaderType elementReader; // exaple in 3d: [elementID v1 v2 v3 v4 regionID]
-//            const bool success=elementReader.read(meshID,true);
-//
-//            //            SequentialBinFile<'T',std::pair<int,typename SimplexTraits<dim,dim>::SimplexIDType>,true> binFile;
-//
-//            if (success)
-//            {
-//                const auto t0= std::chrono::system_clock::now();
-//
-//                model::cout<<"Creating mesh..."<<std::flush;
-//                //                for (typename ElementReaderType::const_iterator eIter =elementReader.begin();
-//                //                     /*                                       */ eIter!=elementReader.end();++eIter)
-//                for (const auto& eIter : elementReader)
-//                {
-//                    //                    insertSimplex(eIter->second);
-////                    Eigen::Map<const Eigen::Matrix<size_t,1,dim+2>> row(eIter.second.data());
-////                    insertSimplex(row.template segment<dim+1>(0),row(dim+1));
-//
-//                    typename SimplexTraits<dim,dim>::SimplexIDType key;
-//                    for(int d=0;d<dim+1;++d)
-//                    {
-//                        key[d]=eIter.second[d];
-//                    }
-//                    insertSimplex(key,eIter.second[dim+1]);
-//
-//                    //                    insertSimplex(eIter->second.template segment<dim+1>(0),eIter->second(dim+1));
-//
-//                    //                    binFile.write(std::make_pair(eIter->first,eIter->second));
-//
-//                }
-//                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-//
-//                this->info(); // print mesh info
-//                SimplexReader<dim>::nodeReader.clear();
-//
-//                if(simplices().size())
-//                {
-//                    _xMin=this->template observer<0>().begin()->second->P0;
-//                    _xMax=this->template observer<0>().begin()->second->P0;
-//
-//                    for (const auto& nIter : this->template observer<0>())
-//                    {
-//                        for(int d=0;d<dim;++d)
-//                        {
-//                            if (nIter.second->P0(d)<_xMin(d))
-//                            {
-//                                _xMin(d)=nIter.second->P0(d);
-//                            }
-//                            if (nIter.second->P0(d)>_xMax(d))
-//                            {
-//                                _xMax(d)=nIter.second->P0(d);
-//                            }
-//                        }
-//                    }
-//                }
-//                else
-//                {
-//                    model::cout<<"Mesh is empty."<<std::endl;
-//                }
-//            }
-//            else
-//            {
-//                //                assert(0);
-//                model::cout<<"Cannot read mesh file T/T_"<<meshID<<".txt . Mesh is empty."<<std::endl;
-//            }
-//            model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
-//            model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
-//
-//
-//            // Populate MeshRegionBoundaryContainerType
-//            regionBoundaries().clear();
-//
-//
-//            size_t bndSimplexCount=0;
-//            size_t rgnBndSimplexCount=0;
-//            for (const auto& simpl : this->template observer<dim-1>())
-//            {
-//
-//                if(simpl.second->isBoundarySimplex())
-//                {// count number of bonudary simplices for later check
-////                    const Eigen::Matrix<double,_dim,1> n(simpl.second->outNormal());
-////                    const Eigen::Matrix<double,_dim,1> c(simpl.second->center());
-////                    SimplicialMeshFace<_dim>* faceFound=nullptr;
-////                    for(auto& face : faces())
-////                    {
-////                        if(fabs(n.dot(face.outNormal())-1.0)<FLT_EPSILON && fabs((c-face.center()).dot(n))<FLT_EPSILON)
-////                        {// same normal, and c contained in face
-////                            faceFound=&face;
-////                            break;
-////                        }
-////                    }
-////                    if(faceFound)
-////                    {
-////                        faceFound->insert(simpl.second);
-////                    }
-////                    else
-////                    {
-////                        faces().emplace_back(simpl.second);
-////                    }
-//                    bndSimplexCount++;
-//                }
-//
-//                if(simpl.second->isRegionBoundarySimplex())
-//                {
-//                    std::set<int> regionIDset=simpl.second->regionIDs();
-//                    std::pair<size_t,size_t> regionIDs(std::make_pair(*regionIDset.begin(),*regionIDset.rbegin()));
-//                    const auto regionBndIter=regionBoundaries().find(regionIDs);
-//                    if(regionBndIter!=regionBoundaries().end())
-//                    {
-//                        regionBndIter->second.simplices().insert(simpl.second);
-//                    }
-//                    else
-//                    {
-//                        regionBoundaries().emplace(regionIDs,regionIDs).first->second.simplices().insert(simpl.second);
-////                        regionBoundaries().emplace(std::piecewise_construct,
-////                                         std::forward_as_tuple(regionIDs),
-////                                         std::forward_as_tuple(regionIDs,simpl.second));
-////                        regionBoundaries().emplace(regionIDs,regionIDs);
-//
-//
-//                    }
-//                    rgnBndSimplexCount++;
-//                }
-//            }
-//
-//            updateRegions();
-//            updateRegionBoundaries();
-//
-//
-//
-//            //            model::cout<<"mesh volume="<<volume()<<std::endl;
-//
-////            model::cout<<"mesh faces: "<<faces().size()<<std::endl;
-//
-//
-//            size_t bndFaceSimplexSum=0;
-//            for(auto region : MeshRegionObserverType::regions())
-//            {// Sum number of external faces for final check
-//                std::cout<<magentaColor<<"MeshRegion "<<region.second->regionID<<defaultColor<<std::endl;
-//                std::cout<<"    simplices: "<<region.second->simplices().size()<<" Simplex<"<<dim<<","<<dim<<">"<<std::endl;
-//                for(auto& face : region.second->faces())
-//                {
-//                    model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
-//                    bndFaceSimplexSum+=face.second->size();
-//                }
-//            }
-//
-//            size_t rgnBndFaceSimplexSum=0;
-//            for(const auto& rgnBnd : regionBoundaries())
-//            {// Sum number of internal faces for final check
-//                std::cout<<magentaColor<<"MeshRegionBoundary ("<<rgnBnd.second.regionBndID.first<<","<<rgnBnd.second.regionBndID.second<<")"<<defaultColor<<std::endl;
-//                std::cout<<"    simplices: "<<rgnBnd.second.simplices().size()<<" Simplex<"<<dim<<","<<dim-1<<">"<<std::endl;
-//                for(auto& face : rgnBnd.second.faces())
-//                {
-//                    model::cout<<"    face "<<face.second->sID<<": hullPts="<<face.second->convexHull().size()<<", outNormal "<<face.second->outNormal().transpose()<<std::endl;
-//                    rgnBndFaceSimplexSum+=face.second->size();
-//                    bndFaceSimplexSum-=2*face.second->size(); // each region boundary face was added to two regions
-//                }
-//            }
-//
-//            if(bndFaceSimplexSum!=bndSimplexCount)
-//            {
-//                std::cout<<"WRONG NUMBER OF BOUNDAY FACE SIMPLICES"<<std::endl;
-//                std::cout<<"boundary simplices="<<bndSimplexCount<<std::endl;
-//                std::cout<<"simplices in external faces="<<bndFaceSimplexSum<<std::endl;
-//                exit(EXIT_FAILURE);
-//
-//            }
-//
-//            if(rgnBndFaceSimplexSum!=rgnBndSimplexCount)
-//            {
-//                std::cout<<"WRONG NUMBER OF REGION-BOUNDARY FACE SIMPLICES"<<std::endl;
-//                std::cout<<"region-boundary simplices="<<rgnBndSimplexCount<<std::endl;
-//                std::cout<<"simplices in internal faces="<<rgnBndFaceSimplexSum<<std::endl;
-//                exit(EXIT_FAILURE);
-//            }
-//
-//
-//        }
         
         /**********************************************************************/
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID)

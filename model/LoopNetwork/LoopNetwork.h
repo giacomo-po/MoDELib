@@ -469,6 +469,26 @@ namespace model
 //            assert(this->loops().find(loopID)==this->loops().end() && "LOOP WAS NOT REMOVED");
         }
         
+//        /**********************************************************************/
+//        template <typename ...LoopArgTypes>
+//        std::shared_ptr<LoopType>& reconnectLoop(std::vector<LoopType>& lp,
+//                                             const std::vector<std::shared_ptr<NodeType>> nodes)
+//        {/*!@param[in] nodes in the loop
+//          *
+//          * Inserts a Loop connecting the sequence of nodes,
+//          */
+//            deleteLoop(lp->sID);
+//            
+//            for(size_t k=0;k<nodes.size();++k)
+//            {
+//                const size_t next=k+1<nodes.size()? k+1 : 0;
+//                connect(nodes[k],nodes[next],lp);
+//            }
+//            
+//            assert(lp->isLoop() && "Not a loop.");
+//            
+//            return lp;
+//        }
 
 
         /**********************************************************************/

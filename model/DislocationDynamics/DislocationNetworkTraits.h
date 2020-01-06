@@ -49,8 +49,8 @@ namespace model
         typedef LoopLink<LinkType> LoopLinkType;
         typedef DislocationLoop      <dim,corder,InterpolationType> LoopType;
 //		typedef Eigen::Matrix<double,dim,1>													FlowType;
-        typedef LatticeVector<3>                                                            FlowType;
-//        typedef RationalLatticeDirection<3>                                                            FlowType;
+//        typedef LatticeVector<3>                                                            FlowType;
+        typedef RationalLatticeDirection<3>                         FlowType;
         typedef Eigen::Matrix<double,dim,1>                         VectorDim;
         typedef Eigen::Matrix<double,dim,dim>                       MatrixDim;
 

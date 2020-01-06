@@ -130,62 +130,74 @@ namespace model
                                            const double& dL
                                            )
         {
-            VectorDim n(parentSegment.glidePlaneNormal()); // plane normal
-            VectorDim b(parentSegment.burgers()); // Burgers vector
-            VectorDim t(rl);            // tangent vector
-            
-            // Select right-handed normal whenever possible
-            if(parentSegment.loopLinks().size()==1)
-            {// pick right-handed normal for n
-                const typename LinkType::LoopLinkType& loopLink(**parentSegment.loopLinks().begin());
-                if(std::fabs(loopLink.loop()->slippedArea())>FLT_EPSILON)
-                {
-                    if(parentSegment.source->sID!=loopLink.source()->sID)
-                    {// NetworkLink and LoopLink are oriented in opposite direction
-                        b*=-1.0;
-                        t*=-1.0;
+            if(parentSegment.slipSystem())
+            {
+                
+                VectorDim n(parentSegment.glidePlaneNormal()); // plane normal
+                VectorDim b(parentSegment.burgers()); // Burgers vector
+                VectorDim t(rl);            // tangent vector
+                
+                // Select right-handed normal whenever possible
+                if(parentSegment.loopLinks().size()==1)
+                {// pick right-handed normal for n
+                    const typename LinkType::LoopLinkType& loopLink(**parentSegment.loopLinks().begin());
+                    if(std::fabs(loopLink.loop()->slippedArea())>FLT_EPSILON)
+                    {
+                        if(parentSegment.source->sID!=loopLink.source()->sID)
+                        {// NetworkLink and LoopLink are oriented in opposite direction
+                            b*=-1.0;
+                            t*=-1.0;
+                        }
                     }
                 }
-            }
-            
-            VectorDim glideForce = fPK-fPK.dot(n)*n;
-            double glideForceNorm(glideForce.norm());
-            
-            if(glideForceNorm<FLT_EPSILON && parentSegment.network().use_stochasticForce)
-            {
-                glideForce=parentSegment.chord().cross(n);
-                glideForceNorm=glideForce.norm();
+                
+                VectorDim glideForce = fPK-fPK.dot(n)*n;
+                double glideForceNorm(glideForce.norm());
+                
+                if(glideForceNorm<FLT_EPSILON && parentSegment.network().use_stochasticForce)
+                {
+                    glideForce=parentSegment.chord().cross(n);
+                    glideForceNorm=glideForce.norm();
+                    if(glideForceNorm>FLT_EPSILON)
+                    {
+                        glideForce/=glideForceNorm;
+                    }
+                }
+                
+                VectorDim vv=VectorDim::Zero();
                 if(glideForceNorm>FLT_EPSILON)
                 {
-                    glideForce/=glideForceNorm;
+                    
+//                    double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
+                      double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
+                                                                              parentSegment.network().poly.T,
+                                                                              dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
+                    assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
+                    const bool useNonLinearVelocity=true;
+                    if(useNonLinearVelocity && v>FLT_EPSILON)
+                    {
+                        v= 1.0-std::exp(-v);
+                    }
+                    
+                    for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
+                    {// Add EshelbyInclusions stress
+                        if(inclusion.second.contains(r))
+                        {
+                            v*=inclusion.second.mobilityReduction;
+                        }
+                    }
+                    
+                    
+                    vv= v * glideForce/glideForceNorm;
                 }
+                return vv;
+
+            }
+            else
+            {
+                return VectorDim::Zero();
             }
             
-            VectorDim vv=VectorDim::Zero();
-            if(glideForceNorm>FLT_EPSILON)
-            {
-                double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
-                                                                          parentSegment.network().poly.T,
-                                                                          dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
-                assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
-                const bool useNonLinearVelocity=true;
-                if(useNonLinearVelocity && v>FLT_EPSILON)
-                {
-                    v= 1.0-std::exp(-v);
-                }
-                
-                for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
-                {// Add EshelbyInclusions stress
-                    if(inclusion.second.contains(r))
-                    {
-                        v*=inclusion.second.mobilityReduction;
-                    }
-                }
-
-                
-                vv= v * glideForce/glideForceNorm;
-            }
-            return vv;
         }
         
 //        /**********************************************************************/

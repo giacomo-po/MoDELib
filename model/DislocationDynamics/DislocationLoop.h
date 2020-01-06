@@ -31,64 +31,58 @@ namespace model
     {
         
         typedef DislocationLoop<_dim,corder,InterpolationType> LoopType;
-    
+
+
         constexpr static int dim=_dim;
 
-        std::shared_ptr<SlipSystem> slipSystem;
-        
-        /**********************************************************************/
-        void updateSlipSystem()
-        {
-            slipSystem=nullptr;
-//            const ReciprocalLatticeDirection<dim> rightHandedDir(this->grain.reciprocalLatticeDirection(this->rightHandedNormal()));
-            for(const auto& ss : this->grain.slipSystems())
-            {
-                if(  ((this->flow()-ss->s).squaredNorm()==0 && (this->rightHandedNormal()-ss->n).squaredNorm()==0)
-                   ||((this->flow()+ss->s).squaredNorm()==0 && (this->rightHandedNormal()+ss->n).squaredNorm()==0))
-                {
-                    slipSystem=ss;
-                }
-            }
-        }
+//        std::shared_ptr<SlipSystem> slipSystem;
+//        
+//        /**********************************************************************/
+//        void updateSlipSystem()
+//        {
+//            slipSystem=nullptr;
+////            const ReciprocalLatticeDirection<dim> rightHandedDir(this->grain.reciprocalLatticeDirection(this->rightHandedNormal()));
+//            for(const auto& ss : this->grain.slipSystems())
+//            {
+//                if(  ((this->flow()-ss->s).squaredNorm()==0 && (this->rightHandedNormal()-ss->n).squaredNorm()==0)
+//                   ||((this->flow()+ss->s).squaredNorm()==0 && (this->rightHandedNormal()+ss->n).squaredNorm()==0))
+//                {
+//                    slipSystem=ss;
+//                }
+//            }
+//        }
         
     public:
 
         typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
         typedef PlanarDislocationLoop<DislocationLoopType> BaseLoopType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
+        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 
-//        const bool isGlissile;
-        
-//        /**********************************************************************/
-//        DislocationLoop(LoopNetworkType* const dn,
-//                        const VectorDim& B,
-//                        const VectorDim& N,
-//                        const VectorDim& P,
-//                        const int& grainID) :
-//        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),N,P,grainID)
-//        /* init */,slipSystem(nullptr)
-////        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
-//        {
-//        }
-        
-//        DislocationLoop(LoopNetworkType* const dn,
-//                        const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
-//                              const VectorDim& N,
-//                              const VectorDim& P) :
-//        /* init */ BaseLoopType(dn,bndLinkSequence,N,P)
-//        /* init */,slipSystem(bndLinkSequence.loop->slipSystem)
-//        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
-//        {
-//        }
+
         
         /**********************************************************************/
         DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
                         const std::shared_ptr<GlidePlane<dim>>& glidePlane) :
-        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane)
-        /* init */,slipSystem(nullptr)
+//        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane)
+        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane)
+        //        /* init */,slipSystem(nullptr)
+        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
+        {
+        }
+        
+        /**********************************************************************/
+        DislocationLoop(LoopNetworkType* const dn,
+                        const VectorDim& B,
+                        const std::shared_ptr<GlidePlane<dim>>& glidePlane,
+                        const std::shared_ptr<PeriodicDislocationLoopType>& pLoop,
+                        const VectorDim& shift) :
+//        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane,pLoop,shift)
+        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane,pLoop,shift)
+        //        /* init */,slipSystem(nullptr)
         //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
         {
         }
@@ -98,26 +92,26 @@ namespace model
                         const VectorDim& B,
                         const int& grainID,
                         const int& _loopType) :
-        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).latticeVector(B),grainID,_loopType)
-        /* init */,slipSystem(nullptr)
+        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).rationalLatticeDirection(B),grainID,_loopType)
+//        /* init */,slipSystem(nullptr)
 //        /* init */,isGlissile(false)
         {// Virtual dislocation loop
         }
         
-        /**********************************************************************/
-        DislocationLoop(const DislocationLoop& other) :
-        /* base init */ BaseLoopType(other)
-        /* init */,slipSystem(other.slipSystem)
-//        /* init */,isGlissile(other.isGlissile)
-        {
-        }
+//        /**********************************************************************/
+//        DislocationLoop(const DislocationLoop& other) :
+//        /* base init */ BaseLoopType(other)
+//        /* init */,slipSystem(other.slipSystem)
+////        /* init */,isGlissile(other.isGlissile)
+//        {
+//        }
         
-        /**********************************************************************/
-        void updateGeometry()
-        {
-            BaseLoopType::updateGeometry();
-            updateSlipSystem();
-        }
+//        /**********************************************************************/
+//        void updateGeometry()
+//        {
+//            BaseLoopType::updateGeometry();
+//            updateSlipSystem();
+//        }
         
         /**********************************************************************/
         std::tuple<double,double,double> loopLength() const

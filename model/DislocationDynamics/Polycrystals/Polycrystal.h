@@ -27,7 +27,6 @@
 #include <Grain.h>
 #include <GrainBoundary.h>
 #include <LatticeVector.h>
-#include <SequentialOutputFile.h>
 #include <StressStraight.h>
 #include <GrainBoundaryType.h>
 //#include <GlidePlane.h>
@@ -57,41 +56,41 @@ namespace model
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
         
-        /**********************************************************************/
-        static std::unique_ptr<DislocationMobilityBase> getMobility(const DislocatedMaterial<dim,Isotropic>& material)
-        {
-            if(material.crystalStructure=="BCC")
-            {
-                return std::make_unique<DislocationMobilityBCC>(material);
-            }
-            else if(material.crystalStructure=="FCC")
-            {
-                return std::make_unique<DislocationMobilityFCC>(material);
-            }
-            else if(material.crystalStructure=="HEX")
-            {
-                std::cout<<"FINISH HERE. HEX MOBILITY NOT IMPLEMENTED YET"<<std::endl;
-                return std::make_unique<DislocationMobilityFCC>(material);
-            }
-            else
-            {
-                std::cout<<"Unknown mobility for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
+//        /**********************************************************************/
+//        static std::unique_ptr<DislocationMobilityBase> getMobility(const DislocatedMaterial<dim,Isotropic>& material)
+//        {
+//            if(material.crystalStructure=="BCC")
+//            {
+//                return std::make_unique<DislocationMobilityBCC>(material);
+//            }
+//            else if(material.crystalStructure=="FCC")
+//            {
+//                return std::make_unique<DislocationMobilityFCC>(material);
+//            }
+//            else if(material.crystalStructure=="HEX")
+//            {
+//                std::cout<<"FINISH HERE. HEX MOBILITY NOT IMPLEMENTED YET"<<std::endl;
+//                return std::make_unique<DislocationMobilityFCC>(material);
+//            }
+//            else
+//            {
+//                std::cout<<"Unknown mobility for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
+//                exit(EXIT_FAILURE);
+//            }
+//        }
         
         
     public:
         
         const SimplicialMeshType& mesh;
-        const std::unique_ptr<DislocationMobilityBase> mobility;
+//        const std::unique_ptr<DislocationMobilityBase> mobility;
         
         /**********************************************************************/
         Polycrystal(const std::string& polyFile,
                     const SimplicialMeshType& mesh_in) :
         /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
         /* init */,mesh(mesh_in)
-        /* init */,mobility(getMobility(*this))
+//        /* init */,mobility(getMobility(*this))
         {
             model::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
             TextFileParser polyParser(polyFile);

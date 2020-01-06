@@ -83,6 +83,10 @@ namespace model
                 ss>>r(d);
             }
             ss>>j;
+            for(int d=0;d<dim;++d)
+            {
+                ss>>rl(d);
+            }
             for(int i=0;i<dim;++i)
             {
                 for(int j=0;j<dim;++j)
@@ -109,7 +113,7 @@ namespace model
             /**/<< ds.qID<<"\t"
             /**/<< ds.r.transpose()<<"\t"
             /**/<< ds.j<<"\t"
-            /**/<< ds.rl<<"\t";
+            /**/<< ds.rl.transpose()<<"\t";
             for(int d=0;d<dim;++d)
             {
                 os  << ds.stress.row(d)<<" ";

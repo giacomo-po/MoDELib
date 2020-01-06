@@ -17,7 +17,6 @@
 #include <Eigen/SparseLU>
 
 
-#include <SequentialOutputFile.h>
 #include <unsupported/Eigen/IterativeSolvers>
 #include <MPIcout.h>
 #include <ExpressionRef.h>

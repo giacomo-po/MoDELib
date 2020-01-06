@@ -9,6 +9,7 @@
 #ifndef model_Lattice_h_
 #define model_Lattice_h_
 
+#include <iomanip> // FLT_EPSILON
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
 #include <StaticID.h>
@@ -21,6 +22,7 @@
 #include <ReciprocalLatticeDirection.h>
 #include <BestRationalApproximation.h>
 
+#include <RationalLatticeDirection.h>
 
 namespace model
 {
@@ -36,8 +38,10 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef LatticeDirection<dim> LatticeDirectionType;
+        typedef RationalLatticeDirection<dim> RationalLatticeDirectionType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+
 //        typedef LatticeBase<dim,dim> LatticeBaseType;
         
         //! The static column matrix of lattice vectors
@@ -170,7 +174,6 @@ namespace model
         LatticeVectorType snapToLattice(const VectorDimD& d) const
         {
             VectorDimD nd(reciprocalBasis.transpose()*d);
-//            return LatticeVectorType(RoundEigen<double,dim>::round(nd).template cast<long int>(),*this);
             return LatticeVectorType(nd.array().round().matrix().template cast<long int>(),*this);
         }
         
@@ -210,6 +213,27 @@ namespace model
             }
             
             return ReciprocalLatticeDirectionType(temp);
+        }
+        
+        /**********************************************************************/
+        RationalLatticeDirectionType rationalLatticeDirection(const VectorDimD& d,
+                                                              const typename BestRationalApproximation::LongIntType& maxDen=1000) const
+        {
+            
+            const LatticeDirectionType ld(latticeDirection(d));
+            const BestRationalApproximation bra(d.norm()/ld.cartesian().norm(),maxDen);
+            Rational rat(bra.num,bra.den);
+            RationalLatticeDirectionType rld(rat,ld);
+            if((rld.cartesian()-d).squaredNorm()>FLT_EPSILON)
+            {
+                model::cout<<"input vector="<<d.transpose()<<std::endl;
+                model::cout<<"lattice direction="<<ld.cartesian().transpose()<<std::endl;
+                model::cout<<"rational="<<rat<<std::endl;
+                model::cout<<"d.norm()/ld.cartesian().norm()="<<d.norm()/ld.norm()<<std::endl;
+                assert(0 && "RationalLatticeDirectionType NOT FOUND");
+            }
+            return rld;
+
         }
         
         /**********************************************************************/

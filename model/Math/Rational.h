@@ -30,6 +30,7 @@ namespace model
         }
         
     public:
+        
         long int n; // numerator
         long int d; // denominator
 

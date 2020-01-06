@@ -78,7 +78,8 @@ reuturn (P-x).dot(n)==0;
 - We should always assume that velocity within a segment is interpolated linearly, so no need for complex assembly construction for curved segments (i.e. matrix Mseg is identity)
 - DislocationJunctionFormation::glissileJunctions is not forming <100>{110} and <110>{110} types glissile loops, because it is only looping iver the <111>{110} types 
 - Remove Observer patter and substitute with weak_ptr
-
+- TrialExpression should be called LinearizedTrialExpression, since it is in the form M*u where M is the shape function matrix. 
+- OUTPU MESHDISPLACEMENT IN AUX files
 
 ISSUES:
 - Should form finite length junctions

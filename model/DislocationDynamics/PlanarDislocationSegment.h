@@ -122,7 +122,8 @@ namespace model
         static double quadPerLength;
         static int verbosePlanarDislocationSegment;
         StraightDislocationSegment<dim> straight;
-        
+        std::shared_ptr<SlipSystem> _slipSystem;
+
     public:
         
         /******************************************************************/
@@ -147,6 +148,7 @@ namespace model
         //        /* init */,_isBoundarySegment(false)
         //        /* init */,_isGrainBoundarySegment(false)
         /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
+        /* init */,_slipSystem(nullptr)
         {/*! Constructor with pointers to source and sink, and flow
           *  @param[in] NodePair_in the pair of source and sink pointers
           *  @param[in] Flow_in the input flow
@@ -176,6 +178,27 @@ namespace model
         }
         
         
+        /**********************************************************************/
+        void updateSlipSystem()
+        {
+            std::set<std::shared_ptr<SlipSystem>> ssSet;
+            for(const auto& loopLink : this->loopLinks())
+            {
+                if(loopLink->loop()->slipSystem())
+                {
+                    ssSet.insert(loopLink->loop()->slipSystem());
+                }
+            }
+            
+            if(ssSet.size()==1)
+            {// a unique slip system found
+                _slipSystem=*ssSet.begin();
+            }
+            else
+            {
+                _slipSystem=nullptr;
+            }
+        }
         
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
@@ -195,6 +218,7 @@ namespace model
             
             VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
             ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
+            updateSlipSystem();
         }
         
 
@@ -222,6 +246,7 @@ namespace model
                 ConfinedDislocationObjectType::addGlidePlane(loopLink->loop()->glidePlane.get());
             }
             
+            updateSlipSystem();
             
             //            if(!pL->loop()->isVirtualBoundaryLoop())
             //            {
@@ -315,6 +340,12 @@ namespace model
                     }
                 }
             }
+        }
+        
+        /**********************************************************************/
+        const std::shared_ptr<SlipSystem>&  slipSystem() const
+        {
+            return _slipSystem;
         }
         
         /**********************************************************************/

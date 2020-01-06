@@ -58,7 +58,6 @@
 #include <TextFileParser.h>
 
 //#include <VertexReader.h>
-#include <IDreader.h>
 
 
 namespace model
@@ -88,7 +87,7 @@ namespace model
 //        axes(vtkSmartPointer<vtkAxesActor>::New())
         {
             
-            int meshID=TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",false);
+//            int meshID=TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",false);
 //            model::EigenDataReader EDR;
 //            bool use_boundary=false;
 //            EDR.readScalarInFile("./DDinput.txt","use_boundary",use_boundary);
@@ -126,7 +125,7 @@ namespace model
             renderWindowInteractor->SetInteractorStyle(style);
             style->SetDefaultRenderer(ddRenderer);
             
-            style->init(ddRenderer,plotRenderer,meshID);
+            style->init(ddRenderer,plotRenderer);
 //            style->ddRenderer=ddRenderer;
 //            style->plotRenderer=plotRenderer;
 //

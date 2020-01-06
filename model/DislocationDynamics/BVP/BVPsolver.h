@@ -19,6 +19,7 @@
 #ifdef _MODEL_PARDISO_SOLVER_
 #include <Eigen/PardisoSupport>
 #endif
+#include<Eigen/SparseCholesky>
 #include <FiniteElement.h>
 //#include <Material.h>
 //#include <DislocationNegativeFields.h>
@@ -32,6 +33,9 @@
 //#include <DisplacementPoint.h>
 //#include <BoundaryStressPoint.h>
 #include <LinearWeakList.h>
+//#include <SparseNullSpace.h>
+#include <NullSpaceSolver.h>
+
 //#include <BoundaryQuadraturePoint.h>
 //
 //#include <RuntimeError.h>
@@ -175,12 +179,6 @@ namespace model
             
             for (const auto& cIter : displacement().dirichletConditions())
             {
-//                for (typename DirichletConditionContainerType::const_iterator cIter =displacement().dirichletConditions().begin();
-//                     /*                                                    */ cIter!=displacement().dirichletConditions().end();
-//                     /*                                                    */ cIter++)
-//                {
-//                const size_t& endRow = cIter->first;
-//                g(endRow)= cIter->second;
                 const size_t& endRow = cIter.first;
                 g(endRow)= cIter.second;
                 for (size_t row=startRow;row!=endRow;++row)
@@ -296,6 +294,19 @@ namespace model
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]"<<std::endl;
             return T*x+g;
         }
+        
+//        /**********************************************************************/
+//        Eigen::VectorXd solveRemovingRigidBodyMotion(const Eigen::VectorXd& b)
+//        {
+//
+//            SparseMatrixType C;
+//            // fill C
+//
+//            NullSpaceSolver<SparseMatrixType> nss(A,C);
+//            return nss.solve(b);
+//
+//        }
+        
         
     public:
         
@@ -488,6 +499,7 @@ namespace model
             
             // Assemble loadController and dislocaiton tractions and solve
             displacement()=solve(lc->globalVector(DN)-dislocationTraction.globalVector(),displacement());
+//                        displacement()=solveRemovingRigidBodyMotion(lc->globalVector(DN)-dislocationTraction.globalVector());
             
         }
 #endif

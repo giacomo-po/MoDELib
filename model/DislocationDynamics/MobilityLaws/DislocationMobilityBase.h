@@ -20,7 +20,7 @@
 #include <Eigen/Geometry>
 #include <MPIcout.h> // defines model::cout
 #include <TerminalColors.h> // defines mode::cout
-#include <MaterialBase.h>
+#include <DislocatedMaterialBase.h>
 
 namespace model
 {
@@ -72,9 +72,11 @@ namespace model
     {
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
+        const std::string name;
         
         /**********************************************************************/
-        DislocationMobilityBase(const std::string& name)
+        DislocationMobilityBase(const std::string& name_in) :
+        /* init */ name(name_in)
         {
             model::cout<<greenBoldColor<<"Creating "<<name<<defaultColor<<std::endl;
         }

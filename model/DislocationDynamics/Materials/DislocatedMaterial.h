@@ -23,7 +23,7 @@
 //#include <BCClattice.h>
 //#include <FCClattice.h>
 #include <TextFileParser.h>
-#include <MaterialBase.h>
+#include <DislocatedMaterialBase.h>
 #include <DislocationMobilityBase.h>
 #include <DislocationMobilityBCC.h>
 #include <DislocationMobilityFCC.h>
@@ -44,12 +44,12 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<int dim>
-    class DislocatedMaterial<dim,Isotropic> : public MaterialBase
+    class DislocatedMaterial<dim,Isotropic> : public DislocatedMaterialBase
     {
         
         
         /**********************************************************************/
-        static std::map<std::string,std::shared_ptr<DislocationMobilityBase>> getMobilities(const MaterialBase& materialBase)
+        static std::map<std::string,std::shared_ptr<DislocationMobilityBase>> getMobilities(const DislocatedMaterialBase& materialBase)
         {
             
             std::map<std::string,std::shared_ptr<DislocationMobilityBase>> temp;
@@ -80,28 +80,6 @@ namespace model
         
     public:
         
-        
-        
-        // Universal constants
-
-//        const std::string crystalStructure;
-//
-//        // Material constants in SI units
-//        const double T;         // Absolute temparature [K]
-//        const double Tm;        // Melting temparature [K]
-//        const double mu0_SI;    // [Pa]
-//        const double mu1_SI;    // [Pa/K]
-//        const double mu_SI;     // temperature-dependent shear modulus mu=m0+m1*T [Pa]
-//        const double nu;        // Poisson's ratio
-//        const double rho_SI;    // mass density [Kg/m^3]
-//        const double cs_SI;     // shear wave speed [m/s]
-//        const double b_SI;      // Burgers vector [m]
-//
-//        // Material constants in code units
-//        const double kB;        // Boltzmann constant [-]
-//        const double mu;        // shear modulus [-]
-//        const double b;         // Burgers vector [-]
-//        const double cs;        // shear wave speed [-]
         const std::map<std::string,std::shared_ptr<DislocationMobilityBase>> dislocationMobilities;
         
         static double C1;        // 1-nu
@@ -109,24 +87,9 @@ namespace model
         static double C3;        // 1.0-2.0*nu;
         static double C4;        // 0.5*C2;
         
-        
         /**********************************************************************/
         DislocatedMaterial(const std::string& fileName) :
-        /* init */ MaterialBase(fileName)
-//        /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
-//        /* init */,T(TextFileParser(materialFile).readScalar<double>("T",true))
-//        /* init */,Tm(TextFileParser(materialFile).readScalar<double>("Tm",true))
-//        /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))
-//        /* init */,mu1_SI(TextFileParser(materialFile).readScalar<double>("mu1_SI",true))
-//        /* init */,mu_SI(mu0_SI+mu1_SI*T)
-//        /* init */,nu(TextFileParser(materialFile).readScalar<double>("nu",true))
-//        /* init */,rho_SI(TextFileParser(materialFile).readScalar<double>("rho_SI",true))
-//        /* init */,cs_SI(sqrt(mu_SI/rho_SI))
-//        /* init */,b_SI(TextFileParser(materialFile).readScalar<double>("b_SI",true))
-//        /* init */,kB(kB_SI/mu_SI/std::pow(b_SI,3))
-//        /* init */,mu(1.0)
-//        /* init */,b(1.0)
-//        /* init */,cs(1.0)
+        /* init */ DislocatedMaterialBase(fileName)
         /* init */,dislocationMobilities(getMobilities(*this))
         {
             model::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
@@ -141,19 +104,6 @@ namespace model
 
             
         }
-        
-//        /**********************************************************************/
-//        static double velocity(const Eigen::Matrix<double,3,3>& S,
-//                               const Eigen::Matrix<double,3,1>& b,
-//                               const Eigen::Matrix<double,3,1>& xi,
-//                               const Eigen::Matrix<double,3,1>& n,
-//                               const double& dL,
-//                               const double& dt,
-//                               const bool& use_stochasticForce)
-//        {
-//            
-//            assert(0 && "FINISH VELOCITY");
-//        }
         
     };
     

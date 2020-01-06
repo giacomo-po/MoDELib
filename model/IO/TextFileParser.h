@@ -18,7 +18,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-
+#include <TerminalColors.h>
 
 namespace model
 {
@@ -198,7 +198,7 @@ namespace model
         {
             const std::pair<std::string,std::string> strPair(readKey(key));
             //const std::string& read(readKey(key));
-            if(verbose) std::cout<<key<<"="<<strPair.first<<" "<<strPair.second<<std::endl;
+            if(verbose) std::cout<<cyanColor<<key<<"="<<strPair.first<<" "<<strPair.second<<defaultColor<<std::endl;
             return strPair.first;
         }
         
@@ -206,11 +206,11 @@ namespace model
         template<typename Scalar>
         Scalar readScalar(const std::string& key,const bool&verbose=false)
         {
-            if(verbose) std::cout<<key<<"="<<std::flush;
+            if(verbose) std::cout<<cyanColor<<key<<"="<<std::flush;
 //            const std::string str(readKey(key));
             const std::pair<std::string,std::string> strPair(readKey(key));
             const Scalar read(StringToScalar<Scalar>::toScalar(strPair.first));
-            if(verbose) std::cout<<read<<" "<<strPair.second<<std::endl;
+            if(verbose) std::cout<<read<<" "<<strPair.second<<defaultColor<<std::endl;
             return read;
         }
         
@@ -291,12 +291,12 @@ namespace model
             
             if(verbose)
             {
-                std::cout<<key<<"=";
+                std::cout<<cyanColor<<key<<"=";
                 for(const auto& val : array)
                 {
                     std::cout<<" "<<val;
                 }
-                std::cout<<"; "<<comment<<std::endl;
+                std::cout<<"; "<<comment<<defaultColor<<std::endl;
                 
             }
             
@@ -317,7 +317,7 @@ namespace model
             }
             
             EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
-            if(verbose) std::cout<<key<<"=\n"<<em<<std::endl;
+            if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
             return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
         }
         
