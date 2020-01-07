@@ -25,7 +25,7 @@ namespace model
         
         
         /**********************************************************************/
-        static std::deque<VectorDim> straightLineBoundaryClosure(const VectorDim& P0,
+        static std::vector<VectorDim> straightLineBoundaryClosure(const VectorDim& P0,
                                                                  const VectorDim& d,
                                                                  const VectorDim& n,
                                                                  const int& grainID,
@@ -43,7 +43,7 @@ namespace model
             MeshPlane<dim> plane(mesh,grainID,P0,n);
             //            const auto& segDeq(plane.meshIntersections);
             
-            std::deque<VectorDim> nodePos;
+            std::vector<VectorDim> nodePos;
             int nIntersections=0;
             for(const auto& pair : plane.meshIntersections)
             {
@@ -125,7 +125,7 @@ namespace model
             const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
             const VectorDim d=Eigen::AngleAxisd(theta,n)*b.normalized(); // a random direction in the glide plane
             
-            std::deque<VectorDim> nodePos(straightLineBoundaryClosure(P0,d,n,grainID,DN.mesh));
+            std::vector<VectorDim> nodePos(straightLineBoundaryClosure(P0,d,n,grainID,DN.mesh));
             std::vector<std::shared_ptr<NodeType>> loopNodes;
             for (const auto& pos : nodePos)
             {

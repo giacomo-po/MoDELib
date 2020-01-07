@@ -156,7 +156,7 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-                    const std::deque<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
+                    const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
 
                     const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
@@ -283,7 +283,7 @@ namespace model
                             const auto search3(mesh.search(P3));
 
                             double dh=0.0;
-                            std::deque<VectorDimD> nodePos;
+                            std::vector<VectorDimD> nodePos;
                             if(enforceMonotonicHelicity)
                             {
                                 nodePos.push_back(P0);
@@ -543,8 +543,8 @@ namespace model
                         //                        sizeVector.emplace_back(10000);
                     }
 
-                    std::deque<VectorDimD> posVector;
-                    std::deque<VectorDimD> normalsVector;
+                    std::vector<VectorDimD> posVector;
+                    std::vector<VectorDimD> normalsVector;
 
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
@@ -700,35 +700,48 @@ namespace model
                         const VectorDimD P0=pointsAlongStraightDislocations.row(k).transpose()-pointsAlongStraightDislocations.row(k).dot(slipSystem.unitNormal)*slipSystem.unitNormal+slipSystem.unitNormal*slipSystem.n.planeSpacing()*heightPair.second;
 
                         const double theta(straightDislocationsAngleFromScrewOrientation[k]*M_PI/180.0);
-                        const VectorDimD& n(slipSystem.unitNormal);
+                        //const VectorDimD& n(slipSystem.unitNormal);
                         const VectorDimD b(slipSystem.s.cartesian());
 
-                        const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
-                        const std::deque<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
+                        const VectorDimD d=Eigen::AngleAxisd(theta,slipSystem.unitNormal)*b.normalized();
+                        const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,slipSystem.unitNormal,grainID,mesh));
 
                         const double lineLength=(nodePos.back()-nodePos.front()).norm();
+
+                        
 
 
                         if(nodePos.size()>=3)
                         {// Write files
 
-                            for(size_t k=0;k<nodePos.size();++k)
-                            {// write node and edge file
-                                configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                            }
-                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());  // write loop file
-
-                            nodeID+=nodePos.size();
-                            loopID+=1;
-                            snID+=1;
+                            
+                            
+                            
+//                            for(size_t k=0;k<nodePos.size();++k)
+//                            {// write node and edge file
+//                                configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                                const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+//                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                            }
+//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());  // write loop file
+//
+//                            nodeID+=nodePos.size();
+//                            loopID+=1;
+//                            snID+=1;
                             std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
                             if(lineLength<FLT_EPSILON)
                             {
                                 std::cout<<"Line too short. EXITING."<<std::endl;
                                 exit(EXIT_FAILURE);
                             }
+                            
+                            if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero()))
+                            {
+//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero())
+                                std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
+
+                            }
+                            
                         }
                         else
                         {
@@ -1010,12 +1023,9 @@ namespace model
         size_t nodeID;
         size_t snID;
         size_t loopID;
-//        std::vector<DislocationNodeIO<dim>> nodesIO;
-//        std::vector<DislocationLoopIO<dim>> loopsIO;
-//        std::vector<DislocationEdgeIO<dim>> edgesIO;
         std::list<PeriodicGlidePlane<dim>> periodicGlidePlaneContainer;
         
-        std::deque<std::deque<VectorDimD>> loopPoints;
+        std::deque<std::vector<VectorDimD>> loopPoints;
         std::deque<VectorDimD> loopBurgers;
         const bool enforceMonotonicHelicity;
         double helicity;
@@ -1207,9 +1217,7 @@ namespace model
         /**********************************************************************/
         void writeConfigFiles(const size_t& fileID)
         {
-//            DDconfigIO<3> configIO;
-//            DDauxIO<dim> auxIO;
-            
+
             auxIO.setGlidePlaneBoundaries(glidePlaneFactory); // change this function to take a GlidePlaneFactory during write
             
             if(outputBinary)
@@ -1596,7 +1604,7 @@ namespace model
         }
 
         /**********************************************************************/
-        double deltaHelicity(const std::deque<VectorDimD>& newPoints,
+        double deltaHelicity(const std::vector<VectorDimD>& newPoints,
                              const VectorDimD& newBurgers) const
         {
 

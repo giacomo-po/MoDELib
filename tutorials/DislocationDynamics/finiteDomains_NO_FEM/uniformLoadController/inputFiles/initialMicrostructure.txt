@@ -31,7 +31,7 @@ pointsAlongStraightDislocations=0.0 0.0 0.0
 						   		0.0 0.0 0.0;
 						   		
 #######################################
-# Circular loops
+# Frank loops (platelets of vacancies/interstitials)
 targetFrankLoopDensity=0e13;
 frankLoopRadiusMean=1e-07;
 frankLoopRadiusStd=0.0;     

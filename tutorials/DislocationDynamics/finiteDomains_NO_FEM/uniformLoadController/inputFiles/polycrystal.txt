@@ -1,4 +1,4 @@
-materialFile=../../MaterialsLibrary/W.txt;
+materialFile=../../MaterialsLibrary/Cu.txt;
 meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
 C2G1=1 0 0
      0 1 0
