@@ -83,6 +83,42 @@ namespace model
             }
             return temp/tempNorm;
         }
+        
+        /**********************************************************************/
+        bool addSingleLoop(const bool randomizeBurgersSense,
+                           const std::vector<VectorDimD>& nodePos,
+                           VectorDimD b,
+                           const VectorDimD& unitNormal,
+                           const VectorDimD& P0,
+                           const int& grainID,
+                           const int& loopType,
+                           const long int& periodicLoopID,
+                           const VectorDimD& periodicShift)
+        {
+            if(allPointsInGrain(nodePos,grainID))
+            {
+                if(randomizeBurgersSense)
+                {
+                    b*=randomSign();
+                }
+                
+                for(size_t k=0;k<nodePos.size();++k)
+                {
+                    const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+                    configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                }
+                configIO.loops().emplace_back(loopID, b,unitNormal,P0,grainID,loopType,periodicLoopID,periodicShift);
+                nodeID+=nodePos.size();
+                loopID+=1;
+                snID+=1;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
         /**********************************************************************/
         void addStraightDislocations()
@@ -725,12 +761,8 @@ namespace model
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-                    //                    const VectorDimD b(slipSystem.n.cartesian()); // Frank loop
                     const VectorDimD b(poly.grain(grainID).latticeDirection(slipSystem.n.cartesian()).cartesian()); // Frank loop
-                    const VectorDimD sessileAxis(b.normalized()*randomSign());
-                    
-                    // Compute the ReciprocalLatticeDirection corresponding to s
-//                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
+                    const VectorDimD sessileAxis(b.normalized());
                     
                     std::normal_distribution<double> sizeDistribution(nonPlanarLoopRadiusMean/poly.b_SI,nonPlanarLoopRadiusStd/poly.b_SI);
                     const double radius(sizeDistribution(generator));
@@ -742,27 +774,30 @@ namespace model
                     for(int k=0;k<nonPlanarLoopSides;++k)
                     {
                         const double height(heightDistribution(generator));
-//                        std::cout<<height<<std::endl;
-                        // Sessile loop
                         nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/nonPlanarLoopSides, sessileAxis)*slipSystem.s.cartesian().normalized()*radius+height*sessileAxis);
-                        
                     }
                     
-                    if(allPointsInGrain(nodePos,grainID))
+                    if(addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
                     {
-                        for(size_t k=0;k<nonPlanarLoopSides;++k)
-                        {
-                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                        }
-                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
-                        nodeID+=nodePos.size();
-                        loopID+=1;
-                        snID+=1;
                         density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"non-planar loop density="<<density<<std::endl;
                     }
+                    
+//                    if(allPointsInGrain(nodePos,grainID))
+//                    {
+//                        for(size_t k=0;k<nonPlanarLoopSides;++k)
+//                        {
+//                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+//                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                        }
+//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
+//                        nodeID+=nodePos.size();
+//                        loopID+=1;
+//                        snID+=1;
+//                        density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
+//                        std::cout<<"non-planar loop density="<<density<<std::endl;
+//                    }
                     
                 }
                 
@@ -848,14 +883,11 @@ namespace model
                     const VectorDimD P0(L0.cartesian());
                     const int grainID=rp.second;
 
-                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID).planeNormals().size()-1);
-                    const int rSS=distribution(generator); // a random SlipSystem
+                    std::uniform_int_distribution<> planesDistribution(0,poly.grain(grainID).planeNormals().size()-1);
+                    const int rSS=planesDistribution(generator); // a random SlipSystem
                     const auto& n(poly.grain(grainID).planeNormals()[rSS]);
-                    const VectorDimD b(n.planeSpacing()*n.cartesian().normalized()); // Frank loop is one plane of vanancies/interstitials
-                    const VectorDimD sessileAxis(b.normalized()*randomSign());
-
-                    // Compute the ReciprocalLatticeDirection corresponding to s
-//                    ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
+                    const VectorDimD unitNormal(n.cartesian().normalized());
+                    const VectorDimD b(n.planeSpacing()*unitNormal); // Frank loop is one plane of vanancies/interstitials
 
                     std::normal_distribution<double> sizeDistribution(frankLoopRadiusMean/poly.b_SI,frankLoopRadiusStd/poly.b_SI);
                     const double radius(sizeDistribution(generator));
@@ -864,29 +896,15 @@ namespace model
                     std::vector<VectorDimD> nodePos;
                     for(int k=0;k<frankLoopSides;++k)
                     {
-                        // Sessile loop
-                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/frankLoopSides, sessileAxis)*R);
-
+                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/frankLoopSides, unitNormal)*R);
                     }
-
-                    if(allPointsInGrain(nodePos,grainID))
+                    
+                    if(addSingleLoop(true,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
                     {
-                        for(size_t k=0;k<frankLoopSides;++k)
-                        {
-                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                        }
-                        configIO.loops().emplace_back(loopID+0, b,sessileAxis,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
-                        nodeID+=nodePos.size();
-                        loopID+=1;
-                        snID+=1;
                         density += 2.0*radius*sin(M_PI/frankLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"Frank loop density="<<density<<std::endl;
                     }
-
                 }
-
             }
 
         }
@@ -1310,6 +1328,247 @@ namespace model
         }
 
         /**********************************************************************/
+        void addIrradiationLoopsFCC()
+        {// Irradiation loops in FCC are Frank loops
+
+            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
+            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+
+            size_t ndefects=0;
+            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+            while(defectsDensity<targetIrradiationLoopDensity)
+            {
+                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                const int& grainID=rp.second;   // random grain ID
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                
+                std::uniform_int_distribution<> planesDistribution(0,poly.grain(grainID).planeNormals().size()-1);
+                const int rSS=planesDistribution(generator);
+                const auto& n(poly.grain(grainID).planeNormals()[rSS]); // a random {111} plane
+                const VectorDimD unitNormal(n.cartesian().normalized());
+                const VectorDimD b(n.planeSpacing()*unitNormal); // Frank loops are plateletslane of vanancies/interstitials
+
+                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                const double radius(0.5*diameter_SI/poly.b_SI);
+                const VectorDimD R(randomOrthogonalUnitVector(b)*radius);
+
+                std::vector<VectorDimD> nodePos;
+                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
+                {
+                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, unitNormal)*R);
+                }
+                
+                if(addSingleLoop(true,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                {
+                    ndefects++;
+                    defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                    std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        void addIrradiationLoopsHCP()
+        {// Irradiation loops in FCC are Frank loops
+            
+            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
+            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+            
+            size_t ndefects=0;
+            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+            while(defectsDensity<targetIrradiationLoopDensity)
+            {
+                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                const int& grainID=rp.second;   // random grain ID
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                
+                std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
+                const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
+                const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+
+                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                const double radius(0.5*diameter_SI/poly.b_SI);
+                const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
+
+                
+                std::vector<VectorDimD> nodePos;
+                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
+                {
+                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
+                }
+                
+                const double planeSpacing(slipSystem.n.planeSpacing());
+                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON)
+                {// prismatic plane spacing
+                    const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
+                    const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
+                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    {
+                        ndefects++;
+                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+                    }
+                }
+                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
+                {// basal plane spacing
+                    const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
+                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    {
+                        ndefects++;
+                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+                    }
+                }
+                else
+                {
+                    
+                }
+            }
+        }
+        
+
+        /**********************************************************************/
+        void addIrradiationLoopsBCC()
+        {
+            size_t ndefects=0;
+            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+            //                    int NP=6;
+            std::lognormal_distribution<double> distribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+            
+            while(defectsDensity<targetIrradiationLoopDensity)
+            {
+                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                const int& grainID=rp.second;   // random grain ID
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                
+                if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops)
+                {// add [111] loops
+                    std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
+                    const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
+                    const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+                    const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
+                    const VectorDimD a=b.normalized();
+                    
+                    const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                    const double radius_SI(0.5*diameter_SI);
+                    const double radius(std::round(radius_SI/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0)); // radius must be an integer multiple of 2.0*sqrt(2.0)/3.0, or lateral sides will not be on glide planes
+                    
+                    if(radius>0.0)
+                    {
+                        std::vector<VectorDimD> points;
+                        for(int k=0;k<6;++k)
+                        {
+                            points.push_back(P0+Eigen::AngleAxis<double>(k*2.0*M_PI/6-M_PI/6,a)*slipSystem.unitNormal*radius);
+                        }
+                        
+                        if(allPointsInGrain(points,grainID))
+                        {
+                            
+                            for(int k=0;k<6;++k)
+                            {// inser the back loop
+                                configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
+                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            }
+                            configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                            loopID++;
+                            
+                            
+                            if(mobile111Loops)
+                            {// insert loops on the six sides
+                                for(int k=0;k<6;++k)
+                                {// inser lateral loops
+                                    configIO.nodes().emplace_back(nodeID+k+6,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                    const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
+                                    configIO.links().emplace_back(loopID,nodeID+k,nodeID+k+6,0);
+                                    configIO.links().emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
+                                    configIO.links().emplace_back(loopID,nextNodeID+6,nextNodeID,0);
+                                    configIO.links().emplace_back(loopID,nextNodeID,nodeID+k,0);
+                                    
+                                    configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                                    loopID++;
+                                }
+                                nodeID+=2*points.size();
+                            }
+                            else
+                            {
+                                nodeID+=points.size();
+                            }
+                            snID++;
+                            ndefects++;
+                            defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                            std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
+                        }
+                    }
+                }
+                else
+                {// add [100] loop (by Yinan Cui)
+                    std::vector<LatticeDirectionType> sessileb;
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
+                    
+                    std::uniform_int_distribution<> dist(0,2);
+                    typedef Eigen::Matrix<long int,2,1> Vector2I;
+                    std::vector<Vector2I> sslinedirection;
+                    sslinedirection.emplace_back(Vector2I(1,2));
+                    sslinedirection.emplace_back(Vector2I(0,2));
+                    sslinedirection.emplace_back(Vector2I(0,1));
+                    
+                    //NP=4;
+                    const int rSS_sessile=dist(generator); // a random sessile plane
+                    LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
+                    LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
+                    
+                    const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+                    double a1=diameter_SI/poly.b_SI;
+                    double a2=diameter_SI/poly.b_SI;
+                    
+                    std::vector<VectorDimD> points;
+                    points.push_back(P0);
+                    points.push_back(P0+d1.cartesian().normalized()*a1);
+                    points.push_back(P0+d1.cartesian().normalized()*a1+d2.cartesian().normalized()*a2);
+                    points.push_back(P0+d2.cartesian().normalized()*a2);
+                    
+                    // make sure it is interstitial
+                    VectorDimD Cycle_plane=d1.cartesian().cross(d2.cartesian());
+                    VectorDimD b=sessileb[rSS_sessile].cartesian();
+                    if (b.dot(Cycle_plane)<0)
+                    {
+                        b*=-1.0;
+                    }
+                    const VectorDimD a=(b.normalized());
+                    
+                    if(allPointsInGrain(points,grainID))
+                    {
+                        
+                        for(int k=0;k<4;++k)
+                        {
+                            configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            
+                            const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
+                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            
+                        }
+                        
+                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                        
+                        
+                        snID++;
+                        loopID++;
+                        nodeID+=4;
+                        ndefects++;
+                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
         void addIrradiationLoops()
         {
             if(targetIrradiationLoopDensity>0.0)
@@ -1318,147 +1577,21 @@ namespace model
 
                 if(poly.crystalStructure=="BCC")
                 {
-
-                    size_t ndefects=0;
-                    double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                    //                    int NP=6;
-                    std::lognormal_distribution<double> distribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
-
-                    while(defectsDensity<targetIrradiationLoopDensity)
-                    {
-                        const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
-                        const int& grainID=rp.second;   // random grain ID
-                        const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
-                        const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-
-                        if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops)
-                        {// add [111] loops
-                            std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
-                            const int rSS=distribution(generator); // a random SlipSystem ID
-                            const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-                            const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
-                            const VectorDimD a=b.normalized();
-
-                            const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
-                            const double radius_SI(0.5*diameter_SI);
-                            const double radius(std::round(radius_SI/poly.b_SI/(2.0*sqrt(2.0)/3.0))*(2.0*sqrt(2.0)/3.0)); // radius must be an integer multiple of 2.0*sqrt(2.0)/3.0, or lateral sides will not be on glide planes
-
-                            if(radius>0.0)
-                            {
-                                std::vector<VectorDimD> points;
-                                for(int k=0;k<6;++k)
-                                {
-                                    points.push_back(P0+Eigen::AngleAxis<double>(k*2.0*M_PI/6-M_PI/6,a)*slipSystem.unitNormal*radius);
-                                }
-
-                                if(allPointsInGrain(points,grainID))
-                                {
-
-                                    for(int k=0;k<6;++k)
-                                    {// inser the back loop
-                                        configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                        const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                        configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                                    }
-                                    configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
-                                    loopID++;
-
-
-                                    if(mobile111Loops)
-                                    {// insert loops on the six sides
-                                        for(int k=0;k<6;++k)
-                                        {// inser lateral loops
-                                            configIO.nodes().emplace_back(nodeID+k+6,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                            const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                            configIO.links().emplace_back(loopID,nodeID+k,nodeID+k+6,0);
-                                            configIO.links().emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
-                                            configIO.links().emplace_back(loopID,nextNodeID+6,nextNodeID,0);
-                                            configIO.links().emplace_back(loopID,nextNodeID,nodeID+k,0);
-
-                                            configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-                                            loopID++;
-                                        }
-                                        nodeID+=2*points.size();
-                                    }
-                                    else
-                                    {
-                                        nodeID+=points.size();
-                                    }
-                                    snID++;
-                                    ndefects++;
-                                    defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                                    std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
-                                }
-                            }
-                        }
-                        else
-                        {// add [100] loop (by Yinan Cui)
-                            std::vector<LatticeDirectionType> sessileb;
-                            sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
-                            sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
-                            sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
-
-                            std::uniform_int_distribution<> dist(0,2);
-                            typedef Eigen::Matrix<long int,2,1> Vector2I;
-                            std::vector<Vector2I> sslinedirection;
-                            sslinedirection.emplace_back(Vector2I(1,2));
-                            sslinedirection.emplace_back(Vector2I(0,2));
-                            sslinedirection.emplace_back(Vector2I(0,1));
-
-                            //NP=4;
-                            const int rSS_sessile=dist(generator); // a random sessile plane
-                            LatticeDirection<3> d1(sessileb[sslinedirection[rSS_sessile][0]]);
-                            LatticeDirection<3> d2(sessileb[sslinedirection[rSS_sessile][1]]);
-
-                            const double diameter_SI = distribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
-                            double a1=diameter_SI/poly.b_SI;
-                            double a2=diameter_SI/poly.b_SI;
-
-                            std::vector<VectorDimD> points;
-                            points.push_back(P0);
-                            points.push_back(P0+d1.cartesian().normalized()*a1);
-                            points.push_back(P0+d1.cartesian().normalized()*a1+d2.cartesian().normalized()*a2);
-                            points.push_back(P0+d2.cartesian().normalized()*a2);
-
-                            // make sure it is interstitial
-                            VectorDimD Cycle_plane=d1.cartesian().cross(d2.cartesian());
-                            VectorDimD b=sessileb[rSS_sessile].cartesian();
-                            if (b.dot(Cycle_plane)<0)
-                            {
-                                b*=-1.0;
-                            }
-                            const VectorDimD a=(b.normalized());
-
-                            if(allPointsInGrain(points,grainID))
-                            {
-
-                                for(int k=0;k<4;++k)
-                                {
-                                    configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-
-                                    const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
-                                    configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-
-                                }
-
-                                configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
-
-
-                                snID++;
-                                loopID++;
-                                nodeID+=4;
-                                ndefects++;
-                                defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                                std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;
-                            }
-                        }
-                    }
+                    addIrradiationLoopsBCC();
+                }
+                else if(poly.crystalStructure=="FCC")
+                {
+                    addIrradiationLoopsFCC();
+                }
+                else if(poly.crystalStructure=="HEX")
+                {
+                    addIrradiationLoopsHCP();
                 }
                 else
                 {
-                    std::cout<<"irradiation loops can only be generated for BCC crystals"<<std::endl;
-
+                    std::cout<<"irradiation loops supported for FCC/BCC/HEX crystals only"<<std::endl;
                 }
+
             }
         }
 

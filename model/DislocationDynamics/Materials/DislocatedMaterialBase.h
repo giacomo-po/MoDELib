@@ -50,7 +50,7 @@ namespace model
         
         
         // Vacancy concentration
-        const double Omega;     // shear wave speed [-]
+//        const double Omega;     // shear wave speed [-]
         const double Ufv_SI;
         const double Ufv;
         const double DVv;
@@ -68,33 +68,7 @@ namespace model
             return fileName;
         }
         
-        /**********************************************************************/
-        static double atomicVolume(const std::string& structure)
-        {
-            
-            if(structure=="BCC")
-            {
-//                return BCClattice<3>::getLatticeBasis().determinant();
-            }
-            else if(structure=="FCC")
-            {
- //               return FCClattice<3>::getLatticeBasis().determinant();
-            }
-            else if(structure=="HEX")
-            {
-//                return HEXlattice<3>::getLatticeBasis().determinant();
-            }
-            else
-            {
-                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
-                return 0.0;
-            }
-            
-            std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
 
-            return 1.0;
-        }
         
         /**************************************************************************/
         DislocatedMaterialBase(const std::string& fileName) :
@@ -115,8 +89,8 @@ namespace model
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-        ///* init */,Omega(atomicVolume(crystalStructure))
-        /* init */,Omega(TextFileParser(materialFile).readScalar<double>("Omega_SI",true) * 1e-30 /std::pow(b_SI,3))
+//        /* init */,Omega(atomicVolume(crystalStructure))
+//        /* init */,Omega(TextFileParser(materialFile).readScalar<double>("Omega_SI",true) * 1e-30 /std::pow(b_SI,3))
         /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
         /* init */,DVv(TextFileParser(materialFile).readScalar<double>("DVv",true))
@@ -127,7 +101,7 @@ namespace model
         {
 //            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 
-            std::cout<<"FINISH CALCULATION OF ATOMIC VOLUME AND REMOVE IT FROM INPUT FILE"<<std::endl;
+//            std::cout<<"FINISH CALCULATION OF ATOMIC VOLUME AND REMOVE IT FROM INPUT FILE"<<std::endl;
             
         }
         

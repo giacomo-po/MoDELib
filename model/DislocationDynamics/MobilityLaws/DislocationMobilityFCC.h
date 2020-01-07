@@ -16,7 +16,7 @@
 namespace model
 {
     
-    struct DislocationMobilityFCC : DislocationMobilityBase
+    struct DislocationMobilityFCC : public DislocationMobilityBase
     {
         
         typedef Eigen::Matrix<double,3,3> MatrixDim;
@@ -32,7 +32,7 @@ namespace model
         
         /**********************************************************************/
         DislocationMobilityFCC(const DislocatedMaterialBase& material) :
-        /* init */ DislocationMobilityBase("FCC DislocationMobility for "+material.materialName),
+        /* init */ DislocationMobilityBase("FCC mobility for "+material.materialName),
         /* init */ B0e(TextFileParser(material.materialFile).readScalar<double>("B0e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
         /* init */ B1e(TextFileParser(material.materialFile).readScalar<double>("B1e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
         /* init */ B0s(TextFileParser(material.materialFile).readScalar<double>("B0s_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),

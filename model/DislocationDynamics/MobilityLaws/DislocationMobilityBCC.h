@@ -85,7 +85,7 @@ namespace model
         
         /**********************************************************************/
         DislocationMobilityBCC(const DislocatedMaterialBase& material) :
-                /* init */ DislocationMobilityBase("BCC DislocationMobility for "+material.materialName),
+                /* init */ DislocationMobilityBase("BCC mobility for "+material.materialName),
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b
         /* init */ B0e(TextFileParser(material.materialFile).readScalar<double>("B0e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),

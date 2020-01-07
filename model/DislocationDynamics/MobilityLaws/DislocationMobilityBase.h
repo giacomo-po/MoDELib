@@ -68,7 +68,7 @@ namespace model
     
     /**************************************************************************/
     /**************************************************************************/
-    struct DislocationMobilityBase
+    struct DislocationMobilityBase : public StaticID<DislocationMobilityBase>
     {
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
@@ -78,7 +78,7 @@ namespace model
         DislocationMobilityBase(const std::string& name_in) :
         /* init */ name(name_in)
         {
-            model::cout<<greenBoldColor<<"Creating "<<name<<defaultColor<<std::endl;
+            model::cout<<greenBoldColor<<"Creating DislocationMobility "<<this->sID<<" ("<<name<<")"<<defaultColor<<std::endl;
         }
         
         /**********************************************************************/

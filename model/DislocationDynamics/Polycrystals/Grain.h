@@ -71,7 +71,6 @@ namespace model
         /* init */,region(region_in)
         /* init */,grainID(region.regionID)
         {
-            model::cout<<greenBoldColor<<"Creating Grain "<<grainID<<defaultColor<<std::endl;
             model::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
             model::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;
             model::cout<<"  # slip systems="<<this->slipSystems().size()<<std::endl;            

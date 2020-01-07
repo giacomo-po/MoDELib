@@ -93,15 +93,15 @@ namespace model
         {
             if(material.crystalStructure=="BCC")
             {
-                return BCClattice<dim>::slipSystems(material,lat);
+                return BCClattice<dim>::slipSystems(material.dislocationMobilities,lat);
             }
             else if(material.crystalStructure=="FCC")
             {
-                return FCClattice<dim>::slipSystems(material,lat);
+                return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat);
             }
             else if(material.crystalStructure=="HEX")
             {
-                return HEXlattice<dim>::slipSystems(material,lat);
+                return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat);
             }
             else
             {

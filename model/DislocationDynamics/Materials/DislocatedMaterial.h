@@ -23,6 +23,9 @@
 //#include <BCClattice.h>
 //#include <FCClattice.h>
 #include <TextFileParser.h>
+#include <BCClattice.h>
+#include <FCClattice.h>
+#include <HEXlattice.h>
 #include <DislocatedMaterialBase.h>
 #include <DislocationMobilityBase.h>
 #include <DislocationMobilityBCC.h>
@@ -51,9 +54,9 @@ namespace model
         /**********************************************************************/
         static std::map<std::string,std::shared_ptr<DislocationMobilityBase>> getMobilities(const DislocatedMaterialBase& materialBase)
         {
-            
+
             std::map<std::string,std::shared_ptr<DislocationMobilityBase>> temp;
-            
+
             if(materialBase.crystalStructure=="BCC")
             {
                 temp.emplace("bcc",new DislocationMobilityBCC(materialBase));
@@ -73,14 +76,43 @@ namespace model
                 std::cout<<"Unknown mobility for crystal structure '"<<materialBase.crystalStructure<<"'. Exiting."<<std::endl;
                 exit(EXIT_FAILURE);
             }
-            
+
             return temp;
         }
         
+        /**********************************************************************/
+        static double atomicVolume(const std::string& structure)
+        {
+            
+            if(structure=="BCC")
+            {
+                return BCClattice<3>::getLatticeBasis().determinant();
+            }
+            else if(structure=="FCC")
+            {
+                return FCClattice<3>::getLatticeBasis().determinant();
+            }
+            else if(structure=="HEX")
+            {
+                return HEXlattice<3>::getLatticeBasis().determinant();
+            }
+            else
+            {
+                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
+                exit(EXIT_FAILURE);
+                return 0.0;
+            }
+            
+            //            std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
+            
+            //           return 1.0;
+        }
         
     public:
         
         const std::map<std::string,std::shared_ptr<DislocationMobilityBase>> dislocationMobilities;
+        
+                const double Omega;     // shear wave speed [-]
         
         static double C1;        // 1-nu
         static double C2;        // 1.0/(4.0*M_PI*C1)
@@ -91,6 +123,7 @@ namespace model
         DislocatedMaterial(const std::string& fileName) :
         /* init */ DislocatedMaterialBase(fileName)
         /* init */,dislocationMobilities(getMobilities(*this))
+        /* init */,Omega(atomicVolume(crystalStructure))
         {
             model::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
             model::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
@@ -121,6 +154,8 @@ namespace model
     
 }
 #endif
+
+
 
 //        /**********************************************************************/
 //        template<int Z>

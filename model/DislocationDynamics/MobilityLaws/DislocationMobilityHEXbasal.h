@@ -32,7 +32,7 @@ namespace model
         
         /**********************************************************************/
         DislocationMobilityHEXbasal(const DislocatedMaterialBase& material) :
-        /* init */ DislocationMobilityBase("HEX-basal DislocationMobility for "+material.materialName),
+        /* init */ DislocationMobilityBase("HEX-basal mobility for "+material.materialName),
         /* init */ B0e(TextFileParser(material.materialFile).readScalar<double>("B0e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
         /* init */ B1e(TextFileParser(material.materialFile).readScalar<double>("B1e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
         /* init */ B0s(TextFileParser(material.materialFile).readScalar<double>("B0s_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
