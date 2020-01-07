@@ -81,46 +81,6 @@ namespace model
             }
         }
         
-        Rational operator*(const Rational& r2) const
-        {
-            return Rational(n*r2.n,d*r2.d);
-        }
-        
-        Rational operator/(const Rational& r2) const
-        {
-            return Rational(n*r2.d,d*r2.n);
-        }
-        
-        Rational operator+(const Rational& r2) const
-        {
-            return Rational(n*r2.d+r2.n*d,d*r2.d);
-        }
-        
-        Rational operator-(const Rational& r2) const
-        {
-            return Rational(n*r2.d-r2.n*d,d*r2.d);
-        }
-        
-        Rational operator*(const long int& i) const
-        {
-            return Rational(n*i,d);
-        }
-        
-        Rational operator/(const long int& i) const
-        {
-            return Rational(n,d*i);
-        }
-        
-        Rational operator+(const long int& i) const
-        {
-            return *this+Rational(i,1);
-        }
-        
-        Rational operator-(const long int& i) const
-        {
-            return *this-Rational(i,1);
-        }
-        
         /*************************************************************/
         // friend T& operator <<
         //template <class T>
@@ -132,7 +92,45 @@ namespace model
         
     };
     
-
+    Rational operator*(const Rational& r1,const Rational& r2)
+    {
+        return Rational(r1.n*r2.n,r1.d*r2.d);
+    }
+    
+    Rational operator/(const Rational& r1,const Rational& r2)
+    {
+        return Rational(r1.n*r2.d,r1.d*r2.n);
+    }
+    
+    Rational operator+(const Rational& r1,const Rational& r2)
+    {
+        return Rational(r1.n*r2.d+r2.n*r1.d,r1.d*r2.d);
+    }
+    
+    Rational operator-(const Rational& r1,const Rational& r2)
+    {
+        return Rational(r1.n*r2.d-r2.n*r1.d,r1.d*r2.d);
+    }
+    
+    Rational operator*(const Rational& r1,const long int& i)
+    {
+        return Rational(r1.n*i,r1.d);
+    }
+    
+    Rational operator/(const Rational& r1,const long int& i)
+    {
+        return Rational(r1.n,r1.d*i);
+    }
+    
+    Rational operator+(const Rational& r1,const long int& i)
+    {
+        return r1+Rational(i,1);
+    }
+    
+    Rational operator-(const Rational& r1,const long int& i)
+    {
+        return r1-Rational(i,1);
+    }
     
 //    Rational rat(const long int& n,const long int& d)
 //    {
