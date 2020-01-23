@@ -261,39 +261,59 @@ namespace model
                         }
                     }
                     else if(nA->glidePlaneIntersections() && !nB->glidePlaneIntersections())
-                    {// nA confined by more then one plane, nB confined by only one plane
-                        assert(nB->glidePlanes().size()==1);
-                        PlaneLineIntersection<dim> pli((*nB->glidePlanes().begin())->P,
-                                                       (*nB->glidePlanes().begin())->unitNormal,
-                                                       nA->glidePlaneIntersections()->P0, // origin of line
-                                                       nA->glidePlaneIntersections()->P1-nA->glidePlaneIntersections()->P0 // line direction
-                                                       );
-                        
-                        // THERE SHOULD BE A PlaneSegmentIntersection class, which intersects the plane with a finite segment
-                        
-                        if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
-                        {// nothing to do, _glidePlaneIntersections remains unchanged
-                            VerboseNodeContraction(1,"DislocationNodeContraction case 6a"<<std::endl;);
-                            return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
-                        }
-                        else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
-                        {// _glidePlaneIntersections becomes a singular point
-                            VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
-                            FiniteLineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1);
-                            if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)
-                            {// intersection point is inside mesh
-                                VerboseNodeContraction(1,"DislocationNodeContraction case 6b1"<<std::endl;);
-                                return contractToPosition(nA,nB,pli.P,maxRange);
+                    {// nA confined by more then one plane, nB confined by zero or one plane
+                        if(nB->glidePlanes().size()==0)
+                        {// nB confined by zero planes
+                            VerboseNodeContraction(1,"DislocationNodeContraction case 6AA"<<std::endl;);
+                            if(nA->glidePlaneIntersections()->contains(nB->get_P()))
+                            {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6AA1"<<std::endl;);
+                                return contractToPosition(nA,nB,nB->get_P(),maxRange);
                             }
                             else
                             {
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6AA2"<<std::endl;);
+                                return false;
+                            }
+                        }
+                        else if(nB->glidePlanes().size()==1)
+                        {// nB confined by one plane
+                            PlaneLineIntersection<dim> pli((*nB->glidePlanes().begin())->P,
+                                                           (*nB->glidePlanes().begin())->unitNormal,
+                                                           nA->glidePlaneIntersections()->P0, // origin of line
+                                                           nA->glidePlaneIntersections()->P1-nA->glidePlaneIntersections()->P0 // line direction
+                                                           );
+                            
+                            // THERE SHOULD BE A PlaneSegmentIntersection class, which intersects the plane with a finite segment
+                            
+                            if(pli.type==PlaneLineIntersection<dim>::COINCIDENT)
+                            {// nothing to do, _glidePlaneIntersections remains unchanged
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6a"<<std::endl;);
+                                return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                            }
+                            else if(pli.type==PlaneLineIntersection<dim>::INCIDENT)
+                            {// _glidePlaneIntersections becomes a singular point
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6b"<<std::endl;);
+                                FiniteLineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0,nA->glidePlaneIntersections()->P1);
+                                if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)
+                                {// intersection point is inside mesh
+                                    VerboseNodeContraction(1,"DislocationNodeContraction case 6b1"<<std::endl;);
+                                    return contractToPosition(nA,nB,pli.P,maxRange);
+                                }
+                                else
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {// parallel planes, cannot contract
+                                VerboseNodeContraction(1,"DislocationNodeContraction case 6c"<<std::endl;);
                                 return false;
                             }
                         }
                         else
-                        {// parallel planes, cannot contract
-                            VerboseNodeContraction(1,"DislocationNodeContraction case 6c"<<std::endl;);
-                            return false;
+                        {
+                            assert(false && " no nB->glidePlaneIntersections() with more than one glide planes");
                         }
                     }
                     else if(!nA->glidePlaneIntersections() && nB->glidePlaneIntersections())

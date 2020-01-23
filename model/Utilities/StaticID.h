@@ -59,6 +59,11 @@ namespace model
         {
             return count;
         }
+        
+        static size_t& get_count()
+        {
+            return count;
+        }
 		
         /**********************************************************************/
 		static void set_count(const size_t& newCount)

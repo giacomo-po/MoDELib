@@ -6,13 +6,34 @@ system('rm poly0.txt');
 system('rm poly1.txt');
 system('rm result.txt');
 
-N0=6;
-poly0=rand(N0,2);
+%N0=4;
+%poly0=rand(N0,2);
+h=1.5;
+poly0=[0 0;
+       2 0;
+       2 h;
+       1 h;
+       1 1;
+       4 1;
+       4 h;
+       3 h;
+       3 0;
+       5 0;
+       5 3;
+       0 3];
+   poly0=flipud(poly0);
+   
+   A0=area(poly0)
+
 dlmwrite('poly0.txt',poly0,' ');
 %writeGPCfile('poly0.txt',poly0)
 
-N1=5;
-poly1=rand(N1,2);
+%N1=4;
+%poly1=rand(N1,2);
+poly1=[-1 -1;
+        6 -1;
+        6 4;
+       -1 4];
 dlmwrite('poly1.txt',poly1,' ');
 %writeGPCfile('poly1.txt',poly1)
 
@@ -52,8 +73,8 @@ nPoly = cell2mat(textscan(fid,'%d',1))
 nPoly=nPoly(1);
 skipLines=1;
 for p=1:nPoly
-    nV=cell2mat(textscan(fid,'%d',1,'HeaderLines',0))
-nV=nV(1)
+    nV=cell2mat(textscan(fid,'%d',1,'HeaderLines',0));
+nV=nV(1);
 %skipLines=skipLines+1;
 P=cell2mat(textscan(fid,'%f %f',nV,'HeaderLines',0))
 %skipLines=skipLines+nV;
@@ -61,4 +82,19 @@ patch(P(:,1),P(:,2),'r','Facealpha',0.3);
 
 end
 
+end
+
+function A=area(P)
+P0=P(1,:);
+A=0;
+for k=1:size(P,1)
+if k==size(P,1)
+    k1=1;
+else
+    k1=k+1
+end
+s=P(k,:)-P0;
+c=P(k1,:)-P(k,:);
+A=A+0.5*(s(1)*c(2)-s(2)*c(1));
+end
 end

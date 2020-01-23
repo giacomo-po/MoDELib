@@ -81,7 +81,7 @@ namespace model
                     }
                     else if (fabs(1.0-u)<FLT_EPSILON)
                     {
-                        return std::make_tuple(INCIDENT,v0,v0);
+                        return std::make_tuple(INCIDENT,v1,v1);
                     }
                     else
                     {// no roots

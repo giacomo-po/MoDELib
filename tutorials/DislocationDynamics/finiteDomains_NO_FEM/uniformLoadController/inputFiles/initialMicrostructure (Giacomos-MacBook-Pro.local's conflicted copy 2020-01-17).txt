@@ -4,12 +4,12 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=1e14;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=1e13;
+targetFrankReadDislocationDensity=1e14;
 FrankReadSizeMean=0.5e-6;
 FrankReadSizeStd=0.05e-6;
 FrankReadAspectRatioMean=2.0;
@@ -67,7 +67,7 @@ irradiationLoopsNumberOfNodes=10; # number of nodes used to discretize circular 
 # Eshelby Inclusions. 
 # For each family, a random diameter d is generated from a 3-parameters log-normal distribution with probability
 # p(d)=A/(S*d*sqrt(2*pi))*exp(-(ln(d/M))^2/(2*S^2))
-targetInclusionDensities=1e21 0e21; # vector of densities, one value per family
+targetInclusionDensities=0e21 0e21; # vector of densities, one value per family
 inclusionsDiameterLognormalDistribution_M=3.11e-8 3.11e-8; #[m] vector of log-normal diameter distribution parameters M. One entry per family 
 inclusionsDiameterLognormalDistribution_S=0.38    0.38;    #[-] vector of log-normal distribution parameters S. One entry per family 
 inclusionsDiameterLognormalDistribution_A=1.05e-8 1.05e-8; #[m] vector of log-normal distribution parameters A. One entry per family  
