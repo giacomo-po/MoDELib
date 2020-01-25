@@ -54,7 +54,7 @@ namespace model
         
         
         PlanarPolygon(const Eigen::Vector3d& x,        // global coordinate of the x axis on the plane
-                      const Eigen::Vector3d& z) :       // global z coordinate
+                      const Eigen::Vector3d& z) :      // global z coordinate
         R(getR(x,z)),
         n(R.col(2))
         {

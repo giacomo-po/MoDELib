@@ -63,6 +63,10 @@ namespace model
             temp.emplace(9,"6-node second-order triangle");
             temp.emplace(10,"9-node second-order quadrangle");
             temp.emplace(11,"10-node tetrahedron");
+            temp.emplace(12,"27-node second order hexahedron");
+            temp.emplace(13,"18-node second order prism");
+            temp.emplace(14,"14-node second order pyramid");
+            temp.emplace(15,"1-node point");
             return temp;
         }
         
@@ -98,6 +102,22 @@ namespace model
                     
                 case 11: // 10-node tetrahedron
                     return 10;
+                    break;
+                    
+                case 12: // 27-node second order hexahedron (8 nodes associated with the vertices, 12 with the edges, 6 with the faces and 1 with the volume).
+                    return 27;
+                    break;
+                    
+                case 13: // 18-node second order prism (6 nodes associated with the vertices, 9 with the edges and 3 with the quadrangular faces).
+                    return 18;
+                    break;
+                    
+                case 14: // 14-node second order pyramid (5 nodes associated with the vertices, 8 with the edges and 1 with the quadrangular face).
+                    return 14;
+                    break;
+                    
+                case 15: // 1-node point.
+                    return 1;
                     break;
                     
                 default:
@@ -294,7 +314,7 @@ namespace model
                 std::cout<<"number of Elements="<<numberElements<<std::endl;
                 for(const auto& pair : numberElementsByType)
                 {
-                    std::cout<<"    "<<pair.second<<" of type: "<<elementTypes.at(pair.first)<<std::endl;
+                    std::cout<<"    "<<pair.second<<" of type "<<pair.first<<": "<<elementTypes.at(pair.first)<<std::endl;
                 }
             }
             else

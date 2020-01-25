@@ -10,6 +10,7 @@
 #define model_DISLOCATIONJUNCTIONFORMATION_H_
 
 #include <utility> // for std::pair
+#include <algorithm>
 #include <vector>
 #include <Eigen/Dense>
 #include <SegmentSegmentDistance.h>
@@ -53,6 +54,10 @@ namespace model
                                 const double& currentcCollisionTOL,
                                 const bool& bndJunction,const bool& gbndJunction)
         {
+            VerboseJunctions(2,"insertIntersection "<<linkA->tag()<<","<<linkB->tag()<<std::endl;);
+            VerboseJunctions(2,"insertIntersection "<<"ssd.dMin="<<ssd.dMin<<std::endl;);
+            VerboseJunctions(2,"insertIntersection "<<"currentcCollisionTOL="<<currentcCollisionTOL<<std::endl;);
+
             if(ssd.dMin<currentcCollisionTOL)
             {
                 bool isValidJunction((bndJunction || gbndJunction) && DN.simulationParameters.simulationType!=2);
@@ -180,8 +185,7 @@ namespace model
                 const auto& linkA(reducedIntersectionPairs[k].first);
                 const auto& linkB(reducedIntersectionPairs[k].second);
                 
-                VerboseJunctions(2,"checking intersection "<<linkA->source->sID<<"->"<<linkA->sink->sID
-                                 /*                   */ <<" "<<linkB->source->sID<<"->"<<linkB->sink->sID<<std::endl;);
+                VerboseJunctions(2,"checking intersection "<<linkA->tag()<<","<<linkB->tag()<<std::endl;);
                 
                 
                 const bool linkAisBnd(linkA->isBoundarySegment());
@@ -200,34 +204,10 @@ namespace model
                                         &&  linkA->chord().cross(linkB->chord()).norm()<FLT_EPSILON // colinear on grain-boundary
                                         );
                 
-                //                const bool frankRule(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
-                //
-                //
-                //                const bool isValidJunction(   (frankRule   && !linkAisBnd && !linkBisBnd && !linkAisGBnd && !linkBisGBnd)  // energy rule is satisfied for internal segments
-                //                                           || bndJunction   // junciton between parallel boundary segments
-                //                                           || gbndJunction  // junciton between parallel grain-boundary segments
-                //                                           );
-                
-                //                bool isValidJunction(bndJunction || gbndJunction);
-                //                if(!isValidJunction)
-                //                {
-                //
-                //                    SegmentSegmentDistance<dim> ssd();
-                //
-                //
-                //
-                //                }
-                
                 VerboseJunctions(2,"links are bnd: "<<linkAisBnd<<" "<<linkBisBnd<<std::endl;);
                 VerboseJunctions(2,"links are grainBnd: "<<linkAisGBnd<<" "<<linkBisGBnd<<std::endl;);
                 VerboseJunctions(2,"bndJunction: "<<bndJunction<<std::endl;);
                 VerboseJunctions(2,"gbndJunction: "<<gbndJunction<<std::endl;);
-                //                VerboseJunctions(2,"isValidJunction: "<<isValidJunction<<std::endl;);
-                
-                
-                
-                //                if(isValidJunction)
-                //                {
                 
                 const bool intersectionIsSourceSource(linkA->source->sID==linkB->source->sID);
                 const bool intersectionIsSourceSink(  linkA->source->sID==linkB->  sink->sID);
@@ -237,22 +217,53 @@ namespace model
                 
                 
                 double currentcCollisionTOL=collisionTol;
-                if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-                   && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-                   && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
-                {// segments on parallel or coincident planes, reduce tolerance
-                    
-                    
-                    
-                    
-                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
-                    
-                    if(cosTheta<0.7)
-                    {
+                
+//                std::set<const GlidePlane<dim>*> commonGlidePlanes;
+//                std::set_intersection(linkA->glidePlanes().begin(),linkA->glidePlanes().end(),linkB->glidePlanes().begin(),linkB->glidePlanes().end(),std::inserter(commonGlidePlanes,commonGlidePlanes.begin()));
+//                if(commonGlidePlanes.size())
+//                {// links have a GlidePlane in common
+//                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+//                    if(cosTheta<0.7)
+//                    {// links are either disconnected, or connected to a node and forming a large angle at that node. Reduce tolerance
+//                        currentcCollisionTOL=FLT_EPSILON;
+//                    }
+//                }
+                
+                const auto pcPlanes(linkA->parallelAndCoincidentGlidePlanes(linkB->glidePlanes()));
+                VerboseJunctions(2,"pcPlanes.size()= "<<pcPlanes.size()<<std::endl;);
+                for(const auto& pair : pcPlanes)
+                {
+                    if(pair.first==pair.second)
+                    {// a common coincident plane found
+                        const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+                        if(cosTheta<0.7)
+                        {// links are either disconnected, or connected to a node and forming a large angle at that node. Reduce tolerance
+                            currentcCollisionTOL=FLT_EPSILON;
+                        }
+                        break;
+                    }
+                    else
+                    {// segments on parallel (non-coincident) planes
                         currentcCollisionTOL=FLT_EPSILON;
                     }
-                    
                 }
+                
+           
+                
+                
+//                if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+//                   && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+//                   && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
+//                {// segments on parallel or coincident planes, reduce tolerance
+//
+//                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+//
+//                    if(cosTheta<0.7)
+//                    {
+//                        currentcCollisionTOL=FLT_EPSILON;
+//                    }
+//
+//                }
                 
                 
                 if(intersectionIsSourceSource)

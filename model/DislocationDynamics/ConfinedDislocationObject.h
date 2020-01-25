@@ -207,6 +207,11 @@ namespace model
             return *this;
         }
         
+//        const GlidePlane<dim>* glidePlane() const
+//        {
+//            return glidePlanes().size()==1? *glidePlanes().begin() : nullptr;
+//        }
+        
 //        /**********************************************************************/
 //        std::set<size_t> imageMeshFaceIDs(const std::set<size_t>& mirroringFaceIDs) const
 //        {
@@ -357,10 +362,11 @@ namespace model
                             
                             // Grab the infinite line of intersection between the two planes
                             //                            const PlanePlaneIntersection<dim>& ppi(gpObserver.glidePlaneIntersection(*glidePlanes().begin(),*glidePlanes().rbegin()));
-                            const PlanePlaneIntersection<dim> ppi(**glidePlanes().begin(),**glidePlanes().rbegin());
+//                            const PlanePlaneIntersection<dim> ppi(**glidePlanes().begin(),**glidePlanes().rbegin());
                             const GlidePlane<dim>& glidePlane0(**glidePlanes().begin());
                             const GlidePlane<dim>& glidePlane1(**glidePlanes().rbegin());
-                            
+                            const PlanePlaneIntersection<dim> ppi(glidePlane0,glidePlane1);
+
                             if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                             {/* Two distinct glide planes can be coincident only if they belong to different grains
                               */
@@ -461,11 +467,12 @@ namespace model
                                 }
                             }
                             else
-                            {
-                                assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
+                            {// parallel planes. _glidePlaneIntersections remians null and boundingBoxSegments is empty
+                                if(posCointainer.size())
+                                {
+                                    assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
+                                }
                             }
-                            
-                            //                            assert(_glidePlaneIntersections && "_glidePlaneIntersections must exist");
                             
                             break;
                         }
@@ -643,7 +650,24 @@ namespace model
             return temp;
         }
         
-        
+        /**********************************************************************/
+        std::vector<std::pair<const GlidePlane<dim>* const,const GlidePlane<dim>* const>> parallelAndCoincidentGlidePlanes(const GlidePlaneContainerType& other) const
+        {
+            std::vector<std::pair<const GlidePlane<dim>* const,const GlidePlane<dim>* const>> pp;
+            
+            for(const auto& plane : glidePlanes())
+            {
+                for(const auto& otherPlane : other)
+                {
+//                    if(plane!=otherPlane && plane->n.cross(otherPlane->n).squaredNorm()==0)
+                    if(plane->n.cross(otherPlane->n).squaredNorm()==0)
+                    {// parallel planes
+                        pp.emplace_back(plane,otherPlane);
+                    }
+                }
+            }
+            return pp;
+        }
         
         
     };

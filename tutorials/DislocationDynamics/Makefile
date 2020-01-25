@@ -178,8 +178,8 @@ empty:
 	@find evl/ -name ddAux_\*.bin -exec rm {} +;
 ifeq ($(Eexists),1)
 	@echo emptying folder E
-	@find E/ -name E_\*.txt -exec rm {} +;
-	@find E/ -name E_\*.bin -exec rm {} +;
+	@find E/ -name E_\*.txt ! -name E_0.txt -exec rm {} +;
+	@find E/ -name E_\*.bin ! -name E_0.bin -exec rm {} +;
 endif
 ifeq ($(Fexists),1)
 	@echo emptying folder F

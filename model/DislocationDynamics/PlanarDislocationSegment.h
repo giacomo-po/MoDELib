@@ -462,7 +462,6 @@ namespace model
         bool isGlissile() const
         {/*\returns true if ALL the following conditions are met
           * - the segment is confined by only one plane
-          * - its Burgers vector is non-zero
           * - all loops containing this segment are glissile
           */
 //            bool temp(this->glidePlanes().size()==1 && !hasZeroBurgers() && !isVirtualBoundarySegment());

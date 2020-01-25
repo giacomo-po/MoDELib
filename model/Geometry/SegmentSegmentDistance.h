@@ -196,9 +196,6 @@ namespace model
                 else
                 {// both segments are not degenerate
                     
-//                    std::cout<<"den="<<den<<std::endl;
-//                    std::cout<<"tol="<<tol<<std::endl;
-                    
                     if(fabs(den)>tol*D1*D2)
                     {// Step 1d: skew segments
                         temp.emplace_back(0.5*(x0+x1),t,u);

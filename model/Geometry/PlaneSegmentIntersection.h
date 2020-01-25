@@ -10,9 +10,7 @@
 #define model_PlaneSegmentIntersection_H_
 
 #include <tuple>
-//#include <map>
 #include <Eigen/Dense>
-//#include <Eigen/Cholesky>
 #include <Plane.h>
 #include <FiniteLineSegment.h>
 
@@ -61,10 +59,7 @@ namespace model
             {
                 const double den=(v1-v0).dot(n);
                 const double num=(P0-v0).dot(n);
-                const double P0v0norm=(P0-v0).norm();
-                
-                const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
-                
+
                 if (fabs(den/edgeNorm)>FLT_EPSILON)
                 {
                     // edge intersects plane
@@ -91,6 +86,8 @@ namespace model
                 }
                 else
                 {
+                    const double P0v0norm=(P0-v0).norm();
+                    const double numCheck= (P0v0norm<FLT_EPSILON)? 0.0 : num/P0v0norm;
                     if (fabs(numCheck)>FLT_EPSILON)
                     {// edge is parallel to plane, no intersection
                         return std::make_tuple(PARALLEL,VectorDimD::Zero(),VectorDimD::Zero());
