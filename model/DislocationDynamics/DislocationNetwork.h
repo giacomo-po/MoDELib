@@ -1008,7 +1008,7 @@ namespace model
             {
                 for (auto& nodeIter : this->nodes())
                 {
-                    static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt);
+                    static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt_in);
                 }
                 
                 for (auto& nodeIter : this->nodes())

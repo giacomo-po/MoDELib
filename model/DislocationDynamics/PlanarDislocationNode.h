@@ -172,7 +172,7 @@ namespace model
         
         NodeType* const masterNode;
         
-        std::map<std::set<size_t>,std::shared_ptr<NodeType>> imageSharedNodeContainer;
+//        std::map<std::set<size_t>,std::shared_ptr<NodeType>> imageSharedNodeContainer;
         
         
         
@@ -765,10 +765,10 @@ namespace model
                           )
                       );
             
-            for (const auto& pair :imageSharedNodeContainer)
-            {
-                temp*=pair.second->isRemovable(Lmin,cosRemove);
-            }
+//            for (const auto& pair :imageSharedNodeContainer)
+//            {
+//                temp*=pair.second->isRemovable(Lmin,cosRemove);
+//            }
             
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" isRemovable "<<temp<<std::endl;);
             

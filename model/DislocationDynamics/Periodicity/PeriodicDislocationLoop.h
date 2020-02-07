@@ -34,7 +34,7 @@ namespace model
         static int verbosePeriodicDislocationBase;
         static void initFromFile(const std::string& fileName)
         {
-            verbosePeriodicDislocationBase=TextFileParser("inputFiles/DD.txt").readScalar<int>("verbosePeriodicDislocationBase",true);
+            verbosePeriodicDislocationBase=TextFileParser(fileName).readScalar<int>("verbosePeriodicDislocationBase",true);
         }
 
     };
@@ -166,10 +166,10 @@ namespace model
         {
             if (periodicLoopLink->sink->sID == this->sID)
             { // edge ends at this node, so link is an inLink
-                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" adding inLink "<<periodicLoopLink<<", loop "<<periodicLoopLink->loopLink->loop()->sID<<std::endl;);
+                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" ("<<periodicLoopLink->loopLink->sink()->sID<<"), loop "<<periodicLoopLink->loopLink->loop()->sID<<" adding inLink "<<periodicLoopLink<<std::endl;);
                 // Update _loopConnectivities
                 SuperNodalConnectivityType& loopConnectivity(loopConnectivities()[periodicLoopLink->loopLink->loop()->sID]);
-                assert(loopConnectivity.inEdge == nullptr);
+                assert(loopConnectivity.inEdge == nullptr || loopConnectivity.inEdge == periodicLoopLink);
                 loopConnectivity.inEdge = periodicLoopLink;
                 
                 if (loopConnectivity.outEdge)
@@ -196,10 +196,10 @@ namespace model
             }
             else if (periodicLoopLink->source->sID == this->sID)
             {// edge starts at this node, so link is an outLink
-                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" adding outLink "<<periodicLoopLink<<", loop "<<periodicLoopLink->loopLink->loop()->sID<<std::endl;);
+                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" ("<<periodicLoopLink->loopLink->source()->sID<<"), loop "<<periodicLoopLink->loopLink->loop()->sID<<" adding outLink "<<periodicLoopLink<<std::endl;);
                 // Update _loopConnectivities
                 SuperNodalConnectivityType& loopConnectivity(loopConnectivities()[periodicLoopLink->loopLink->loop()->sID]);
-                assert(loopConnectivity.outEdge == nullptr);
+                assert(loopConnectivity.outEdge == nullptr || loopConnectivity.outEdge == periodicLoopLink);
                 loopConnectivity.outEdge = periodicLoopLink;
                 
                 if (loopConnectivity.inEdge)
@@ -235,7 +235,7 @@ namespace model
             
             if (periodicLoopLink->sink->sID == this->sID)
             {// edge ends at this node, so link is an inLink
-                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" removing inLink "<<periodicLoopLink<<", loop "<<periodicLoopLink->loopLink->loop()->sID<<std::endl;);
+                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" ("<<periodicLoopLink->loopLink->sink()->sID<<"), loop "<<periodicLoopLink->loopLink->loop()->sID<<" removing inLink "<<periodicLoopLink<<std::endl;);
 
                 // Update _loopConnectivities
                 auto loopIter(loopConnectivities().find(periodicLoopLink->loopLink->loop()->sID));
@@ -262,7 +262,7 @@ namespace model
             else if (periodicLoopLink->source->sID == this->sID)
             {// edge starts at this node, so link is an outLink
                 // Update _loopConnectivities
-                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" removing outLink "<<periodicLoopLink<<", loop "<<periodicLoopLink->loopLink->loop()->sID<<std::endl;);
+                VerbosePeriodicDislocationBase(5,"Node "<<this->sID<<" ("<<periodicLoopLink->loopLink->source()->sID<<"), loop "<<periodicLoopLink->loopLink->loop()->sID<<" removing outLink "<<periodicLoopLink<<std::endl;);
 
                 auto loopIter(loopConnectivities().find(periodicLoopLink->loopLink->loop()->sID));
                 assert(loopIter != loopConnectivities().end() && "LOOP NOT FOUND IN loopConnectivities");
