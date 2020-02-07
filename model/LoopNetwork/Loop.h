@@ -103,6 +103,11 @@ namespace model
             return *_loopNetwork;
         }
         
+        LoopNetworkType& network()
+        {
+            return *_loopNetwork;
+        }
+        
 //        /**********************************************************************/
 //        std::shared_ptr<Derived> clone() const
 //        {/* Returns a copy of this loop. The new loop, however, does not contain

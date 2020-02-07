@@ -380,15 +380,17 @@ struct LoopPathClipper : private std::map<std::pair<size_t,size_t>,LoopEdge>
                         assert(loopIter->second==patchIter->second && "INTERSECTION MUST BE SAME NODE");
                         
                     }
-                    else if(    loopIter== loopIntersections.end()
-                            && patchIter!=patchIntersections.end())
-                    {// u not found and t found. Intersection point exists on loop only
-                        assert(false && "Intersection point exists on patch only. FINISH HERE");
-                    }
                     else if(    loopIter!= loopIntersections.end()
                             && patchIter==patchIntersections.end())
+                    {// u not found and t found. Intersection point exists on loop only
+//                        assert(false && "Intersection point exists on patch only. FINISH HERE");
+                        patchIntersections.emplace(u,loopIter->second);
+                    }
+                    else if(    loopIter== loopIntersections.end()
+                            && patchIter!=patchIntersections.end())
                     {// u found and t not found. Intersection point exists on patch only
-                        assert(false && "Intersection point exists on loop only. FINISH HERE");
+//                        assert(false && "Intersection point exists on loop only. FINISH HERE");
+                        loopIntersections.emplace(t,patchIter->second);
                     }
                     else
                     {// neither u nor t exist. New intersection point

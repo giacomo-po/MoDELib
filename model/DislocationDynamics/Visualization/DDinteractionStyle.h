@@ -562,6 +562,7 @@ namespace model
                     {
                         ddAux->showGlidePlanes=false;
                         ddAux->showPeriodicGlidePlanes=false;
+                        ddAux->showPeriodicLoops=false;
                         ddAux->modify();
                         this->Interactor->Render();
                         std::cout<<"showGlidePlanes="<<ddAux->showGlidePlanes<<std::endl;
@@ -573,6 +574,7 @@ namespace model
                     selectedKey="g";
                     std::cout<<"selecting objects: glide planes"<<std::endl;
                     std::cout<<"    1 to show periodic glide planes"<<std::endl;
+                    std::cout<<"    2 to show periodic loops"<<std::endl;
                     std::cout<<"    +/- to increase opacity"<<std::endl;
                     if(ddAux!=nullptr)
                     {
@@ -1102,6 +1104,13 @@ namespace model
                     ddAux->modify();
                     this->Interactor->Render();
                     std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
+                }
+                if(key == "2" && ddAux!=nullptr)
+                {
+                    ddAux->showPeriodicLoops=!ddAux->showPeriodicLoops;
+                    ddAux->modify();
+                    this->Interactor->Render();
+                    std::cout<<"showPeriodicLoops="<<ddAux->showPeriodicLoops<<std::endl;
                 }
             }
             else if(selectedKey[0]=='t')

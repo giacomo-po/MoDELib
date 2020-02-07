@@ -78,10 +78,10 @@ namespace model
         DislocationLoop(LoopNetworkType* const dn,
                         const VectorDim& B,
                         const std::shared_ptr<GlidePlane<dim>>& glidePlane,
-                        const std::shared_ptr<PeriodicDislocationLoopType>& pLoop,
+//                        const std::shared_ptr<PeriodicDislocationLoopType>& pLoop,
                         const VectorDim& shift) :
 //        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane,pLoop,shift)
-        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane,pLoop,shift)
+        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane,shift)
         //        /* init */,slipSystem(nullptr)
         //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
         {

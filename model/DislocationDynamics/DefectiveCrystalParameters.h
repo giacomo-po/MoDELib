@@ -112,7 +112,10 @@ namespace model
         
 
         
-
+        bool isPeriodicSimulation() const
+        {
+            return simulationType==PERIODIC_IMAGES || simulationType==PERIODIC_FEM;
+        }
         
         
     };

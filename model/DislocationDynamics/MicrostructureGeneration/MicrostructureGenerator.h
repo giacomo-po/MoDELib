@@ -261,7 +261,7 @@ namespace model
                             isEdge=false;
                             d1cNorm=b.norm();
                             a1=randomSize()/d1cNorm;
-                            L1=L0+slipSystem.s*a1;
+                            L1=L0+slipSystem.s.dir*a1;
                         }
 
                         // Compute the LatticeDireciton corresponding to -n
@@ -829,7 +829,7 @@ namespace model
                 assert(poly.grains().size()==1 && "PeriodicLoops only supported in single crystals.");
                 double density=0.0;
                 size_t periodicNodeID(0);
-                size_t periodicLoopID(0);
+//                size_t periodicLoopID(0);
                 while(density<targetPeriodicLoopDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -840,7 +840,6 @@ namespace model
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
-                    const VectorDimD loopAxis(slipSystem.n.cartesian());
 
                     std::normal_distribution<double> sizeDistribution(periodicLoopRadiusMean/poly.b_SI,periodicLoopRadiusStd/poly.b_SI);
                     const double radius(sizeDistribution(generator));
@@ -850,31 +849,31 @@ namespace model
 
                     for(int k=0;k<periodicLoopSides;++k)
                     {
-                        // Sessile loop
-//                        nodePos.push_back();
-                        
-                        const VectorDimD P(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, loopAxis)*slipSystem.s.cartesian().normalized()*radius);
+                        const VectorDimD P(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius);
                         periodicNodesIO.emplace_back(periodicNodeID,P,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-
-
                         periodicNodeID++;
                     }
                     
 
+                    //                    GlidePlaneKey<3> referencePlaneKey(grainID,P0,slipSystem.n);
+
+                    PeriodicGlidePlaneFactory<dim> pgpf(poly,glidePlaneFactory);
+
                     
-                    GlidePlaneKey<3> referencePlaneKey(grainID,P0,slipSystem.n);
-                    std::shared_ptr<GlidePlane<3>> referencePlane(glidePlaneFactory.get(referencePlaneKey));
-                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
-                    pgp.addPatchesContainingPolygon(periodicNodesIO);
+                    GlidePlaneKey<3> pointsPlaneKey(grainID,P0,slipSystem.n);
+                    std::shared_ptr<GlidePlane<3>> pointsPlane(glidePlaneFactory.get(pointsPlaneKey));
+//                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
+                    auto periodicGlidePlane(pgpf.get(*pointsPlane));
+                    periodicGlidePlane->addPatchesContainingPolygon(periodicNodesIO);
 
                     // Yash: Here decompose periodic loop into individual loops
                     
-                    configIO.periodicLoops().emplace_back(periodicLoopID);
+//                    configIO.periodicLoops().emplace_back(periodicLoopID);
                     
+                    auxIO.setGlidePlaneBoundaries(glidePlaneFactory);
+                    auxIO.addPeriodicGlidePlane(*periodicGlidePlane);
                     
-                    auxIO.addPeriodicGlidePlane(pgp);
-                    
-                    periodicLoopID++;
+//                    periodicLoopID++;
                     density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                     std::cout<<"periodicLoop density="<<density<<std::endl;
                 }

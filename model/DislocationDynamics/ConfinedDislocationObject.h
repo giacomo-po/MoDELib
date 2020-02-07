@@ -410,15 +410,16 @@ namespace model
                                     if(lli.type==LineLineIntersection<dim>::INCIDENT)
                                     {
                                         const double u0((lli.x0-meshInt->P0).dot(D0));
-                                        //                                        std::cout<<u0<<std::endl;
+//                                        std::cout<<"incident u0="<<u0<<std::endl;
+//                                        std::cout<<"segLength="<<segLength<<std::endl;
                                         if(u0>=0.0 && u0<=segLength)
                                         {
-                                            //                                            roots.push_back(lli.x0);
                                             roots.insert(lli.x0);
                                         }
                                     }
                                     else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
                                     {// a coincident line was found, which means that the glide planes intersec on a boundary face
+//                                        std::cout<<"coincident"<<std::endl;
                                         _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(meshInt->P0,meshInt->P1));
                                         this->boundingBoxSegments().push_back(meshInt);
                                         break;
@@ -429,15 +430,27 @@ namespace model
                                 {// no coincident intersection was found
                                     if(roots.size()!=2)
                                     {
-                                        model::cout<<"BOUNDARY POINTS OF INCIDENT PLANES ARE:"<<std::endl;
-                                        for(const auto& root : roots)
+                                        if(posCointainer.size())
                                         {
-                                            model::cout<<root.transpose()<<std::endl;
+                                            model::cout<<"Plane0 bounding box:"<<std::endl;
+                                            std::cout<<glidePlane0.meshIntersections<<std::endl;
+                                            
+                                            model::cout<<"Plane1 bounding box:"<<std::endl;
+                                            std::cout<<glidePlane1.meshIntersections<<std::endl;
+                                            
+                                            
+                                            model::cout<<"BOUNDARY POINTS OF INCIDENT PLANES ARE:"<<std::endl;
+                                            for(const auto& root : roots)
+                                            {
+                                                model::cout<<root.transpose()<<std::endl;
+                                            }
+                                            assert(false && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                         }
-                                        assert(false && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                     }
-                                    //                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(roots[0],roots[1]));
-                                    _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
+                                    else
+                                    {// two roots
+                                        _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
+                                    }
                                     
                                     for(const auto& root : roots)
                                     {
@@ -571,7 +584,7 @@ namespace model
                 
                 for(const auto& pos : posCointainer)
                 {
-                    assert(glidePlane->contains(pos) && "glidePlane MUS CONTAIN POSITION");
+                    assert(glidePlane->contains(pos) && "glidePlane MUST CONTAIN POSITION");
                 }
                 
                 for(const auto& face : glidePlane->grain.region.faces())

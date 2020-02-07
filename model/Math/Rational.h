@@ -81,6 +81,11 @@ namespace model
             }
         }
         
+        bool operator!=(const long int& other) const
+        {
+            return !(*this==other);
+        }
+        
         Rational operator*(const Rational& r2) const
         {
             return Rational(n*r2.n,d*r2.d);

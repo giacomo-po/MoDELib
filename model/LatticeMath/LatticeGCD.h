@@ -23,7 +23,9 @@ namespace model
         /**********************************************************************/
         static long int gcd(const long int& a,const long int& b)
         {
-            return abs(b)>0? gcd(abs(b), abs(a) % abs(b)) : abs(a);
+            const long int absA(abs(a));
+            const long int absB(abs(b));
+            return absB>0? gcd(absB, absA % absB) : (absA>0? absA : 1);
         }
         
         /**********************************************************************/
@@ -35,20 +37,8 @@ namespace model
         /**********************************************************************/
         static long int gcd(const VectorDimI& v)
         {
-            //            assert(v.squaredNorm()>0 && "Cannot extract LatticeDirection from zero-vector.");
-            //            int g=gcd(abs(v(0)),abs(v(1)),abs(v(2)));
-            //            return v/g;
-            
             return gcd(v(0),v(1),v(2));
         }
-        
-        
-//        const long int gCD;
-//        
-//        LatticeGCD(const VectorDimI& v) :
-//        /* base init */ gCD(gcd(v))
-//        {}
-        
     };
     
 } // end namespace

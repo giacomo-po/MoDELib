@@ -136,7 +136,7 @@ namespace model
                     }
                 }
                 else
-                {// A soulution could not be found. This means parallel or coincident lines
+                {// A solution could not be found. This means parallel or coincident lines
                     const double A0A1norm(A0A1.norm());
                     if(A0A1norm<FLT_EPSILON)
                     {

@@ -18,6 +18,7 @@
 #include <SlipSystem.h>
 #include <DislocatedMaterialBase.h>
 #include <DislocationMobilityFCC.h>
+#include <RationalLatticeDirection.h>
 
 namespace model
 {
@@ -37,7 +38,7 @@ namespace model
         
         static constexpr bool enable111planes=true;
         static constexpr bool enable110planes=false;
-        
+        static bool enablePartials;
         
         FCClattice(const MatrixDim& Q) :
         /* init */ Lattice<dim>(getLatticeBasis(),Q)
@@ -120,34 +121,49 @@ namespace model
             
             if(enable111planes)
             {// <110>{111}
-                temp.emplace_back(new SlipSystem(a1,a3, a1,fccMobility));               // is (-1, 1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a1,a3,a1*(-1),fccMobility));           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a1,a3, a3,fccMobility));               // is (-1, 1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a1,a3,a3*(-1),fccMobility));           // is (-1, 1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a1,a3,a1-a3,fccMobility));             // is (-1, 1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a1,a3,a3-a1,fccMobility));             // is (-1, 1,-1) in cartesian
-                
-                temp.emplace_back(new SlipSystem(a3,a2, a3,fccMobility));               // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a3,a2,a3*(-1),fccMobility));           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a3,a2, a2,fccMobility));               // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a3,a2,a2*(-1),fccMobility));           // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a3,a2,a3-a2,fccMobility));             // is ( 1,-1,-1) in cartesian
-                temp.emplace_back(new SlipSystem(a3,a2,a2-a3,fccMobility));             // is ( 1,-1,-1) in cartesian
-                
-                temp.emplace_back(new SlipSystem(a2,a1, a2,fccMobility));               // is (-1,-1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a2,a1,a2*(-1),fccMobility));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a2,a1, a1,fccMobility));               // is (-1,-1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a2,a1,a1*(-1),fccMobility));           // is (-1,-1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a2,a1,a2-a1,fccMobility));             // is (-1,-1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a2,a1,a1-a2,fccMobility));             // is (-1,-1, 1) in cartesian
-                
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a1-a3,fccMobility));      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a3-a1,fccMobility));      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3,a2-a3,fccMobility));       // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3,a3-a2,fccMobility));       // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a1-a2,fccMobility));      // is ( 1, 1, 1) in cartesian
-                temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a2-a1,fccMobility));      // is ( 1, 1, 1) in cartesian
+                if(enablePartials)
+                {
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(+1)),fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(-1)),fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility));               // is (-1, 1,-1) in cartesian
+
+                }
+                else
+                {
+                    temp.emplace_back(new SlipSystem(a1,a3, a1,fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3,a1*(-1),fccMobility));           // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, a3,fccMobility));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3,a3*(-1),fccMobility));           // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3,a1-a3,fccMobility));             // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3,a3-a1,fccMobility));             // is (-1, 1,-1) in cartesian
+                    
+                    temp.emplace_back(new SlipSystem(a3,a2, a3,fccMobility));               // is ( 1,-1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2,a3*(-1),fccMobility));           // is ( 1,-1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, a2,fccMobility));               // is ( 1,-1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2,a2*(-1),fccMobility));           // is ( 1,-1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2,a3-a2,fccMobility));             // is ( 1,-1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2,a2-a3,fccMobility));             // is ( 1,-1,-1) in cartesian
+                    
+                    temp.emplace_back(new SlipSystem(a2,a1, a2,fccMobility));               // is (-1,-1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1,a2*(-1),fccMobility));           // is (-1,-1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, a1,fccMobility));               // is (-1,-1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1,a1*(-1),fccMobility));           // is (-1,-1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1,a2-a1,fccMobility));             // is (-1,-1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1,a1-a2,fccMobility));             // is (-1,-1, 1) in cartesian
+                    
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a1-a3,fccMobility));      // is ( 1, 1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a3-a1,fccMobility));      // is ( 1, 1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3,a2-a3,fccMobility));       // is ( 1, 1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3,a3-a2,fccMobility));       // is ( 1, 1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a1-a2,fccMobility));      // is ( 1, 1, 1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, a2-a1,fccMobility));      // is ( 1, 1, 1) in cartesian
+                }
             }
+            
+
             
             if(enable110planes)
             {// <110>{110}
@@ -177,6 +193,7 @@ namespace model
         
     };
     
+    bool FCClattice<3>::enablePartials=false;
     
 } // namespace model
 #endif

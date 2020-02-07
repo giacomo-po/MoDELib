@@ -404,8 +404,7 @@ namespace model
             {
                 
                 
-                if(   !(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
-                   && !(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM))
+                if(!this->network().simulationParameters.isPeriodicSimulation())
                 {// Use boundary planes to confine velocity in case of non-periodic simulation
                     
                     for(const auto& face : this->meshFaces())
@@ -982,6 +981,32 @@ namespace model
             
 //            updateImageNodes();
             resetVirtualBoundaryNode();
+            
+            for(const auto& loopLink : this->loopLinks())
+            {
+                auto periodicLoop(loopLink->loop()->periodicLoop);
+                if(periodicLoop)
+                {
+                    auto periodicLoopLinkIter(periodicLoop->loopLinks().find(loopLink));
+                    assert(periodicLoopLinkIter!=periodicLoop->loopLinks().end() && "LoopLink not found in PeriodicLoop");
+                    periodicLoopLinkIter->second.updateSourceSink();
+
+//                    auto& periodicLoopLink(periodicLoopLinkIter->second);
+//                    
+//                    if(loopLink->source().get()==this)
+//                    {// this node is the source of loopLink
+//                        periodicLoopLinkIter->second.updateSource();
+//                    }
+//                    else if(loopLink->sink().get()==this)
+//                    {
+//                        periodicLoopLinkIter->second.updateSink();
+//                    }
+//                    else
+//                    {
+//                        assert(false && "Node must be source or sink");
+//                    }
+                }
+            }
             
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" this->isOnBoundary()="<<this->isOnBoundary()<<std::endl;);
             const double posDelta((this->get_P()-newP).norm());

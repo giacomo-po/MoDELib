@@ -43,6 +43,12 @@ namespace model
         }
         
         /**********************************************************************/
+        RationalLatticeDirection(const Rational& _rat, const LatticeVector<dim>& v) :
+        /* init */ RationalLatticeDirection(_rat,LatticeDirection<dim>(v))
+        {
+        }
+        
+        /**********************************************************************/
         RationalLatticeDirection(const LatticeVector<dim>& v) :
         /* init */ rat(Rational(LatticeGCD<dim>::gcd(v),1))
         /* init */,dir(v)
@@ -90,7 +96,7 @@ namespace model
         RationalLatticeDirection operator-(const RationalLatticeDirection& other) const
         {
             assert(&dir.lattice==&other.dir.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
-            const VectorDimI temp(rat.n*other.rat.d*dir+other.rat.n*rat.d*other.dir);
+            const VectorDimI temp(rat.n*other.rat.d*dir-other.rat.n*rat.d*other.dir);
             const long int gcd(LatticeGCD<dim>::gcd(temp));
             const LatticeVector<dim> v(temp/gcd,dir.lattice);
             return RationalLatticeDirection(Rational(gcd,rat.d*other.rat.d),LatticeDirection<dim>(v));

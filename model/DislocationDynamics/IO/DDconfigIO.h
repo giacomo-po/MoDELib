@@ -21,7 +21,7 @@
 #include <DislocationLoopIO.h>
 #include <DislocationEdgeIO.h>
 #include <DislocationSegmentIO.h>
-#include <PeriodicLoopIO.h>
+//#include <PeriodicLoopIO.h>
 #include <MPIcout.h>
 
 
@@ -34,7 +34,7 @@ namespace model
     /*              */,private std::vector<DislocationNodeIO<dim>>
     /*              */,private std::vector<DislocationLoopIO<dim>>
     /*              */,private std::vector<DislocationEdgeIO<dim>>
-    /*              */,private std::vector<PeriodicLoopIO<dim>>
+//    /*              */,private std::vector<PeriodicLoopIO<dim>>
     /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
     /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
     {
@@ -92,11 +92,11 @@ namespace model
                 links().emplace_back(link.second);
             }
             
-            // Periodic Loops
-            for(const auto& pLoop : dn.periodicLoops())
-            {
-                periodicLoops().emplace_back(*pLoop.second);
-            }
+//            // Periodic Loops
+//            for(const auto& pLoop : dn.periodicLoops())
+//            {
+//                periodicLoops().emplace_back(*pLoop.second);
+//            }
             
         }
         
@@ -134,16 +134,16 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        const std::vector<PeriodicLoopIO<dim>>& periodicLoops() const
-        {
-            return *this;
-        }
-        
-        std::vector<PeriodicLoopIO<dim>>& periodicLoops()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const std::vector<PeriodicLoopIO<dim>>& periodicLoops() const
+//        {
+//            return *this;
+//        }
+//
+//        std::vector<PeriodicLoopIO<dim>>& periodicLoops()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
@@ -251,7 +251,7 @@ namespace model
                 file<<nodes().size()<<"\n";
                 file<<loops().size()<<"\n";
                 file<<links().size()<<"\n";
-                file<<periodicLoops().size()<<"\n";
+//                file<<periodicLoops().size()<<"\n";
                 
                 // Write Nodes
                 for(const auto& node : nodes())
@@ -270,11 +270,11 @@ namespace model
                     file<<link<<"\n";
                 }
                 
-                // Write PeriodicLoops
-                for(const auto& pLoop : periodicLoops())
-                {
-                    file<<pLoop<<"\n";
-                }
+//                // Write PeriodicLoops
+//                for(const auto& pLoop : periodicLoops())
+//                {
+//                    file<<pLoop<<"\n";
+//                }
                 
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -300,11 +300,11 @@ namespace model
                 const size_t nV(nodes().size());
                 const size_t nL(loops().size());
                 const size_t nE(links().size());
-                const size_t nPL(periodicLoops().size());
+//                const size_t nPL(periodicLoops().size());
                 binWrite(file,nV);
                 binWrite(file,nL);
                 binWrite(file,nE);
-                binWrite(file,nPL);
+//                binWrite(file,nPL);
 
                 // Write Nodes
                 for(const auto& node : nodes())
@@ -324,11 +324,11 @@ namespace model
                     binWrite(file,link);
                 }
                 
-                // Write PeriodicLoop
-                for(const auto& pLoop : periodicLoops())
-                {
-                    binWrite(file,pLoop);
-                }
+//                // Write PeriodicLoop
+//                for(const auto& pLoop : periodicLoops())
+//                {
+//                    binWrite(file,pLoop);
+//                }
 
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -380,8 +380,8 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeL), 1*sizeof(sizeL));
                 size_t sizeE;
                 infile.read (reinterpret_cast<char*>(&sizeE), 1*sizeof(sizeE));
-                size_t sizePL;
-                infile.read (reinterpret_cast<char*>(&sizePL), 1*sizeof(sizePL));
+//                size_t sizePL;
+//                infile.read (reinterpret_cast<char*>(&sizePL), 1*sizeof(sizePL));
 
                 // Read vertices
                 nodes().resize(sizeV);
@@ -392,9 +392,9 @@ namespace model
                 // Read links
                 links().resize(sizeE);
                 infile.read (reinterpret_cast<char*>(links().data()),links().size()*sizeof(DislocationEdgeIO<dim>));
-                // Read PeriodicLoops
-                periodicLoops().resize(sizePL);
-                infile.read (reinterpret_cast<char*>(periodicLoops().data()),periodicLoops().size()*sizeof(PeriodicLoopIO<dim>));
+//                // Read PeriodicLoops
+//                periodicLoops().resize(sizePL);
+//                infile.read (reinterpret_cast<char*>(periodicLoops().data()),periodicLoops().size()*sizeof(PeriodicLoopIO<dim>));
 
                 
                 infile.close();
@@ -403,7 +403,7 @@ namespace model
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
-                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
+//                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
 
             }
             else
@@ -429,7 +429,7 @@ namespace model
                 size_t sizeV;
                 size_t sizeL;
                 size_t sizeE;
-                size_t sizePL;
+//                size_t sizePL;
 
                 std::string line;
                 std::stringstream ss;
@@ -450,10 +450,10 @@ namespace model
                 ss >> sizeE;
                 ss.clear();
                 
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizePL;
-                ss.clear();
+//                std::getline(infile, line);
+//                ss<<line;
+//                ss >> sizePL;
+//                ss.clear();
                 
                 nodes().clear();
                 for(size_t k=0;k<sizeV;++k)
@@ -482,14 +482,14 @@ namespace model
                     ss.clear();
                 }
                 
-                periodicLoops().clear();
-                for(size_t k=0;k<sizePL;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    periodicLoops().emplace_back(ss);
-                    ss.clear();
-                }
+//                periodicLoops().clear();
+//                for(size_t k=0;k<sizePL;++k)
+//                {
+//                    std::getline(infile, line);
+//                    ss<<line;
+//                    periodicLoops().emplace_back(ss);
+//                    ss.clear();
+//                }
 
                 infile.close();
                 make_maps();
@@ -497,7 +497,7 @@ namespace model
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
-                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
+//                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
 
             }
             else

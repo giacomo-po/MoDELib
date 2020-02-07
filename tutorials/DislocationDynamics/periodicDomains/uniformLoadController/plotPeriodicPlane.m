@@ -2,20 +2,28 @@ clear all
 close all
 clc
 
+
 points=load("points.txt");
 
 patches=load("edges.txt");
 
 poly=load("poly.txt");
+poly3D=load("poly3D.txt");
 center=poly(1,:);
 poly=poly(2:end,:);
+
+
+
+
 
 figure(1)
 clf
 hold on
-size equal
+axis equal
 plot(points(:,2),points(:,3),'o')
+plot3(poly3D(:,1),poly3D(:,2),poly3D(:,3),'ko')
 plot([poly(:,1);poly(1,1)],[poly(:,2);poly(1,2)],'x-r','Linewidth',2)
+
 %text(points(:,2),points(:,3),num2str(points(:,1)))
 %for n=1:size(poly,1)
 %plot([center(1) poly(n,1)],[center(2) poly(n,2)],'r--')

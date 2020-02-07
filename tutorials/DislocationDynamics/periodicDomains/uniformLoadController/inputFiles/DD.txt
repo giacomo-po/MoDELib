@@ -1,7 +1,7 @@
 ######################################
 # GENERAL SETTINGS
 # Simulation type 
-simulationType=0; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
+simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
@@ -22,9 +22,9 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-periodicImages_x=0;
-periodicImages_y=0;
-periodicImages_z=0;
+periodicImages_x=1;
+periodicImages_y=1;
+periodicImages_z=1;
 
 ######################################
 quadPerLength=0.1;
@@ -51,17 +51,17 @@ ddSolverType=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=0;
+outputGlidePlanes=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
-outputPeriodicConfiguration=0;
+outputPeriodicConfiguration=1;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -110,7 +110,8 @@ verboseRemesh=0;
 verbosePlanarDislocationNode=0;
 verboseNodeContraction=0;
 verbosePlanarDislocationSegment=0;
-verbosePlanarDislocationLoop=0;
+verbosePlanarDislocationLoop=5;
 verboseCrossSlip=0;
+verbosePeriodicDislocationBase=2;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;

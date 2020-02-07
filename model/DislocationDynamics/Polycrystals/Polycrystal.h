@@ -56,28 +56,7 @@ namespace model
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
         
-//        /**********************************************************************/
-//        static std::unique_ptr<DislocationMobilityBase> getMobility(const DislocatedMaterial<dim,Isotropic>& material)
-//        {
-//            if(material.crystalStructure=="BCC")
-//            {
-//                return std::make_unique<DislocationMobilityBCC>(material);
-//            }
-//            else if(material.crystalStructure=="FCC")
-//            {
-//                return std::make_unique<DislocationMobilityFCC>(material);
-//            }
-//            else if(material.crystalStructure=="HEX")
-//            {
-//                std::cout<<"FINISH HERE. HEX MOBILITY NOT IMPLEMENTED YET"<<std::endl;
-//                return std::make_unique<DislocationMobilityFCC>(material);
-//            }
-//            else
-//            {
-//                std::cout<<"Unknown mobility for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
-//                exit(EXIT_FAILURE);
-//            }
-//        }
+
         
         
     public:

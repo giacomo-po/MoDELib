@@ -58,8 +58,8 @@ namespace model
         const std::shared_ptr<GlidePlaneType> glidePlane;
         const Grain<dim>& grain;
         const int loopType;
-        const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
         const VectorDim periodicShift;
+        const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
 
         static int verbosePlanarDislocationLoop;
 
@@ -77,6 +77,25 @@ namespace model
         static int sgn(const T& val)
         {
             return (val > T(0)) - (val < T(0));
+        }
+        
+        std::shared_ptr<PeriodicDislocationLoopType> getPeriodicLoop() const
+        {
+            if(this->network().simulationParameters.isPeriodicSimulation())
+            {
+                if(glidePlane)
+                {
+                    return this->network().periodicDislocationLoopFactory->get(*glidePlane);
+                }
+                else
+                {
+                    return nullptr;
+                }
+            }
+            else
+            {
+                return nullptr;
+            }
         }
         
     public:
@@ -136,8 +155,8 @@ namespace model
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-        /*      init */,periodicLoop(nullptr)
         /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicLoop(nullptr)
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -154,25 +173,25 @@ namespace model
         PlanarDislocationLoop(LoopNetworkType* const dn,
                               const FLowType& B,
                               const std::shared_ptr<GlidePlaneType>& glidePlane_in,
-                              const std::shared_ptr<PeriodicDislocationLoopType>& pLoop_in,
+//                              const std::shared_ptr<PeriodicDislocationLoopType>& pLoop_in,
                               const VectorDim& shift_in
                               ) :
         /* base init */ BaseLoopType(dn,B)
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-        /*      init */,periodicLoop(pLoop_in)
         /*      init */,periodicShift(shift_in)
+        /*      init */,periodicLoop(getPeriodicLoop())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
         /*      init */,_rightHandedNormal(grain)
         /*      init */,_slipSystem(nullptr)
         {
-            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" of PeriodicLoop "<<periodicLoop->sID<<std::endl;);
-            
+            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" in PeriodicLoop "<<periodicLoop->sID<<std::endl;);
+
             assert(this->flow().dot(glidePlane->n)==0);
-            
+
             periodicLoop->addLoop(this->p_derived());
         }
         
@@ -186,8 +205,8 @@ namespace model
         /*      init */,glidePlane(nullptr)
         /*      init */,grain(dn->poly.grain(grainID))
         /*      init */,loopType(_loopType)
-        /*      init */,periodicLoop(nullptr)
         /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicLoop(nullptr)
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -203,8 +222,8 @@ namespace model
         /*      init */,glidePlane(other.glidePlane)
         /*      init */,grain(other.grain)
         /*      init */,loopType(other.loopType)
-        /*      init */,periodicLoop(nullptr)
-        /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicShift(other.periodicShift)
+        /*      init */,periodicLoop(getPeriodicLoop())
         /*      init */,nA(other.nA)
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -226,7 +245,27 @@ namespace model
 
         }
         
-
+        /**********************************************************************/
+        void addLoopLink(LoopLinkType* const pL)
+        {
+            Loop<Derived>::addLoopLink(pL); // forward to base class
+            if(periodicLoop)
+            {
+                periodicLoop->addLoopLink(pL);
+            }
+            //            updateBoundaryDecomposition();
+        }
+        
+        /**********************************************************************/
+        void removeLoopLink(LoopLinkType* const pL)
+        {
+            Loop<Derived>::removeLoopLink(pL); // forward to base class
+            if(periodicLoop)
+            {
+                periodicLoop->removeLoopLink(pL);
+            }
+            //            updateBoundaryDecomposition();
+        }
         
         /**********************************************************************/
         static double planarSolidAngle(const VectorDim& x,
@@ -541,19 +580,7 @@ namespace model
 //        }
 
 
-//        /**********************************************************************/
-//        void addLoopLink(LoopLinkType* const pL)
-//        {
-//            Loop<Derived>::addLoopLink(pL); // forward to base class
-//            updateBoundaryDecomposition();
-//        }
-//
-//        /**********************************************************************/
-//        void removeLoopLink(LoopLinkType* const pL)
-//        {
-//            Loop<Derived>::removeLoopLink(pL); // forward to base class
-//            updateBoundaryDecomposition();
-//        }
+
 
 
 //        const GlidePlaneType& glidePlane;
