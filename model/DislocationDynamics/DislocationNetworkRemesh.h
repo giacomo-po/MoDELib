@@ -92,10 +92,10 @@ namespace model
                 {
                     if(node.second->isRemovable(Lmin,cosRemove))
                     {
-                        for(const auto& imagePair : node.second->imageSharedNodeContainer)
-                        {
-                            toBeRemoved.push_back(imagePair.second->sID);
-                        }
+//                        for(const auto& imagePair : node.second->imageSharedNodeContainer)
+//                        {
+//                            toBeRemoved.push_back(imagePair.second->sID);
+//                        }
                         toBeRemoved.push_back(node.second->sID); // insert image IDs BEFORE master ID, so that images are removed FIRST
                     }
                 }
