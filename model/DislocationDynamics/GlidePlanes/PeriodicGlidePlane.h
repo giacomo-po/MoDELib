@@ -1063,8 +1063,8 @@ namespace model
         }
         
         /**********************************************************************/
-        template<typename NodeType>
-        void addPatchesContainingPolygon(const std::vector<NodeType>& polyPoints)
+//        template<typename NodeType>
+        void addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints)
         {
             
             if(polyPoints.size()>=3)
@@ -1073,12 +1073,12 @@ namespace model
                 std::set<long int> pointsHeights;
                 for(const auto& point : polyPoints)
                 {
-                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point.P));
+                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point));
                     assert(heightPair.first && "Point not on a lattice plane");
                     pointsHeights.insert(heightPair.second);
                 }
                 assert(pointsHeights.size()==1 && "polyPoints on different planes");
-                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0].P,this->referencePlane->n);
+                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
                 const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
                 const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
                 getPatch(pointsShift);
@@ -1094,7 +1094,7 @@ namespace model
                 
 //                std::deque<std::shared_ptr<PeriodicPlanePatch<dim>>> tempPatches;
                 
-                const VectorLowerDim P0(this->getLocalPosition(polyPoints[0].P));
+                const VectorLowerDim P0(this->getLocalPosition(polyPoints[0]));
 
                 while(!this->isInsideOuterBoundary(P0))
                 {
@@ -1150,8 +1150,8 @@ namespace model
                 
                 for(size_t k=0;k<polyPoints.size();++k)
                 {
-                    const VectorLowerDim startPoint(this->getLocalPosition(polyPoints[k].P));
-                    const VectorLowerDim endPoint(k==polyPoints.size()-1? this->getLocalPosition(polyPoints[0].P) : this->getLocalPosition(polyPoints[k+1].P));
+                    const VectorLowerDim startPoint(this->getLocalPosition(polyPoints[k]));
+                    const VectorLowerDim endPoint(k==polyPoints.size()-1? this->getLocalPosition(polyPoints[0]) : this->getLocalPosition(polyPoints[k+1]));
                     while(true)
                     {
 //                        std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
@@ -1198,8 +1198,8 @@ namespace model
                     polyFile<<insideReferencePoint.transpose()<<std::endl;
                     for(const auto& node : polyPoints)
                     {
-                        polyFile<<"    "<<this->getLocalPosition(node.P).transpose()<<std::endl;
-                        poly3DFile<<node.P.transpose()<<std::endl;
+                        polyFile<<"    "<<this->getLocalPosition(node).transpose()<<std::endl;
+                        poly3DFile<<node.transpose()<<std::endl;
                     }
                     
                     std::ofstream pointsFile("points.txt");

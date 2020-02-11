@@ -1011,6 +1011,18 @@ namespace model
                     static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt_in);
                 }
                 
+                
+                for(const auto& pair : *periodicDislocationLoopFactory)
+                {// output periodic glide planes too
+                    
+                    if(!pair.second.expired())
+                    {
+                        const auto periodicLoop(pair.second.lock());
+                        periodicLoop->updateRVEloops(*this);
+                    }
+                }
+                
+                
                 for (auto& nodeIter : this->nodes())
                 {
                     nodeIter.second->meshFaces().clear();

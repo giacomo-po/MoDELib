@@ -25,7 +25,7 @@ namespace model
         size_t periodicLoopID;          // sID
         size_t sourceID;          // sID
         size_t sinkID;          // sID
-        bool isBoundary;
+//        bool isBoundary;
         
         /**********************************************************************/
         template<typename PeriodicLoopLinkType>
@@ -33,7 +33,7 @@ namespace model
         /* init */ periodicLoopID(link.periodicLoop.sID)
         /* init */,sourceID(link.source->sID)
         /* init */,sinkID(link.sink->sID)
-        /* init */,isBoundary(!link.twin)
+//        /* init */,isBoundary(!link.twin)
         {
         }
 
@@ -45,7 +45,7 @@ namespace model
         /* init */ periodicLoopID(pID_in)
         /* init */,sourceID(sourceID_in)
         /* init */,sinkID(sinkID_in)
-        /* init */,isBoundary(isBnd)
+//        /* init */,isBoundary(isBnd)
         {
             
             //            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
@@ -57,7 +57,7 @@ namespace model
         /* init */ periodicLoopID(0)
         /* init */,sourceID(0)
         /* init */,sinkID(0)
-        /* init */,isBoundary(false)
+//        /* init */,isBoundary(false)
         {
             
             
@@ -68,12 +68,12 @@ namespace model
         /* init */ periodicLoopID(0)
         /* init */,sourceID(0)
         /* init */,sinkID(0)
-        /* init */,isBoundary(false)
+//        /* init */,isBoundary(false)
         {
             ss>>periodicLoopID;
             ss>>sourceID;
             ss>>sinkID;
-            ss>>isBoundary;
+//            ss>>isBoundary;
         }
         
         
@@ -83,8 +83,8 @@ namespace model
         {
             os  << ds.periodicLoopID<<" "
             /**/<< ds.sourceID<<" "
-            /**/<< ds.sinkID<<" "
-            /**/<< ds.isBoundary;
+            /**/<< ds.sinkID;
+//            /**/<< ds.isBoundary;
             return os;
         }
         

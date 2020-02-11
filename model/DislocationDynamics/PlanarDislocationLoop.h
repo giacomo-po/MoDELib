@@ -192,7 +192,7 @@ namespace model
 
             assert(this->flow().dot(glidePlane->n)==0);
 
-            periodicLoop->addLoop(this->p_derived());
+//            periodicLoop->addLoop(this->p_derived());
         }
         
         /**********************************************************************/
@@ -238,10 +238,10 @@ namespace model
         {
             VerbosePlanarDislocationLoop(1,"Destroying PlanarDislocationLoop "<<this->sID<<std::endl;);
             
-            if(periodicLoop)
-            {
-                periodicLoop->removeLoop(this->p_derived());
-            }
+//            if(periodicLoop)
+//            {
+//                periodicLoop->removeLoop(this->p_derived());
+//            }
 
         }
         
