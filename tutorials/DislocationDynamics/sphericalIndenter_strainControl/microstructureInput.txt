@@ -1,0 +1,17 @@
+targetDensity=1e13;
+fractionSessile=0.0;
+fractionEdge=0.0;
+##################################
+###SizeDistributeType: uniform=0; Gauss=1;exponential=2;weibull=3
+sizeDistributeType=3;
+# Uniform distribution: p(x)=1/(B-A)
+unifA=0.1;
+unifB=0.5;
+# Gauus distribution p(x)=
+gaussA=0.5;
+gaussB=0.2;
+# Exponential distribution P(x|paraA)=paraA*exp(-paraA*x)  generally generate lots of small source
+expA=0.5;
+# weibull distribution P(x|paraA,paraB)=(paraA/paraB)*(x/paraB)^(paraA-1)*exp(-[x/paraB]^paraA)
+weibA=0.5;
+weibB=0.5;
