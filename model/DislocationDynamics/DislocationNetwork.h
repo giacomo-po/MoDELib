@@ -1012,6 +1012,11 @@ namespace model
                 }
                 
                 
+//                for (auto& nodeIter : this->nodes())
+//                {
+//                    nodeIter.second->meshFaces().clear();
+//                }
+                
                 for(const auto& pair : *periodicDislocationLoopFactory)
                 {// output periodic glide planes too
                     
@@ -1023,10 +1028,7 @@ namespace model
                 }
                 
                 
-                for (auto& nodeIter : this->nodes())
-                {
-                    nodeIter.second->meshFaces().clear();
-                }
+
                 
                 // remove mesh faces from boundary nodes
                 
@@ -1058,7 +1060,10 @@ namespace model
             {
                 _plasticDistortionFromAreas+= loop.second->plasticDistortion();
             }
-            _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
+            if(dt>0.0)
+            {
+                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
+            }
             //            }
         }
         

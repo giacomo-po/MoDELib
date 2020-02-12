@@ -198,6 +198,12 @@ namespace model
             {
                 _slipSystem=nullptr;
             }
+            if(_slipSystem)
+            {
+                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
+                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+            }
+
         }
         
         /**********************************************************************/

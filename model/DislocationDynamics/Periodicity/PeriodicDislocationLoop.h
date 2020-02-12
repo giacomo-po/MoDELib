@@ -123,7 +123,8 @@ namespace model
     
     
     template <typename DislocationNetworkType>
-    class PeriodicNeighborConnectivity : public std::map<const PeriodicDislocationNode<DislocationNetworkType>*,NeighborConnectivityPair<DislocationNetworkType>>
+    class PeriodicNeighborConnectivity : public PeriodicDislocationBase
+    /*                                */,public std::map<const PeriodicDislocationNode<DislocationNetworkType>*,NeighborConnectivityPair<DislocationNetworkType>>
     {
         
         
@@ -176,14 +177,15 @@ namespace model
                 assert(neighborPair.second.find(periodicLoopLink)==neighborPair.second.end() && "NEIGHBOR ALREADY PRESENT IN NEIGHBORS SET");
                 neighborPair.first+=periodicLoopLink->loopLink->loop()->burgers();
                 neighborPair.second.insert(periodicLoopLink);
+                addUntwinnedEdges(neighborPair.second);
                 if(neighborPair.first.squaredNorm()<FLT_EPSILON)
                 {
                     removeUntwinnedEdges(neighborPair.second);
                 }
-                else
-                {
-                    addUntwinnedEdges(neighborPair.second);
-                }
+//                else
+//                {
+//                    addUntwinnedEdges(neighborPair.second);
+//                }
             }
             else if (periodicLoopLink->sink->sID == node->sID)
             {// link is an in-link
@@ -192,14 +194,15 @@ namespace model
                 assert(neighborPair.second.find(periodicLoopLink)==neighborPair.second.end() && "NEIGHBOR ALREADY PRESENT IN NEIGHBORS SET");
                 neighborPair.first-=periodicLoopLink->loopLink->loop()->burgers();
                 neighborPair.second.insert(periodicLoopLink);
+                addUntwinnedEdges(neighborPair.second);
                 if(neighborPair.first.squaredNorm()<FLT_EPSILON)
                 {
                     removeUntwinnedEdges(neighborPair.second);
                 }
-                else
-                {
-                    addUntwinnedEdges(neighborPair.second);
-                }
+//                else
+//                {
+//                    addUntwinnedEdges(neighborPair.second);
+//                }
             }
             else
             {
@@ -216,15 +219,18 @@ namespace model
                 assert(neighborIter!=base().end() && "Node not found in neighbors");
                 assert(neighborIter->second.second.find(periodicLoopLink)!=neighborIter->second.second.end() && "link not found in neighbors");
                 neighborIter->second.first-=periodicLoopLink->loopLink->loop()->burgers();
-                neighborIter->second.second.erase(periodicLoopLink);
+                addUntwinnedEdges(neighborIter->second.second);
                 if(neighborIter->second.first.squaredNorm()<FLT_EPSILON)
                 {
+                    VerbosePeriodicDislocationBase(2,"PeriodicNeighborConnectivity "<<node->sID<<" case A"<<std::endl;);
                     removeUntwinnedEdges(neighborIter->second.second);
                 }
                 else
                 {
-                    addUntwinnedEdges(neighborIter->second.second);
+                    VerbosePeriodicDislocationBase(2,"PeriodicNeighborConnectivity "<<node->sID<<" case B"<<std::endl;);
+                    node->periodicLoop.removeUntwinnedEdge(periodicLoopLink);
                 }
+                neighborIter->second.second.erase(periodicLoopLink);
             }
             else if (periodicLoopLink->sink->sID == node->sID)
             {// link is an in-link
@@ -233,15 +239,18 @@ namespace model
                 assert(neighborIter!=base().end() && "Node not found in neighbors");
                 assert(neighborIter->second.second.find(periodicLoopLink)!=neighborIter->second.second.end() && "link not found in neighbors");
                 neighborIter->second.first+=periodicLoopLink->loopLink->loop()->burgers();
-                neighborIter->second.second.erase(periodicLoopLink);
+                addUntwinnedEdges(neighborIter->second.second);
                 if(neighborIter->second.first.squaredNorm()<FLT_EPSILON)
                 {
+                    VerbosePeriodicDislocationBase(2,"PeriodicNeighborConnectivity "<<node->sID<<" case C"<<std::endl;);
                     removeUntwinnedEdges(neighborIter->second.second);
                 }
                 else
                 {
-                    addUntwinnedEdges(neighborIter->second.second);
+                    VerbosePeriodicDislocationBase(2,"PeriodicNeighborConnectivity "<<node->sID<<" case D"<<std::endl;);
+                    node->periodicLoop.removeUntwinnedEdge(periodicLoopLink);
                 }
+                neighborIter->second.second.erase(periodicLoopLink);
             }
             else
             {
@@ -605,7 +614,7 @@ namespace model
         ~PeriodicLoopLink()
         {
             VerbosePeriodicDislocationBase(2,"Destroying PeriodicLoopLink "<<loopLink->tag()<<std::endl;);
-            source->removePeriodicLoopLink(this);
+            source->removePeriodicLoopLink(this); // Problem is here: both source and sink will try to modify untwinned
             sink->removePeriodicLoopLink(this);
             if (next)
             {
@@ -876,28 +885,31 @@ namespace model
         
         void createNewBoundary(const VectorDim& refBurgers,const PeriodicLoopLinkType* currentEdge, UntwinnedEdgeContainerType &untwinnedCopy, BoundaryContainerType& temp)
         {
-            
             const size_t erased(untwinnedCopy.erase(currentEdge));
             if (erased != 1)
             {
+                VerbosePeriodicDislocationBase(5,"currentEdge= "<<std::flush<<currentEdge->loopLink->tag()<<std::endl;);
+                VerbosePeriodicDislocationBase(5,"untwinnedCopy= "<<std::endl;);
+                for(const auto& untwinned : untwinnedCopy)
+                {
+                    VerbosePeriodicDislocationBase(5,untwinned->loopLink->tag()<<std::endl;);
+                }
                  assert(erased == 1 && "could not find link in untwinnedEdges 2");
             }
             
             if((currentEdge->loopLink->loop()->burgers()-refBurgers).squaredNorm()<FLT_EPSILON)
             {// same Burgers, use sink
-                if (currentEdge->sink.get() != temp.front())
+                temp.push_back(currentEdge->sink.get());
+                if (currentEdge->sink->next(currentEdge)->sink.get() != temp.front())
                 {
-                    temp.push_back(currentEdge->sink.get());
-                    
                     createNewBoundary(refBurgers,currentEdge->sink->next(currentEdge), untwinnedCopy,temp);
                 }
             }
             else if((currentEdge->loopLink->loop()->burgers()+refBurgers).squaredNorm()<FLT_EPSILON)
             {// opposite Burgers, use source
-                if (currentEdge->source.get() != temp.front())
+                temp.push_back(currentEdge->source.get());
+                if (currentEdge->source->next(currentEdge)->sink.get() != temp.front())
                 {
-                    temp.push_back(currentEdge->source.get());
-                    
                     createNewBoundary(refBurgers,currentEdge->source->next(currentEdge), untwinnedCopy,temp);
                 }
             }
@@ -911,7 +923,7 @@ namespace model
         /**********************************************************************/
         void updateOuterBoundaries()
         {
-            VerbosePeriodicDislocationBase(2,"PeriodicDislocationLoop "<<this->sID<<" updating outer boundaries"<<std::flush;);
+            VerbosePeriodicDislocationBase(2,"PeriodicDislocationLoop "<<this->sID<<" updating outer boundaries"<<std::endl;);
             outerBoundaries().clear();
             UntwinnedEdgeContainerType untwinnedCopy(this->untwinnedEdges());
             while (untwinnedCopy.size())
@@ -945,6 +957,8 @@ namespace model
                 const auto iter(nodeMap.find(sharedNode->sID));
                 if(iter!=nodeMap.end())
                 {// 2D node found, grab corresponding RVE node
+                    iter->second.second->meshFaces().clear();
+                    static_cast<typename DislocationNetworkType::NodeType::NodeBaseType* const>(iter->second.second.get())->set_P(periodicGlidePlane->getGlobalPosition(point)+shift);
                     nodes.push_back(iter->second.second);
                 }
                 else
@@ -1023,10 +1037,6 @@ namespace model
                         reinsertVector.emplace_back(points,pair.second,patchPair.second->glidePlane,patchPair.second->shift);
                     }
                 }
-                
-
-                
-                
             }
             
             
@@ -1044,6 +1054,7 @@ namespace model
 
             
             periodicGlidePlane->patches().clear();
+            DN.updateGeometry(0.0);
 //
 //            if (pgp->patches().size() == 1)
 //            {

@@ -116,6 +116,7 @@ namespace model
         /******************************************************************/
         void updateSlipSystem()
         {
+            const SlipSystem* const oldSlipSystem(_slipSystem.get());
             if(glidePlane)
             {// a glide plane exists
                 if(_slipSystem)
@@ -137,6 +138,22 @@ namespace model
             {// no glide plane
                 _slipSystem=nullptr;
             }
+            
+            if(_slipSystem.get()!=oldSlipSystem)
+            {
+                for(const auto& link : this->links())
+                {
+                    link.second->pLink->updateSlipSystem();
+                }
+            }
+            
+            if(_slipSystem)
+            {
+                    VerbosePlanarDislocationLoop(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
+                    VerbosePlanarDislocationLoop(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+            }
+
+
         }
         
         /******************************************************************/
@@ -444,7 +461,8 @@ namespace model
         void updateGeometry()
         {
             nA.setZero();
-            
+            VerbosePlanarDislocationLoop(3,"PlanarDislocationLoop "<<this->sID<<std::endl;);
+
             if(glidePlane)
             {// remove numerical errors by projecting along glidePlane->unitNormal
                 
@@ -467,6 +485,8 @@ namespace model
                 const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
                 _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
                 _rightHandedUnitNormal=_rightHandedNormal.cartesian().normalized();
+                VerbosePlanarDislocationLoop(3,"_rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);
+
                 updateSlipSystem();
             }
         }
@@ -501,272 +521,3 @@ namespace model
     
 }
 #endif
-
-//        /**********************************************************************/
-//        VectorDim diracStringDirection(const VectorDim& x) const
-//        {
-//            VectorDim temp(VectorDim::Zero());
-//
-//            return temp;
-//        }
-
-//        /**********************************************************************/
-//        template<typename FLowType>
-//        PlanarDislocationLoop(LoopNetworkType* const dn,
-//                              const FLowType& B,
-//                              const VectorDim& N,
-//                              const VectorDim& P,
-//                              const int& grainID) :
-//        /* base init */ BaseLoopType(dn,B)
-//        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
-//        /*      init */,nA(VectorDim::Zero())
-//        /*      init */,_slippedArea(0.0)
-//        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-//        /*      init */,_rightHandedNormal(dn->poly.grain(grainID))
-//        /*      init */,grain(dn->poly.grain(grainID))
-//        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-//        /*      init */,glidePlane(dn->glidePlaneFactory.get(dn->mesh,dn->poly.grain(grainID),P,N))
-//        //        /*      init */ glidePlane(*_glidePlane->get()),
-//        //        /*      init */,isGlissile(_isGlissile)
-//        {
-//            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
-//
-//            assert(this->flow().dot(glidePlane->n)==0);
-//            //            glidePlane->addLoop(this);
-//            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
-//            glidePlane->addParentSharedPtr(&glidePlane);
-//
-//        }
-
-//        /**********************************************************************/
-//        PlanarDislocationLoop(LoopNetworkType* const dn,
-//                              const BoundaryLoopLinkSequence<LoopType>& bndLinkSequence,
-//                              const VectorDim& N,
-//                              const VectorDim& P) :
-//        /* base init */ BaseLoopType(dn,bndLinkSequence.loop->flow())
-//        //        /*      init */ PlanarPolygon(fabs(B.dot(N))<FLT_EPSILON? B : N.cross(VectorDim::Random()),N),
-//        /*      init */,nA(VectorDim::Zero())
-//        /*      init */,_slippedArea(0.0)
-//        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-//        /*      init */,_rightHandedNormal(bndLinkSequence.loop->grain)
-//        /*      init */,grain(bndLinkSequence.loop->grain)
-//        /*      init */,loopType(bndLinkSequence.loop->loopType)
-//        /*      init */,glidePlane(dn->sharedGlidePlane(dn->mesh,bndLinkSequence.loop->grain,P,N))
-//        //        /*      init */ glidePlane(*_glidePlane->get()),
-//        //        /*      init */,isGlissile(_isGlissile)
-//        {
-//            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<std::endl;);
-//
-//            assert(this->flow().dot(glidePlane->n)==0);
-//            //            glidePlane->addLoop(this);
-//            //            glidePlane->addParentSharedPtr(&glidePlane,isGlissile,this->sID);
-//            glidePlane->addParentSharedPtr(&glidePlane);
-//
-//            assert(this->network().mesh.regions().size()==1);
-//            const auto& region(*this->network().mesh.regions().begin()->second);
-//
-//            std::set<size_t> imageFaceIDs;
-//            for(const auto& val : bndLinkSequence.faceIDs)
-//            {
-//                imageFaceIDs.insert(region.parallelFaces().at(val));
-//            }
-//
-//            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
-//                                            std::forward_as_tuple(imageFaceIDs),
-//                                            std::forward_as_tuple(this->p_derived(),
-//                                                                  imageFaceIDs,
-//                                                                  bndLinkSequence.loopPair
-//                                                                  ));
-//        }
-
-
-
-
-
-//        const GlidePlaneType& glidePlane;
-//        const bool isGlissile;
-
-
-//        /**********************************************************************/
-//        static bool allowedSlipSystem(const LatticeVector<dim>& b,
-//                                      const ReciprocalLatticeDirection<dim>& n,
-//                                      const Grain<dim>& gr)
-//        {
-//
-//            std::cout<<"PlanarDislocationLoop::FINISH HERE. ANOTHER CONDITION FOR isGlissile SHOULD BE THAT N IS ONE OF THE ALLOWED SLIP PLANES"<<std::endl;
-//
-//            return true;
-//        }
-
-//        /******************************************************************/
-//        const LoopType* imageLoop(const std::set<size_t>& faceIDs) const
-//        {
-//            const LoopType* temp(nullptr);
-//
-//            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-//            {
-//                std::set<const LoopType*> imageLoops;
-//                for(const auto& link : this->links())
-//                {
-//                    const auto node(link.second->source());
-//
-//                    //                std::set<size_t> nodeFaceIDs;
-//                    //                for(const auto& face : node->meshFaces())
-//                    //                {
-//                    //                    nodeFaceIDs.insert(face->sID);
-//                    //                }
-//                    //
-//                    //                bool isNodeOnFaces(true);
-//                    //                for(const auto& val : faceIDs)
-//                    //                {
-//                    //                    isNodeOnFaces*=(nodeFaceIDs.find(val)!=nodeFaceIDs.end());
-//                    //                }
-//                    if(node->isOnMeshFaces(faceIDs))
-//                    {
-//                        const NodeType& nodeImage(*node->sharedImage(faceIDs));
-//                        for(const auto& loop : nodeImage.loops())
-//                        {
-//                            if(loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-//                            {
-//                                if(   (this->flow()-loop->flow()).squaredNorm()==0
-//                                   && (glidePlane->unitNormal-loop->glidePlane->unitNormal).squaredNorm()<FLT_EPSILON
-//                                   ) // MORE CONDITIONS MAY BE NEEDED
-//                                {
-//                                    imageLoops.insert(loop);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                assert(imageLoops.size()<=1);
-//                temp=*imageLoops.begin();
-//            }
-//
-//            return temp;
-//        }
-
-
-
-//std::map<std::set<size_t>,std::deque<std::deque<const LoopLinkType*>>> boundaryLinkSequenceMap;
-//        std::map<std::set<size_t>,BoundaryLoopLinkSequence<LoopType>> boundaryLinkSequenceMap;
-
-
-
-//        /******************************************************************/
-//        void updateBoundaryDecomposition()
-//        {
-//                        boundaryLinkSequenceMap.clear();
-//            if(loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-//            {
-//                if(this->isLoop())
-//                {
-////                    for(auto& pair : boundaryLinkSequenceMap)
-////                    {// clear the deque of links in BoundaryLoopLinkSequence, without killing shared_ptr
-////                        pair.second.clear();
-////                    }
-//
-//
-//
-//                    for(const auto& link : this->linkSequence())
-//                    {
-//                        std::set<size_t> key;
-//                        for(const auto& face : link->pLink->meshFaces())
-//                        {
-//                            key.insert(face->sID);
-//                        }
-//
-//                        const auto& linkPrev(link->prev);
-//                        std::set<size_t> keyPrev;
-//                        for(const auto& face : linkPrev->pLink->meshFaces())
-//                        {
-//                            keyPrev.insert(face->sID);
-//                        }
-//
-//                        //                if(boundaryLinkSequenceMap.find(key)==boundaryLinkSequenceMap.end())
-//                        //                {
-//                        //                    boundaryLinkSequenceMap.emplace(key,this);
-//                        //                }
-//
-//                        if(link->pLink->isBoundarySegment())
-//                        {
-//                            boundaryLinkSequenceMap.emplace(std::piecewise_construct,
-//                                                            std::forward_as_tuple(key),
-//                                                            std::forward_as_tuple(this->p_derived(),
-//                                                                                  key)
-//                                                            );
-//
-//
-//
-//                            if(!linkPrev->pLink->isBoundarySegment())
-//                            {
-//                                //
-//                                //                        boundaryLinkSequenceMap.emplace(key,this);
-//                                boundaryLinkSequenceMap.at(key).emplace_back();
-//                                boundaryLinkSequenceMap.at(key).back().push_back(link);
-//                            }
-//                            else
-//                            {
-//                                if(key==keyPrev)
-//                                {
-//                                    if(boundaryLinkSequenceMap.at(key).empty())
-//                                    {
-//                                        boundaryLinkSequenceMap.at(key).emplace_back();
-//                                    }
-//                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
-//                                }
-//                                else
-//                                {
-//                                    //                            boundaryLinkSequenceMap.emplace(key,this);
-//                                    boundaryLinkSequenceMap.at(key).emplace_back();
-//                                    boundaryLinkSequenceMap.at(key).back().push_back(link);
-//                                }
-//                            }
-//                        }
-//
-//
-//                    }
-//
-//                    //std::vector<std::set<size_t>> toBeDeleted;
-//                    for(auto& pair : boundaryLinkSequenceMap)
-//                    {
-//                        if(pair.second.size()>1)
-//                        {
-//                            if(pair.second.back().back()->next == pair.second.front().front())
-//                            {
-//                                for(const auto& link : pair.second.front())
-//                                {
-//                                    pair.second.back().push_back(link);
-//                                }
-//                                pair.second.pop_front();
-//                            }
-//                        }
-//
-////                        if(pair.second.empty())
-////                        {
-////                            toBeDeleted.push_back(pair.first);
-////                        }
-//
-//                    }
-//
-////                    for(const auto& key : toBeDeleted)
-////                    {
-////                        boundaryLinkSequenceMap.erase(key);
-////                    }
-//
-//                    if(true)
-//                    {
-//                        std::cout<<"Loop "<<this->sID<<" boundaryLinkSequenceMap:"<<std::endl;
-//                        for(auto& pair : boundaryLinkSequenceMap)
-//                        {
-//
-//                            pair.second.print();
-//
-//
-//                        }
-//                    }
-//                }
-//
-//            }
-//
-//        }

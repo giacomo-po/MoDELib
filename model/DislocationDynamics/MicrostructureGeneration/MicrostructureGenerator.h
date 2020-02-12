@@ -860,18 +860,18 @@ namespace model
                     PeriodicGlidePlaneFactory<dim> pgpf(poly,glidePlaneFactory);
 
                     
-                    GlidePlaneKey<3> pointsPlaneKey(grainID,P0,slipSystem.n);
-                    std::shared_ptr<GlidePlane<3>> pointsPlane(glidePlaneFactory.get(pointsPlaneKey));
-//                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
-                    auto periodicGlidePlane(pgpf.get(*pointsPlane));
-                    periodicGlidePlane->addPatchesContainingPolygon(periodicNodesIO);
-
-                    // Yash: Here decompose periodic loop into individual loops
-                    
-//                    configIO.periodicLoops().emplace_back(periodicLoopID);
-                    
-                    auxIO.setGlidePlaneBoundaries(glidePlaneFactory);
-                    auxIO.addPeriodicGlidePlane(*periodicGlidePlane);
+//                    GlidePlaneKey<3> pointsPlaneKey(grainID,P0,slipSystem.n);
+//                    std::shared_ptr<GlidePlane<3>> pointsPlane(glidePlaneFactory.get(pointsPlaneKey));
+////                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
+//                    auto periodicGlidePlane(pgpf.get(*pointsPlane));
+//                    periodicGlidePlane->addPatchesContainingPolygon(periodicNodesIO);
+//
+//                    // Yash: Here decompose periodic loop into individual loops
+//                    
+////                    configIO.periodicLoops().emplace_back(periodicLoopID);
+//                    
+//                    auxIO.setGlidePlaneBoundaries(glidePlaneFactory);
+//                    auxIO.addPeriodicGlidePlane(*periodicGlidePlane);
                     
 //                    periodicLoopID++;
                     density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);

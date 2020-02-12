@@ -112,5 +112,6 @@ verboseNodeContraction=0;
 verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;
 verboseCrossSlip=0;
+verbosePeriodicDislocationBase=0;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;
