@@ -68,7 +68,7 @@ namespace model
     /*                                   */,public KeyConstructableWeakPtrFactory<PeriodicDislocationLoopFactory<DislocationNetworkType>>
     {
         static constexpr int dim=DislocationNetworkType::dim;
-        typedef std::array<long int, dim + 3> KeyType;
+//        typedef std::array<long int, dim + 3> KeyType;
         typedef PeriodicDislocationLoopFactory<DislocationNetworkType> PeriodicDislocationLoopFactoryType;
         typedef PeriodicDislocationLoop<DislocationNetworkType> PeriodicDislocationLoopType;
         typedef std::shared_ptr<PeriodicDislocationLoopType> PeriodicDislocationLoopSharedPtrType;
