@@ -699,7 +699,9 @@ namespace model
             {// make sure attached sessile segments are colinear
                 const LinkType* firstLink(std::get<1>(this->neighbors().begin()->second));
                 const LinkType* secondLink(std::get<1>(this->neighbors().rbegin()->second));
-                temp*=(firstLink->chord().normalized().cross(secondLink->chord().normalized()).norm()<FLT_EPSILON);
+                const bool linksAligned(firstLink->chord().normalized().cross(secondLink->chord().normalized()).norm()<FLT_EPSILON);
+                const bool glideNode(this->glidePlanes().size()==1 && this->meshFaces().size()==0);
+                temp*=(linksAligned||glideNode);
             }
             VerbosePlanarDislocationNode(4,temp<<std::endl;);
             return temp;

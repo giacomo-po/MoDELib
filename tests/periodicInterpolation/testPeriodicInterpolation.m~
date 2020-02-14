@@ -2,8 +2,6 @@ clear all
 close all
 clc
 
-system('rm input.txt');
-
 %% Data points for gamma surface
 A=[1 0.5;  
   0 8.660254037844386e-01];
@@ -27,10 +25,9 @@ printMatrixToFile(fid,f,'f');
 printMatrixToFile(fid,df,'df');
 fclose(fid)
 
-%% run code
+%% Write input file
 system('./test')
 
-%% Load data and plot
 data=load('output.txt')
 
 [X,Y] = meshgrid([0:0.01:1],[0:0.01:sqrt(3)]);

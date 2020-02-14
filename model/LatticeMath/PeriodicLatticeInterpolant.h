@@ -79,12 +79,12 @@ namespace model
         const VectorDimI N; // numerators of k-point indices
         const VectorDim D;   // denumerators of k-point indices
         
+        
+    public:
+        
         const Eigen::Matrix<double,Eigen::Dynamic,dim> waveVectors;
         Eigen::Matrix<double,Eigen::Dynamic,2> sinCosCoeffs;
 
-//        std::vector<VectorDim> waveVectors;
-        
-    public:
         
         PeriodicLatticeInterpolant(const MatrixDim& A_in,
                                    const VectorDimI& nums_in,
@@ -99,7 +99,7 @@ namespace model
           * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
           */
             
-            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
+//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
             
             
             
@@ -121,8 +121,8 @@ namespace model
           * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
           */
             
-            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
+//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
+//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
 
         }
 
@@ -130,10 +130,10 @@ namespace model
                            const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df)
         {
             sinCosCoeffs=getSinCosCoeffs(f,df).transpose();
-            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
+//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
         }
         
-        Eigen::Map<Eigen::MatrixXd> getSinCosCoeffs(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
+        Eigen::MatrixXd getSinCosCoeffs(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
                            const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) const
         {/*!\param[in] f Matrix of function values in each row.
           * Each row has dim+1 entries with format
@@ -177,7 +177,6 @@ namespace model
             Eigen::MatrixXd x((M.transpose()*M).llt().solve(M.transpose()*V));
             Eigen::MatrixXd x1(x.rows()+1,1);
             x1<<0.0,x;
-            std::cout<<"x1=\n"<<x1<<std::endl;
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);
         }
         

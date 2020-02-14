@@ -268,8 +268,7 @@ namespace model
     };
     
     template<typename DislocationNetworkType>
-    struct PeriodicDislocationNode : public PeriodicDislocationBase
-    /*                            */,public StaticID<PeriodicDislocationNode<DislocationNetworkType>>
+    struct PeriodicDislocationNode : public StaticID<PeriodicDislocationNode<DislocationNetworkType>>
     /*                            */,public Eigen::Matrix<double, DislocationNetworkType::dim-1, 1>
     /*                            */,public PeriodicNeighborConnectivity<DislocationNetworkType>
     {
