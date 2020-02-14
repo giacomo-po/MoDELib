@@ -11,6 +11,7 @@
 #include <vector>
 #include <Eigen/Dense>
 #include <TextFileParser.h>
+#include <PeriodicLatticeInterpolant.h>
 
 
 
@@ -22,13 +23,12 @@ int main(int argc, char * argv[])
 {
  
     
-    int nf=3;
-    int ndf=4;
 
     const Eigen::Matrix<double,2,2> A(TextFileParser("input.txt").readMatrix<double>("A",2,2,true));
     const Eigen::Matrix<double,2,1> N(TextFileParser("input.txt").readMatrix<double>("N",2,1,true));
-    const Eigen::Matrix<double,Eigen::Dynamic,3> f(TextFileParser("input.txt").readMatrix<double>("f",nf,3,true));
-    const Eigen::Matrix<double,Eigen::Dynamic,5> df(TextFileParser("input.txt").readMatrix<double>("df",ndf,5,true));
+    const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones());
+    const Eigen::Matrix<double,Eigen::Dynamic,3> f(TextFileParser("input.txt").readMatrixCols<double>("f",3,true));
+    const Eigen::Matrix<double,Eigen::Dynamic,5> df(TextFileParser("input.txt").readMatrixCols<double>("df",5,true));
 
     
     const Eigen::Matrix<double,2,2> B(2.0*M_PI*A.inverse().transpose());
@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     Eigen::MatrixXd V1(Eigen::MatrixXd::Zero(f.rows(),1));
     for(int i=0;i<f.rows();i++)
     {
-        for(int j=0;j<kPoints.size();j++)
+        for(size_t j=0;j<kPoints.size();j++)
         {
             M1(i,2*j)=sin(kPoints[j].dot(f.block<1,2>(i,0)));
             M1(i,2*j+1)=cos(kPoints[j].dot(f.block<1,2>(i,0)));
@@ -63,7 +63,7 @@ int main(int argc, char * argv[])
     Eigen::MatrixXd V2(Eigen::MatrixXd::Zero(df.rows(),1));
     for(int i=0;i<df.rows();i++)
     {
-        for(int j=0;j<kPoints.size();j++)
+        for(size_t j=0;j<kPoints.size();j++)
         {
             M2(i,2*j)=kPoints[j].dot(df.block<1,2>(i,2))*cos(kPoints[j].dot(df.block<1,2>(i,0)));
             M2(i,2*j+1)=-kPoints[j].dot(df.block<1,2>(i,2))*sin(kPoints[j].dot(df.block<1,2>(i,0)));
@@ -90,11 +90,12 @@ int main(int argc, char * argv[])
     std::cout<<x<<std::endl;
 
     std::ofstream ofs("output.txt");
-    for(int k=0;k<kPoints.size();++k)
+    for(size_t k=0;k<kPoints.size();++k)
     {
         ofs<<std::setprecision(15)<<std::scientific<<kPoints[k].transpose()<<" "<<x1(2*k)<<" "<<x1(2*k+1)<<"\n";
     }
 
+    PeriodicLatticeInterpolant<2> pli(A,N.template cast<size_t>(),D.template cast<size_t>());
     
     return 0;
 }

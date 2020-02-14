@@ -5,7 +5,7 @@ clc
 
 system('./test')
 
-data=load('output.txt');
+data=load('output.txt')
 
 [X,Y] = meshgrid([0:0.01:1],[0:0.01:sqrt(3)]);
 

@@ -339,6 +339,24 @@ namespace model
             return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
         }
         
+        /**********************************************************************/
+        template<typename Scalar>
+        Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrixRows(const std::string& key,const size_t& rows,const bool&verbose=false)
+        {
+            
+            const std::vector<Scalar> array=readArray<Scalar>(key,false);
+            if(array.size()%rows!=0)
+            {
+                std::cout<<"Error in reading matrix "<<key<<std::endl;
+                std::cout<<"array.size="<<array.size()<<", is not a multiple of rows ("<<rows<<"). EXITING"<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+            const size_t cols(array.size()/rows);
+            EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
+            if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
+            return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+        }
+        
     };
     
 }
