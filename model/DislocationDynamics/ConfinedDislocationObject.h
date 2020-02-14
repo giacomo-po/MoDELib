@@ -176,6 +176,17 @@ namespace model
             
         }
         
+        ConfinedDislocationObject& confinedObject()
+        {
+            return *this;
+        }
+
+        const ConfinedDislocationObject& confinedObject() const
+        {
+            return *this;
+        }
+
+        
         /**********************************************************************/
         void clear()
         {

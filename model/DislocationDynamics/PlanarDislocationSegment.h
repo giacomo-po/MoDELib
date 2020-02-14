@@ -170,7 +170,7 @@ namespace model
         void updateGeometry()
         {
             SplineSegmentType::updateGeometry();
-            ConfinedDislocationObjectType::updateGeometry(this->source->get_P(),this->sink->get_P());
+            this->confinedObject().updateGeometry(this->source->get_P(),this->sink->get_P());
             straight.updateGeometry();
             //            addMeshFaces();
             //            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
@@ -223,7 +223,7 @@ namespace model
             straight.updateGeometry();
             
             VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
-            ConfinedDislocationObjectType::addGlidePlane(pL->loop()->glidePlane.get());
+            this->confinedObject().addGlidePlane(pL->loop()->glidePlane.get());
             updateSlipSystem();
         }
         
@@ -246,10 +246,10 @@ namespace model
             BurgersNorm=Burgers.norm();
             straight.updateGeometry(); // update b x t
             
-            ConfinedDislocationObjectType::clear();
+            this->confinedObject().clear();
             for(const auto& loopLink : this->loopLinks())
             {
-                ConfinedDislocationObjectType::addGlidePlane(loopLink->loop()->glidePlane.get());
+                this->confinedObject().addGlidePlane(loopLink->loop()->glidePlane.get());
             }
             
             updateSlipSystem();

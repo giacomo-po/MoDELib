@@ -1001,16 +1001,20 @@ namespace model
         {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
           */
             
-            model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
             
             if(simulationParameters.isPeriodicSimulation())
             {
-                for (auto& nodeIter : this->nodes())
-                {
-                    static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt_in);
-                }
+
+//                for (auto& nodeIter : this->nodes())
+//                {
+//                    if(!nodeIter.second->isBoundaryNode())
+//                    {
+//                        static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt_in);
+//                        nodeIter.second->updatePeriodicLoopLinks();
+//                    }
+//                }
                 
+
                 
 //                for (auto& nodeIter : this->nodes())
 //                {
@@ -1023,28 +1027,35 @@ namespace model
                     if(!pair.second.expired())
                     {
                         const auto periodicLoop(pair.second.lock());
-                        periodicLoop->updateRVEloops(*this);
+                        periodicLoop->updateRVEloops(*this,dt_in);
                     }
                 }
                 
-                
 
                 
-                // remove mesh faces from boundary nodes
                 
-                for (auto& nodeIter : this->nodes())
-                {// trigger regular calls in DislocationNode::moveGlide, but with zero motion
-                    nodeIter.second->moveGlide(0.0);
-                }
+                // remove mesh faces from boundary nodes
+//                model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
+//                const auto t1= std::chrono::system_clock::now();
+//
+//                for (auto& nodeIter : this->nodes())
+//                {// trigger regular calls in DislocationNode::moveGlide, but with zero motion
+//                    nodeIter.second->moveGlide(0.0);
+//                }
+ //               model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+
             }
             else
             {
+                model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
+                const auto t0= std::chrono::system_clock::now();
                 for (auto& nodeIter : this->nodes())
                 {
                     nodeIter.second->moveGlide(dt_in);
                 }
+                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
             }
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
         }
         
         

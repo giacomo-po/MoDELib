@@ -92,7 +92,7 @@ surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################

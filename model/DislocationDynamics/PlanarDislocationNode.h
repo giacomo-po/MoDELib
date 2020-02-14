@@ -58,6 +58,7 @@ namespace model
         typedef Derived NodeType;
         typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef SplineNode<NodeType,dim,corder,InterpolationType> NodeBaseType;
+        typedef SplineNode<NodeType,dim,corder,InterpolationType> SplineNodeType;
         typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
         typedef typename NodeBaseType::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<NodeType>::LoopType LoopType;
@@ -322,7 +323,7 @@ namespace model
           */
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" removeLoopLink "<<pL->tag()<<std::endl;);
             NodeBaseType::removeLoopLink(pL); // forward to base class
-            ConfinedDislocationObjectType::clear();
+            this->confinedObject().clear();
             for(const auto& loopLink : this->loopLinks())
             {
                 this->addGlidePlane(loopLink->loop()->glidePlane.get());
@@ -852,7 +853,7 @@ namespace model
                     
                     if(virtualNode)
                     {
-                        static_cast<NodeBaseType*>(virtualNode.get())->set_P(this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal());
+                        static_cast<SplineNodeType*>(virtualNode.get())->set_P(this->get_P()+this->network().simulationParameters.virtualSegmentDistance*this->bndNormal());
                     }
                     else
                     {
@@ -910,7 +911,7 @@ namespace model
         {
             VerbosePlanarDislocationNode(5,"PlanarDislocationNode "<<this->sID<<" setToBoundary @"<< X.transpose()<<std::endl;);
             NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
-            ConfinedDislocationObjectType::updateGeometry(this->get_P());
+            this->confinedObject().updateGeometry(this->get_P());
             VerbosePlanarDislocationNode(5,"containingSegments "<< this->boundingBoxSegments().containingSegments(this->get_P()).size()<<std::endl;);
             p_Simplex=get_includingSimplex(this->get_P(),p_Simplex);
             VerbosePlanarDislocationNode(5,"boundaryNormal "<< this->bndNormal().transpose()<<std::endl;);
@@ -920,7 +921,9 @@ namespace model
         /**********************************************************************/
         bool set_P(const VectorDim& newP)
         {
-            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P to "<<newP.transpose()<<std::endl;);
+            // may have to skip everything if newP is get_P
+            
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<", set_P to "<<newP.transpose()<<std::endl;);
             // make sure that node is on glide planes
             //            bool glidePlanesContained=true;
             //            for(const auto& gp : glidePlanes())
@@ -959,14 +962,14 @@ namespace model
                         {
                             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case D "<<std::endl;);
                             NodeBaseType::set_P(newP);
-                            ConfinedDislocationObjectType::updateGeometry(this->get_P());
+                            this->confinedObject().updateGeometry(this->get_P());
                         }
                     }
                     else
                     {
                         VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case E "<<std::endl;);
                         NodeBaseType::set_P(newP);
-                        ConfinedDislocationObjectType::updateGeometry(this->get_P());
+                        this->confinedObject().updateGeometry(this->get_P());
                     }
                 }
                 else
@@ -982,31 +985,8 @@ namespace model
 //            updateImageNodes();
             resetVirtualBoundaryNode();
             
-            for(const auto& loopLink : this->loopLinks())
-            {
-                auto periodicLoop(loopLink->loop()->periodicLoop);
-                if(periodicLoop)
-                {
-                    auto periodicLoopLinkIter(periodicLoop->loopLinks().find(loopLink));
-                    assert(periodicLoopLinkIter!=periodicLoop->loopLinks().end() && "LoopLink not found in PeriodicLoop");
-                    periodicLoopLinkIter->second.updateSourceSink();
+            updatePeriodicLoopLinks();
 
-//                    auto& periodicLoopLink(periodicLoopLinkIter->second);
-//                    
-//                    if(loopLink->source().get()==this)
-//                    {// this node is the source of loopLink
-//                        periodicLoopLinkIter->second.updateSource();
-//                    }
-//                    else if(loopLink->sink().get()==this)
-//                    {
-//                        periodicLoopLinkIter->second.updateSink();
-//                    }
-//                    else
-//                    {
-//                        assert(false && "Node must be source or sink");
-//                    }
-                }
-            }
             
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" this->isOnBoundary()="<<this->isOnBoundary()<<std::endl;);
             const double posDelta((this->get_P()-newP).norm());
@@ -1015,138 +995,176 @@ namespace model
             return posDelta<FLT_EPSILON;
         }
         
+        void updatePeriodicLoopLinks()
+        {
+            for(const auto& loopLink : this->loopLinks())
+            {
+                auto periodicLoop(loopLink->loop()->periodicLoop);
+                if(periodicLoop)
+                {
+                    auto periodicLoopLinkIter(periodicLoop->loopLinks().find(loopLink));
+                    assert(periodicLoopLinkIter!=periodicLoop->loopLinks().end() && "LoopLink not found in PeriodicLoop");
+                    periodicLoopLinkIter->second.updateSourceSink();
+                    
+                    //                    auto& periodicLoopLink(periodicLoopLinkIter->second);
+                    //
+                    //                    if(loopLink->source().get()==this)
+                    //                    {// this node is the source of loopLink
+                    //                        periodicLoopLinkIter->second.updateSource();
+                    //                    }
+                    //                    else if(loopLink->sink().get()==this)
+                    //                    {
+                    //                        periodicLoopLinkIter->second.updateSink();
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        assert(false && "Node must be source or sink");
+                    //                    }
+                }
+            }
+        }
+        
         /**********************************************************************/
         bool isMovableTo(const VectorDim& X) const
         {
-            bool isMovable=true;
-            
-            VerbosePlanarDislocationNode(4,"checking if PlanarDislocationNode "<<this->sID<< " isMovable:"<<std::endl;);
-            
-            for(const auto& gp : this->glidePlanes())
-            {// X must be contained by all glidePlanes
-                isMovable*=gp->contains(X);
+            if(this->network().simulationParameters.isPeriodicSimulation() && this->isBoundaryNode())
+            {// cannot move boundary nodes under periodic simulations
+                return (X-this->get_P()).squaredNorm()<FLT_EPSILON;
             }
-            VerbosePlanarDislocationNode(4,"  meshPlanes contains X? "<<isMovable<<std::endl;);
-            
-            if(isMovable)
+            else
             {
-                for(const auto& pair : this->neighbors())
+                bool isMovable=true;
+                
+                VerbosePlanarDislocationNode(4,"checking if PlanarDislocationNode "<<this->sID<< " isMovable:"<<std::endl;);
+                
+                for(const auto& gp : this->glidePlanes())
+                {// X must be contained by all glidePlanes
+                    isMovable*=gp->contains(X);
+                }
+                VerbosePlanarDislocationNode(4,"  meshPlanes contains X? "<<isMovable<<std::endl;);
+                
+                if(isMovable)
                 {
-                    if(std::get<1>(pair.second)->isSessile())
-                    {// sessile segments cannot change direction if this node is moved
-                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
-                        if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
-                        {
-                            const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
-                            VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
-                            isMovable*=sessileNeighborMovable;
-                            if(!isMovable)
+                    for(const auto& pair : this->neighbors())
+                    {
+                        if(std::get<1>(pair.second)->isSessile())
+                        {// sessile segments cannot change direction if this node is moved
+                            const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                            const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
+                            if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
                             {
-                                break;
+                                const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
+                                VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
+                                isMovable*=sessileNeighborMovable;
+                                if(!isMovable)
+                                {
+                                    break;
+                                }
                             }
                         }
                     }
                 }
-            }
-            
-            if(isMovable && this->isOnBoundary())
-            {
                 
+                if(isMovable && this->isOnBoundary())
+                {
+                    
+                    
+                    isMovable*=this->boundingBoxSegments().contains(X);
+                    
+                    //                if(this->isOnBoundary())
+                    //                {// preliminarily check that the current bounding box contains X
+                    //                    // Check that all bounding lines that contain this->get_P() will also contain X
+                    //                    //                    std::set<const MeshBoundarySegment<dim>*> containingSegments(boundingBoxSegments().containingSegments(this->get_P()));
+                    //                    //                    for(const auto& seg : containingSegments)
+                    //                    //                    {
+                    //                    //                        isMovable*=seg->contains(X);
+                    //                    //                    }
+                    //                    //
+                    //                }
+                    
+                    
+                    
+                }
                 
-                isMovable*=this->boundingBoxSegments().contains(X);
-                
-                //                if(this->isOnBoundary())
-                //                {// preliminarily check that the current bounding box contains X
-                //                    // Check that all bounding lines that contain this->get_P() will also contain X
-                //                    //                    std::set<const MeshBoundarySegment<dim>*> containingSegments(boundingBoxSegments().containingSegments(this->get_P()));
-                //                    //                    for(const auto& seg : containingSegments)
-                //                    //                    {
-                //                    //                        isMovable*=seg->contains(X);
-                //                    //                    }
-                //                    //
+                //            if(isMovable)
+                //            {
+                //
+                //
+                //
+                //                for(const auto& pair : this->neighbors())
+                //                {
+                ////                    if(std::get<1>(pair.second)->isBoundarySegment())
+                ////                    {// boundary segments other than must remain boundary if this node is moved
+                ////
+                ////                        //                        const bool bndNeighborMovable=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X));
+                ////                        //                        VerbosePlanarDislocationNode(4,"  boundaryNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<bndNeighborMovable<<std::endl;);
+                ////                        //                        isMovable*=bndNeighborMovable;
+                ////
+                ////
+                ////                        const auto containingSegments(this->boundingBoxSegments().containingSegments(0.5*(std::get<0>(pair.second)->get_P()+this->get_P()))); // bounding box lines containing center of segment
+                ////                        for(const auto& seg : containingSegments)
+                ////                        {
+                ////                            const bool bndNeighborMovable(seg->contains(0.5*(std::get<0>(pair.second)->get_P()+X)));
+                ////                            VerbosePlanarDislocationNode(4,"  boundaryNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<bndNeighborMovable<<std::endl;);
+                ////                            isMovable*=bndNeighborMovable;
+                ////                        }
+                ////
+                ////                        if(!isMovable)
+                ////                        {
+                ////                            break;
+                ////                        }
+                ////
+                ////                        //                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                ////                        //                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
+                ////                        //                        const bool bndNeighborStraight=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
+                ////                        //                        VerbosePlanarDislocationNode(4,"  bndNeighborStraight "<<std::get<1>(pair.second)->tag()<< " straight?"<<bndNeighborStraight<<std::endl;);
+                ////                        //                        isMovable*=bndNeighborStraight;
+                ////                        //                        if(!isMovable)
+                ////                        //                        {
+                ////                        //                            break;
+                ////                        //                        }
+                ////                    }
+                //
+                ////                    if(std::get<1>(pair.second)->isGrainBoundarySegment())
+                ////                    {// grain-boundary segments must remain grain-boundary if this node is moved
+                ////                        for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
+                ////                        {
+                ////                            const bool gbNeighborMovable=gb->contains(X);
+                ////                            VerbosePlanarDislocationNode(4,"  gbNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<gbNeighborMovable<<std::endl;);
+                ////                            isMovable*=gbNeighborMovable;
+                ////                            if(!isMovable)
+                ////                            {
+                ////                                break;
+                ////                            }
+                ////                        }
+                ////                        if(!isMovable)
+                ////                        {
+                ////                            break;
+                ////                        }
+                ////                    }
+                //
+                //                    if(std::get<1>(pair.second)->isSessile())
+                //                    {// sessile segments cannot change direction if this node is moved
+                //                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
+                //                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
+                //                        if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
+                //                        {
+                //                            const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
+                //                            VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
+                //                            isMovable*=sessileNeighborMovable;
+                //                            if(!isMovable)
+                //                            {
+                //                                break;
+                //                            }
+                //                        }
+                //                    }
                 //                }
+                //            }
                 
-                
-                
+                return isMovable;
             }
             
-            //            if(isMovable)
-            //            {
-            //
-            //
-            //
-            //                for(const auto& pair : this->neighbors())
-            //                {
-            ////                    if(std::get<1>(pair.second)->isBoundarySegment())
-            ////                    {// boundary segments other than must remain boundary if this node is moved
-            ////
-            ////                        //                        const bool bndNeighborMovable=std::get<1>(pair.second)->boundingBoxSegments().contains(0.5*(std::get<0>(pair.second)->get_P()+X));
-            ////                        //                        VerbosePlanarDislocationNode(4,"  boundaryNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<bndNeighborMovable<<std::endl;);
-            ////                        //                        isMovable*=bndNeighborMovable;
-            ////
-            ////
-            ////                        const auto containingSegments(this->boundingBoxSegments().containingSegments(0.5*(std::get<0>(pair.second)->get_P()+this->get_P()))); // bounding box lines containing center of segment
-            ////                        for(const auto& seg : containingSegments)
-            ////                        {
-            ////                            const bool bndNeighborMovable(seg->contains(0.5*(std::get<0>(pair.second)->get_P()+X)));
-            ////                            VerbosePlanarDislocationNode(4,"  boundaryNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<bndNeighborMovable<<std::endl;);
-            ////                            isMovable*=bndNeighborMovable;
-            ////                        }
-            ////
-            ////                        if(!isMovable)
-            ////                        {
-            ////                            break;
-            ////                        }
-            ////
-            ////                        //                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-            ////                        //                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
-            ////                        //                        const bool bndNeighborStraight=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
-            ////                        //                        VerbosePlanarDislocationNode(4,"  bndNeighborStraight "<<std::get<1>(pair.second)->tag()<< " straight?"<<bndNeighborStraight<<std::endl;);
-            ////                        //                        isMovable*=bndNeighborStraight;
-            ////                        //                        if(!isMovable)
-            ////                        //                        {
-            ////                        //                            break;
-            ////                        //                        }
-            ////                    }
-            //
-            ////                    if(std::get<1>(pair.second)->isGrainBoundarySegment())
-            ////                    {// grain-boundary segments must remain grain-boundary if this node is moved
-            ////                        for(const auto& gb : std::get<1>(pair.second)->grainBoundaries())
-            ////                        {
-            ////                            const bool gbNeighborMovable=gb->contains(X);
-            ////                            VerbosePlanarDislocationNode(4,"  gbNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<gbNeighborMovable<<std::endl;);
-            ////                            isMovable*=gbNeighborMovable;
-            ////                            if(!isMovable)
-            ////                            {
-            ////                                break;
-            ////                            }
-            ////                        }
-            ////                        if(!isMovable)
-            ////                        {
-            ////                            break;
-            ////                        }
-            ////                    }
-            //
-            //                    if(std::get<1>(pair.second)->isSessile())
-            //                    {// sessile segments cannot change direction if this node is moved
-            //                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-            //                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
-            //                        if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
-            //                        {
-            //                            const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
-            //                            VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
-            //                            isMovable*=sessileNeighborMovable;
-            //                            if(!isMovable)
-            //                            {
-            //                                break;
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //            }
             
-            return isMovable;
         }
         
         /**********************************************************************/
@@ -1157,7 +1175,7 @@ namespace model
             
             if(!masterNode && this->glidePlanes().size())
             {
-                VectorDim dX=velocity.template segment<dim>(0)*dt;
+                const VectorDim dX(velocity.template segment<dim>(0)*dt);
                 VerbosePlanarDislocationNode(3,"moving PlanarDislocationNode "<<this->sID<<", dX="<<dX.transpose()<<std::endl;);
                 const VectorDim newP(this->snapToGlidePlanes(this->get_P()+dX));
                 set_P(newP);

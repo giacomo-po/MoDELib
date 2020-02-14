@@ -747,13 +747,6 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        const LoopContainerType& loops() const
-//        {
-//            return *this;
-//        }
-        
-        
         /**********************************************************************/
         NodeContainerType &nodes()
         {
@@ -765,11 +758,6 @@ namespace model
         {
             return *this;
         }
-        
-        //        LoopContainerType& loops()
-        //        {
-        //            return *this;
-        //        }
         
         /**********************************************************************/
         void addUntwinnedEdge(const PeriodicLoopLink<DislocationNetworkType> *link)
@@ -783,19 +771,6 @@ namespace model
             const size_t erased(untwinnedEdges().erase(link));
             assert(erased == 1 && "COULD NOT ERASE LINK FROM BOUNDARYLINKS");
         }
-        
-//        void addLoop(const LoopType* )
-//        {
-//            // add to LoopContainerType
-//            // update outLoop reconstrcuction
-//            //            periodicPlane.addPatch(loop->periodicShift);
-//        }
-//
-//        void removeLoop(const LoopType* )
-//        {
-//            // femove from LoopContainerType
-//            // update outLoop reconstrcuction
-//        }
         
         void addLoopLink(LoopLinkType* const link)
         {// this needs to be an attach, which returns a PeriodicLoopLink stored where???
@@ -839,49 +814,6 @@ namespace model
                 }
             }
         }
-        
-//        /**********************************************************************/
-//        void createNewBoundaryOLD(const PeriodicLoopLinkType* currentEdge, UntwinnedEdgeContainerType &untwinnedCopy)
-//        {// TO DO: consider the case of self-intersecting out-boundaries
-//            //            std::cout<<"createNewBoundary"<<std::endl;
-//
-//
-//
-//            BoundaryContainerType temp;
-//            temp.reserve(untwinnedCopy.size());
-//            while (true)
-//            {
-//                //                std::cout<<"currentEdge "<<currentEdge->tag()<<std::endl;
-//                temp.push_back(currentEdge);
-//                const size_t erased(untwinnedCopy.erase(currentEdge));
-//                if (erased != 1)
-//                {
-//
-////                    std::cout << "Trying to erase " << currentEdge->tag() << std::endl;
-////                    std::cout << "untwinnedCopy is" << std::endl;
-////                    for (const auto &edgePtr : untwinnedCopy)
-////                    {
-////                        std::cout << "    " << edgePtr->tag() << std::endl;
-////                    }
-//
-//                    assert(erased == 1 && "could not find link in untwinnedEdges 2");
-//                }
-//                if (temp.back()->sink->sID == temp.front()->source->sID)
-//                {
-//                    break;
-//                }
-//                currentEdge = currentEdge->next;
-//                while (currentEdge->twin)
-//                {
-//                    currentEdge = currentEdge->twin->next;
-//                }
-//            }
-//            if (temp.size())
-//            {
-//                this->_outerBoundaries.push_back(temp);
-//            }
-//        }
-        
         
         void createNewBoundary(const VectorDim& refBurgers,const PeriodicLoopLinkType* currentEdge, UntwinnedEdgeContainerType &untwinnedCopy, BoundaryContainerType& temp)
         {
@@ -957,8 +889,14 @@ namespace model
                 const auto iter(nodeMap.find(sharedNode->sID));
                 if(iter!=nodeMap.end())
                 {// 2D node found, grab corresponding RVE node
+                    iter->second.second->confinedObject().clear();
                     iter->second.second->meshFaces().clear();
-                    static_cast<typename DislocationNetworkType::NodeType::NodeBaseType* const>(iter->second.second.get())->set_P(periodicGlidePlane->getGlobalPosition(point)+shift);
+                    static_cast<typename DislocationNetworkType::NodeType::SplineNodeType* const>(iter->second.second.get())->set_P(periodicGlidePlane->getGlobalPosition(point)+shift);
+                    iter->second.second->confinedObject().updateGeometry(iter->second.second->get_P());
+                    
+                    iter->second.second->p_Simplex=iter->second.second->get_includingSimplex(iter->second.second->get_P(),iter->second.second->p_Simplex); // update including simplex
+
+                    
                     nodes.push_back(iter->second.second);
                 }
                 else
@@ -966,18 +904,17 @@ namespace model
                     nodes.emplace_back(new typename DislocationNetworkType::NodeType(&DN,periodicGlidePlane->getGlobalPosition(point)+shift,VectorDim::Zero(),1.0));
                 }
             }
+            model::cout<<"        Reinserting loop with "<<points.size()<<" points ("<<nodes.size()<<" nodes)"<<std::flush;
             DN.insertLoop(nodes,Burgers,glidePlane,shift);
             
         }
         
-        /**********************************************************************/
-        void updateRVEloops(DislocationNetworkType& DN)
+        
+        RVEnodeMapType getNodeMap() const
         {
-            updateOuterBoundaries();
-            
             RVEnodeMapType nodeMap;
-            std::set<size_t> removeLoops;
-
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"        Constructing perdiodic nodes map"<<std::flush;
             for(const auto& node : nodes())
             {
                 if(!node.second.expired())
@@ -990,22 +927,81 @@ namespace model
                         assert(rveNodeSource==rveNodeSink);
                         nodeMap.emplace(periodicNode->sID,std::make_pair(periodicNode,rveNodeSource));
                     }
-                    removeLoops.insert(periodicNode->loopConnectivities().begin()->first);
                 }
             }
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
+            return nodeMap;
+        }
+        
+        /**********************************************************************/
+        void updateRVEloops(DislocationNetworkType& DN,const double & dt_in)
+        {
             
+            RVEnodeMapType nodeMap(getNodeMap());
+
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"        Constructing perdiodic nodes map"<<std::flush;
+//            for(const auto& node : nodes())
+//            {
+//                if(!node.second.expired())
+//                {
+//                    const auto periodicNode(node.second.lock());
+//                    if(periodicNode->loopConnectivities().size()==1)
+//                    {// not a boundary node
+//                        const auto rveNodeSource(periodicNode->loopConnectivities().begin()->second.outEdge->loopLink->source());
+//                        const auto   rveNodeSink(periodicNode->loopConnectivities().begin()->second.inEdge->loopLink->  sink());
+//                        assert(rveNodeSource==rveNodeSink);
+//                        nodeMap.emplace(periodicNode->sID,std::make_pair(periodicNode,rveNodeSource));
+//                    }
+//                    for(const auto& loopIter : periodicNode->loopConnectivities())
+//                    {
+//                        removeLoops.insert(loopIter.first);
+//                    }
+//                }
+//            }
+//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
+            model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")"<<std::flush;
+            const auto t6= std::chrono::system_clock::now();
+            for(const auto& nodePair : nodeMap)
+            {
+                for(const auto& neighbor : nodePair.second.second->neighbors())
+                {// node may be moving away from boundary. Clear mesh faces of connected links
+                    std::get<1>(neighbor.second)->meshFaces().clear();
+                }
+                static_cast<typename DislocationNetworkType::NodeType::SplineNodeType* const>(nodePair.second.second.get())->set_P(nodePair.second.second->get_P()+nodePair.second.second->get_V()*dt_in);
+                nodePair.second.second->updatePeriodicLoopLinks();
+            }
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t6)).count()<<" sec]."<<defaultColor<<std::endl;
+
+            nodeMap=getNodeMap(); // update nodeMap to store new PeriodicDislocationNodes created during move
+
+            model::cout<<"        Updating outer boundaries "<<std::flush;
+            const auto t7= std::chrono::system_clock::now();
+            updateOuterBoundaries();
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<outerBoundaries().size()<<" boundaries ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t7)).count()<<" sec]."<<defaultColor<<std::endl;
+
+            std::set<size_t> removeLoops;
+            for(const auto& node : nodes())
+            {
+                if(!node.second.expired())
+                {
+                    const auto periodicNode(node.second.lock());
+                    for(const auto& loopIter : periodicNode->loopConnectivities())
+                    {
+                        removeLoops.insert(loopIter.first);
+                    }
+                }
+            }
+
             
-            
+            const auto t1= std::chrono::system_clock::now();
+            model::cout<<"        Clipping outer boundaries"<<std::flush;
             typedef std::tuple<std::vector<VectorLowerDim>,VectorDim,std::shared_ptr<GlidePlaneType>,VectorDim> ReinsertTupleType;
             std::vector<ReinsertTupleType> reinsertVector;
-            
             for (const auto& pair : outerBoundaries())
             {
-//                std::cout << "For outerBoundaries size " << outerBoundaries().size() << std::endl;
-//                if (outerBoundaries().size() > 1)
-//                {
-//                    printOuterBoundary();
-//                }
                 std::vector<VectorDim> pgpPoints3D;
                 std::vector<VectorLowerDim> pgpPoints2D;
                 for (const auto& node : pair.first)
@@ -1038,19 +1034,26 @@ namespace model
                     }
                 }
             }
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+
             
-            
+            const auto t2= std::chrono::system_clock::now();
+            model::cout<<"        Removing loops"<<std::flush;
             for (const auto& loopsID : removeLoops)
             {// Delete existing RVE loops
                 DN.deleteLoop(loopsID);
             }
-            
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
+
             // RE-INSERT IN RVE
+            const auto t3= std::chrono::system_clock::now();
+            model::cout<<"        Reinserting " <<reinsertVector.size()<<" loops."<<std::flush;
             for(const auto tup : reinsertVector)
             {// Re-insert in RVE
                 insertRVEloop(DN,nodeMap,std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
             }
-            
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
+
 
             
             periodicGlidePlane->patches().clear();
