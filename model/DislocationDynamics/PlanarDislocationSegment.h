@@ -222,7 +222,7 @@ namespace model
             BurgersNorm=Burgers.norm();
             straight.updateGeometry();
             
-            VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
+//            VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
             this->confinedObject().addGlidePlane(pL->loop()->glidePlane.get());
             updateSlipSystem();
         }

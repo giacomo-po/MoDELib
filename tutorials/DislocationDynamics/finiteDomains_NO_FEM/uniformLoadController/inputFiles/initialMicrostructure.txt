@@ -4,12 +4,12 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e14;
+targetStraightDislocationDensity=0e14;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
-targetFrankReadDislocationDensity=0e13;
+targetFrankReadDislocationDensity=1e14;
 FrankReadSizeMean=0.5e-6;
 FrankReadSizeStd=0.05e-6;
 FrankReadAspectRatioMean=2.0;
@@ -25,7 +25,7 @@ targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=0 0;
+straightDislocationsSlipSystemIDs=-1 -1;
 straightDislocationsAngleFromScrewOrientation=90.0 90.0;
 pointsAlongStraightDislocations=0.0 0.0 0.0
 				10.0 0.0 0.0;

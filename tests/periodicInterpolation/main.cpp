@@ -96,6 +96,6 @@ int main(int argc, char * argv[])
     }
 
     PeriodicLatticeInterpolant<2> pli(A,N.template cast<size_t>(),D.template cast<size_t>());
-    
+    pli.setConditions(f,df);
     return 0;
 }
