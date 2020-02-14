@@ -126,7 +126,7 @@ namespace model
         
         /**********************************************************************/
         BoundingMeshSegments(const SimplicialMesh<dim>& mesh,
-                             const int& rID,
+                             const size_t& rID,
                              const Plane<dim>& plane)
         {
             //std::cout<<"I'm here A"<<std::endl;

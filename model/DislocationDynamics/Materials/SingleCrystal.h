@@ -42,20 +42,19 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         
         /**********************************************************************/
-        static Lattice<dim> getLattice(const DislocatedMaterial<dim,Isotropic>& material,
-                                       const MatrixDim& C2G)
+        static Eigen::Matrix<double,dim,dim> getLatticeBasis(const DislocatedMaterial<dim,Isotropic>& material)
         {
             if(material.crystalStructure=="BCC")
             {
-                return BCClattice<dim>(C2G);
+                return BCClattice<dim>::getLatticeBasis();
             }
             else if(material.crystalStructure=="FCC")
             {
-                return FCClattice<dim>(C2G);
+                return FCClattice<dim>::getLatticeBasis();
             }
             else if(material.crystalStructure=="HEX")
             {
-                return HEXlattice<dim>(C2G);
+                return HEXlattice<dim>::getLatticeBasis();
             }
             else
             {
@@ -116,7 +115,7 @@ namespace model
 
         /**********************************************************************/
         SingleCrystal(const DislocatedMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
-        /* init */ LatticeType(getLattice(material,C2G))
+        /* init */ LatticeType(getLatticeBasis(material),C2G)
         /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
         /* init */,SlipSystemContainerType(getSlipSystems(material,*this))
         {

@@ -16,6 +16,125 @@
 
 namespace model
 {
+    
+    
+    template<int dim>
+    struct LatticePlaneKey
+    {// dim ints for direction, 1 int for heigth
+        
+        
+        typedef long int LongIntType;
+        typedef Eigen::Matrix<double,dim,1> VectorDimD;
+        typedef Eigen::Matrix<LongIntType,dim,1> VectorDimI;
+        typedef std::array<LongIntType,dim+2> ArrayType;
+        //
+        /**************************************************************************/
+        static ArrayType hr2array(const VectorDimI& r, const LongIntType& h,const LongIntType& latticeID)
+        {
+            ArrayType temp;
+            for(int k=0;k<dim;++k)
+            {
+                temp[k]=r(k);
+            }
+            temp[dim]=h;
+            temp[dim+1]=latticeID;
+            return temp;
+        }
+        
+        /**************************************************************************/
+        static int sgn(const LongIntType& val)
+        {
+            return (LongIntType(0) < val) - (val < LongIntType(0));
+        }
+        
+        /**************************************************************************/
+        static ArrayType correct_h_sign(VectorDimI r,LongIntType h,const LongIntType& latticeID)
+        {
+            assert(r.squaredNorm()>0 && "zero direction cannot be used as LatticePlaneKey");
+            for(int d=0;d<dim;++d)
+            {
+                std::cout<<r(d)<<std::endl;
+                const int sgnrd(sgn(r(d)));
+                if(sgnrd!=0)
+                {
+                    r*=sgnrd;
+                    h*=sgnrd;
+                    break;
+                }
+            }
+            return hr2array(r,h,latticeID);
+        }
+        
+        
+        const ArrayType array;
+        
+        /**********************************************************************/
+        LatticePlaneKey(const VectorDimI& r,
+                        const LongIntType& h,
+                        const LongIntType& latticeID) :
+        /* init */ array(correct_h_sign(r,h,latticeID))
+        {
+        }
+        
+        /**********************************************************************/
+        LatticePlaneKey(const VectorDimD& P,
+                        const ReciprocalLatticeDirection<dim>& r) :
+        /* delegate */ LatticePlaneKey(r,r.planeIndexOfPoint(P),r.lattice.sID)
+        {
+            
+        }
+        
+        /**********************************************************************/
+        LatticePlaneKey(const LatticeVector<dim>& L,
+                        const ReciprocalLatticeDirection<dim>& r) :
+        /* delegate */ LatticePlaneKey(r,r.planeIndexOfPoint(L),r.lattice.sID)
+        {
+            
+        }
+        
+        /**********************************************************************/
+        LatticePlaneKey(const long int& hin,
+                        const ReciprocalLatticeDirection<dim>& r) :
+        /* init */ LatticePlaneKey(r,hin,r.lattice.sID)
+        {
+            
+        }
+
+        
+        Eigen::Map<const VectorDimI> reciprocalDirectionComponents() const
+        {
+            return Eigen::Map<const VectorDimI>(&array.data()[0]);
+        }
+        
+        const LongIntType& planeIndex() const
+        {
+            return array[dim];
+        }
+
+        const LongIntType& latticeID() const
+        {
+            return array[dim+1];
+        }
+        
+        bool operator<(const LatticePlaneKey<dim>& other) const
+        {// allow use in sorted STL containers
+            return array<other.array;
+        }
+        
+        /**********************************************************************/
+        template <class T>
+        friend T& operator << (T& os, const LatticePlaneKey<dim>& key)
+        {
+            for(const auto& val : key.array)
+            {
+                os<<val<<" ";
+            }
+            return os;
+        }
+        
+    };
+    
+    
     struct LatticePlane
     {
         static constexpr int dim=3;
@@ -29,8 +148,7 @@ namespace model
           */
             assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
             const double hd(P.dot(r.cartesian()));
-            const long int h(std::lround(hd));
-            
+            const long int h(std::lround(hd));            
             return  std::make_pair(fabs(hd-h)<FLT_EPSILON,h);
         }
         
@@ -43,90 +161,16 @@ namespace model
             return  std::make_pair(true,L.dot(r));
         }
         
-        /**********************************************************************/
-        static int sign(const long int& i)
-        {
-            if(i>0)
-            {
-                return 1;
-            }
-            else if(i<0)
-            {
-                return -1;
-            }
-            else
-            {
-                return 0;
-            }
-            
-        }
-        
-        static std::pair<ReciprocalLatticeDirection<dim>,size_t> correct_h_sign(const long int& h,const ReciprocalLatticeDirection<dim>& r)
-        {
-            const int signh(sign(h));
-            if(signh==0)
-            {
-                int signr=1;
-                for(int d=0;d<dim;++d)
-                {
-                    if(r(d)>0)
-                    {
-                        break;
-                    }
-                    
-                    if(r(d)<0)
-                    {
-                        signr=-1;
-                        break;
-                    }
-                }
-                return std::pair<ReciprocalLatticeDirection<dim>,size_t>(r*signr,0);
-                
-            }
-            else
-            {
-                return std::pair<ReciprocalLatticeDirection<dim>,size_t>(r*signh,h*signh);
-                
-            }
-        }
-        
-        /**********************************************************************/
-        static std::pair<ReciprocalLatticeDirection<dim>,size_t> get_nh(const ReciprocalLatticeDirection<dim>& r,
-                                                                        const VectorDimD& P)
-        {
-            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
-            const double hd(P.dot(r.cartesian()));
-            const long int h(std::lround(hd));
-            if(fabs(hd-h)>FLT_EPSILON)
-            {
-                model::cout<<"P="<<P.transpose()<<std::endl;
-                model::cout<<"r="<<r.cartesian().transpose()<<std::endl;
-                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
-                model::cout<<"h="<<h<<std::endl;
-                assert(0 && "P in not on a lattice plane.");
-            }
-            return correct_h_sign(h,r);
-        }
-        
-        /**********************************************************************/
-        static std::pair<ReciprocalLatticeDirection<dim>,size_t> get_nh(const ReciprocalLatticeDirection<dim>& r,
-                                                                        const LatticeVector<dim>& P)
-        {
-            assert(r.squaredNorm()>0 && "A zero normal cannot be used as valid GlidePlane normal");
-            const long int h(P.dot(r));
-            return correct_h_sign(h,r);
-        }
-        
-        const std::pair<ReciprocalLatticeDirection<dim>,size_t> nh;
-        const ReciprocalLatticeDirection<dim>& n;
-        const size_t& h;
+        const LatticePlaneKey<dim> key;
+        const ReciprocalLatticeDirection<dim> n;
+        const LatticePlaneKey<dim>::LongIntType planeIndex;
         
         /**********************************************************************/
         LatticePlane(const VectorDimD& P,
                      const ReciprocalLatticeDirection<dim>& r) :
-        /* init */ nh(get_nh(r,P)),
-        /* init */ n(nh.first),
-        /* init */ h(nh.second)
+        /* init */ key(P,r)
+        /* init */,n(ReciprocalLatticeVector<dim>(key.reciprocalDirectionComponents(),r.lattice))
+        /* init */,planeIndex(key.planeIndex())
         {
 
         }
@@ -134,9 +178,9 @@ namespace model
         /**********************************************************************/
         LatticePlane(const LatticeVector<dim>& L,
                      const ReciprocalLatticeDirection<dim>& r) :
-        /* init */ nh(get_nh(r,L)),
-        /* init */ n(nh.first),
-        /* init */ h(nh.second)
+        /* init */ key(L,r)
+        /* init */,n(ReciprocalLatticeVector<dim>(key.reciprocalDirectionComponents(),r.lattice))
+        /* init */,planeIndex(key.planeIndex())
         {
             
         }
@@ -144,9 +188,9 @@ namespace model
         /**********************************************************************/
         LatticePlane(const long int& hin,
                      const ReciprocalLatticeDirection<dim>& r) :
-        /* init */ nh(correct_h_sign(hin,r)),
-        /* init */ n(nh.first),
-        /* init */ h(nh.second)
+        /* init */ key(hin,r)
+        /* init */,n(ReciprocalLatticeVector<dim>(key.reciprocalDirectionComponents(),r.lattice))
+        /* init */,planeIndex(key.planeIndex())
         {
             
         }
@@ -154,65 +198,13 @@ namespace model
         /**********************************************************************/
         VectorDimD planeOrigin() const
         {
-            return h*n.planeSpacing()*n.cartesian().normalized();
+            return planeIndex*n.planeSpacing()*n.cartesian().normalized();
         }
+        
+
         
     };
     
 }
 #endif
 
-
-
-//        /**********************************************************************/
-//        VectorDimD snapToPlane(const VectorDimD& P0) const
-//        {
-//            return P+n.snapToPlane(P0-P);
-//        }
-//
-//        /**********************************************************************/
-//        bool contains(const Eigen::Matrix<double,3,1>& P0) const
-//        {
-//            const double PP0((P-P0).norm());
-//            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
-//        }
-
-//        /**********************************************************************/
-//        static long int height(const std::pair<bool,long int>& p)
-//        {
-//            assert(p.first);
-//            return p.second;
-//        }
-
-//        /**********************************************************************/
-//        LatticePlane(const LatticeVectorType& P_in,const LatticePlaneBase& n_in) :
-//        /* init */ P(P_in),
-//        /* init */ n(n_in)
-//        {
-//            assert(&P.lattice==&n.lattice && "LatticeVectors have different bases.");
-//        }
-
-//        /**********************************************************************/
-//        LatticeVectorType snapToLattice(const VectorDimD& P0) const
-//        {
-//            return P+n.snapToLattice(P0-P.cartesian());
-//        }
-//
-//        /**********************************************************************/
-//        VectorDimD snapToPlane(const VectorDimD& P0) const
-//        {
-//            return P.cartesian()+n.snapToPlane(P0-P.cartesian());
-//        }
-//
-//        /**********************************************************************/
-//        bool contains(const LatticeVectorType& L) const
-//        {
-//            assert(&P.lattice==&L.lattice && "LatticeVectors have different bases.");
-//            return (L-P).dot(n)==0;
-//        }
-//
-//        /**********************************************************************/
-//        bool contains(const Eigen::Matrix<double,3,1>& P0) const
-//        {
-//            return fabs((P0-P.cartesian()).dot(n.cartesian()))<FLT_EPSILON;
-//        }

@@ -40,7 +40,7 @@ namespace model
     {
         typedef PeriodicGlidePlane<dim> ValueType;
         typedef GlidePlaneKey<dim> KeyType;
-        typedef std::less<std::array<long int,dim+3>> CompareType;
+        typedef std::less<KeyType> CompareType;
     };
     
 //    template<int dim>
@@ -83,10 +83,11 @@ namespace model
             
         }
         
-        GlidePlaneKeyType periodicPlaneKey(GlidePlaneKeyType temp) const
+        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& temp) const
         {
-            temp[dim+2]=temp[dim+2]%LatticeGCD<dim>::gcd(temp.r.transpose()*N);
-            return temp;
+            const auto gcd(LatticeGCD<dim>::gcd(temp.reciprocalDirectionComponents().transpose()*N));
+            const auto periodicPlaneIndex(temp.planeIndex()>=0? temp.planeIndex()%gcd : (temp.planeIndex()%gcd)+gcd);
+            return GlidePlaneKeyType(temp.reciprocalDirectionComponents(),periodicPlaneIndex,temp.latticeID());
         }
         
         /**********************************************************************/
@@ -666,7 +667,7 @@ namespace model
         /**********************************************************************/
         GlidePlaneKey<dim> getGlidePlaneKey(const VectorDim& shift)
         {
-            return GlidePlaneKey<dim>(referencePlane->grain.grainID,referencePlane->P+shift,referencePlane->n);
+            return GlidePlaneKey<dim>(referencePlane->P+shift,referencePlane->n);
         }
         
         std::shared_ptr<GlidePlane<dim>> getGlidePlane(const VectorDim& shift)
@@ -1078,7 +1079,9 @@ namespace model
                     pointsHeights.insert(heightPair.second);
                 }
                 assert(pointsHeights.size()==1 && "polyPoints on different planes");
-                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
+//                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
+                const GlidePlaneKey<dim> pointsPlaneKey(polyPoints[0],this->referencePlane->n);
+
                 const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
                 const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
                 getPatch(pointsShift);

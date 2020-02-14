@@ -66,12 +66,12 @@ namespace model
             }
         }
         
-        const std::pair<int,int> regionIDs;
+        const std::pair<size_t,size_t> regionIDs;
         const BoundingMeshSegments<dim> meshIntersections;
         
         /**********************************************************************/
         MeshPlane(const SimplicialMesh<dim>& mesh,
-                  const int& rID,
+                  const size_t& rID,
                   const VectorDim& p,
                   const VectorDim& n) :
         /* init */ Plane<dim>(p,n)
@@ -88,8 +88,8 @@ namespace model
         
         /**********************************************************************/
         MeshPlane(const PlanarMeshFace<dim>& face,
-                  const int& rID1,
-                  const int& rID2) :
+                  const size_t& rID1,
+                  const size_t& rID2) :
         /* init */ Plane<dim>(face.asPlane()),
         /* init */ regionIDs(rID1,rID2),
         /* init */ meshIntersections(getFaceBoundary(face)) // WARNING: CALLING meshIntersections with rID1

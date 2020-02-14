@@ -47,7 +47,7 @@ namespace model
         //! The static column matrix of lattice vectors
  
         /**********************************************************************/
-        static MatrixDimD getLatticeBasis(const MatrixDimD& A,const MatrixDimD& Q)
+        std::tuple<MatrixDimD,MatrixDimD,MatrixDimD> getLatticeBases(const MatrixDimD& A,const MatrixDimD& Q)
         {
 
             // Check that Q is orthogonal
@@ -65,9 +65,8 @@ namespace model
             // Check that A is full rank
             assert(std::fabs(A.determinant())>FLT_EPSILON && "A matrix is singular");
             
-            return Q*A;
-//            const MatrixDimD QA(Q*A);
-//            return std::make_tuple(QA,QA.inverse().transpose(),Q);
+            const MatrixDimD QA(Q*A);
+            return std::make_tuple(QA,QA.inverse().transpose(),Q);
         }
 
         
@@ -81,42 +80,42 @@ namespace model
 //            
 //        }
         
-//        std::tuple<MatrixDimD,MatrixDimD,MatrixDimD> latticeBases;
+        std::tuple<MatrixDimD,MatrixDimD,MatrixDimD> latticeBases;
 
         
     public:
         
-        const MatrixDimD    latticeBasis;
-        const MatrixDimD reciprocalBasis;
-        const MatrixDimD C2G;
+        const MatrixDimD&    latticeBasis;
+        const MatrixDimD& reciprocalBasis;
+        const MatrixDimD& C2G;
         
         /**********************************************************************/
         Lattice(const MatrixDimD& A,const MatrixDimD& Q) :
-//        /* init */ latticeBases(getLatticeBases(A,Q))
-        /* init */ latticeBasis(getLatticeBasis(A,Q))
-        /* init */,reciprocalBasis(latticeBasis.inverse().transpose())
-        /* init */,C2G(Q)
+        /* init */ latticeBases(getLatticeBases(A,Q))
+        /* init */,latticeBasis(std::get<0>(latticeBases))
+        /* init */,reciprocalBasis(std::get<1>(latticeBases))
+        /* init */,C2G(std::get<2>(latticeBases))
         {
 
         }
         
-//        /**********************************************************************/
-//        Lattice(const Lattice& other) :
-//        /* init */ latticeBases(other.latticeBases)
-//        /* init */,latticeBasis(std::get<0>(latticeBases))
-//        /* init */,reciprocalBasis(std::get<1>(latticeBases))
-//        /* init */,C2G(std::get<2>(latticeBases))
-//        {/*!The copy contructor initializes latticeBases to other.latticeBases,
-//          * and then the references latticeBasis and reciprocalBasis to the local matrices
-//          * Note that this allows to wite:
-//          * Lattice L1(A); // ok
-//          * Lattice L2(L1); // ok, copy contructor
-//          * Lattice L3=L1;  // ok, assignemt operator here works as copy contructor
-//          * Lattice L4(A);  
-//          * L4=L1;          // ERROR: const references latticeBasis and reciprocalBasis cannot be assigned
-//          */
-//            
-//        }
+        /**********************************************************************/
+        Lattice(const Lattice& other) :
+        /* init */ latticeBases(other.latticeBases)
+        /* init */,latticeBasis(std::get<0>(latticeBases))
+        /* init */,reciprocalBasis(std::get<1>(latticeBases))
+        /* init */,C2G(std::get<2>(latticeBases))
+        {/*!The copy contructor initializes latticeBases to other.latticeBases,
+          * and then the references latticeBasis and reciprocalBasis to the local matrices
+          * Note that this allows to wite:
+          * Lattice L1(A); // ok
+          * Lattice L2(L1); // ok, copy contructor
+          * Lattice L3=L1;  // ok, assignemt operator here works as copy contructor
+          * Lattice L4(A);  
+          * L4=L1;          // ERROR: const references latticeBasis and reciprocalBasis cannot be assigned
+          */
+            
+        }
         
 //        /**********************************************************************/
 //        void rotate(const MatrixDimD& Q)

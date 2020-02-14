@@ -618,13 +618,14 @@ namespace model
 //                    nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
 //                    nodeIDs.push_back(newNodeID);
                     
-                    LatticePlane glissilePlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
-                    GlidePlaneKey<dim> glissilePlaneKey(grainID,glissilePlane);
+//                    LatticePlane glissilePlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                    GlidePlaneKey<dim> glissilePlaneKey(grainID,glissilePlane);
 
 //                    DN.insertLoop(nodeIDs,
 //                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
 //                                  DN.glidePlaneFactory.get(glissilePlaneKey));
 
+                    GlidePlaneKey<dim> glissilePlaneKey(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
                     DN.insertLoop(loopNodes,
                                   DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
                                   DN.glidePlaneFactory.get(glissilePlaneKey));

@@ -35,8 +35,8 @@ namespace model
 
     template <int dim>
     class GrainBoundary : public MeshPlane<dim>,
-    /* base            */ private std::map<int,const Grain<dim>* const>,
-    /* base            */ private std::map<int,const Eigen::Matrix<double,dim,1>>
+    /* base            */ private std::map<size_t,const Grain<dim>* const>,
+    /* base            */ private std::map<size_t,const Eigen::Matrix<double,dim,1>>
 //    /* base */ private std::map<int,std::shared_ptr<GlidePlane<dim>>>
     {
 //        static constexpr int dim=NetworkType::dim;
@@ -50,8 +50,8 @@ namespace model
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
         typedef Grain<dim> GrainType;
-        typedef std::map<int,const GrainType* const> GrainContainerType;
-        typedef std::map<int,const Eigen::Matrix<double,dim,1>> OutNormalContainerType;
+        typedef std::map<size_t,const GrainType* const> GrainContainerType;
+        typedef std::map<size_t,const Eigen::Matrix<double,dim,1>> OutNormalContainerType;
 //        typedef std::map<int,std::shared_ptr<GlidePlane<dim>>> GlidePlaneContainerType;
         typedef Eigen::Matrix<double,2*dim+1,1> BGkeyType;
 //        typedef GlidePlane<dim> GlidePlaneType;
@@ -507,7 +507,7 @@ namespace model
                 const size_t faceID=tet.second->childOrder(triangle.xID);
                 const VectorDimD outNormal=tet.second->nda.col(faceID);
                 const double outNorm(outNormal.norm());
-                const int rID=tet.second->region->regionID;
+                const size_t rID=tet.second->region->regionID;
                 assert(outNorm>FLT_EPSILON && "Simplex normal has zero norm.");
                 assert(rID==grainFirst.grainID || rID==grainSecond.grainID);
                 OutNormalContainerType::emplace(rID,outNormal/outNorm);
@@ -528,7 +528,7 @@ namespace model
         }
 
         /**********************************************************************/
-        const Grain<dim>& grain(const int& k) const
+        const Grain<dim>& grain(const size_t& k) const
         {
             return *(grains().at(k));
         }
@@ -539,7 +539,7 @@ namespace model
             return *this;
         }
 
-        const VectorDimD& outNormal(const int& k) const
+        const VectorDimD& outNormal(const size_t& k) const
         {
             return outNormals().at(k);
         }

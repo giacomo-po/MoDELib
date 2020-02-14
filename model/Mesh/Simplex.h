@@ -75,7 +75,7 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,dim,1> outNormal(const int& rID) const
+        Eigen::Matrix<double,dim,1> outNormal(const size_t& rID) const
         {
             return BoundarySimplex<dim,dim-order>::outNormal(*this,rID);
         }
@@ -269,7 +269,7 @@ namespace model
         }
         
         /**********************************************************************/
-        Eigen::Matrix<double,dim,1> outNormal(const int& rID) const
+        Eigen::Matrix<double,dim,1> outNormal(const size_t& rID) const
         {
             return BoundarySimplex<dim,dim-order>::outNormal(*this,rID);
         }
@@ -546,9 +546,9 @@ namespace model
         }
         
         /**********************************************************************/
-        std::set<int> regionIDs() const
+        std::set<size_t> regionIDs() const
         {
-            std::set<int> temp;
+            std::set<size_t> temp;
             temp.insert(region->regionID);
             return temp;
         }

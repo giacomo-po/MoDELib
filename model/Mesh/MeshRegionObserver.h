@@ -17,10 +17,10 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template<typename RegionType>
-    struct MeshRegionObserver : public std::map<int,RegionType* const>
+    struct MeshRegionObserver : public std::map<size_t,RegionType* const>
     {
         typedef typename RegionType::SimplexType SimplexType;
-        typedef std::map<int,RegionType* const> RegionMapType;
+        typedef std::map<size_t,RegionType* const> RegionMapType;
         typedef std::shared_ptr<RegionType> SharedPtrType;
         
         /**********************************************************************/
@@ -36,7 +36,7 @@ namespace model
         }
 
         /**********************************************************************/
-        RegionType* region(const int& k)
+        RegionType* region(const size_t& k)
         {
             typename RegionMapType::const_iterator iter(this->find(k));
             assert(iter!=this->end());
@@ -44,7 +44,7 @@ namespace model
         }
         
         /**********************************************************************/
-        const RegionType* region(const int& k) const
+        const RegionType* region(const size_t& k) const
         {
             typename RegionMapType::const_iterator iter(this->find(k));
             assert(iter!=this->end());
@@ -52,7 +52,7 @@ namespace model
         }
         
         /**********************************************************************/
-        SharedPtrType getSharedRegion(const int& k)
+        SharedPtrType getSharedRegion(const size_t& k)
         {
             typename RegionMapType::const_iterator iter(this->find(k));
             return (iter!=this->end())? (*(iter->second->simplices().begin()))->region : SharedPtrType(new RegionType(*this,k));

@@ -115,7 +115,7 @@ namespace model
                 
                 if(simpl.second->isRegionBoundarySimplex())
                 {
-                    std::set<int> regionIDset=simpl.second->regionIDs();
+                    const auto regionIDset=simpl.second->regionIDs();
                     std::pair<size_t,size_t> regionIDs(std::make_pair(*regionIDset.begin(),*regionIDset.rbegin()));
                     const auto regionBndIter=regionBoundaries().find(regionIDs);
                     if(regionBndIter!=regionBoundaries().end())

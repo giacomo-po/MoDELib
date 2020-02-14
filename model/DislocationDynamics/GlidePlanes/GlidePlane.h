@@ -59,10 +59,10 @@ namespace model
         /**********************************************************************/
         GlidePlane(const GlidePlaneFactoryType& gpF,
                    const GlidePlaneKeyType& key_in) :
-        /* init */ LatticePlane(key_in.h,ReciprocalLatticeDirection<dim>(key_in.r,gpF.poly.grain(key_in.grainID))) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */,MeshPlane<dim>(gpF.poly.mesh,key_in.grainID,this->planeOrigin(),this->n.cartesian())
+        /* init */ LatticePlane(key_in.planeIndex(),ReciprocalLatticeDirection<dim>(key_in.reciprocalDirectionComponents(),gpF.poly.grain(key_in.latticeID()))) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */,MeshPlane<dim>(gpF.poly.mesh,key_in.latticeID(),this->planeOrigin(),this->n.cartesian())
         /* init */,glidePlaneFactory(gpF)
-        /* init */,grain(gpF.poly.grain(key_in.grainID))
+        /* init */,grain(gpF.poly.grain(key_in.latticeID()))
         /* init */,key(key_in)
         {
             VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<std::endl;);

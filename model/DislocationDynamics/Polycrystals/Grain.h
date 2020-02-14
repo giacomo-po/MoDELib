@@ -60,7 +60,7 @@ namespace model
         static constexpr double roundTol=FLT_EPSILON;
         
         const MeshRegionType& region;
-        const int& grainID;
+        const size_t& grainID;
         
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
@@ -69,8 +69,12 @@ namespace model
               ) :
         /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))
         /* init */,region(region_in)
-        /* init */,grainID(region.regionID)
+        /* init */,grainID(region.regionID) // remove grain ID, use lattice.sID
         {
+//            std::cout<<"region.regionID="<<region.regionID<<std::endl;
+//            std::cout<<"this->sID="<<this->sID<<std::endl;
+//            std::cout<<"grainID="<<grainID<<std::endl;
+            assert(this->sID==region.regionID); // lattice.sID must be same as grainID
             model::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
             model::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;
             model::cout<<"  # slip systems="<<this->slipSystems().size()<<std::endl;            

@@ -57,8 +57,8 @@ namespace model
     struct TypeTraits<PeriodicDislocationLoopFactory<DislocationNetworkType>>
     {
         typedef PeriodicDislocationLoop<DislocationNetworkType> ValueType;
-        typedef std::array<long int, DislocationNetworkType::dim + 3> KeyType;
-        typedef std::less<std::array<long int, DislocationNetworkType::dim + 3>> CompareType;
+        typedef GlidePlaneKey<DislocationNetworkType::dim> KeyType;
+        typedef std::less<KeyType> CompareType;
     };
     
     
@@ -182,10 +182,6 @@ namespace model
                 {
                     removeUntwinnedEdges(neighborPair.second);
                 }
-//                else
-//                {
-//                    addUntwinnedEdges(neighborPair.second);
-//                }
             }
             else if (periodicLoopLink->sink->sID == node->sID)
             {// link is an in-link
@@ -199,10 +195,6 @@ namespace model
                 {
                     removeUntwinnedEdges(neighborPair.second);
                 }
-//                else
-//                {
-//                    addUntwinnedEdges(neighborPair.second);
-//                }
             }
             else
             {
@@ -300,7 +292,6 @@ namespace model
     private:
         
         SuperNodalConnectivityContainerType _loopConnectivities;
-//        SuperNodalConnectivityContainerType _neighborConnectivities;
         
     public:
         
@@ -374,36 +365,6 @@ namespace model
             
         }
         
-//        /**********************************************************************/
-//        InOutEdgeContainerType inLinks() const
-//        {
-//            InOutEdgeContainerType temp;
-//            for (const auto &connectivity : neighborConnectivities())
-//            {
-//                if (connectivity.second.inEdge && !connectivity.second.outEdge)
-//                {
-//                    assert(connectivity.second.inEdge->twin == nullptr);
-//                    temp.insert(connectivity.second.inEdge);
-//                }
-//            }
-//            return temp;
-//        }
-//
-//        /**********************************************************************/
-//        InOutEdgeContainerType outLinks() const
-//        {
-//            InOutEdgeContainerType temp;
-//            for (const auto &connectivity : neighborConnectivities())
-//            {
-//                if (connectivity.second.outEdge && !connectivity.second.inEdge)
-//                {
-//                    assert(connectivity.second.outEdge->twin == nullptr);
-//                    temp.insert(connectivity.second.outEdge);
-//                }
-//            }
-//            return temp;
-//        }
-        
         /**********************************************************************/
         void addPeriodicLoopLink(PeriodicLoopLinkType *const periodicLoopLink)
         {
@@ -424,18 +385,6 @@ namespace model
                     periodicLoopLink->next = loopConnectivity.outEdge;
                 }
                 
-//                //update _neighborConnectivities
-//                SuperNodalConnectivityType& neighborConnectivity(neighborConnectivities()[periodicLoopLink->source->sID]);
-//                assert(neighborConnectivity.inEdge == nullptr || neighborConnectivity.inEdge == periodicLoopLink);
-//                neighborConnectivity.inEdge = periodicLoopLink;
-//                if (neighborConnectivity.outEdge)
-//                {
-//                    // and outEdge of the same loop is connected to this node
-//                    assert(neighborConnectivity.outEdge->twin == nullptr || neighborConnectivity.outEdge->twin == periodicLoopLink);
-//                    assert(periodicLoopLink->twin == nullptr || periodicLoopLink->twin == neighborConnectivity.outEdge);
-//                    neighborConnectivity.outEdge->twin = periodicLoopLink;
-//                    periodicLoopLink->twin = neighborConnectivity.outEdge;
-//                }
             }
             else if (periodicLoopLink->source->sID == this->sID)
             {// edge starts at this node, so link is an outLink
@@ -453,19 +402,6 @@ namespace model
                     loopConnectivity.inEdge->next = periodicLoopLink;
                     periodicLoopLink->prev = loopConnectivity.inEdge;
                 }
-                
-//                //update _neighborConnectivities
-//                SuperNodalConnectivityType& neighborConnectivity(neighborConnectivities()[periodicLoopLink->sink->sID]);
-//                assert(neighborConnectivity.outEdge == nullptr || neighborConnectivity.outEdge == periodicLoopLink);
-//                neighborConnectivity.outEdge = periodicLoopLink;
-//                if (neighborConnectivity.inEdge)
-//                {
-//                    // and outEdge of the same loop is connected to this node
-//                    assert(neighborConnectivity.inEdge->twin == nullptr || neighborConnectivity.inEdge->twin == periodicLoopLink);
-//                    assert(periodicLoopLink->twin == nullptr || periodicLoopLink->twin == neighborConnectivity.inEdge);
-//                    neighborConnectivity.inEdge->twin = periodicLoopLink;
-//                    periodicLoopLink->twin = neighborConnectivity.inEdge;
-//                }
             }
             else
             {
@@ -493,17 +429,6 @@ namespace model
                 {
                     loopConnectivities().erase(loopIter);
                 }
-                
-//                // Update _neighborConnectivities
-//                auto neighborIter(neighborConnectivities().find(periodicLoopLink->source->sID));
-//                assert(neighborIter != neighborConnectivities().end() && "NEIGHBOR NOT FOUND IN neighborConnectivity");
-//                SuperNodalConnectivityType& neighborConnectivity(neighborIter->second);
-//                assert(neighborConnectivity.inEdge == periodicLoopLink);
-//                neighborConnectivity.inEdge = nullptr;
-//                if (neighborConnectivity.inEdge == nullptr && neighborConnectivity.outEdge == nullptr)
-//                {
-//                    neighborConnectivities().erase(neighborIter);
-//                }
             }
             else if (periodicLoopLink->source->sID == this->sID)
             {// edge starts at this node, so link is an outLink
@@ -519,16 +444,6 @@ namespace model
                 {
                     loopConnectivities().erase(loopIter);
                 }
-//                // Update _neighborConnectivities
-//                auto neighborIter(neighborConnectivities().find(periodicLoopLink->sink->sID));
-//                assert(neighborIter != neighborConnectivities().end() && "NEIGHBOR NOT FOUND IN neighborConnectivity");
-//                SuperNodalConnectivityType& neighborConnectivity(neighborIter->second);
-//                assert(neighborConnectivity.outEdge == periodicLoopLink);
-//                neighborConnectivity.outEdge = nullptr;
-//                if (neighborConnectivity.inEdge == nullptr && neighborConnectivity.outEdge == nullptr)
-//                {
-//                    neighborConnectivities().erase(neighborIter);
-//                }
             }
             else
             {
@@ -550,17 +465,6 @@ namespace model
             return _loopConnectivities;
         }
         
-//        /**********************************************************************/
-//        const SuperNodalConnectivityContainerType &neighborConnectivities() const
-//        {
-//            return _neighborConnectivities;
-//        }
-//
-//        /**********************************************************************/
-//        SuperNodalConnectivityContainerType &neighborConnectivities()
-//        {
-//            return _neighborConnectivities;
-//        }
     };
     
     /**********************************************************************/
@@ -579,7 +483,6 @@ namespace model
         std::shared_ptr<PeriodicDislocationNodeType>   sink;
         PeriodicLoopLink<DislocationNetworkType> *next;
         PeriodicLoopLink<DislocationNetworkType> *prev;
-//        PeriodicLoopLink<DislocationNetworkType> *twin;
         
         /**********************************************************************/
         PeriodicLoopLink(PeriodicDislocationLoopType& pLoop,
@@ -590,20 +493,11 @@ namespace model
         /* init */,  sink(periodicLoop.getSharedNode(loopLink->  sink()->get_P(),loopLink->loop()->periodicShift))
         /* init */, next(nullptr)
         /* init */, prev(nullptr)
-//        /* init */, twin(nullptr)
         {
             VerbosePeriodicDislocationBase(2,"Creating PeriodicLoopLink "<<loopLink->tag()<<std::endl;);
 
             source->addPeriodicLoopLink(this);
             sink->addPeriodicLoopLink(this);
-//            if (twin)
-//            {
-//                periodicLoop.removeUntwinnedEdge(twin);
-//            }
-//            else
-//            {
-//                periodicLoop.addUntwinnedEdge(this);
-//            }
         }
         
         /**********************************************************************/
@@ -624,15 +518,6 @@ namespace model
             {
                 prev->next = nullptr;
             }
-//            if (twin)
-//            {
-//                twin->twin = nullptr;
-//                periodicLoop.addUntwinnedEdge(twin);
-//            }
-//            else
-//            {
-//                periodicLoop.removeUntwinnedEdge(this);
-//            }
         }
         
         /**********************************************************************/
@@ -657,7 +542,6 @@ namespace model
     template<typename DislocationNetworkType>
     class PeriodicDislocationLoop : public PeriodicDislocationBase
     /*                           */,public StaticID<PeriodicDislocationLoop<DislocationNetworkType>>
-//    /*                           */,public std::map<size_t,typename DislocationNetworkType::LoopType*>
     /*                           */,public std::map<typename DislocationNetworkType::LoopLinkType*,PeriodicLoopLink<DislocationNetworkType>>
     /*                           */,private std::map<Eigen::Matrix<double, DislocationNetworkType::dim-1, 1>, const std::weak_ptr<PeriodicDislocationNode<DislocationNetworkType>>, CompareVectorsByComponent<double,DislocationNetworkType::dim-1,float>>
     /*                           */,private std::set<const PeriodicLoopLink<DislocationNetworkType>*>
@@ -682,9 +566,6 @@ namespace model
         typedef std::vector<std::pair<BoundaryContainerType,VectorDim>> BoundariesContainerType;
         typedef std::map<size_t,std::pair<std::shared_ptr<PeriodicDislocationNodeType>,std::shared_ptr<typename DislocationNetworkType::NodeType>>> RVEnodeMapType;
 
-//        typedef std::set<PeriodicLoopLinkType*> InOutEdgeContainerType;
-
-//        PeriodicLoopObserver<PeriodicDislocationLoopType>* const observer;
         
         BoundariesContainerType _outerBoundaries;
 
@@ -938,29 +819,10 @@ namespace model
         void updateRVEloops(DislocationNetworkType& DN,const double & dt_in)
         {
             
-            RVEnodeMapType nodeMap(getNodeMap());
+            periodicGlidePlane->patches().clear();
 
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"        Constructing perdiodic nodes map"<<std::flush;
-//            for(const auto& node : nodes())
-//            {
-//                if(!node.second.expired())
-//                {
-//                    const auto periodicNode(node.second.lock());
-//                    if(periodicNode->loopConnectivities().size()==1)
-//                    {// not a boundary node
-//                        const auto rveNodeSource(periodicNode->loopConnectivities().begin()->second.outEdge->loopLink->source());
-//                        const auto   rveNodeSink(periodicNode->loopConnectivities().begin()->second.inEdge->loopLink->  sink());
-//                        assert(rveNodeSource==rveNodeSink);
-//                        nodeMap.emplace(periodicNode->sID,std::make_pair(periodicNode,rveNodeSource));
-//                    }
-//                    for(const auto& loopIter : periodicNode->loopConnectivities())
-//                    {
-//                        removeLoops.insert(loopIter.first);
-//                    }
-//                }
-//            }
-//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+            
+            RVEnodeMapType nodeMap(getNodeMap());
 
             model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")"<<std::flush;
             const auto t6= std::chrono::system_clock::now();
@@ -1056,76 +918,8 @@ namespace model
 
 
             
-            periodicGlidePlane->patches().clear();
+//            periodicGlidePlane->patches().clear();
             DN.updateGeometry(0.0);
-//
-//            if (pgp->patches().size() == 1)
-//            {
-//                //Just return the outer2DNodes
-//                const auto &iter(pgp->patches().begin());
-//                std::vector<std::shared_ptr<DislocationNodeType>> tempRVENodes;
-//                std::vector<std::vector<std::shared_ptr<DislocationNodeType>>> tempRVENodesContainer;
-//
-//                for (const auto &nodes : outer2DNodesPositions)
-//                {
-//                    // std::shared_ptr<DislocationNodeType> nodeTemp(std::shared_ptr<DislocationNodeType>(new DislocationNodeType(dn, nodes + patch.second->shift, VectorDim::Zero(), 1.0)));
-//                    std::shared_ptr<DislocationNodeType> nodeTemp(getDislocationNode(dn, iter->second->shift, getSharedNode(nodes)));
-//
-//                    tempRVENodes.push_back(nodeTemp);
-//                }
-//                tempRVENodesContainer.push_back(tempRVENodes);
-//                tempperiodicNodes.emplace(iter->second->shift, tempRVENodesContainer);
-//                return tempperiodicNodes;
-//            }
-//            else
-//            {
-//                for (const auto &patch : pgp->patches())
-//                {
-//                    // std::cout<<"Adding Patches \n";
-//                    std::vector<std::vector<std::shared_ptr<DislocationNodeType>>> tempRVENodesContainer;
-//                    std::vector<VectorLowerDim> patch2DPositions;
-//                    const auto &patchBoundary(patch.second->edges());
-//                    for (const auto &bndEdge : patchBoundary)
-//                    {
-//                        patch2DPositions.emplace_back(pgp->getLocalPosition(bndEdge->meshIntersection->P0 - patch.second->shift));
-//                    }
-//                    // std::ofstream ofsPatch("patchPoints.txt");
-//                    // std::cout << "Writing patch " << this->sID << "to file \n";
-//                    // std::string loopPatchFile("patch" + std::to_string(patch.second->sID) + "loop" + std::to_string(this->sID) + ".txt");
-//                    // std::ofstream ofsLoopPatch(loopPatchFile);
-//                    // for (const auto &ppoints : patch2DPositions)
-//                    // {
-//                    //windingNumbers.push_back();
-//                    // ofsPatch << std::setprecision(15) << ppoints.transpose() << "\n";
-//                    // ofsLoopPatch << std::setprecision(15) << ppoints.transpose() << "\n";
-//                    // }
-//
-//                    // ofsPatch.close();
-//                    // ofsLoopPatch.close();
-//                    //make a 2D clipper for the patch2Dpositions
-//                    LoopPathClipper lpc(outer2DNodesPositions, patch2DPositions);
-//                    lpc.makePaths();
-//                    std::vector<std::vector<VectorLowerDim>> result = lpc.getClippedPolygons();
-//                    // std::cout<<"Gotten Patches Loops \n";
-//
-//                    // std::cout<<"Clipped the loops \n";
-//                    for (const auto &tloop : result)
-//                    {
-//                        std::vector<std::shared_ptr<DislocationNodeType>> tempRVENodes;
-//                        for (const auto &n2Dpos : tloop)
-//                        {
-//                            std::shared_ptr<DislocationNodeType> nodeTemp(getDislocationNode(dn, patch.second->shift, getSharedNode(n2Dpos)));
-//                            tempRVENodes.push_back(nodeTemp);
-//                        }
-//                        tempRVENodesContainer.push_back(tempRVENodes);
-//                    }
-//                    if (tempRVENodesContainer.size() > 0)
-//                    {
-//                        tempperiodicNodes.emplace(patch.second->shift, tempRVENodesContainer);
-//                    }
-//                }
-//            }
-            
 
         }
         

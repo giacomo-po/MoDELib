@@ -49,7 +49,7 @@ namespace model
     {
         typedef GlidePlane<dim> ValueType;
         typedef GlidePlaneKey<dim> KeyType;
-        typedef std::less<std::array<long int,dim+3>> CompareType;
+        typedef std::less<KeyType> CompareType;
 
     };
     

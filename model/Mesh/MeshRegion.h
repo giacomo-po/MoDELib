@@ -101,11 +101,11 @@ namespace model
         std::map<size_t,size_t> _parallelFaces;
         
     public:
-        const int regionID;
+        const size_t regionID;
         
         /**********************************************************************/
         MeshRegion(MeshRegionObserverType& ro,
-                   const int& rID) :
+                   const size_t& rID) :
         /* init */ regionObserver(ro),
         /* init */ regionID(rID)
         {

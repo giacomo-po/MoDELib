@@ -177,20 +177,20 @@ namespace model
         }
 
         /**********************************************************************/
-        bool isInRegion(const int& rID) const
+        bool isInRegion(const size_t& rID) const
         {
-            const std::set<int> rIDs=regionIDs();
+            const std::set<size_t> rIDs=regionIDs();
             return rIDs.find(rID)!=rIDs.end();
         }
         
         /**********************************************************************/
-        std::set<int> regionIDs() const
+        std::set<size_t> regionIDs() const
         {
-            std::set<int> temp;
+            std::set<size_t> temp;
             for(const auto& parent : parents())
             {
-                const std::set<int> parentIDs(parent.second->regionIDs());
-                for(const int& regionID : parentIDs)
+                const std::set<size_t> parentIDs(parent.second->regionIDs());
+                for(const size_t& regionID : parentIDs)
                 {
                     temp.insert(regionID);
                 }

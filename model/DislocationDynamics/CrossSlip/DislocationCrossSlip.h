@@ -200,8 +200,9 @@ namespace model
 //                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
 //                                nodeIDs.push_back(newNodeID);
                                 
-                                LatticePlane loopPlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
-                                GlidePlaneKey<dim> loopPlaneKey(grainID,loopPlane);
+//                                LatticePlane loopPlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                                GlidePlaneKey<dim> loopPlaneKey(grainID,loopPlane);
+                                GlidePlaneKey<dim> loopPlaneKey(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
 
                                 
                                 

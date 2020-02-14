@@ -78,6 +78,7 @@ namespace model
             for(const auto& rIter : mesh.regions())
             {
                 model::cout<<greenBoldColor<<"Creating Grain "<<rIter.second->regionID<<defaultColor<<std::endl;
+                StaticID<Lattice<dim>>::set_count(rIter.second->regionID);
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),

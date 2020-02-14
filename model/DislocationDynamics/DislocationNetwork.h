@@ -463,8 +463,9 @@ namespace model
                 {
                     case DislocationLoopIO<dim>::GLISSILELOOP:
                     {
-                        LatticePlane loopPlane(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
-                        GlidePlaneKey<dim> loopPlaneKey(loop.grainID,loopPlane);
+//                        LatticePlane loopPlane(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+//                        GlidePlaneKey<dim> loopPlaneKey(loop.grainID,loopPlane);
+                        GlidePlaneKey<dim> loopPlaneKey(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
                         if(simulationParameters.isPeriodicSimulation())
                         {
                             const size_t newLoopID=this->insertLoop(loopNodes,loop.B,glidePlaneFactory.get(loopPlaneKey),loop.periodicShift)->sID;

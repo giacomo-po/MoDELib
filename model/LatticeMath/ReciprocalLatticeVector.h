@@ -194,6 +194,32 @@ namespace model
         }
         
         /**********************************************************************/
+        long int planeIndexOfPoint(const VectorDimD& P) const 
+        {
+            assert(this->squaredNorm()>0 && "A null ReciprocalLatticeVector cannot be used to compute planeIndexOfPoint");
+            const double hd(cartesian().dot(P));
+            const long int h(std::lround(hd));
+            if(fabs(hd-h)>FLT_EPSILON)
+            {
+                model::cout<<"P="<<P.transpose()<<std::endl;
+                model::cout<<"r="<<this->cartesian().transpose()<<std::endl;
+                model::cout<<"hd="<<std::setprecision(15)<<std::scientific<<hd<<std::endl;
+                model::cout<<"h="<<h<<std::endl;
+                assert(0 && "P in not on a lattice plane.");
+            }
+            return h;
+//            return correct_h_sign(h,r);
+        }
+        
+        /**********************************************************************/
+        long int planeIndexOfPoint(const LatticeVector<dim>& P) const
+        {
+            assert(this->squaredNorm()>0 && "A null ReciprocalLatticeVector cannot be used to compute planeIndexOfPoint");
+            return dot(P);
+        }
+
+        
+        /**********************************************************************/
         static VectorDimI d2cov(const VectorDimD& d,
                                 const LatticeType& lat)
         {

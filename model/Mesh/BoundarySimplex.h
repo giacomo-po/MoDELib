@@ -64,7 +64,7 @@ namespace model
         
         /**********************************************************************/
         static Eigen::Matrix<double,dim,1> outNormal(const Simplex<dim,dim-dmo>& simplexChild,
-                                                     const int& rID)
+                                                     const size_t& rID)
         {
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             for(const auto& parent : simplexChild.parents())
@@ -118,7 +118,7 @@ namespace model
         
         /**********************************************************************/
         static Eigen::Matrix<double,dim,1> outNormal(const Simplex<dim,dim-1>& simplexChild,
-                                                     const int& rID)
+                                                     const size_t& rID)
         {
             Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
             for(const auto& parent : simplexChild.parents())
