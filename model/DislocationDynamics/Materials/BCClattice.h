@@ -86,7 +86,8 @@ namespace model
         /**********************************************************************/
 //        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
         static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
-                                                                    const Lattice<dim>& lat)
+                                                                    const Lattice<dim>& lat,
+                                                                    const DislocatedMaterialBase& )
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip systems of the BCC lattice
           */
@@ -104,35 +105,35 @@ namespace model
             
             std::vector<std::shared_ptr<SlipSystem>> temp;
             
-            temp.emplace_back(new SlipSystem(a3,a1, a3,bccMobility)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1,a3*(-1),bccMobility)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1, a1,bccMobility)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1,a1*(-1),bccMobility)); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1, a3,bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1,a3*(-1),bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1, a1,bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a3,a1,a1*(-1),bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
             
-            temp.emplace_back(new SlipSystem( y,a2, y,bccMobility)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2,y*(-1),bccMobility)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2, a2,bccMobility)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2,a2*(-1),bccMobility)); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2, y,bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2,y*(-1),bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2, a2,bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a2,a2*(-1),bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
             
-            temp.emplace_back(new SlipSystem(a2,a3, a2,bccMobility)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3,a2*(-1),bccMobility)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3, a3,bccMobility)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3,a3*(-1),bccMobility)); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3, a2,bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3,a2*(-1),bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3, a3,bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new SlipSystem(a2,a3,a3*(-1),bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
             
-            temp.emplace_back(new SlipSystem( y,a1, y,bccMobility)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1,y*(-1),bccMobility)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1, a1,bccMobility)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1,a1*(-1),bccMobility)); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1, y,bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1,y*(-1),bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1, a1,bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new SlipSystem( y,a1,a1*(-1),bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
             
-            temp.emplace_back(new SlipSystem(a1,a2, a1,bccMobility)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),bccMobility)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2, a2,bccMobility)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),bccMobility)); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2, a1,bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2, a2,bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
             
-            temp.emplace_back(new SlipSystem( y,a3, y,bccMobility)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3,y*(-1),bccMobility)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3, a3,bccMobility)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3,a3*(-1),bccMobility)); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3, y,bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3,y*(-1),bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3, a3,bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new SlipSystem( y,a3,a3*(-1),bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
             
             return temp;
         }

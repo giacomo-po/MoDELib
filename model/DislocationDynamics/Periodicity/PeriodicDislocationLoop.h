@@ -759,7 +759,8 @@ namespace model
                            const std::vector<VectorLowerDim>& points,
                            const VectorDim& Burgers,
                            const std::shared_ptr<GlidePlaneType>& glidePlane,
-                           const VectorDim& shift)
+                           const VectorDim& shift,
+                           std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<typename DislocationNetworkType::NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>>& rveNodesMap)
         {
             
             std::vector<std::shared_ptr<typename DislocationNetworkType::NodeType>> nodes;
@@ -771,7 +772,13 @@ namespace model
                 {// 2D node found, grab corresponding RVE node
                     iter->second.second->confinedObject().clear();
                     iter->second.second->meshFaces().clear();
-                    static_cast<typename DislocationNetworkType::NodeType::SplineNodeType* const>(iter->second.second.get())->set_P(periodicGlidePlane->getGlobalPosition(point)+shift);
+                    const VectorDim globalP(periodicGlidePlane->getGlobalPosition(point)+shift);
+                    const auto rveIter(rveNodesMap.find(globalP));
+                    if(rveIter!=rveNodesMap.end())
+                    {
+                        assert(rveIter->second.get()==iter->second.second.get() && "rveNodes at same position");
+                    }
+                    static_cast<typename DislocationNetworkType::NodeType::SplineNodeType* const>(iter->second.second.get())->set_P(globalP);
                     iter->second.second->confinedObject().updateGeometry(iter->second.second->get_P());
                     
                     iter->second.second->p_Simplex=iter->second.second->get_includingSimplex(iter->second.second->get_P(),iter->second.second->p_Simplex); // update including simplex
@@ -780,8 +787,20 @@ namespace model
                     nodes.push_back(iter->second.second);
                 }
                 else
-                {
-                    nodes.emplace_back(new typename DislocationNetworkType::NodeType(&DN,periodicGlidePlane->getGlobalPosition(point)+shift,VectorDim::Zero(),1.0));
+                {// no 2d node found, check if rve node exists
+                    const VectorDim globalP(periodicGlidePlane->getGlobalPosition(point)+shift);
+                    const auto rveIter(rveNodesMap.find(globalP));
+                    if(rveIter!=rveNodesMap.end())
+                    {
+                        nodes.emplace_back(rveIter->second);
+                    }
+                    else
+                    {
+                        std::shared_ptr<typename DislocationNetworkType::NodeType> newNode(new typename DislocationNetworkType::NodeType(&DN,globalP,VectorDim::Zero(),1.0));
+                        rveNodesMap.emplace(globalP,newNode);
+                        nodes.push_back(newNode);
+                    }
+
                 }
             }
             model::cout<<"        Reinserting loop with "<<points.size()<<" points ("<<nodes.size()<<" nodes)"<<std::flush;
@@ -815,7 +834,9 @@ namespace model
         }
         
         /**********************************************************************/
-        void updateRVEloops(DislocationNetworkType& DN,const double & dt_in)
+        void updateRVEloops(DislocationNetworkType& DN,
+                            const double & dt_in,
+                            std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<typename DislocationNetworkType::NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>>& rveNodesMap)
         {
             
             periodicGlidePlane->patches().clear();
@@ -867,8 +888,8 @@ namespace model
                 std::vector<VectorLowerDim> pgpPoints2D;
                 for (const auto& node : pair.first)
                 {
-                    if(node->loopConnectivities().size()==1)
-                    {
+                    if(node->loopConnectivities().size()==1) // THERE IS A BUG HERE. IF MULTIPLE LOOPS IN SAME PATCH WE CAN HAVE loopConnectivities>1 and node NOT ON PATCH BOUNDARIES
+                    {// DO INSTEAD: collect all loops shifts of that node, and go in if statement if there is ony one
                         pgpPoints3D.emplace_back(periodicGlidePlane->getGlobalPosition(node->P));
                         pgpPoints2D.emplace_back(node->P);
                     }
@@ -876,22 +897,46 @@ namespace model
 
                 periodicGlidePlane->addPatchesContainingPolygon(pgpPoints3D);
                 
-                for(const auto& patchPair : periodicGlidePlane->patches())
+//                for(const auto& patchPair : periodicGlidePlane->patches())
+//                {
+//                    // CLIPPING
+//                    std::vector<VectorLowerDim> patch2DPositions;
+//                    for(const auto& patchLink : patchPair.second->edges())
+//                    {
+//                        patch2DPositions.push_back(*patchLink->source);
+//                    }
+//
+//                    LoopPathClipper lpc(pgpPoints2D, patch2DPositions);
+//                    lpc.makePaths();
+//                    std::vector<std::vector<VectorLowerDim>> result = lpc.getClippedPolygons();
+//
+//                    for(const auto& points :  lpc.getClippedPolygons())
+//                    {
+//                        reinsertVector.emplace_back(points,pair.second,patchPair.second->glidePlane,patchPair.second->shift);
+//                    }
+//                }
+                if (periodicGlidePlane->patches().size() == 1)
+                {// only one patch, there cannot be patch intersections. Just return the outer2DNodes
+                    const auto &iter(periodicGlidePlane->patches().begin());
+                    reinsertVector.emplace_back(pgpPoints2D, pair.second, iter->second->glidePlane, iter->second->shift);
+                }
+                else
                 {
-                    // CLIPPING
-                    std::vector<VectorLowerDim> patch2DPositions;
-                    for(const auto& patchLink : patchPair.second->edges())
+                    for (const auto &patchPair : periodicGlidePlane->patches())
                     {
-                        patch2DPositions.push_back(*patchLink->source);
-                    }
-
-                    LoopPathClipper lpc(pgpPoints2D, patch2DPositions);
-                    lpc.makePaths();
-                    std::vector<std::vector<VectorLowerDim>> result = lpc.getClippedPolygons();
-                    
-                    for(const auto& points :  lpc.getClippedPolygons())
-                    {
-                        reinsertVector.emplace_back(points,pair.second,patchPair.second->glidePlane,patchPair.second->shift);
+                        // CLIPPING
+                        std::vector<VectorLowerDim> patch2DPositions;
+                        for (const auto &patchLink : patchPair.second->edges())
+                        {
+                            patch2DPositions.push_back(*patchLink->source);
+                        }
+                        
+                        LoopPathClipper lpc(pgpPoints2D, patch2DPositions);
+                        lpc.makePaths();
+                        for (const auto &points : lpc.getClippedPolygons())
+                        {
+                            reinsertVector.emplace_back(points, pair.second, patchPair.second->glidePlane, patchPair.second->shift);
+                        }
                     }
                 }
             }
@@ -911,7 +956,7 @@ namespace model
             model::cout<<"        Reinserting " <<reinsertVector.size()<<" loops."<<std::flush;
             for(const auto tup : reinsertVector)
             {// Re-insert in RVE
-                insertRVEloop(DN,nodeMap,std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+                insertRVEloop(DN,nodeMap,std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup),rveNodesMap);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t3)).count()<<" sec]."<<defaultColor<<std::endl;
 

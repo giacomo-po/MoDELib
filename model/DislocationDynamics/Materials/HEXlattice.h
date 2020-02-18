@@ -91,7 +91,8 @@ namespace model
         /**********************************************************************/
 //        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
         static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
-                                                                    const Lattice<dim>& lat)
+                                                                    const Lattice<dim>& lat,
+                                                                    const DislocatedMaterialBase& )
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip systems of the FCC lattice
           */
@@ -114,32 +115,32 @@ namespace model
             std::vector<std::shared_ptr<SlipSystem>> temp;
             
             // <a> type slip
-            temp.emplace_back(new SlipSystem(a1,a2,a1,basalMobility));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),basalMobility));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a2,basalMobility));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),basalMobility));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a3,basalMobility));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a3*(-1),basalMobility));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a1,basalMobility,nullptr));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),basalMobility,nullptr));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a2,basalMobility,nullptr));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),basalMobility,nullptr));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a3,basalMobility,nullptr));           // basal plane
+            temp.emplace_back(new SlipSystem(a1,a2,a3*(-1),basalMobility,nullptr));           // basal plane
             
-            temp.emplace_back(new SlipSystem(a1,c,a1,prismaticMobility));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a1,c,a1*(-1),prismaticMobility));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a2,c,a2,prismaticMobility));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a2,c,a2*(-1),prismaticMobility));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a3,c,a3,prismaticMobility));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a3,c,a3*(-1),prismaticMobility));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a1,c,a1,prismaticMobility,nullptr));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a1,c,a1*(-1),prismaticMobility,nullptr));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a2,c,a2,prismaticMobility,nullptr));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a2,c,a2*(-1),prismaticMobility,nullptr));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a3,c,a3,prismaticMobility,nullptr));           // prismatic plane
+            temp.emplace_back(new SlipSystem(a3,c,a3*(-1),prismaticMobility,nullptr));           // prismatic plane
             
-            temp.emplace_back(new SlipSystem(a1,a2+c,a1,pyramidalMobility));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1,a2+c,a1*(-1),pyramidalMobility));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2,a3+c,a2,pyramidalMobility));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2,a3+c,a2*(-1),pyramidalMobility));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3,c-a1,a3,pyramidalMobility));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3,c-a1,a3*(-1),pyramidalMobility));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1,pyramidalMobility));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1*(-1),pyramidalMobility));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2,pyramidalMobility));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2*(-1),pyramidalMobility));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3,pyramidalMobility));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3*(-1),pyramidalMobility));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1,a2+c,a1,pyramidalMobility,nullptr));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1,a2+c,a1*(-1),pyramidalMobility,nullptr));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2,a3+c,a2,pyramidalMobility,nullptr));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2,a3+c,a2*(-1),pyramidalMobility,nullptr));         // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3,c-a1,a3,pyramidalMobility,nullptr));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3,c-a1,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1,pyramidalMobility,nullptr));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1*(-1),pyramidalMobility,nullptr));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2,pyramidalMobility,nullptr));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2*(-1),pyramidalMobility,nullptr));       // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3,pyramidalMobility,nullptr));        // pyramidal plane
+            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
             
             // <a+c> type slip
             // TO BE COMPLETED

@@ -1022,13 +1022,14 @@ namespace model
 //                    nodeIter.second->meshFaces().clear();
 //                }
                 
+                std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>> rveNodesMap;
                 for(const auto& pair : *periodicDislocationLoopFactory)
                 {// output periodic glide planes too
                     
                     if(!pair.second.expired())
                     {
                         const auto periodicLoop(pair.second.lock());
-                        periodicLoop->updateRVEloops(*this,dt_in);
+                        periodicLoop->updateRVEloops(*this,dt_in,rveNodesMap);
                     }
                 }
                 

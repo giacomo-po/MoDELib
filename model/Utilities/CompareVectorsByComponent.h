@@ -22,7 +22,7 @@ namespace model
     {
         bool operator() (const Eigen::Matrix<T,N,1>& lhs, const Eigen::Matrix<T,N,1>& rhs) const
         {
-            return ( fabs(lhs(0)-rhs(0))<=NumericPrecision<PrecisionType>::epsilon )? CompareVectorsByComponent<T,N-1,PrecisionType>()(lhs.template segment<N-1>(1),rhs.template segment<N-1>(1)) : (lhs(0)<rhs(0));
+            return ( fabs(PrecisionType(lhs(0)-rhs(0)))<=NumericPrecision<PrecisionType>::epsilon )? CompareVectorsByComponent<T,N-1,PrecisionType>()(lhs.template segment<N-1>(1),rhs.template segment<N-1>(1)) : (lhs(0)<rhs(0));
         }
     };
     
@@ -31,7 +31,7 @@ namespace model
     {
         bool operator() (const Eigen::Matrix<T,1,1>& lhs, const Eigen::Matrix<T,1,1>& rhs) const
         {
-            return ( fabs(lhs(0)-rhs(0))<=NumericPrecision<PrecisionType>::epsilon )? false : (lhs(0)<rhs(0));
+            return ( fabs(PrecisionType(lhs(0)-rhs(0)))<=NumericPrecision<PrecisionType>::epsilon )? false : (lhs(0)<rhs(0));
         }
     };
 

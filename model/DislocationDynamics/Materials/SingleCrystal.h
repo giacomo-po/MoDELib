@@ -92,16 +92,16 @@ namespace model
         {
             if(material.crystalStructure=="BCC")
             {
-                return BCClattice<dim>::slipSystems(material,lat);
+                return BCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
             }
             else if(material.crystalStructure=="FCC")
             {
                 FCClattice<dim>::enablePartials=TextFileParser(material.materialFile).readScalar<int>("enablePartials",true);
-                return FCClattice<dim>::slipSystems(material,lat);
+                return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
             }
             else if(material.crystalStructure=="HEX")
             {
-                return HEXlattice<dim>::slipSystems(material,lat);
+                return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
             }
             else
             {

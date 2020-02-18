@@ -14,6 +14,10 @@ B1e_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for edge  dis
 B0s_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for screw dislocations	
 B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations	
 
+# Gamma-surface
+ISF_SI=158e-3; # [J/m^2]	intrinsic stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
+USF_SI=225e-3; # [J/m^2]	 unstable stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
+
 # Vacancy diffusion
 Ufv_eV=0.67;	# [eV]	Vacancy formation energy
 DVv=-0.405;	# [-]	Relative vacancy relaxation volume

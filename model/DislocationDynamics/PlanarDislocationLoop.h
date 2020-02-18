@@ -173,7 +173,7 @@ namespace model
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
         /*      init */,periodicShift(VectorDim::Zero())
-        /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicLoop(getPeriodicLoop())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
