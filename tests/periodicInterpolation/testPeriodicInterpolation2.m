@@ -5,22 +5,47 @@ clc
 system('rm input.txt');
 
 %% Data points for gamma surface
-A=[1 0.5;  
-  0 sqrt(3)/2];
+A=[2 1;
+    0 sqrt(3)];
 
-N=[2 2];
+N=[3 3];
 
-f=[0 0 0
-  0.5 sqrt(3)/6 42;    % ISF
-  0.25 sqrt(3)/4 182; % USF
-  0.5 0 182; % USF
-  ]; 
+APB=175;
+SISF=10;
+CESF=270;
+CSF=230;
 
-df=[0.5 sqrt(3)/6  1 0 0; % ISF
-    0.5 sqrt(3)/6 0 1 0; % ISF
-    0.25 sqrt(3)/4 0.25 sqrt(3)/4 0;
-    0.5 0 0.5 0 0;
+f=[0 0 0;
+    1 sqrt(3)/3 SISF;
+    1 0 APB;
+    0.5 sqrt(3)/2 APB;
+    1.5 sqrt(3)/2 APB;
+    0.5 sqrt(3)/6 CESF;
+    1 sqrt(3)*2/3 CESF;
+    1.5 sqrt(3)/6 CESF;
     ];
+
+df=[1 sqrt(3)/3 1 0 0; % SISF
+    1 sqrt(3)/3 0 1 0; % SISF
+    1 0 1 0 0; % APB
+    0.5 sqrt(3)/2  0.5 sqrt(3)/2 0; % APB
+    0.5 sqrt(3)/6 1 0 0;
+    0.5 sqrt(3)/6 0 1 0;
+    1 sqrt(3)*2/3 1 0 0;
+    1 sqrt(3)*2/3 0 1 0;
+    1.5 sqrt(3)/6 1 0 0;
+    1.5 sqrt(3)/6 0 1 0;
+    ];
+
+
+
+%% Write input file
+fid=fopen('input.txt','w')
+printMatrixToFile(fid,A,'A');
+printMatrixToFile(fid,N,'N');
+printMatrixToFile(fid,f,'f');
+printMatrixToFile(fid,df,'df');
+fclose(fid)
 
 %% Write input file
 fid=fopen('input.txt','w')
@@ -36,15 +61,16 @@ system('./test')
 %% Load data and plot
 data=load('output.txt')
 
-[X,Y] = meshgrid([0:0.01:1],[0:0.01:sqrt(3)]);
+[X,Y] = meshgrid([0:0.01:2],[0:0.01:sqrt(3)*2]);
 
 f=zeros(size(X));
 for i=1:size(data,1)
-k=data(i,[1 2]);
-S=data(i,3);
-C=data(i,4);
+    k=data(i,[1 2]);
+    S=data(i,3);
+    C=data(i,4);
     f=f+S*sin(k(1)*X+k(2)*Y)+C*cos(k(1)*X+k(2)*Y);
 end
+
 
 fMax=max(max(f));
 
@@ -66,7 +92,7 @@ fprintf(fid,[label '=']);
 
 format='';
 for(c=1:size(M,2))
-format=[format '%1.15e '];
+    format=[format '%1.15e '];
 end
 
 for(k=1:size(M,1))

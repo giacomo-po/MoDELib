@@ -33,7 +33,6 @@ namespace model
             Eigen::Matrix<double,Eigen::Dynamic,dim> temp(rows,dim);
             for(size_t k=0;k<N(0);++k)
             {
-//                temp.block(k*lowerBlock.rows(),0,lowerBlock.rows(),1)=MatrixXd::Constant(owerBlock.rows(), 1, k/D(0));
                 temp.block(k*lowerBlock.rows(),0,lowerBlock.rows(),dim)<<Eigen::MatrixXd::Constant(lowerBlock.rows(), 1, k/D(0)),lowerBlock;
             }
             return temp;
@@ -79,62 +78,8 @@ namespace model
         const VectorDimI N; // numerators of k-point indices
         const VectorDim D;   // denumerators of k-point indices
         
-        
-    public:
-        
-        const Eigen::Matrix<double,Eigen::Dynamic,dim> waveVectors;
-        Eigen::Matrix<double,Eigen::Dynamic,2> sinCosCoeffs;
-
-        
-        PeriodicLatticeInterpolant(const MatrixDim& A_in,
-                                   const VectorDimI& nums_in,
-                                   const VectorDimI& dens_in) :
-        /* init */ A(A_in)
-        /* init */,B(2.0*M_PI*A.inverse().transpose())
-        /* init */,N(nums_in)
-        /* init */,D(dens_in.template cast<double>())
-        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
-        {/*!\param[in] A_in the lattice matrix with lattice basis in column
-          * \param[in] dens_in the size of the supercell along each lattice basis
-          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
-          */
-            
-//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-            
-            
-            
-        }
-        
-        PeriodicLatticeInterpolant(const MatrixDim& A_in,
-                                   const VectorDimI& nums_in,
-                                   const VectorDimI& dens_in,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
-        /* init */ A(A_in)
-        /* init */,B(2.0*M_PI*A.inverse().transpose())
-        /* init */,N(nums_in)
-        /* init */,D(dens_in.template cast<double>())
-        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
-        /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose())
-        {/*!\param[in] A_in the lattice matrix with lattice basis in column
-          * \param[in] dens_in the size of the supercell along each lattice basis
-          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
-          */
-            
-//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
-
-        }
-
-        void setConditions(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
-                           const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df)
-        {
-            sinCosCoeffs=getSinCosCoeffs(f,df).transpose();
-//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
-        }
-        
         Eigen::MatrixXd getSinCosCoeffs(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
-                           const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) const
+                                        const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) const
         {/*!\param[in] f Matrix of function values in each row.
           * Each row has dim+1 entries with format
           * x1,x2,... f(x1,x2,...)
@@ -179,6 +124,73 @@ namespace model
             x1<<0.0,x;
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);
         }
+        
+    public:
+        
+        const Eigen::Matrix<double,Eigen::Dynamic,dim> waveVectors;
+        const Eigen::Matrix<double,Eigen::Dynamic,2> sinCosCoeffs;
+
+        
+//        PeriodicLatticeInterpolant(const MatrixDim& A_in,
+//                                   const VectorDimI& nums_in,
+//                                   const VectorDimI& dens_in) :
+//        /* init */ A(A_in)
+//        /* init */,B(2.0*M_PI*A.inverse().transpose())
+//        /* init */,N(nums_in)
+//        /* init */,D(dens_in.template cast<double>())
+//        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
+//        {/*!\param[in] A_in the lattice matrix with lattice basis in column
+//          * \param[in] dens_in the size of the supercell along each lattice basis
+//          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
+//          */
+//
+////            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
+//
+//
+//
+//        }
+        
+        PeriodicLatticeInterpolant(const MatrixDim& A_in,
+                                   const VectorDimI& nums_in,
+                                   const VectorDimI& dens_in,
+                                   const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
+                                   const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
+        /* init */ A(A_in)
+        /* init */,B(2.0*M_PI*A.inverse().transpose())
+        /* init */,N(nums_in)
+        /* init */,D(dens_in.template cast<double>())
+        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
+        /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose())
+        {/*!\param[in] A_in the lattice matrix with lattice basis in column
+          * \param[in] dens_in the size of the supercell along each lattice basis
+          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
+          */
+            
+//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
+//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
+
+        }
+        
+        
+        double operator()(const VectorDim& x)
+        {
+            double temp(0);
+            for(int r=0;r<waveVectors.rows();++r)
+            {
+                const double KdotX(waveVectors.row(r).dot(x));
+                temp+=sinCosCoeffs(r,0)*sin(KdotX)+sinCosCoeffs(r,1)*cos(KdotX);
+            }
+            return temp;
+        }
+
+//        void setConditions(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
+//                           const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df)
+//        {
+//            sinCosCoeffs=getSinCosCoeffs(f,df).transpose();
+////            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
+//        }
+        
+
         
     };
     

@@ -16,6 +16,7 @@
 #include <LatticeVector.h>
 #include <RationalLatticeDirection.h>
 #include <DislocationMobilityBase.h>
+#include <PeriodicLatticeInterpolant.h>
 
 namespace model
 {
@@ -29,7 +30,7 @@ namespace model
         const RationalLatticeDirection<3>  s;
         const Eigen::Matrix<double,3,1>  unitNormal;
         const std::shared_ptr<DislocationMobilityBase> mobility;
-        
+        const std::shared_ptr<PeriodicLatticeInterpolant<2>> gammaSurface;
         
 //        SlipSystem(const LatticeVector<3>& a1,
 //                   const LatticeVector<3>& a2,
@@ -62,11 +63,13 @@ namespace model
         SlipSystem(const LatticeVector<3>& a1,
                    const LatticeVector<3>& a2,
                    const LatticeVector<3>& slip_in,
-                   const std::shared_ptr<DislocationMobilityBase>& mobility_in):
+                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+                   const std::shared_ptr<PeriodicLatticeInterpolant<2>>& gammaSurface_in):
         /* init */ n(a1,a2)
         /* init */,s(slip_in)
         /* init */,unitNormal(n.cartesian().normalized())
         /* init */,mobility(mobility_in)
+        /* init */,gammaSurface(gammaSurface_in)
         {
             
             model::cout<<greenColor<<"Creating SlipSystem "<<this->sID<<defaultColor<<std::endl;
@@ -90,11 +93,13 @@ namespace model
         SlipSystem(const LatticeVector<3>& a1,
                    const LatticeVector<3>& a2,
                    const RationalLatticeDirection<3>& slip_in,
-                   const std::shared_ptr<DislocationMobilityBase>& mobility_in):
+                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+                   const std::shared_ptr<PeriodicLatticeInterpolant<2>>& gammaSurface_in):
         /* init */ n(a1,a2)
         /* init */,s(slip_in)
         /* init */,unitNormal(n.cartesian().normalized())
         /* init */,mobility(mobility_in)
+        /* init */,gammaSurface(gammaSurface_in)
         {
             
             model::cout<<greenColor<<"Creating partial SlipSystem "<<this->sID<<defaultColor<<std::endl;

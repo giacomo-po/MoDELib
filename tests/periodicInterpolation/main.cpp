@@ -31,6 +31,20 @@ int main(int argc, char * argv[])
     const Eigen::Matrix<double,Eigen::Dynamic,5> df(TextFileParser("input.txt").readMatrixCols<double>("df",5,true));
 
     
+    PeriodicLatticeInterpolant<2> pli(A,N.template cast<size_t>(),D.template cast<size_t>(),f,df);
+
+    std::ofstream ofs("output.txt");
+    for(int k=0;k<pli.waveVectors.rows();++k)
+    {
+        ofs<<std::setprecision(15)<<std::scientific<<pli.waveVectors.row(k)<<" "<<pli.sinCosCoeffs.row(k)<<"\n";
+    }
+
+    return 0;
+}
+
+
+
+//
 //    const Eigen::Matrix<double,2,2> B(2.0*M_PI*A.inverse().transpose());
 //
 //    std::vector<Eigen::Matrix<double,2,1>> kPoints;
@@ -88,17 +102,10 @@ int main(int argc, char * argv[])
 //    Eigen::MatrixXd x1(x.rows()+1,1);
 //    x1<<0.0,x;
 //    std::cout<<x<<std::endl;
-    
-    PeriodicLatticeInterpolant<2> pli(A,N.template cast<size_t>(),D.template cast<size_t>(),f,df);
+//
+//        std::ofstream ofs("output.txt");
+//        for(size_t k=0;k<kPoints.size();++k)
+//        {
+//            ofs<<std::setprecision(15)<<std::scientific<<x1(2*k)<<" "<<x1(2*k+1)<<" "<<kPoints[k].transpose()<<"\n";
+//        }
 
-
-    std::ofstream ofs("output.txt");
-    for(int k=0;k<pli.waveVectors.rows();++k)
-    {
-        ofs<<std::setprecision(15)<<std::scientific<<pli.waveVectors.row(k)<<" "<<pli.sinCosCoeffs.row(k)<<"\n";
-    }
-
-//    PeriodicLatticeInterpolant<2> pli(A,N.template cast<size_t>(),D.template cast<size_t>(),f,df);
-//    pli.setConditions(f,df);
-    return 0;
-}

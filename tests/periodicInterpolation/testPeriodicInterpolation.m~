@@ -2,20 +2,26 @@ clear all
 close all
 clc
 
+system('rm input.txt');
+
 %% Data points for gamma surface
 A=[1 0.5;  
-  0 8.660254037844386e-01];
+  0 sqrt(3)/2];
 
 N=[2 2];
 
 f=[0 0 0
-  0.5 2.886751345948129e-01 42;
-  0.25 1.443375672974064e-01 182];
+  0.5 sqrt(3)/6 42;    % ISF
+  0.25 sqrt(3)/4 182;
+  0.5 0 182]; % USF
 
 df=[0.5 2.886751345948129e-01  1 0 0;
     0.5 2.886751345948129e-01 0 1 0;
-    0.25 1.443375672974064e-01 1 0 0;
-    0.25 1.443375672974064e-01 0 1 0];
+    0.25 1.443375672974064e-01 0.25 1.443375672974064e-01 0;
+%    0.25 1.443375672974064e-01 0 1 0;
+    0.5 0 1 0 0;
+%    0.5 0 0 1 0;
+    ];
 
 %% Write input file
 fid=fopen('input.txt','w')
@@ -25,9 +31,10 @@ printMatrixToFile(fid,f,'f');
 printMatrixToFile(fid,df,'df');
 fclose(fid)
 
-%% Write input file
+%% run code
 system('./test')
 
+%% Load data and plot
 data=load('output.txt')
 
 [X,Y] = meshgrid([0:0.01:1],[0:0.01:sqrt(3)]);
@@ -40,13 +47,18 @@ C=data(i,4);
     f=f+S*sin(k(1)*X+k(2)*Y)+C*cos(k(1)*X+k(2)*Y);
 end
 
+fMax=max(max(f));
+
 figure
 clf
 hold on
 surf(X,Y,f)
+plot3([0 A(1,1)],[0 A(2,1)],[fMax fMax]+1,'m','Linewidth',2)
+plot3([0 A(1,2)],[0 A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
 grid on
 xlabel('x')
 ylabel('y')
+%axis equal
 
 function printMatrixToFile(fid,M,label)
 fprintf(fid,[label '=']);
