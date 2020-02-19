@@ -172,6 +172,12 @@ namespace model
                       double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
                                                                               parentSegment.network().poly.T,
                                                                               dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
+
+                    if(v<0.0 && v>=-FLT_EPSILON)
+                    {
+                        v=0.0; // kill roundoff errors for small negative velocities
+                    }
+                    
                     assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
                     const bool useNonLinearVelocity=true;
                     if(useNonLinearVelocity && v>FLT_EPSILON)
