@@ -61,8 +61,8 @@ system('./test')
 %% Load data and plot
 data=load('output.txt')
 
-[X,Y] = meshgrid([0:0.01:2],[0:0.01:sqrt(3)*2]);
-
+np=200;
+[X,Y] = meshgrid([0:2/(np-1):2],[0:sqrt(3)*2/(np-1):sqrt(3)*2]);
 f=zeros(size(X));
 for i=1:size(data,1)
     k=data(i,[1 2]);
@@ -70,36 +70,36 @@ for i=1:size(data,1)
     C=data(i,4);
     f=f+S*sin(k(1)*X+k(2)*Y)+C*cos(k(1)*X+k(2)*Y);
 end
-
-
 fMax=max(max(f));
 
 figure
 clf
 hold on
-surf(X,Y,f)
+surf(X,Y,f,'edgecolor','none')
 plot3([0 A(1,1)],[0 A(2,1)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([0 A(1,2)],[0 A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
 grid on
 xlabel('x')
 ylabel('y')
-%axis equal
+h = get(gca,'DataAspectRatio') 
+if h(3)==1
+      set(gca,'DataAspectRatio',[1 1 1/max(h(1:2))])
+else
+      set(gca,'DataAspectRatio',[1 1 h(3)])
+end
 colormap jet
 colorbar
 
-function printMatrixToFile(fid,M,label)
-fprintf(fid,[label '=']);
+f1=functionCut(data,[1 0],2,np);
+f2=functionCut(data,[1 sqrt(3)/3],2*sqrt(3),np);
+figure(2)
+hold on
+plot([0:(np-1)]/np,f1,'Linewidth',2)
+plot([0:(np-1)]/np,f2,'Linewidth',2)
+axis([0 1 0 max(max(f1),max(f2))])
+grid on
+xlabel('reaction coordinate')
+ylabel('\gamma-surface [mJ/m^2]')
+set(gca,'Fontsize',16)
 
-format='';
-for(c=1:size(M,2))
-    format=[format '%1.15e '];
-end
 
-for(k=1:size(M,1))
-    if k<size(M,1)
-        fprintf(fid,[format '\n'],M(k,:));
-    else
-        fprintf(fid,[format ';\n'],M(k,:));
-    end
-end
-end
