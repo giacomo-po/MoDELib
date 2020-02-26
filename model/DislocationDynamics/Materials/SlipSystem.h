@@ -222,6 +222,11 @@ namespace model
             }
         }
         
+        double misfitEnergy(const Eigen::Matrix<double,3,1>& b)
+        {
+            return gammaSurface? gammaSurface->operator()(b) : 0.0;
+        }
+        
     };
 
 }
