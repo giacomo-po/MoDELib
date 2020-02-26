@@ -90,7 +90,8 @@ namespace model
         static bool showGrainColors;
         static bool showRegionBoundaries;
         static bool showFaceBoundaries;
-        
+        static bool showMesh;
+
         /**************************************************************************/
         SimplicialMeshActor() :
         /* init */ pts(vtkSmartPointer<vtkPoints>::New()),
@@ -472,6 +473,16 @@ namespace model
 
             }
             
+            if(showMesh)
+            {
+                actor->VisibilityOn();
+            }
+            else
+            {
+                actor->VisibilityOff();
+                
+            }
+            
         }
         
     };
@@ -480,6 +491,7 @@ namespace model
     bool SimplicialMeshActor::showGrainColors=false;
     bool SimplicialMeshActor::showRegionBoundaries=true;
     bool SimplicialMeshActor::showFaceBoundaries=true;
+    bool SimplicialMeshActor::showMesh=true;
 
 } // namespace model
 #endif
