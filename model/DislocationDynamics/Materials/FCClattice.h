@@ -98,9 +98,9 @@ namespace model
             
             return temp;
         }
-
+        
         /**********************************************************************/
-//        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
+        //        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
         static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
                                                                     const Lattice<dim>& lat,
                                                                     const DislocatedMaterialBase& material)
@@ -115,7 +115,7 @@ namespace model
             LatticeVectorType a2(VectorDimI(0,1,0),lat);
             LatticeVectorType a3(VectorDimI(0,0,1),lat);
             
-//            std::shared_ptr<DislocationMobilityBase> fccMobility(new DislocationMobilityFCC(materialBase));
+            //            std::shared_ptr<DislocationMobilityBase> fccMobility(new DislocationMobilityFCC(materialBase));
             const std::shared_ptr<DislocationMobilityBase>& fccMobility(mobilities.at("fcc"));
             
             std::vector<std::shared_ptr<SlipSystem>> temp;
@@ -127,31 +127,56 @@ namespace model
                     
                     const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
                     const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
-
-                    const Eigen::Matrix<double,2,2> A((Eigen::Matrix<double,2,2>()<<1.0,0.5,
-                                                                                   0.0,sqrt(3.0)/2).finished());
+                    
+                    //                    const Eigen::Matrix<double,2,2> A((Eigen::Matrix<double,2,2>()<<1.0,0.5,
+                    //                                                                                   0.0,sqrt(3.0)/2).finished());
                     
                     const Eigen::Matrix<double,2,1> N((Eigen::Matrix<double,2,1>()<<2,2).finished()); // Number of wave vectors =N(0)xN(1)x2
-                    const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones()); 
-                    const Eigen::Matrix<double,Eigen::Dynamic,3> f((Eigen::Matrix<double,Eigen::Dynamic,3>()<<0.00,0.0, 0.0, // value at origin
-                                                                    /*                                     */ 0.50,sqrt(3.0)/6.0,ISF,
-                                                                    /*                                     */ 0.25,sqrt(3.0)/4.0,USF,
-                                                                    /*                                     */ 0.50,0.0          ,USF).finished());
-                    const Eigen::Matrix<double,Eigen::Dynamic,5> df((Eigen::Matrix<double,Eigen::Dynamic,5>()<<0.50,sqrt(3.0)/6.0,1.0,0.0,0.0, //  grad at ISF
-                                                                     /*                                     */ 0.50,sqrt(3.0)/6.0,0.0,1.0,0.0, //  grad at ISF
-                                                                     /*                                     */ 0.25,sqrt(3.0)/4.0,0.25,sqrt(3.0)/4.0,0.0, // directoinal derivative at USF
-                                                                     /*                                     */ 0.50,0.0          ,0.5,0.0,0.0).finished()); // directoinal derivative at USF
+                    const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones());
+                    const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0, // value at origin
+                                                       /*                        */ 0.50,sqrt(3.0)/6.0,ISF,
+                                                       /*                        */ 0.25,sqrt(3.0)/4.0,USF,
+                                                       /*                        */ 0.50,0.0          ,USF).finished());
+                    const Eigen::Matrix<double,4,5> df((Eigen::Matrix<double,4,5>()<<0.50,sqrt(3.0)/6.0,1.0,0.0,0.0, //  grad at ISF
+                                                        /*                        */ 0.50,sqrt(3.0)/6.0,0.0,1.0,0.0, //  grad at ISF
+                                                        /*                        */ 0.25,sqrt(3.0)/4.0,0.25,sqrt(3.0)/4.0,0.0, // directoinal derivative at USF
+                                                        /*                        */ 0.50,0.0          ,0.5,0.0,0.0).finished()); // directoinal derivative at USF
                     
                     
-                    std::shared_ptr<PeriodicLatticeInterpolant<2>> gammaSurface(new PeriodicLatticeInterpolant<2>(A,N.template cast<size_t>(),D.template cast<size_t>(),f,df));
+                    std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a3),N.template cast<size_t>(),D.template cast<size_t>(),f,df));
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(-1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
                     
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(+1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(-1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface));               // is (-1, 1,-1) in cartesian
-
+                    std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a3,a2),N.template cast<size_t>(),D.template cast<size_t>(),f,df));
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3+a2)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3+a2)*(-1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a2)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a2)*(-1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a3)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a3)*(-1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
+                    
+                    std::shared_ptr<GammaSurface> gammaSurface2(new GammaSurface(LatticePlaneBase(a2,a1),N.template cast<size_t>(),D.template cast<size_t>(),f,df));
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2+a1)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2+a1)*(-1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1)*(-1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2)*(-1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
+                    
+                    std::shared_ptr<GammaSurface> gammaSurface3(new GammaSurface(LatticePlaneBase(a1-a3,a2-a3),N.template cast<size_t>(),D.template cast<size_t>(),f,df));
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a2-a3*2)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a2-a3*2)*(-1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2-a3)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2-a3)*(-1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1-a3)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1-a3)*(-1)),fccMobility,gammaSurface3));                 // is (-1, 1,-1) in cartesian           // is (-1, 1,-1) in cartesian
+                    
+                    
+                    
                 }
                 else
                 {
@@ -185,7 +210,7 @@ namespace model
                 }
             }
             
-
+            
             
             if(enable110planes)
             {// <110>{110}

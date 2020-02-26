@@ -21,6 +21,69 @@
 namespace model
 {
     
+    struct GammaSurface : PeriodicLatticeInterpolant<2>
+    {
+        
+        static constexpr int dim=3;
+        static constexpr int lowerDim=dim-1;
+        
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<size_t,lowerDim,1> VectorLowerDimI;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+
+        
+        typedef Eigen::Matrix<double,lowerDim,lowerDim> MatrixLowerDim;
+        
+        /**********************************************************************/
+        static MatrixDim getG2L(const VectorDim& x,
+                                      const VectorDim& z)
+        {
+            const double xNorm(x.norm());
+            const double zNorm(z.norm());
+            assert(xNorm>FLT_EPSILON);
+            assert(zNorm>FLT_EPSILON);
+            assert(fabs(x.dot(z)<FLT_EPSILON*xNorm*zNorm));
+            Eigen::Matrix3d temp(Eigen::Matrix3d::Identity());
+            temp.col(2)=z/zNorm;
+            temp.col(0)=x/xNorm;
+            temp.col(1)=temp.col(2).cross(temp.col(0));
+            return temp.transpose();
+        }
+        
+        static MatrixLowerDim getLocalBasis(const LatticePlaneBase& n)
+        {
+            const Eigen::Matrix3d R(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()));
+            MatrixLowerDim temp(MatrixLowerDim::Zero());
+            temp.col(0)=(R*n.primitiveVectors.first.cartesian()).segment<2>(0);
+            temp.col(1)=(R*n.primitiveVectors.second.cartesian()).segment<2>(0);
+            return temp;
+        }
+        
+        const Eigen::Matrix3d G2L;
+        
+        GammaSurface(const LatticePlaneBase& n,
+                                   const VectorLowerDimI& nums_in,
+                                   const VectorLowerDimI& dens_in,
+                                   const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
+                                   const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
+        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),nums_in,dens_in,f,df)
+        /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
+        {
+            
+            model::cout<<greenBoldColor<<"Creating GammaSurface on "<<n.cartesian().normalized().transpose()<<" plane"<<std::endl;
+
+            
+        }
+        
+        double operator()(const VectorDim& b)
+        {
+            const VectorDim bL(G2L*b);
+            assert(std::fabs(bL(dim-1))<FLT_EPSILON && "SLIP VECTOR NOT ON GAMMA-SURFACE PLANE");
+            return PeriodicLatticeInterpolant<2>::operator()(bL.segment<lowerDim>(0));
+        }
+        
+    };
+    
     struct SlipSystem : StaticID<SlipSystem>
     {
         
@@ -30,7 +93,7 @@ namespace model
         const RationalLatticeDirection<3>  s;
         const Eigen::Matrix<double,3,1>  unitNormal;
         const std::shared_ptr<DislocationMobilityBase> mobility;
-        const std::shared_ptr<PeriodicLatticeInterpolant<2>> gammaSurface;
+        const std::shared_ptr<GammaSurface> gammaSurface;
         
 //        SlipSystem(const LatticeVector<3>& a1,
 //                   const LatticeVector<3>& a2,
@@ -64,7 +127,7 @@ namespace model
                    const LatticeVector<3>& a2,
                    const LatticeVector<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<PeriodicLatticeInterpolant<2>>& gammaSurface_in):
+                   const std::shared_ptr<GammaSurface>& gammaSurface_in):
         /* init */ n(a1,a2)
         /* init */,s(slip_in)
         /* init */,unitNormal(n.cartesian().normalized())
@@ -94,7 +157,7 @@ namespace model
                    const LatticeVector<3>& a2,
                    const RationalLatticeDirection<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<PeriodicLatticeInterpolant<2>>& gammaSurface_in):
+                   const std::shared_ptr<GammaSurface>& gammaSurface_in):
         /* init */ n(a1,a2)
         /* init */,s(slip_in)
         /* init */,unitNormal(n.cartesian().normalized())

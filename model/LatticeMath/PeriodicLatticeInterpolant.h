@@ -65,7 +65,7 @@ namespace model
 
     
     template <int dim>
-    class PeriodicLatticeInterpolant
+    struct PeriodicLatticeInterpolant
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -125,30 +125,11 @@ namespace model
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);
         }
         
-    public:
         
         const Eigen::Matrix<double,Eigen::Dynamic,dim> waveVectors;
         const Eigen::Matrix<double,Eigen::Dynamic,2> sinCosCoeffs;
 
         
-//        PeriodicLatticeInterpolant(const MatrixDim& A_in,
-//                                   const VectorDimI& nums_in,
-//                                   const VectorDimI& dens_in) :
-//        /* init */ A(A_in)
-//        /* init */,B(2.0*M_PI*A.inverse().transpose())
-//        /* init */,N(nums_in)
-//        /* init */,D(dens_in.template cast<double>())
-//        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
-//        {/*!\param[in] A_in the lattice matrix with lattice basis in column
-//          * \param[in] dens_in the size of the supercell along each lattice basis
-//          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
-//          */
-//
-////            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-//
-//
-//
-//        }
         
         PeriodicLatticeInterpolant(const MatrixDim& A_in,
                                    const VectorDimI& nums_in,
@@ -183,15 +164,6 @@ namespace model
             return temp;
         }
 
-//        void setConditions(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
-//                           const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df)
-//        {
-//            sinCosCoeffs=getSinCosCoeffs(f,df).transpose();
-////            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
-//        }
-        
-
-        
     };
     
 } // end namespace
