@@ -36,8 +36,8 @@ system('./test')
 %% Load data and plot
 data=load('output.txt')
 
-np=200;
-[X,Y] = meshgrid([0:1/(np-1):2],[0:sqrt(3)/(np-1):sqrt(3)]);
+np=400;
+[X,Y] = meshgrid([0:1/(np-1):1],[0:sqrt(3)/(np-1):sqrt(3)]);
 
 f=zeros(size(X));
 for i=1:size(data,1)

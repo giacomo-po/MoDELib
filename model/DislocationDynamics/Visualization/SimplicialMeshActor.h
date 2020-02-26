@@ -65,6 +65,12 @@ namespace model
         vtkSmartPointer<vtkPolyData> polydata;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         vtkSmartPointer<vtkActor> actor;
+
+        vtkSmartPointer<vtkPoints> facePts;
+        vtkSmartPointer<vtkPolyData> facePolydata;
+        vtkSmartPointer<vtkPolyDataMapper> faceMapper;
+        vtkSmartPointer<vtkActor> faceActor;
+
         
         vtkSmartPointer<vtkUnsignedCharArray> gbColors;
         vtkSmartPointer<vtkPoints> gbPoints;
@@ -83,7 +89,7 @@ namespace model
         bool dispFileIsGood;
         static bool showGrainColors;
         static bool showRegionBoundaries;
-        
+        static bool showFaceBoundaries;
         
         /**************************************************************************/
         SimplicialMeshActor() :
@@ -91,6 +97,10 @@ namespace model
         /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
         /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
         /* init */ actor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ facePts(vtkSmartPointer<vtkPoints>::New()),
+        /* init */ facePolydata(vtkSmartPointer<vtkPolyData>::New()),
+        /* init */ faceMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
+        /* init */ faceActor(vtkSmartPointer<vtkActor>::New()),
         gbColors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
         gbPoints(vtkSmartPointer<vtkPoints>::New()),
         gbTriangles(vtkSmartPointer<vtkCellArray>::New()),
@@ -117,7 +127,7 @@ namespace model
             mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
             
             polydata->Allocate();
-            
+
             size_t connectivityID=0;
             for (const auto& edge : mesh.observer<1>())
             {
@@ -154,6 +164,38 @@ namespace model
             //            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
             actor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
             
+            facePolydata->Allocate();
+            size_t faceConnectivityID=0;
+            for(auto region : mesh.regions())
+            {// Sum number of external faces for final check
+                for(auto& face : region.second->faces())
+                {
+                    for(int k=0;k<face.second->convexHull().size();++k)
+                    {
+//                        const int k1(k<convexHull().size()-1? k+1 : 0);
+                        
+                        facePts->InsertNextPoint(face.second->convexHull()[k]->P0(0),
+                                                 face.second->convexHull()[k]->P0(1),
+                                                 face.second->convexHull()[k]->P0(2));
+
+                        vtkIdType connectivity[2];
+                        connectivity[0] = faceConnectivityID;
+                        connectivity[1] = k<face.second->convexHull().size()-1? faceConnectivityID+1 : faceConnectivityID+1-face.second->convexHull().size();//connectivityID+1;
+
+                        facePolydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+                        
+                        faceConnectivityID+=1;
+                    }
+                }
+            }
+            facePolydata->SetPoints(facePts);
+            faceMapper->SetInputData(facePolydata);
+            faceActor->SetMapper ( faceMapper );
+            faceActor->GetProperty()->SetLineWidth(2.0);
+            faceActor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+            faceActor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
+
+
             
             gbColors->SetNumberOfComponents(3);
             gbColors->SetName("Colors");
@@ -323,7 +365,8 @@ namespace model
             
             // Render
             renderer->AddActor(actor);
-            
+            renderer->AddActor(faceActor);
+
         }
         
         /**************************************************************************/
@@ -419,6 +462,16 @@ namespace model
             }
 //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
             
+            if(showFaceBoundaries)
+            {
+                faceActor->VisibilityOn();
+            }
+            else
+            {
+                faceActor->VisibilityOff();
+
+            }
+            
         }
         
     };
@@ -426,7 +479,8 @@ namespace model
     double SimplicialMeshActor::dispCorr=1.0;
     bool SimplicialMeshActor::showGrainColors=false;
     bool SimplicialMeshActor::showRegionBoundaries=true;
-    
+    bool SimplicialMeshActor::showFaceBoundaries=true;
+
 } // namespace model
 #endif
 

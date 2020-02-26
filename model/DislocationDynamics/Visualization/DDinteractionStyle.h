@@ -615,7 +615,8 @@ namespace model
                 std::cout<<"    +/- to increase mesh displacement"<<std::endl;
                 std::cout<<"    1 to show/hide grain colors"<<std::endl;
                 std::cout<<"    2 to show/hide region boundaries"<<std::endl;
-                
+                std::cout<<"    3 to show/hide face boundaries"<<std::endl;
+
             }
             else if(key == "q")
             {
@@ -939,6 +940,13 @@ namespace model
                 {
                     SimplicialMeshActor::showRegionBoundaries=!SimplicialMeshActor::showRegionBoundaries;
                     std::cout<<"showRegionBoundaries="<<SimplicialMeshActor::showRegionBoundaries<<std::endl;
+                    meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                if(key == "3")
+                {
+                    SimplicialMeshActor::showFaceBoundaries=!SimplicialMeshActor::showFaceBoundaries;
+                    std::cout<<"showFaceBoundaries="<<SimplicialMeshActor::showFaceBoundaries<<std::endl;
                     meshActor.modifyPts();
                     this->Interactor->Render();
                 }
