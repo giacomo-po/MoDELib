@@ -58,7 +58,8 @@ namespace model
             temp.col(1)=(R*n.primitiveVectors.second.cartesian()).segment<2>(0);
             return temp;
         }
-        
+
+        const LatticePlaneBase latticePlane;
         const Eigen::Matrix3d G2L;
         
         GammaSurface(const LatticePlaneBase& n,
@@ -67,6 +68,7 @@ namespace model
                                    const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
                                    const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
         /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),nums_in,dens_in,f,df)
+        /* init */,latticePlane(n)
         /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
         {
             

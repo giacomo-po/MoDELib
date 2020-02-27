@@ -9,6 +9,7 @@ A=[1 0.5;
   0 sqrt(3)/2];
 
 N=[2 2];
+D=[1 1];
 
 f=[0 0 0
   0.5 sqrt(3)/6 42;    % ISF
@@ -26,6 +27,7 @@ df=[0.5 sqrt(3)/6  1 0 0; % ISF
 fid=fopen('input.txt','w')
 printMatrixToFile(fid,A,'A');
 printMatrixToFile(fid,N,'N');
+printMatrixToFile(fid,D,'D');
 printMatrixToFile(fid,f,'f');
 printMatrixToFile(fid,df,'df');
 fclose(fid)

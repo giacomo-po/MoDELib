@@ -525,6 +525,12 @@ namespace model
         /**********************************************************************/
         void createEshelbyInclusions()
         {
+            for(const auto& grain : poly.grains())
+            {
+                EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
+            }
+
+            
             IDreader<'E',1,14,double> inclusionsReader;
             inclusionsReader.read(0,true);
             

@@ -20,6 +20,8 @@
 
 //#include <DislocationStress.h>
 
+#include <SlipSystem.h>
+
 namespace model
 {
     
@@ -49,6 +51,30 @@ namespace model
         
         
     public:
+        
+        static std::map<const GammaSurface*,GammaSurface> gammaSurfaceMap;
+        
+        static void addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems)
+        {
+            
+            for(const auto& slipSystem : slipSystems)
+            {
+                if(gammaSurfaceMap.find(slipSystem->gammaSurface.get())==gammaSurfaceMap.end())
+                {// current slipSystem gammaSurface not found
+                    
+//                    GammaSurface temp();
+//
+//                    gammaSurfaceMap.emaplace(slipSystem->gammaSurface.get(),temp);
+                }
+            }
+            
+        }
+        
+        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface)
+        {
+            const auto iter(gammaSurfaceMap.find(matrixGammaSurface));
+            return iter==gammaSurfaceMap.end()? 0.0 : iter->second(b);
+        }
         
         /**********************************************************************/
         EshelbyInclusion(const VectorDim& _C,
@@ -119,5 +145,9 @@ namespace model
             }
         }
     };
+    
+    
+    template <int dim>
+    std::map<const GammaSurface*,GammaSurface> EshelbyInclusion<dim>::gammaSurfaceMap;
 }
 #endif

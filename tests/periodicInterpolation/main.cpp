@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 
     const Eigen::Matrix<double,2,2> A(TextFileParser("input.txt").readMatrix<double>("A",2,2,true));
     const Eigen::Matrix<double,2,1> N(TextFileParser("input.txt").readMatrix<double>("N",2,1,true));
-    const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones());
+    const Eigen::Matrix<double,2,1> D(TextFileParser("input.txt").readMatrix<double>("D",2,1,true));
     const Eigen::Matrix<double,Eigen::Dynamic,3> f(TextFileParser("input.txt").readMatrixCols<double>("f",3,true));
     const Eigen::Matrix<double,Eigen::Dynamic,5> df(TextFileParser("input.txt").readMatrixCols<double>("df",5,true));
 

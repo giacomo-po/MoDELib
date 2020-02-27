@@ -5,10 +5,11 @@ clc
 system('rm input.txt');
 
 %% Data points for gamma surface
-A=[2 1;
-    0 sqrt(3)];
+A=[1 0.5;  
+  0 sqrt(3)/2];
 
 N=[3 3];
+D=[2 2];
 
 APB=175;
 SISF=10;
@@ -43,14 +44,7 @@ df=[1 sqrt(3)/3 1 0 0; % SISF
 fid=fopen('input.txt','w')
 printMatrixToFile(fid,A,'A');
 printMatrixToFile(fid,N,'N');
-printMatrixToFile(fid,f,'f');
-printMatrixToFile(fid,df,'df');
-fclose(fid)
-
-%% Write input file
-fid=fopen('input.txt','w')
-printMatrixToFile(fid,A,'A');
-printMatrixToFile(fid,N,'N');
+printMatrixToFile(fid,D,'D');
 printMatrixToFile(fid,f,'f');
 printMatrixToFile(fid,df,'df');
 fclose(fid)
