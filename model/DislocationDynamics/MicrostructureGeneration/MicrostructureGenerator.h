@@ -156,7 +156,8 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-                    const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,n,grainID,mesh));
+                    MeshPlane<dim> plane(mesh,grainID,P0,n);
+                    const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,plane,mesh));
 
                     const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));

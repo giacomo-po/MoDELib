@@ -83,11 +83,16 @@ namespace model
             
         }
         
-        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& temp) const
+        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& key) const
+//        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneType& plane) const
         {
-            const auto gcd(LatticeGCD<dim>::gcd(temp.reciprocalDirectionComponents().transpose()*N));
-            const auto periodicPlaneIndex(temp.planeIndex()>=0? temp.planeIndex()%gcd : (temp.planeIndex()%gcd)+gcd);
-            return GlidePlaneKeyType(temp.reciprocalDirectionComponents(),periodicPlaneIndex,temp.latticeID());
+
+            const VectorDim meshCenter(0.5*(poly.mesh.xMax()+poly.mesh.xMin()));
+            const ReciprocalLatticeVector<dim> r(key.reciprocalDirectionComponents(),poly.grains().begin()->second);
+            const long int meshCenterPlaneIndex(r.closestPlaneIndexOfPoint(meshCenter));
+            const auto gcd(LatticeGCD<dim>::gcd(key.reciprocalDirectionComponents().transpose()*N));
+            const auto periodicPlaneIndex(key.planeIndex()>=0? key.planeIndex()%gcd : (key.planeIndex()%gcd)+gcd); // adjust sign
+            return GlidePlaneKeyType(key.reciprocalDirectionComponents(),periodicPlaneIndex+meshCenterPlaneIndex,key.latticeID()); // get closest plane to center of mesh
         }
         
         /**********************************************************************/
@@ -652,6 +657,8 @@ namespace model
         /* init */,referencePlane(glidePlaneFactory.get(referencePlaneKey))
         /* init */,L2G(getL2G(referencePlane->unitNormal))
         {
+            
+            assert(referencePlane->meshIntersections.size()>=3);
         }
         
         //        ~PeriodicGlidePlaneBase()
@@ -1065,39 +1072,64 @@ namespace model
         
         /**********************************************************************/
 //        template<typename NodeType>
+        
+        void addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints,const VectorDim& shift)
+        {
+            std::vector<VectorLowerDim> lowerPolyPoints;
+            for(const auto& point : polyPoints)
+            {
+                assert(this->referencePlane->contains(point-shift) && "reference plane does not cointain point");
+                lowerPolyPoints.push_back(this->getLocalPosition(point-shift));
+            }
+            addPatchesContainingPolygon(lowerPolyPoints);
+        }
+        
+        /**********************************************************************/
         void addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints)
+        {
+            std::vector<VectorLowerDim> lowerPolyPoints;
+            for(const auto& point : polyPoints)
+            {
+                assert(this->referencePlane->contains(point) && "reference plane does not cointain point");
+                lowerPolyPoints.push_back(this->getLocalPosition(point));
+            }
+            addPatchesContainingPolygon(lowerPolyPoints);
+        }
+        
+        /**********************************************************************/
+        void addPatchesContainingPolygon(const std::vector<VectorLowerDim>& polyPoints)
         {
             
             if(polyPoints.size()>=3)
             {
                 
-                std::set<long int> pointsHeights;
-                for(const auto& point : polyPoints)
-                {
-                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point));
-                    assert(heightPair.first && "Point not on a lattice plane");
-                    pointsHeights.insert(heightPair.second);
-                }
-                assert(pointsHeights.size()==1 && "polyPoints on different planes");
-//                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
-                const GlidePlaneKey<dim> pointsPlaneKey(polyPoints[0],this->referencePlane->n);
+//                std::set<long int> pointsHeights;
+//                for(const auto& point : polyPoints)
+//                {
+//                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point));
+//                    assert(heightPair.first && "Point not on a lattice plane");
+//                    pointsHeights.insert(heightPair.second);
+//                }
+//                assert(pointsHeights.size()==1 && "polyPoints on different planes");
+////                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
+//                const GlidePlaneKey<dim> pointsPlaneKey(polyPoints[0],this->referencePlane->n);
 
-                const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
-                const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
-                getPatch(pointsShift);
+//                const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
+//                const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
+                getPatch(VectorDim::Zero());
                 
                 VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
-                for(const auto& seg : pointsPlane->meshIntersections) // problem is here for referencePlane not cutting mesh
+                for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
                 {
                     insideReferencePoint+=this->getLocalPosition(seg->P0);
                 }
-                insideReferencePoint/=pointsPlane->meshIntersections.size();
+                insideReferencePoint/=this->referencePlane->meshIntersections.size();
                 assert(this->isInsideOuterBoundary(insideReferencePoint));
 
                 
 //                std::deque<std::shared_ptr<PeriodicPlanePatch<dim>>> tempPatches;
                 
-                const VectorLowerDim P0(this->getLocalPosition(polyPoints[0]));
+                const VectorLowerDim P0(polyPoints[0]);
 
                 while(!this->isInsideOuterBoundary(P0))
                 {
@@ -1153,8 +1185,8 @@ namespace model
                 
                 for(size_t k=0;k<polyPoints.size();++k)
                 {
-                    const VectorLowerDim startPoint(this->getLocalPosition(polyPoints[k]));
-                    const VectorLowerDim endPoint(k==polyPoints.size()-1? this->getLocalPosition(polyPoints[0]) : this->getLocalPosition(polyPoints[k+1]));
+                    const VectorLowerDim startPoint(polyPoints[k]);
+                    const VectorLowerDim endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
                     while(true)
                     {
 //                        std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
@@ -1196,13 +1228,13 @@ namespace model
                     
                     
                     std::ofstream polyFile("poly.txt");
-                    std::ofstream poly3DFile("poly3D.txt");
+//                    std::ofstream poly3DFile("poly3D.txt");
 
                     polyFile<<insideReferencePoint.transpose()<<std::endl;
                     for(const auto& node : polyPoints)
                     {
-                        polyFile<<"    "<<this->getLocalPosition(node).transpose()<<std::endl;
-                        poly3DFile<<node.transpose()<<std::endl;
+                        polyFile<<"    "<<node.transpose()<<std::endl;
+//                        poly3DFile<<node.transpose()<<std::endl;
                     }
                     
                     std::ofstream pointsFile("points.txt");

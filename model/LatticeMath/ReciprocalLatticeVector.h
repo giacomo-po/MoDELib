@@ -192,6 +192,14 @@ namespace model
             const VectorDimD c(cartesian());
             return c/c.squaredNorm();
         }
+
+        /**********************************************************************/
+        long int closestPlaneIndexOfPoint(const VectorDimD& P) const
+        {
+            assert(this->squaredNorm()>0 && "A null ReciprocalLatticeVector cannot be used to compute planeIndexOfPoint");
+            const double hd(cartesian().dot(P));
+            return std::lround(hd);
+        }
         
         /**********************************************************************/
         long int planeIndexOfPoint(const VectorDimD& P) const 
@@ -208,7 +216,6 @@ namespace model
                 assert(0 && "P in not on a lattice plane.");
             }
             return h;
-//            return correct_h_sign(h,r);
         }
         
         /**********************************************************************/

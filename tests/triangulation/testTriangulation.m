@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-pointGenerator=6
+pointGenerator=4
 switch pointGenerator
     case 0
 N=30;
@@ -77,6 +77,20 @@ P=[0.267224995715998   0.233928342494905
             3.5 0
             ];
         P=flipud(P);
+    case 7
+        h=1.5;
+P=[0 0;
+       2 0;
+       2 h;
+       1 h;
+       1 1;
+       6 1;
+       6 h;
+       3 h;
+       3 0;
+       5 0;
+       5 3;
+       0 3];
 
 end
     x=P(:,1);

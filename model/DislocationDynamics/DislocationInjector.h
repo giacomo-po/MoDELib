@@ -23,15 +23,27 @@ namespace model
         
     public:
         
+
+        /**********************************************************************/
+        static std::vector<VectorDim> straightLineBoundaryClosure(const VectorDim& P0,
+                                                                  const VectorDim& d,
+                                                                  const VectorDim& n,
+                                                                  const int& grainID,
+                                                                  const SimplicialMesh<dim>& mesh)
+        {
+        
+            return straightLineBoundaryClosure(P0,d,MeshPlane<dim>(mesh,grainID,P0,n),mesh);
+        }
         
         /**********************************************************************/
         static std::vector<VectorDim> straightLineBoundaryClosure(const VectorDim& P0,
-                                                                 const VectorDim& d,
-                                                                 const VectorDim& n,
-                                                                 const int& grainID,
-                                                                 const SimplicialMesh<dim>& mesh)
+                                                                  const VectorDim& d,
+                                                                  const MeshPlane<dim>& plane,
+                                                                  const SimplicialMesh<dim>& mesh)
         {
             
+            assert(std::fabs(plane.unitNormal.dot(d))<FLT_EPSILON);
+            assert(plane.contains(P0));
             
             const double maxSize=std::max(mesh.xMax(0)-mesh.xMin(0),std::max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2)));
             
@@ -40,7 +52,7 @@ namespace model
             const VectorDim A=P0+3.0*maxSize*d;
             const VectorDim B=P0-3.0*maxSize*d;
             
-            MeshPlane<dim> plane(mesh,grainID,P0,n);
+//            MeshPlane<dim> plane(mesh,grainID,P0,n);
             //            const auto& segDeq(plane.meshIntersections);
             
             std::vector<VectorDim> nodePos;

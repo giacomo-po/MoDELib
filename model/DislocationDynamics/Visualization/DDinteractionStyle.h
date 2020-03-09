@@ -187,8 +187,6 @@ namespace model
             DDconfigIO<3> temp;
             if(   currentFrameID!=frameID
                && (temp.isBinGood(frameID) || temp.isTxtGood(frameID))
-//               (DislocationSegmentActor::VertexReaderType().isGood(frameID,false) || DislocationSegmentActor::VertexReaderType().isGood(frameID,true))
-//               && (DislocationSegmentActor::EdgeReaderType().isGood(frameID,false) || DislocationSegmentActor::EdgeReaderType().isGood(frameID,true))
                )
             {
                 lastFrameID=currentFrameID;

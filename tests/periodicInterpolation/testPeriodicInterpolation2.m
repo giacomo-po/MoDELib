@@ -89,8 +89,8 @@ f2=functionCut(data,[1 sqrt(3)/3],2*sqrt(3),np);
 figure(2)
 hold on
 plot([0:(np-1)]/np,f1,'Linewidth',2)
-plot([0:(np-1)]/np,f2,'Linewidth',2)
-axis([0 1 0 max(max(f1),max(f2))])
+plot([0:(np-1)]/np*2*sqrt(3),f2,'Linewidth',2)
+axis([0 2*sqrt(3) 0 max(max(f1),max(f2))])
 grid on
 xlabel('reaction coordinate')
 ylabel('\gamma-surface [mJ/m^2]')
