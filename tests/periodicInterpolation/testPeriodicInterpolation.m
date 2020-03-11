@@ -13,15 +13,26 @@ D=[1 1];
 
 f=[0 0 0
   0.5 sqrt(3)/6 42;    % ISF
-  0.25 sqrt(3)/4 182; % USF
-  0.5 0 182; % USF
+  0.25 sqrt(3)/12 182; % USF
+  0.75 sqrt(3)/12 182; % USF
+  0.5  sqrt(3)/3 182; % USF
   ]; 
 
-df=[0.5 sqrt(3)/6  1 0 0; % ISF
-    0.5 sqrt(3)/6 0 1 0; % ISF
-    0.25 sqrt(3)/4 0.25 sqrt(3)/4 0;
-    0.5 0 0.5 0 0;
+% df=[0.5 sqrt(3)/6  1 0 0; % ISF
+%     0.5 sqrt(3)/6 0 1 0; % ISF
+% %     0.25 sqrt(3)/12 0.25  sqrt(3)/12 0;
+% %     0.75 sqrt(3)/12 0.25 -sqrt(3)/12 0;
+%     0.25 sqrt(3)/12 1 0 0;
+%     0.75 sqrt(3)/12 1 0 0;
+%         0.25 sqrt(3)/12 0 1 0;
+%     0.75 sqrt(3)/12 0 1 0;
+%     ];
+
+df=[0.25 sqrt(3)/12 -0.5 sqrt(3)/2 0; % USF
+    0.75 sqrt(3)/12 0.5 sqrt(3)/2 0; % USF
+    0.5  sqrt(3)/3 1 0 0; % USF
     ];
+
 
 %% Write input file
 fid=fopen('input.txt','w')

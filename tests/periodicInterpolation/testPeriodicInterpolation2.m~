@@ -13,29 +13,57 @@ D=[2 2];
 
 APB=175;
 SISF=10;
-CESF=270;
+%CESF=270;
 CSF=230;
+SESF=75;
 
-f=[0 0 0;
-    1 sqrt(3)/3 SISF;
-    1 0 APB;
-    0.5 sqrt(3)/2 APB;
-    1.5 sqrt(3)/2 APB;
-    0.5 sqrt(3)/6 CESF;
-    1 sqrt(3)*2/3 CESF;
-    1.5 sqrt(3)/6 CESF;
+% f=[0 0 0;
+%     1 sqrt(3)/3 SISF;
+%     1 0 APB;
+%     0.5 sqrt(3)/2 APB;
+%     1.5 sqrt(3)/2 APB;
+%     0.5 sqrt(3)/6 CESF;
+%     1 sqrt(3)*2/3 CESF;
+%     1.5 sqrt(3)/6 CESF;
+%     ];
+% 
+% df=[1 sqrt(3)/3 1 0 0; % SISF
+%     1 sqrt(3)/3 0 1 0; % SISF
+%     1 0 1 0 0; % APB
+%     0.5 sqrt(3)/2  0.5 sqrt(3)/2 0; % APB
+%     0.5 sqrt(3)/6 1 0 0;
+%     0.5 sqrt(3)/6 0 1 0;
+%     1 sqrt(3)*2/3 1 0 0;
+%     1 sqrt(3)*2/3 0 1 0;
+%     1.5 sqrt(3)/6 1 0 0;
+%     1.5 sqrt(3)/6 0 1 0;
+%     ];
+
+f=[0 0 0;              % Al
+   0.5 sqrt(3)/6 CSF; % Ni
+   0.5 sqrt(3)/2 APB; % Ni
+   1 sqrt(3)/3 SISF; % Al
+   1 2*sqrt(3)/3 CSF % Ni
+   1.5 sqrt(3)/2 APB; % Ni
+   2 2*sqrt(3)/3 SESF; % Al
+   1 0 APB;
+   1.5 sqrt(3)/6 CSF
+%   2.5 5*sqrt(3)/6 ???; %Ni
     ];
 
-df=[1 sqrt(3)/3 1 0 0; % SISF
-    1 sqrt(3)/3 0 1 0; % SISF
-    1 0 1 0 0; % APB
-    0.5 sqrt(3)/2  0.5 sqrt(3)/2 0; % APB
-    0.5 sqrt(3)/6 1 0 0;
-    0.5 sqrt(3)/6 0 1 0;
-    1 sqrt(3)*2/3 1 0 0;
-    1 sqrt(3)*2/3 0 1 0;
-    1.5 sqrt(3)/6 1 0 0;
-    1.5 sqrt(3)/6 0 1 0;
+df=[0 0 1 0 0;              % Al
+    0 0 1 sqrt(3) 0;              % Al
+%   0.5 sqrt(3)/6 -1 sqrt(3) 0; % Ni
+%   0.5 sqrt(3)/2  1 sqrt(3) 0; % Ni
+   1 sqrt(3)/3 1 0 0; % Al
+   1 sqrt(3)/3 1 sqrt(3) 0; % Al
+%   1 2*sqrt(3)/3 1 0 0 % Ni
+%   1.5 sqrt(3)/2 -1 sqrt(3) 0; % Ni
+   2 2*sqrt(3)/3 1 0 0; % Al
+   2 2*sqrt(3)/3 1 sqrt(3) 0; % Al
+   2.5 6*sqrt(3)/6 -1 sqrt(3) 0; %Ni
+   1 0 1 0 0;
+   1.5 5*sqrt(3)/6 1 sqrt(3) 0;
     ];
 
 
@@ -56,7 +84,7 @@ system('./test')
 data=load('output.txt')
 
 np=400;
-[X,Y] = meshgrid([0:2/(np-1):2],[0:sqrt(3)*2/(np-1):sqrt(3)*2]);
+[X,Y] = meshgrid([0:2/(np-1):4],[0:sqrt(3)*2/(np-1):sqrt(3)*2]);
 f=zeros(size(X));
 for i=1:size(data,1)
     k=data(i,[1 2]);
@@ -89,8 +117,8 @@ f2=functionCut(data,[1 sqrt(3)/3],2*sqrt(3),np);
 figure(2)
 hold on
 plot([0:(np-1)]/np,f1,'Linewidth',2)
-plot([0:(np-1)]/np,f2,'Linewidth',2)
-axis([0 1 0 max(max(f1),max(f2))])
+plot([0:(np-1)]/np*2*sqrt(3),f2,'Linewidth',2)
+axis([0 2*sqrt(3) 0 max(max(f1),max(f2))])
 grid on
 xlabel('reaction coordinate')
 ylabel('\gamma-surface [mJ/m^2]')
