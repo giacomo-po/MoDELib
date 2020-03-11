@@ -1,6 +1,7 @@
 /* This file is part of MODEL, the Mechanics Of Defect Evolution Library.
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
+ * Copyright (C) 2020 by Danny Perez <danny_perez@lanl.gov>.
  *
  * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
@@ -31,15 +32,14 @@ namespace model
     
     template <int dim>
     class DDconfigIO : public DDbaseIO
-    /*              */,private std::vector<DislocationNodeIO<dim>>
-    /*              */,private std::vector<DislocationLoopIO<dim>>
-    /*              */,private std::vector<DislocationEdgeIO<dim>>
-//    /*              */,private std::vector<PeriodicLoopIO<dim>>
+    /*              */,private std::vector<DislocationNodeIO<dim> >
+    /*              */,private std::vector<DislocationLoopIO<dim> >
+    /*              */,private std::vector<DislocationEdgeIO<dim> >
     /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
     /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
     {
         
-//        static_assert(std::is_pod<DislocationNodeIO<dim>>::value,"DislocationNodeIO<dim> is NOT PLANE OLD DATA");
+        //        static_assert(std::is_pod<DislocationNodeIO<dim>>::value,"DislocationNodeIO<dim> is NOT PLANE OLD DATA");
         
         /**********************************************************************/
         void make_maps()
@@ -56,7 +56,7 @@ namespace model
                 loopMap().emplace(loop.sID,&loop);
             }
         }
-
+        
         
     public:
         
@@ -92,21 +92,17 @@ namespace model
                 links().emplace_back(link.second);
             }
             
-//            // Periodic Loops
-//            for(const auto& pLoop : dn.periodicLoops())
-//            {
-//                periodicLoops().emplace_back(*pLoop.second);
-//            }
+            
             
         }
         
         /**********************************************************************/
-        const std::vector<DislocationNodeIO<dim>>& nodes() const
+        const std::vector<DislocationNodeIO<dim> >& nodes() const
         {
             return *this;
         }
         
-        std::vector<DislocationNodeIO<dim>>& nodes()
+        std::vector<DislocationNodeIO<dim> >& nodes()
         {
             return *this;
         }
@@ -121,62 +117,51 @@ namespace model
         {
             return *this;
         }
-
+        
         
         /**********************************************************************/
-        const std::vector<DislocationLoopIO<dim>>& loops() const
+        const std::vector<DislocationLoopIO<dim> >& loops() const
         {
             return *this;
         }
         
-        std::vector<DislocationLoopIO<dim>>& loops()
+        std::vector<DislocationLoopIO<dim> >& loops()
         {
             return *this;
         }
-        
-//        /**********************************************************************/
-//        const std::vector<PeriodicLoopIO<dim>>& periodicLoops() const
-//        {
-//            return *this;
-//        }
-//
-//        std::vector<PeriodicLoopIO<dim>>& periodicLoops()
-//        {
-//            return *this;
-//        }
         
         /**********************************************************************/
         const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
         {
             return *this;
         }
-
+        
         /**********************************************************************/
         std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap()
         {
             return *this;
         }
-
+        
         /**********************************************************************/
-        const std::vector<DislocationEdgeIO<dim>>& links() const
+        const std::vector<DislocationEdgeIO<dim> >& links() const
         {
             return *this;
         }
         
-        std::vector<DislocationEdgeIO<dim>>& links()
+        std::vector<DislocationEdgeIO<dim> >& links()
         {
             return *this;
         }
         
         /**********************************************************************/
-        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments() const
+        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > segments() const
         {
             
-            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> temp;
+            std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > temp;
             
             for(const auto& link : links())
             {
-            
+                
                 
                 const auto loopIter=loopMap().find(link.loopID);
                 assert(loopIter!=loopMap().end());
@@ -236,7 +221,7 @@ namespace model
                 writeTxt(runID);
             }
         }
-                
+        
         /**********************************************************************/
         void writeTxt(const size_t& runID)
         {
@@ -246,35 +231,8 @@ namespace model
             if(file.is_open())
             {
                 std::cout<<"Writing "<<filename<<std::flush;
-
-                // Write header
-                file<<nodes().size()<<"\n";
-                file<<loops().size()<<"\n";
-                file<<links().size()<<"\n";
-//                file<<periodicLoops().size()<<"\n";
                 
-                // Write Nodes
-                for(const auto& node : nodes())
-                {
-                    file<<node<<"\n";
-                }
-                // Write Loops
-                for(const auto& loop : loops())
-                {
-                    file<<loop<<"\n";
-                }
-                
-                // Write Edges
-                for(const auto& link : links())
-                {
-                    file<<link<<"\n";
-                }
-                
-//                // Write PeriodicLoops
-//                for(const auto& pLoop : periodicLoops())
-//                {
-//                    file<<pLoop<<"\n";
-//                }
+                writeTxtStream(file);
                 
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -286,6 +244,45 @@ namespace model
             }
         }
         
+        
+        /**********************************************************************/
+        void writeTxtStream(std::ostream &file)
+        {
+            
+            // Write header
+            file<<nodes().size()<<"\n";
+            file<<loops().size()<<"\n";
+            file<<links().size()<<"\n";
+            
+            // Write Nodes
+            for(const auto& node : nodes())
+            {
+                file<<node<<"\n";
+            }
+            // Write Loops
+            for(const auto& loop : loops())
+            {
+                file<<loop<<"\n";
+            }
+            
+            // Write Edges
+            for(const auto& link : links())
+            {
+                file<<link<<"\n";
+            }
+            
+            
+            
+            
+            model::cout<<" WRITING:  "<<nodes().size()<<" nodes "<<std::endl;
+            model::cout<<" WRITING:  "<<loops().size()<<" loops "<<std::endl;
+            model::cout<<" WRITING:  "<<links().size()<<" links "<<std::endl;
+        }
+        
+        
+        
+        
+        
         /**********************************************************************/
         void writeBin(const size_t& runID)
         {
@@ -295,44 +292,38 @@ namespace model
             if(file.is_open())
             {
                 std::cout<<"Writing "<<filename<<std::flush;
-
+                
                 // Write header
                 const size_t nV(nodes().size());
                 const size_t nL(loops().size());
                 const size_t nE(links().size());
-//                const size_t nPL(periodicLoops().size());
+
                 binWrite(file,nV);
                 binWrite(file,nL);
                 binWrite(file,nE);
-//                binWrite(file,nPL);
-
+                
                 // Write Nodes
                 for(const auto& node : nodes())
                 {
                     binWrite(file,node);
                 }
-
+                
                 // Write Loops
                 for(const auto& loop : loops())
                 {
                     binWrite(file,loop);
                 }
-
+                
                 // Write Edges
                 for(const auto& link : links())
                 {
                     binWrite(file,link);
                 }
                 
-//                // Write PeriodicLoop
-//                for(const auto& pLoop : periodicLoops())
-//                {
-//                    binWrite(file,pLoop);
-//                }
-
+                
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
+                
             }
             else
             {
@@ -380,9 +371,7 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeL), 1*sizeof(sizeL));
                 size_t sizeE;
                 infile.read (reinterpret_cast<char*>(&sizeE), 1*sizeof(sizeE));
-//                size_t sizePL;
-//                infile.read (reinterpret_cast<char*>(&sizePL), 1*sizeof(sizePL));
-
+                
                 // Read vertices
                 nodes().resize(sizeV);
                 infile.read (reinterpret_cast<char*>(nodes().data()),nodes().size()*sizeof(DislocationNodeIO<dim>));
@@ -392,10 +381,7 @@ namespace model
                 // Read links
                 links().resize(sizeE);
                 infile.read (reinterpret_cast<char*>(links().data()),links().size()*sizeof(DislocationEdgeIO<dim>));
-//                // Read PeriodicLoops
-//                periodicLoops().resize(sizePL);
-//                infile.read (reinterpret_cast<char*>(periodicLoops().data()),periodicLoops().size()*sizeof(PeriodicLoopIO<dim>));
-
+                
                 
                 infile.close();
                 make_maps();
@@ -403,8 +389,6 @@ namespace model
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
-//                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
-
             }
             else
             {
@@ -413,7 +397,7 @@ namespace model
             }
             
         }
-
+        
         
         /**********************************************************************/
         void readTxt(const size_t& runID)
@@ -426,79 +410,13 @@ namespace model
                 const auto t0=std::chrono::system_clock::now();
                 model::cout<<"reading "<<filename<<std::flush;
                 
-                size_t sizeV;
-                size_t sizeL;
-                size_t sizeE;
-//                size_t sizePL;
-
-                std::string line;
-                std::stringstream ss;
-
-                
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizeV;
-                ss.clear();
-
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizeL;
-                ss.clear();
-
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizeE;
-                ss.clear();
-                
-//                std::getline(infile, line);
-//                ss<<line;
-//                ss >> sizePL;
-//                ss.clear();
-                
-                nodes().clear();
-                for(size_t k=0;k<sizeV;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    nodes().emplace_back(ss);
-                    ss.clear();
-                }
-                
-                                loops().clear();
-                for(size_t k=0;k<sizeL;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    loops().emplace_back(ss);
-                    ss.clear();
-                }
-
-                                links().clear();
-                for(size_t k=0;k<sizeE;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    links().emplace_back(ss);
-                    ss.clear();
-                }
-                
-//                periodicLoops().clear();
-//                for(size_t k=0;k<sizePL;++k)
-//                {
-//                    std::getline(infile, line);
-//                    ss<<line;
-//                    periodicLoops().emplace_back(ss);
-//                    ss.clear();
-//                }
-
+                readTxtStream(infile);
                 infile.close();
-                make_maps();
+                
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 model::cout<<"  "<<links().size()<<" links "<<std::endl;
-//                model::cout<<"  "<<periodicLoops().size()<<" periodicLoops "<<std::endl;
-
             }
             else
             {
@@ -507,14 +425,83 @@ namespace model
             }
             
         }
-
+        
+        
+        
+        
+        /**********************************************************************/
+        void readTxtStream(std::istream &infile)
+        {
+            
+            size_t sizeV;
+            size_t sizeL;
+            size_t sizeE;
+            
+            std::string line;
+            std::stringstream ss;
+            
+            
+            std::getline(infile, line);
+            ss<<line;
+            ss >> sizeV;
+            ss.clear();
+            
+            std::getline(infile, line);
+            ss<<line;
+            ss >> sizeL;
+            ss.clear();
+            
+            std::getline(infile, line);
+            ss<<line;
+            ss >> sizeE;
+            ss.clear();
+            
+            
+            nodes().clear();
+            for(size_t k=0; k<sizeV; ++k)
+            {
+                std::getline(infile, line);
+                ss<<line;
+                nodes().emplace_back(ss);
+                ss.clear();
+            }
+            
+            loops().clear();
+            for(size_t k=0; k<sizeL; ++k)
+            {
+                std::getline(infile, line);
+                ss<<line;
+                loops().emplace_back(ss);
+                ss.clear();
+            }
+            
+            links().clear();
+            for(size_t k=0; k<sizeE; ++k)
+            {
+                std::getline(infile, line);
+                ss<<line;
+                links().emplace_back(ss);
+                ss.clear();
+            }
+            
+            
+            make_maps();
+            
+            model::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
+            model::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
+            model::cout<<" READING:  "<<links().size()<<" links "<<std::endl;
+            
+        }
+        
+        
+        
         /**********************************************************************/
         void bin2txt(const size_t& runID,const bool& writeSegments)
         {
             readBin(runID);
             writeTxt(runID);
             if(writeSegments)
-            {// std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
+            {    // std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>>
                 const std::string segmentsFilename(getTxtSegmentFilename(runID));
                 const auto segmts(segments());
                 std::ofstream segFile(segmentsFilename.c_str());
@@ -529,121 +516,3 @@ namespace model
     
 }
 #endif
-
-//        /**********************************************************************/
-//        template<typename T>
-//        static void binWrite(std::ofstream& of,const T& o)
-//        {
-//            of.write((char *) &o, (sizeof o));
-//        }
-//
-//        /**********************************************************************/
-//        template<typename T>
-//        static void binRead(std::ifstream& file,
-//                            T*& memblock,
-//                            const size_t& arraySize)
-//        {
-//            memblock = new T [arraySize];
-//            file.read (reinterpret_cast<char*>(memblock), arraySize*sizeof (T));
-//        }
-//
-//        /**********************************************************************/
-//        static std::string getBinFilename(const size_t& runID,const std::string& suffix="")
-//        {
-//            return "evl"+suffix+"/evl_"+std::to_string(runID)+".bin";
-//        }
-//
-//        /**********************************************************************/
-//        static std::string getTxtFilename(const size_t& runID,const std::string& suffix="")
-//        {
-//            return "evl"+suffix+"/evl_"+std::to_string(runID)+".txt";
-//        }
-//
-//        /**********************************************************************/
-//        static std::string getTxtSegmentFilename(const size_t& runID,const std::string& suffix="")
-//        {
-//            return "evl"+suffix+"/S_"+std::to_string(runID)+".txt";
-//        }
-
-//        /**********************************************************************/
-//        void writeBin(const long int& runID)
-//        {
-//            const std::string filename(this->getBinFilename(runID));
-//            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-//            if(file.is_open())
-//            {
-//                // Write header
-//                const size_t nV(nodes().size());
-//                const size_t nL(loops().size());
-//                const size_t nE(links().size());
-//                binWrite(file,nV);
-//                binWrite(file,nL);
-//                binWrite(file,nE);
-//
-//                // Write Nodes
-//                for(const auto& node : nodes())
-//                {
-//                    binWrite(file,node);
-//                }
-//
-//                // Write Loops
-//                for(const auto& loop : loops())
-//                {
-//                    binWrite(file,loop);
-//                }
-//
-//                // Write Edges
-//                for(const auto& link : links())
-//                {
-//                    binWrite(file,link);
-//                }
-//
-//                file.close();
-//            }
-//            else
-//            {
-//                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
-//                assert(false && "CANNOT OPEN FILE.");
-//            }
-//        }
-
-//        /**********************************************************************/
-//        void writeTxt(const long int& runID)
-//        {
-//
-//
-//            const std::string filename(this->getTxtFilename(runID));
-//            std::ofstream file(filename.c_str(), std::ios::out  | std::ios::binary);
-//            if(file.is_open())
-//            {
-//                // Write header
-//                file<<nodes().size()<<"\n";
-//                file<<loops().size()<<"\n";
-//                file<<links().size()<<"\n";
-//
-//                // Write Nodes
-//                for(const auto& node : nodes())
-//                {
-//                    file<<node<<"\n";
-//                }
-//
-//                // Write Loops
-//                for(const auto& loop : loops())
-//                {
-//                    file<<loop<<"\n";
-//                }
-//
-//                // Write Edges
-//                for(const auto& link : links)
-//                {
-//                    file<<link<<"\n";
-//                }
-//
-//                file.close();
-//            }
-//            else
-//            {
-//                model::cout<<"CANNOT OPEN "<<filename<<std::endl;
-//                assert(false && "CANNOT OPEN FILE.");
-//            }
-//        }

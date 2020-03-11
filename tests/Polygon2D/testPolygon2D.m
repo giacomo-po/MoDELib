@@ -46,7 +46,7 @@ patchPoints=[0.5 -1.2;
 %             3.5 1.00 ;
 %             2.5 2.5];
          
- %  patchPoints=flipud(patchPoints);
+   patchPoints=flipud(patchPoints);
 
    
 % polyPoints=[0 0;
@@ -86,7 +86,9 @@ hold on
 axis equal
 plot([polyPoints(:,1);polyPoints(1,1)],[polyPoints(:,2);polyPoints(1,2)],'b--','Linewidth',2);
 patch([patchPoints(:,1)],[patchPoints(:,2)],'m','FaceAlpha',0.2,'Linewidth',2);
-text(nodes(:,2),nodes(:,3),num2str(nodes(:,1)),'FontSize',16)
+
+%return
+text(nodes(:,3),nodes(:,4),num2str(nodes(:,2)),'FontSize',16)
 
 % zeroIDs=find(results(:,wnCol)==0);
 % plot(testPoints(zeroIDs,1),testPoints(zeroIDs,2),'k.','Linewidth',2);
