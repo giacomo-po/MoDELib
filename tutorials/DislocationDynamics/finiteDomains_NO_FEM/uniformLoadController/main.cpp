@@ -29,5 +29,11 @@ int main (int argc, char* argv[])
     // Run time steps
     DC.runGlideSteps();
     
+//    //try to print the nodes
+//    for(const auto& node : DC.DN->io().configIO().nodes() )
+//    {
+//        std::cout<<node<<"\n";
+//    }
+    
     return 0;
 }
