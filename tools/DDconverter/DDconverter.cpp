@@ -38,7 +38,6 @@ int main(int argc, char** argv)
             const size_t runID=std::stol(stringID);
             DDconfigIO<3> converter;
             converter.bin2txt(runID,writeSegments);
-            
         }
     }
 

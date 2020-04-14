@@ -30,7 +30,7 @@ f=[0 0 0
 
 df=[0.25 sqrt(3)/12 -0.5 sqrt(3)/2 0; % USF
     0.75 sqrt(3)/12 0.5 sqrt(3)/2 0; % USF
-    0.5  sqrt(3)/3 1 0 0; % USF
+    %0.5  sqrt(3)/3 1 0 0; % USF
     ];
 
 
@@ -62,16 +62,12 @@ end
 
 fMax=max(max(f));
 
-B=inv(A');
-
 figure
 clf
 hold on
 surf(X,Y,f,'edgecolor','none')
 plot3([0 A(1,1)],[0 A(2,1)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([0 A(1,2)],[0 A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
-plot3([0 B(1,1)],[0 B(2,1)],[fMax fMax]+1,'g','Linewidth',2)
-plot3([0 B(1,2)],[0 B(2,2)],[fMax fMax]+1,'g','Linewidth',2)
 grid on
 xlabel('x')
 ylabel('y')

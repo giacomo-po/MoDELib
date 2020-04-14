@@ -4,7 +4,7 @@
 simulationType=0; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
-Nsteps=1;		# total number of simulation steps
+Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
@@ -49,7 +49,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;

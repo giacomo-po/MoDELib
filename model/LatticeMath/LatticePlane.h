@@ -53,7 +53,6 @@ namespace model
             assert(r.squaredNorm()>0 && "zero direction cannot be used as LatticePlaneKey");
             for(int d=0;d<dim;++d)
             {
-                std::cout<<r(d)<<std::endl;
                 const int sgnrd(sgn(r(d)));
                 if(sgnrd!=0)
                 {

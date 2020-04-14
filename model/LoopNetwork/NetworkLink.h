@@ -146,11 +146,14 @@ namespace model
             this->psn->remove(this->p_derived());
             
             //! 3- If Now Source and Sink are disconnected then reset the NetworkComponent in the sink
-            const bool sourceCanReachSink(source->depthFirstSearch(sink->sID));
-            
-            if (!sourceCanReachSink)
+            if(!network().commonNetworkComponent)
             {
-                sink -> resetPSN();
+                const bool sourceCanReachSink(source->depthFirstSearch(sink->sID));
+            
+                if (!sourceCanReachSink)
+                {
+                    sink -> resetPSN();
+                }
             }
 
             

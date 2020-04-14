@@ -124,10 +124,15 @@ namespace model
         /**********************************************************************/
         LoopNode(LoopNetworkType* const ln) :
         /* init list */ loopNetwork(ln),
-        /* init list */ psn(new NetworkComponentType(this->p_derived()))
+        /* init list */ psn(network().commonNetworkComponent? network().commonNetworkComponent : std::shared_ptr<NetworkComponentType>(new NetworkComponentType(this->p_derived())))
         {
             VerboseLoopNode(1,"Constructing LoopNode "<<tag()<<std::endl);
 
+            if(network().commonNetworkComponent)
+            {
+                psn->add(this->p_derived());
+            }
+            
 //            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
             loopNetwork->addNode(this->p_derived());
             

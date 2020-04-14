@@ -16,11 +16,6 @@
 #include <PlanarDislocationNode.h>
 
 
-//#ifndef NDEBUG
-//#define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){std::cout<<x;}
-//#else
-//#define VerboseDislocationNode(N,x)
-//#endif
 
 namespace model
 {

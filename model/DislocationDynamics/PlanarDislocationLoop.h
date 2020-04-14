@@ -270,7 +270,6 @@ namespace model
             {
                 periodicLoop->addLoopLink(pL);
             }
-            //            updateBoundaryDecomposition();
         }
         
         /**********************************************************************/
@@ -488,6 +487,36 @@ namespace model
                 VerbosePlanarDislocationLoop(3,"_rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);
 
                 updateSlipSystem();
+            }
+            else
+            {
+                if(this->links().size())
+                {
+                    const VectorDim P0(this->links().begin()->second->source()->get_P());
+                    for(const auto& loopLink : this->links())
+                    {
+                        nA+= 0.5*(loopLink.second->source()->get_P()-P0).cross(loopLink.second->sink()->get_P()-loopLink.second->source()->get_P());
+                    }
+                    
+                    Plane<dim> tempPlane(P0,nA);
+                    bool isPlanar(true);
+                    for(const auto& loopLink : this->links())
+                    {
+                        isPlanar*=tempPlane.contains(loopLink.second->source()->get_P());
+                    }
+                    
+                    if(!isPlanar)
+                    {
+                        nA.setZero();
+                    }
+                    
+                    _slippedArea=nA.norm();
+                    _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
+                    
+                    _rightHandedNormal= grain.reciprocalLatticeDirection(_rightHandedUnitNormal);
+                    VerbosePlanarDislocationLoop(3,"non-glide _rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);
+
+                }
             }
         }
         

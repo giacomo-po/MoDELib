@@ -59,12 +59,18 @@ namespace model
         
         /************************************************************/
         /* Constructor with pointer to Node *************************/
+        NetworkComponent()
+        {
+            NetworkComponentObserverType::addComponent(this);
+
+        }
+        
         NetworkComponent(NodeType* const pN)
         {
             add(pN);
             
             NetworkComponentObserverType::addComponent(this);
-
+            
         }
         
 //        /************************************************************/
