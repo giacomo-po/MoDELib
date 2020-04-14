@@ -274,9 +274,9 @@ namespace model
             
             
             
-            model::cout<<" WRITING:  "<<nodes().size()<<" nodes "<<std::endl;
-            model::cout<<" WRITING:  "<<loops().size()<<" loops "<<std::endl;
-            model::cout<<" WRITING:  "<<links().size()<<" links "<<std::endl;
+//            model::cout<<" WRITING:  "<<nodes().size()<<" nodes "<<std::endl;
+//            model::cout<<" WRITING:  "<<loops().size()<<" loops "<<std::endl;
+//            model::cout<<" WRITING:  "<<links().size()<<" links "<<std::endl;
         }
         
         

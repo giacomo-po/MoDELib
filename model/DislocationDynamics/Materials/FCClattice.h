@@ -38,7 +38,6 @@ namespace model
         
         static constexpr bool enable111planes=true;
         static constexpr bool enable110planes=false;
-        static bool enablePartials;
         
         FCClattice(const MatrixDim& Q) :
         /* init */ Lattice<dim>(getLatticeBasis(),Q)
@@ -103,7 +102,8 @@ namespace model
         //        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
         static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
                                                                     const Lattice<dim>& lat,
-                                                                    const DislocatedMaterialBase& material)
+                                                                    const DislocatedMaterialBase& material,
+                                                                    const bool& enablePartials)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip systems of the Hexagonal lattice
           */
@@ -239,9 +239,7 @@ namespace model
         
         
     };
-    
-    bool FCClattice<3>::enablePartials=false;
-    
+        
 } // namespace model
 #endif
 

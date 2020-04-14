@@ -96,8 +96,8 @@ namespace model
             }
             else if(material.crystalStructure=="FCC")
             {
-                FCClattice<dim>::enablePartials=TextFileParser(material.materialFile).readScalar<int>("enablePartials",true);
-                return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
+                const bool enablePartials(TextFileParser(material.materialFile).readScalar<int>("enablePartials",true));
+                return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else if(material.crystalStructure=="HEX")
             {

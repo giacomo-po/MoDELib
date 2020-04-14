@@ -75,8 +75,8 @@ namespace model
         
         const MatrixDim A;   // column matrix of lattice vectors
         const MatrixDim B;   // column matrix of reciprocal lattice vectors
-//        const VectorDimI N; // numerators of k-point indices
-//        const VectorDim D;   // denumerators of k-point indices
+        const VectorDimI N; // numerators of k-point indices
+        const VectorDim D;   // denumerators of k-point indices
         
         Eigen::MatrixXd getSinCosCoeffs(const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
                                         const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) const
@@ -124,18 +124,6 @@ namespace model
             x1<<0.0,x;
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);
         }
-
-//        Eigen::MatrixXd getWaveVecFromIntCoord(const Eigen::Matrix<double,Eigen::Dynamic,dim>& waveVecInt) const
-//        {
-//            std::cout<<"\n Inside pli constructor"<<std::endl;
-//            MatrixDim Bmod;
-//            Bmod.col(0)=B.col(0)/D(0);
-//            Bmod.col(1)=B.col(1)/D(1);
-//            //std::cout<<"\n B:"<<Bmod;
-//            //std::cout<<"\n waveVecInt_in:"<<waveVecInt_in;
-//            //waveVectors.resize(waveVecInt_in.rows(),dim);
-//            return waveVecInt * Bmod.transpose();
-//        }
         
         
         const Eigen::Matrix<double,Eigen::Dynamic,dim> waveVectors;
@@ -144,37 +132,17 @@ namespace model
         
         
         PeriodicLatticeInterpolant(const MatrixDim& A_in,
-                                   const VectorDimI& N,
-                                   const VectorDimI& D,
+                                   const VectorDimI& nums_in,
+                                   const VectorDimI& dens_in,
                                    const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
                                    const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
         /* init */ A(A_in)
         /* init */,B(2.0*M_PI*A.inverse().transpose())
-//        /* init */,D(dens_in.template cast<double>())
-        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D.template cast<double>()).transpose()).transpose())
-        /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose()) 
-        {/*!\param[in] A_in the lattice matrix with lattice basis in column
-          * \param[in] dens_in the size of the supercell along each lattice basis
-          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
-          */
-            
-//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
-
-        }
-
-        PeriodicLatticeInterpolant(const MatrixDim& A_in,
-//                                   const VectorDimI& nums_in,
-//                                   const VectorDimI& dens_in,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,dim>& waveVectors_in,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
-        /* init */ A(A_in)
-        /* init */,B(2.0*M_PI*A.inverse().transpose())
-//        /* init */,D(dens_in.template cast<double>())
-        /* init */,waveVectors((B*waveVectors_in.transpose()).transpose())
+        /* init */,N(nums_in)
+        /* init */,D(dens_in.template cast<double>())
+        /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D).transpose()).transpose())
         /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose())
-        { /*!\param[in] A_in the lattice matrix with lattice basis in column
+        {/*!\param[in] A_in the lattice matrix with lattice basis in column
           * \param[in] dens_in the size of the supercell along each lattice basis
           * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
           */
