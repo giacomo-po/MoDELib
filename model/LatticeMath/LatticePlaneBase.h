@@ -25,57 +25,7 @@ namespace model
         typedef ReciprocalLatticeDirection<3> ReciprocalLatticeDirectionType;
         
         const std::pair<LatticeDirectionType,LatticeDirectionType> primitiveVectors;
-        
-//        /**********************************************************************/
-//        static std::pair<LatticeDirectionType,LatticeDirectionType> findPrimitiveVectors(const ReciprocalLatticeDirectionType& rd)
-//        {
-//            std::cout<<"LatticePlaneBase::findPrimitiveVectors WARNING, THIS FUNCTION IS TEMPORARY, IT MAY HANG for large r"<<std::endl;
-//            std::cout<<"r ="<<rd.transpose()<<std::endl;
-//            std::cout<<"r.cartesian()"<<rd.cartesian().transpose()<<std::endl;
-//            
-//            std::multimap<double,LatticeDirectionType> normMap;
-//            
-//            const long int N=rd.array().abs().maxCoeff()*2;
-//            for(long int i=-N;i<=N;++i)
-//            {
-//                for(long int j=-N;j<=N;++j)
-//                {
-//                    for(long int k=-N;k<=N;++k) // THIS LOOP MAY BE REMOVED BY CHOOSING k SUCH THAT P.dot(rd)==0
-//                    {
-////                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.covBasis,rd.contraBasis));
-//                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.lattice));
-//
-//                        const size_t latticeNorm2=P.squaredNorm();
-//                        if(P.dot(rd)==0 && latticeNorm2>0)
-//                        {
-//                            normMap.emplace(P.cartesian().squaredNorm(),P); // can we use the latticeNorm2 instead?
-//                        }
-//                    }
-//                }
-//            }
-//            
-//            for (const auto& iter : normMap)
-//            {
-//                const ReciprocalLatticeDirectionType temp(normMap.begin()->second,iter.second);
-//                if(temp.squaredNorm()!=0)
-//                {
-//                    if((temp-rd).squaredNorm()==0)
-//                    {
-//                        return std::make_pair(normMap.begin()->second,iter.second);
-//                    }
-//                    else
-//                    {
-////                        assert(temp.cross(rd).squaredNorm()==0 && "CROSS PRODUCT BETWEEN PRIMITIVE VECTORS IS NOT THE PLANE NORMAL");
-//                        assert((temp+rd).squaredNorm()==0 && "CROSS PRODUCT BETWEEN PRIMITIVE VECTORS IS NOT THE PLANE NORMAL");
-//                        return std::make_pair(iter.second,normMap.begin()->second);
-//                    }
-//                }
-//            }
-//            
-//            std::cout<<"normal="<<rd.cartesian().transpose()<<std::endl;
-//            assert(0 && "PRIMITIVE VECTORS NOT FOUND");
-//        }
-        
+  
         
         /**********************************************************************/
         LatticePlaneBase(const LatticeVectorType& v1_in, const LatticeVectorType& v2_in) :
@@ -87,21 +37,7 @@ namespace model
             assert(primitiveVectors.first.cross(primitiveVectors.second).squaredNorm()>0);
         }
         
-//        /**********************************************************************/
-//        LatticePlaneBase(const ReciprocalLatticeDirectionType& rd) :
-//        /* init base */ ReciprocalLatticeDirectionType(rd),
-//        primitiveVectors(findPrimitiveVectors(*this))
-//        {
-//            assert(primitiveVectors.first.squaredNorm()>0);
-//            assert(primitiveVectors.second.squaredNorm()>0);
-//            assert(primitiveVectors.first.cross(primitiveVectors.second).squaredNorm()>0);
-//        }
-        
-//        /**********************************************************************/
-//        double planeSpacing() const
-//        {
-//            return 1.0/this->cartesian().norm();
-//        }
+
         
         /**********************************************************************/
         LatticeVectorType snapToLattice(const Eigen::Matrix<double,3,1>& P) const
@@ -132,3 +68,70 @@ namespace model
     
 } // end namespace
 #endif
+
+//        /**********************************************************************/
+//        LatticePlaneBase(const ReciprocalLatticeDirectionType& rd) :
+//        /* init base */ ReciprocalLatticeDirectionType(rd),
+//        primitiveVectors(findPrimitiveVectors(*this))
+//        {
+//            assert(primitiveVectors.first.squaredNorm()>0);
+//            assert(primitiveVectors.second.squaredNorm()>0);
+//            assert(primitiveVectors.first.cross(primitiveVectors.second).squaredNorm()>0);
+//        }
+
+//        /**********************************************************************/
+//        double planeSpacing() const
+//        {
+//            return 1.0/this->cartesian().norm();
+//        }
+
+
+//        /**********************************************************************/
+//        static std::pair<LatticeDirectionType,LatticeDirectionType> findPrimitiveVectors(const ReciprocalLatticeDirectionType& rd)
+//        {
+//            std::cout<<"LatticePlaneBase::findPrimitiveVectors WARNING, THIS FUNCTION IS TEMPORARY, IT MAY HANG for large r"<<std::endl;
+//            std::cout<<"r ="<<rd.transpose()<<std::endl;
+//            std::cout<<"r.cartesian()"<<rd.cartesian().transpose()<<std::endl;
+//
+//            std::multimap<double,LatticeDirectionType> normMap;
+//
+//            const long int N=rd.array().abs().maxCoeff()*2;
+//            for(long int i=-N;i<=N;++i)
+//            {
+//                for(long int j=-N;j<=N;++j)
+//                {
+//                    for(long int k=-N;k<=N;++k) // THIS LOOP MAY BE REMOVED BY CHOOSING k SUCH THAT P.dot(rd)==0
+//                    {
+////                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.covBasis,rd.contraBasis));
+//                        const LatticeDirectionType P(LatticeVectorType((VectorDimI()<<i,j,k).finished(),rd.lattice));
+//
+//                        const size_t latticeNorm2=P.squaredNorm();
+//                        if(P.dot(rd)==0 && latticeNorm2>0)
+//                        {
+//                            normMap.emplace(P.cartesian().squaredNorm(),P); // can we use the latticeNorm2 instead?
+//                        }
+//                    }
+//                }
+//            }
+//
+//            for (const auto& iter : normMap)
+//            {
+//                const ReciprocalLatticeDirectionType temp(normMap.begin()->second,iter.second);
+//                if(temp.squaredNorm()!=0)
+//                {
+//                    if((temp-rd).squaredNorm()==0)
+//                    {
+//                        return std::make_pair(normMap.begin()->second,iter.second);
+//                    }
+//                    else
+//                    {
+////                        assert(temp.cross(rd).squaredNorm()==0 && "CROSS PRODUCT BETWEEN PRIMITIVE VECTORS IS NOT THE PLANE NORMAL");
+//                        assert((temp+rd).squaredNorm()==0 && "CROSS PRODUCT BETWEEN PRIMITIVE VECTORS IS NOT THE PLANE NORMAL");
+//                        return std::make_pair(iter.second,normMap.begin()->second);
+//                    }
+//                }
+//            }
+//
+//            std::cout<<"normal="<<rd.cartesian().transpose()<<std::endl;
+//            assert(0 && "PRIMITIVE VECTORS NOT FOUND");
+//        }

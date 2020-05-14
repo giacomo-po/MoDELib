@@ -34,8 +34,8 @@ namespace model
         PeriodicLoopNodeIO(const PeriodicLoopNodeType& node) :
         /* init */ periodicLoopID(node.periodicLoop.sID)
         /* init */,sID(node.sID)
-        /* init */,Pg(node.periodicLoop.periodicGlidePlane->getGlobalPosition(node.P))
-        /* init */,Pl(node.P)
+        /* init */,Pg(node.periodicLoop.periodicGlidePlane->getGlobalPosition(node.get_P()))
+        /* init */,Pl(node.get_P())
         {
         }
         

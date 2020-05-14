@@ -150,7 +150,6 @@ namespace model
                                    const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
         /* init */ A(A_in)
         /* init */,B(2.0*M_PI*A.inverse().transpose())
-//        /* init */,D(dens_in.template cast<double>())
         /* init */,waveVectors((B*WaveVectorsAssembler<dim>::get(N,D.template cast<double>()).transpose()).transpose())
         /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose()) 
         {/*!\param[in] A_in the lattice matrix with lattice basis in column
@@ -158,29 +157,19 @@ namespace model
           * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
           */
             
-//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
-
         }
 
         PeriodicLatticeInterpolant(const MatrixDim& A_in,
-//                                   const VectorDimI& nums_in,
-//                                   const VectorDimI& dens_in,
                                    const Eigen::Matrix<double,Eigen::Dynamic,dim>& waveVectors_in,
                                    const Eigen::Matrix<double,Eigen::Dynamic,dim+1>& f,
                                    const Eigen::Matrix<double,Eigen::Dynamic,2*dim+1>& df) :
         /* init */ A(A_in)
         /* init */,B(2.0*M_PI*A.inverse().transpose())
-//        /* init */,D(dens_in.template cast<double>())
         /* init */,waveVectors((B*waveVectors_in.transpose()).transpose())
         /* init */,sinCosCoeffs(getSinCosCoeffs(f,df).transpose())
         { /*!\param[in] A_in the lattice matrix with lattice basis in column
-          * \param[in] dens_in the size of the supercell along each lattice basis
-          * \param[in] nums_in the number of subdivision along each supercell side, nums_in=dens_in for 1-st Brillouin zone, nums_in>dens_in for sub-cell waves
+          * \param[in] 
           */
-            
-//            std::cout<<"waveVectors=\n"<<waveVectors<<std::endl;
-//            std::cout<<"sinCosCoeffs=\n"<<sinCosCoeffs<<std::endl;
 
         }
         

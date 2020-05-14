@@ -148,7 +148,9 @@ namespace model
                         
                         // Align source and sink to perfect screw orientation
                         const VectorDim midPoint(0.5*(isSource.second->get_P()+isSink.second->get_P()));
-                        const int height=LatticePlane::computeHeight(crosSlipSystem->n,midPoint).second;
+                        const long int height(crosSlipSystem->n.closestPlaneIndexOfPoint(midPoint));
+//
+//                        const int height=LatticePlane::computeHeight(crosSlipSystem->n,midPoint).second;
                         const VectorDim planePoint(height*crosSlipSystem->n.planeSpacing()*crosSlipSystem->unitNormal);
                         
                         //const VectorDim planePoint2=midPoint-(midPoint-planePoint).dot(crosSlipSystem->unitNormal)*crosSlipSystem->unitNormal; // closest point to midPoint on the crossSlip plane

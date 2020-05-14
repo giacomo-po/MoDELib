@@ -17,6 +17,7 @@
 #include <GlidePlane.h>
 #include <GlidePlaneFactory.h>
 #include <TerminalColors.h>
+#include <DiophantineSolver.h>
 
 
 
@@ -58,6 +59,7 @@ namespace model
     /**************************************************************************/
     template<int dim>
     struct PeriodicGlidePlaneFactory : public KeyConstructableWeakPtrFactory<PeriodicGlidePlaneFactory<dim>>
+    /*                              */,public Lattice<dim>
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -72,27 +74,47 @@ namespace model
         
         const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim>& glidePlaneFactory;
-        const Eigen::Matrix<long int,dim,dim> N;
+//        const Eigen::Matrix<double,dim,dim> B; // matrix with box sides in column
+        const Eigen::Matrix<long int,dim,dim> N; // B=AN, where A is lattice matrix
         
         PeriodicGlidePlaneFactory(const Polycrystal<dim>& poly_in,
                                 GlidePlaneFactory<dim>& glidePlaneFactory_in) :
-        /* init */ poly(poly_in)
+        /* init */ Lattice<dim>(get_B(poly),Eigen::Matrix<double,dim,dim>::Identity())
+        /* init */,poly(poly_in)
         /* init */,glidePlaneFactory(glidePlaneFactory_in)
-        /* init */,N(get_N(poly))
+//        /* init */,B(get_B(poly))
+        /* init */,N(get_N(poly,this->latticeBasis))
         {
+            
+            // lv=pgpf.latticeVector(VectorDim)
+            // lv.cartesian()
             
         }
         
+//        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& key) const
+////        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneType& plane) const
+//        {
+//
+//            const VectorDim meshCenter(0.5*(poly.mesh.xMax()+poly.mesh.xMin()));
+//            const ReciprocalLatticeVector<dim> r(key.reciprocalDirectionComponents(),poly.grains().begin()->second);
+//            const long int meshCenterPlaneIndex(r.closestPlaneIndexOfPoint(meshCenter));
+//            const auto gcd(LatticeGCD<dim>::gcd(key.reciprocalDirectionComponents().transpose()*N));
+//            const auto periodicPlaneIndex(key.planeIndex()>=0? key.planeIndex()%gcd : (key.planeIndex()%gcd)+gcd); // adjust sign
+//            return GlidePlaneKeyType(key.reciprocalDirectionComponents(),periodicPlaneIndex+meshCenterPlaneIndex,key.latticeID()); // get closest plane to center of mesh
+//        }
+        
         GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& key) const
-//        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneType& plane) const
+        //        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneType& plane) const
         {
-
+            
             const VectorDim meshCenter(0.5*(poly.mesh.xMax()+poly.mesh.xMin()));
             const ReciprocalLatticeVector<dim> r(key.reciprocalDirectionComponents(),poly.grains().begin()->second);
             const long int meshCenterPlaneIndex(r.closestPlaneIndexOfPoint(meshCenter));
             const auto gcd(LatticeGCD<dim>::gcd(key.reciprocalDirectionComponents().transpose()*N));
+            const long int meshCenterPlaneIndexTemp=meshCenterPlaneIndex/gcd; // make mesh center belong to correct family by flooring
+            const long int meshCenterPlaneIndexAct=meshCenterPlaneIndexTemp*gcd;
             const auto periodicPlaneIndex(key.planeIndex()>=0? key.planeIndex()%gcd : (key.planeIndex()%gcd)+gcd); // adjust sign
-            return GlidePlaneKeyType(key.reciprocalDirectionComponents(),periodicPlaneIndex+meshCenterPlaneIndex,key.latticeID()); // get closest plane to center of mesh
+            return GlidePlaneKeyType(key.reciprocalDirectionComponents(),periodicPlaneIndex+meshCenterPlaneIndexAct,key.latticeID()); // get closest plane to center of mesh
         }
         
         /**********************************************************************/
@@ -119,40 +141,46 @@ namespace model
             return *this;
         }
         
-        
-        /**********************************************************************/
-        static Eigen::Matrix<long int,dim,dim> get_N(const Polycrystal<dim>& poly)
+        static Eigen::Matrix<double,dim,dim> get_B(const Polycrystal<dim>& poly)
         {
-            assert(poly.grains().size()==1 && "Periodic simulations only supported in single crystals");
-            const auto& grain(poly.grains().begin()->second);
-            const auto& meshRegion(grain.region);
+            assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+            const auto &grain(poly.grains().begin()->second);
+            const auto &meshRegion(grain.region);
             
-            Eigen::Matrix<double,dim,dim> B(Eigen::Matrix<double,dim,dim>::Zero());
-            int col=0;
-            for(const auto& pair : meshRegion.parallelFaces())
+            Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
+            int col = 0;
+            for (const auto &pair : meshRegion.parallelFaces())
             {
-                model::cout<<"Checking if parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
-                const PlanarMeshFace<dim>& face1(*meshRegion.faces().at(pair.first));
-                const PlanarMeshFace<dim>& face2(*meshRegion.faces().at(pair.second));
-                const VectorDim cc(face1.center()-face2.center());
-                const VectorDim ccc(cc.dot(face1.outNormal())*face1.outNormal());
-                if(col<dim)
+                model::cout << "Checking if parallel faces " << pair.first << "<->" << pair.second << " are commensurate" << std::endl;
+                const PlanarMeshFace<dim> &face1(*meshRegion.faces().at(pair.first));
+                const PlanarMeshFace<dim> &face2(*meshRegion.faces().at(pair.second));
+                const VectorDim cc(face1.center() - face2.center());
+                const VectorDim ccc(cc.dot(face1.outNormal()) * face1.outNormal());
+                if (col < dim)
                 {
-                    B.col(col)=ccc;
+                    B.col(col) = ccc;
                     col++;
                 }
                 const LatticeDirection<dim> ld(grain.latticeDirection(face1.outNormal()));
-                const double normRatio(ccc.norm()/ld.cartesian().norm());
-                if(std::fabs(std::round(normRatio)-normRatio)>FLT_EPSILON)
+                const double normRatio(ccc.norm() / ld.cartesian().norm());
+                if (std::fabs(std::round(normRatio) - normRatio) > FLT_EPSILON)
                 {
                     //                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
-                    std::cout<<"Mesh in direction "<< std::setprecision(15)<<std::scientific<<ld.cartesian().normalized().transpose()<<" is not commensurate for periodicity"<<std::endl;
-                    std::cout<<"Mesh size in that direction must be a multiple of "<< std::setprecision(15)<<std::scientific<<ld.cartesian().norm()<<std::endl;
-                    std::cout<<"Size detected="<< std::setprecision(15)<<std::scientific<<ccc.norm()<<std::endl;
-                    std::cout<<"Closest commensurate size="<< std::setprecision(15)<<std::scientific<<std::round(normRatio)*ld.cartesian().norm()<<std::endl;
+                    std::cout << "Mesh in direction " << std::setprecision(15) << std::scientific << ld.cartesian().normalized().transpose() << " is not commensurate for periodicity" << std::endl;
+                    std::cout << "Mesh size in that direction must be a multiple of " << std::setprecision(15) << std::scientific << ld.cartesian().norm() << std::endl;
+                    std::cout << "Size detected=" << std::setprecision(15) << std::scientific << ccc.norm() << std::endl;
+                    std::cout << "Closest commensurate size=" << std::setprecision(15) << std::scientific << std::round(normRatio) * ld.cartesian().norm() << std::endl;
                     assert(false && "MESH NOT COMMENSURATE");
                 }
             }
+            return B;
+        }
+        /**********************************************************************/
+        static Eigen::Matrix<long int,dim,dim> get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B)
+        {
+            assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+            const auto &grain(poly.grains().begin()->second);
+            // const auto &meshRegion(grain.region);
             
             Eigen::Matrix<double,dim,dim> Nd(grain.latticeBasis.inverse()*B);
             Eigen::Matrix<double,dim,dim> Ni(Nd.array().round().matrix());
@@ -543,9 +571,8 @@ namespace model
         {
             for(size_t k=0;k<bms.size();++k)
             {// compute 2d points on PeriodicPlane, and coneect them
-                //size_t k1(k0!=bms.size()-1? k0+1 : 0);
-                std::shared_ptr<PeriodicPlaneNode<dim>> source(periodicPlane->getSharedNode(bms[k]->P0-shift));
-                std::shared_ptr<PeriodicPlaneNode<dim>>   sink(periodicPlane->getSharedNode(bms[k]->P1-shift));
+                std::shared_ptr<PeriodicPlaneNode<dim>> source(periodicPlane->getSharedNode(bms[k]->P0,shift));
+                std::shared_ptr<PeriodicPlaneNode<dim>>   sink(periodicPlane->getSharedNode(bms[k]->P1,shift));
                 this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k]));
             }
         }
@@ -804,12 +831,14 @@ namespace model
         
         
         /**********************************************************************/
-        VectorLowerDim getLocalPosition(const VectorDim& point) const
+        VectorLowerDim getLocalPosition(const VectorDim& point,const VectorDim& shift) const
         {
-            const VectorDim relP(point-referencePlane->P);
-            const VectorDim pointLocal(L2G.transpose()*(relP-referencePlane->unitNormal*referencePlane->unitNormal.dot(relP)));
+            const VectorDim pointLocal(L2G.transpose()*(point-shift-referencePlane->P));
             if(fabs(pointLocal(2))>FLT_EPSILON)
             {
+                std::cout<<"point"<<point.transpose()<<std::endl;
+                std::cout<<"shift"<<shift.transpose()<<std::endl;
+                std::cout<<"referencePlane->P"<<referencePlane->P.transpose()<<std::endl;
                 std::cout<<"L2G=\n"<<L2G<<std::endl;
                 std::cout<<"pointLocal"<<pointLocal.transpose()<<std::endl;
                 assert(false && "local point has non-zero z-coordinate");
@@ -825,9 +854,9 @@ namespace model
         
         
         /**********************************************************************/
-        std::shared_ptr<PeriodicPlaneNode<dim> > getSharedNode(const VectorDim& pointDim)
+        std::shared_ptr<PeriodicPlaneNode<dim> > getSharedNode(const VectorDim& pointDim,const VectorDim& shift)
         {
-            const VectorLowerDim point(getLocalPosition(pointDim));
+            const VectorLowerDim point(getLocalPosition(pointDim,shift));
             const auto iter(nodes().find(point));
             if(iter==nodes().end())
             {// point does not exist
@@ -888,6 +917,7 @@ namespace model
     {
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::Matrix<long int, dim, 1> VectorDimI;
         typedef Eigen::Matrix<double,dim-1,1> VectorLowerDim;
         typedef KeyConstructableSharedPtrFactory<PeriodicGlidePlane<dim>> PatchContainerType;
         typedef std::set<const PeriodicPlaneEdge<dim>*> UntwinnedEdgeContainerType;
@@ -1079,7 +1109,7 @@ namespace model
             for(const auto& point : polyPoints)
             {
                 assert(this->referencePlane->contains(point-shift) && "reference plane does not cointain point");
-                lowerPolyPoints.push_back(this->getLocalPosition(point-shift));
+                lowerPolyPoints.push_back(this->getLocalPosition(point,shift));
             }
             addPatchesContainingPolygon(lowerPolyPoints);
         }
@@ -1091,7 +1121,7 @@ namespace model
             for(const auto& point : polyPoints)
             {
                 assert(this->referencePlane->contains(point) && "reference plane does not cointain point");
-                lowerPolyPoints.push_back(this->getLocalPosition(point));
+                lowerPolyPoints.push_back(this->getLocalPosition(point,VectorDim::Zero()));
             }
             addPatchesContainingPolygon(lowerPolyPoints);
         }
@@ -1121,7 +1151,7 @@ namespace model
                 VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
                 for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
                 {
-                    insideReferencePoint+=this->getLocalPosition(seg->P0);
+                    insideReferencePoint+=this->getLocalPosition(seg->P0,VectorDim::Zero());
                 }
                 insideReferencePoint/=this->referencePlane->meshIntersections.size();
                 assert(this->isInsideOuterBoundary(insideReferencePoint));
@@ -1291,7 +1321,16 @@ namespace model
             return patches().get(shift);
         }
         
-        
+        VectorDim getGlidePlaneShiftfromReferencePlane(const GlidePlane<dim> *gp) const 
+        {
+            const long int t(gp->key.planeIndex()-this->referencePlane->key.planeIndex());
+            const VectorDimI alphas(gp->key.reciprocalDirectionComponents().transpose()*periodicGlidePlaneFactory.N);
+            VectorDimI sol(VectorDimI::Zero());
+            solveDiophantine3vars(alphas,t,sol);
+//            VectorDim shift(periodicGlidePlaneFactory.B*sol.template cast<double>());
+//            return shift;
+            return periodicGlidePlaneFactory.B*sol.template cast<double>();
+        }
         
     };
     

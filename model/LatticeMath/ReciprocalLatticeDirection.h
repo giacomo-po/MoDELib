@@ -18,35 +18,22 @@ namespace model
 {
     template <int dim>
     struct ReciprocalLatticeDirection :
-//    /* inherits */ public LatticeGCD<dim>,
     /* inherits */ public ReciprocalLatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
-//        typedef LatticeBase<dim> LatticeBaseType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
-
-        
-//    public:
-        
         /**********************************************************************/
         ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
-//        /* base init */ LatticeGCDType(v),
-//        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
-//        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
         /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
         {
-//            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
         }
         
         /**********************************************************************/
         template<typename Derived>
         ReciprocalLatticeDirection(const Eigen::MatrixBase<Derived>& v,
                                    const Lattice<dim>& lat) :
-        //        /* base init */ LatticeGCDType(v),
-        //        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.covBasis,v.contraBasis)
-        //        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/this->gCD).eval()),v.lattice)
         /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),lat)
         {
             //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
@@ -63,14 +50,3 @@ namespace model
     
 } // end namespace
 #endif
-
-//        ReciprocalLatticeDirection(const VectorDimD& d) :
-//        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(LatticeBaseType::reciprocalLatticeDirection(d)))
-//        {
-//            //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
-//        }
-
-//        Eigen::Matrix<double,dim,1> cartesian() const
-//        {
-//            return (this->squaredNorm()>0)? ReciprocalLatticeVectorType::cartesian().normalized() : Eigen::Matrix<double,dim,1>::Zero();
-//        }

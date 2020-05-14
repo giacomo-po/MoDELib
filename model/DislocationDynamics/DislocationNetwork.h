@@ -1013,21 +1013,7 @@ namespace model
             if(simulationParameters.isPeriodicSimulation())
             {
 
-//                for (auto& nodeIter : this->nodes())
-//                {
-//                    if(!nodeIter.second->isBoundaryNode())
-//                    {
-//                        static_cast<typename NodeType::NodeBaseType* const>(nodeIter.second)->set_P(nodeIter.second->get_P()+nodeIter.second->get_V()*dt_in);
-//                        nodeIter.second->updatePeriodicLoopLinks();
-//                    }
-//                }
-                
 
-                
-//                for (auto& nodeIter : this->nodes())
-//                {
-//                    nodeIter.second->meshFaces().clear();
-//                }
                 
                 std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>> rveNodesMap;
                 for(const auto& pair : *periodicDislocationLoopFactory)
@@ -1036,22 +1022,10 @@ namespace model
                     if(!pair.second.expired())
                     {
                         const auto periodicLoop(pair.second.lock());
-                        periodicLoop->updateRVEloops(*this,dt_in,rveNodesMap);
+//                        periodicLoop->updateRVEloops(*this,dt_in,rveNodesMap);
                     }
                 }
                 
-
-                
-                
-                // remove mesh faces from boundary nodes
-//                model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
-//                const auto t1= std::chrono::system_clock::now();
-//
-//                for (auto& nodeIter : this->nodes())
-//                {// trigger regular calls in DislocationNode::moveGlide, but with zero motion
-//                    nodeIter.second->moveGlide(0.0);
-//                }
- //               model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
 
             }
             else

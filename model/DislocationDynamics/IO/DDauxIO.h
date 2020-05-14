@@ -74,7 +74,7 @@ namespace model
                         const auto periodicLoop(pair.second.lock());
                         addPeriodicGlidePlane(*periodicLoop->periodicGlidePlane);
                         
-                        for(const auto& node : periodicLoop->nodes())
+                        for(const auto& node : periodicLoop->sharedNodes())
                         {
                             if(!node.second.expired())
                             {

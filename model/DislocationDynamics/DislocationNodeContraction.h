@@ -332,7 +332,8 @@ namespace model
                             if(ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
                             {// the contraction point can be the averago of nA and nB, which should be internal for convex domains
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 8a"<<std::endl;);
-                                return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                                return contractToPosition(nA,nB,(*nA->glidePlanes().begin())->snapToPlane(0.5*(nA->get_P()+nB->get_P())),maxRange);
+//                                return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                             }
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                             {

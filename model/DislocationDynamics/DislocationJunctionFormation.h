@@ -603,9 +603,14 @@ namespace model
                 {
                     
                     const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
-//                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
-                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
+                    const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
+                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+                    const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
                     
+//                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
+//                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
+                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,glidePlane->snapToPlane(newNodeP),VectorDim::Zero(),1.0));
+
                     std::vector<std::shared_ptr<NodeType>> loopNodes;
 //                    std::vector<size_t> nodeIDs;
   
@@ -625,11 +630,14 @@ namespace model
 //                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
 //                                  DN.glidePlaneFactory.get(glissilePlaneKey));
 
-                    GlidePlaneKey<dim> glissilePlaneKey(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                    GlidePlaneKey<dim> glissilePlaneKey(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                    DN.insertLoop(loopNodes,
+//                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                                  DN.glidePlaneFactory.get(glissilePlaneKey));
+
                     DN.insertLoop(loopNodes,
                                   DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-                                  DN.glidePlaneFactory.get(glissilePlaneKey));
-
+                                  glidePlane);
                     
                     formedJunctions++;
                 }

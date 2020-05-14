@@ -177,42 +177,16 @@ namespace model
         
         NodeType* const masterNode;
     
-       typedef std::map<Eigen::Matrix<double, dim, 1>, std::shared_ptr<PeriodicDislocationNodeType>, CompareVectorsByComponent<double,dim,float>> ShiftNodeMapType;
+//        typedef std::map<Eigen::Matrix<double, dim, 1>, std::shared_ptr<PeriodicDislocationNodeType>, CompareVectorsByComponent<double,dim,float>> ShiftNodeMapType;
         
-        // typedef std::map<const PeriodicDislocationLoopType*,SharedPeriodicNodeVectorType> SharedPeriodicNodeVectorType;
+        typedef std::vector<std::shared_ptr<PeriodicDislocationNodeType>> SharedPeriodicNodeVectorType;
         
-        std::map<const PeriodicDislocationLoopType*,ShiftNodeMapType> periodicNodeMap;
+        std::map<const PeriodicDislocationLoopType*,SharedPeriodicNodeVectorType> periodicNodeMap;
         
 //        std::map<std::set<size_t>,std::shared_ptr<NodeType>> imageSharedNodeContainer;
-        std::shared_ptr<PeriodicDislocationNodeType> getSharedPeriodicNode(const PeriodicDislocationLoopType& PeriodicDislocationLoopObj,const VectorDim& shift)
-        {
-            //This function does not have the capability to create new 3D nodes
-            std::cout<<this->sID<<" getting shared Periodic Node"<<std::endl;
-            const auto periodicLoopSharedObject(periodicNodeMap.find(&PeriodicDislocationLoopObj));
-            assert(periodicLoopSharedObject!=periodicNodeMap.end());
-            bool periodicNodeFound(false);
-            std::cout << "periodicNodeMap size is " << periodicNodeMap.size() << std::endl;
-            std::cout << "sharedNode size is " << periodicLoopSharedObject->second.size() << std::endl;
-            for (const auto pNodes : periodicLoopSharedObject->second)
-            {
-                std::cout<<"Inquiring for "<<pNodes.second->sID<<"at position "<<pNodes.second->get_P().transpose()<<std::endl;
-                std::cout<<"stored position is "<<this->sID<<"at position "<<PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift).transpose()<<std::endl;
-
-                // if ((pNodes->get_P()-PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift)).squaredNorm()<FLT_EPSILON)
-                if ((pNodes.first-shift).squaredNorm()<FLT_EPSILON)
-                {
-                    assert((pNodes.second->get_P()-PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift)).squaredNorm()<FLT_EPSILON);
-                    periodicNodeFound=true;
-                    std::cout<<redColor<<"returning "<<pNodes.second->sID<<defaultColor<<std::endl;
-                    return pNodes.second;
-                }
-            }
-            if (!periodicNodeFound)
-            {
-                assert(0 && "No PeriodicNodeFound");
-            }
-            return nullptr;
-        }
+        
+        
+        
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
         {
@@ -345,74 +319,44 @@ namespace model
             return virtualNode;
         }
         
-        // void updatePeriodicNodes(LoopLinkType* const pL)
-        // {
-        //     VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" creating PeriodicDislocationNodes from "<<pL->tag()<<std::endl;);
-        //     const auto periodicLoop(pL->loop()->periodicLoop.get());
-        //     if(periodicLoop)
-        //     {
-        //         const auto periodicLoopIter(periodicNodeMap.find(periodicLoop));
-        //         if (periodicLoopIter != periodicNodeMap.end())
-        //         { // periodicLoop found
-        //             for (auto &sharedNode : periodicLoopIter->second)
-        //             {
-        //                 sharedNode->addNode(this->p_derived(), pL->loop()->periodicShift);
-        //             }
-        //         }
-        //         else
-        //         {// periodicLoop not found
-        //             const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
-        //             sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
-        //             const auto pair(periodicNodeMap.emplace(periodicLoop,SharedPeriodicNodeVectorType{sharedNode}));
-        //             assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
-        //         }
-        //     }
-        // }
-        void updatePeriodicNodes(LoopLinkType *const pL)
+        void updatePeriodicNodes(LoopLinkType* const pL)
         {
-            VerbosePlanarDislocationNode(2, "PlanarDislocationNode " << this->sID << " creating PeriodicDislocationNodes from " << pL->tag() << std::endl;);
+            VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" creating PeriodicDislocationNodes from "<<pL->tag()<<std::endl;);
             const auto periodicLoop(pL->loop()->periodicLoop.get());
-            if (periodicLoop)
+            if(periodicLoop)
             {
                 const auto periodicLoopIter(periodicNodeMap.find(periodicLoop));
-                if (periodicLoopIter != periodicNodeMap.end())
-                { // periodicLoop found
-                    const auto shiftIter(periodicLoopIter->second.find(pL->loop()->periodicShift));
-                    if (shiftIter != periodicLoopIter->second.end())
-                    { // shift found
-                        shiftIter->second->addNode(this->p_derived(), pL->loop()->periodicShift);
-                        const auto currentP(periodicLoop->periodicGlidePlane->getLocalPosition(this->get_P(), pL->loop()->periodicShift));
-                        assert((shiftIter->second->get_P() - currentP).squaredNorm() < FLT_EPSILON && "Periodic position mismatch");
-                    }
-                    else
+                if(periodicLoopIter!=periodicNodeMap.end())
+                {// periodicLoop found
+                    for(auto& sharedNode : periodicLoopIter->second)
                     {
-                        // shift not found
-                        // std::shared_ptr<PeriodicDislocationNodeType>(new PeriodicDislocationNodeType(*periodicLoop,this->derived(),pL->loop()->periodicShift))
-                        const auto sharedNode(periodicLoop->getSharedNode(this->get_P(), pL->loop()->periodicShift));
-                        sharedNode->addNode(this->p_derived(), pL->loop()->periodicShift);
-                        const auto pair(periodicLoopIter->second.emplace(pL->loop()->periodicShift, sharedNode));
-                        assert(pair.second && "UNABLE TO INSERT periodicNode IN innerMap");
+                        sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
                     }
-                    // for (auto &sharedNode : periodicLoopIter->second)
-                    // {
-                    //     sharedNode.second->addNode(this->p_derived(), pL->loop()->periodicShift);
-                    // }
+//                    const auto shiftIter(iter->second.find(pL->loop()->periodicShift));
+//                    if(shiftIter!=iter->second.end())
+//                    {// shift found
+//                        const auto currentP(periodicLoop->periodicGlidePlane->getLocalPosition(this->get_P(),pL->loop()->periodicShift));
+//                        assert((shiftIter->second->get_P()-currentP).squaredNorm()<FLT_EPSILON && "Periodic position mismatch");
+//                    }
+//                    else
+//                    {// shift not found
+//                        // std::shared_ptr<PeriodicDislocationNodeType>(new PeriodicDislocationNodeType(*periodicLoop,this->derived(),pL->loop()->periodicShift))
+//                        const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
+//                        sharedNode->addNode(pL->loop()->periodicShift,this->p_derived());
+//                        const auto pair(iter->second.emplace(pL->loop()->periodicShift,sharedNode));
+//                        assert(pair.second &&  "UNABLE TO INSERT periodicNode IN innerMap");
+//                    }
                 }
                 else
-                { // periodicLoop not found
-                    const auto sharedNode(periodicLoop->getSharedNode(this->get_P(), pL->loop()->periodicShift));
-                    sharedNode->addNode (this->p_derived(),pL->loop()->periodicShift);
-                    const ShiftNodeMapType temp{{pL->loop()->periodicShift, sharedNode}};
-                    const auto pair(periodicNodeMap.emplace(periodicLoop, temp));
+                {// periodicLoop not found
+                    const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
+                    sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
+                    const auto pair(periodicNodeMap.emplace(periodicLoop,SharedPeriodicNodeVectorType{sharedNode}));
                     assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
-                    // const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
-                    // sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
-                    // const auto pair(periodicNodeMap.emplace(periodicLoop,SharedPeriodicNodeVectorType{sharedNode}));
-                    // assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {/*@param[in] pL LoopLink pointer
@@ -442,178 +386,7 @@ namespace model
             
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" finished removeLoopLink "<<pL->tag()<<std::endl;);
         }
-
-        /**********************************************************************/
-        //Adde by Yash
-//Improved version from the previous one
-        typedef std::tuple<NodeType *,NodeType *,NodeType *,double, double> PeriodicConnectivityType; 
-        PeriodicConnectivityType getNodesMapforPeriodicAssembly()
-        {
-            //Tuple nodes are i,j, and k
-            //lij,ljk are the lengths
-            PeriodicConnectivityType periodicnodeMap; 
-
-            if (this->network().simulationParameters.isPeriodicSimulation())
-            {
-                if (this->isBoundaryNode())
-                {
-                    for (const auto &loopLink : this->loopLinks())
-                    {
-                        if (!loopLink->pLink->isBoundarySegment())
-                        {
-                            if (loopLink->source()->sID == this->sID)
-                            {
-                                const auto nodeJ=loopLink->source().get();
-                                double lij=0;
-                                double ljk=0;
-                                auto periodicLoopLink(loopLink->loop()->periodicLoop->loopLinks().find(loopLink));
-                                auto periodicLoopLinkij(periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID));
-                                assert(periodicLoopLink->first==loopLink);
-                                auto periodicLoopLinkjk(periodicLoopLink->first);
-                                while(true)
-                                {
-                                    if (periodicLoopLinkij)
-                                    {
-                                        assert(periodicLoopLinkij->sink()->isBoundaryNode());
-                                        assert(periodicLoopLinkjk->source()->isBoundaryNode());
-                                        
-                                        lij=((periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm());
-                                        ljk=((periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm());
-
-                                        if (periodicLoopLinkij->source()->isBoundaryNode() || periodicLoopLinkjk->sink()->isBoundaryNode())
-                                        {
-                                            if (periodicLoopLinkij->source()->isBoundaryNode())
-                                            {
-                                                periodicLoopLink=periodicLoopLinkij->loop()->periodicLoop->loopLinks().find(periodicLoopLinkij->loop()->linkStartingAt(periodicLoopLinkij->source()->sID).second);
-                                                periodicLoopLinkij=periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-                                                if (periodicLoopLinkij)
-                                                {
-                                                    assert(periodicLoopLinkij->sink()->isBoundaryNode());
-                                                    lij += (periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm();
-                                                }
-                                                else
-                                                {
-                                                    break;
-                                                }
-
-                                            }
-                                            if (periodicLoopLinkjk->sink()->isBoundaryNode())
-                                            {
-                                                periodicLoopLink = periodicLoopLinkjk->loop()->periodicLoop->loopLinks().find(periodicLoopLinkjk->loop()->linkStartingAt(periodicLoopLinkjk->source()->sID).second);
-                                                periodicLoopLinkjk = periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-                                                if (periodicLoopLinkjk)
-                                                {
-                                                    assert(periodicLoopLinkjk->source()->isBoundaryNode());
-                                                    ljk += (periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm();
-                                                }
-                                                else
-                                                {
-                                                    break;
-                                                }
-                                                
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                    
-                                }
-                                if (periodicLoopLinkij && periodicLoopLinkjk)
-                                {
-                                    periodicnodeMap=std::make_tuple(periodicLoopLinkij->source().get(),nodeJ,periodicLoopLinkjk->sink().get(),lij,ljk);
-                                }
-                                
-                            }
-                            else
-                            {
-                                const auto nodeJ = loopLink->sink().get();
-                                double lij=0;
-                                double ljk=0;
-                                auto periodicLoopLink(loopLink->loop()->periodicLoop->loopLinks().find(loopLink));
-                                auto periodicLoopLinkij(periodicLoopLink->first);
-                                assert(periodicLoopLink->first==loopLink);
-                                auto periodicLoopLinkjk(periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID));
-                                while (true)
-                                {
-                                    if (periodicLoopLinkjk)
-                                    {
-
-                                        assert(periodicLoopLinkij->sink()->isBoundaryNode());
-                                        assert(periodicLoopLinkjk->source()->isBoundaryNode());
-
-                                        lij=((periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm());
-                                        ljk=((periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm());
-
-                                        if (periodicLoopLinkij->source()->isBoundaryNode() || periodicLoopLinkjk->sink()->isBoundaryNode())
-                                        {
-                                            if (periodicLoopLinkij->source()->isBoundaryNode())
-                                            {
-                                                periodicLoopLink = periodicLoopLinkij->loop()->periodicLoop->loopLinks().find(periodicLoopLinkij->loop()->linkStartingAt(periodicLoopLinkij->source()->sID).second);
-                                                periodicLoopLinkij = periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-                                                if (periodicLoopLinkij)
-                                                {
-                                                    assert(periodicLoopLinkij->sink()->isBoundaryNode());
-                                                    lij += (periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm();
-                                                }
-                                                else
-                                                {
-                                                    break;
-                                                }
-                                            }
-                                            if (periodicLoopLinkjk->sink()->isBoundaryNode())
-                                            {
-                                                periodicLoopLink = periodicLoopLinkjk->loop()->periodicLoop->loopLinks().find(periodicLoopLinkjk->loop()->linkStartingAt(periodicLoopLinkjk->source()->sID).second);
-                                                periodicLoopLinkjk = periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-                                                if (periodicLoopLinkjk)
-                                                {
-                                                    assert(periodicLoopLinkjk->source()->isBoundaryNode());
-                                                    ljk += (periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm();
-                                                }
-                                                else
-                                                {
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                        
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                                if (periodicLoopLinkij && periodicLoopLinkjk)
-                                {
-                                    periodicnodeMap=std::make_tuple(periodicLoopLinkij->source().get(),nodeJ, periodicLoopLinkjk->sink().get(), lij, ljk);
-                                }
-                            }
-                        }
-                    }
-                    return periodicnodeMap;
-                }
-                else
-                {
-                    assert(0 && "Improper Call for Internal Nodes....");
-                    return periodicnodeMap;
-                }
-            }
-            else
-            {
-                assert(0 && "Improper Call for non periodic Simulations....");
-                return periodicnodeMap;
-            }
-        }
+        
         /**********************************************************************/
         VectorOfNormalsType constraintNormals() const __attribute__ ((deprecated)) // REMOVE THIS FUNCTION AFTER CHANGING REMESH AND DISLOCATION NETWORK COMPONENT
         {
@@ -822,21 +595,6 @@ namespace model
             }
             return  temp;
         }
-        /**********************************************************************/
-        bool isConnectedToAtLeastOneBoundaryNode() const //Added by Yash
-        {
-            bool temp(false);
-
-            for (const auto &neighborIter : this->neighbors())
-            {
-                temp = (std::get<0>(neighborIter.second)->isBoundaryNode());
-                if (temp)
-                {
-                    break;
-                }
-            }
-            return temp;
-        }
         
         /**********************************************************************/
         bool isConnectedToBoundaryNodes() const
@@ -998,7 +756,7 @@ namespace model
                 const LinkType* secondLink(std::get<1>(this->neighbors().rbegin()->second));
                 const bool linksAligned(firstLink->chord().normalized().cross(secondLink->chord().normalized()).norm()<FLT_EPSILON);
                 const bool glideNode(this->glidePlanes().size()==1 && this->meshFaces().size()==0);
-                temp*=(linksAligned || glideNode); //rempve only for aligned nodes
+                temp*=(linksAligned||glideNode);
             }
             VerbosePlanarDislocationNode(4,temp<<std::endl;);
             return temp;
@@ -1064,12 +822,12 @@ namespace model
                           || isGeometricallyRemovable(Lmin,cosRemove)
                           )
                       );
-
-            //            for (const auto& pair :imageSharedNodeContainer)
-            //            {
-            //                temp*=pair.second->isRemovable(Lmin,cosRemove);
-            //            }
-            temp*=this->network().simulationParameters.isPeriodicSimulation() ? !(this->isBoundaryNode() || this->isConnectedToAtLeastOneBoundaryNode()) : true; //This is needed to be improved //added by Yash
+            
+//            for (const auto& pair :imageSharedNodeContainer)
+//            {
+//                temp*=pair.second->isRemovable(Lmin,cosRemove);
+//            }
+            
             VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" isRemovable "<<temp<<std::endl;);
             
             
@@ -1234,22 +992,6 @@ namespace model
 //        }
         
         /**********************************************************************/
-        bool set_P_WO_Confinement(const VectorDim& newP)
-        {
-            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"["<<this->isBoundaryNode()<<"]"<<"::set_P. current P="<< this->get_P().transpose()<<", set_P to "<<newP.transpose()<<std::endl;);
-            if (this->network().simulationParameters.isPeriodicSimulation())
-            { // periodic simulation
-                NodeBaseType::set_P(newP);
-                for (const auto &loopLink : this->loopLinks())
-                {
-                    updatePeriodicNodes(loopLink);
-                }
-            }
-
-            return ((this->get_P()-newP).squaredNorm()<FLT_EPSILON);
-        }
-
-        /**********************************************************************/
         bool set_P(const VectorDim& newP)
         {
             // may have to skip everything if newP is get_P
@@ -1264,18 +1006,24 @@ namespace model
             
             //            if(glidePlanesContained)
             //            {
-         
+            if(this->network().simulationParameters.isPeriodicSimulation())
+            {// periodic simulation
+                NodeBaseType::set_P(newP);
+                for(const auto& loopLink : this->loopLinks())
+                {
+                    updatePeriodicNodes(loopLink);
+                }
 
-// //                for(auto& pair1 : periodicNodeMap)
-// //                {
-// //                    for(auto& pair2 : pair1.second)
-// //                    {
-// //                        assert((this->get_P()-pair1.first->periodicGlidePlane->getGlobalPosition(pair2.second)-pair2.first).squaredNorm()<FLT_EPSILON && "RVE and periodic positions mismatch");
-// //                    }
-// //                }
-//             }
-//             else
-            // {// non-periodic simulation
+//                for(auto& pair1 : periodicNodeMap)
+//                {
+//                    for(auto& pair2 : pair1.second)
+//                    {
+//                        assert((this->get_P()-pair1.first->periodicGlidePlane->getGlobalPosition(pair2.second)-pair2.first).squaredNorm()<FLT_EPSILON && "RVE and periodic positions mismatch");
+//                    }
+//                }
+            }
+            else
+            {// non-periodic simulation
                 if(this->isOnBoundary() || this->boundingBoxSegments().contains(newP))
                 {// node was on bounding box, it must remain on bounding box
                     VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case A "<<std::endl;);
@@ -1322,7 +1070,7 @@ namespace model
                         setToBoundary(X);
                     }
                 }
-            // }
+            }
             
             
             
@@ -1333,14 +1081,9 @@ namespace model
             
             
 //            updatePeriodicLoopLinks();
-            if (this->network().simulationParameters.isPeriodicSimulation())
-            { // periodic simulation update 2D nodes as well.
-                for (const auto &loopLink : this->loopLinks())
-                {
-                    updatePeriodicNodes(loopLink);
-                }
-            }
 
+
+            
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" this->isOnBoundary()="<<this->isOnBoundary()<<std::endl;);
             const double posDelta((this->get_P()-newP).norm());
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" posDelta="<<posDelta<<std::endl;);
