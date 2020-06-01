@@ -202,10 +202,10 @@ namespace model
                 }
                 
                 // Update ddActors
-                meshActor.update(frameID/*,lastFrameID,degPerStep,spinAxis*/);
+                ddAux.reset(new DDauxVtk(frameID,ddRenderer));
+                meshActor.update(*ddAux/*,lastFrameID,degPerStep,spinAxis*/);
                 ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
 //                ddPK.reset(new PKActor(frameID,ddRenderer));
-                ddAux.reset(new DDauxVtk(frameID,ddRenderer));
                 inclusions.reset(new InclusionActor(0,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
                 

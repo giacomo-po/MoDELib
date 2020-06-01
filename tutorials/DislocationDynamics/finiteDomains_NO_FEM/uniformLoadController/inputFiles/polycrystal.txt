@@ -1,7 +1,7 @@
 materialFile=../../MaterialsLibrary/Cu.txt;
-#meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
+meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
 #meshFile=../../MeshLibrary/polycrystalCyl_50.msh;
-meshFile=../../MeshLibrary/polycrystalCube_50.msh;
+#meshFile=../../MeshLibrary/polycrystalCube_50.msh;
 
 C2G1=1 0 0
      0 1 0

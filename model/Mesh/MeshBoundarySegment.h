@@ -15,6 +15,7 @@
 #include <FiniteLineSegment.h>
 #include <PlanarMeshFace.h>
 #include <LineLineIntersection.h>
+#include <PlanePlaneIntersection.h>
 
 namespace model
 {

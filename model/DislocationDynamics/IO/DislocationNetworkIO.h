@@ -649,38 +649,38 @@ namespace model
             //            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
             //            typedef typename FieldPointType::DisplacementField DisplacementField;
             
-            if(DN.outputMeshDisplacement)
-            {
-                
-                const auto t0=std::chrono::system_clock::now();
-                model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
-                model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                model::SequentialOutputFile<'D',true> d_file;
-                model::cout<<"		writing to D/D_"<<d_file.sID<<std::flush;
-                
-                std::vector<FEMnodeEvaluation<ElementType,dim,1>> fieldPoints; // the container of field points
-                fieldPoints.reserve(DN.mesh.template observer<0>().size());
-                for (const auto& sIter : DN.mesh.template observer<0>())
-                {
-                    if(sIter.second->isBoundarySimplex())
-                    {
-                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
-                    }
-                }
-                
-                DN.displacement(fieldPoints);
-                
-                for(auto& node : fieldPoints)
-                {// add FEM solution and output
-                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
-                    {
-                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
-                        node+=DN.bvpSolver->displacement().dofs(femID);
-                    }
-                    d_file<<node.pointID<<" "<<node.transpose()<<"\n";
-                }
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
+//            if(DN.outputMeshDisplacement)
+//            {
+//                
+//                const auto t0=std::chrono::system_clock::now();
+//                model::SequentialOutputFile<'D',1>::set_count(runID); // Vertices_file;
+//                model::SequentialOutputFile<'D',1>::set_increment(DN.outputFrequency); // Vertices_file;
+//                model::SequentialOutputFile<'D',true> d_file;
+//                model::cout<<"        writing to D/D_"<<d_file.sID<<std::flush;
+//                
+//                std::vector<FEMnodeEvaluation<ElementType,dim,1>> fieldPoints; // the container of field points
+//                fieldPoints.reserve(DN.mesh.template observer<0>().size());
+//                for (const auto& sIter : DN.mesh.template observer<0>())
+//                {
+//                    if(sIter.second->isBoundarySimplex())
+//                    {
+//                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
+//                    }
+//                }
+//                
+//                DN.displacement(fieldPoints);
+//                
+//                for(auto& node : fieldPoints)
+//                {// add FEM solution and output
+//                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+//                    {
+//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+//                        node+=DN.bvpSolver->displacement().dofs(femID);
+//                    }
+//                    d_file<<node.pointID<<" "<<node.transpose()<<"\n";
+//                }
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
             
             if(DN.outputSegmentPairDistances)
             {

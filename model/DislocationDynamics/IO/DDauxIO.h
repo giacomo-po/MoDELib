@@ -20,6 +20,8 @@
 #include <DislocationQuadraturePointIO.h>
 #include <PeriodicLoopLinkIO.h>
 #include <PeriodicLoopNodeIO.h>
+#include <MeshNodeIO.h>
+#include <DefectiveCrystalParameters.h>
 
 namespace model
 {
@@ -27,6 +29,7 @@ namespace model
     
     template <int dim>
     struct DDauxIO : public DDbaseIO
+    /*            */,private std::vector<MeshNodeIO<dim>>
     /*            */,private std::vector<GlidePlaneBoundaryIO<dim>>
     /*            */,private std::vector<PeriodicPlanePatchIO<dim>>
     /*            */,private std::vector<DislocationQuadraturePointIO<dim>>
@@ -48,6 +51,32 @@ namespace model
         /* init */ DDbaseIO("evl","ddAux",suffix)
         {
 
+            if(DN.outputMeshDisplacement)
+            {
+                std::vector<FEMnodeEvaluation<typename DislocationNodeType::ElementType,dim,1>> fieldPoints; // the container of field points
+                fieldPoints.reserve(DN.mesh.template observer<0>().size());
+                for (const auto& sIter : DN.mesh.template observer<0>())
+                {
+                    if(sIter.second->isBoundarySimplex())
+                    {
+                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
+                    }
+                }
+                meshNodes().reserve(fieldPoints.size());
+                
+                DN.displacement(fieldPoints);
+                
+                for(auto& node : fieldPoints)
+                {// add FEM solution and output
+                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+                    {
+                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+                        node+=DN.bvpSolver->displacement().dofs(femID);
+                    }
+                    meshNodes().emplace_back(node);
+                }
+            }
+            
             if (DN.outputQuadraturePoints)
             {
                 for (const auto& link : DN.links())
@@ -124,6 +153,17 @@ namespace model
 //        {
 //            quadraturePoints().push_back(qPoint);
 //        }
+
+        /**********************************************************************/
+        const std::vector<MeshNodeIO<dim>>& meshNodes() const
+        {
+            return *this;
+        }
+        
+        std::vector<MeshNodeIO<dim>>& meshNodes()
+        {
+            return *this;
+        }
         
         /**********************************************************************/
         const std::vector<GlidePlaneBoundaryIO<dim>>& glidePlanesBoundaries() const
@@ -203,6 +243,7 @@ namespace model
             {
                 std::cout<<"Writing "<<filename<<std::flush;
                 // Write header
+                file<<meshNodes().size()<<"\n";
                 file<<quadraturePoints().size()<<"\n";
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
@@ -210,6 +251,10 @@ namespace model
                 file<<periodicLoopLinks().size()<<"\n";
 
                 // Write body
+                for(const auto& mPoint : meshNodes())
+                {
+                    file<<mPoint<<"\n";
+                }
                 for(const auto& qPoint : quadraturePoints())
                 {
                     file<<qPoint<<"\n";
@@ -251,6 +296,7 @@ namespace model
             {
                 std::cout<<"Writing "<<filename<<std::flush;
                 // Write header
+                binWrite(file,meshNodes().size());
                 binWrite(file,quadraturePoints().size());
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());
@@ -258,6 +304,10 @@ namespace model
                 binWrite(file,periodicLoopLinks().size());
 
                 // Write body
+                for(const auto& mPoint : meshNodes())
+                {
+                    binWrite(file,mPoint);
+                }
                 for(const auto& qPoint : quadraturePoints())
                 {
                     binWrite(file,qPoint);
@@ -302,6 +352,8 @@ namespace model
                 model::cout<<"reading "<<filename<<std::flush;
 
                 // Read header
+                size_t sizeMP;
+                infile.read (reinterpret_cast<char*>(&sizeMP), 1*sizeof(sizeMP));
                 size_t sizeQP;
                 infile.read (reinterpret_cast<char*>(&sizeQP), 1*sizeof(sizeQP));
                 size_t sizeGP;
@@ -314,6 +366,8 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizePLL), 1*sizeof(sizePLL));
 
                 // Read body
+                meshNodes().resize(sizeMP);
+                infile.read (reinterpret_cast<char*>(meshNodes().data()),meshNodes().size()*sizeof(MeshNodeIO<dim>));
                 quadraturePoints().resize(sizeQP);
                 infile.read (reinterpret_cast<char*>(quadraturePoints().data()),quadraturePoints().size()*sizeof(DislocationQuadraturePointIO<dim>));
                 glidePlanesBoundaries().resize(sizeGP);
@@ -351,6 +405,12 @@ namespace model
                 std::string line;
                 std::stringstream ss;
 
+                size_t sizeMP;
+                std::getline(infile, line);
+                ss<<line;
+                ss >> sizeMP;
+                ss.clear();
+                
                 size_t sizeQP;
                 std::getline(infile, line);
                 ss<<line;
@@ -380,6 +440,16 @@ namespace model
                 ss<<line;
                 ss >> sizePLL;
                 ss.clear();
+
+                meshNodes().clear();
+                meshNodes().reserve(sizeMP);
+                for(size_t k=0;k<sizeMP;++k)
+                {
+                    std::getline(infile, line);
+                    ss<<line;
+                    meshNodes().emplace_back(ss);
+                    ss.clear();
+                }
                 
                 quadraturePoints().clear();
                 quadraturePoints().reserve(sizeQP);
@@ -446,6 +516,7 @@ namespace model
         void printLog(const std::chrono::time_point<std::chrono::system_clock>& t0) const
         {
             model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            model::cout<<"  "<<meshNodes().size()<<" meshNodes "<<std::endl;
             model::cout<<"  "<<glidePlanesBoundaries().size()<<" glidePlanesBoundaries "<<std::endl;
             model::cout<<"  "<<periodicGlidePlanePatches().size()<<" periodicPlanePatches"<<std::endl;
             model::cout<<"  "<<quadraturePoints().size()<<" quadraturePoints"<<std::endl;

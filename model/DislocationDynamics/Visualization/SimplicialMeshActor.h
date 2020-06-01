@@ -42,6 +42,7 @@
 #include <SimplicialMesh.h>
 //#include <VertexReader.h>
 #include <IDreader.h>
+#include <DDauxIO.h>
 
 // See this for plane interactor
 // https://www.vtk.org/Wiki/VTK/Examples/Cxx/Widgets/ImplicitPlaneWidget2
@@ -53,13 +54,15 @@ namespace model
 {
     
     //    struct SimplicialMeshActor : public VertexReader<'D',4,float>//: public vtkSmartPointer<vtkActor>
-    struct SimplicialMeshActor : public IDreader<'D',1,3,float>//: public vtkSmartPointer<vtkActor>
+    struct SimplicialMeshActor  //public IDreader<'D',1,3,float>//: public vtkSmartPointer<vtkActor>
     {
         
         //        typedef VertexReader<'D',4,float> DispContainerType;
-        typedef IDreader<'D',1,3,float> DispContainerType;
+//        typedef IDreader<'D',1,3,float> DispContainerType;
         
         static double dispCorr;
+        
+        std::map<size_t,std::pair<size_t,Eigen::Matrix<double,3,1>>> sIDtoVtkPointsMap;
         
         vtkSmartPointer<vtkPoints> pts;
         vtkSmartPointer<vtkPolyData> polydata;
@@ -129,27 +132,59 @@ namespace model
             
             polydata->Allocate();
 
-            size_t connectivityID=0;
+            size_t pointID(0);
+            for (const auto& node : mesh.observer<0>())
+            {
+                if(node.second->isBoundarySimplex())
+                {
+                    pts->InsertNextPoint(node.second->P0(0),
+                                         node.second->P0(1),
+                                         node.second->P0(2));
+                    
+//                    pts->InsertNextPoint(edge.second->child(1).P0(0),
+//                                         edge.second->child(1).P0(1),
+//                                         edge.second->child(1).P0(2));
+                    sIDtoVtkPointsMap.emplace(node.second->xID(0),std::make_pair(pointID,Eigen::Matrix<double,3,1>::Zero()));
+                    pointID++;
+                }
+            }
+            
+//            std::cout<<"done inserting points"<<std::endl;
+            
+//            size_t connectivityID=0;
             for (const auto& edge : mesh.observer<1>())
             {
                 if(edge.second->isBoundarySimplex())
                 {
-                    pts->InsertNextPoint(edge.second->child(0).P0(0),
-                                         edge.second->child(0).P0(1),
-                                         edge.second->child(0).P0(2));
+//                    pts->InsertNextPoint(edge.second->child(0).P0(0),
+//                                         edge.second->child(0).P0(1),
+//                                         edge.second->child(0).P0(2));
+//
+//                    pts->InsertNextPoint(edge.second->child(1).P0(0),
+//                                         edge.second->child(1).P0(1),
+//                                         edge.second->child(1).P0(2));
                     
-                    pts->InsertNextPoint(edge.second->child(1).P0(0),
-                                         edge.second->child(1).P0(1),
-                                         edge.second->child(1).P0(2));
-                    
+//                    connectivity[0] = connectivityID;
+//                    connectivity[1] = connectivityID+1;
+
+                    const auto iter0(sIDtoVtkPointsMap.find(edge.second->child(0).xID(0)));
+                    assert(iter0!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
+
+                    const auto iter1(sIDtoVtkPointsMap.find(edge.second->child(1).xID(0)));
+                    assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
+
                     vtkIdType connectivity[2];
-                    connectivity[0] = connectivityID;
-                    connectivity[1] = connectivityID+1;
+                    connectivity[0] = iter0->second.first;
+                    connectivity[1] = iter1->second.first;
+
+
                     polydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
                     
-                    connectivityID+=2;
+//                    connectivityID+=2;
                 }
             }
+            
+//                        std::cout<<"done inserting lines"<<std::endl;
             
             polydata->SetPoints(pts);
             
@@ -362,7 +397,8 @@ namespace model
             
             
             // Update
-            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
+//            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
+            modifyPts();
             
             // Render
             renderer->AddActor(actor);
@@ -371,22 +407,39 @@ namespace model
         }
         
         /**************************************************************************/
-        void update(const long int& frameID)
+        void update(const DDauxIO<3>& ddAux)
         {
             
-            if(DispContainerType::isGood(frameID,true))
+            
+            
+
+            for(const auto& node : ddAux.meshNodes())
             {
-                dispFileIsGood=true;
-                DispContainerType::read(frameID,true);
-                
-                modifyPts();
-                
-                
+                auto iter1(sIDtoVtkPointsMap.find(node.nodeID));
+                if(iter1!=sIDtoVtkPointsMap.end())
+                {
+                    iter1->second.second=node.displacement;
+                }
+//                assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
             }
-            else
-            {
-                dispFileIsGood=false;
-            }
+            
+
+            
+            modifyPts();
+
+//            if(DispContainerType::isGood(frameID,true))
+//            {
+//                dispFileIsGood=true;
+//                DispContainerType::read(frameID,true);
+//
+//                modifyPts();
+//
+//
+//            }
+//            else
+//            {
+//                dispFileIsGood=false;
+//            }
             
 //            const double axisNorm(spinAxis.norm());
 //            if(anglePerStep && axisNorm>0.0)
@@ -408,38 +461,59 @@ namespace model
         /**************************************************************************/
         void modifyPts()
         {
-            if(dispFileIsGood)
+//            if(dispFileIsGood)
+//            {
+//                size_t k=0;
+//                for (const auto& edge : mesh.observer<1>())
+//                {
+//                    if(edge.second->isBoundarySimplex())
+//                    {
+//                        DispContainerType::const_iterator iterD1(DispContainerType::find(edge.second->child(0).xID(0)));
+//                        DispContainerType::const_iterator iterD2(DispContainerType::find(edge.second->child(1).xID(0)));
+//                        //                        VertexReader<'D',4,float>::const_iterator iterD3(DispContainerType::find(triangleID.second[2]));
+//
+//                        assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+//                        assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+//                        //                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
+//
+//
+//                        const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second[0];
+//                        const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second[1];
+//                        const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second[2];
+//                        pts->SetPoint(k,x1,y1,z1);
+//
+//                        const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second[0];
+//                        const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second[1];
+//                        const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second[2];
+//                        pts->SetPoint(k+1,x2,y2,z2);
+//
+//                        k=k+2;
+//                    }
+//                }
+//
+//                pts->Modified();
+//            }
+            
+//            for(const auto& pair : sIDtoVtkPointsMap)
+//            {
+//                const auto nodeIter(mesh.observer<1>())
+//                pts->SetPoint(pair.second.first,x2,y2,z2)
+//            }
+            
+            for (const auto& node : mesh.observer<0>())
             {
-                size_t k=0;
-                for (const auto& edge : mesh.observer<1>())
+                if(node.second->isBoundarySimplex())
                 {
-                    if(edge.second->isBoundarySimplex())
-                    {
-                        DispContainerType::const_iterator iterD1(DispContainerType::find(edge.second->child(0).xID(0)));
-                        DispContainerType::const_iterator iterD2(DispContainerType::find(edge.second->child(1).xID(0)));
-                        //                        VertexReader<'D',4,float>::const_iterator iterD3(DispContainerType::find(triangleID.second[2]));
-                        
-                        assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                        assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                        //                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-                        
-                        
-                        const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second[0];
-                        const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second[1];
-                        const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second[2];
-                        pts->SetPoint(k,x1,y1,z1);
-                        
-                        const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second[0];
-                        const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second[1];
-                        const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second[2];
-                        pts->SetPoint(k+1,x2,y2,z2);
-                        
-                        k=k+2;
-                    }
+                    
+                    const auto nodeIter(sIDtoVtkPointsMap.find(node.second->xID(0)));
+                    assert(nodeIter!=sIDtoVtkPointsMap.end() && "node not found in sIDtoVtkPointsMap");
+                    
+                    Eigen::Matrix<double,3,1> newP(node.second->P0+dispCorr*nodeIter->second.second);
+                    pts->SetPoint(nodeIter->second.first,newP(0),newP(1),newP(2));
+                    
                 }
-                
-                pts->Modified();
             }
+            pts->Modified();
             
 //            size_t t=0;
 //            for(const auto& meshTriangle : mesh.observer<2>())
