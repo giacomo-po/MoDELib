@@ -4,14 +4,14 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e13;
+targetStraightDislocationDensity=1e14;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
 # Frank-Read sources
 targetFrankReadDislocationDensity=0e14;
-FrankReadSizeMean=0.5e-6;
-FrankReadSizeStd=0.05e-6;
+FrankReadSizeMean=0.1e-6;
+FrankReadSizeStd=0.01e-6;
 FrankReadAspectRatioMean=2.0;
 FrankReadAspectRatioStd=1.0;
 

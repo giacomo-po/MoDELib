@@ -49,8 +49,8 @@ namespace model
             
             
             // Define line AB containing dislocaiton and piercing the mesh
-            const VectorDim A=P0+3.0*maxSize*d;
-            const VectorDim B=P0-3.0*maxSize*d;
+            const VectorDim A(P0+3.0*maxSize*d);
+            const VectorDim B(P0-3.0*maxSize*d);
             
 //            MeshPlane<dim> plane(mesh,grainID,P0,n);
             //            const auto& segDeq(plane.meshIntersections);

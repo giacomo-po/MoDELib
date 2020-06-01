@@ -89,7 +89,7 @@ namespace model
                         if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
                         {
                             VerboseJunctions(3,"attractive pair"<<std::endl;);
-                            isValidJunction=true;
+                            isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
                         }
                         else
                         {

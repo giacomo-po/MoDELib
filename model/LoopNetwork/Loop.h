@@ -151,7 +151,7 @@ namespace model
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {
-            const bool success=links().insert(std::make_pair(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID),pL)).second;
+            const bool success=links().insert(std::make_pair(LinkType::linkKey(pL),pL)).second;
             if(!success)
             {
                 std::cout<<"DislocationLoop "<<this->sID<<" cannot add LoopLink "<<pL->tag()<<std::endl;
@@ -163,7 +163,7 @@ namespace model
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
-            const size_t erased=links().erase(LoopLinkType::networkLinkKey(pL->source()->sID,pL->sink()->sID));
+            const size_t erased=links().erase(LinkType::linkKey(pL));
             assert(erased==1 && "Could not erase from linkMap");
         }
 

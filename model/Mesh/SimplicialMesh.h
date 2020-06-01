@@ -44,7 +44,7 @@ namespace model
     /*                  */,public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>>
     /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
-//    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
+    //    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
         
         Eigen::Matrix<double,_dim,1> _xMin;
@@ -59,42 +59,42 @@ namespace model
             
             vol0=0.0;
             
-
-                const auto t0= std::chrono::system_clock::now();
+            
+            const auto t0= std::chrono::system_clock::now();
             
             model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::flush;
-                for (const auto& eIter : this->simplexReader().elements())
-                {
-                    insertSimplex(eIter.second.first,eIter.second.second);
-                }
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-                
-                this->info(); // print mesh info
+            for (const auto& eIter : this->simplexReader().elements())
+            {
+                insertSimplex(eIter.second.first,eIter.second.second);
+            }
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
-                if(simplices().size())
+            this->info(); // print mesh info
+            
+            if(simplices().size())
+            {
+                _xMin=this->template observer<0>().begin()->second->P0;
+                _xMax=this->template observer<0>().begin()->second->P0;
+                
+                for (const auto& nIter : this->template observer<0>())
                 {
-                    _xMin=this->template observer<0>().begin()->second->P0;
-                    _xMax=this->template observer<0>().begin()->second->P0;
-                    
-                    for (const auto& nIter : this->template observer<0>())
+                    for(int d=0;d<dim;++d)
                     {
-                        for(int d=0;d<dim;++d)
+                        if (nIter.second->P0(d)<_xMin(d))
                         {
-                            if (nIter.second->P0(d)<_xMin(d))
-                            {
-                                _xMin(d)=nIter.second->P0(d);
-                            }
-                            if (nIter.second->P0(d)>_xMax(d))
-                            {
-                                _xMax(d)=nIter.second->P0(d);
-                            }
+                            _xMin(d)=nIter.second->P0(d);
+                        }
+                        if (nIter.second->P0(d)>_xMax(d))
+                        {
+                            _xMax(d)=nIter.second->P0(d);
                         }
                     }
                 }
-                else
-                {
-                    model::cout<<"Mesh is empty."<<std::endl;
-                }
+            }
+            else
+            {
+                model::cout<<"Mesh is empty."<<std::endl;
+            }
             model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
             model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
             
@@ -219,15 +219,15 @@ namespace model
             this->simplexReader().clear();
         }
         
-                /**********************************************************************/
+        /**********************************************************************/
         void readMesh(const std::string& meshFileName)
-                {
-                    simplices().clear();
-                    this->read(meshFileName);
-                    createMesh();
-                    this->simplexReader().clear();
-                }
-                
+        {
+            simplices().clear();
+            this->read(meshFileName);
+            createMesh();
+            this->simplexReader().clear();
+        }
+        
         /**********************************************************************/
         const SimplexMapType& simplices() const
         {
@@ -261,7 +261,7 @@ namespace model
                 {// add each face to the region boundary to the corresponding two regions
                     region1->faces().emplace(face.second->sID,face.second);
                     region2->faces().emplace(face.second->sID,face.second);
-
+                    
                 }
             }
         }
@@ -372,18 +372,18 @@ namespace model
                 {
                     if(bary(k)<=FLT_EPSILON)
                     {
-//                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
-//                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
-//                        {
-//                            if((*pIter)->region->regionID==temp.second->region->regionID || searchAllRegions)
-//                            {
-//                                (*pIter)->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
-//                                if (lastSearched.first)
-//                                {
-//                                    break;
-//                                }
-//                            }
-//                        }
+                        //                        for(typename Simplex<dim,dim-1>::ParentContainerType::const_iterator pIter=temp.second->child(k).parentBegin();
+                        //                            /*                                                            */ pIter!=temp.second->child(k).parentEnd();++pIter)
+                        //                        {
+                        //                            if((*pIter)->region->regionID==temp.second->region->regionID || searchAllRegions)
+                        //                            {
+                        //                                (*pIter)->convexDelaunaynSearch(searchAllRegions,P,lastSearched,searchSet);
+                        //                                if (lastSearched.first)
+                        //                                {
+                        //                                    break;
+                        //                                }
+                        //                            }
+                        //                        }
                         for(const auto& pIter : temp.second->child(k).parents())
                         {
                             if(pIter.second->region->regionID==temp.second->region->regionID || searchAllRegions)
@@ -524,16 +524,16 @@ namespace model
         {
             return *this;
         }
-
-//        const MeshFacesContainerType& faces() const
-//        {
-//            return *this;
-//        }
-//
-//        MeshFacesContainerType& faces()
-//        {
-//            return *this;
-//        }
+        
+        //        const MeshFacesContainerType& faces() const
+        //        {
+        //            return *this;
+        //        }
+        //
+        //        MeshFacesContainerType& faces()
+        //        {
+        //            return *this;
+        //        }
         
         /**********************************************************************/
         const MeshRegionBoundaryType& regionBoundary(const int& i,const int& j) const
@@ -542,7 +542,7 @@ namespace model
         }
         
         
-
+        
         
     };
     

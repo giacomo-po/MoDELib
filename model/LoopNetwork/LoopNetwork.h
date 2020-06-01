@@ -60,10 +60,12 @@ namespace model
     /*               */ public NodeObserver<typename TypeTraits<Derived>::NodeType>,
     /*               */ public NetworkLinkObserver<typename TypeTraits<Derived>::LinkType>,
 //    /*               */ private std::map<size_t,std::shared_ptr<typename TypeTraits<Derived>::NodeType>>,
-    /*               */ private std::multimap<std::pair<size_t,size_t>,
-    /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>,
-    /*                                     */ std::less<std::pair<size_t,size_t>>
-    /*                                     */ >
+//    /*               */ private std::multimap<std::pair<size_t,size_t>,
+//    /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>,
+//    /*                                     */ std::less<std::pair<size_t,size_t>>
+//    /*                                     */ >
+    /*               */ private std::map<typename LoopLink<typename TypeTraits<Derived>::LinkType>::KeyType,
+    /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>>
     {
         
     public:
@@ -76,10 +78,12 @@ namespace model
         typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
         
         //        typedef std::multimap<std::pair<size_t,size_t>,LoopLinkType> LoopLinkContainerType;
-        typedef std::multimap<std::pair<size_t,size_t>,
-        /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
-        /*                 */ std::less<std::pair<size_t,size_t>>
-        /*                 */ > LoopLinkContainerType;
+//        typedef std::multimap<std::pair<size_t,size_t>,
+//        /*                 */ LoopLink<typename TypeTraits<Derived>::LinkType>,
+//        /*                 */ std::less<std::pair<size_t,size_t>>
+//        /*                 */ > LoopLinkContainerType;
+        typedef std::map<typename LoopLink<typename TypeTraits<Derived>::LinkType>::KeyType,
+        /*                                     */ LoopLink<typename TypeTraits<Derived>::LinkType>> LoopLinkContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
         typedef typename NetworkLinkObserverType::IsNetworkLinkType IsNetworkLinkType;
@@ -134,31 +138,48 @@ namespace model
             {
                 //check if n1->n0 exist for the same loop
                 //            const auto iterPair = loopLinks().equal_range(std::pair<size_t,size_t>(n1->sID,n0->sID));
-                const auto key=LoopLinkType::networkLinkKey(n0,n1); // even for LoopLinks we store with key (minID,maxID)
-                const auto iterPair = loopLinks().equal_range(key);
+
+                const auto key=LoopLinkType::loopLinkKey(tempLoop,n0,n1); // even for LoopLinks we store with key (minID,maxID)
+//                const auto iterPair = loopLinks().equal_range(key);
                 
-                typename LoopLinkContainerType::const_iterator loopIter=iterPair.second;
-                for (loopIter=iterPair.first;loopIter!=iterPair.second;++loopIter)
-                {
-                    if(loopIter->second.loop().get()==tempLoop.get() && // link in same loop
-                       loopIter->second.source()->sID==n1->sID && loopIter->second.sink()->sID==n0->sID) // opposite link exists
-                    {
-                        break;
-                    }
-                    
-                }
-                
-                if(loopIter!=iterPair.second)
-                {// opposite link exists, disconnect it
-                    loopLinks().erase(loopIter);
+                const auto linkIter(loopLinks().find(key));
+                if(linkIter==loopLinks().end())
+                {// link not found
+                    loopLinks().try_emplace(key,n0,n1, tempLoop);
                 }
                 else
-                {// opposite link does not exists, connect n0->n1
-                    loopLinks().emplace(std::piecewise_construct,
-                                        std::make_tuple(key.first,key.second),
-                                        std::make_tuple(n0,n1, tempLoop)
-                                        );
+                {// link found
+                    if(linkIter->second.source()->sID==n1->sID && linkIter->second.sink()->sID==n0->sID)
+                    {// If opposite direction disconnect
+                        loopLinks().erase(linkIter);
+                    }
                 }
+                
+//                const auto key=LoopLinkType::loopLinkKey(n0,n1); // even for LoopLinks we store with key (minID,maxID)
+//                const auto iterPair = loopLinks().equal_range(key);
+//
+//                typename LoopLinkContainerType::const_iterator loopIter=iterPair.second;
+//                for (loopIter=iterPair.first;loopIter!=iterPair.second;++loopIter)
+//                {
+//                    if(loopIter->second.loop().get()==tempLoop.get() && // link in same loop
+//                       loopIter->second.source()->sID==n1->sID && loopIter->second.sink()->sID==n0->sID) // opposite link exists
+//                    {
+//                        break;
+//                    }
+//
+//                }
+//
+//                if(loopIter!=iterPair.second)
+//                {// opposite link exists, disconnect it
+//                    loopLinks().erase(loopIter);
+//                }
+//                else
+//                {// opposite link does not exists, connect n0->n1
+//                    loopLinks().emplace(std::piecewise_construct,
+//                                        std::make_tuple(key.first,key.second),
+//                                        std::make_tuple(n0,n1, tempLoop)
+//                                        );
+//                }
             }
             
         }
@@ -169,19 +190,24 @@ namespace model
             
             IsLoopLinkType temp=IsLoopLinkType(false,nullptr);
             
-            const auto key=LoopLinkType::networkLinkKey(n0,n1);
-            const auto iterPair = loopLinks().equal_range(key);
-            for(typename LoopLinkContainerType::iterator loopIter=iterPair.first;
-                /*                                          */ loopIter!=iterPair.second;
-                /*                                          */ loopIter++)
-            {
-                if(loopIter->second.loop().get()==loop.get() &&
-                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
-                {
-                    temp=IsLoopLinkType(true,&loopIter->second);
-                    break;
-                }
+            const auto key=LoopLinkType::loopLinkKey(loop,n0,n1);
+            const auto linkIter(loopLinks().find(key));
+            if(linkIter!=loopLinks().end())
+            {// link found
+                temp=IsLoopLinkType(true,&linkIter->second);
             }
+//            const auto iterPair = loopLinks().equal_range(key);
+//            for(typename LoopLinkContainerType::iterator loopIter=iterPair.first;
+//                /*                                          */ loopIter!=iterPair.second;
+//                /*                                          */ loopIter++)
+//            {
+//                if(loopIter->second.loop().get()==loop.get() &&
+//                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
+//                {
+//                    temp=IsLoopLinkType(true,&loopIter->second);
+//                    break;
+//                }
+//            }
             return temp;
         }
         
@@ -189,51 +215,53 @@ namespace model
         size_t disconnect(const SharedNodePtrType& n0, const SharedNodePtrType& n1, const std::shared_ptr<LoopType>& loop)
         {
             VerboseLoopNetwork(1,"disconnecting "<<n0->sID<<"->"<<n1->sID<<" ("<<loop->sID<<")"<<std::endl);
-            size_t nDisconnected=0;
-            const auto key=LoopLinkType::networkLinkKey(n0,n1);
-            const auto iterPair = loopLinks().equal_range(key);
-            
-            for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
-                /*                                          */ loopIter!=iterPair.second;
-                /*                                          */ loopIter++)
-            {
-                if(loopIter->second.loop().get()==loop.get() &&
-                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
-                {
-                    loopLinks().erase(loopIter);
-                    nDisconnected=1;
-                    nDisconnected+=disconnect(n0,n1,loop); // make sure that recursive calls don't find another link
-                    assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
-                    break;
-                }
-            }
-            return nDisconnected;
+//            size_t nDisconnected=0;
+//            const auto key=LoopLinkType::loopLinkKey(n0,n1);
+//            const auto iterPair = loopLinks().equal_range(key);
+//
+//            for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
+//                /*                                          */ loopIter!=iterPair.second;
+//                /*                                          */ loopIter++)
+//            {
+//                if(loopIter->second.loop().get()==loop.get() &&
+//                   loopIter->second.source()->sID==n0->sID && loopIter->second.sink()->sID==n1->sID)
+//                {
+//                    loopLinks().erase(loopIter);
+//                    nDisconnected=1;
+//                    nDisconnected+=disconnect(n0,n1,loop); // make sure that recursive calls don't find another link
+//                    assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
+//                    break;
+//                }
+//            }
+//            return nDisconnected;
+            return loopLinks().erase(LoopLinkType::loopLinkKey(loop,n0,n1));
         }
         
-        /**********************************************************************/
-        size_t disconnect(const size_t& sourceID, const size_t& sinkID, const size_t& loopID)
-        {
-            VerboseLoopNetwork(1,"disconnecting "<<sourceID<<"->"<<sinkID<<" ("<<loopID<<")"<<std::endl);
-            size_t nDisconnected=0;
-            const auto key=LoopLinkType::networkLinkKey(sourceID,sinkID);
-            const auto iterPair = loopLinks().equal_range(key);
-            
-            for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
-                /*                                          */ loopIter!=iterPair.second;
-                /*                                          */ loopIter++)
-            {
-                if(loopIter->second.loop()->sID==loopID &&
-                   loopIter->second.source()->sID==sourceID && loopIter->second.sink()->sID==sinkID)
-                {
-                    loopLinks().erase(loopIter);
-                    nDisconnected=1;
-                    nDisconnected+=disconnect(sourceID,sinkID,loopID); // make sure that recursive calls don't find another link
-                    assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
-                    break;
-                }
-            }
-            return nDisconnected;
-        }
+//        /**********************************************************************/
+//        size_t disconnect(const size_t& sourceID, const size_t& sinkID, const size_t& loopID)
+//        {
+//            VerboseLoopNetwork(1,"disconnecting "<<sourceID<<"->"<<sinkID<<" ("<<loopID<<")"<<std::endl);
+////            size_t nDisconnected=0;
+////            const auto key=LoopLinkType::loopLinkKey(sourceID,sinkID);
+////            const auto iterPair = loopLinks().equal_range(key);
+////
+////            for(typename LoopLinkContainerType::const_iterator loopIter=iterPair.first;
+////                /*                                          */ loopIter!=iterPair.second;
+////                /*                                          */ loopIter++)
+////            {
+////                if(loopIter->second.loop()->sID==loopID &&
+////                   loopIter->second.source()->sID==sourceID && loopIter->second.sink()->sID==sinkID)
+////                {
+////                    loopLinks().erase(loopIter);
+////                    nDisconnected=1;
+////                    nDisconnected+=disconnect(sourceID,sinkID,loopID); // make sure that recursive calls don't find another link
+////                    assert(nDisconnected==1 && "More than one LoopLink with same key and same loop exist.");
+////                    break;
+////                }
+////            }
+////            return nDisconnected;
+//            return loopLinks().erase(LoopLinkType::loopLinkKey(loopID,sourceID,sinkID));
+//        }
         
         
         /**********************************************************************/
@@ -501,44 +529,13 @@ namespace model
 //        }
 
 
-        /**********************************************************************/
-        SharedNodePtrType expand(const size_t& a, const size_t& b, const SharedNodePtrType& newNode)
-        {
-            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
-//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
-            const auto key=LoopLinkType::networkLinkKey(a,b);
-            const size_t& i=key.first;
-            const size_t& j=key.second;
-            
-            // Find NetworkLink i->j
-            const IsConstNetworkLinkType Lij(this->link(i,j));
-            return expand(Lij,newNode);
-        }
-        
-        /**********************************************************************/
-        template <typename ...NodeArgTypes>
-        SharedNodePtrType expand(const size_t& a, const size_t& b, const NodeArgTypes&... Args)
-        {
-            // Create new node
-            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
-//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
-            const auto key=LoopLinkType::networkLinkKey(a,b);
-            const size_t& i=key.first;
-            const size_t& j=key.second;
-            
-            // Find NetworkLink i->j
-            const IsConstNetworkLinkType Lij(this->link(i,j));
-            // Create new Node
-            SharedNodePtrType newNode=SharedNodePtrType(new NodeType(*Lij.second,Args...));
-            return expand(Lij,newNode);
-        }
+
         
         /**********************************************************************/
         SharedNodePtrType expand(const IsConstNetworkLinkType Lij, const SharedNodePtrType& newNode)
         {
             assert(Lij.first && "Expanding non-existing link");
+            VerboseLoopNetwork(1,"expanding "<<Lij.second->tag()<<std::endl);
             
             // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
             std::deque<ExpandTupleType> expandDeq;
@@ -547,16 +544,58 @@ namespace model
                 expandDeq.emplace_back(llink->source(),llink->sink(),llink->loop());
             }
             
-            // Delete all LoopLinks of type i->j or j->i
-            const auto key=LoopLinkType::networkLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
-            loopLinks().erase(key);
-            
-            for (const auto& tup : expandDeq)
+            for(const auto& tup : expandDeq)
             {
+                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
                 connect(std::get<0>(tup),newNode, std::get<2>(tup));
                 connect(newNode,std::get<1>(tup), std::get<2>(tup));
             }
+            
+//            // Delete all LoopLinks of type i->j or j->i
+//            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
+//            loopLinks().erase(key);
+            
+//            for (const auto& tup : expandDeq)
+//            {
+//                connect(std::get<0>(tup),newNode, std::get<2>(tup));
+//                connect(newNode,std::get<1>(tup), std::get<2>(tup));
+//            }
             return newNode;
+        }
+        
+        /**********************************************************************/
+        SharedNodePtrType expand(const size_t& a, const size_t& b, const SharedNodePtrType& newNode)
+        {
+//            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
+            //            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+            
+//            const auto key=LoopLinkType::loopLinkKey(a,b);
+//            const size_t& i=key.first;
+//            const size_t& j=key.second;
+            
+            // Find NetworkLink i->j
+            const IsConstNetworkLinkType Lij(this->link(std::min(a,b),std::max(a,b)));
+            return expand(Lij,newNode);
+        }
+        
+        /**********************************************************************/
+        template <typename ...NodeArgTypes>
+        SharedNodePtrType expand(const size_t& a, const size_t& b, const NodeArgTypes&... Args)
+        {
+            // Create new node
+//            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
+//            //            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
+//
+//            const auto key=LoopLinkType::loopLinkKey(a,b);
+//            const size_t& i=key.first;
+//            const size_t& j=key.second;
+//
+//            // Find NetworkLink i->j
+//            const IsConstNetworkLinkType Lij(this->link(i,j));
+//            // Create new Node
+//            SharedNodePtrType newNode=SharedNodePtrType(new NodeType(*Lij.second,Args...));
+            const IsConstNetworkLinkType Lij(this->link(std::min(a,b),std::max(a,b)));
+            return expand(Lij,SharedNodePtrType(new NodeType(*Lij.second,Args...)));
         }
         
         /**********************************************************************/
@@ -589,18 +628,35 @@ namespace model
                     if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
                     {
                         VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
+                
+                        
+                        std::vector<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<LoopType>>> linksToDisconect;
+                        
+                        auto currLink(linkAtI.second);
+                        while(currLink->source()->sID!=j)
+                        {
+                            linksToDisconect.emplace_back(currLink->source(),currLink->sink(),currLink->loop());
+                            currLink=currLink->next;
+                        }
                         
                         //std::shared_ptr<LoopType> tempLoop=loop.second->clone();
                         std::shared_ptr<LoopType> tempLoop(new LoopType(*loop.second));
+
+                        for(const auto& tup : linksToDisconect)
+                        {
+                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+                            connect(std::get<0>(tup),std::get<1>(tup),tempLoop);
+                        }
                         
                         
-                        linkAtI.second->resetLoop(tempLoop,i,j);
                         
-                        linkAtI.second->prev->next=nullptr;
-                        linkAtI.second->prev=nullptr;
-                        
-                        linkAtJ.second->prev->next=nullptr;
-                        linkAtJ.second->prev=nullptr;
+//                        linkAtI.second->resetLoop(tempLoop,i,j);
+//
+//                        linkAtI.second->prev->next=nullptr;
+//                        linkAtI.second->prev=nullptr;
+//
+//                        linkAtJ.second->prev->next=nullptr;
+//                        linkAtJ.second->prev=nullptr;
                         
                         connect(linkAtJ.second->source(),linkAtI.second->source(),tempLoop);
                         connect(linkAtI.second->source(),linkAtJ.second->source(),linkAtJ.second->loop());

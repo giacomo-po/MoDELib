@@ -81,12 +81,9 @@ namespace model
         /**********************************************************************/
         std::shared_ptr<LinkType> sharedLink(const std::shared_ptr<NodeType>& nI, const std::shared_ptr<NodeType>& nJ) const
         {
-        
             const std::pair<size_t,size_t> key=std::make_pair(std::min(nI->sID,nJ->sID),std::max(nI->sID,nJ->sID));
             const auto iterIJ(this->find(key));
-            
             return iterIJ==this->end()? std::shared_ptr<LinkType>(new LinkType(nI,nJ)) : (*iterIJ->second->loopLinks().begin())->pLink;
-
         }
 
         

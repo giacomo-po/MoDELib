@@ -44,6 +44,8 @@ namespace model
 
         LoopNetworkType* const loopNetwork;
         
+        typedef std::pair<size_t,size_t> KeyType;
+        
     private:
         
 
@@ -163,6 +165,28 @@ namespace model
         NetworkLink(const NetworkLink&) =delete;
         const NetworkLink& operator=(const NetworkLink&) =delete;
         
+        
+        /**********************************************************************/
+        static KeyType linkKey(const LoopLinkType* const pL)
+        {
+            //            return networkLinkKey(pLoop->sID,Ni->sID,Nj->sID);
+            return linkKey(pL->source(),pL->sink());
+        }
+
+        /**********************************************************************/
+        static KeyType linkKey(const std::shared_ptr<NodeType>& Ni,
+                               const std::shared_ptr<NodeType>& Nj)
+        {
+            //            return networkLinkKey(pLoop->sID,Ni->sID,Nj->sID);
+            return linkKey(Ni->sID,Nj->sID);
+        }
+        
+        /**********************************************************************/
+        static KeyType linkKey(const size_t& i,
+                               const size_t& j)
+        {
+            return KeyType(std::min(i,j),std::max(i,j));
+        }
         
         /**********************************************************************/
         const LoopNetworkType& network() const

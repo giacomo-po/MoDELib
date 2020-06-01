@@ -26,39 +26,42 @@ namespace model
     class LoopLink
     {
         
-        typedef typename TypeTraits<LinkType>::NodeType LoopNodeType;
+        typedef typename TypeTraits<LinkType>::NodeType NodeType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
         typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
         
-        const std::shared_ptr<LoopNodeType> _source;
-        const std::shared_ptr<LoopNodeType> _sink;
-        std::shared_ptr<LoopType> pLoop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
+        const std::shared_ptr<NodeType> _source;
+        const std::shared_ptr<NodeType> _sink;
+        const std::shared_ptr<LoopType> pLoop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
         
     public:
         
         
-        typedef std::pair<size_t,size_t> KeyType;
+        typedef std::array<size_t,3> KeyType;
         
         
         /**********************************************************************/
-        static KeyType networkLinkKey(const std::shared_ptr<LoopNodeType>& Ni,const std::shared_ptr<LoopNodeType>& Nj)
+        static KeyType loopLinkKey(const std::shared_ptr<LoopType>& pLoop,
+                                      const std::shared_ptr<NodeType>& Ni,
+                                      const std::shared_ptr<NodeType>& Nj)
         {
-            return networkLinkKey(Ni->sID,Nj->sID);
+//            return networkLinkKey(pLoop->sID,Ni->sID,Nj->sID);
+            return KeyType{pLoop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
         }
         
-        /**********************************************************************/
-        static KeyType networkLinkKey(const size_t& i,const size_t& j)
-        {
-            assert(i!=j && "i and j cannot be the same");
-            return KeyType(std::min(i,j),std::max(i,j));
-        }
+//        /**********************************************************************/
+//        static KeyType loopLinkKey(const size_t& L,const size_t& i,const size_t& j)
+//        {
+//            assert(i!=j && "i and j cannot be the same");
+//            return KeyType{L,std::min(i,j),std::max(i,j)};
+//        }
         
         static int verboseLevel;
         
         
-        //        const LoopNodeType* const source;
-        //        const LoopNodeType* const sink;
+        //        const NodeType* const source;
+        //        const NodeType* const sink;
         
         
         
@@ -68,8 +71,8 @@ namespace model
         LoopLink* next;
         
         /**********************************************************************/
-        LoopLink(const std::shared_ptr<LoopNodeType>& so,
-                 const std::shared_ptr<LoopNodeType>& si,
+        LoopLink(const std::shared_ptr<NodeType>& so,
+                 const std::shared_ptr<NodeType>& si,
                  const std::shared_ptr<LoopType>& pL) :
         /* init */ _source(so),
         /* init */ _sink(si),
@@ -100,13 +103,13 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::shared_ptr<LoopNodeType>& source() const
+        const std::shared_ptr<NodeType>& source() const
         {
             return _source;
         }
         
         /**********************************************************************/
-        const std::shared_ptr<LoopNodeType>& sink() const
+        const std::shared_ptr<NodeType>& sink() const
         {
             return _sink;
         }
@@ -117,65 +120,65 @@ namespace model
             return pLoop;
         }
         
-        /**********************************************************************/
-        void resetLoop(const std::shared_ptr<LoopType>& pL)
-        {
-            if(pL.get()!=pLoop.get())
-            {
-                VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
-                
-                pLoop->removeLoopLink(this);
-                pLoop=pL;
-                pLoop->addLoopLink(this);
-                VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
-                
-                if(next!=nullptr)
-                {
-                    next->resetLoop(pLoop);
-                }
-                
-                if(prev!=nullptr)
-                {
-                    prev->resetLoop(pLoop);
-                }
-            }
-        }
-        
-        /**********************************************************************/
-        void resetLoop(const std::shared_ptr<LoopType>& pL,
-                       const size_t& startID,
-                       const size_t& endID)
-        {
-            if(pL.get()!=pLoop.get())
-            {
-                
-                if(source()->sID==startID)
-                {
-                    VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
-                    pLoop->removeLoopLink(this);
-                    pLoop=pL;
-                    pLoop->addLoopLink(this);
-                    VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
-                    
-                    if(sink()->sID!=endID)
-                    {
-                        next->resetLoop(pLoop,sink()->sID,endID);
-                    }
-                }
-                else
-                {
-                    if(next!=nullptr)
-                    {
-                        next->resetLoop(pLoop,startID,endID);
-                    }
-                    else
-                    {
-                        assert(0 && "next cannot be nullptr for this function");
-                    }
-                }
-            }
-            
-        }
+//        /**********************************************************************/
+//        void resetLoop(const std::shared_ptr<LoopType>& pL)
+//        {
+//            if(pL.get()!=pLoop.get())
+//            {
+//                VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
+//
+//                pLoop->removeLoopLink(this);
+//                pLoop=pL;
+//                pLoop->addLoopLink(this);
+//                VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
+//
+//                if(next!=nullptr)
+//                {
+//                    next->resetLoop(pLoop);
+//                }
+//
+//                if(prev!=nullptr)
+//                {
+//                    prev->resetLoop(pLoop);
+//                }
+//            }
+//        }
+//
+//        /**********************************************************************/
+//        void resetLoop(const std::shared_ptr<LoopType>& pL,
+//                       const size_t& startID,
+//                       const size_t& endID)
+//        {
+//            if(pL.get()!=pLoop.get())
+//            {
+//
+//                if(source()->sID==startID)
+//                {
+//                    VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
+//                    pLoop->removeLoopLink(this);
+//                    pLoop=pL;
+//                    pLoop->addLoopLink(this);
+//                    VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
+//
+//                    if(sink()->sID!=endID)
+//                    {
+//                        next->resetLoop(pLoop,sink()->sID,endID);
+//                    }
+//                }
+//                else
+//                {
+//                    if(next!=nullptr)
+//                    {
+//                        next->resetLoop(pLoop,startID,endID);
+//                    }
+//                    else
+//                    {
+//                        assert(0 && "next cannot be nullptr for this function");
+//                    }
+//                }
+//            }
+//
+//        }
         
 //        /**********************************************************************/
 //        void flip()

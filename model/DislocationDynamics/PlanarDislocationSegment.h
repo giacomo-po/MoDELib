@@ -191,7 +191,7 @@ namespace model
             }
             
             if(ssSet.size()==1)
-            {// a unique slip system found
+            {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
                 _slipSystem=*ssSet.begin();
             }
             else
