@@ -141,13 +141,15 @@ namespace model
                    || eIter.second.type==11 //11-node (quadratic) tetrahedron
                    )
                 {
-                    typename SimplexTraits<dim,dim>::SimplexIDType key;
+//                    typename SimplexTraits<dim,dim>::SimplexIDType key;
+                    std::set<size_t> set;
                     for(int d=0;d<dim+1;++d)
                     {
-                        key[d]=eIter.second.nodeIDs[d]; // first dim+1 nodes are the principa vertex nodes. See Node order in http://gmsh.info/doc/texinfo/gmsh.html#Node-ordering
+                        set.insert(eIter.second.nodeIDs[d]);
+//                        key[d]=eIter.second.nodeIDs[d]; // first dim+1 nodes are the principa vertex nodes. See Node order in http://gmsh.info/doc/texinfo/gmsh.html#Node-ordering
                     }
                     size_t regionID(eIter.second.tags[1]); // FINISH HERE, WHAT IS THE RIGHT TAG FOR A POLYCRYSTAL
-                    this->elements().emplace(eIter.first,std::make_pair(key,regionID));
+                    this->elements().emplace(eIter.first,std::make_pair(typename SimplexTraits<dim,dim>::SimplexIDType(set),regionID));
                     
                 }
             }

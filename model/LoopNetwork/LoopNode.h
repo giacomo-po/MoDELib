@@ -199,6 +199,33 @@ namespace model
         }
         
         /**********************************************************************/
+        LoopLinkContainerType outLoopLinks() const
+        {
+            LoopLinkContainerType temp;
+            for(const auto& link : loopLinks())
+            {
+                if(link->source().get()==this->p_derived())
+                {
+                    temp.insert(link);
+                }
+            }
+            return temp;
+        }
+        
+        LoopLinkContainerType inLoopLinks() const
+        {
+            LoopLinkContainerType temp;
+            for(const auto& link : loopLinks())
+            {
+                if(link->sink().get()==this->p_derived())
+                {
+                    temp.insert(link);
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
         LoopLinkContainerType& loopLinks()
         {
             return *this;

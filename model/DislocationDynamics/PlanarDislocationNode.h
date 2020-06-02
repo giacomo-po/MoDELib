@@ -1408,7 +1408,8 @@ namespace model
                             {
                                 const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
                                 VerbosePlanarDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
-                                isMovable*=sessileNeighborMovable;
+                                isMovable=(isMovable&&sessileNeighborMovable);
+//                                isMovable*=sessileNeighborMovable;
                                 if(!isMovable)
                                 {
                                     break;

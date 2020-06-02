@@ -54,9 +54,9 @@ namespace model
             std::array<const Simplex<dim,0>*, SimplexTraits<dim,order>::nVertices> temp;
             for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
             {
-                typename SimplexTraits<dim,0>::SimplexIDType vID;
+                const typename SimplexTraits<dim,0>::SimplexIDType vID(std::set<size_t>{xID[v]});
 //                vID<<xID(v);
-                vID[0]=xID[v];
+//                vID[0]=xID[v];
                 temp[v]=&mesh->template observer<0>().simplex(vID);
             }
             return temp;
@@ -68,9 +68,9 @@ namespace model
             Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices> temp;
             for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
             {
-                typename SimplexTraits<dim,0>::SimplexIDType vID;
+                const typename SimplexTraits<dim,0>::SimplexIDType vID(std::set<size_t>{xID[v]});
 //                vID<<xID(v);
-                vID[0]=xID[v];
+//                vID[0]=xID[v];
 //                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
                 temp.col(v)=mesh->template observer<0>().simplex(vID).P0;
 

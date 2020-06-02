@@ -31,6 +31,17 @@ namespace model
         typedef size_t ScalarIDType;
         typedef typename std::array<size_t,nVertices>::size_type size_type;
         
+        SimplexID(const std::set<size_t>& set)
+        {
+            assert(set.size()==nVertices);
+            int k(0);
+            for (const size_t& m : set)
+            {
+                this->operator[](k)=m;
+                ++k;
+            }
+        }
+        
         ScalarIDType& operator()(const size_type& k)
         {
             return this->operator[](k);
@@ -92,14 +103,15 @@ namespace model
                 assert(couldInsert && "VERTEX IDs ARE NOT UNIQUE.");
             }
             
-            SimplexIDType temp;
-            int k(0);
-            for (const size_t& m : set)
-            {
-                temp[k]=m;
-                ++k;
-            }
-            return temp;
+//            SimplexIDType temp;
+//            int k(0);
+//            for (const size_t& m : set)
+//            {
+//                temp[k]=m;
+//                ++k;
+//            }
+//            return temp;
+            return SimplexIDType(set);
         }
         
         /**********************************************************************/
@@ -111,26 +123,31 @@ namespace model
           */
             assert(j<nVertices && "REQUESTING NON-EXISTING FACE");
             
-            typename SimplexTraits<dim,order-1>::SimplexIDType temp;
-            size_t m(0);
+            
+            std::set<size_t> set;
+//            typename SimplexTraits<dim,order-1>::SimplexIDType temp;
+//            size_t m(0);
             for (size_t k=0;k<nVertices;++k)
             {
                 if(k!=j)
                 {
-                    temp[m]=xID[k];
-                    ++m;
+                    set.insert(xID[k]);
+//                    temp[m]=xID[k];
+//                    ++m;
                 }
             }
-            return temp;
+//            return temp;
+            return typename SimplexTraits<dim,order-1>::SimplexIDType(set);
         }
         
         /**********************************************************************/
-        static std::array<typename SimplexTraits<dim,order-1>::SimplexIDType,nFaces> faceIDs(const SimplexIDType& xID)
+        static std::array<std::shared_ptr<typename SimplexTraits<dim,order-1>::SimplexIDType>,nFaces> faceIDs(const SimplexIDType& xID)
         {
-            std::array<typename SimplexTraits<dim,order-1>::SimplexIDType,nFaces> temp;
+            std::array<std::shared_ptr<typename SimplexTraits<dim,order-1>::SimplexIDType>,nFaces> temp;
             for (size_t j=0;j<nFaces;++j)
             {
-                temp[j]=faceID(xID,j);
+//                temp[j]=faceID(xID,j);
+                temp[j].reset(new typename SimplexTraits<dim,order-1>::SimplexIDType(faceID(xID,j)));
             }
             return temp;
         }
@@ -139,12 +156,12 @@ namespace model
         static size_t faceOrder(const SimplexIDType& parentID,
                                 const typename SimplexTraits<dim,order-1>::SimplexIDType& childID)
         {
-            const std::array<typename SimplexTraits<dim,order-1>::SimplexIDType,nFaces> faceIDS(faceIDs(parentID));
+            const std::array<std::shared_ptr<typename SimplexTraits<dim,order-1>::SimplexIDType>,nFaces> faceIDS(faceIDs(parentID));
             
             int temp=-1;
             for(size_t k=0;k<nFaces;++k)
             {
-                if(faceIDS[k]==childID)
+                if(*faceIDS[k]==childID)
                 {
                     temp=k;
                     break;

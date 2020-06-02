@@ -529,17 +529,14 @@ namespace model
 //        }
 
 
-
-        
         /**********************************************************************/
-        SharedNodePtrType expand(const IsConstNetworkLinkType Lij, const SharedNodePtrType& newNode)
+        SharedNodePtrType expand(const LinkType* const Lij, const SharedNodePtrType& newNode)
         {
-            assert(Lij.first && "Expanding non-existing link");
-            VerboseLoopNetwork(1,"expanding "<<Lij.second->tag()<<std::endl);
+            VerboseLoopNetwork(1,"expanding "<<Lij->tag()<<std::endl);
             
             // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
             std::deque<ExpandTupleType> expandDeq;
-            for(const auto& llink : Lij.second->loopLinks())
+            for(const auto& llink : Lij->loopLinks())
             {
                 expandDeq.emplace_back(llink->source(),llink->sink(),llink->loop());
             }
@@ -551,16 +548,49 @@ namespace model
                 connect(newNode,std::get<1>(tup), std::get<2>(tup));
             }
             
-//            // Delete all LoopLinks of type i->j or j->i
-//            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
-//            loopLinks().erase(key);
+            //            // Delete all LoopLinks of type i->j or j->i
+            //            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
+            //            loopLinks().erase(key);
             
-//            for (const auto& tup : expandDeq)
+            //            for (const auto& tup : expandDeq)
+            //            {
+            //                connect(std::get<0>(tup),newNode, std::get<2>(tup));
+            //                connect(newNode,std::get<1>(tup), std::get<2>(tup));
+            //            }
+            return newNode;
+        }
+        
+        /**********************************************************************/
+        SharedNodePtrType expand(const IsConstNetworkLinkType Lij, const SharedNodePtrType& newNode)
+        {
+            assert(Lij.first && "Expanding non-existing link");
+//            VerboseLoopNetwork(1,"expanding "<<Lij.second->tag()<<std::endl);
+            
+//            // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
+//            std::deque<ExpandTupleType> expandDeq;
+//            for(const auto& llink : Lij.second->loopLinks())
 //            {
+//                expandDeq.emplace_back(llink->source(),llink->sink(),llink->loop());
+//            }
+//
+//            for(const auto& tup : expandDeq)
+//            {
+//                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
 //                connect(std::get<0>(tup),newNode, std::get<2>(tup));
 //                connect(newNode,std::get<1>(tup), std::get<2>(tup));
 //            }
-            return newNode;
+//
+////            // Delete all LoopLinks of type i->j or j->i
+////            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
+////            loopLinks().erase(key);
+//
+////            for (const auto& tup : expandDeq)
+////            {
+////                connect(std::get<0>(tup),newNode, std::get<2>(tup));
+////                connect(newNode,std::get<1>(tup), std::get<2>(tup));
+////            }
+//            return newNode;
+            return expand(Lij.second,newNode);
         }
         
         /**********************************************************************/

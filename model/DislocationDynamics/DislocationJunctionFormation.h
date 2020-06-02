@@ -37,6 +37,7 @@ namespace model
         static constexpr int dim=DislocationNetworkType::dim;
         typedef typename DislocationNetworkType::LinkType LinkType;
         typedef typename DislocationNetworkType::NodeType NodeType;
+        typedef typename DislocationNetworkType::LoopType LoopType;
         typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkLinkType;
         typedef typename DislocationNetworkType::IsNodeType IsNodeType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -57,7 +58,7 @@ namespace model
             VerboseJunctions(2,"insertIntersection "<<linkA->tag()<<","<<linkB->tag()<<std::endl;);
             VerboseJunctions(2,"insertIntersection "<<"ssd.dMin="<<ssd.dMin<<std::endl;);
             VerboseJunctions(2,"insertIntersection "<<"currentcCollisionTOL="<<currentcCollisionTOL<<std::endl;);
-
+            
             if(ssd.dMin<currentcCollisionTOL)
             {
                 bool isValidJunction((bndJunction || gbndJunction) && DN.simulationParameters.simulationType!=2);
@@ -134,9 +135,9 @@ namespace model
             for(const auto& link : DN.links())
             {
                 if(   (!link.second->hasZeroBurgers() && !link.second->isVirtualBoundarySegment())
-//                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
-                    || link.second->isBoundarySegment() )
-
+                   //                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
+                   || link.second->isBoundarySegment() )
+                    
                 {
                     //                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
                     swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);
@@ -218,16 +219,16 @@ namespace model
                 
                 double currentcCollisionTOL=collisionTol;
                 
-//                std::set<const GlidePlane<dim>*> commonGlidePlanes;
-//                std::set_intersection(linkA->glidePlanes().begin(),linkA->glidePlanes().end(),linkB->glidePlanes().begin(),linkB->glidePlanes().end(),std::inserter(commonGlidePlanes,commonGlidePlanes.begin()));
-//                if(commonGlidePlanes.size())
-//                {// links have a GlidePlane in common
-//                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
-//                    if(cosTheta<0.7)
-//                    {// links are either disconnected, or connected to a node and forming a large angle at that node. Reduce tolerance
-//                        currentcCollisionTOL=FLT_EPSILON;
-//                    }
-//                }
+                //                std::set<const GlidePlane<dim>*> commonGlidePlanes;
+                //                std::set_intersection(linkA->glidePlanes().begin(),linkA->glidePlanes().end(),linkB->glidePlanes().begin(),linkB->glidePlanes().end(),std::inserter(commonGlidePlanes,commonGlidePlanes.begin()));
+                //                if(commonGlidePlanes.size())
+                //                {// links have a GlidePlane in common
+                //                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+                //                    if(cosTheta<0.7)
+                //                    {// links are either disconnected, or connected to a node and forming a large angle at that node. Reduce tolerance
+                //                        currentcCollisionTOL=FLT_EPSILON;
+                //                    }
+                //                }
                 
                 const auto pcPlanes(linkA->parallelAndCoincidentGlidePlanes(linkB->glidePlanes()));
                 VerboseJunctions(2,"pcPlanes.size()= "<<pcPlanes.size()<<std::endl;);
@@ -248,22 +249,22 @@ namespace model
                     }
                 }
                 
-           
                 
                 
-//                if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-//                   && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
-//                   && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
-//                {// segments on parallel or coincident planes, reduce tolerance
-//
-//                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
-//
-//                    if(cosTheta<0.7)
-//                    {
-//                        currentcCollisionTOL=FLT_EPSILON;
-//                    }
-//
-//                }
+                
+                //                if(   linkA->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                //                   && linkB->glidePlaneNormal().squaredNorm()>FLT_EPSILON
+                //                   && linkA->glidePlaneNormal().cross(linkB->glidePlaneNormal()).squaredNorm()<FLT_EPSILON)
+                //                {// segments on parallel or coincident planes, reduce tolerance
+                //
+                //                    const double cosTheta=(intersectionIsSourceSource||intersectionIsSinkSink)? linkA->chord().normalized().dot(linkB->chord().normalized()) : ((intersectionIsSourceSink ||intersectionIsSinkSource)? -linkA->chord().normalized().dot(linkB->chord().normalized()) : -1.0);
+                //
+                //                    if(cosTheta<0.7)
+                //                    {
+                //                        currentcCollisionTOL=FLT_EPSILON;
+                //                    }
+                //
+                //                }
                 
                 
                 if(intersectionIsSourceSource)
@@ -396,7 +397,7 @@ namespace model
                                                                const EdgeIDType& key)
         {
             VerboseJunctions(4,"JunctionNode for segment: "<<key.first<<"->"<<key.second<<" @ "<<t<<std::endl;);
-
+            
             auto  Nclose= t <0.5? L.second->source : L.second->sink;
             auto  Nfar  = t>=0.5? L.second->source : L.second->sink;
             VerboseJunctions(4,"Nclose="<<Nclose->sID<<std::endl;);
@@ -480,7 +481,7 @@ namespace model
                     {
                         
                         
-
+                        
                         
                         VerboseJunctions(1,"forming junction "<<key1.first<<"->"<<key1.second<<", "
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
@@ -519,141 +520,451 @@ namespace model
             return nContracted;
         }
         
-        
         /**********************************************************************/
-        void glissileJunctions(const double& dx)
+        void glissileJunctions(const double &dx)
         {
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Forming Glissile Junctions: "<<std::flush;
+            const auto t0 = std::chrono::system_clock::now();
+            model::cout << "        Forming Glissile Junctions: " << std::flush;
             
-            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t>> glissDeq;
+            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, size_t, size_t>> glissDeq;
             
-            for(const auto& link : DN.links())
+            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, std::shared_ptr<NodeType>>> expDeq;
+            
+            for (const auto &link : DN.links())
             {
                 
-                if(   link.second->isSessile()
-                   && link.second->loopLinks().size()>1      // a junction
-                   )
+                if (link.second->isSessile() && link.second->loopLinks().size() > 1 // a junction
+                    )
                 {
-                    const VectorDim chord(link.second->sink->get_P()-link.second->source->get_P());
+                    const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
                     const double chordNorm(chord.norm());
                     
                     
-                    if(   fabs(link.second->burgers().norm()-1.0)<FLT_EPSILON // a non-zero link with minimum Burgers
-                       && chordNorm>dx)
+                    if (fabs(link.second->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
+                        && chordNorm > dx)
                     {
                         
-                        const VectorDim unitChord(chord/chordNorm);
+                        const VectorDim unitChord(chord / chordNorm);
                         
                         
-                        //                        std::cout<<"link "<<link.second->source->sID<<"->"<<link.second->sink->sID<<std::endl;
-                        //                        std::cout<<"burgers="<<link.second->burgers().transpose()<<std::endl;
-                        //                        std::cout<<"chord="<<unitChord.transpose()<<std::endl;
-                        //
-                        //                        for(const auto& loopLink : link.second->loopLinks())
-                        //                        {
-                        //                            std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<", flow="<<loopLink->flow().cartesian().transpose()<<std::endl;
-                        //
-                        //                        }
-                        
-                        
-                        
-                        if(   !link.second->isGrainBoundarySegment()
-                           && !link.second->isBoundarySegment() )
+                        if (!link.second->isGrainBoundarySegment() && !link.second->isBoundarySegment())
                         {
-                            //                            std::cout<<"here 1"<<std::endl;
-                            for(const auto& gr : link.second->grains())
+                            
+                            //                            std::set<const LoopType*> sourceLoops;
+                            int inserted(0);
+                            for (const auto &nodelink : link.second->source->outLoopLinks())
                             {
-                                //                                std::cout<<"here 2"<<std::endl;
-                                
-                                for(size_t s=0;s<gr->slipSystems().size();++s)
+                                if (nodelink->pLink->loopLinks().size() == 1)
                                 {
-                                    const auto& slipSystem(gr->slipSystems()[s]);
-                                    
-                                    //                                    std::cout<<"here 3 "<<"\n"<<slipSystem->s.cartesian().transpose()<<"\n"<<link.second->burgers().transpose()<<std::endl;
-                                    //                                    std::cout<<((slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON)<<std::endl;
-                                    //                                    std::cout<<(fabs(slipSystem->n.cartesian().normalized().dot(unitChord)))<<std::endl;
-                                    if(  (slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-                                       && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+                                    const auto &loop(nodelink->loop());
+                                    if(loop->slipSystem())
                                     {
-                                        //                                        std::cout<<"here 4"<<std::endl;
-                                        
-                                        glissDeq.emplace_back(link.second->source,link.second->sink,gr->grainID,s);
+                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                        {
+                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+                                            inserted++;
+                                        }
                                     }
                                 }
                             }
                             
+                            for (const auto &nodelink : link.second->source->inLoopLinks())
+                            {
+                                if (nodelink->pLink->loopLinks().size() == 1)
+                                {
+                                    const auto &loop(nodelink->loop());
+                                    if (loop->slipSystem())
+                                    {
+                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                        {
+                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+                                            inserted++;
+                                        }
+                                    }
+                                }
+                            }
+                            assert(inserted <= 1);
+                            
+                            if (inserted == 0)
+                            {
+                                for (const auto &nodelink : link.second->sink->outLoopLinks())
+                                {
+                                    if (nodelink->pLink->loopLinks().size() == 1)
+                                    {
+                                        const auto &loop(nodelink->loop());
+                                        if (loop->slipSystem())
+                                        {
+                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                            {
+                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+                                                inserted++;
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                for (const auto &nodelink : link.second->sink->inLoopLinks())
+                                {
+                                    if (nodelink->pLink->loopLinks().size() == 1)
+                                    {
+                                        const auto &loop(nodelink->loop());
+                                        if (loop->slipSystem())
+                                        {
+                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                            {
+                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+                                                inserted++;
+                                            }
+                                        }
+                                    }
+                                }
+                                assert(inserted <= 1);
+                            }
+                            
+                            if (inserted == 0)
+                            {
+                                for (const auto &gr : link.second->grains())
+                                {
+                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
+                                    {
+                                        const auto &slipSystem(gr->slipSystems()[s]);
+                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                        {
+                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
             
-            size_t formedJunctions=0;
-            for(const auto& tup : glissDeq)
+            size_t formedJunctions = 0;
+            
+            for (const auto &tup : expDeq)
             {
-                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
-                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
-                const size_t& sourceID(source->sID);
-                const size_t& sinkID(sink->sID);
-                const size_t& grainID(std::get<2>(tup));
-                const size_t& slipID(std::get<3>(tup));
+                const std::shared_ptr<NodeType> &source(std::get<0>(tup));
+                const std::shared_ptr<NodeType> &sink(std::get<1>(tup));
+                const std::shared_ptr<NodeType> &exp(std::get<2>(tup));
+                const size_t &sourceID(source->sID);
+                const size_t &sinkID(sink->sID);
+                const auto isLink(DN.link(sourceID, sinkID));
                 
-                const auto isLink(DN.link(sourceID,sinkID));
-                if(isLink.first)
+                if (isLink.first)
+                {
+                    DN.expand(isLink.second, exp);
+                    formedJunctions++;
+                }
+            }
+            
+            for (const auto &tup : glissDeq)
+            {
+                const std::shared_ptr<NodeType> &source(std::get<0>(tup));
+                const std::shared_ptr<NodeType> &sink(std::get<1>(tup));
+                const size_t &sourceID(source->sID);
+                const size_t &sinkID(sink->sID);
+                const size_t &grainID(std::get<2>(tup));
+                const size_t &slipID(std::get<3>(tup));
+                
+                const auto isLink(DN.link(sourceID, sinkID));
+                if (isLink.first)
                 {
                     
-                    const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+                    const VectorDim newNodeP(0.5 * (isLink.second->source->get_P() + isLink.second->sink->get_P()));
                     const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
-                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).slipSystems()[slipID]->n);
                     const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
                     
-//                    const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
-//                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
-                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,glidePlane->snapToPlane(newNodeP),VectorDim::Zero(),1.0));
-
+                    std::shared_ptr<NodeType> newNode(new NodeType(&DN, glidePlane->snapToPlane(newNodeP), VectorDim::Zero(), 1.0));
+                    
                     std::vector<std::shared_ptr<NodeType>> loopNodes;
-//                    std::vector<size_t> nodeIDs;
-  
-                    loopNodes.push_back(sink);      // insert in reverse order, sink first, source second
-                    loopNodes.push_back(source);    // insert in reverse order, sink first, source second
+                    
+                    loopNodes.push_back(sink);   // insert in reverse order, sink first, source second
+                    loopNodes.push_back(source); // insert in reverse order, sink first, source second
                     loopNodes.push_back(newNode);
-
                     
-//                    nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
-//                    nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
-//                    nodeIDs.push_back(newNodeID);
-                    
-//                    LatticePlane glissilePlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
-//                    GlidePlaneKey<dim> glissilePlaneKey(grainID,glissilePlane);
-
-//                    DN.insertLoop(nodeIDs,
-//                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                                  DN.glidePlaneFactory.get(glissilePlaneKey));
-
-//                    GlidePlaneKey<dim> glissilePlaneKey(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
-//                    DN.insertLoop(loopNodes,
-//                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                                  DN.glidePlaneFactory.get(glissilePlaneKey));
-
                     DN.insertLoop(loopNodes,
                                   DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
                                   glidePlane);
                     
                     formedJunctions++;
                 }
-                
-                
-                
             }
-            
-//            DN.clearDanglingNodes();
-            
-            
-//            std::cout<<"glissDeq.size="<<glissDeq.size()<<std::endl;
-            model::cout<<"("<<formedJunctions<<" junctions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            
-            //            static_assert(0,"FINISH HERE");
+            model::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
         }
+        
+//        /**********************************************************************/
+//        void glissileJunctions(const double& dx)
+//        {
+//            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"        Forming Glissile Junctions: "<<std::flush;
+//
+//            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t>> glissDeq;
+//
+//            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> expDeq;
+//
+//
+//            for(const auto& link : DN.links())
+//            {
+//
+//                if(   link.second->isSessile()
+//                   && link.second->loopLinks().size()>1      // a junction
+//                   )
+//                {
+//                    const VectorDim chord(link.second->sink->get_P()-link.second->source->get_P());
+//                    const double chordNorm(chord.norm());
+//
+//
+//                    if(   fabs(link.second->burgers().norm()-1.0)<FLT_EPSILON // a non-zero link with minimum Burgers
+//                       && chordNorm>dx)
+//                    {
+//
+//                        const VectorDim unitChord(chord/chordNorm);
+//
+//
+//                        //                        //std::cout<<"link "<<link.second->source->sID<<"->"<<link.second->sink->sID<<std::endl;
+//                        //                        //std::cout<<"burgers="<<link.second->burgers().transpose()<<std::endl;
+//                        //                        //std::cout<<"chord="<<unitChord.transpose()<<std::endl;
+//                        //
+//                        //                        for(const auto& loopLink : link.second->loopLinks())
+//                        //                        {
+//                        //                            //std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<", flow="<<loopLink->flow().cartesian().transpose()<<std::endl;
+//                        //
+//                        //                        }
+//
+//
+//
+//                        if(   !link.second->isGrainBoundarySegment()
+//                           && !link.second->isBoundarySegment() )
+//                        {
+//
+//
+//                            //                            std::set<const LoopType*> sourceLoops;
+//
+//                            int inserted(0);
+//
+////                            for(const auto& link : link.second->source->outLoopLinks())
+////                            {
+////                                if(link->pLink->loopLinks().size()==1)
+////                                {
+////                                    const auto& loop(link->loop());
+////                                    if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
+////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+////                                    {
+////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,link.second->sink);
+////                                        inserted++;
+////                                    }
+////                                }
+////                            }
+////
+////                            for(const auto& link : source->inLoopLinks())
+////                            {
+////                                if(link->pLink->loopLinks().size()==1)
+////                                {
+////                                    const auto& loop(link->loop());
+////                                    if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
+////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+////                                    {
+////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,sink);
+////                                        inserted++;
+////                                    }
+////                                }
+////                            }
+////                            assert(inserted<1);
+////
+////                            if(inserted==0)
+////                            {
+////                                for(const auto& link : sink->outLoopLinks())
+////                                {
+////                                    if(link->pLink->loopLinks().size()==1)
+////                                    {
+////                                        const auto& loop(link->loop());
+////                                        if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
+////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+////                                        {
+////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
+////                                            inserted++;
+////                                        }
+////                                    }
+////                                }
+////
+////                                for(const auto& link : sink->inLoopLinks())
+////                                {
+////                                    if(link->pLink->loopLinks().size()==1)
+////                                    {
+////                                        const auto& loop(link->loop());
+////                                        if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
+////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+////                                        {
+////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
+////                                            inserted++;
+////                                        }
+////                                    }
+////                                }
+////                                assert(inserted<1);
+////                            }
+//
+//                            if(inserted==0)
+//                            {
+//                                for(const auto& gr : link.second->grains())
+//                                {
+//                                    for(size_t s=0;s<gr->slipSystems().size();++s)
+//                                    {
+//                                        const auto& slipSystem(gr->slipSystems()[s]);
+//                                        if(  (slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
+//                                           && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+//                                        {
+//                                            glissDeq.emplace_back(link.second->source,link.second->sink,gr->grainID,s);
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+//                        }
+//                    }
+//                }
+//            }
+//
+//            size_t formedJunctions=0;
+//
+//
+//            for(const auto& tup : expDeq)
+//            {
+//                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
+//                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
+//                const std::shared_ptr<NodeType>& exp(std::get<2>(tup));
+//                const size_t& sourceID(source->sID);
+//                const size_t& sinkID(sink->sID);
+//                const auto isLink(DN.link(sourceID,sinkID));
+//
+//
+//                if(isLink.first)
+//                {
+//                    DN.expand(isLink.second,exp);
+//                }
+//            }
+//
+//
+//            for(const auto& tup : glissDeq)
+//            {
+//                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
+//                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
+//                const size_t& sourceID(source->sID);
+//                const size_t& sinkID(sink->sID);
+//                const size_t& grainID(std::get<2>(tup));
+//                const size_t& slipID(std::get<3>(tup));
+//
+//                const auto isLink(DN.link(sourceID,sinkID));
+//                if(isLink.first)
+//                {
+//
+//                    const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+//                    const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
+//                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                    const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
+//
+//                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,glidePlane->snapToPlane(newNodeP),VectorDim::Zero(),1.0));
+//
+//                    std::vector<std::shared_ptr<NodeType>> loopNodes;
+//
+//                    loopNodes.push_back(sink);      // insert in reverse order, sink first, source second
+//                    loopNodes.push_back(source);    // insert in reverse order, sink first, source second
+//                    loopNodes.push_back(newNode);
+//
+//                    DN.insertLoop(loopNodes,
+//                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                                  glidePlane);
+//
+//                    //                    std::set<const LoopType*> sourceLoops;
+//                    //                    for(const auto& loop : source->loops())
+//                    //                    {
+//                    //                        if(loop->slipSystem())
+//                    //                        {
+//                    //                            if(  (loop->slipSystem()->s.cartesian()-DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian()).norm()<FLT_EPSILON
+//                    //                               && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
+//                    //                            if(loop->slipSystem()==DN.poly.grain(grainID).slipSystems()[slipID])
+//                    //                            {
+//                    //                                sourceLoops.insert(loop);
+//                    //                            }
+//                    //                        }
+//                    //                    }
+//                    //
+//                    //                    std::set<const LoopType*> sinkLoops;
+//                    //                    for(const auto& loop : sink->loops())
+//                    //                    {
+//                    //                        if(loop->slipSystem())
+//                    //                        {
+//                    //                            if(loop->slipSystem()==DN.poly.grain(grainID).slipSystems()[slipID])
+//                    //                            {
+//                    //                                sinkLoops.insert(loop);
+//                    //                            }
+//                    //                        }
+//                    //                    }
+//                    //
+//                    //                    if(sourceLoops.size()==1 && sinkLoops.size()==1)
+//                    //                    {
+//                    //                        DN.insertLoop(loopNodes,
+//                    //                                      DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                    //                                      glidePlane);
+//                    //                    }
+//                    //                    else if(sourceLoops.size()==1 && sinkLoops.size()!=1)
+//                    //                    {// source meets expand condition
+//                    //                        const auto linksSet(source->linksByLoopID()[(*sourceLoops.begin())->sID]);
+//                    //                        if(   (*linksSet. begin())->pLink->loopLinks().size()==1
+//                    //                           && (*linksSet.rbegin())->pLink->loopLinks().size()!=1)
+//                    //                        {
+//                    //                            DN.expand((*linksSet. begin())->pLink.get(),sink);
+//                    //                        }
+//                    //                        else if(   (*linksSet. begin())->pLink->loopLinks().size()!=1
+//                    //                                && (*linksSet.rbegin())->pLink->loopLinks().size()==1)
+//                    //                        {
+//                    //                            DN.expand((*linksSet.rbegin())->pLink.get(),sink);
+//                    //                        }
+//                    //                        else
+//                    //                        {
+//                    //                            DN.insertLoop(loopNodes,
+//                    //                                          DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                    //                                          glidePlane);
+//                    //                        }
+//                    //                    }
+//                    //                    else if(sourceLoops.size()!=1 && sinkLoops.size()==1)
+//                    //                    {
+//                    //                        const auto linksSet(sink->linksByLoopID()[(*sinkLoops.begin())->sID]);
+//                    //                        if(   (*linksSet. begin())->pLink->loopLinks().size()==1
+//                    //                           && (*linksSet.rbegin())->pLink->loopLinks().size()!=1)
+//                    //                        {
+//                    //                            DN.expand((*linksSet. begin())->pLink.get(),source);
+//                    //                        }
+//                    //                        else if(   (*linksSet. begin())->pLink->loopLinks().size()!=1
+//                    //                                && (*linksSet.rbegin())->pLink->loopLinks().size()==1)
+//                    //                        {
+//                    //                            DN.expand((*linksSet.rbegin())->pLink.get(),source);
+//                    //                        }
+//                    //                        else
+//                    //                        {
+//                    //                            DN.insertLoop(loopNodes,
+//                    //                                          DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                    //                                          glidePlane);
+//                    //                        }
+//                    //                    }
+//                    //                    else
+//                    //                    {
+//                    //                        DN.insertLoop(loopNodes,
+//                    //                                      DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
+//                    //                                      glidePlane);
+//                    //                    }
+//
+//
+//
+//                    formedJunctions++;
+//                }
+//
+//
+//
+//            }
+//            model::cout<<"("<<formedJunctions<<" junctions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//        }
         
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
