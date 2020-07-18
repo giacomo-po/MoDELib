@@ -119,7 +119,9 @@ namespace model
             M<<M1.block(0,1,M1.rows(),M1.cols()-1),M2.block(0,1,M2.rows(),M2.cols()-1);
             Eigen::MatrixXd V(V1.rows()+V2.rows(),1);
             V<<V1,V2;
+//            std::cout<<M<<std::endl;
             Eigen::MatrixXd x((M.transpose()*M).llt().solve(M.transpose()*V));
+//            Eigen::MatrixXd x(M.llt().solve(V));
             Eigen::MatrixXd x1(x.rows()+1,1);
             x1<<0.0,x;
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);

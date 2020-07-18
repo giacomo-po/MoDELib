@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e14;
+targetStraightDislocationDensity=0e14;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -25,7 +25,7 @@ targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=-1 -1;
+straightDislocationsSlipSystemIDs=0 -1;
 straightDislocationsAngleFromScrewOrientation=90.0 90.0;
 pointsAlongStraightDislocations=0.0 0.0 0.0
 				10.0 0.0 0.0;

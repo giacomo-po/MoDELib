@@ -274,7 +274,7 @@ namespace model
             
             if(DN)
             {
-                DN->updateGeometry(simulationParameters.dt);
+                DN->updateGeometry();
                 updateLoadControllers(simulationParameters.runID, false);
                 
                 DN->assembleAndSolveGlide(simulationParameters.runID);

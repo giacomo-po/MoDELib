@@ -11,8 +11,11 @@
 #include <deque>
 #include <memory>
 //#include <model/DislocationDynamics/Materials/PeriodicElement.h>
-#include <DislocationMobility.h>
-#include <Material.h>
+#include <DislocationMobilityFCC.h>
+#include <DislocationMobilityBCC.h>
+#include <DislocationMobilityHEXprismatic.h>
+#include <DislocationMobilityHEXbasal.h>
+#include <DislocatedMaterialBase.h>
 
 
 using namespace model;
@@ -20,15 +23,16 @@ using namespace model;
 int main (int argc, char * const argv[])
 {
     
-    const std::string materialFile= argc > 1 ? std::string(argv[1]) : "../../tutorials/DislocationDynamics/MaterialsLibrary/W.txt";
+    const std::string materialFile= argc > 1 ? std::string(argv[1]) : "../../tutorials/DislocationDynamics/MaterialsLibrary/Zr.txt";
     
     //    PeriodicElement<74,Isotropic> W;
     
-    Material<3,Isotropic> material(materialFile);
-    TextFileParser parser(material.materialFile); // CREATE UNI_PTR OF THIS AND PUT IN IF STATEMENT
+    DislocatedMaterialBase material(materialFile);
+//    TextFileParser parser(material.materialFile); // CREATE UNI_PTR OF THIS AND PUT IN IF STATEMENT
     
     Eigen::Matrix<double,3,1> s ;  // Burgers vector
     Eigen::Matrix<double,3,1> n ;  // plane normal
+    Eigen::Matrix<double,3,1> m;
     
     std::unique_ptr<DislocationMobilityBase> mobility;
     
@@ -36,32 +40,47 @@ int main (int argc, char * const argv[])
     {
         s = (Eigen::Matrix<double,3,1>()<< 1.0,1.0,1.0).finished().normalized();
         n = (Eigen::Matrix<double,3,1>()<<-1.0,0.0,1.0).finished().normalized();
-        mobility=std::make_unique<DislocationMobility<BCClattice<3>>>(material);
+        m = (Eigen::Matrix<double,3,1>()<<0.0,0.0,1.0).finished().normalized();
+        mobility=std::make_unique<DislocationMobilityBCC>(material);
     }
     else if(material.crystalStructure=="FCC")
     {
-        s = (Eigen::Matrix<double,3,1>()<<-1.0, 0.0,1.0).finished().normalized();
+        s = (Eigen::Matrix<double,3,1>()<<-1.0,0.0,1.0).finished().normalized();
         n = (Eigen::Matrix<double,3,1>()<< 1.0,1.0,1.0).finished().normalized();
-        mobility=std::make_unique<DislocationMobility<FCClattice<3>>>(material);
+        m = (Eigen::Matrix<double,3,1>()<<0.0,0.0,1.0).finished().normalized();
+        mobility=std::make_unique<DislocationMobilityFCC>(material);
+    }
+    else if(material.crystalStructure=="HEX")
+    {
+        s = (Eigen::Matrix<double,3,1>()<< 1.0,0.0,0.0).finished().normalized();
+        m = (Eigen::Matrix<double,3,1>()<<1.0,2.0,3.0).finished().normalized();
+        bool isBasal(true);
+        if(isBasal)
+        {
+            n = (Eigen::Matrix<double,3,1>()<< 0.0,0.0,1.0).finished().normalized();
+            mobility=std::make_unique<DislocationMobilityHEXbasal>(material);
+        }
+        else
+        {
+            n = (Eigen::Matrix<double,3,1>()<< 0.0,1.0,0.0).finished().normalized();
+            mobility=std::make_unique<DislocationMobilityHEXprismatic>(material);
+        }
     }
     else
     {
         assert(0 && "TEST NOT SUPPORTED FOR MATERIAL TYPE");
     }
     
-    const Eigen::Matrix<double,3,1> m = (Eigen::Matrix<double,3,1>()<<0.0, 0.0,1.0).finished().normalized(); // load direction
-    
-    const Eigen::Matrix<double,3,1> xi = s; // screw
-    
     
     // Construct array containing stress values
     std::deque<double> TAU;
     TAU.push_back(material.mu_SI*pow(10.0,-5));
-    for(int e=-5;e<=-2;++e)
+    const int nS=100;
+    for(int e=-5;e<=-3;++e)
     {
-        for(int k=2;k<=10;++k)
+        for(int k=1;k<nS;++k)
         {
-            TAU.push_back(material.mu_SI*k*pow(10.0,e));
+            TAU.push_back(material.mu_SI*pow(10.0,e+double(k)/nS));
         }
     }
     
@@ -74,9 +93,12 @@ int main (int argc, char * const argv[])
     }
     
     
+    const Eigen::Matrix<double,3,1> xiS = s; // screw
+    const Eigen::Matrix<double,3,1> xiE = n.cross(s).normalized(); // screw
     
-    std::ofstream v_file("velocity.txt");
-    
+    std::ofstream vS_file("velocityS.txt");
+    std::ofstream vE_file("velocityE.txt");
+
     for (const auto& t : T)
     {
         for(const auto& tau : TAU)
@@ -84,7 +106,8 @@ int main (int argc, char * const argv[])
             const double sf=m.dot(s)*m.dot(n);
             const Eigen::Matrix<double,3,3> S=tau/sf*m*m.transpose();
             
-            v_file<<std::setprecision(15)<<std::scientific<<tau/material.mu_SI<<" "<<t/material.Tm<<" "<<mobility->velocity(S/material.mu_SI,s,xi,n,t,0.0,0.0,false)<<std::endl;
+            vS_file<<std::setprecision(15)<<std::scientific<<tau/material.mu_SI<<" "<<t/material.Tm<<" "<<mobility->velocity(S/material.mu_SI,s,xiS,n,t,0.0,0.0,false)<<std::endl;
+            vE_file<<std::setprecision(15)<<std::scientific<<tau/material.mu_SI<<" "<<t/material.Tm<<" "<<mobility->velocity(S/material.mu_SI,s,xiE,n,t,0.0,0.0,false)<<std::endl;
         }
     }
     

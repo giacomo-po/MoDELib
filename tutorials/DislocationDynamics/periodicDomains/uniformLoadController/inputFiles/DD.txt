@@ -55,7 +55,6 @@ outputGlidePlanes=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortion=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
 outputQuadraturePoints=0;

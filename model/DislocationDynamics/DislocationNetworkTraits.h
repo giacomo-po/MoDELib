@@ -22,6 +22,8 @@
 namespace model
 {
 	
+
+    
 	/************************************************************/	
 	/*	Class Predeclarations ***********************************/
 	template <int dim, short unsigned int corder, typename InterpolationType>
@@ -78,6 +80,15 @@ namespace model
     template <int dim, short unsigned int corder, typename InterpolationType>
     struct TypeTraits<DislocationLoop<dim,corder,InterpolationType> > :
     public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    
+    template<>
+    struct NullFlow<RationalLatticeDirection<3>>
+    {
+        static bool isZero(const RationalLatticeDirection<3>& flow)
+        {
+            return flow.squaredNorm()<FLT_EPSILON;
+        }
+    };
 
 } // namespace model
 #endif

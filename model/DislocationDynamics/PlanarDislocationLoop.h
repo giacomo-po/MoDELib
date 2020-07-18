@@ -492,6 +492,13 @@ namespace model
 
         
         /**********************************************************************/
+        void update()
+        {
+            updateGeometry();
+            //
+        }
+        
+        /**********************************************************************/
         void updateGeometry()
         {
             nA.setZero();
@@ -577,6 +584,12 @@ namespace model
         MatrixDim plasticDistortion() const
         {
             return -burgers()*nA.transpose()/this->network().mesh.volume();
+        }
+        
+        /**********************************************************************/
+        bool isMergeable(const std::shared_ptr<LoopType>& other) const
+        {
+            return glidePlane==other->glidePlane;
         }
     };
     

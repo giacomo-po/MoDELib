@@ -777,7 +777,12 @@ namespace model
                         }
                         else
                         { // stiffness is zero
-                            assert(fabs(Fqz(k)) < FLT_EPSILON && "if stiffness is zero also force must be zero.");
+                            if(fabs(Fqz(k)) > FLT_EPSILON)
+                            {
+                                std::cout<<"Kd(k)="<<Kd(k)<<std::endl;
+                                std::cout<<"Fqz(k)="<<Fqz(k)<<std::endl;
+                                assert(false && "if stiffness is zero also force must be zero.");
+                            }
                         }
                     }
                     storeNodeSolution((Z * x).segment(0, Ndof));
@@ -830,7 +835,20 @@ namespace model
                         }
                         else
                         { // stiffness is zero
-                            assert(fabs(Fq(k)) < FLT_EPSILON && "if stiffness is zero also force must be zero.");
+                            if(fabs(Fq(k)) > FLT_EPSILON)
+                            {
+                                std::cout<<"k="<<k<<std::endl;
+                                std::cout<<"k%NdofXnode="<<k%NdofXnode<<std::endl;
+                                typename NodeContainerType::iterator nodeIter(NC.nodeBegin());
+                                std::advance(nodeIter,k/NdofXnode);
+                                std::cout<<"node "<<nodeIter->second->sID<<std::endl;
+                                std::cout<<"Kd(k)="<<Kd(k)<<std::endl;
+                                std::cout<<"Fq(k)="<<Fq(k)<<std::endl;
+
+
+                                assert(false && "if stiffness is zero also force must be zero.");
+                            }
+//                            assert(fabs(Fq(k)) < FLT_EPSILON && "if stiffness is zero also force must be zero.");
                         }
                     }
                     storeNodeSolution(x.segment(0, Ndof));

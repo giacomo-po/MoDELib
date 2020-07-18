@@ -21,6 +21,7 @@
 #include <MPIcout.h> // defines model::cout
 #include <TerminalColors.h> // defines mode::cout
 #include <DislocatedMaterialBase.h>
+#include <StaticID.h>
 
 namespace model
 {

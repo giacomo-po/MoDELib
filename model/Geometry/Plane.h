@@ -39,8 +39,9 @@ namespace model
         /**********************************************************************/
         bool contains(const VectorDim& P0) const
         {
-            const double PP0((P-P0).norm());
-            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
+//            const double PP0((P-P0).norm());
+//            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
+            return fabs((P0-P).dot(unitNormal))<FLT_EPSILON;
         }
         
         /**********************************************************************/

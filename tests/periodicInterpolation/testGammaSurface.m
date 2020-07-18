@@ -5,20 +5,25 @@ clc
 system('rm input.txt');
 
 %% Data points for gamma surface
-A=[1 0.5;
-    0 sqrt(3)/2];
-B=2*pi*inv(A');
+
 
 gamma=0;
 gammaPrime=1;
-structure=gamma
+hcpBasal=2;
+hcpPrismatic=3;
+
+structure=hcpPrismatic
+
 
 fid=fopen('input.txt','w')
-printMatrixToFile(fid,A,'A');
 
 switch structure
     
     case gamma
+        
+        A=[1 0.5;
+    0 sqrt(3)/2];
+        
         N=[2 2];
         D=[1 1];
         
@@ -41,6 +46,9 @@ switch structure
         
     case gammaPrime
         
+        A=[1 0.5;
+    0 sqrt(3)/2];
+
         N=[3 3];
         D=[2 2];
         
@@ -98,7 +106,89 @@ switch structure
         printMatrixToFile(fid,waveVec,'waveVecInt');
         readWaveVectors=1;
         
+    case hcpBasal
+        
+         A=[1 0.5;
+    0 sqrt(3)/2];
+        
+        N=[2 2];
+        D=[1 1];
+        
+        ISF=213;
+        USF=261;
+        
+        f=[0 0 0
+            0.5 sqrt(3)/6 ISF;    % ISF
+            0.25 sqrt(3)/12 USF; % USF
+            0.75 sqrt(3)/12 USF; % USF
+            0.5  sqrt(3)/3 USF; % USF
+            ];
+        
+        df=[0.25 sqrt(3)/12 -0.5 sqrt(3)/2 0; % USF
+            0.75 sqrt(3)/12 0.5 sqrt(3)/2 0; % USF
+            0.5  sqrt(3)/3 1 0 0; % USF
+            ];
+        
+        printMatrixToFile(fid,N,'N');
+        printMatrixToFile(fid,D,'D');
+        readWaveVectors=0;
+        
+        figure(3)
+        clf
+        xx = [0.05:0.05:0.95];
+    yy = [30.79 93.21 174.8 242.99 256.51 225.92 216.43 272.143 351.82 448.77 ...
+       540.92 616.76 653.3 648.6 585.4 461.8 303.7 155.1 43];
+   plot(xx,yy,'o')
+
+    case hcpPrismatic
+        c=sqrt(8/3);
+        A=[1 0;
+           0 c];
+        
+        N=[2 2];
+        D=[1 1];
+       
+        waveVec=[0 0;
+                 1/2 0;
+                 0 1/2
+                 1 0;
+                 0 1
+%                 1 1
+                 ];
+        
+        f=[0 0 0;
+           0.5 0 211
+           0 c/2 1200
+           0.5 c/2 800
+           ];
+       
+       df=[
+%           0 0 1 0 0
+%            0 0 0 1 0
+           0.5 sqrt(8/3)/2 1 0 0
+           0.5 sqrt(8/3)/2 0 1 0
+           0.5 0 1 0 0
+           0 sqrt(8/3)/2 0 1 0
+%           0.5 0 1 0 0
+           ];
+        
+        printMatrixToFile(fid,N,'N');
+        printMatrixToFile(fid,D,'D');
+        %readWaveVectors=0;
+                printMatrixToFile(fid,waveVec,'waveVecInt');
+        readWaveVectors=1;
+        
+        
+                xx = [0.05:0.05:0.95];
+
+    yy = [12.23 48.38 93.21 139.05 173.68 205.26 220.54 220.07 215.45 210.866 ...
+       216.47 222.07 221.56 203.22 174.19 138.54 92.7 48.9 12.22];
+        
 end
+
+B=2*pi*inv(A');
+
+printMatrixToFile(fid,A,'A');
 printMatrixToFile(fid,f,'f');
 printMatrixToFile(fid,df,'df');
 fclose(fid)
@@ -129,7 +219,6 @@ end
 fMax=max(max(f));
 
 figure(2)
-clf
 hold on
 surf(X,Y,f,'edgecolor','none')
 plot3([0 D(1)*A(1,1)],[0 D(1)*A(2,1)],[fMax fMax]+1,'m','Linewidth',2)

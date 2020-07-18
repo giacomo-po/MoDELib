@@ -533,8 +533,7 @@ namespace model
             for (const auto &link : DN.links())
             {
                 
-                if (link.second->isSessile() && link.second->loopLinks().size() > 1 // a junction
-                    )
+                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
                 {
                     const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
                     const double chordNorm(chord.norm());
@@ -550,91 +549,117 @@ namespace model
                         if (!link.second->isGrainBoundarySegment() && !link.second->isBoundarySegment())
                         {
                             
+                            VerboseJunctions(2,"glissele junction, segment "<<link.second->tag()<<std::endl;);
+
+                            for (const auto &gr : link.second->grains())
+                            {
+                                for (size_t s = 0; s < gr->slipSystems().size(); ++s)
+                                {
+                                    const auto &slipSystem(gr->slipSystems()[s]);
+                                    if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+                                    {
+                                        VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
+                                        
+                                        glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
+                                    }
+                                }
+                            }
+                            
                             //                            std::set<const LoopType*> sourceLoops;
-                            int inserted(0);
-                            for (const auto &nodelink : link.second->source->outLoopLinks())
-                            {
-                                if (nodelink->pLink->loopLinks().size() == 1)
-                                {
-                                    const auto &loop(nodelink->loop());
-                                    if(loop->slipSystem())
-                                    {
-                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                        {
-                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-                                            inserted++;
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            for (const auto &nodelink : link.second->source->inLoopLinks())
-                            {
-                                if (nodelink->pLink->loopLinks().size() == 1)
-                                {
-                                    const auto &loop(nodelink->loop());
-                                    if (loop->slipSystem())
-                                    {
-                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                        {
-                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-                                            inserted++;
-                                        }
-                                    }
-                                }
-                            }
-                            assert(inserted <= 1);
-                            
-                            if (inserted == 0)
-                            {
-                                for (const auto &nodelink : link.second->sink->outLoopLinks())
-                                {
-                                    if (nodelink->pLink->loopLinks().size() == 1)
-                                    {
-                                        const auto &loop(nodelink->loop());
-                                        if (loop->slipSystem())
-                                        {
-                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                            {
-                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-                                                inserted++;
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                for (const auto &nodelink : link.second->sink->inLoopLinks())
-                                {
-                                    if (nodelink->pLink->loopLinks().size() == 1)
-                                    {
-                                        const auto &loop(nodelink->loop());
-                                        if (loop->slipSystem())
-                                        {
-                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                            {
-                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-                                                inserted++;
-                                            }
-                                        }
-                                    }
-                                }
-                                assert(inserted <= 1);
-                            }
-                            
-                            if (inserted == 0)
-                            {
-                                for (const auto &gr : link.second->grains())
-                                {
-                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
-                                    {
-                                        const auto &slipSystem(gr->slipSystems()[s]);
-                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                        {
-                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
-                                        }
-                                    }
-                                }
-                            }
+//                            int inserted(0);
+//                            for (const auto &nodelink : link.second->source->outLoopLinks())
+//                            {
+//                                if (nodelink->pLink->loopLinks().size() == 1)
+//                                {
+//                                    const auto &loop(nodelink->loop());
+//                                    if(loop->slipSystem())
+//                                    {
+//                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+//                                            inserted++;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            VerboseJunctions(3,"source->outLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//
+//                            for (const auto &nodelink : link.second->source->inLoopLinks())
+//                            {
+//                                if (nodelink->pLink->loopLinks().size() == 1)
+//                                {
+//                                    const auto &loop(nodelink->loop());
+//                                    if (loop->slipSystem())
+//                                    {
+//                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+//                                            inserted++;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            VerboseJunctions(3,"source->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//                            assert(inserted <= 1);
+//
+//                            if (inserted == 0)
+//                            {
+//                                for (const auto &nodelink : link.second->sink->outLoopLinks())
+//                                {
+//                                    if (nodelink->pLink->loopLinks().size() == 1)
+//                                    {
+//                                        const auto &loop(nodelink->loop());
+//                                        if (loop->slipSystem())
+//                                        {
+//                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                            {
+//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+//                                                inserted++;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//
+//                                for (const auto &nodelink : link.second->sink->inLoopLinks())
+//                                {
+//                                    if (nodelink->pLink->loopLinks().size() == 1)
+//                                    {
+//                                        const auto &loop(nodelink->loop());
+//                                        if (loop->slipSystem())
+//                                        {
+//                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                            {
+//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+//                                                inserted++;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//                                assert(inserted <= 1);
+//                            }
+//
+//                            if (inserted == 0)
+//                            {
+//                                for (const auto &gr : link.second->grains())
+//                                {
+//                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
+//                                    {
+//                                        const auto &slipSystem(gr->slipSystems()[s]);
+//                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
+//
+//                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
+//                                        }
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
@@ -653,6 +678,7 @@ namespace model
                 
                 if (isLink.first)
                 {
+                    VerboseJunctions(3,"expanding junction "<<isLink.second->tag()<<" @node "<<exp->sID<<std::endl;);
                     DN.expand(isLink.second, exp);
                     formedJunctions++;
                 }

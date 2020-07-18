@@ -120,6 +120,7 @@ namespace model
         static const Eigen::Matrix<double,TypeTraits<Derived>::dim,TypeTraits<Derived>::dim> I;
         static const Eigen::Matrix<double,TypeTraits<Derived>::dim,1> zeroVector;
         static double quadPerLength;
+        static bool assembleWithTangentProjection;
         static int verbosePlanarDislocationSegment;
         StraightDislocationSegment<dim> straight;
         std::shared_ptr<SlipSystem> _slipSystem;
@@ -133,6 +134,7 @@ namespace model
             assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
             assert((LinkType::alpha)<=1.0 && "parametrizationExponent MUST BE <= 1.0");
             quadPerLength=TextFileParser(fileName).readScalar<double>("quadPerLength",true);
+//            assembleWithTangentProjection=TextFileParser(fileName).readScalar<int>("assembleWithTangentProjection",true);
             assert((LinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
             verbosePlanarDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verbosePlanarDislocationSegment",true);
         }
@@ -286,6 +288,14 @@ namespace model
             this->updateForcesAndVelocities(*this,quadPerLength,false);
             Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
             Kqq=this->nodalVelocityMatrix(*this);
+            if(assembleWithTangentProjection)
+            {
+                    const VectorDim t(this->chord().normalized());
+                    const MatrixDim p(MatrixDim::Identity()-t*t.transpose());
+                    const MatrixNdof P((MatrixNdof()<<p,MatrixDim::Zero(),MatrixDim::Zero(),p).finished());
+                    Kqq=P.transpose()*Kqq*P;
+                    Fq=P.transpose()*Fq;
+            }
             h2posMap=this->hermite2posMap();
             Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
             size_t c=0;
@@ -572,7 +582,10 @@ namespace model
     
     template <typename Derived>
     double PlanarDislocationSegment<Derived>::quadPerLength=0.2;
-    
+
+    template <typename Derived>
+    bool PlanarDislocationSegment<Derived>::assembleWithTangentProjection=false;
+
     template <typename Derived>
     int PlanarDislocationSegment<Derived>::verbosePlanarDislocationSegment=0;
 }

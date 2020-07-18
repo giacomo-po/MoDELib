@@ -205,7 +205,7 @@ namespace model
         DislocationNodeContraction<DislocationNetworkType> nodeContractor;
         GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         //        MatrixDimD _plasticDistortionFromVelocities;
-        MatrixDimD _plasticDistortionFromAreas;
+        std::pair<double,MatrixDimD> _plasticDistortionFromAreas;
         MatrixDimD _plasticDistortionRateFromVelocities;
         MatrixDimD _plasticDistortionRateFromAreas;
         int ddSolverType;
@@ -219,7 +219,7 @@ namespace model
         bool outputMeshDisplacement;
         bool outputFEMsolution;
         bool outputDislocationLength;
-        bool outputPlasticDistortion;
+//        bool outputPlasticDistortion;
         bool outputPlasticDistortionRate;
         bool outputQuadraturePoints;
         bool outputLinkingNumbers;
@@ -262,7 +262,7 @@ namespace model
         //        /* init */ vMax(0.0),
         //        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
         //        /* init */,_plasticDistortionFromVelocities(MatrixDimD::Zero())
-        /* init */,_plasticDistortionFromAreas(MatrixDimD::Zero())
+        /* init */,_plasticDistortionFromAreas(std::make_pair(0.0,MatrixDimD::Zero()))
         /* init */,_plasticDistortionRateFromVelocities(MatrixDimD::Zero())
         /* init */,_plasticDistortionRateFromAreas(MatrixDimD::Zero())
         /* init */,ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true))
@@ -275,7 +275,7 @@ namespace model
         /* init */,outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true))
         /* init */,outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true))
         /* init */,outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true))
-        /* init */,outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true))
+//        /* init */,outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true))
         /* init */,outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true))
         /* init */,outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
         /* init */,outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
@@ -293,6 +293,7 @@ namespace model
             //            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
             
             // Initialize static variables
+            LoopNetworkType::verboseLevel=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseLoopNetwork",true);
             LinkType::initFromFile("inputFiles/DD.txt");
             NodeType::initFromFile("inputFiles/DD.txt");
             LoopType::initFromFile("inputFiles/DD.txt");
@@ -327,7 +328,7 @@ namespace model
             //            std::map<size_t,std::shared_ptr<NodeType>> tempNodes;
             //            createVertices(evl,tempNodes);
             //            createEdges(evl,tempNodes);
-            //            updatePlasticDistortionFromAreas(simulationParameters.dt);
+            //            updatePlasticDistortionRateFromAreas(simulationParameters.dt);
             createEshelbyInclusions();
         }
         
@@ -338,7 +339,7 @@ namespace model
             std::map<size_t,std::shared_ptr<NodeType>> tempNodes;
             createVertices(evl,tempNodes);
             createEdges(evl,tempNodes);
-            updatePlasticDistortionFromAreas(simulationParameters.dt);
+            updatePlasticDistortionRateFromAreas();
 #ifdef _MODEL_MPI_
             // Avoid that a processor starts writing before other are done reading
             MPI_Barrier(MPI_COMM_WORLD);
@@ -580,31 +581,15 @@ namespace model
         }
         
         /**********************************************************************/
-        void updateGeometry(const double& dt)
+        void updateGeometry()
         {
             for(auto& loop : this->loops())
             {// copmute slipped areas and right-handed normal // TODO: PARALLELIZE THIS LOOP
                 loop.second->updateGeometry();
             }
-            updatePlasticDistortionFromAreas(dt);
+            updatePlasticDistortionRateFromAreas();
         }
-        
-        //        /**********************************************************************/
-        //        double get_dt() const
-        //        {
-        //            switch (timeIntegrationMethod)
-        //            {
-        //                case 0:
-        //                    return DDtimeIntegrator<0>::get_dt(*this);
-        //                    break;
-        //
-        //                default:
-        //                    assert(0 && "time integration method not implemented");
-        //                    return 0;
-        //                    break;
-        //            }
-        //        }
-        
+
         /**********************************************************************/
         void removeZeroAreaLoops()
         {
@@ -650,7 +635,7 @@ namespace model
             //            {// copmute slipped areas and right-handed normal
             //                loop.second->updateGeometry();
             //            }
-            //            updatePlasticDistortionFromAreas();
+            //            updatePlasticDistortionRateFromAreas();
             
             //! 3- Calculate BVP correction
             //            updateLoadControllers(runID);
@@ -696,8 +681,9 @@ namespace model
             //            }
             
             //! 10- Cross Slip (needs upated PK force)
-            DislocationCrossSlip<DislocationNetworkType>(*this);
-            
+            DislocationCrossSlip<DislocationNetworkType> crossSlip(*this);
+            crossSlip.execute();
+
             
             //                        gbTransmission.transmit();
             //gbTransmission.directTransmit();
@@ -767,10 +753,6 @@ namespace model
         {
             return nodeContractor.contract(nA,nB);
         }
-        
-        
-        
-        
         
         /**********************************************************************/
         void assembleAndSolveGlide(const long int& runID)
@@ -1044,28 +1026,35 @@ namespace model
         
         
         /**********************************************************************/
-        void updatePlasticDistortionFromAreas(const double& dt)
+        void updatePlasticDistortionRateFromAreas()
         {
             //            if(!computePlasticDistortionRateFromVelocities)
             //            {
-            const MatrixDimD old(_plasticDistortionFromAreas);
-            _plasticDistortionFromAreas.setZero();
-            for(const auto& loop : this->loops())
+            
+            const double dt(simulationParameters.totalTime-_plasticDistortionFromAreas.first);
+            if(dt>=0.0)
             {
-                _plasticDistortionFromAreas+= loop.second->plasticDistortion();
+                const MatrixDimD pd(plasticDistortion());
+                if(dt>0.0)
+                {
+                    _plasticDistortionRateFromAreas=(pd-_plasticDistortionFromAreas.second)/dt;
+                }
+                _plasticDistortionFromAreas=std::make_pair(simulationParameters.totalTime,pd); // update old values
             }
-            if(dt>0.0)
-            {
-                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
-            }
+//
+//            const MatrixDimD old(_plasticDistortionFromAreas);
+////            _plasticDistortionFromAreas.setZero();
+////            for(const auto& loop : this->loops())
+////            {
+////                _plasticDistortionFromAreas+= loop.second->plasticDistortion();
+////            }
+//            _plasticDistortionFromAreas=plasticDistortion();
+//            if(dt>0.0)
+//            {
+//                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
+//            }
             //            }
         }
-        
-        //        /**********************************************************************/
-        //        const MatrixDimD& plasticDistortionRate() const
-        //        {
-        //            return computePlasticDistortionRateFromVelocities? _plasticDistortionRateFromVelocities : _plasticDistortionRateFromAreas;
-        //        }
         
         /**********************************************************************/
         const MatrixDimD& plasticDistortionRate() const
@@ -1074,9 +1063,14 @@ namespace model
         }
         
         /**********************************************************************/
-        const MatrixDimD& plasticDistortion() const
+        MatrixDimD plasticDistortion() const
         {
-            return _plasticDistortionFromAreas;
+            MatrixDimD temp(MatrixDimD::Zero());
+            for(const auto& loop : this->loops())
+            {
+                temp+= loop.second->plasticDistortion();
+            }
+            return temp;
         }
         
         //        /**********************************************************************/
@@ -1226,7 +1220,6 @@ namespace model
                 fieldPoints[k]=displacement(fieldPoints[k].P);
             }
         }
-        
         
         /**********************************************************************/
         DislocationNetworkIOType io()

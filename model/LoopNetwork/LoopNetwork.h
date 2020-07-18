@@ -52,6 +52,16 @@ class NetworkLink;
 
 namespace model
 {
+    
+    template<typename FlowType>
+    struct NullFlow
+    {
+        static bool isZero(const FlowType&)
+        {
+            return false;
+        }
+    };
+    
     template<typename Derived>
     class LoopNetwork : public CRTP<Derived>,
     //    /*               */ private std::map<size_t,typename TypeTraits<Derived>::NodeType>,
@@ -485,8 +495,10 @@ namespace model
             
             assert(tempLoop->isLoop() && "Not a loop.");
             
+            tempLoop->update();
             return tempLoop;
         }
+
         
         /**********************************************************************/
         void deleteLoop(const size_t& loopID)
@@ -551,7 +563,6 @@ namespace model
             //            // Delete all LoopLinks of type i->j or j->i
             //            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
             //            loopLinks().erase(key);
-            
             //            for (const auto& tup : expandDeq)
             //            {
             //                connect(std::get<0>(tup),newNode, std::get<2>(tup));
@@ -565,7 +576,6 @@ namespace model
         {
             assert(Lij.first && "Expanding non-existing link");
 //            VerboseLoopNetwork(1,"expanding "<<Lij.second->tag()<<std::endl);
-            
 //            // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
 //            std::deque<ExpandTupleType> expandDeq;
 //            for(const auto& llink : Lij.second->loopLinks())
@@ -642,88 +652,258 @@ namespace model
         
         
         
+//        /**********************************************************************/
+//        void cutLoop(const size_t& L,
+//                     const size_t& i,const size_t &j)
+//        {
+//
+//            VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<","<<j<<std::endl);
+//
+//
+//            const auto loop=this->loop(L);
+//
+//            if(loop.first && i!=j)
+//            {
+//                const auto linkAtI=loop.second->linkStartingAt(i);
+//                const auto linkAtJ=loop.second->linkStartingAt(j);
+//
+//                if(linkAtI.first && linkAtJ.first)
+//                {
+//                    if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
+//                    {
+//                        VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
+//
+//
+//                        std::vector<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<LoopType>>> linksToDisconect;
+//
+//                        auto currLink(linkAtI.second);
+//                        while(currLink->source()->sID!=j)
+//                        {
+//                            linksToDisconect.emplace_back(currLink->source(),currLink->sink(),currLink->loop());
+//                            currLink=currLink->next;
+//                        }
+//
+//                        //std::shared_ptr<LoopType> tempLoop=loop.second->clone();
+//                        std::shared_ptr<LoopType> tempLoop(new LoopType(*loop.second));
+//
+//                        for(const auto& tup : linksToDisconect)
+//                        {
+//                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
+//                            connect(std::get<0>(tup),std::get<1>(tup),tempLoop);
+//                        }
+//
+//
+//
+////                        linkAtI.second->resetLoop(tempLoop,i,j);
+////                        linkAtI.second->prev->next=nullptr;
+////                        linkAtI.second->prev=nullptr;
+////                        linkAtJ.second->prev->next=nullptr;
+////                        linkAtJ.second->prev=nullptr;
+//
+////                        connect(linkAtJ.second->source(),linkAtI.second->source(),tempLoop);
+////                        connect(linkAtI.second->source(),linkAtJ.second->source(),linkAtJ.second->loop());
+//
+//                        connect(std::get<1>(linksToDisconect.back()),std::get<0>(linksToDisconect.front()),tempLoop);
+//                        connect(std::get<0>(linksToDisconect.front()),std::get<1>(linksToDisconect.back()),linkAtJ.second->loop());
+//
+//
+//                    }
+//                }
+//            }
+//
+//
+//        }
+        
         /**********************************************************************/
-        void cutLoop(const size_t& L,
+        void cutLoop(const std::shared_ptr<LoopType>& loop,
                      const size_t& i,const size_t &j)
         {
-            const auto loop=this->loop(L);
-            
-            if(loop.first && i!=j)
+            VerboseLoopNetwork(1,"cutting loop "<<loop->sID<<" at "<<i<<","<<j<<std::endl);
+            if(i!=j)
             {
-                const auto linkAtI=loop.second->linkStartingAt(i);
-                const auto linkAtJ=loop.second->linkStartingAt(j);
+                const auto linkAtI=loop->linkStartingAt(i);
+                const auto linkAtJ=loop->linkStartingAt(j);
                 
                 if(linkAtI.first && linkAtJ.first)
                 {
                     if(linkAtI.second->sink()->sID!=j && linkAtJ.second->sink()->sID!=i)
                     {
-                        VerboseLoopNetwork(1,"cutting loop "<<L<<" at "<<i<<" and "<<j<<std::endl);
-                
-                        
-                        std::vector<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<LoopType>>> linksToDisconect;
-                        
                         auto currLink(linkAtI.second);
-                        while(currLink->source()->sID!=j)
+                        if(currLink->sink()->sID!=j)
                         {
-                            linksToDisconect.emplace_back(currLink->source(),currLink->sink(),currLink->loop());
-                            currLink=currLink->next;
+                            std::vector<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> linksToDisconect;
+                            while(currLink->source()->sID!=j)
+                            {
+                                linksToDisconect.emplace_back(currLink->source(),currLink->sink());
+                                currLink=currLink->next;
+                            }
+                            
+                            std::shared_ptr<LoopType> newLoop(new LoopType(*loop));
+                            
+                            for(const auto& tup : linksToDisconect)
+                            {
+                                disconnect(std::get<0>(tup),std::get<1>(tup),loop);
+                                connect(std::get<0>(tup),std::get<1>(tup),newLoop);
+                            }
+                            
+                            connect(std::get<1>(linksToDisconect.back()),std::get<0>(linksToDisconect.front()),newLoop);
+                            connect(std::get<0>(linksToDisconect.front()),std::get<1>(linksToDisconect.back()),loop);
                         }
-                        
-                        //std::shared_ptr<LoopType> tempLoop=loop.second->clone();
-                        std::shared_ptr<LoopType> tempLoop(new LoopType(*loop.second));
-
-                        for(const auto& tup : linksToDisconect)
-                        {
-                            disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
-                            connect(std::get<0>(tup),std::get<1>(tup),tempLoop);
-                        }
-                        
-                        
-                        
-//                        linkAtI.second->resetLoop(tempLoop,i,j);
-//
-//                        linkAtI.second->prev->next=nullptr;
-//                        linkAtI.second->prev=nullptr;
-//
-//                        linkAtJ.second->prev->next=nullptr;
-//                        linkAtJ.second->prev=nullptr;
-                        
-                        connect(linkAtJ.second->source(),linkAtI.second->source(),tempLoop);
-                        connect(linkAtI.second->source(),linkAtJ.second->source(),linkAtJ.second->loop());
                     }
                 }
             }
-            
-            
         }
         
         /**********************************************************************/
         bool contractSecond(const SharedNodePtrType& nA,const SharedNodePtrType& nB)
-        {
-//            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
+        {            
             const size_t a(nA->sID);
             const size_t b(nB->sID);
             VerboseLoopNetwork(1,"contracting "<<a<<","<<b<<std::endl);
             
             // Collect IDs of all loops passing through both a and b
-            std::set<size_t> loopIDs;
+//            std::set<size_t> loopIDs;
+            std::set<std::shared_ptr<LoopType>> cutLoops;
             for(const auto& loopLinkA : nA->loopLinks())
             {
                 for(const auto& loopLinkB : nB->loopLinks())
                 {
-                    if(loopLinkA->loop()->sID==loopLinkB->loop()->sID)
+                    if(loopLinkA->loop()==loopLinkB->loop())
                     {
-                        loopIDs.insert(loopLinkA->loop()->sID);
+                        cutLoops.insert(loopLinkA->loop());
                     }
                 }
             }
             
             // Cut those loops
-            for(const auto loopID : loopIDs)
+            for(const auto& loop : cutLoops)
             {
-                cutLoop(loopID,a,b);
+                cutLoop(loop,a,b);
             }
+            
+            
+            std::deque<std::tuple<const LoopLinkType* const,const LoopLinkType* const,int>> mergeDeque;
+            for(const auto& neighborA : nA->neighbors())
+            {
+                for(const auto& neighborB : nB->neighbors())
+                {
+                    if(std::get<0>(neighborA.second)==std::get<0>(neighborB.second))
+                    {
+                        for(const auto& linkA : std::get<1>(neighborA.second)->loopLinks())
+                        {
+                            for(const auto& linkB : std::get<1>(neighborB.second)->loopLinks())
+                            {
+                                if(linkA->loop()!=linkB->loop())
+                                {
+                                    if(linkA->source()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
+                                    {// links in same sense
+                                        if(linkA->loop()->isMergeable(linkB->loop()))
+                                        {
+                                            mergeDeque.emplace_back(linkA,linkB,0);
+                                            break;
+                                        }
+                                    }
+                                    if(linkA->sink()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
+                                    {// links in same sense
+                                        if(linkA->loop()->isMergeable(linkB->loop()))
+                                        {
+                                            mergeDeque.emplace_back(linkA,linkB,1);
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if(linkA->source()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
+                                    {// links in opposite sense
+                                        if(linkA->loop()->isMergeable(linkB->loop()))
+                                        {
+                                            mergeDeque.emplace_back(linkA,linkB,2);
+                                            break;
+                                        }
+                                    }
+                                    if(linkA->sink()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
+                                    {// links in opposite sense
+                                        if(linkA->loop()->isMergeable(linkB->loop()))
+                                        {
+                                            mergeDeque.emplace_back(linkA,linkB,3);
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            VerboseLoopNetwork(2,"contracting, mergeDeque.size()="<<mergeDeque.size()<<std::endl);
+
+            for(const auto& tup : mergeDeque)
+            {
+                auto sourceA(std::get<0>(tup)->source());
+                auto sinkA(std::get<0>(tup)->sink());
+                auto loopA(std::get<0>(tup)->loop());
+                disconnect(sourceA,sinkA,loopA);
+                
+                switch (std::get<2>(tup))
+                {
+                    case 0:
+                    {
+                        VerboseLoopNetwork(2,"contracting, merging case 0"<<std::endl);
+                        connect(std::get<1>(tup)->sink(),sinkA,loopA);
+                        auto currentLinkB(std::get<1>(tup));
+                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
+                        {
+                            currentLinkB=currentLinkB->prev;
+                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
+                        }
+                        break;
+                    }
+                    case 1:
+                    {
+                        VerboseLoopNetwork(2,"contracting, merging case 1"<<std::endl);
+                        connect(sourceA,std::get<1>(tup)->source(),loopA);
+                        auto currentLinkB(std::get<1>(tup));
+                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
+                        {
+                            currentLinkB=currentLinkB->prev;
+                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        VerboseLoopNetwork(2,"contracting, merging case 2"<<std::endl);
+                        connect(std::get<1>(tup)->source(),sinkA,loopA);
+                        auto currentLinkB(std::get<1>(tup));
+                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
+                        {
+                            currentLinkB=currentLinkB->next;
+                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
+                        }
+                        break;
+                    }
+                    case 3:
+                    {
+                        VerboseLoopNetwork(2,"contracting, merging case 3"<<std::endl);
+                        connect(sourceA,std::get<1>(tup)->sink(),loopA);
+                        auto currentLinkB(std::get<1>(tup));
+                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
+                        {
+                            currentLinkB=currentLinkB->next;
+                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+                
+                VerboseLoopNetwork(2,"contracting, deleting merged loop"<<std::endl);
+                deleteLoop(std::get<1>(tup)->loop()->sID);
+            }
+            
             
             // Store links connected to b
             typedef std::tuple<SharedNodePtrType,SharedNodePtrType,std::shared_ptr<LoopType>,bool> ContractTupleType;

@@ -1085,10 +1085,12 @@ namespace model
         /**********************************************************************/
         bool isGeometricallyRemovable(const double& Lmin,const double& cosRemove) const
         {
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" isGeometricallyRemovable "<<std::endl;);
             bool temp=false;
             if(!this->isBoundaryNode() && !this->isGrainBoundaryNode())
             {
                 const auto linksMap=this->linksByLoopID();
+                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<", linksMap.size()==1 "<<linksMap.size()<<std::endl;);
                 if(linksMap.size()==1)
                 {
                     const LoopLinkContainerType& linkSet(linksMap.begin()->second);
@@ -1096,6 +1098,7 @@ namespace model
                     const LoopLinkType& link0(**linkSet. begin());
                     const LoopLinkType& link1(**linkSet.rbegin());
                     
+                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<", loopGlissile "<<(link0.loop()->loopType==DislocationLoopIO<dim>::GLISSILELOOP)<<std::endl;);
                     if(link0.loop()->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
                     {
                         const VectorDim chord0(link0.sink()->get_P()-link0.source()->get_P());
@@ -1105,8 +1108,12 @@ namespace model
                         
                         if(chord0Norm<Lmin || chord1Norm<Lmin)
                         {
+                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<", chords small"<<std::endl;);
+
                             if(chord0.dot(chord1)>cosRemove*chord0Norm*chord1Norm)
                             {
+                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<", angle met"<<std::endl;);
+
                                 const VectorDim dv0(link0.sink()->get_V()-link0.source()->get_V());
                                 const VectorDim dv1(link1.sink()->get_V()-link1.source()->get_V());
                                 if(chord0.dot(dv0)<0.0 || chord1.dot(dv1)<0.0) // at least one of the two segments is getting shorter

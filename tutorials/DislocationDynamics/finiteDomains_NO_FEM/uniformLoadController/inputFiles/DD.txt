@@ -49,16 +49,15 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=1;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
-outputMeshDisplacement=1;
+outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortion=0;
-outputPlasticDistortionRate=0;
+outputPlasticDistortionRate=1;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
@@ -77,7 +76,7 @@ coreSize=2.0;
 remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
-nodeRemoveAngleDeg=60;
+nodeRemoveAngleDeg=10;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -113,5 +112,6 @@ verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;
 verboseCrossSlip=0;
 verbosePeriodicDislocationBase=0;
+verboseLoopNetwork=0;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;
