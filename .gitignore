@@ -1,14 +1,7 @@
-# regular expressions syntax. (See http://en.wikipedia.org/wiki/Regular_expression)
-syntax: regexp
+# open -a "TextEdit" .gitignore
 
 # Output Files
-[EVL]_[123456789][0123456789]*\.txt
-[ABCDFGHIJKLMOPQRSUWXYZ]_[0123456789]*\.txt
-[EVL]_[123456789][0123456789]*\.bin
-[ABCDFGHIJKLMNOPQRSTUWXYZ]_[0123456789]*\.bin
-evl_[123456789][0123456789]*\.txt
-evl_[123456789][0123456789]*\.bin
-
+evl
 
 # mesh files
 mesh.ele
@@ -17,10 +10,7 @@ mesh.neigh
 mesh.node
 
 # Files ending in ~
-[.]*\.[.]*~
-
-# use glob syntax.
-syntax: glob
+*~
 
 #CMake files
 cmake_install.cmake
@@ -28,15 +18,8 @@ CMakeCache.txt
 CMakeFiles
  
 # Executable
-DDcode
-DDserial
-DDparallel
-DDomp
 DDmpi
-#DDviewer
 tetgen
-DDvtk
-microstructureGenerator
 
 # Folders
 docs/HTML
