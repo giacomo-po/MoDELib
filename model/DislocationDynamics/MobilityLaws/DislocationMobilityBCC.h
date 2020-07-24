@@ -84,7 +84,7 @@ namespace model
 
         
         /**********************************************************************/
-        DislocationMobilityBCC(const PolycrystallineMaterialBase& material) :
+        DislocationMobilityBCC(const DislocatedMaterialBase& material) :
                 /* init */ DislocationMobilityBase("BCC mobility for "+material.materialName),
         /* init */ h(2.0*sqrt(2.0)/3.0), // units of b
         /* init */ w(25.0), // units of b

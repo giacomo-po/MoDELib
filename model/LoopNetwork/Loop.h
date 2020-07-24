@@ -12,121 +12,101 @@
 #include <iostream>
 #include <list>
 #include <deque>
-#include <set>
+#include <map>
 #include <memory>
 #include <iterator>
 
 #include <StaticID.h>
 #include <CRTP.h>
-//#include <LoopObserver.h>
-#include <NetworkBase.h>
-
-#define VerboseLoop(N,x) if(verboseLevel>=N){model::cout<<cyanColor<<x<<defaultColor;}
+#include <LoopObserver.h>
 
 
 namespace model
 {
-    
-    
     template<typename Derived>
-    class Loop : public CRTP<Derived>
-    /*        */,public StaticID<Derived>
-    /*        */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,size_t>
-    /*        */,private std::set<typename TypeTraits<Derived>::LoopLinkType*>
+    class Loop : public CRTP<Derived>,
+    /*        */ public StaticID<Derived>,
+    /*        */ private std::map<std::pair<size_t,size_t>,LoopLink<typename TypeTraits<Derived>::LinkType>* const>
     {
         
     public:
 
         
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NetworkBase<LoopNetworkType,size_t> NetworkBaseType;
-        typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
-//        typedef typename TypeTraits<Derived>::LinkType LinkType;
-        typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
-        typedef std::set<LoopLinkType*> LoopLinkContainerType;
+        typedef typename TypeTraits<Derived>::NodeType NodeType;
+        typedef typename TypeTraits<Derived>::LinkType LinkType;
+        typedef LoopLink<LinkType> LoopLinkType;
+        typedef std::map<std::pair<size_t,size_t>,LoopLinkType* const> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
-        typedef std::deque<std::pair<std::shared_ptr<LoopNodeType>,std::shared_ptr<LoopNodeType>>> LoopNodeSequenceType;
-//        typedef LoopObserver<Derived> LoopObserverType;
-        typedef typename TypeTraits<LoopLinkType>::FlowType FlowType;
+        typedef std::deque<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> LoopNodeSequenceType;
+        typedef LoopObserver<Derived> LoopObserverType;
+        typedef typename TypeTraits<LinkType>::FlowType FlowType;
         
     private:
         
         LoopLinkSequenceType linkSeq;
-//        LoopNetworkType* const _loopNetwork;
+        LoopNetworkType* const _loopNetwork;
         FlowType _flow;
 
     public:
         
-        static int verboseLevel;
-
 
 //        const LoopNetworkType& loopNetwork;
 
         /**********************************************************************/
         Loop(LoopNetworkType* const loopNetwork_in,
              const FlowType& f) :
-        /* init */ NetworkBaseType(loopNetwork_in,this->sID),
+        /* init */ _loopNetwork(loopNetwork_in),
         /* init */ _flow(f)
 //        /* init */ loopNetwork(*_loopNetwork)
         {
-            VerboseLoop(1,"Creating Loop "<<tag()<<std::endl);
-
 //            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
-//            _loopNetwork->addLoop(this->p_derived());
+            _loopNetwork->addLoop(this->p_derived());
 //            LoopObserverType::addLoop(this->p_derived());
         }
         
 //        Loop(const Loop<Derived>& other) =delete;
         
-//        Loop& operator=(const Loop<Derived>& other) =delete;
+        Loop& operator=(const Loop<Derived>& other) =delete;
         
-//        /**********************************************************************/
-//        Loop(const Loop<Derived>& other) :
-//        /* init */ StaticID<Derived>()
-//        /* init */,LoopLinkContainerType()
-//        /* init */,_loopNetwork(other._loopNetwork)
-//        /* init */,_flow(other._flow)
-////        /* init */ loopNetwork(*_loopNetwork)
-////        /* init */ loopNetwork(*_loopNetwork)
-//        {
-////            std::cout<<"Copying Loop: "<<this->sID<<std::endl;
-//
-////            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
-//            _loopNetwork->addLoop(this->p_derived());
-//            //            LoopObserverType::addLoop(this->p_derived());
-//        }
+        /**********************************************************************/
+        Loop(const Loop<Derived>& other) :
+        /* init */ StaticID<Derived>()
+        /* init */,LoopLinkContainerType()
+        /* init */,_loopNetwork(other._loopNetwork)
+        /* init */,_flow(other._flow)
+//        /* init */ loopNetwork(*_loopNetwork)
+//        /* init */ loopNetwork(*_loopNetwork)
+        {
+//            std::cout<<"Copying Loop: "<<this->sID<<std::endl;
+
+//            std::cout<<"Constructing Loop "<<this->sID<<std::endl;
+            _loopNetwork->addLoop(this->p_derived());
+            //            LoopObserverType::addLoop(this->p_derived());
+        }
         
 //        SOME CONSTRUCTOR HERE IS NOT DOING addLoop
         
         /**********************************************************************/
         ~Loop()
         {
-            VerboseLoop(1,"Destroying Loop "<<tag()<<std::endl);
-
             
             assert(links().size()==0 && "DESTROYING NON-EMPTY LOOP.");
             
-//            _loopNetwork->removeLoop(this->p_derived());
+            _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
         }
         
-
-        
-        void update()
+        /**********************************************************************/
+        const LoopNetworkType& network() const
         {
-            
+            return *_loopNetwork;
         }
         
-//        /**********************************************************************/
-//        const LoopNetworkType& network() const
-//        {
-//            return *_loopNetwork;
-//        }
-//
-//        LoopNetworkType& network()
-//        {
-//            return *_loopNetwork;
-//        }
+        LoopNetworkType& network()
+        {
+            return *_loopNetwork;
+        }
         
 //        /**********************************************************************/
 //        std::shared_ptr<Derived> clone() const
@@ -171,8 +151,7 @@ namespace model
         /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {
-            VerboseLoop(2,"Loop "<<tag()<<" addLoopLink "<<pL->tag()<<std::endl);
-            const bool success=links().insert(pL).second;
+            const bool success=links().insert(std::make_pair(LinkType::linkKey(pL),pL)).second;
             if(!success)
             {
                 std::cout<<"DislocationLoop "<<this->sID<<" cannot add LoopLink "<<pL->tag()<<std::endl;
@@ -184,8 +163,7 @@ namespace model
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
-            VerboseLoop(2,"Loop "<<tag()<<" removeLoopLink "<<pL->tag()<<std::endl);
-            const size_t erased=links().erase(pL);
+            const size_t erased=links().erase(LinkType::linkKey(pL));
             assert(erased==1 && "Could not erase from linkMap");
         }
 
@@ -195,11 +173,10 @@ namespace model
         {
             //RECODE THIS USING prev/next
             //typename LoopLinkContainerType::const_iterator iter;
-            VerboseLoop(3,"Loop "<<tag()<<" links().size()= "<<links().size()<<std::endl);
             LoopLinkSequenceType temp;
             if(links().size())
             {
-                const LoopLinkType* pL=*links().begin();
+                const LoopLinkType* pL=links().begin()->second;
                 for(size_t k=0;k<links().size();++k)
                 {
                     if(pL)
@@ -212,7 +189,6 @@ namespace model
                     }
                 }
             }
-            VerboseLoop(3,"Loop "<<tag()<<" linkSequence.size()= "<<temp.size()<<std::endl);
             return temp;
         }
         
@@ -238,32 +214,16 @@ namespace model
             return temp;
         }
         
-//        /**********************************************************************/
-//        std::pair<bool,LoopLinkType*> linkStartingAt(const size_t& i) const
-//        {
-//
-//            std::pair<bool,LoopLinkType*> temp=std::make_pair(false,static_cast<LoopLinkType*>(nullptr));
-//            for(const auto& link : links())
-//            {
-//                if(link->source()->sID==i)
-//                {
-//                    temp=std::make_pair(true,link.second);
-//                    break;
-//                }
-//            }
-//            return temp;
-//        }
-        
         /**********************************************************************/
-        std::pair<bool,LoopLinkType*> linkStartingAt(const std::shared_ptr<LoopNodeType>& Ni) const
+        std::pair<bool,LoopLinkType*> linkStartingAt(const size_t& i) const
         {
             
             std::pair<bool,LoopLinkType*> temp=std::make_pair(false,static_cast<LoopLinkType*>(nullptr));
             for(const auto& link : links())
             {
-                if(link->source==Ni)
+                if(link.second->source()->sID==i)
                 {
-                    temp=std::make_pair(true,link);
+                    temp=std::make_pair(true,link.second);
                     break;
                 }
             }
@@ -283,7 +243,7 @@ namespace model
                     next=linkSeq.begin();
                 }
                 
-                temp*=((*iter)->sink->sID==(*next)->source->sID);
+                temp*=((*iter)->sink()->sID==(*next)->source()->sID);
                 if(!temp)
                 {
                     break;
@@ -292,26 +252,19 @@ namespace model
             return temp;
         }
 
-//        /**********************************************************************/
-//        bool isIsolated() const
-//        {
-//            bool temp(true);
-//            for(const auto& link : links())
-//            {
-//                temp*=(link.second->pLink->loopLinks().size()==1);
-//                if(!temp)
-//                {
-//                    break;
-//                }
-//            }
-//            return temp;
-//        }
-        
         /**********************************************************************/
-        std::string tag() const
-        {/*!\returns the string "i->j" where i is source()->sID and j=sink()->sID
-          */
-            return std::to_string(this->sID);
+        bool isIsolated() const
+        {
+            bool temp(true);
+            for(const auto& link : links())
+            {
+                temp*=(link.second->pLink->loopLinks().size()==1);
+                if(!temp)
+                {
+                    break;
+                }
+            }
+            return temp;
         }
         
         /**********************************************************************/
@@ -319,19 +272,16 @@ namespace model
         {
             std::cout<<"Loop "<<this->sID<<std::endl;
             const LoopLinkSequenceType linkSeq(linkSequence());
-            for(const auto& link : linkSeq)
+            for(typename LoopLinkSequenceType::const_iterator iter=linkSeq.begin();iter!=linkSeq.end();++iter)
             {
-                std::cout<<"    "<<link->tag()
-                <<" (prev "<<link->prev->tag()<<")"
-                <<" (next "<<link->next->tag()<<")"<<std::endl;
+                std::cout<<"    "<<(*iter)->source()->sID<<"->"<<(*iter)->sink()->sID
+                <<" (prev "<<(*iter)->prev->source()->sID<<"->"<<(*iter)->prev->sink()->sID<<")"
+                <<" (next "<<(*iter)->next->source()->sID<<"->"<<(*iter)->next->sink()->sID<<")"<<std::endl;
             }
         }
         
     };
     
-    template<typename Derived>
-    int Loop<Derived>::verboseLevel=0;
-
     
 }
 #endif

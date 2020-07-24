@@ -3,9 +3,10 @@ close all
 clc
 fontSize=16;
 
+material='Zr';
 %materialFile='../../tutorials/DislocationDynamics/MaterialsLibrary/W.txt'
 %materialFile='../../tutorials/DislocationDynamics/MaterialsLibrary/Cu.txt'
-materialFile='../../tutorials/DislocationDynamics/MaterialsLibrary/Zr.txt'
+materialFile=['../../tutorials/DislocationDynamics/MaterialsLibrary/' material '.txt'];
 
 system(['./mobility ' materialFile])
 
@@ -13,9 +14,11 @@ nT=101;
 
 dataS=load('velocityS.txt');
 plotMobility(dataS,nT,fontSize)
+print(gcf,[material '_prismScreMobility'], '-dpng', '-r300');
 
 dataE=load('velocityE.txt');
 plotMobility(dataE,nT,fontSize)
+print(gcf,[material '_prismEdgewMobility'], '-dpng', '-r300');
 
 
 function plotMobility(data,nT,fontSize)

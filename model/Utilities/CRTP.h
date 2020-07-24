@@ -30,8 +30,8 @@ namespace model {
 			//! A  reference to the const derived object
 			const Derived&   derived() const { return *static_cast<const Derived*>(this); }
 			
-            //! A pointer to the const derived object
-            const Derived* p_derived() const { return  static_cast<const Derived*>(this); }
+			//! A pointer to the const derived object
+			const Derived* p_derived() const { return  static_cast<const Derived*>(this); }
 			
 		public:
 			//! The default constructor

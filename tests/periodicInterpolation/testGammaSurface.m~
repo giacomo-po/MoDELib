@@ -3,25 +3,26 @@ close all
 clc
 
 system('rm input.txt');
-system('rm output.txt');
 
 %% Data points for gamma surface
 
 
-%structure='gamma';
-structure='gammaPrime';
-structure='hcpBasal';
-structure='hcpPrismatic';
+gamma=0;
+gammaPrime=1;
+hcpBasal=2;
+hcpPrismatic=3;
+
+structure=hcpPrismatic
 
 
-fid=fopen('input.txt','w');
+fid=fopen('input.txt','w')
 
 switch structure
     
-    case 'gamma'
+    case gamma
         
         A=[1 0.5;
-            0 sqrt(3)/2];
+    0 sqrt(3)/2];
         
         N=[2 2];
         D=[1 1];
@@ -35,21 +36,19 @@ switch structure
         
         df=[0.25 sqrt(3)/12 -0.5 sqrt(3)/2 0; % USF
             0.75 sqrt(3)/12 0.5 sqrt(3)/2 0; % USF
-            %            0.5  sqrt(3)/3 1 0 0; % USF
+            0.5  sqrt(3)/3 1 0 0; % USF
             ];
         
         printMatrixToFile(fid,N,'N');
         printMatrixToFile(fid,D,'D');
         readWaveVectors=0;
         
-        cutDirs=[A(:,1) A(:,2) A(:,1)+A(:,2)];
-        cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
         
-    case 'gammaPrime'
+    case gammaPrime
         
         A=[1 0.5;
-            0 sqrt(3)/2];
-        
+    0 sqrt(3)/2];
+
         N=[3 3];
         D=[2 2];
         
@@ -107,111 +106,83 @@ switch structure
         printMatrixToFile(fid,waveVec,'waveVecInt');
         readWaveVectors=1;
         
-        cutDirs=2*[A(:,1) A(:,2) A(:,1)+A(:,2)];
-        cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
+    case hcpBasal
         
-    case 'hcpBasal'
+         A=[1 0.5;
+    0 sqrt(3)/2];
         
-        A=[1 0.5;
-            0 sqrt(3)/2];
-        
+        N=[2 2];
         D=[1 1];
         
         ISF=213;
         USF=261;
-        
-        waveVec=[0  0
-            1  0
-            0  1
-            1  1
-            1  2
-            2  1
-            1  -1
-            ];
-        
         
         f=[0 0 0
             0.5 sqrt(3)/6 ISF;    % ISF
             0.25 sqrt(3)/12 USF; % USF
             0.75 sqrt(3)/12 USF; % USF
             0.5  sqrt(3)/3 USF; % USF
-            1 sqrt(3)/3 653
             ];
         
-        df=[
-            0 0 1 0 0
-            0 0 0 1 0
-            1 sqrt(3)/3 1 0 0
-            1 sqrt(3)/3 0 1 0
-            0.5 0 1 0 0
-            0.25 sqrt(3)/4 0.5 sqrt(3)/2 0
-            0.75 sqrt(3)/4 -0.5 sqrt(3)/2 0
+        df=[0.25 sqrt(3)/12 -0.5 sqrt(3)/2 0; % USF
+            0.75 sqrt(3)/12 0.5 sqrt(3)/2 0; % USF
+            0.5  sqrt(3)/3 1 0 0; % USF
             ];
         
-        printMatrixToFile(fid,waveVec,'waveVecInt');
-        readWaveVectors=1;
+        printMatrixToFile(fid,N,'N');
+        printMatrixToFile(fid,D,'D');
+        readWaveVectors=0;
         
         figure(3)
         clf
         xx = [0.05:0.05:0.95];
-        yy = [30.79 93.21 174.8 242.99 256.51 225.92 216.43 272.143 351.82 448.77 ...
-            540.92 616.76 653.3 648.6 585.4 461.8 303.7 155.1 43];
-        plot(xx,yy,'o')
-        
-        cutDirs=[A(:,1) A(:,2) A(:,1)+A(:,2)];
-        cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
-        
-    case 'hcpPrismatic'
+    yy = [30.79 93.21 174.8 242.99 256.51 225.92 216.43 272.143 351.82 448.77 ...
+       540.92 616.76 653.3 648.6 585.4 461.8 303.7 155.1 43];
+   plot(xx,yy,'o')
+
+    case hcpPrismatic
         c=sqrt(8/3);
         A=[1 0;
-            0 c];
+           0 c];
         
+        N=[2 2];
         D=[1 1];
-        
-        waveVec=[
-            0  0
-            1  0
-            0  1
-            1 1
-            1 -1
-            2 0];
-        
-        
-        h=c/4; % cannot be 0 or c/2
-        hv=650;
+       
+        waveVec=[0 0;
+                 1/2 0;
+                 0 1/2
+                 1 0;
+                 0 1
+%                 1 1
+                 ];
         
         f=[0 0 0;
-            1/2 0 200
-            0 c/2 1200
-            1/2 c/2 700
-            1/4 h hv
-            3/4 h hv
-            ];
+           0.5 0 211
+           0 c/2 1200
+           0.5 c/2 800
+           ];
+       
+       df=[
+%           0 0 1 0 0
+%            0 0 0 1 0
+           0.5 sqrt(8/3)/2 1 0 0
+           0.5 sqrt(8/3)/2 0 1 0
+           0.5 0 1 0 0
+           0 sqrt(8/3)/2 0 1 0
+%           0.5 0 1 0 0
+           ];
         
-        df=[0 0 1 0 0
-            0 0 0 1 0
-            1/2 0 1 0 0
-%            0 c/2 0 1 0
-            1/2 c/2 1 0 0
-            1/2 c/2 0 1 0
-            ];
-        
-        printMatrixToFile(fid,waveVec,'waveVecInt');
+        printMatrixToFile(fid,N,'N');
+        printMatrixToFile(fid,D,'D');
+        %readWaveVectors=0;
+                printMatrixToFile(fid,waveVec,'waveVecInt');
         readWaveVectors=1;
         
         
-        
-        figure(3)
-        clf
-        xx = [0.05:0.05:0.95];
-        
-        yy = [12.23 48.38 93.21 139.05 173.68 205.26 220.54 220.07 215.45 210.866 ...
-            216.47 222.07 221.56 203.22 174.19 138.54 92.7 48.9 12.22];
-        
-        plot(xx,yy,'o')
-        
-        cutDirs=[A(:,1) A(:,2) A(:,1)+A(:,2)];
-        cutDirsLabels={'a', 'c', 'a+c'}
+                xx = [0.05:0.05:0.95];
+
+    yy = [12.23 48.38 93.21 139.05 173.68 205.26 220.54 220.07 215.45 210.866 ...
+       216.47 222.07 221.56 203.22 174.19 138.54 92.7 48.9 12.22];
         
 end
 
@@ -233,43 +204,32 @@ figure(1)
 hold on;
 grid on
 axis equal
-plot(data(:,1)/2/pi,data(:,2)/2/pi,'bo','Linewidth',2)
-plot(-data(:,1)/2/pi,-data(:,2)/2/pi,'mx','Linewidth',2)
-plot([-max(data(:,1)) max(data(:,1))]/2/pi,[0 0],'k')
-plot([0 0],[-max(data(:,2)) max(data(:,2))]/2/pi,'k')
-title('wave vectors / 2\pi')
-set(gca,'Fontsize',16)
-print([structure '_waveVectors'], '-dpng', '-r300');
-
+plot(data(:,1),data(:,2),'ro')
 
 %% Construct GammaSurface and plot it
 np=400;
-%[X,Y] = meshgrid([0:np]/np*2*D(1),[0:np]/np*sqrt(3)/2*2*D(2));
-[X,Y] = meshgrid([0:np]/np*sum(cutDirs(1,[1 2])),[0:np]/np*sum(cutDirs(2,[1 2])));
-fs=zeros(size(X));
+[X,Y] = meshgrid([0:np]/np*2*D(1),[0:np]/np*sqrt(3)/2*2*D(2));
+f=zeros(size(X));
 for i=1:size(data,1)
     k=data(i,[1 2]);
     S=data(i,3);
     C=data(i,4);
-    fs=fs+S*sin(k(1)*X+k(2)*Y)+C*cos(k(1)*X+k(2)*Y);
+    f=f+S*sin(k(1)*X+k(2)*Y)+C*cos(k(1)*X+k(2)*Y);
 end
-fMax=max(max(fs));
+fMax=max(max(f));
 
 figure(2)
 hold on
-surf(X,Y,fs,'edgecolor','none')
+surf(X,Y,f,'edgecolor','none')
 plot3([0 D(1)*A(1,1)],[0 D(1)*A(2,1)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([0 D(2)*A(1,2)],[0 D(2)*A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([D(2)*A(1,2) D(1)*A(1,1)],[D(2)*A(2,2) D(1)*A(2,1)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([D(2)*A(1,2) D(2)*A(1,2)+D(1)*A(1,1)],[D(2)*A(2,2)  D(2)*A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
 plot3([D(1)*A(1,1) D(2)*A(1,2)+D(1)*A(1,1)],[D(1)*A(2,1)  D(2)*A(2,2)],[fMax fMax]+1,'m','Linewidth',2)
-plot3(f(:,1),f(:,2),f(:,1)*0+fMax+1,'ok','Linewidth',2)
-%plot3(df(:,1),df(:,2),df(:,1)*0+fMax+1,'xg','Linewidth',2)
-quiver3(df(:,1),df(:,2),df(:,1)*0+fMax+1,df(:,3),df(:,4),df(:,1)*0,0.2,'k','Linewidth',2)
 grid on
 xlabel('x')
 ylabel('y')
-h = get(gca,'DataAspectRatio');
+h = get(gca,'DataAspectRatio')
 if h(3)==1
     set(gca,'DataAspectRatio',[1 1 1/max(h(1:2))])
 else
@@ -278,22 +238,19 @@ end
 colormap jet
 h=colorbar
 h.Label.String = 'mJ/m^2';
-axis image
-print([structure '_gammaSurface'], '-dpng', '-r300');
+print('gammaSurface_gammaPrime', '-dpng', '-r300');
 
 %% Plot cuts of GammaSurface
+f1=functionCut(data,A(:,1),D(1),np);
+f2=functionCut(data,(A(:,1)+A(:,2))/2,D(2)*sqrt(3),np);
 figure(3)
 hold on
-cutPlots=[];
-for c=1:size(cutDirs,2)
-    fcut=functionCut(data,cutDirs(:,c),np);
-    cutPlots=[cutPlots plot([0:(np-1)]/np,fcut,'Linewidth',2)];
-end
+plot([0:(np-1)]/np,f1,'Linewidth',2)
+plot([0:(np-1)]/np,f2,'Linewidth',2)
+axis([0 1 0 max(max(f1),max(f2))])
 grid on
 xlabel('reaction coordinate')
 ylabel('\gamma-surface [mJ/m^2]')
-legend(cutPlots,cutDirsLabels)
 set(gca,'Fontsize',16)
-print([structure '_gammaSurfaceCuts'], '-dpng', '-r300');
 
 

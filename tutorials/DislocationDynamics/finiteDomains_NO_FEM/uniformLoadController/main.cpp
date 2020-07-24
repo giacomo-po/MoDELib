@@ -18,15 +18,6 @@
 //#include <model/DislocationDynamics/DislocationNetwork.h>
 #include <DefectiveCrystal.h>
 
-#include <../../../../src/DislocationNetwork.cpp>
-#include <../../../../src/DislocationLoop.cpp>
-#include <../../../../src/DislocationLoopNode.cpp>
-#include <../../../../src/DislocationLoopLink.cpp>
-#include <../../../../src/DislocationNode.cpp>
-#include <../../../../src/DislocationSegment.cpp>
-#include <../../../../src/PeriodicGlidePlaneFactory.cpp>
-#include <../../../../src/PeriodicGlidePlane.cpp>
-
 using namespace model;
 
 int main (int argc, char* argv[])
@@ -36,7 +27,7 @@ int main (int argc, char* argv[])
     DefectiveCrystal<3,0,Hermite> DC(argc,argv);
     
     // Run time steps
-//    DC.runGlideSteps();
+    DC.runGlideSteps();
     
 //    //try to print the nodes
 //    for(const auto& node : DC.DN->io().configIO().nodes() )

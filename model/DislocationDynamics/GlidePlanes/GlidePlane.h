@@ -47,7 +47,7 @@ namespace model
         typedef GlidePlane<dim> GlidePlaneType;
         typedef GlidePlaneFactory<dim> GlidePlaneFactoryType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        typedef GlidePlaneKey<dim> KeyType;
+        typedef typename TypeTraits<GlidePlaneType>::KeyType KeyType;
         typedef KeyType GlidePlaneKeyType;
 
         static int verboseGlidePlane;

@@ -20,7 +20,7 @@
 #include <Eigen/Geometry>
 #include <MPIcout.h> // defines model::cout
 #include <TerminalColors.h> // defines mode::cout
-#include <PolycrystallineMaterialBase.h>
+#include <DislocatedMaterialBase.h>
 #include <StaticID.h>
 
 namespace model
