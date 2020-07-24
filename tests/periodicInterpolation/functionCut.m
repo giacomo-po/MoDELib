@@ -1,5 +1,6 @@
-function f=functionCut(data,d,L,np)
-d=d/norm(d);
+function f=functionCut(data,D,np)
+L=norm(D);
+d=D/L;
 dL=L/(np-1);
 f=zeros(np,1);
 

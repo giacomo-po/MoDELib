@@ -83,7 +83,7 @@ namespace model
         }
 
         /**********************************************************************/
-        DislocationMobilityHEXbasal(const DislocatedMaterialBase& material) :
+        DislocationMobilityHEXbasal(const PolycrystallineMaterialBase& material) :
         /* init */ DislocationMobilityBase("HEX-basal mobility for "+material.materialName),
         /* init */ h(sqrt(3.0)/2.0), // units of b
         /* init */ w(25.0), // units of b

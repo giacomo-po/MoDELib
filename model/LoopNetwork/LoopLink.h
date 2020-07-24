@@ -15,201 +15,138 @@
 #include <iterator>
 #include <TypeTraits.h>
 #include <MPIcout.h>
-#include <NodeObserver.h>
+//#include <NodeObserver.h>
+#include <NetworkBase.h>
+#include <NetworkLink.h>
 
-
-#define VerboseLoopLink(N,x) if(verboseLevel>=N){model::cout<<x;}
+#define VerboseLoopLink(N,x) if(verboseLevel>=N){model::cout<<blueColor<<x<<defaultColor;}
 
 namespace model
 {
-    template<typename LinkType>
-    class LoopLink
+    template<typename Derived>
+    class LoopLink : public  CRTP<Derived>
+    /*            */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,std::array<size_t,3>>
+
     {
         
-        typedef typename TypeTraits<LinkType>::NodeType NodeType;
-        typedef typename TypeTraits<LinkType>::LoopType LoopType;
-        typedef typename TypeTraits<LinkType>::FlowType FlowType;
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+        typedef NetworkBase<LoopNetworkType,std::array<size_t,3>> NetworkBaseType;
+        typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
+        typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::NetworkLinkType NetworkLinkType;
+        typedef typename TypeTraits<Derived>::FlowType FlowType;
         
         
-        const std::shared_ptr<NodeType> _source;
-        const std::shared_ptr<NodeType> _sink;
-        const std::shared_ptr<LoopType> pLoop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
         
     public:
-        
-        
-        typedef std::array<size_t,3> KeyType;
-        
-        
         /**********************************************************************/
-        static KeyType loopLinkKey(const std::shared_ptr<LoopType>& pLoop,
-                                      const std::shared_ptr<NodeType>& Ni,
-                                      const std::shared_ptr<NodeType>& Nj)
+        static typename NetworkBaseType::KeyType loopLinkKey(const std::shared_ptr<LoopType>& loop,
+                                      const std::shared_ptr<LoopNodeType>& Ni,
+                                      const std::shared_ptr<LoopNodeType>& Nj)
         {
-//            return networkLinkKey(pLoop->sID,Ni->sID,Nj->sID);
-            return KeyType{pLoop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
+            return typename NetworkBaseType::KeyType{loop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
         }
-        
-//        /**********************************************************************/
-//        static KeyType loopLinkKey(const size_t& L,const size_t& i,const size_t& j)
-//        {
-//            assert(i!=j && "i and j cannot be the same");
-//            return KeyType{L,std::min(i,j),std::max(i,j)};
-//        }
         
         static int verboseLevel;
         
         
-        //        const NodeType* const source;
-        //        const NodeType* const sink;
+        const std::shared_ptr<LoopNodeType> source;
+        const std::shared_ptr<LoopNodeType> sink;
+        const std::shared_ptr<LoopType> loop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
+
+    private:
+        std::shared_ptr<NetworkLinkType> _networkLink;
         
+
+    public:
+
+        Derived* prev;
+        Derived* next;
         
-        
-        const std::shared_ptr<LinkType> pLink;
-        
-        LoopLink* prev;
-        LoopLink* next;
+//        friend void LoopNode<LoopNodeType>::addLoopLink(Derived* const);
+//        friend void LoopNode<LoopNodeType>::removeLoopLink(Derived* const);
+
         
         /**********************************************************************/
-        LoopLink(const std::shared_ptr<NodeType>& so,
-                 const std::shared_ptr<NodeType>& si,
+        LoopLink(const std::shared_ptr<LoopNodeType>& so,
+                 const std::shared_ptr<LoopNodeType>& si,
                  const std::shared_ptr<LoopType>& pL) :
-        /* init */ _source(so),
-        /* init */ _sink(si),
-        /* init */ pLoop(pL),
-        /* init */ pLink(pLoop->network().sharedLink(_source,_sink)),
-        /* init */ prev(nullptr),
-        /* init */ next(nullptr)
+        /* init */ NetworkBaseType(pL->p_network(),loopLinkKey(pL,so,si))
+        /* init */,source(so)
+        /* init */,sink(si)
+        /* init */,loop(pL)
+        /* init */,_networkLink(getNetworkLink())
+        /* init */,prev(nullptr)
+        /* init */,next(nullptr)
         {
-            VerboseLoopLink(1,"Constructing LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
-            pLink->addLoopLink(this);
-            _source->addLoopLink(this);
-            _sink->addLoopLink(this);
-            pLoop->addLoopLink(this);
+            VerboseLoopLink(1,"Constructing LoopLink "<<tag()<<std::endl);
+            source->addLoopLink(this->p_derived());
+            sink->addLoopLink(this->p_derived());
+            loop->addLoopLink(this->p_derived());
+            if(_networkLink)
+            {
+                _networkLink->addLoopLink(this->p_derived());
+            }
         }
 
-        /**********************************************************************/
-        LoopLink(const LoopLink&) =delete;
-
-        
         /**********************************************************************/
         ~LoopLink()
         {// call removeLoopLink in inverse order compared to addLoopLink
-            VerboseLoopLink(1,"Destroying LoopLink "<<tag()<<" (loop "<<pLoop->sID<<")"<<std::endl);
-            pLoop->removeLoopLink(this);
-            _sink->removeLoopLink(this);
-            _source->removeLoopLink(this);
-            pLink->removeLoopLink(this);
+            VerboseLoopLink(1,"Destroying LoopLink "<<tag()<<std::endl);
+            if(_networkLink)
+            {
+                _networkLink->removeLoopLink(this->p_derived());
+            }
+            loop->removeLoopLink(this->p_derived());
+            sink->removeLoopLink(this->p_derived());
+            source->removeLoopLink(this->p_derived());
         }
         
-        /**********************************************************************/
-        const std::shared_ptr<NodeType>& source() const
+        const  std::shared_ptr<NetworkLinkType>& networkLink() const
         {
-            return _source;
+            return _networkLink;
         }
         
-        /**********************************************************************/
-        const std::shared_ptr<NodeType>& sink() const
+        std::shared_ptr<NetworkLinkType> getNetworkLink()
         {
-            return _sink;
+            return this->derived().hasNetworkLink()? this->network().networkLinks().get(source->networkNode,sink->networkNode) : nullptr;
         }
         
-        /**********************************************************************/
-        const std::shared_ptr<LoopType>& loop() const
+        void resetNetworkLink()
         {
-            return pLoop;
+            if(_networkLink)
+            {
+                _networkLink->removeLoopLink(this->p_derived());
+            }
+            _networkLink=getNetworkLink();
+            if(_networkLink)
+            {
+                _networkLink->addLoopLink(this->p_derived());
+            }
         }
-        
-//        /**********************************************************************/
-//        void resetLoop(const std::shared_ptr<LoopType>& pL)
-//        {
-//            if(pL.get()!=pLoop.get())
-//            {
-//                VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
-//
-//                pLoop->removeLoopLink(this);
-//                pLoop=pL;
-//                pLoop->addLoopLink(this);
-//                VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
-//
-//                if(next!=nullptr)
-//                {
-//                    next->resetLoop(pLoop);
-//                }
-//
-//                if(prev!=nullptr)
-//                {
-//                    prev->resetLoop(pLoop);
-//                }
-//            }
-//        }
-//
-//        /**********************************************************************/
-//        void resetLoop(const std::shared_ptr<LoopType>& pL,
-//                       const size_t& startID,
-//                       const size_t& endID)
-//        {
-//            if(pL.get()!=pLoop.get())
-//            {
-//
-//                if(source()->sID==startID)
-//                {
-//                    VerboseLoopLink(1,"LoopLink "<<tag()<<", resetting loop: old loop="<<pLoop->sID<<std::flush);
-//                    pLoop->removeLoopLink(this);
-//                    pLoop=pL;
-//                    pLoop->addLoopLink(this);
-//                    VerboseLoopLink(1,", new loop="<<pLoop->sID<<std::endl);
-//
-//                    if(sink()->sID!=endID)
-//                    {
-//                        next->resetLoop(pLoop,sink()->sID,endID);
-//                    }
-//                }
-//                else
-//                {
-//                    if(next!=nullptr)
-//                    {
-//                        next->resetLoop(pLoop,startID,endID);
-//                    }
-//                    else
-//                    {
-//                        assert(0 && "next cannot be nullptr for this function");
-//                    }
-//                }
-//            }
-//
-//        }
-        
-//        /**********************************************************************/
-//        void flip()
-//        {/*!Swaps source-sink, and prev-next
-//          */
-//            _source.swap(_sink);
-//            std::swap(prev,next);
-//        }
         
         /**********************************************************************/
         const FlowType& flow() const
         {/*!\returns a reference to the loop flow
           */
-            return pLoop->flow();
+            return loop->flow();
         }
         
         /**********************************************************************/
         std::string tag() const
-        {/*!\returns the string "i->j" where i is source()->sID and j=sink()->sID
+        {/*!\returns the string "i->j" where i is source->sID and j=sink->sID
           */
-            return std::to_string(source()->sID) + "->" + std::to_string(sink()->sID) + " ("+std::to_string(loop()->sID)+")";
+            return source->tag() + "->" + sink->tag() + " ("+std::to_string(loop->sID)+")";
         }
         
         
         /**********************************************************************/
         template <class T>
-        friend T& operator << (T& os, const LoopLink<LinkType>& ll)
+        friend T& operator << (T& os, const LoopLink<Derived>& ll)
         {
-            os  << ll.loop()->sID<<"\t"
-            /**/<< ll.source()->sID<<"\t"
-            /**/<< ll.sink()->sID<<"\t";
+            os  << ll.loop->sID<<"\t"
+            /**/<< ll.source->sID<<"\t"
+            /**/<< ll.sink->sID<<"\t";
             
             return os;
         }

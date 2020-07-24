@@ -10,111 +10,55 @@
 #define model_LoopNode_H_
 
 #include <iostream>
-//#include <list>
 #include <set>
 #include <memory>
 #include <assert.h>
 #include <tuple>
 #include <limits.h>
-//#include <iterator>
 
 #include <StaticID.h>
 #include <CRTP.h>
-//#include <iomanip>
-//#include <vector>
-//#include <Eigen/Dense>
-#include <NetworkComponent.h>
 #include <MPIcout.h>
-#include <NodeObserver.h>
 #include <LoopLink.h>
+#include <NetworkNode.h>
+#include <NetworkBase.h>
 
-#define VerboseLoopNode(N,x) if(verboseLevel>=N){model::cout<<x;}
+
+#define VerboseLoopNode(N,x) if(verboseLevel>=N){model::cout<<greenColor<<x<<defaultColor;}
 
 
 namespace model
 {
     
-//    template<typename LoopLinkType>
-//    struct LoopLinkNodeConnection
-//    {// USE THIS CLASS TO STORE LOOPLINKS IN A NODE. MAKE MAP WITH KEY LOOPID, AND THIS AS VALUE
-//      
-//        LoopType* const loop;
-//        LoopLinkType*  inLink;
-//        LoopLinkType* outLink;
-//        
-////        LoopLinkNodeConnection
-//        
-//    };
-    
-    
     template<typename Derived>
-    class LoopNode : public  StaticID<Derived>,
-    /*            */ public  CRTP<Derived>,
-    /*            */ private std::set<LoopLink<typename TypeTraits<Derived>::LinkType>*>,
-    /*            */ private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::LinkType* const>>
+    class LoopNode : public StaticID<Derived>
+    /*            */,public CRTP<Derived>
+    /*            */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,size_t>
     {
         
     public:
         
-        typedef Derived NodeType;
-        typedef typename TypeTraits<Derived>::LinkType LinkType;
+        typedef Derived LoopNodeType;
+        typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::NetworkNodeType NetworkNodeType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NodeObserver<Derived> NodeObserverType;
-        typedef LoopLink<LinkType> LoopLinkType;
-        typedef std::set<LoopLinkType*> LoopLinkContainerType;
-        typedef std::map<size_t,LoopLinkContainerType> LinkByLoopContainerType;
-        typedef std::tuple<Derived* const ,LinkType* const>				NeighborType;
-        typedef std::map<size_t,NeighborType>						    NeighborContainerType;
-
-        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-
-        friend class NetworkLink<LinkType>; // allow NetworkLink to call private NetworkNode::formNetworkComponent
-
-        LoopNetworkType* const loopNetwork;
+        typedef NetworkBase<LoopNetworkType,size_t> NetworkBaseType;
 
         
     private:
         
-//        NodeObserverType* const loopNetwork;
-        std::shared_ptr<NetworkComponentType> psn;
 
-        /**********************************************************************/
-        void resetPSN()
-        {
-            //! 1- Removes this from the current NetworkComponent
-            this->psn->remove(this->p_derived());
-            //! 2- Creates a new NetworkComponent containing this
-            this->psn.reset(new NetworkComponentType(this->p_derived()));
-            //! 3- Transmits 'formNetworkComponent' to the neighbors
-            typedef void (Derived::*node_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
-            node_member_function_pointer_type Nmfp(&Derived::formNetworkComponent);
-            //			Nmfp=&Derived::formNetworkComponent;
-            typedef void (LinkType::*link_member_function_pointer_type)(const std::shared_ptr<NetworkComponentType>&);
-            link_member_function_pointer_type Lmfp(&LinkType::formNetworkComponent);
-            //			Lmfp=&LinkType::formNetworkComponent;
-            depthFirstExecute(Nmfp,Lmfp,this->psn);
-        }
         
-        /**********************************************************************/
-        void formNetworkComponent(const std::shared_ptr<NetworkComponentType> & psnOther)
-        {/*!@param[in] psnOther a shared_ptr to another NetworkComponent
-          *
-          * If the shared_ptr to the NetworkComponent of *this is different from
-          * psnOther, the former is reset (this may destroy the NetworkComponent)
-          * and reassigned to psnOther.
-          */
-            if (psn!=psnOther)
-            {
-                psn->remove(this->p_derived());
-                psn=psnOther;		// redirect psn to the new NetworkComponent
-                psn->add(this->p_derived());	// add this in the new NetworkComponent
-            }
-        }
+        std::shared_ptr<LoopType> _loop;
+
         
     public:
 
-
+        std::shared_ptr<NetworkNodeType> networkNode;
+        std::pair<LoopNodeType*,LoopLinkType*> prev;
+        std::pair<LoopNodeType*,LoopLinkType*> next;
+        
         
         static int verboseLevel;
         
@@ -122,66 +66,60 @@ namespace model
         
     
         /**********************************************************************/
-        LoopNode(LoopNetworkType* const ln) :
-        /* init list */ loopNetwork(ln),
-        /* init list */ psn(network().commonNetworkComponent? network().commonNetworkComponent : std::shared_ptr<NetworkComponentType>(new NetworkComponentType(this->p_derived())))
+        LoopNode(LoopNetworkType* const loopNetwork_in,
+                 const std::shared_ptr<LoopType>& loop_in,
+                 const std::shared_ptr<NetworkNodeType>& networkNode_in) :
+        /* init */ NetworkBaseType(loopNetwork_in,this->sID)
+        /* init */,_loop(loop_in)
+        /* init */,networkNode(networkNode_in)
+        /* init */,prev(nullptr,nullptr)
+        /* init */,next(nullptr,nullptr)
         {
             VerboseLoopNode(1,"Constructing LoopNode "<<tag()<<std::endl);
 
-            if(network().commonNetworkComponent)
-            {
-                psn->add(this->p_derived());
-            }
-            
-//            std::cout<<"Constructing LoopNode "<<this->sID<<std::endl;
-            loopNetwork->addNode(this->p_derived());
-            
-//            const bool success=neighbors().emplace(std::make_pair(this->sID, NeighborType(this->p_derived(),(LinkType*) NULL,0) )).second;
-//            assert(success && "CANNOT INSERT SELF IN NEIGHBORHOOD.");
-
+            networkNode->addLoopNode(this->p_derived());
         }
-        
-        /**********************************************************************/
-        LoopNode(const LoopNode&) =delete;
-
         
         /**********************************************************************/
         ~LoopNode()
         {
             VerboseLoopNode(1,"Destroying LoopNode "<<tag()<<std::endl);
 
+            assert(prev.first==nullptr && "~LoopNode prev.first!=nullptr");
+            assert(prev.second==nullptr && "~LoopNode prev.second!=nullptr");
+            assert(next.first==nullptr && "~LoopNode next.first!=nullptr");
+            assert(next.second==nullptr && "~LoopNode next.second!=nullptr");
             
-            loopNetwork->removeNode(this->p_derived());
-            
-            
-            assert(loopLinks().empty());
-            
-            this->psn->remove(this->p_derived());
-
-            
-//            const int success=neighbors().erase(this->sID);
-//            assert(success==1 && "CANNOT ERESE SELF FROM NEIGHBORHOOD.");
-
+            networkNode->removeLoopNode(this->p_derived());
         }
         
         /**********************************************************************/
-        const LoopNetworkType& network() const
+        void resetLoop(const std::shared_ptr<LoopType>& newLoop)
         {
-            return *loopNetwork;
+            VerboseLoopNode(1,"LoopNode "<<tag()<<" resetLoop to "<<newLoop->tag()<<std::endl);
+            assert((isIsolated() || _loop==newLoop) && "Trying to change loop of LoopNode connected to LoopLinks");
+            if(isIsolated() && _loop!=newLoop)
+            {
+                _loop=newLoop;
+            }
         }
         
         /**********************************************************************/
-        LoopNetworkType& network()
+        bool isIsolated() const
         {
-            return *loopNetwork;
+            return prev.first==nullptr && next.first==nullptr;
         }
         
         /**********************************************************************/
-        size_t snID() const
-        {/*!\returns The NetworkComponent::snID() of the component
-          * containing this.
-          */
-            return psn->snID(this->p_derived());
+        const std::shared_ptr<LoopType>& loop() const
+        {
+            return _loop;
+        }
+        
+        /**********************************************************************/
+        bool isContractableTo(const Derived* const other) const
+        {
+            return loop()==other->loop();
         }
         
         /**********************************************************************/
@@ -189,277 +127,103 @@ namespace model
         {/*!\returns The NetworkComponent::snID() of the component
           * containing this.
           */
-            return network().globalNodeID(this->sID);
+            return this->network().globalNodeID(this->sID);
         }
     
         /**********************************************************************/
-        const LoopLinkContainerType& loopLinks() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        LoopLinkContainerType outLoopLinks() const
-        {
-            LoopLinkContainerType temp;
-            for(const auto& link : loopLinks())
-            {
-                if(link->source().get()==this->p_derived())
-                {
-                    temp.insert(link);
-                }
-            }
-            return temp;
-        }
-        
-        LoopLinkContainerType inLoopLinks() const
-        {
-            LoopLinkContainerType temp;
-            for(const auto& link : loopLinks())
-            {
-                if(link->sink().get()==this->p_derived())
-                {
-                    temp.insert(link);
-                }
-            }
-            return temp;
-        }
-        
-        /**********************************************************************/
-        LoopLinkContainerType& loopLinks()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        LinkByLoopContainerType linksByLoopID() const
-        {
-            LinkByLoopContainerType temp;
-            for(const auto& link : loopLinks())
-            {
-                temp[link->loop()->sID].insert(link);
-            }
-            return temp;
-        }
-        
-        /**********************************************************************/
-        std::set<const LoopType*> loops() const
-        {
-            std::set<const LoopType*> temp;
-            for(const auto& link : loopLinks())
-            {
-                temp.insert(link->loop().get());
-            }
-            return temp;
-        }
-        
-        /**********************************************************************/
-        const NeighborContainerType& neighbors() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        NeighborContainerType& neighbors()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        bool isSimple() const
-        {/*!\returns true if neighbors().size()==2
-          */
-            return neighbors().size()==2;
-        }
-        
-        /**********************************************************************/
-        void addToNeighborhood(LinkType* const pL)
-        {/*!@param[in] pL a pointer to a LinkType edge
-          */
-            if (pL->source->sID==this->sID)
-            {// this vertex is the source of edge *pL, so sink of *pL is the neighbor
-                const NeighborType temp(pL->sink.get(),pL);
-                const bool success=neighbors().emplace(pL->sink->sID,temp).second;
-                assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
-            }
-            else if (pL->sink->sID==this->sID)
-            {// this vertex is the sink of edge *pL, so source of *pL is the neighbor
-                const NeighborType temp(pL->source.get(),pL);
-                const bool success=neighbors().emplace(pL->source->sID,temp).second;
-                assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
-            }
-            else
-            {
-                assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
-            }
-        }
-        
-        /**********************************************************************/
-        void removeFromNeighborhood(LinkType* const pL)
-        {
-            if (pL->source->sID==this->sID)
-            {
-                const size_t key=pL->sink->sID;
-                const int success=neighbors().erase(key);
-                assert(success==1);
-            }
-            else if (pL->sink->sID==this->sID)
-            {
-                const size_t key=pL->source->sID;
-                const int success=neighbors().erase(key);
-                assert(success==1);
-            }
-            else
-            {
-                assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
-            }
-        }
-        
-        
-        /**********************************************************************/
         void addLoopLink(LoopLinkType* const pL)
         {
-//            std::cout<<"LoopNode "<<this->sID<<" adding Link "<<pL->source->sID<<"->"<<pL->sink->sID<<std::endl;
-            
-            assert((pL->source().get()==this || pL->sink().get()==this) && "LoopLink connected to wrong node.");
+            VerboseLoopNode(2,"LoopNode "<<tag()<<" addLoopLink "<<pL->tag()<<std::endl);
+            VerboseLoopNode(3,"LoopNode "<<tag()<<" loop()= "<<loop()->tag()<<std::endl);
+            VerboseLoopNode(3,"LoopLink "<<pL->tag()<<" loop= "<<pL->loop->tag()<<std::endl);
 
-            const bool inserted=loopLinks().insert(pL).second; // Store the connecting link
+            assert(pL->loop==_loop && "LoopNode and LoopLink in different loops");
 
-            assert(inserted);
-            
-            
-            for(const auto& other : loopLinks())
-            {// Check loop consistency based on prev/next of each loopLink
-
-                if(pL->loop().get()==other->loop().get() && pL!=other)
-                {//two distinct loopLinks of the same loop
-                    if(pL->source().get()==other->sink().get())
-                    {
-                        assert(pL->prev==nullptr || pL->prev==other);
-                        assert(other->next==nullptr || other->next==pL);
-                        pL->prev=other;
-                        other->next=pL;
-                    }
-                    if (pL->sink().get()==other->source().get())
-                    {
-                        assert(pL->next==nullptr || pL->next==other);
-                        assert(other->prev==nullptr || other->prev==pL);
-                        pL->next=other;
-                        other->prev=pL;
-                    }
-                    if(pL->source().get()==other->source().get() || pL->sink().get()==other->sink().get())
-                    {
-                        std::cout<<"LoopNode "<<this->sID<<std::endl;
-                        std::cout<<"adding link "<<pL->source()->sID<<"->"<<pL->sink()->sID<<" (loop "<<pL->loop()->sID<<")"<<std::endl;
-                        std::cout<<"existing link "<<other->source()->sID<<"->"<<other->sink()->sID<<" (loop "<<other->loop()->sID<<")"<<std::endl;
-                        assert(0 && "Not a Loop");
-                    }
+            if(pL->source.get()==this)
+            {// outlink (next)
+                assert((next.first==nullptr || next.first==pL->sink.get()) && "LoopNode::addLoopLink wrong next node ");
+                assert((next.second==nullptr || next.second==pL) && "LoopNode::addLoopLink wrong next link");
+                next.first=pL->sink.get();
+                next.second=pL;
+                
+                assert((pL->prev==nullptr || pL->prev==prev.second));
+                pL->prev=prev.second;
+                if(prev.second)
+                {
+                    assert(prev.second->loop==pL->loop && "links in different loops");
+                    prev.second->next=pL;
                 }
+            }
+            else if(pL->sink.get()==this)
+            {// inlink (prev)
+                assert((prev.first==nullptr || prev.first==pL->source.get()) && "LoopNode::addLoopLink wrong prev node ");
+                assert((prev.second==nullptr || prev.second==pL) && "LoopNode::addLoopLink wrong prev link");
+                prev.first=pL->source.get();
+                prev.second=pL;
+                
+                assert((pL->next==nullptr || pL->next==next.second));
+                pL->next=next.second;
+                if(next.second)
+                {
+                    assert(next.second->loop==pL->loop && "links in different loops");
+                    next.second->prev=pL;
+                }
+            }
+            else
+            {
+                assert(false && "LoopLink connected to wrong node.");
             }
         }
         
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
-            const int erased=loopLinks().erase(pL);
-            assert(erased==1);
+            VerboseLoopNode(2,"LoopNode "<<tag()<<" removeLoopLink "<<pL->tag()<<std::endl);
+            assert(pL->loop==_loop && "LoopNode and LoopLink in different loops");
+
             
-            if(pL->next!=nullptr)
+            if(pL->source.get()==this)
+            {// outlink (next)
+                VerboseLoopNode(3,"LoopNode "<<tag()<<" removeLoopLink (next) "<<pL->tag()<<std::endl);
+                
+                assert((next.first==nullptr || next.first==pL->sink.get()) && "LoopNode::addLoopLink wrong next node ");
+                assert((next.second==nullptr || next.second==pL) && "LoopNode::addLoopLink wrong next link");
+                next.first=nullptr;
+                next.second=nullptr;
+                
+                assert((pL->prev==nullptr || pL->prev==prev.second));
+                if(prev.second)
+                {
+                    prev.second->next=nullptr;
+                }
+            }
+            else if(pL->sink.get()==this)
+            {// inlink (prev)
+                VerboseLoopNode(3,"LoopNode "<<tag()<<" removeLoopLink (prev) "<<pL->tag()<<std::endl);
+
+                assert((prev.first==nullptr || prev.first==pL->source.get()) && "LoopNode::addLoopLink wrong prev node ");
+                assert((prev.second==nullptr || prev.second==pL) && "LoopNode::addLoopLink wrong prev link");
+                prev.first=nullptr;
+                prev.second=nullptr;
+
+                assert((pL->next==nullptr || pL->next==next.second));
+                if(next.second)
+                {
+                    next.second->prev=nullptr;
+                }
+            }
+            else
             {
-                pL->next->prev=nullptr;
-                pL->next=nullptr;
+                assert(false && "LoopLink connected to wrong node.");
             }
 
-            if(pL->prev!=nullptr)
-            {
-                pL->prev->next=nullptr;
-                pL->prev=nullptr;
-            }
-
-        }
-        
-        /**********************************************************************/
-        const std::shared_ptr<NetworkComponentType> & pSN() const
-        {/*!\returns A const reference to the shared-pointer to the
-          * NetworkComponent containing this.
-          */
-            return psn;
         }
         
         /**********************************************************************/
         std::string tag() const
         {/*!\returns the string "i" where i is this->sID
           */
-            return std::to_string(this->sID) ;
-        }
-        
-        /**********************************************************************/
-        template <typename T>
-        void depthFirstExecute(void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&), const T & input, const size_t& N = ULONG_MAX)
-        {
-            std::set<size_t> searchedNodes;
-            std::set<std::pair<size_t,size_t> > searchedLinks;
-            depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N);
-        }
-        
-        /**********************************************************************/
-        template <typename T>
-        void depthFirstExecute(std::set<size_t>& searchedNodes,
-                               std::set<std::pair<size_t,size_t> >& searchedLinks,
-                               void (Derived::*Nfptr)(const T&),void (LinkType::*Lfptr)(const T&),
-                               const T & input,
-                               const size_t& N = ULONG_MAX)
-        {
-            (this->p_derived()->*Nfptr)(input); // execute Nfptr on this node
-            if (N!=0)
-            {
-                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
-                for (const auto& neighborIter : neighbors())
-                {
-//                    if (!std::get<2>(neighborIter.second)==0)
-//                    {
-                        if (searchedLinks.find(std::get<1>(neighborIter.second)->nodeIDPair)==searchedLinks.end())
-                        {  // neighbor not searched
-                            (std::get<1>(neighborIter.second)->*Lfptr)(input); // execute Lfptr on connecting link
-                            assert(searchedLinks.insert(std::get<1>(neighborIter.second)->nodeIDPair).second && "CANNOT INSERT CURRENT LINK IN SEARCHED LINKS"); // this node has been searched
-                        }
-//                    }
-                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
-                    {  // neighbor not searched
-                        std::get<0>(neighborIter.second)->depthFirstExecute(searchedNodes,searchedLinks,Nfptr,Lfptr,input, N-1); // continue executing on neighbor
-                    }
-                }
-            }
-        }
-        
-        
-        /**********************************************************************/
-        bool depthFirstSearch (const size_t& ID, const size_t& N = ULONG_MAX) const
-        {
-            std::set<size_t> searchedNodes;
-            return depthFirstSearch(searchedNodes,ID,N);
-        }
-        
-        /**********************************************************************/
-        bool depthFirstSearch (std::set<size_t>& searchedNodes, const size_t& ID, const size_t& N = ULONG_MAX) const
-        {
-            bool reached(this->sID==ID);
-            if (N!=0 && !reached)
-            {
-                assert(searchedNodes.insert(this->sID).second && "CANNOT INSERT CURRENT NODE IN SEARCHED NODES"); // this node has been searched
-                for (const auto& neighborIter : neighbors())
-                {
-                    if (searchedNodes.find(std::get<0>(neighborIter.second)->sID)==searchedNodes.end())
-                    {  // neighbor not searched
-                        reached=std::get<0>(neighborIter.second)->depthFirstSearch(searchedNodes,ID,N-1); // ask if neighbor can reach
-                        if (reached)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            return reached;
+            return std::to_string(this->sID) + "[" + (networkNode? networkNode->tag() : "?") + "]";
         }
         
     };

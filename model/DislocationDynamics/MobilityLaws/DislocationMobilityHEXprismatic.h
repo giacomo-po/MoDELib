@@ -83,7 +83,7 @@ namespace model
         }
 
         /**********************************************************************/
-        DislocationMobilityHEXprismatic(const DislocatedMaterialBase& material) :
+        DislocationMobilityHEXprismatic(const PolycrystallineMaterialBase& material) :
         /* init */ DislocationMobilityBase("HEX-prismatic mobility for "+material.materialName),
         /* init */ h(sqrt(8.0/3.0)/2.0), // units of b
         /* init */ w(25.0), // units of b

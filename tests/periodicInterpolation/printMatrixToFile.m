@@ -10,7 +10,9 @@ for(k=1:size(M,1))
     if k<size(M,1)
         fprintf(fid,[format '\n'],M(k,:));
     else
-        fprintf(fid,[format ';\n'],M(k,:));
+        fprintf(fid,[format ],M(k,:));
     end
 end
+fprintf(fid,';\n')
 end
+

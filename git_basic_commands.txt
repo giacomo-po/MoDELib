@@ -3,12 +3,14 @@
 1) Cloning initial repository
 git clone https://github.com/giacomo-po/MoDELib.git MoDELib
 
-2) Changing working branch
-hg update ‘name of branch’
-
-3) Committing and pushing changes:
+2) Committing and pushing changes:
 cd MODEL
 (make local changes)
 git add -A
 git commit -m "<message>"
 git push 
+
+3) Creating and switching to a new branch
+git branch newBranchName
+git checkout newBranchName
+(make local changes and push)

@@ -18,9 +18,10 @@
 #include <fstream>      // std::ifstream
 #include <cfloat>      // std::ifstream
 #include <DDbaseIO.h>
-#include <DislocationNodeIO.h>
 #include <DislocationLoopIO.h>
-#include <DislocationEdgeIO.h>
+#include <DislocationLoopNodeIO.h>
+#include <DislocationLoopLinkIO.h>
+#include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
 //#include <PeriodicLoopIO.h>
 #include <MPIcout.h>
@@ -34,7 +35,8 @@ namespace model
     class DDconfigIO : public DDbaseIO
     /*              */,private std::vector<DislocationNodeIO<dim> >
     /*              */,private std::vector<DislocationLoopIO<dim> >
-    /*              */,private std::vector<DislocationEdgeIO<dim> >
+    /*              */,private std::vector<DislocationLoopNodeIO<dim> >
+    /*              */,private std::vector<DislocationLoopLinkIO<dim> >
     /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
     /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
     {
@@ -89,7 +91,7 @@ namespace model
             // Write Edges
             for(const auto& link : dn.loopLinks())
             {
-                links().emplace_back(link.second);
+                loopLinks().emplace_back(link.second);
             }
             
             
@@ -103,6 +105,17 @@ namespace model
         }
         
         std::vector<DislocationNodeIO<dim> >& nodes()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const std::vector<DislocationLoopNodeIO<dim> >& loopNodes() const
+        {
+            return *this;
+        }
+        
+        std::vector<DislocationLoopNodeIO<dim> >& loopNodes()
         {
             return *this;
         }
@@ -143,12 +156,12 @@ namespace model
         }
         
         /**********************************************************************/
-        const std::vector<DislocationEdgeIO<dim> >& links() const
+        const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const
         {
             return *this;
         }
         
-        std::vector<DislocationEdgeIO<dim> >& links()
+        std::vector<DislocationLoopLinkIO<dim> >& loopLinks()
         {
             return *this;
         }
@@ -159,7 +172,7 @@ namespace model
             
             std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > temp;
             
-            for(const auto& link : links())
+            for(const auto& link : loopLinks())
             {
                 
                 
@@ -252,8 +265,9 @@ namespace model
             // Write header
             file<<nodes().size()<<"\n";
             file<<loops().size()<<"\n";
-            file<<links().size()<<"\n";
-            
+            file<<loopLinks().size()<<"\n";
+            file<<loopNodes().size()<<"\n";
+
             // Write Nodes
             for(const auto& node : nodes())
             {
@@ -266,9 +280,15 @@ namespace model
             }
             
             // Write Edges
-            for(const auto& link : links())
+            for(const auto& link : loopLinks())
             {
                 file<<link<<"\n";
+            }
+            
+            // Write LoopNodes
+            for(const auto& loopNode : loopNodes())
+            {
+                file<<loopNode<<"\n";
             }
             
             
@@ -276,7 +296,7 @@ namespace model
             
 //            model::cout<<" WRITING:  "<<nodes().size()<<" nodes "<<std::endl;
 //            model::cout<<" WRITING:  "<<loops().size()<<" loops "<<std::endl;
-//            model::cout<<" WRITING:  "<<links().size()<<" links "<<std::endl;
+//            model::cout<<" WRITING:  "<<loopLinks().size()<<" links "<<std::endl;
         }
         
         
@@ -296,12 +316,14 @@ namespace model
                 // Write header
                 const size_t nV(nodes().size());
                 const size_t nL(loops().size());
-                const size_t nE(links().size());
+                const size_t nE(loopLinks().size());
+                const size_t nLN(loopNodes().size());
 
                 binWrite(file,nV);
                 binWrite(file,nL);
                 binWrite(file,nE);
-                
+                binWrite(file,nLN);
+
                 // Write Nodes
                 for(const auto& node : nodes())
                 {
@@ -315,9 +337,15 @@ namespace model
                 }
                 
                 // Write Edges
-                for(const auto& link : links())
+                for(const auto& link : loopLinks())
                 {
                     binWrite(file,link);
+                }
+                
+                // Write LoopNodes
+                for(const auto& loopNode : loopNodes())
+                {
+                    binWrite(file,loopNode);
                 }
                 
                 
@@ -371,7 +399,9 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeL), 1*sizeof(sizeL));
                 size_t sizeE;
                 infile.read (reinterpret_cast<char*>(&sizeE), 1*sizeof(sizeE));
-                
+                size_t sizeLN;
+                infile.read (reinterpret_cast<char*>(&sizeLN), 1*sizeof(sizeLN));
+
                 // Read vertices
                 nodes().resize(sizeV);
                 infile.read (reinterpret_cast<char*>(nodes().data()),nodes().size()*sizeof(DislocationNodeIO<dim>));
@@ -379,16 +409,21 @@ namespace model
                 loops().resize(sizeL);
                 infile.read (reinterpret_cast<char*>(loops().data()),loops().size()*sizeof(DislocationLoopIO<dim>));
                 // Read links
-                links().resize(sizeE);
-                infile.read (reinterpret_cast<char*>(links().data()),links().size()*sizeof(DislocationEdgeIO<dim>));
-                
+                loopLinks().resize(sizeE);
+                infile.read (reinterpret_cast<char*>(loopLinks().data()),loopLinks().size()*sizeof(DislocationLoopLinkIO<dim>));
+                // Read loopNodes
+                loopNodes().resize(sizeLN);
+                infile.read (reinterpret_cast<char*>(loopNodes().data()),loopNodes().size()*sizeof(DislocationLoopNodeIO<dim>));
+
                 
                 infile.close();
                 make_maps();
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-                model::cout<<"  "<<links().size()<<" links "<<std::endl;
+                model::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
+                model::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
+
             }
             else
             {
@@ -416,7 +451,7 @@ namespace model
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-                model::cout<<"  "<<links().size()<<" links "<<std::endl;
+                model::cout<<"  "<<loopLinks().size()<<" links "<<std::endl;
             }
             else
             {
@@ -436,7 +471,8 @@ namespace model
             size_t sizeV;
             size_t sizeL;
             size_t sizeE;
-            
+            size_t sizeLN;
+
             std::string line;
             std::stringstream ss;
             
@@ -454,6 +490,11 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             ss >> sizeE;
+            ss.clear();
+            
+            std::getline(infile, line);
+            ss<<line;
+            ss >> sizeLN;
             ss.clear();
             
             
@@ -475,12 +516,21 @@ namespace model
                 ss.clear();
             }
             
-            links().clear();
+            loopLinks().clear();
             for(size_t k=0; k<sizeE; ++k)
             {
                 std::getline(infile, line);
                 ss<<line;
-                links().emplace_back(ss);
+                loopLinks().emplace_back(ss);
+                ss.clear();
+            }
+            
+            loopNodes().clear();
+            for(size_t k=0; k<sizeLN; ++k)
+            {
+                std::getline(infile, line);
+                ss<<line;
+                loopNodes().emplace_back(ss);
                 ss.clear();
             }
             
@@ -489,7 +539,7 @@ namespace model
             
             model::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
             model::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
-            model::cout<<" READING:  "<<links().size()<<" links "<<std::endl;
+            model::cout<<" READING:  "<<loopLinks().size()<<" links "<<std::endl;
             
         }
         
