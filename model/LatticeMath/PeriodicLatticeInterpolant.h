@@ -13,7 +13,7 @@
 #include <array>
 #include <cfloat>
 #include <Eigen/Dense>
-
+#include <Eigen/SVD>
 
 namespace model
 {
@@ -119,9 +119,39 @@ namespace model
             M<<M1.block(0,1,M1.rows(),M1.cols()-1),M2.block(0,1,M2.rows(),M2.cols()-1);
             Eigen::MatrixXd V(V1.rows()+V2.rows(),1);
             V<<V1,V2;
-//            std::cout<<M<<std::endl;
-            Eigen::MatrixXd x((M.transpose()*M).llt().solve(M.transpose()*V));
-//            Eigen::MatrixXd x(M.llt().solve(V));
+            
+            
+            assert(M.rows()>=M.cols() && "MUST HAVE AT LEAST AS MANY EQUATIONS AS UNKNOWNS");
+            
+            // Solve Yx=z;
+            Eigen::MatrixXd x;
+            bool useLeastSquares(false);
+            if(useLeastSquares)
+            {
+                const Eigen::MatrixXd Y(M.transpose()*M);
+                const Eigen::JacobiSVD<Eigen::MatrixXd> svd(Y);
+                const double cond(svd.singularValues()(0)/ svd.singularValues()(svd.singularValues().size()-1));
+                if(cond>1.0e3)
+                {
+                    std::cout<<"Y=\n"<<Y<<std::endl;
+                    std::cout<<"cond="<<cond<<std::endl;
+                                                    assert(cond<1.0e3 && "Bad condition number");
+                }
+                x=Y.llt().solve(M.transpose()*V);
+            }
+            else
+            {// Y=M
+                const Eigen::JacobiSVD<Eigen::MatrixXd> svd(M);
+                const double cond(svd.singularValues()(0)/ svd.singularValues()(svd.singularValues().size()-1));
+                if(cond>1.0e3)
+                {
+                    std::cout<<"M=\n"<<M<<std::endl;
+                    std::cout<<"cond="<<cond<<std::endl;
+                                assert(cond<1.0e3 && "Bad condition number");
+                }
+                x=M.lu().solve(V);
+            }
+//            Eigen::MatrixXd x(Y.llt().solve(M.transpose()*V));
             Eigen::MatrixXd x1(x.rows()+1,1);
             x1<<0.0,x;
             return Eigen::Map<Eigen::MatrixXd>(x1.data(),2,x1.rows()/2);

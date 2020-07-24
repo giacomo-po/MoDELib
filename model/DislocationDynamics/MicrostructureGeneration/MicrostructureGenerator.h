@@ -17,16 +17,18 @@
 #include <assert.h>
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
+#include <limits>
 
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <DislocatedMaterial.h>
+#include <PolycrystallineMaterial.h>
 #include <LatticeMath.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
 #include <DislocationLoopIO.h>
-#include <DislocationEdgeIO.h>
+#include <DislocationLoopLinkIO.h>
+#include <DislocationLoopNodeIO.h>
 #include <DDconfigIO.h>
 #include <DDauxIO.h>
 
@@ -35,8 +37,7 @@
 #include <DislocationInjector.h>
 #include <MeshBoundarySegment.h>
 
-#include <PeriodicGlidePlane.h>
-
+#include <GlidePlaneModule.h>
 
 namespace model
 {
@@ -51,7 +52,7 @@ namespace model
 
         typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
-        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
+        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         
         typedef BoundingMeshSegments<dim> MeshBoundaryContainerType;
         
@@ -87,15 +88,20 @@ namespace model
         /**********************************************************************/
         bool addSingleLoop(const bool randomizeBurgersSense,
                            const std::vector<VectorDimD>& nodePos,
+                           const std::vector<VectorDimD>& loopNodePos,
                            VectorDimD b,
                            const VectorDimD& unitNormal,
                            const VectorDimD& P0,
                            const int& grainID,
                            const int& loopType,
-                           const long int& periodicLoopID,
-                           const VectorDimD& periodicShift)
+                           const bool& isPeriodicLoop)
+//                           const long int& periodicLoopID,
+//                           const VectorDimD& periodicShift)
         {
-            if(allPointsInGrain(nodePos,grainID))
+            
+            assert(nodePos.size()==loopNodePos.size());
+            
+            if(allPointsInGrain(nodePos,grainID) || isPeriodicLoop)
             {
                 if(randomizeBurgersSense)
                 {
@@ -104,11 +110,13 @@ namespace model
                 
                 for(size_t k=0;k<nodePos.size();++k)
                 {
-                    const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+//                    const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+                    const size_t nextLoopNodeID=(k+1)<nodePos.size()? loopNodeID+k+1 : loopNodeID;
                     configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                    configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                    configIO.loopNodes().emplace_back(loopNodeID+k,loopID,nodePos[k],nodeID+k);
+                    configIO.loopLinks().emplace_back(loopID,loopNodeID+k,nextLoopNodeID,0);
                 }
-                configIO.loops().emplace_back(loopID, b,unitNormal,P0,grainID,loopType,periodicLoopID,periodicShift);
+                configIO.loops().emplace_back(loopID, b,unitNormal,P0,grainID,loopType);
                 nodeID+=nodePos.size();
                 loopID+=1;
                 snID+=1;
@@ -174,25 +182,27 @@ namespace model
                        && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity))
                     {
                         // write node and edge file
-                        for(size_t k=0;k<nodePos.size();++k)
-                        {
-                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                            const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-                        }
-                        nodeID+=nodePos.size();
+//                        for(size_t k=0;k<nodePos.size();++k)
+//                        {
+//                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+//                            const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+//                            configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                        }
+//                        nodeID+=nodePos.size();
 
                         // write loop file
-                        configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+//                        configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
+                        addSingleLoop(false,nodePos,nodePos, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,false);
+                        
                         if(enforceMonotonicHelicity)
                         {
                             loopPoints.push_back(nodePos);
                             loopBurgers.push_back(b);
                         }
 
-                        loopID+=1;
-                        snID+=1;
+//                        loopID+=1;
+//                        snID+=1;
                         density += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
                         if(isSessile)
                         {
@@ -320,22 +330,22 @@ namespace model
                                 configIO.nodes().emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 
-                                configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-                                configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
-                                configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                                configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                                configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+1,0);
-                                configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+4,0);
-                                configIO.links().emplace_back(loopID+0,nodeID+4,nodeID+0,0);
+                                configIO.loopLinks().emplace_back(loopID+0,nodeID+0,nodeID+1,0);
+                                configIO.loopLinks().emplace_back(loopID+0,nodeID+1,nodeID+4,0);
+                                configIO.loopLinks().emplace_back(loopID+0,nodeID+4,nodeID+0,0);
 
-                                configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+3,0);
-                                configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+2,0);
-                                configIO.links().emplace_back(loopID+1,nodeID+2,nodeID+1,0);
-                                configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+0,0);
+                                configIO.loopLinks().emplace_back(loopID+1,nodeID+0,nodeID+3,0);
+                                configIO.loopLinks().emplace_back(loopID+1,nodeID+3,nodeID+2,0);
+                                configIO.loopLinks().emplace_back(loopID+1,nodeID+2,nodeID+1,0);
+                                configIO.loopLinks().emplace_back(loopID+1,nodeID+1,nodeID+0,0);
 
-                                configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+5,0);
-                                configIO.links().emplace_back(loopID+2,nodeID+5,nodeID+2,0);
-                                configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+3,0);
+                                configIO.loopLinks().emplace_back(loopID+2,nodeID+3,nodeID+5,0);
+                                configIO.loopLinks().emplace_back(loopID+2,nodeID+5,nodeID+2,0);
+                                configIO.loopLinks().emplace_back(loopID+2,nodeID+2,nodeID+3,0);
 
                                 nodeID+=6;
                                 loopID+=3;
@@ -440,13 +450,13 @@ namespace model
 
                             if (P12.size()==0)
                             {
-                                configIO.links().emplace_back(loopID,refNodeID+4,refNodeID+5,0);
+                                configIO.loopLinks().emplace_back(loopID,refNodeID+4,refNodeID+5,0);
                             }
                             else if (P12.size()==1)
                             {
                                 configIO.nodes().emplace_back(nodeID,P12.begin()->second,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                                configIO.links().emplace_back(loopID,refNodeID+4,nodeID,0);
-                                configIO.links().emplace_back(loopID,nodeID,refNodeID+5,0);
+                                configIO.loopLinks().emplace_back(loopID,refNodeID+4,nodeID,0);
+                                configIO.loopLinks().emplace_back(loopID,nodeID,refNodeID+5,0);
                                 nodeID++;
                             }
                             else
@@ -457,33 +467,33 @@ namespace model
                                     nodeID++;
                                     if (pair.first==P12.begin()->first)
                                     {
-                                        configIO.links().emplace_back(loopID,refNodeID+4,nodeID,0);
-                                        configIO.links().emplace_back(loopID,nodeID,nodeID+1,0);
+                                        configIO.loopLinks().emplace_back(loopID,refNodeID+4,nodeID,0);
+                                        configIO.loopLinks().emplace_back(loopID,nodeID,nodeID+1,0);
                                     }
                                     else if (pair.first==P12.rbegin()->first )
                                     {
-                                        configIO.links().emplace_back(loopID,nodeID,refNodeID+5,0);
+                                        configIO.loopLinks().emplace_back(loopID,nodeID,refNodeID+5,0);
                                     }
                                     else
                                     {
-                                        configIO.links().emplace_back(loopID,nodeID,nodeID+1,0);
+                                        configIO.loopLinks().emplace_back(loopID,nodeID,nodeID+1,0);
                                     }
                                 }
                             }
-                            configIO.loops().emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-                            configIO.links().emplace_back(loopID,refNodeID+5,refNodeID+1,0);
-                            configIO.links().emplace_back(loopID,refNodeID+1,refNodeID+0,0);
-                            configIO.links().emplace_back(loopID,refNodeID+0,refNodeID+4,0);
+                            configIO.loops().emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                            configIO.loopLinks().emplace_back(loopID,refNodeID+5,refNodeID+1,0);
+                            configIO.loopLinks().emplace_back(loopID,refNodeID+1,refNodeID+0,0);
+                            configIO.loopLinks().emplace_back(loopID,refNodeID+0,refNodeID+4,0);
 
-                            configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
-                            configIO.links().emplace_back(loopID+1,refNodeID+0,refNodeID+2,0);
-                            configIO.links().emplace_back(loopID+1,refNodeID+2,refNodeID+4,0);
-                            configIO.links().emplace_back(loopID+1,refNodeID+4,refNodeID+0,0);
+                            configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                            configIO.loopLinks().emplace_back(loopID+1,refNodeID+0,refNodeID+2,0);
+                            configIO.loopLinks().emplace_back(loopID+1,refNodeID+2,refNodeID+4,0);
+                            configIO.loopLinks().emplace_back(loopID+1,refNodeID+4,refNodeID+0,0);
 
-                            configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-                            configIO.links().emplace_back(loopID+2,refNodeID+1,refNodeID+5,0);
-                            configIO.links().emplace_back(loopID+2,refNodeID+5,refNodeID+3,0);
-                            configIO.links().emplace_back(loopID+2,refNodeID+3,refNodeID+1,0);
+                            configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                            configIO.loopLinks().emplace_back(loopID+2,refNodeID+1,refNodeID+5,0);
+                            configIO.loopLinks().emplace_back(loopID+2,refNodeID+5,refNodeID+3,0);
+                            configIO.loopLinks().emplace_back(loopID+2,refNodeID+3,refNodeID+1,0);
 
                             loopID+=3;
                             snID++;
@@ -600,12 +610,12 @@ namespace model
                         for(size_t k=0;k<posVector.size();++k)
                         {
                             const int nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
-                            configIO.links().emplace_back(loopID+k,nodeID+k,nextNodeID,0);
-                            configIO.links().emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
-                            configIO.links().emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
-                            configIO.links().emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
+                            configIO.loopLinks().emplace_back(loopID+k,nodeID+k,nextNodeID,0);
+                            configIO.loopLinks().emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
+                            configIO.loopLinks().emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
+                            configIO.loopLinks().emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
 
-                            configIO.loops().emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                            configIO.loops().emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
                         }
 
@@ -614,9 +624,9 @@ namespace model
                         for(size_t k=0;k<posVector.size();++k)
                         {
                             const size_t nextNodeID=(k+1)<posVector.size()? nodeID+k+1 : nodeID;
-                            configIO.links().emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
+                            configIO.loopLinks().emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
                         }
-                        configIO.loops().emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loops().emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID,DislocationLoopIO<dim>::SESSILELOOP);
 
 
 
@@ -722,9 +732,9 @@ namespace model
 //                            {// write node and edge file
 //                                configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 //                                const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-//                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                                configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
 //                            }
-//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());  // write loop file
+//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);  // write loop file
 //
 //                            nodeID+=nodePos.size();
 //                            loopID+=1;
@@ -736,9 +746,9 @@ namespace model
                                 exit(EXIT_FAILURE);
                             }
                             
-                            if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero()))
+                            if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,false))
                             {
-//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero())
+//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP)
                                 std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
 
                             }
@@ -791,7 +801,7 @@ namespace model
                         nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/nonPlanarLoopSides, sessileAxis)*slipSystem.s.cartesian().normalized()*radius+height*sessileAxis);
                     }
                     
-                    if(addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    if(addSingleLoop(true,nodePos,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,false))
                     {
                         density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"non-planar loop density="<<density<<std::endl;
@@ -803,9 +813,9 @@ namespace model
 //                        {
 //                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
 //                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-//                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+//                            configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
 //                        }
-//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
+//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
 //                        nodeID+=nodePos.size();
 //                        loopID+=1;
 //                        snID+=1;
@@ -912,7 +922,7 @@ namespace model
                         nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/frankLoopSides, unitNormal)*R);
                     }
                     
-                    if(addSingleLoop(true,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    if(addSingleLoop(true,nodePos,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,false))
                     {
                         density += 2.0*radius*sin(M_PI/frankLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"Frank loop density="<<density<<std::endl;
@@ -1023,6 +1033,7 @@ namespace model
         size_t nodeID;
         size_t snID;
         size_t loopID;
+        size_t loopNodeID;
         std::list<PeriodicGlidePlane<dim>> periodicGlidePlaneContainer;
         
         std::deque<std::vector<VectorDimD>> loopPoints;
@@ -1280,25 +1291,25 @@ namespace model
                         configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
 
-                        configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+0,nodeID+2,nodeID+1,0);
-                        configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loopLinks().emplace_back(loopID+0,nodeID+0,nodeID+2,0);
+                        configIO.loopLinks().emplace_back(loopID+0,nodeID+2,nodeID+1,0);
+                        configIO.loopLinks().emplace_back(loopID+0,nodeID+1,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+1,0);
-                        configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loopLinks().emplace_back(loopID+1,nodeID+0,nodeID+1,0);
+                        configIO.loopLinks().emplace_back(loopID+1,nodeID+1,nodeID+3,0);
+                        configIO.loopLinks().emplace_back(loopID+1,nodeID+3,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.links().emplace_back(loopID+2,nodeID+0,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loopLinks().emplace_back(loopID+2,nodeID+0,nodeID+3,0);
+                        configIO.loopLinks().emplace_back(loopID+2,nodeID+3,nodeID+2,0);
+                        configIO.loopLinks().emplace_back(loopID+2,nodeID+2,nodeID+0,0);
+                        configIO.loops().emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.links().emplace_back(loopID+3,nodeID+1,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+3,nodeID+2,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+3,nodeID+3,nodeID+1,0);
-                        configIO.loops().emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loopLinks().emplace_back(loopID+3,nodeID+1,nodeID+2,0);
+                        configIO.loopLinks().emplace_back(loopID+3,nodeID+2,nodeID+3,0);
+                        configIO.loopLinks().emplace_back(loopID+3,nodeID+3,nodeID+1,0);
+                        configIO.loops().emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
 
                         snID++;
@@ -1367,7 +1378,7 @@ namespace model
                     nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, unitNormal)*R);
                 }
                 
-                if(addSingleLoop(true,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                if(addSingleLoop(true,nodePos,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,false))
                 {
                     ndefects++;
                     defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
@@ -1413,7 +1424,7 @@ namespace model
                 {// prismatic plane spacing
                     const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
                     const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
-                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,false))
                     {
                         ndefects++;
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
@@ -1423,7 +1434,7 @@ namespace model
                 else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
                 {// basal plane spacing
                     const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
-                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,false))
                     {
                         ndefects++;
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
@@ -1480,9 +1491,9 @@ namespace model
                             {// inser the back loop
                                 configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                                configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
                             }
-                            configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                            configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                             loopID++;
                             
                             
@@ -1492,12 +1503,12 @@ namespace model
                                 {// inser lateral loops
                                     configIO.nodes().emplace_back(nodeID+k+6,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                     const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
-                                    configIO.links().emplace_back(loopID,nodeID+k,nodeID+k+6,0);
-                                    configIO.links().emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
-                                    configIO.links().emplace_back(loopID,nextNodeID+6,nextNodeID,0);
-                                    configIO.links().emplace_back(loopID,nextNodeID,nodeID+k,0);
+                                    configIO.loopLinks().emplace_back(loopID,nodeID+k,nodeID+k+6,0);
+                                    configIO.loopLinks().emplace_back(loopID,nodeID+k+6,nextNodeID+6,0);
+                                    configIO.loopLinks().emplace_back(loopID,nextNodeID+6,nextNodeID,0);
+                                    configIO.loopLinks().emplace_back(loopID,nextNodeID,nodeID+k,0);
                                     
-                                    configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                                    configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                                     loopID++;
                                 }
                                 nodeID+=2*points.size();
@@ -1559,11 +1570,11 @@ namespace model
                             configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             
                             const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
-                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                            configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
                             
                         }
                         
-                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                         
                         
                         snID++;

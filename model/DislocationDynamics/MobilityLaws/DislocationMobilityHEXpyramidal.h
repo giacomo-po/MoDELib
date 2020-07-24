@@ -31,7 +31,7 @@ namespace model
         const double kB;
         
         /**********************************************************************/
-        DislocationMobilityHEXpyramidal(const DislocatedMaterialBase& material) :
+        DislocationMobilityHEXpyramidal(const PolycrystallineMaterialBase& material) :
         /* init */ DislocationMobilityBase("HEX-pyramidal mobility for "+material.materialName),
         /* init */ B0e(TextFileParser(material.materialFile).readScalar<double>("B0e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
         /* init */ B1e(TextFileParser(material.materialFile).readScalar<double>("B1e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),

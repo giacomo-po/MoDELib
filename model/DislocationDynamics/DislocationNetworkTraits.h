@@ -29,14 +29,21 @@ namespace model
 	template <int dim, short unsigned int corder, typename InterpolationType>
 	class DislocationNetwork;
 		
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    class DislocationLoop;
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    class DislocationLoopNode;
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    class DislocationLoopLink;
+
 	template <int dim, short unsigned int corder, typename InterpolationType>
 	class DislocationNode;
 		
 	template <int dim, short unsigned int corder, typename InterpolationType>
 	struct DislocationSegment;
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoop;
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
@@ -46,13 +53,13 @@ namespace model
         static constexpr int dim=_dim;
         static constexpr int corder=_corder;
         typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
-		typedef DislocationNode      <dim,corder,InterpolationType>	NodeType;
-		typedef DislocationSegment   <dim,corder,InterpolationType>	LinkType;
-        typedef LoopLink<LinkType> LoopLinkType;
         typedef DislocationLoop      <dim,corder,InterpolationType> LoopType;
-//		typedef Eigen::Matrix<double,dim,1>													FlowType;
-//        typedef LatticeVector<3>                                                            FlowType;
+        typedef DislocationLoopNode  <dim,corder,InterpolationType>	LoopNodeType;
+        typedef DislocationLoopLink  <dim,corder,InterpolationType> LoopLinkType;
+        typedef DislocationNode      <dim,corder,InterpolationType> NetworkNodeType;
+        typedef DislocationSegment   <dim,corder,InterpolationType>	NetworkLinkType;
         typedef RationalLatticeDirection<3>                         FlowType;
+//        typedef double                         FlowType;
         typedef Eigen::Matrix<double,dim,1>                         VectorDim;
         typedef Eigen::Matrix<double,dim,dim>                       MatrixDim;
 
@@ -70,6 +77,18 @@ namespace model
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
 
     template <int dim, short unsigned int corder, typename InterpolationType>
+    struct TypeTraits<DislocationLoop<dim,corder,InterpolationType> > :
+    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    struct TypeTraits<DislocationLoopNode<dim,corder,InterpolationType> > :
+    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    struct TypeTraits<DislocationLoopLink<dim,corder,InterpolationType> > :
+    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
 	struct TypeTraits<DislocationNode<dim,corder,InterpolationType> > :
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
 
@@ -77,18 +96,15 @@ namespace model
 	struct TypeTraits<DislocationSegment<dim,corder,InterpolationType> > :
 	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    struct TypeTraits<DislocationLoop<dim,corder,InterpolationType> > :
-    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
     
-    template<>
-    struct NullFlow<RationalLatticeDirection<3>>
-    {
-        static bool isZero(const RationalLatticeDirection<3>& flow)
-        {
-            return flow.squaredNorm()<FLT_EPSILON;
-        }
-    };
+//    template<>
+//    struct NullFlow<RationalLatticeDirection<3>>
+//    {
+//        static bool isZero(const RationalLatticeDirection<3>& flow)
+//        {
+//            return flow.squaredNorm()<FLT_EPSILON;
+//        }
+//    };
 
 } // namespace model
 #endif
