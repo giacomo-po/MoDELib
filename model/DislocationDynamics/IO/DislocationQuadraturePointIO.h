@@ -30,6 +30,7 @@ namespace model
         
         MatrixDim stress;
         VectorDim pkForce;
+        VectorDim stackingFaultForce;
         VectorDim glideVelocity;
         
         /**********************************************************************/
@@ -42,6 +43,7 @@ namespace model
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
+        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         {
         }
@@ -57,6 +59,7 @@ namespace model
         /* init */,rl(qPoint.rl)
         /* init */,stress(qPoint.stress)
         /* init */,pkForce(qPoint.pkForce)
+        /* init */,stackingFaultForce(qPoint.stackingFaultForce)
         /* init */,glideVelocity(qPoint.glideVelocity)
         {
             
@@ -72,6 +75,7 @@ namespace model
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
+        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         {
             
@@ -100,6 +104,10 @@ namespace model
             }
             for(int d=0;d<dim;++d)
             {
+                ss>>stackingFaultForce(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
                 ss>>glideVelocity(d);
             }
         }
@@ -119,6 +127,7 @@ namespace model
                 os  << ds.stress.row(d)<<" ";
             }
             os  << ds.pkForce.transpose()<<"\t"
+            /**/<< ds.stackingFaultForce.transpose()<<"\t"
             /**/<< ds.glideVelocity.transpose();
             return os;
         }

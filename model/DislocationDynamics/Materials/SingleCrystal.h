@@ -101,7 +101,8 @@ namespace model
             }
             else if(material.crystalStructure=="HEX")
             {
-                return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
+                const bool enablePartials(TextFileParser(material.materialFile).readScalar<int>("enablePartials",true));
+                return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else
             {

@@ -133,14 +133,14 @@ namespace model
                     
                     const Eigen::Matrix<double,2,1> N((Eigen::Matrix<double,2,1>()<<2,2).finished()); // Number of wave vectors =N(0)xN(1)x2
                     const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones());
-                    const Eigen::Matrix<double,5,3> f((Eigen::Matrix<double,5,3>()<<0.00,0.0, 0.0, // value at origin
+                    const Eigen::Matrix<double,5,3> f((Eigen::Matrix<double,5,3>()<<0.0 ,0.0          , 0.0, // value at origin
                                                        /*                        */ 0.50,sqrt(3.0)/6.0,ISF,
                                                        /*                        */ 0.25,sqrt(3.0)/12.0,USF,
                                                        /*                        */ 0.75,sqrt(3.0)/12.0,USF,
                                                        /*                        */ 0.50,sqrt(3.0)/3.0,USF).finished());
-                    const Eigen::Matrix<double,3,5> df((Eigen::Matrix<double,3,5>()<<0.25,sqrt(3.0)/12.0,-0.5,sqrt(3.0)/2,0,0.0, //  symm
-                                                        /*                        */ 0.75,sqrt(3.0)/12.0, 0.5,sqrt(3.0)/2,0,0.0, //  symm
-                                                        /*                        */ 0.50,sqrt(3.0)/3.0,1.0,0.0,0.0).finished()); // symm
+                    const Eigen::Matrix<double,3,5> df((Eigen::Matrix<double,3,5>()<<0.25,sqrt(3.0)/12.0,-0.5,sqrt(3.0)/2,0.0, //  symm
+                                                        /*                        */ 0.75,sqrt(3.0)/12.0, 0.5,sqrt(3.0)/2,0.0, //  symm
+                                                        /*                        */ 0.50,sqrt(3.0)/3.0 ,1.0 ,0.0        ,0.0).finished()); // symm
                     
                     
                     std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a3),N.template cast<size_t>(),D.template cast<size_t>(),f,df));

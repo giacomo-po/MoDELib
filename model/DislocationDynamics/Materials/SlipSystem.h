@@ -77,6 +77,20 @@ namespace model
             
         }
         
+        GammaSurface(const LatticePlaneBase& n,
+                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim>& waveVectors_in,
+                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
+                     const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
+        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),waveVectors_in,f,df)
+        /* init */,latticePlane(n)
+        /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
+        {
+            
+            model::cout<<greenBoldColor<<"Creating GammaSurface on "<<n.cartesian().normalized().transpose()<<" plane"<<std::endl;
+            
+            
+        }
+        
         double operator()(const VectorDim& b)
         {
             const VectorDim bL(G2L*b);

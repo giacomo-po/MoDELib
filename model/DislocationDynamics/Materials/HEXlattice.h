@@ -32,11 +32,11 @@ namespace model
     template<>
     struct HEXlattice<3> : public Lattice<3>
     {
-
+        
         static constexpr int dim=3;
         static constexpr auto name="HEX";
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-
+        
         /**********************************************************************/
         HEXlattice(const MatrixDim& Q) :
         /* init */ Lattice<dim>(getLatticeBasis(),Q)
@@ -89,10 +89,11 @@ namespace model
         }
         
         /**********************************************************************/
-//        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
+        //        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const DislocatedMaterialBase& materialBase,
         static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
                                                                     const Lattice<dim>& lat,
-                                                                    const DislocatedMaterialBase& )
+                                                                    const DislocatedMaterialBase& material,
+                                                                    const bool& enablePartials)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip systems of the FCC lattice
           */
@@ -104,46 +105,84 @@ namespace model
             LatticeVectorType a3(a2-a1);
             LatticeVectorType c(VectorDimI(0,0,1),lat);
             
-//            std::shared_ptr<DislocationMobilityBase> basalMobility(new DislocationMobilityHEXbasal(materialBase));
-//            std::shared_ptr<DislocationMobilityBase> prismaticMobility(new DislocationMobilityHEXprismatic(materialBase));
-//            std::shared_ptr<DislocationMobilityBase> pyramidalMobility(new DislocationMobilityHEXpyramidal(materialBase));
+            //            std::shared_ptr<DislocationMobilityBase> basalMobility(new DislocationMobilityHEXbasal(materialBase));
+            //            std::shared_ptr<DislocationMobilityBase> prismaticMobility(new DislocationMobilityHEXprismatic(materialBase));
+            //            std::shared_ptr<DislocationMobilityBase> pyramidalMobility(new DislocationMobilityHEXpyramidal(materialBase));
             
             const std::shared_ptr<DislocationMobilityBase>& basalMobility(mobilities.at("hexBasal"));
             const std::shared_ptr<DislocationMobilityBase>& prismaticMobility(mobilities.at("hexPrismatic"));
             const std::shared_ptr<DislocationMobilityBase>& pyramidalMobility(mobilities.at("hexPyramidal"));
-
+            
             std::vector<std::shared_ptr<SlipSystem>> temp;
             
-            // <a> type slip
-            temp.emplace_back(new SlipSystem(a1,a2,a1,basalMobility,nullptr));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),basalMobility,nullptr));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a2,basalMobility,nullptr));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),basalMobility,nullptr));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a3,basalMobility,nullptr));           // basal plane
-            temp.emplace_back(new SlipSystem(a1,a2,a3*(-1),basalMobility,nullptr));           // basal plane
-            
-            temp.emplace_back(new SlipSystem(a1,c,a1,prismaticMobility,nullptr));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a1,c,a1*(-1),prismaticMobility,nullptr));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a2,c,a2,prismaticMobility,nullptr));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a2,c,a2*(-1),prismaticMobility,nullptr));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a3,c,a3,prismaticMobility,nullptr));           // prismatic plane
-            temp.emplace_back(new SlipSystem(a3,c,a3*(-1),prismaticMobility,nullptr));           // prismatic plane
-            
-            temp.emplace_back(new SlipSystem(a1,a2+c,a1,pyramidalMobility,nullptr));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1,a2+c,a1*(-1),pyramidalMobility,nullptr));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2,a3+c,a2,pyramidalMobility,nullptr));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2,a3+c,a2*(-1),pyramidalMobility,nullptr));         // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3,c-a1,a3,pyramidalMobility,nullptr));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3,c-a1,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1,pyramidalMobility,nullptr));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1*(-1),pyramidalMobility,nullptr));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2,pyramidalMobility,nullptr));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2*(-1),pyramidalMobility,nullptr));       // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3,pyramidalMobility,nullptr));        // pyramidal plane
-            temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
-            
-            // <a+c> type slip
-            // TO BE COMPLETED
+            if(enablePartials)
+            {
+                const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
+                const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
+                const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
+                
+                const Eigen::Matrix<double,7,2> waveVectorsBasal((Eigen::Matrix<double,7,2>()<<0.0, 0.0, // value at origin
+                                                             /*                        */ 0.0, 1.0,
+                                                             /*                        */ 1.0, 0.0,
+                                                             /*                        */ 1.0, 1.0,
+                                                             /*                        */ 1.0,-1.0,
+                                                             /*                        */ 1.0, 2.0,
+                                                             /*                        */ 2.0, 1.0).finished());
+                
+                const Eigen::Matrix<double,6,3> fBasal((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
+                                                   /*                        */ 0.50,sqrt(3.0)/6.0,ISF,
+                                                   /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+                                                   /*                        */ 0.75,sqrt(3.0)/12.0,USF,
+                                                   /*                        */ 0.50,sqrt(3.0)/3.0,USF,
+                                                   /*                        */ 1.00,sqrt(3.0)/3.0,MSF).finished());
+                const Eigen::Matrix<double,3,5> dfBasal((Eigen::Matrix<double,3,5>()<<0.25,sqrt(3.0)/12.0,-0.5,sqrt(3.0)/2,0.0, //  symm
+                                                    /*                        */ 0.75,sqrt(3.0)/12.0, 0.5,sqrt(3.0)/2,0.0, //  symm
+                                                    /*                        */ 0.50,sqrt(3.0)/3.0 ,1.0 ,0.0        ,0.0).finished()); // symm
+
+                
+                std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a3),waveVectorsBasal,fBasal,dfBasal));
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(+1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(-1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+                temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),basalMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
+
+            }
+            else
+            {
+                // <a> type slip
+                temp.emplace_back(new SlipSystem(a1,a2,a1,basalMobility,nullptr));           // basal plane
+                temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),basalMobility,nullptr));           // basal plane
+                temp.emplace_back(new SlipSystem(a1,a2,a2,basalMobility,nullptr));           // basal plane
+                temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),basalMobility,nullptr));           // basal plane
+                temp.emplace_back(new SlipSystem(a1,a2,a3,basalMobility,nullptr));           // basal plane
+                temp.emplace_back(new SlipSystem(a1,a2,a3*(-1),basalMobility,nullptr));           // basal plane
+                
+                temp.emplace_back(new SlipSystem(a1,c,a1,prismaticMobility,nullptr));           // prismatic plane
+                temp.emplace_back(new SlipSystem(a1,c,a1*(-1),prismaticMobility,nullptr));           // prismatic plane
+                temp.emplace_back(new SlipSystem(a2,c,a2,prismaticMobility,nullptr));           // prismatic plane
+                temp.emplace_back(new SlipSystem(a2,c,a2*(-1),prismaticMobility,nullptr));           // prismatic plane
+                temp.emplace_back(new SlipSystem(a3,c,a3,prismaticMobility,nullptr));           // prismatic plane
+                temp.emplace_back(new SlipSystem(a3,c,a3*(-1),prismaticMobility,nullptr));           // prismatic plane
+                
+                temp.emplace_back(new SlipSystem(a1,a2+c,a1,pyramidalMobility,nullptr));         // pyramidal plane
+                temp.emplace_back(new SlipSystem(a1,a2+c,a1*(-1),pyramidalMobility,nullptr));         // pyramidal plane
+                temp.emplace_back(new SlipSystem(a2,a3+c,a2,pyramidalMobility,nullptr));         // pyramidal plane
+                temp.emplace_back(new SlipSystem(a2,a3+c,a2*(-1),pyramidalMobility,nullptr));         // pyramidal plane
+                temp.emplace_back(new SlipSystem(a3,c-a1,a3,pyramidalMobility,nullptr));        // pyramidal plane
+                temp.emplace_back(new SlipSystem(a3,c-a1,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
+                temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1,pyramidalMobility,nullptr));       // pyramidal plane
+                temp.emplace_back(new SlipSystem(a1*(-1),c-a2,a1*(-1),pyramidalMobility,nullptr));       // pyramidal plane
+                temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2,pyramidalMobility,nullptr));       // pyramidal plane
+                temp.emplace_back(new SlipSystem(a2*(-1),c-a3,a2*(-1),pyramidalMobility,nullptr));       // pyramidal plane
+                temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3,pyramidalMobility,nullptr));        // pyramidal plane
+                temp.emplace_back(new SlipSystem(a3*(-1),a1+c,a3*(-1),pyramidalMobility,nullptr));        // pyramidal plane
+                
+                // <a+c> type slip
+                // TO BE COMPLETED
+                
+            }
             
             return temp;
         }
