@@ -591,6 +591,53 @@ namespace model
         {
             return glidePlane==other->glidePlane;
         }
+        
+//        std::vector<VectorDim> slipVectors(const PlanarDislocationLoop<Derived>& otherLoop,
+//                                       const std::deque<VectorDim>& otherPoints) const
+//        {
+//            std::vector<VectorDim> temp;
+//            if(glidePlane && glidePlane==otherLoop->glidePlane)
+//            {
+//                
+//                const double nRdotnR(rightHandedUnitNormal().dot(otherLoop.rightHandedUnitNormal()));
+//                if(std::fabs(nRdotnR)<FLT_EPSILON)
+//                {// either nR is zero
+//                    temp.resize(otherPoints.size(),VectorDim::Zero());
+//                }
+//                else
+//                {
+//                    std::vector<Eigen::Matrix<double,dim-1,1>> localNodes;
+//                    for(const auto& loopLink : this->links())
+//                    {
+//                        localNodes.push_back(this->localPosition(otherLoop.rightHandedNormal(),loopLink->source->get_P()));
+//                    }
+//
+//                    std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalPoints;
+//                    for(const auto& otherPoint : otherPoints)
+//                    {
+//                        otherLocalPoints.push_back(this->localPosition(otherLoop.rightHandedNormal(),otherPoint));
+//                    }
+//
+//                    
+//                 if(nRdotnR>FLT_EPSILON)
+//                 {// same rightHandedUnitNormal
+//                     for(const auto& otherLocalPoint : otherLocalPoints)
+//                     {
+//                         temp.push_back(Polygon2D::windingNumber(otherLocalPoint,localNodes)*burgers());
+//                     }
+//                 }
+//                    else
+//                    {// opposite rightHandedUnitNormal
+//                        for(const auto& otherLocalPoint : otherLocalPoints)
+//                        {
+//                            temp.push_back(-Polygon2D::windingNumber(otherLocalPoint,localNodes)*burgers());
+//                        }
+//                    }
+//                }
+//            }
+//            return temp;
+//        }
+        
     };
     
     template <typename Derived>

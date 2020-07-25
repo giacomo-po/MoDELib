@@ -86,7 +86,7 @@ namespace model
         
     };
     
-    struct SlipSystem : StaticID<SlipSystem>
+    struct SlipSystem : public StaticID<SlipSystem>
     {
         
 

@@ -58,7 +58,7 @@ namespace model
         
         /**********************************************************************/
         MatrixDim localRotationMatrix(VectorDim x2=VectorDim::Random()) const
-        {
+        {            
             VectorDim x1(x2.cross(unitNormal));
             while(x1.norm()<FLT_EPSILON)
             {
@@ -72,6 +72,15 @@ namespace model
             R.col(2)=unitNormal;
             return R;
         }
+        
+        
+//        Eigen::Matrix<double,dim-1,1> localPosition(const VectorDim unitNormal,const VectorDim& x) const
+//        {
+//            const MatrixDim R(localRotationMatrix(unitNormal));
+//            const VectorDim xL(R.transpose()*(x-P));
+//            assert(fabs(xL(dim-1))<FLT_EPSILON);
+//            return xL.template segment<dim-1>(0);
+//        }
         
         
 

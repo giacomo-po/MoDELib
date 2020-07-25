@@ -49,6 +49,7 @@ namespace model
         
         MatrixDim stress;
         VectorDim pkForce;
+        VectorDim stackingFaultForce;
         VectorDim glideVelocity;
         
 #ifdef _MODEL_GREATWHITE_
@@ -71,6 +72,7 @@ namespace model
         /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
+        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         {
             
@@ -89,6 +91,7 @@ namespace model
         /* init */,dL(0.0)
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
+        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         {
             
@@ -227,7 +230,7 @@ namespace model
         void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);
-            glideVelocity=getGlideVelocity(parentSegment,r,pkForce,stress,rl,dL);
+            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce,stress,rl,dL);
         }
     };
     
@@ -285,11 +288,84 @@ namespace model
             return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
         }
         
-//        double vacancyConcentrationKernel(const int& k,const VectorDim& x) const
-//        {
-//            return quadraturePoint(k).climbVelocity/(quadraturePoint(k).r-x).norm()*this->quadraturePoint(k).j;
-//        }
-        
+        template<typename LinkType>
+        void computeMatrixStackingFaultForces(const LinkType& parentSegment)
+        {
+            const double eps=1.0e-2;
+            MatrixDim temp(MatrixDim::Zero());
+            if(parentSegment.isGlissile())
+            {// slipSystem must exist
+                    assert(parentSegment.glidePlanes().size()==1);
+                    const auto& glidePlane(*parentSegment.glidePlanes().begin());
+                    for(const auto& loopLink : parentSegment.loopLinks())
+                    {
+                        if(loopLink->loop()->slipSystem())
+                        {// gamma surface must exist to perform force calculation
+                            if(loopLink->loop()->slipSystem()->gammaSurface)
+                            {// gamma surface must exist to perform force calculation
+                                const VectorDim outDir((loopLink->sink()->get_P() - loopLink->source()->get_P()).cross(loopLink->loop()->rightHandedUnitNormal()));
+                                const double outDirNorm(outDir.norm());
+                                if(outDirNorm>FLT_EPSILON)
+                                {
+                                    std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
+                                    for(const auto& otherLoop: parentSegment.network().loops())
+                                    {
+                                        if(otherLoop.second->slipSystem() && glidePlane==otherLoop.second->glidePlane.get())
+                                        {
+                                            if(otherLoop.second->slipSystem()->isPartial())
+                                            {// only partial dislocations will contribute to a change in gamma surface
+                                                const double nRdotnR(loopLink->loop()->rightHandedUnitNormal().dot(otherLoop.second->rightHandedUnitNormal()));
+                                                if(std::fabs(nRdotnR)>FLT_EPSILON)
+                                                {
+                                                    std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
+                                                    for(const auto& otherLoopLink : otherLoop.second->links())
+                                                    {
+                                                        otherLocalNodes.push_back((loopLink->loop()->slipSystem()->gammaSurface->G2L*(otherLoopLink.second->source()->get_P()-glidePlane->P)).template segment<dim-1>(0));
+                                                    }
+                                                    
+                                                    for(size_t q=0;q<quadraturePoints().size();++q)
+                                                    {
+                                                        const auto& qPoint(quadraturePoints()[q]);
+                                                        const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir/outDirNorm-glidePlane->P)).template segment<dim-1>(0));
+                                                        const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir/outDirNorm-glidePlane->P)).template segment<dim-1>(0));
+
+                                                        const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
+                                                        const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
+                                                        if(nRdotnR>FLT_EPSILON)
+                                                        {// same rightHandedUnitNormal
+                                                            qPointSlip[q].first +=wn1*otherLoop.second->burgers();
+                                                            qPointSlip[q].second+=wn2*otherLoop.second->burgers();
+                                                        }
+                                                        else
+                                                        {// opposite rightHandedUnitNormal
+                                                            qPointSlip[q].first -=wn1*otherLoop.second->burgers();
+                                                            qPointSlip[q].second-=wn2*otherLoop.second->burgers();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                    
+                                    for(size_t q=0;q<quadraturePoints().size();++q)
+                                    {
+                                        if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
+                                        {
+                                            const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));
+                                            const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second));
+                                            quadraturePoints()[q].stackingFaultForce+= -(gamma1-gamma2)*outDir; // * fact
+                                        }
+                                    }
+                                    
+                                }
+
+                            }
+                        }
+                    }
+            }
+        }
+                
     public:
         
 #ifdef _MODEL_GREATWHITE_
@@ -361,6 +437,10 @@ namespace model
                 }
                 
                 
+                // Stacking fault contribution in the matrix
+//                computeMatrixStackingFaultStress(parentSegment);
+                computeMatrixStackingFaultForces(parentSegment);
+                
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())
                 {
@@ -387,9 +467,9 @@ namespace model
                             qPoint.stress += inclusion.second.stress(qPoint.r+shift);
                         }
                     }
-                    
                     qPoint.updateForcesAndVelocities(parentSegment);
                 }
+                
             }
         }
 #endif
