@@ -22,18 +22,18 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-periodicImages_x=0;
+periodicImages_x=2;
 periodicImages_y=0;
 periodicImages_z=0;
 
 ######################################
-quadPerLength=0.1;
+quadPerLength=1.0;
 
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=0;
-dxMax=10;
+dxMax=0.1;
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
@@ -57,7 +57,7 @@ outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
 outputDislocationLength=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
@@ -81,7 +81,7 @@ nodeRemoveAngleDeg=10;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=1;
+maxJunctionIterations=0;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -91,7 +91,7 @@ surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################

@@ -60,6 +60,12 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> quadraturePkMapper;
         vtkSmartPointer<vtkActor> quadraturePkActor;
         
+        vtkSmartPointer<vtkDoubleArray> quadratureSf;
+        vtkSmartPointer<vtkPolyData> quadratureSfPolyData;
+        vtkSmartPointer<vtkGlyph3D> quadratureSfGlyph;
+        vtkSmartPointer<vtkPolyDataMapper> quadratureSfMapper;
+        vtkSmartPointer<vtkActor> quadratureSfActor;
+
         vtkSmartPointer<vtkDoubleArray> quadratureGlideVelocities;
         vtkSmartPointer<vtkPolyData> quadratureGlideVelocitiesPolyData;
         vtkSmartPointer<vtkGlyph3D> quadratureGlideVelocitiesGlyph;
@@ -73,8 +79,12 @@ namespace model
         static bool showPeriodicGlidePlanes;
         static bool showPeriodicLoops;
         static bool showPkforces;
+        static bool showSfforces;
+
         static bool showGlideVelocities;
         static float pkFactor;
+        static float sfFactor;
+
         static float glideVelocitiesFactor;
 
 
@@ -101,6 +111,11 @@ namespace model
         /* init */,quadraturePkGlyph(vtkSmartPointer<vtkGlyph3D>::New())
         /* init */,quadraturePkMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,quadraturePkActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,quadratureSf(vtkSmartPointer<vtkDoubleArray>::New())
+        /* init */,quadratureSfPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,quadratureSfGlyph(vtkSmartPointer<vtkGlyph3D>::New())
+        /* init */,quadratureSfMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,quadratureSfActor(vtkSmartPointer<vtkActor>::New())
         /* init */,quadratureGlideVelocities(vtkSmartPointer<vtkDoubleArray>::New())
         /* init */,quadratureGlideVelocitiesPolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,quadratureGlideVelocitiesGlyph(vtkSmartPointer<vtkGlyph3D>::New())
@@ -110,7 +125,10 @@ namespace model
             
             quadraturePk->SetNumberOfComponents(3);
             quadraturePk->SetName("PkForce");
-            
+
+            quadratureSf->SetNumberOfComponents(3);
+            quadratureSf->SetName("StackingFaultForce");
+
             quadratureGlideVelocities->SetNumberOfComponents(3);
             quadratureGlideVelocities->SetName("glideVelocity");
 
@@ -137,6 +155,7 @@ namespace model
             renderer->RemoveActor(periodicGlidePlaneActor);
             renderer->RemoveActor(periodicLoopActor);
             renderer->RemoveActor(quadraturePkActor);
+            renderer->RemoveActor(quadratureSfActor);
             renderer->RemoveActor(quadratureGlideVelocitiesActor);
         }
         
@@ -265,6 +284,7 @@ namespace model
             {
                 quadraturePositions->InsertNextPoint(q.r.data());  // origin of arrow
                 quadraturePk->InsertNextTuple(q.pkForce.data()); // arrow vactor
+                quadratureSf->InsertNextTuple(q.stackingFaultForce.data()); // arrow vactor
                 quadratureGlideVelocities->InsertNextTuple(q.glideVelocity.data()); // arrow vactor
             }
             
@@ -286,6 +306,25 @@ namespace model
             quadraturePkActor->GetProperty()->SetColor(0.0,0.0,1.0);
             quadraturePkActor->SetVisibility(showPkforces);
             renderer->AddActor(quadraturePkActor);
+            
+            quadratureSfPolyData->SetPoints(quadraturePositions);
+            quadratureSfPolyData->GetPointData()->SetVectors(quadratureSf);
+            quadratureSfPolyData->Modified();
+            quadratureSfGlyph->SetSourceConnection(arrowSource->GetOutputPort());
+            quadratureSfGlyph->SetInputData(quadratureSfPolyData);
+            quadratureSfGlyph->ScalingOn();
+            quadratureSfGlyph->SetScaleModeToScaleByVector();
+            quadratureSfGlyph->OrientOn();
+            quadratureSfGlyph->ClampingOff();
+            quadratureSfGlyph->SetVectorModeToUseVector();
+            quadratureSfGlyph->SetIndexModeToOff();
+            quadratureSfGlyph->SetScaleFactor(sfFactor);
+            quadratureSfMapper->SetInputConnection(quadratureSfGlyph->GetOutputPort());
+            quadratureSfMapper->ScalarVisibilityOff();
+            quadratureSfActor->SetMapper(quadratureSfMapper);
+            quadratureSfActor->GetProperty()->SetColor(1.0,0.0,0.0);
+            quadratureSfActor->SetVisibility(showSfforces);
+            renderer->AddActor(quadratureSfActor);
             
             quadratureGlideVelocitiesPolyData->SetPoints(quadraturePositions);
             quadratureGlideVelocitiesPolyData->GetPointData()->SetVectors(quadratureGlideVelocities);
@@ -316,6 +355,10 @@ namespace model
 
             quadraturePkGlyph->SetScaleFactor(pkFactor);
             quadraturePkActor->SetVisibility(showPkforces);
+
+            quadratureSfGlyph->SetScaleFactor(sfFactor);
+            quadratureSfActor->SetVisibility(showSfforces);
+
             
             quadratureGlideVelocitiesGlyph->SetScaleFactor(glideVelocitiesFactor);
             quadratureGlideVelocitiesActor->SetVisibility(showGlideVelocities);
@@ -336,8 +379,12 @@ namespace model
     bool DDauxVtk::showPeriodicGlidePlanes=false;
     bool DDauxVtk::showPeriodicLoops=false;
     bool DDauxVtk::showPkforces=false;
+    bool DDauxVtk::showSfforces=false;
+
     bool DDauxVtk::showGlideVelocities=false;
     float DDauxVtk::pkFactor=0.5;
+    float DDauxVtk::sfFactor=0.5;
+
     float DDauxVtk::glideVelocitiesFactor=0.5;
 
 }

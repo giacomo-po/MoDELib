@@ -4,7 +4,7 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e12;
+targetStraightDislocationDensity=0e14;
 fractionSessileStraightDislocationDensity=0.0;
 
 #######################################
@@ -25,10 +25,10 @@ targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=0 -1;
-straightDislocationsAngleFromScrewOrientation=90.0 90.0;
-pointsAlongStraightDislocations=0.0 0.0 0.0
-				10.0 0.0 0.0;
+straightDislocationsSlipSystemIDs=6 6;
+straightDislocationsAngleFromScrewOrientation=0.0 0.0;
+pointsAlongStraightDislocations=0.0 0.0 51.0
+				0.0 0.0 49.0;
 						   		
 #######################################
 # Frank loops (platelets of vacancies/interstitials)

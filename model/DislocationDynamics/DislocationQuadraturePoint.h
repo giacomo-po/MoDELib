@@ -303,10 +303,11 @@ namespace model
                         {// gamma surface must exist to perform force calculation
                             if(loopLink->loop()->slipSystem()->gammaSurface)
                             {// gamma surface must exist to perform force calculation
-                                const VectorDim outDir((loopLink->sink()->get_P() - loopLink->source()->get_P()).cross(loopLink->loop()->rightHandedUnitNormal()));
+                                VectorDim outDir((loopLink->sink()->get_P() - loopLink->source()->get_P()).cross(loopLink->loop()->rightHandedUnitNormal()));
                                 const double outDirNorm(outDir.norm());
                                 if(outDirNorm>FLT_EPSILON)
                                 {
+                                    outDir/=outDirNorm;
                                     std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
                                     for(const auto& otherLoop: parentSegment.network().loops())
                                     {
@@ -326,8 +327,8 @@ namespace model
                                                     for(size_t q=0;q<quadraturePoints().size();++q)
                                                     {
                                                         const auto& qPoint(quadraturePoints()[q]);
-                                                        const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir/outDirNorm-glidePlane->P)).template segment<dim-1>(0));
-                                                        const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir/outDirNorm-glidePlane->P)).template segment<dim-1>(0));
+                                                        const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir-glidePlane->P)).template segment<dim-1>(0));
+                                                        const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir-glidePlane->P)).template segment<dim-1>(0));
 
                                                         const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
                                                         const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));

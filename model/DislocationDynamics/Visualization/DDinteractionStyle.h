@@ -625,6 +625,7 @@ namespace model
                     if(ddAux.get()!=nullptr)
                     {
                         DDauxVtk::showPkforces=false;
+                        DDauxVtk::showSfforces=false;
                         DDauxVtk::showGlideVelocities=false;
                         ddAux->modify();
                         this->Interactor->Render();
@@ -636,6 +637,8 @@ namespace model
                     std::cout<<"selecting objects: quadrature points"<<std::endl;
                     std::cout<<"    0 show/hide PK-forces"<<std::endl;
                     std::cout<<"    1 show/hide glide velocities"<<std::endl;
+//                    std::cout<<"    2 show/hide stacking-fault forces"<<std::endl;
+
 //                    if(ddPK.get()!=nullptr)
 //                    {
 //                        PKActor::showPK=true;
@@ -651,15 +654,21 @@ namespace model
                 {
 //                    selectedKey=" ";
                     DDauxVtk::showPkforces=!DDauxVtk::showPkforces;
+                    DDauxVtk::showSfforces=!DDauxVtk::showSfforces;
+
                 }
                 else
                 {
                     selectedKey="q0";
                     DDauxVtk::showPkforces=true;
+                    DDauxVtk::showSfforces=true;
+
                 }
 //                selectedKey="q0";
 //                DDauxVtk::showPkforces=!DDauxVtk::showPkforces;
                 std::cout<<"quadrature PK forces="<<DDauxVtk::showPkforces<<std::endl;
+                std::cout<<"quadrature SF forces="<<DDauxVtk::showSfforces<<std::endl;
+
                 ddAux->modify();
                 this->Interactor->Render();
                 if(DDauxVtk::showPkforces)
@@ -963,15 +972,19 @@ namespace model
                 if(key == "equal" && ddAux.get()!=nullptr)
                 {
                     ddAux->pkFactor*=2.0;
+                    ddAux->sfFactor*=2.0;
                     ddAux->modify();
                     std::cout<<"PK force scaling="<<ddAux->pkFactor<<std::endl;
+                    std::cout<<"SF force scaling="<<ddAux->sfFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "minus" && ddAux.get()!=nullptr)
                 {
                     ddAux->pkFactor*=0.5;
+                    ddAux->sfFactor*=0.5;
                     ddAux->modify();
                     std::cout<<"PK force scaling="<<ddAux->pkFactor<<std::endl;
+                    std::cout<<"SF force scaling="<<ddAux->sfFactor<<std::endl;
                     this->Interactor->Render();
                 }
             }
