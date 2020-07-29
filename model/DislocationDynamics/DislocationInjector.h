@@ -42,6 +42,8 @@ namespace model
                                                                   const SimplicialMesh<dim>& mesh)
         {
             
+//            std::cout<<"straightLineBoundaryClosure\n d="<< d.transpose()<<"\n n="<<plane.unitNormal.transpose()<<std::endl;
+            
             assert(std::fabs(plane.unitNormal.dot(d))<FLT_EPSILON);
             assert(plane.contains(P0));
             
@@ -115,10 +117,12 @@ namespace model
             
             if(isRightHandedPolygon(nodePos,plane.unitNormal))
             {
+//                std::cout<<"straightLineBoundaryClosure: right-handed"<<std::endl;
                 return nodePos;
             }
             else
             {
+//                std::cout<<"straightLineBoundaryClosure: NOT right-handed"<<std::endl;
                 std::vector<VectorDim> revNodePos;
                 for(typename std::vector<VectorDim>::reverse_iterator rIter=nodePos.rbegin();rIter!=nodePos.rend();++rIter)
                 {

@@ -714,22 +714,6 @@ namespace model
 
                         if(nodePos.size()>=3)
                         {// Write files
-
-                            
-                            
-                            
-//                            for(size_t k=0;k<nodePos.size();++k)
-//                            {// write node and edge file
-//                                configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-//                                const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-//                                configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-//                            }
-//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());  // write loop file
-//
-//                            nodeID+=nodePos.size();
-//                            loopID+=1;
-//                            snID+=1;
-                            std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
                             if(lineLength<FLT_EPSILON)
                             {
                                 std::cout<<"Line too short. EXITING."<<std::endl;
@@ -738,9 +722,7 @@ namespace model
                             
                             if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero()))
                             {
-//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero())
                                 std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
-
                             }
                             
                         }

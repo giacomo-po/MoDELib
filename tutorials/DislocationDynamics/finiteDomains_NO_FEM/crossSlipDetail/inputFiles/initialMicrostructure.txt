@@ -25,10 +25,13 @@ targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=6 6;
-straightDislocationsAngleFromScrewOrientation=0.0 0.0;
-pointsAlongStraightDislocations=0.0 0.0 51.0
-				0.0 0.0 49.0;
+straightDislocationsSlipSystemIDs=0 3 -1 -1;
+straightDislocationsAngleFromScrewOrientation=-30.0 30.0 0.0 0.0;
+pointsAlongStraightDislocations=0.0 1.0 50.0
+                                0.0 -1.0 50.0
+								0.0 0.0 51.0
+								0.0 0.0 49.0;
+				
 						   		
 #######################################
 # Frank loops (platelets of vacancies/interstitials)

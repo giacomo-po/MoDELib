@@ -868,6 +868,7 @@ namespace model
             labelMapper->SetInputData(labelPolyData);
             labelMapper->SetLabelModeToLabelScalars();
             labelMapper->SetLabelFormat("%1.0f");
+            labelMapper->GetLabelTextProperty()->SetFontSize(20);
             labelActor->SetMapper(labelMapper);
             labelActor->GetProperty()->SetColor(0.0, 0.0, 0.0); //(R,G,B)
             
@@ -877,6 +878,7 @@ namespace model
             singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
             singleNodeLabelMapper->SetLabelModeToLabelScalars();
             singleNodeLabelMapper->SetLabelFormat("%1.0f");
+            singleNodeLabelMapper->GetLabelTextProperty()->SetFontSize(20);
             singleNodeLabelActor->SetMapper(singleNodeLabelMapper);
             singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
             singleNodeLabelActor->VisibilityOff();
