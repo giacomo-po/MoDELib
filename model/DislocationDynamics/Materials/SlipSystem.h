@@ -12,9 +12,10 @@
 
 #include <memory>
 #include <assert.h>
-#include <LatticePlaneBase.h>
-#include <LatticeVector.h>
-#include <RationalLatticeDirection.h>
+#include <LatticeMath.h>
+//#include <LatticePlaneBase.h>
+//#include <LatticeVector.h>
+//#include <RationalLatticeDirection.h>
 #include <DislocationMobilityBase.h>
 #include <PeriodicLatticeInterpolant.h>
 
