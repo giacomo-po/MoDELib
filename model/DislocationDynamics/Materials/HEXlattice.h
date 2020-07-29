@@ -142,7 +142,7 @@ namespace model
                                                     /*                        */ 0.25,sqrt(3.0)/4.0, 0.5,sqrt(3.0)/2,0.0, //  symm
                                                     /*                        */ 0.75,sqrt(3.0)/4.0,-0.5,sqrt(3.0)/2,0.0, //  symm
                                                     /*                        */ 1.00,sqrt(3.0)/3.0, 1.0,0.0        ,0.0, //  symm
-                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.01).finished());
+                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.0).finished());
 
                 
                 std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a2),waveVectorsBasal,fBasal,dfBasal));

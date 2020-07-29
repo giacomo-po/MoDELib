@@ -736,7 +736,7 @@ namespace model
                                 exit(EXIT_FAILURE);
                             }
                             
-                            if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero()))
+                            if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero()))
                             {
 //                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero())
                                 std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;

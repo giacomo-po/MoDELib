@@ -1,4 +1,4 @@
-materialFile=../../MaterialsLibrary/Cu.txt;
+materialFile=../../MaterialsLibrary/Zr.txt;
 meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
 #meshFile=../../MeshLibrary/cube100.msh;
 #meshFile=../../MeshLibrary/cube4000fine.msh;
