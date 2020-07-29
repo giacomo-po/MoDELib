@@ -332,16 +332,19 @@ namespace model
 
                                                         const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
                                                         const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
-                                                        if(nRdotnR>FLT_EPSILON)
-                                                        {// same rightHandedUnitNormal
-                                                            qPointSlip[q].first +=wn1*otherLoop.second->burgers();
-                                                            qPointSlip[q].second+=wn2*otherLoop.second->burgers();
-                                                        }
-                                                        else
-                                                        {// opposite rightHandedUnitNormal
-                                                            qPointSlip[q].first -=wn1*otherLoop.second->burgers();
-                                                            qPointSlip[q].second-=wn2*otherLoop.second->burgers();
-                                                        }
+                                                        qPointSlip[q].first +=wn1*otherLoop.second->burgers();
+                                                        qPointSlip[q].second+=wn2*otherLoop.second->burgers();
+
+//                                                        if(nRdotnR>FLT_EPSILON)
+//                                                        {// same rightHandedUnitNormal
+//                                                            qPointSlip[q].first +=wn1*otherLoop.second->burgers();
+//                                                            qPointSlip[q].second+=wn2*otherLoop.second->burgers();
+//                                                        }
+//                                                        else
+//                                                        {// opposite rightHandedUnitNormal
+//                                                            qPointSlip[q].first -=wn1*otherLoop.second->burgers();
+//                                                            qPointSlip[q].second-=wn2*otherLoop.second->burgers();
+//                                                        }
                                                     }
                                                 }
                                             }
@@ -353,9 +356,9 @@ namespace model
                                     {
                                         if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
                                         {
-                                            const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));
-                                            const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second));
-                                            quadraturePoints()[q].stackingFaultForce+= -(gamma1-gamma2)*outDir; // * fact
+                                            const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
+                                            const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
+                                            quadraturePoints()[q].stackingFaultForce+= -(gamma2-gamma1)*outDir; // * fact
                                         }
                                     }
                                     
