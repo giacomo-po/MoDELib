@@ -191,7 +191,7 @@ namespace model
           */
             return network().globalNodeID(this->sID);
         }
-    
+                
         /**********************************************************************/
         const LoopLinkContainerType& loopLinks() const
         {

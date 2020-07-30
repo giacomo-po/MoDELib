@@ -319,9 +319,9 @@ namespace model
                                                 if(std::fabs(nRdotnR)>FLT_EPSILON)
                                                 {
                                                     std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
-                                                    for(const auto& otherLoopLink : otherLoop.second->links())
+                                                    for(const auto& otherLoopLink : otherLoop.second->linkSequence())
                                                     {
-                                                        otherLocalNodes.push_back((loopLink->loop()->slipSystem()->gammaSurface->G2L*(otherLoopLink.second->source()->get_P()-glidePlane->P)).template segment<dim-1>(0));
+                                                        otherLocalNodes.push_back((loopLink->loop()->slipSystem()->gammaSurface->G2L*(otherLoopLink->source()->get_P()-glidePlane->P)).template segment<dim-1>(0));
                                                     }
                                                     
                                                     for(size_t q=0;q<quadraturePoints().size();++q)
