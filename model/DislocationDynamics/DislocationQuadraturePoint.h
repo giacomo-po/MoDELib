@@ -332,8 +332,8 @@ namespace model
 
                                                         const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
                                                         const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
-                                                        qPointSlip[q].first +=wn1*otherLoop.second->burgers();
-                                                        qPointSlip[q].second+=wn2*otherLoop.second->burgers();
+                                                        qPointSlip[q].first -=wn1*otherLoop.second->burgers(); // slip vector is negative the burgers vector
+                                                        qPointSlip[q].second-=wn2*otherLoop.second->burgers(); // slip vector is negative the burgers vector
 
 //                                                        if(nRdotnR>FLT_EPSILON)
 //                                                        {// same rightHandedUnitNormal

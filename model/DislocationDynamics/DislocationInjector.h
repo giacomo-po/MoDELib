@@ -139,7 +139,7 @@ namespace model
             {
                 VectorDim nA(VectorDim::Zero());
                 const VectorDim P0(poly.front());
-                for(size_t k=0;k<=poly.size();++k)
+                for(size_t k=0;k<poly.size();++k)
                 {
                     size_t k1(k==poly.size()-1? 0 : k+1);
                     nA+= 0.5*(poly[k]-P0).cross(poly[k1]-poly[k]);
