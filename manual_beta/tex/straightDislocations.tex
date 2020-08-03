@@ -496,3 +496,33 @@ We can then proceed as before and finally find
 \Omega_n
 &=\frac{2}{\sqrt{1+a^2}\sqrt{s_3^2+a^2}}\tan^{-1}\left(\frac{\sqrt{s_3^2+a^2}w^*}{\sqrt{1+a^2}-s_1-s_2w^*}\right)
 \end{align}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Non-singular energy density}
+\begin{align}
+E=\frac{1}{2}\sum_A\sum_BE_{AB}
+\end{align}
+where $E_{AB}$ is the interaction energy between two loops
+\begin{align}
+E_{AB}&=-\frac{\mu}{4\pi(1-\nu)}\oint_{\mathcal{L}^{(B)}}\oint_{\mathcal{L}^{(A)}}\left[\left(\frac{1-\nu}{2}\delta_{ij}\delta_{kl}+\nu\delta_{il}\delta_{jk}-\delta_{jl}\delta_{ik}\right)\Delta +\delta_{jl}\partial_i\partial_k\right]R_a\ b^{(A)}_{k}\dL_l^{(A)} b_i^{(B)}\dL_{j}^{(B)}
+\label{interaction_energy_classical}
+\end{align}
+This can also be written as sum over segments
+\begin{align}
+E=\frac{1}{2}\sum_\alpha\sum_\beta E_{\alpha\beta}
+\end{align}
+where $E_{AB}$ is the interaction energy between two segments
+\begin{align}
+E_{\alpha\beta}&=-\frac{\mu}{4\pi(1-\nu)}\int_{\mathcal{S}^{(\beta)}}\int_{\mathcal{S}^{(\alpha)}}\left[\left(\frac{1-\nu}{2}\delta_{ij}\delta_{kl}+\nu\delta_{il}\delta_{jk}-\delta_{jl}\delta_{ik}\right)\Delta +\delta_{jl}\partial_i\partial_k\right]R_a\ b^{(\alpha)}_{k}\dL_l^{(\alpha)} b_i^{(\beta)}\dL_{j}^{(\beta)}
+\label{interaction_energy_classical}
+\end{align}
+The energy of segment $\alpha$ is therefore
+\begin{align}
+E_\alpha=\frac{1}{2}\sum_\beta E_{\alpha\beta}
+\end{align}
+Therefore the energy density along segment $\alpha$ is
+\begin{align}
+\text{d}e_\alpha(\bm x)=\frac{\text{d} E_\alpha}{\text{d} L^{(\alpha)}}=-\frac{\mu}{8\pi(1-\nu)}\sum_\beta \ b^{(\alpha)}_{k} \hat{t}_l^{(\alpha)} b_i^{(\beta)} \hat{t}_j^{(\beta)}\left[\left(\frac{1-\nu}{2}\delta_{ij}\delta_{kl}+\nu\delta_{il}\delta_{jk}-\delta_{jl}\delta_{ik}\right)\Delta +\delta_{jl}\partial_i\partial_k\right]\underbrace{\int_{\mathcal{S}^{(\beta)}}R_a \dL^{(\beta)}}_{q_\beta(\bm x)}
+\end{align}
+

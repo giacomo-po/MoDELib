@@ -42,3 +42,4 @@
 \contentsline {subsection}{\numberline {B.0.3}Straight Displacement}{35}{subsection.B.0.3}
 \contentsline {subsubsection}{Straight Solid Angle}{35}{section*.17}
 \contentsline {subsubsection}{Non-singular Straight Solid Angle}{37}{section*.18}
+\contentsline {section}{\numberline {B.1}Non-singular energy density}{37}{section.B.1}
