@@ -1,9 +1,7 @@
-MODEL_INCLUDE = ../../
+MODEL_INCLUDE = ../../header_symlinks
 
 program:
-	g++ main.cpp -o test -std=c++11 -Ofast -I$(MODEL_INCLUDE) -I/usr/local/include -I/opt/local/include 
-
-#-L/opt/local/lib -lCGAL -lCGAL_Core -lgmp
+	g++ main.cpp -o test -std=c++17 -Ofast -I$(MODEL_INCLUDE) -I/usr/local/include 
 	
 clean:
-	rm -f test output.txt
+	rm -f test

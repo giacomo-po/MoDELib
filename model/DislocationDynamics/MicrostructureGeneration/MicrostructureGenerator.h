@@ -1075,6 +1075,10 @@ namespace model
         const double irradiationLoopsDiameterLognormalDistribution_A;
         const double fraction111Loops;  // fraction of [111] glissile loop;
         const bool mobile111Loops;
+        const double PrismaticLoopSizeMean;
+        const double PrismaticLoopSizeStd;
+        const double BasalLoopSizeMean;
+        const double BasalLoopSizeStd;
 
         // SFTs
         const double targetSFTdensity;
@@ -1157,6 +1161,10 @@ namespace model
         /* init*/,irradiationLoopsDiameterLognormalDistribution_A(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_A",true) : 0.0)
         /* init*/,fraction111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true) : 0.0)
         /* init*/,mobile111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true) : 0.0)
+        /* init*/,PrismaticLoopSizeMean(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("PrismaticLoopSizeMean",true) : 0.0)
+        /* init*/,PrismaticLoopSizeStd(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("PrismaticLoopSizeStd",true) : 0.0)
+        /* init*/,BasalLoopSizeMean(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("BasalLoopSizeMean",true) : 0.0)
+        /* init*/,BasalLoopSizeStd(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("BasalLoopSizeStd",true) : 0.0)
         /* SFTs */
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
@@ -1357,17 +1365,24 @@ namespace model
                 }
             }
         }
-        
+
         /**********************************************************************/
         void addIrradiationLoopsHCP()
-        {// Irradiation loops in FCC are Frank loops.
-         // TO DO: actaully Frank loops can be unfaulted and become prismatic (exagonal) loops bounded by pairs of {111} planes and {001} planes. See P. B. Hirsch , J. Silcox , R. E. Smallman & K. H. Westmacott
+        {// Irradiation loops in HCP are prismatic+basal loops
             
             const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
-            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
             
-            size_t ndefects=0;
+            
+            // fraction111Loops represents the fracton of prismatic loops for HCP
+            double targetPrismLoopDensity=targetIrradiationLoopDensity*fraction111Loops;
+            double targetBasalLoopDesnity=targetIrradiationLoopDensity*(1.-fraction111Loops);
+            size_t ndefects=0, nprism=0, nbasal=0;
             double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+            double prismDensity=nprism/mesh.volume()/std::pow(poly.b_SI,3);
+            double basalDensity=nbasal/mesh.volume()/std::pow(poly.b_SI,3);
+            
+            std::cout<<"HCP loop generator with tarrget prismatic loop density:"<<targetPrismLoopDensity<<" and target basal loop density:"<<targetBasalLoopDesnity<<std::endl;
+            
             while(defectsDensity<targetIrradiationLoopDensity)
             {
                 const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -1378,46 +1393,201 @@ namespace model
                 std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
                 const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
                 const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-
-                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
-                const double radius(0.5*diameter_SI/poly.b_SI);
-                const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
-
                 
-                std::vector<VectorDimD> nodePos;
-                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
-                {
-                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
-                }
+                // For HCP type, the number of defects (without units) in loops follows the normal distribution.
+                std::normal_distribution<double> prismsizeDistribution(PrismaticLoopSizeMean,PrismaticLoopSizeStd);
+                std::normal_distribution<double> basalsizeDistribution(BasalLoopSizeMean,BasalLoopSizeStd);
                 
                 const double planeSpacing(slipSystem.n.planeSpacing());
-                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON)
+                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON && prismDensity<targetPrismLoopDensity)
                 {// prismatic plane spacing
-                    const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
-                    const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
-                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    
+                    // For square shape prismatic loops, radius is half of the edge length
+                    // Omega/pi/ba in m^-2
+                    const double size2radius=2.33e-29/(poly.b_SI*4.);
+                    double xsize=prismsizeDistribution(generator);
+                    // if((xsize<(PrismaticLoopSizeMean-3.0*PrismaticLoopSizeStd) || xsize<0) || xsize>(PrismaticLoopSizeMean+3.0*PrismaticLoopSizeStd)) continue;
+                    if(xsize<0) continue;
+                    const double radius=sqrt(xsize*size2radius)/poly.b_SI;
+                    
+                    const VectorDimD e1=slipSystem.unitNormal;
+                    const VectorDimD e2=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" directions
+                    
+                    
+                    std::vector<VectorDimD> nodePos;
+                    nodePos.push_back(P0);
+                    nodePos.push_back(P0+e2*std::round(2.0*radius/sqrt(8.0/3.0))*sqrt(8.0/3.0));
+                    nodePos.push_back(P0+e1*std::round(2.0*radius/sqrt(3.0/4.0))*sqrt(3.0/4.0)+e2*std::round(2.0*radius/sqrt(8.0/3.0))*sqrt(8.0/3.0));
+                    nodePos.push_back(P0+e1*std::round(2.0*radius/sqrt(3.0/4.0))*sqrt(3.0/4.0));
+                    VectorDimD centerofloop(0.,0.,0.);
+                    for(size_t k=0;k<4;++k) centerofloop += nodePos[k];
+                    
+                    
+                    VectorDimD b=slipSystem.s.cartesian();   // Prism axis
+                    
+                    // make sure it is interstitial type
+                    VectorDimD Cycle_plane=(nodePos[1]-nodePos[0]).cross(nodePos[2]-nodePos[1]);
+                    if (b.dot(Cycle_plane)>0)
                     {
-                        ndefects++;
-                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+                        b*=-1.0;
+                    }
+                    
+                    /*
+                     std::cout<<"Radius is:"<<radius<<std::endl;
+                     std::cout<<"Nodepos 0:"<<nodePos[0]<<std::endl;
+                     std::cout<<"Nodepos 1:"<<nodePos[1]<<std::endl;
+                     std::cout<<"Nodepos 2:"<<nodePos[2]<<std::endl;
+                     std::cout<<"Nodepos 3:"<<nodePos[3]<<std::endl;
+                     */
+                    
+                    if(allPointsInGrain(nodePos,grainID))
+                    {
+                        
+                        for(int k=0;k<4;++k)
+                        {// inser the back loop
+                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                            const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
+                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                        }
+                        configIO.loops().emplace_back(loopID+0, b,slipSystem.s.cartesian().normalized(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                        loopID++;
+                        
+                        if(mobile111Loops)
+                        {// insert loops on the four sides
+                            for(int k=0;k<4;++k)
+                            {// inser lateral loops
+                                configIO.nodes().emplace_back(nodeID+k+4,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
+                                configIO.links().emplace_back(loopID,nodeID+k,nodeID+k+4,0);
+                                configIO.links().emplace_back(loopID,nodeID+k+4,nextNodeID+4,0);
+                                configIO.links().emplace_back(loopID,nextNodeID+4,nextNodeID,0);
+                                configIO.links().emplace_back(loopID,nextNodeID,nodeID+k,0);
+                                
+                                configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/4,b.normalized())*slipSystem.unitNormal,nodePos[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                                loopID++;
+                            }
+                            nodeID+=2*nodePos.size();
+                        }
+                        else
+                        {
+                            nodeID+=nodePos.size();
+                        }
+                        snID++;
+                        nprism++;
+                        prismDensity=nprism/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"Prismatci loops density="<<prismDensity<<std::endl;
                     }
                 }
-                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
+                
+                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON && basalDensity<targetBasalLoopDesnity)
                 {// basal plane spacing
-                    const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
-                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
+                    
+                    // Omega/pi/bc in m^-2
+                    const double size2radius=2.33e-29/(0.5*poly.b_SI*sqrt(8.0/3.0)*M_PI);
+                    double xsize=basalsizeDistribution(generator);
+                    // if((xsize<(BasalLoopSizeMean-3.0*BasalLoopSizeStd) || xsize<0) || xsize>(BasalLoopSizeMean+3.0*BasalLoopSizeStd)) continue;
+                    if(xsize<0) continue;
+                    const double radius=sqrt(xsize*size2radius)/poly.b_SI;
+                    
+                    const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
+                    std::vector<VectorDimD> nodePos;
+                    for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
                     {
-                        ndefects++;
-                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+                        nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
                     }
+                    
+                    // make sure it is vacancy type
+                    VectorDimD Cycle_plane=(nodePos[1]-nodePos[0]).cross(nodePos[2]-nodePos[1]);
+                    if (b.dot(Cycle_plane)<0)
+                    {
+                        b*=-1.0;
+                    }
+                    
+                    if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+                    {
+                        nbasal++;
+                        basalDensity=nbasal/mesh.volume()/std::pow(poly.b_SI,3);
+                        std::cout<<"Basal loops density="<<basalDensity<<std::endl;
+                    }
+                    
+                    /*
+                     std::cout<<"Basal radius is:"<<radius<<std::endl;
+                     std::cout<<"Nodepos 0:"<<nodePos[0]<<std::endl;
+                     std::cout<<"Nodepos 1:"<<nodePos[1]<<std::endl;
+                     */
+                    
                 }
                 else
                 {
                     
                 }
+                ndefects = nprism + nbasal;
+                defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+                std::cout<<"Total loop density="<<defectsDensity<<std::endl;
             }
         }
+        
+//        /**********************************************************************/
+//        void addIrradiationLoopsHCP()
+//        {// Irradiation loops in FCC are Frank loops.
+//         // TO DO: actaully Frank loops can be unfaulted and become prismatic (exagonal) loops bounded by pairs of {111} planes and {001} planes. See P. B. Hirsch , J. Silcox , R. E. Smallman & K. H. Westmacott
+//
+//            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
+//            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+//
+//            size_t ndefects=0;
+//            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+//            while(defectsDensity<targetIrradiationLoopDensity)
+//            {
+//                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+//                const int& grainID=rp.second;   // random grain ID
+//                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+//                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+//
+//                std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
+//                const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
+//                const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+//
+//                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+//                const double radius(0.5*diameter_SI/poly.b_SI);
+//                const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
+//
+//
+//                std::vector<VectorDimD> nodePos;
+//                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
+//                {
+//                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
+//                }
+//
+//                const double planeSpacing(slipSystem.n.planeSpacing());
+//                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON)
+//                {// prismatic plane spacing
+//                    const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
+//                    const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
+//                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+//                    {
+//                        ndefects++;
+//                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+//                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+//                    }
+//                }
+//                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
+//                {// basal plane spacing
+//                    const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
+//                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+//                    {
+//                        ndefects++;
+//                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+//                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+//                    }
+//                }
+//                else
+//                {
+//
+//                }
+//            }
+//        }
         
 
         /**********************************************************************/

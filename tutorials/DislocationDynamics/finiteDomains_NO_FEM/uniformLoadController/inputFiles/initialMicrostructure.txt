@@ -62,6 +62,10 @@ irradiationLoopsDiameterLognormalDistribution_A=1.0e-9;		#[m] log-normal distrib
 fraction111Loops=0.5;
 mobile111Loops=0;
 irradiationLoopsNumberOfNodes=10; # number of nodes used to discretize circular loops (only used for sessile configurations)
+PrismaticLoopSizeMean=1183; #[-] Mean number of atoms in prismatic <a> loops
+PrismaticLoopSizeStd=1058; #[-] Std for prismatic <a> loops
+BasalLoopSizeMean=851; #[-] Mean number of atoms in vacancy <c> loops
+BasalLoopSizeStd=250; #[-] Std for basal <c> loops
 
 #######################################
 # Eshelby Inclusions. 
