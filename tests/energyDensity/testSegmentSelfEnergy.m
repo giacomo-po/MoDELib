@@ -5,7 +5,7 @@ clc
 system('rm input.txt')
 system('rm points.txt')
 
-computeSelfEnergiesOnly=1;
+computeSelfEnergiesOnly=0;
 nGP=100;
 Nseg=100;
 
@@ -57,8 +57,12 @@ plot(points(pointIDs,6))
 end
 
 figure(3)
+clf
+yyaxis left
+plot(segIDs,E,'bo')
 hold on
-plot(segIDs,E,'o')
-%plot(segIDs,W,'x')
+plot(segIDs,W,'rx')
+yyaxis right
+plot(segIDs,abs(E-W)./W)
 grid on
 xlabel('segment ID')
