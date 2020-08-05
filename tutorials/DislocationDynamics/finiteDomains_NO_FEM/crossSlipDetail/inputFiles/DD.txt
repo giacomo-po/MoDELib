@@ -29,6 +29,7 @@ periodicImages_z=0;
 ######################################
 quadPerLength=1.0;
 
+
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
@@ -61,6 +62,7 @@ outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
+computeElasticEnergyPerLength=1;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS

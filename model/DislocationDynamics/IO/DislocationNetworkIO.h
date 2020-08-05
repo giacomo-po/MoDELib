@@ -820,6 +820,23 @@ namespace model
                 }
             }
             
+            if(DN.computeElasticEnergyPerLength)
+            {
+                double eE(0.0);
+                for(const auto& link : DN.links())
+                {// Collect LoopLinks by loop IDs
+                    for(const auto& qPoint : link.second->quadraturePoints())
+                    {
+                        eE+=qPoint.elasticEnergyPerLength*qPoint.dL;
+                    }
+                }
+                f_file<<eE<<" ";
+                if(runID==0)
+                {
+                    F_labels<<"elastic energy [mu b^3]\n";
+                }
+            }
+            
             if (DN.externalLoadController)
             {
                 DN.externalLoadController->output(runID,f_file,F_labels);

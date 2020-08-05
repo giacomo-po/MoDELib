@@ -1489,11 +1489,7 @@ memory
 -
 assert.h
 -
-LatticePlaneBase.h
--
-LatticeVector.h
--
-RationalLatticeDirection.h
+LatticeMath.h
 -
 DislocationMobilityBase.h
 -

@@ -226,6 +226,7 @@ namespace model
         bool outputLoopLength;
         bool outputSegmentPairDistances;
         bool outputPeriodicConfiguration;
+        const bool computeElasticEnergyPerLength;
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
         double surfaceAttractionDistance;
@@ -283,6 +284,7 @@ namespace model
         /* init */,outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
         /* init */,outputPeriodicConfiguration(simulationParameters.isPeriodicSimulation()? TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPeriodicConfiguration",true) : false)
         //        /* init */ _userOutputColumn(3)
+        /* init */,computeElasticEnergyPerLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeElasticEnergyPerLength",true))
         /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
         /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
         //        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
