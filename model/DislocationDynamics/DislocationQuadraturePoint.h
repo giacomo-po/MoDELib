@@ -438,9 +438,6 @@ namespace model
                                         qPoint.stress += stressC;
                                     }
                                 }
-                                
-                                
-                                
                             }
                             
                             if(parentSegment.network().computeElasticEnergyPerLength)
