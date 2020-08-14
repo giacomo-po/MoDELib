@@ -61,6 +61,7 @@ outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
+computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -104,6 +105,7 @@ parametrizationExponent=0.5;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
+verboseLoopNetwork=0;
 verboseJunctions=0;
 verboseRemesh=0;
 verbosePlanarDislocationNode=0;

@@ -61,6 +61,7 @@ outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
+computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS

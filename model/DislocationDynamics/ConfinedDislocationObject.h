@@ -329,6 +329,13 @@ namespace model
         }
         
         /**********************************************************************/
+        void updateGeometry(const PositionCointainerType& temp)
+        {
+            posCointainer=temp;
+            updateConfinement();
+        }
+        
+        /**********************************************************************/
         void addGlidePlane(const GlidePlaneType* const lastGlidePlane)
         {
             if(lastGlidePlane)

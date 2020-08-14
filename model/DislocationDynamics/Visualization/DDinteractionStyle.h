@@ -323,7 +323,7 @@ namespace model
         }
         
         /**********************************************************************/
-        virtual void OnRightButtonDown()
+        virtual void OnRightButtonDown() override
         {
             
             double viewUp[3];
@@ -361,7 +361,7 @@ namespace model
         }
         
         /*************************************************************************/
-        virtual void OnLeftButtonDown()
+        virtual void OnLeftButtonDown() override
         {
 //            autoSpin=false;
             
@@ -394,14 +394,14 @@ namespace model
         }
         
         /*************************************************************************/
-        virtual void OnChar()
+        virtual void OnChar() override
         {/*! Overrides vtkInteractorStyleTrackballCamera::OnChar()
           * to avoid exiting the program on pressing "e"
           */
         }
         
         /*************************************************************************/
-        virtual void OnKeyPress()
+        virtual void OnKeyPress() override
         {
             // Get the keypress
             vtkRenderWindowInteractor *rwi = this->Interactor;
