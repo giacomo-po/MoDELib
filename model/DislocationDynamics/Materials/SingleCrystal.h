@@ -96,12 +96,12 @@ namespace model
             }
             else if(material.crystalStructure=="FCC")
             {
-                const bool enablePartials(TextFileParser(material.materialFile).readScalar<int>("enablePartials",true));
+                const bool enablePartials(TextFileParser("inputFiles/DD.txt").readScalar<int>("enablePartials",true));
                 return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else if(material.crystalStructure=="HEX")
             {
-                const bool enablePartials(TextFileParser(material.materialFile).readScalar<int>("enablePartials",true));
+                const bool enablePartials(TextFileParser("inputFiles/DD.txt").readScalar<int>("enablePartials",true));
                 return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else

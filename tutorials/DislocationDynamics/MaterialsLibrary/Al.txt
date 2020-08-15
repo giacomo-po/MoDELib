@@ -17,6 +17,7 @@ B1s_SI=3.3333e-07;	# [Pa*s]	temperature-dependent drag coefficient for screw dis
 # Gamma-surface
 ISF_SI=158e-3; # [J/m^2]	intrinsic stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
 USF_SI=225e-3; # [J/m^2]	 unstable stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
+MSF_SI=450e-3; # [J/m^2]	 maximum stacking fault energy (??)
 
 # Vacancy diffusion
 Ufv_eV=0.67;	# [eV]	Vacancy formation energy

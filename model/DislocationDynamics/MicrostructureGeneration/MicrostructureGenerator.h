@@ -40,15 +40,15 @@
 
 namespace model
 {
-
-
+    
+    
     class MicrostructureGenerator
     {
         constexpr static int dim=3;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef LatticeDirection<dim> LatticeDirectionType;
-
+        
         typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
         typedef DislocatedMaterial<dim,Isotropic> MaterialType;
@@ -60,7 +60,7 @@ namespace model
         {
             return a<b? a : b;
         }
-
+        
         /**********************************************************************/
         static double max(const double& a,const double& b)
         {
@@ -119,7 +119,7 @@ namespace model
                 return false;
             }
         }
-
+        
         /**********************************************************************/
         void addStraightDislocations()
         {
@@ -128,7 +128,7 @@ namespace model
                 // init counters
                 double density=0.0;
                 double sessileDensity=0.0;
-
+                
                 std::cout<<magentaBoldColor<<"Generating straight dislocations"<<defaultColor<<std::endl;
                 while(density<targetStraightDislocationDensity)
                 {
@@ -141,13 +141,13 @@ namespace model
                     const int rSS=distribution(generator); // a random SlipSystem ID
                     const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
-
-
+                    
+                    
                     VectorDimD n=slipSystem.unitNormal; // slip plane normal
                     std::uniform_real_distribution<> dis(0.0, 2.0*M_PI);
                     const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
                     VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
-
+                    
                     bool isSessile=false;
                     if(sessileDensity/targetStraightDislocationDensity<fractionSessileStraightDislocationDensity)
                     {
@@ -155,20 +155,20 @@ namespace model
                         isSessile=true;
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
-
+                    
                     MeshPlane<dim> plane(mesh,grainID,P0,n);
                     const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,plane,mesh));
-
+                    
                     const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+2.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
-
+                    
                     double dh=0.0;
                     if(enforceMonotonicHelicity)
                     {
                         dh=deltaHelicity(nodePos,b);
                     }
-
+                    
                     // Write files
                     if(   nodePos.size()>=3
                        && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity))
@@ -181,16 +181,16 @@ namespace model
                             configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
                         }
                         nodeID+=nodePos.size();
-
+                        
                         // write loop file
                         configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
+                        
                         if(enforceMonotonicHelicity)
                         {
                             loopPoints.push_back(nodePos);
                             loopBurgers.push_back(b);
                         }
-
+                        
                         loopID+=1;
                         snID+=1;
                         density += lineLength/mesh.volume()/std::pow(poly.b_SI,2);
@@ -211,52 +211,52 @@ namespace model
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addFrankReadSources()
         {
             if(targetFrankReadDislocationDensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating Frank-Read sources"<<defaultColor<<std::endl;
-
+                
                 double density=0.0;
                 double edgeDensity=0.0;
-
+                
                 const double fractionEdge=1.0; // TEMPORARY
-
+                
                 std::normal_distribution<double> sizeDistribution(FrankReadSizeMean/poly.b_SI,FrankReadSizeStd/poly.b_SI);
                 std::normal_distribution<double> aspectRatioDistribution(FrankReadAspectRatioMean,FrankReadAspectRatioStd);
-
+                
                 while(density<targetFrankReadDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;
                     const int grainID=rp.second;
-
+                    
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
-
+                    
                     const int rSS=distribution(generator); // a random SlipSystem
-
+                    
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
-
+                    
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
-
+                    
                     bool isEdge=true;
-
-
-
+                    
+                    
+                    
                     LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));
                     double d1cNorm(d1.cartesian().norm());
                     //                    const double size = distribution(generator)*inclusionsDiameterLognormalDistribution_A[f]/poly.b_SI;
-
+                    
                     int a1=sizeDistribution(generator)/d1cNorm;
                     if(a1>0)
                     {
                         LatticeVector<dim> L1=L0+d1*a1;
-
-
+                        
+                        
                         if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                         {
                             isEdge=false;
@@ -264,17 +264,17 @@ namespace model
                             a1=randomSize()/d1cNorm;
                             L1=L0+slipSystem.s.dir*a1;
                         }
-
+                        
                         // Compute the LatticeDireciton corresponding to -n
                         LatticeDirection<3> d2(poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()*randomSign()));
                         double d2cNorm(d2.cartesian().norm());
-
+                        
                         const int a2=aspectRatioDistribution(generator)*a1; // aspect ratio of double FR source
                         if(a2>0)
                         {
                             LatticeVector<dim> L2=L1+d2*a2;
                             LatticeVector<dim> L3=L0+d2*a2;
-
+                            
                             const VectorDimD P0=L0.cartesian();
                             const VectorDimD P1=L1.cartesian();
                             const VectorDimD P2=L2.cartesian();
@@ -282,7 +282,7 @@ namespace model
                             const auto search1(mesh.search(P1));
                             const auto search2(mesh.search(P2));
                             const auto search3(mesh.search(P3));
-
+                            
                             double dh=0.0;
                             std::vector<VectorDimD> nodePos;
                             if(enforceMonotonicHelicity)
@@ -293,10 +293,8 @@ namespace model
                                 nodePos.push_back(P3);
                                 dh=deltaHelicity(nodePos,-b); // central loop is opposite direction
                             }
-
-                            if(   search1.first && search1.second->region->regionID==grainID
-                               && search2.first && search2.second->region->regionID==grainID
-                               && search3.first && search3.second->region->regionID==grainID
+                            
+                            if(allPointsInGrain(nodePos,grainID)
                                && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity)
                                )
                             {
@@ -306,41 +304,41 @@ namespace model
                                     edgeDensity+=2.0*(d1cNorm*a1 + d2cNorm*a2)/mesh.volume()/std::pow(poly.b_SI,2);
                                 }
                                 std::cout<<"density="<<density<<" (edge density="<<edgeDensity<<")"<<std::endl;
-
+                                
                                 const VectorDimD P4=0.5*(P0+P1);
                                 const VectorDimD P5=0.5*(P2+P3);
-
+                                
                                 const VectorDimD n1=slipSystem.unitNormal;
                                 const VectorDimD n2=d2.cross(d1).cartesian().normalized();
-
+                                
                                 configIO.nodes().emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+4,P4,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                                 configIO.nodes().emplace_back(nodeID+5,P5,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-
+                                
                                 configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
                                 configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
                                 configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
+                                
                                 configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+1,0);
                                 configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+4,0);
                                 configIO.links().emplace_back(loopID+0,nodeID+4,nodeID+0,0);
-
+                                
                                 configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+3,0);
                                 configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+2,0);
                                 configIO.links().emplace_back(loopID+1,nodeID+2,nodeID+1,0);
                                 configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+0,0);
-
+                                
                                 configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+5,0);
                                 configIO.links().emplace_back(loopID+2,nodeID+5,nodeID+2,0);
                                 configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+3,0);
-
+                                
                                 nodeID+=6;
                                 loopID+=3;
                                 snID++;
-
+                                
                                 if(enforceMonotonicHelicity)
                                 {
                                     loopPoints.push_back(nodePos);
@@ -354,36 +352,36 @@ namespace model
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addSingleArmDislocations()
         {
             if(targetSingleArmDislocationDensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating single-arm sources"<<defaultColor<<std::endl;
-
+                
                 //                double fractionEdge=1.0; // TEMPORARY
-
+                
                 double density=0.0;
                 //                double edgeDensity=0.0;
-
+                
                 while(density<targetSingleArmDislocationDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;
                     const int grainID=rp.second;
-
+                    
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
-
+                    
                     const int rSS=distribution(generator); // a random SlipSystem
-
+                    
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-
+                    
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(slipSystem.s.cartesian()));
-
+                    
                     //                    bool isEdge=true;
-
+                    
                     LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));  // this is the projection direction
                     //     if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                     //      {
@@ -394,35 +392,35 @@ namespace model
                     double d2cNorm(d2.cartesian().norm());
                     const int a2=randomSize()/d2cNorm;
                     LatticeVector<dim> L3=L0+d2*a2;
-
-
+                    
+                    
                     const auto search2(mesh.search(L3.cartesian()));
-
+                    
                     if(enforceMonotonicHelicity)
                     {
                         assert(false && "enforceMonotonicHelicity NOT YET IMPLEMENTED FOR SINGLE-ARM SOURCES");
                     }
-
+                    
                     if(  search2.first && search2.second->region->regionID==grainID)
                     {
                         const VectorDimD P0=L0.cartesian();
                         const VectorDimD P3=L3.cartesian();
-
-
+                        
+                        
                         const VectorDimD n1=slipSystem.unitNormal;
                         const VectorDimD n2=d2.cross(d1).cartesian().normalized();
-
+                        
                         MeshPlane<dim> plane01(mesh,grainID,P0,n2);
-//                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(mesh,P0,n2,grainID);
+                        //                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(mesh,P0,n2,grainID);
                         const VectorDimD P1=boundaryProjection(P0,d1.cartesian(),plane01.meshIntersections).second;
                         const VectorDimD P2=boundaryProjection(P3,d1.cartesian(),plane01.meshIntersections).second;
                         const std::map<double,VectorDimD> P12=boundaryProjection(P0,P3,d1.cartesian(),plane01.meshIntersections);
-
+                        
                         // const VectorDimD P1=P12.begin().second;
                         // const VectorDimD P2=P12.rbegin().second;
                         const VectorDimD P4=(P0+P1)/2.0;
                         const VectorDimD P5=(P3+P2)/2.0;
-
+                        
                         if ((P1-P0).norm()>a2*0.5 && (P3-P2).norm()>a2*0.5)  //not too small arm
                         {
                             density+=((P1-P0).norm()+(P0-P3).norm()+(P3-P2).norm())/mesh.volume()/std::pow(poly.b_SI,2);
@@ -437,7 +435,7 @@ namespace model
                             configIO.nodes().emplace_back(refNodeID+4,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             configIO.nodes().emplace_back(refNodeID+5,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                             nodeID+=6;
-
+                            
                             if (P12.size()==0)
                             {
                                 configIO.links().emplace_back(loopID,refNodeID+4,refNodeID+5,0);
@@ -474,51 +472,51 @@ namespace model
                             configIO.links().emplace_back(loopID,refNodeID+5,refNodeID+1,0);
                             configIO.links().emplace_back(loopID,refNodeID+1,refNodeID+0,0);
                             configIO.links().emplace_back(loopID,refNodeID+0,refNodeID+4,0);
-
+                            
                             configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
                             configIO.links().emplace_back(loopID+1,refNodeID+0,refNodeID+2,0);
                             configIO.links().emplace_back(loopID+1,refNodeID+2,refNodeID+4,0);
                             configIO.links().emplace_back(loopID+1,refNodeID+4,refNodeID+0,0);
-
+                            
                             configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
                             configIO.links().emplace_back(loopID+2,refNodeID+1,refNodeID+5,0);
                             configIO.links().emplace_back(loopID+2,refNodeID+5,refNodeID+3,0);
                             configIO.links().emplace_back(loopID+2,refNodeID+3,refNodeID+1,0);
-
+                            
                             loopID+=3;
                             snID++;
-
+                            
                             std::cout<<"density="<<density<<std::endl;
                         }
                     }
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addPrismaticLoops()
         {
             if(targetPrismaticLoopDensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating prismatic loops"<<defaultColor<<std::endl;
-
+                
                 double density=0.0;
-
+                
                 while(density<targetPrismaticLoopDensity)
                 {
-
+                    
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;
                     const int grainID=rp.second;
-
+                    
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
-
+                    
                     // Compute the ReciprocalLatticeDirection corresponding to s
                     ReciprocalLatticeDirection<3> sr(poly.grain(grainID).reciprocalLatticeDirection(b));
-
+                    
                     // find prismatic planes
                     std::vector<int> normalIDs;
                     for(size_t k=0;k<poly.grain(grainID).planeNormals().size();++k)
@@ -534,7 +532,7 @@ namespace model
                         std::cout<<"Cannot generate a prismatic loop with less than 2 planes. EXITING."<<std::endl;
                         exit(EXIT_FAILURE);
                     }
-
+                    
                     std::vector<LatticeDirection<dim>> dirVector;
                     std::vector<int> sizeVector;
                     for(const int& normalID : normalIDs)
@@ -543,10 +541,10 @@ namespace model
                         sizeVector.emplace_back(randomSize()*randomSign()/dirVector.back().cartesian().norm());
                         //                        sizeVector.emplace_back(10000);
                     }
-
+                    
                     std::vector<VectorDimD> posVector;
                     std::vector<VectorDimD> normalsVector;
-
+                    
                     posVector.push_back(L0.cartesian());
                     for(size_t k=0;k<dirVector.size();++k)
                     {
@@ -564,7 +562,7 @@ namespace model
                     //                    {
                     //                        std::cout<<pos.cartesian().transpose()<<std::endl;
                     //                    }
-
+                    
                     bool allInside=true;
                     for(const auto& pos : posVector)
                     {
@@ -574,17 +572,17 @@ namespace model
                             break;
                         }
                     }
-
+                    
                     double dh=0.0;
                     if(enforceMonotonicHelicity)
                     {
                         dh=deltaHelicity(posVector,-b);
                     }
-
+                    
                     if(allInside
                        && ((fabs(helicity+dh)>fabs(helicity) && fabs(dh)>FLT_EPSILON ) || helicity==0.0 || !enforceMonotonicHelicity))
                     {
-
+                        
                         // Add nodes (two for-loops are needed)
                         for(size_t k=0;k<posVector.size();++k)
                         {
@@ -594,8 +592,8 @@ namespace model
                         {
                             configIO.nodes().emplace_back(nodeID+k+posVector.size(),posVector[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
                         }
-
-
+                        
+                        
                         // Add lateral loops
                         for(size_t k=0;k<posVector.size();++k)
                         {
@@ -604,12 +602,12 @@ namespace model
                             configIO.links().emplace_back(loopID+k,nextNodeID,nextNodeID+posVector.size(),0);
                             configIO.links().emplace_back(loopID+k,nextNodeID+posVector.size(),nodeID+k+posVector.size(),0);
                             configIO.links().emplace_back(loopID+k,nodeID+k+posVector.size(),nodeID+k,0);
-
+                            
                             configIO.loops().emplace_back(loopID+k,b,normalsVector[k],posVector[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
+                            
                         }
-
-
+                        
+                        
                         // Add back loop (sessile)
                         for(size_t k=0;k<posVector.size();++k)
                         {
@@ -617,20 +615,20 @@ namespace model
                             configIO.links().emplace_back(loopID+posVector.size(),nodeID+k,nextNodeID,0);
                         }
                         configIO.loops().emplace_back(loopID+posVector.size(),-b,b.normalized(),posVector[0],grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
-
-
-
+                        
+                        
+                        
                         for(size_t k=0;k<dirVector.size();++k)
                         {
                             density+=2.0*(dirVector[k]*sizeVector[k]).cartesian().norm()/mesh.volume()/std::pow(poly.b_SI,2);
                         }
-
+                        
                         std::cout<<"density="<<density<<std::endl;
-
+                        
                         nodeID+=2*posVector.size();
                         snID+=1;
                         loopID+=posVector.size()+1;
-
+                        
                         if(enforceMonotonicHelicity)
                         {
                             loopPoints.push_back(posVector);
@@ -638,13 +636,13 @@ namespace model
                             helicity+=dh;
                             std::cout<<"helicity="<<helicity<<std::endl;
                         }
-
+                        
                     }
                 }
-
+                
             }
         }
-
+        
         /**********************************************************************/
         void addIndividualStraightDislocations()
         {
@@ -665,12 +663,12 @@ namespace model
                     std::cout<<"You must provide one point for each dislocation. Each point is a row of the matrix pointsAlongStraightDislocations. EXITING."<<std::endl;
                     exit(EXIT_FAILURE);
                 }
-
+                
                 for(size_t k=0;k<straightDislocationsSlipSystemIDs.size();++k)
                 {
                     const int& rSS(straightDislocationsSlipSystemIDs[k]);
-
-
+                    
+                    
                     if(rSS>=0)
                     {
                         std::pair<bool,const Simplex<dim,dim>*> found=mesh.search(pointsAlongStraightDislocations.row(k));
@@ -679,14 +677,14 @@ namespace model
                             std::cout<<"Point "<<pointsAlongStraightDislocations.row(k)<<" is outside mesh. EXITING."<<std::endl;
                             exit(EXIT_FAILURE);
                         }
-
+                        
                         int grainID=found.second->region->regionID;
-
-
-
+                        
+                        
+                        
                         std::cout<<"generating individual straight dislocation "<<k<<defaultColor<<std::endl;
-
-
+                        
+                        
                         if(rSS>=int(poly.grain(grainID).slipSystems().size()))
                         {
                             std::cout<<"requested slip system ID="<<rSS<<std::endl;
@@ -694,24 +692,24 @@ namespace model
                             std::cout<<"Requested slip system does not exist. EXITING."<<std::endl;
                             exit(EXIT_FAILURE);
                         }
-
+                        
                         const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                         const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(slipSystem.n,pointsAlongStraightDislocations.row(k));
-
+                        
                         const VectorDimD P0=pointsAlongStraightDislocations.row(k).transpose()-pointsAlongStraightDislocations.row(k).dot(slipSystem.unitNormal)*slipSystem.unitNormal+slipSystem.unitNormal*slipSystem.n.planeSpacing()*heightPair.second;
-
+                        
                         const double theta(straightDislocationsAngleFromScrewOrientation[k]*M_PI/180.0);
                         //const VectorDimD& n(slipSystem.unitNormal);
                         const VectorDimD b(slipSystem.s.cartesian());
-
+                        
                         const VectorDimD d=Eigen::AngleAxisd(theta,slipSystem.unitNormal)*b.normalized();
                         const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,slipSystem.unitNormal,grainID,mesh));
-
-                        const double lineLength=(nodePos.back()-nodePos.front()).norm();
-
                         
-
-
+                        const double lineLength=(nodePos.back()-nodePos.front()).norm();
+                        
+                        
+                        
+                        
                         if(nodePos.size()>=3)
                         {// Write files
                             if(lineLength<FLT_EPSILON)
@@ -739,7 +737,7 @@ namespace model
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addNonPlanarLoops()
         {
@@ -764,7 +762,7 @@ namespace model
                     const double radius(sizeDistribution(generator));
                     
                     std::normal_distribution<double> heightDistribution(nonPlanarLoopRadiusMean/poly.b_SI,0.5*nonPlanarLoopRadiusMean/poly.b_SI);
-
+                    
                     
                     std::vector<VectorDimD> nodePos;
                     for(int k=0;k<nonPlanarLoopSides;++k)
@@ -779,21 +777,21 @@ namespace model
                         std::cout<<"non-planar loop density="<<density<<std::endl;
                     }
                     
-//                    if(allPointsInGrain(nodePos,grainID))
-//                    {
-//                        for(size_t k=0;k<nonPlanarLoopSides;++k)
-//                        {
-//                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
-//                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-//                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
-//                        }
-//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
-//                        nodeID+=nodePos.size();
-//                        loopID+=1;
-//                        snID+=1;
-//                        density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
-//                        std::cout<<"non-planar loop density="<<density<<std::endl;
-//                    }
+                    //                    if(allPointsInGrain(nodePos,grainID))
+                    //                    {
+                    //                        for(size_t k=0;k<nonPlanarLoopSides;++k)
+                    //                        {
+                    //                            const size_t nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
+                    //                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                    //                            configIO.links().emplace_back(loopID,nodeID+k,nextNodeID,0);
+                    //                        }
+                    //                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());  // write loop file
+                    //                        nodeID+=nodePos.size();
+                    //                        loopID+=1;
+                    //                        snID+=1;
+                    //                        density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
+                    //                        std::cout<<"non-planar loop density="<<density<<std::endl;
+                    //                    }
                     
                 }
                 
@@ -804,7 +802,7 @@ namespace model
         /**********************************************************************/
         void addPeriodicLoops()
         {
-
+            
             
             if(targetPeriodicLoopDensity>0.0)
             {
@@ -812,7 +810,7 @@ namespace model
                 assert(poly.grains().size()==1 && "PeriodicLoops only supported in single crystals.");
                 double density=0.0;
                 size_t periodicNodeID(0);
-//                size_t periodicLoopID(0);
+                //                size_t periodicLoopID(0);
                 while(density<targetPeriodicLoopDensity)
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -823,13 +821,13 @@ namespace model
                     const int rSS=distribution(generator); // a random SlipSystem
                     const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
                     const VectorDimD b(slipSystem.s.cartesian());
-
+                    
                     std::normal_distribution<double> sizeDistribution(periodicLoopRadiusMean/poly.b_SI,periodicLoopRadiusStd/poly.b_SI);
                     const double radius(sizeDistribution(generator));
-
-//                    std::vector<VectorDimD> nodePos;
+                    
+                    //                    std::vector<VectorDimD> nodePos;
                     std::vector<DislocationNodeIO<dim>> periodicNodesIO;
-
+                    
                     for(int k=0;k<periodicLoopSides;++k)
                     {
                         const VectorDimD P(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius);
@@ -837,26 +835,26 @@ namespace model
                         periodicNodeID++;
                     }
                     
-
+                    
                     //                    GlidePlaneKey<3> referencePlaneKey(grainID,P0,slipSystem.n);
-
+                    
                     PeriodicGlidePlaneFactory<dim> pgpf(poly,glidePlaneFactory);
-
                     
-//                    GlidePlaneKey<3> pointsPlaneKey(grainID,P0,slipSystem.n);
-//                    std::shared_ptr<GlidePlane<3>> pointsPlane(glidePlaneFactory.get(pointsPlaneKey));
-////                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
-//                    auto periodicGlidePlane(pgpf.get(*pointsPlane));
-//                    periodicGlidePlane->addPatchesContainingPolygon(periodicNodesIO);
-//
-//                    // Yash: Here decompose periodic loop into individual loops
-//                    
-////                    configIO.periodicLoops().emplace_back(periodicLoopID);
-//                    
-//                    auxIO.setGlidePlaneBoundaries(glidePlaneFactory);
-//                    auxIO.addPeriodicGlidePlane(*periodicGlidePlane);
                     
-//                    periodicLoopID++;
+                    //                    GlidePlaneKey<3> pointsPlaneKey(grainID,P0,slipSystem.n);
+                    //                    std::shared_ptr<GlidePlane<3>> pointsPlane(glidePlaneFactory.get(pointsPlaneKey));
+                    ////                    PeriodicGlidePlane<dim>& pgp(periodicGlidePlaneContainer.emplace_back(glidePlaneFactory,referencePlane->key,b));
+                    //                    auto periodicGlidePlane(pgpf.get(*pointsPlane));
+                    //                    periodicGlidePlane->addPatchesContainingPolygon(periodicNodesIO);
+                    //
+                    //                    // Yash: Here decompose periodic loop into individual loops
+                    //
+                    ////                    configIO.periodicLoops().emplace_back(periodicLoopID);
+                    //
+                    //                    auxIO.setGlidePlaneBoundaries(glidePlaneFactory);
+                    //                    auxIO.addPeriodicGlidePlane(*periodicGlidePlane);
+                    
+                    //                    periodicLoopID++;
                     density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                     std::cout<<"periodicLoop density="<<density<<std::endl;
                 }
@@ -877,17 +875,17 @@ namespace model
                     const LatticeVector<dim> L0=rp.first;
                     const VectorDimD P0(L0.cartesian());
                     const int grainID=rp.second;
-
+                    
                     std::uniform_int_distribution<> planesDistribution(0,poly.grain(grainID).planeNormals().size()-1);
                     const int rSS=planesDistribution(generator); // a random SlipSystem
                     const auto& n(poly.grain(grainID).planeNormals()[rSS]);
                     const VectorDimD unitNormal(n.cartesian().normalized());
                     const VectorDimD b(n.planeSpacing()*unitNormal); // Frank loop is one plane of vanancies/interstitials
-
+                    
                     std::normal_distribution<double> sizeDistribution(frankLoopRadiusMean/poly.b_SI,frankLoopRadiusStd/poly.b_SI);
                     const double radius(sizeDistribution(generator));
                     const VectorDimD R(randomOrthogonalUnitVector(b)*radius);
-
+                    
                     std::vector<VectorDimD> nodePos;
                     for(int k=0;k<frankLoopSides;++k)
                     {
@@ -901,13 +899,13 @@ namespace model
                     }
                 }
             }
-
+            
         }
-
+        
         /**********************************************************************/
         void addEshelbyInclusions()
         {
-
+            
             if(targetInclusionDensities.size())
             {
                 double totalDensity(0.0);
@@ -918,7 +916,7 @@ namespace model
                         totalDensity+=val;
                     }
                 }
-
+                
                 if(totalDensity)
                 {
                     assert(targetInclusionDensities.size()==inclusionsDiameterLognormalDistribution_M.size());
@@ -926,13 +924,13 @@ namespace model
                     assert(targetInclusionDensities.size()==inclusionsDiameterLognormalDistribution_A.size());
                     assert(int(targetInclusionDensities.size())==inclusionsTransformationStrains.rows());
                     assert(int(targetInclusionDensities.size())==inclusionsPatterns.rows());
-
-
+                    
+                    
                     std::cout<<magentaBoldColor<<"Generating Inclusions"<<defaultColor<<std::endl;
-
+                    
                     std::ofstream inclusionsfile("E/E_0.txt");
                     std::deque<std::pair<double,VectorDimD>> existingPrecipitates;
-
+                    
                     size_t inclusionID=0;
                     for(size_t f=0;f<targetInclusionDensities.size();++f)
                     {
@@ -941,16 +939,16 @@ namespace model
                             assert(inclusionsDiameterLognormalDistribution_M[f]>0.0);
                             assert(inclusionsDiameterLognormalDistribution_S[f]>0.0);
                             assert(inclusionsDiameterLognormalDistribution_A[f]>0.0);
-
+                            
                             const VectorDimD currentPattern(inclusionsPatterns.row(f)/poly.b_SI); // normalize to length units
                             const double patternHeigth(currentPattern.norm());
                             const bool applyPattern(patternHeigth>0.0);
                             const VectorDimD patternDir(applyPattern? (currentPattern/patternHeigth).eval() : VectorDimD::Zero());
-
+                            
                             double numberDensity=0.0;
-
+                            
                             std::lognormal_distribution<double> distribution(log(inclusionsDiameterLognormalDistribution_M[f]/inclusionsDiameterLognormalDistribution_A[f]),inclusionsDiameterLognormalDistribution_S[f]);
-
+                            
                             while(numberDensity<targetInclusionDensities[f])
                             {
                                 const double diameter = distribution(generator)*inclusionsDiameterLognormalDistribution_A[f]/poly.b_SI;
@@ -958,7 +956,7 @@ namespace model
                                 std::pair<LatticeVector<dim>,int> pointPair=randomPointInMesh();
                                 VectorDimD P=pointPair.first.cartesian();
                                 const int& grainID(pointPair.second);
-
+                                
                                 if(applyPattern)
                                 {
                                     const VectorDimD globalVector(poly.grain(grainID).C2G*currentPattern);
@@ -967,7 +965,7 @@ namespace model
                                     const VectorDimD O(pointHeigth*globalVector);
                                     P-=(P-O).dot(globalDir)*globalDir;
                                 }
-
+                                
                                 bool isGoodPosition=mesh.searchRegion(grainID,P).first;
                                 for(const auto& pair : existingPrecipitates)
                                 {
@@ -977,7 +975,7 @@ namespace model
                                         break;
                                     }
                                 }
-
+                                
                                 if(isGoodPosition)
                                 {
                                     inclusionsfile<<inclusionID
@@ -986,11 +984,11 @@ namespace model
                                     /*          */<<" "<<inclusionsTransformationStrains.row(f)
                                     /*          */<<" "<<f
                                     /*          */<<"\n";
-
+                                    
                                     numberDensity+=1.0/mesh.volume()/std::pow(poly.b_SI,3);
                                     inclusionID++;
                                     existingPrecipitates.emplace_back(radius,P);
-
+                                    
                                     std::cout<<"inclusions density="<<numberDensity<<std::endl;
                                 }
                             }
@@ -1000,7 +998,7 @@ namespace model
                 }
             }
         }
-
+        
         std::mt19937 generator;
         size_t nodeID;
         size_t snID;
@@ -1011,44 +1009,44 @@ namespace model
         std::deque<VectorDimD> loopBurgers;
         const bool enforceMonotonicHelicity;
         double helicity;
-
+        
     public:
         
         DDconfigIO<3> configIO;
         DDauxIO<dim> auxIO;
-
-
+        
+        
         const bool outputBinary;
-//        const int meshID;
+        //        const int meshID;
         const std::string meshFilename;
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
         Polycrystal<dim> poly;
-         GlidePlaneFactory<dim> glidePlaneFactory;
-
+        GlidePlaneFactory<dim> glidePlaneFactory;
+        
         // Straight Dislocations
         const double targetStraightDislocationDensity;
         const double fractionSessileStraightDislocationDensity;
-
+        
         // Frank-Read sources
         const double targetFrankReadDislocationDensity;
         const double FrankReadSizeMean;
         const double FrankReadSizeStd;
         const double FrankReadAspectRatioMean;
         const double FrankReadAspectRatioStd;
-
+        
         // Single-arm sources
         const double targetSingleArmDislocationDensity;
-
+        
         // Prismatic loops
         const double targetPrismaticLoopDensity;
-
+        
         // Individual dislocations
         const std::vector<int> straightDislocationsSlipSystemIDs;
         const std::vector<double> straightDislocationsAngleFromScrewOrientation;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> pointsAlongStraightDislocations;
-
+        
         // Frank  Loops
         const double targetFrankLoopDensity;
         const double frankLoopRadiusMean;
@@ -1069,7 +1067,7 @@ namespace model
         
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
-//        const double averageLoopSize;
+        //        const double averageLoopSize;
         const double irradiationLoopsDiameterLognormalDistribution_M;
         const double irradiationLoopsDiameterLognormalDistribution_S;
         const double irradiationLoopsDiameterLognormalDistribution_A;
@@ -1079,10 +1077,18 @@ namespace model
         const double PrismaticLoopSizeStd;
         const double BasalLoopSizeMean;
         const double BasalLoopSizeStd;
-
+        
         // SFTs
         const double targetSFTdensity;
-
+        const double sftSizeMean;
+        const double sftSizeStd;
+        
+        const std::vector<int> sftPlaneIDs;
+        const std::vector<int> sftIsInverted;
+        const std::vector<double> sftSizes;
+        const Eigen::Matrix<double,Eigen::Dynamic,dim> sftBasePoints;
+        
+        
         // Inclusions
         const std::vector<double> targetInclusionDensities;
         const std::vector<double> inclusionsDiameterLognormalDistribution_M;
@@ -1091,7 +1097,7 @@ namespace model
         const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsTransformationStrains;
         const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsPatterns;
         //        const std::vector<double> inclusionsMobilityReduction;
-
+        
         bool isInclusionsUsed() const
         {
             bool temp(false);
@@ -1115,7 +1121,7 @@ namespace model
         /* init*/,enforceMonotonicHelicity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("enforceMonotonicHelicity",true))
         /* init*/,helicity(0.0)
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
-//        /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
+        //        /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
         /* init*/,meshFilename(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
         /* init*/,mesh(meshFilename)
         /* init*/,minSize(0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
@@ -1167,6 +1173,13 @@ namespace model
         /* init*/,BasalLoopSizeStd(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("BasalLoopSizeStd",true) : 0.0)
         /* SFTs */
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
+        /* init*/,sftSizeMean(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("sftSizeMean",true))
+        /* init*/,sftSizeStd(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("sftSizeStd",true))
+        /* individual SFTs */
+        /* init*/,sftPlaneIDs(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<int>("sftPlaneIDs",true))
+        /* init*/,sftIsInverted(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<int>("sftIsInverted",true))
+        /* init*/,sftSizes(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("sftSizes",true))
+        /* init*/,sftBasePoints(TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("sftBasePoints",sftPlaneIDs.size(),dim,true))
         /* Inclusions */
         /* init*/,targetInclusionDensities(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("targetInclusionDensities",true))
         /* init*/,inclusionsDiameterLognormalDistribution_M(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsDiameterLognormalDistribution_M",true) : std::vector<double>())
@@ -1176,9 +1189,9 @@ namespace model
         /* init*/,inclusionsPatterns(isInclusionsUsed()? TextFileParser("./inputFiles/initialMicrostructure.txt").readMatrix<double>("inclusionsPatterns",targetInclusionDensities.size(),dim,true) : Eigen::Matrix<double,Eigen::Dynamic,dim>::Zero(1,dim))
         //        /* init*/,inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true))
         {
-
             
-
+            
+            
             
             // Some sanity checks
             if(mesh.volume()==0.0)
@@ -1186,7 +1199,7 @@ namespace model
                 std::cout<<"mesh "<<meshFilename<<" is empty. MicrostructureGenerator cannot run. EXITING."<<std::endl;
                 exit(EXIT_FAILURE);
             }
-
+            
             std::cout<<greenBoldColor<<"Generating initial microstructure"<<defaultColor<<std::endl;
             // Call individual generators
             addStraightDislocations();
@@ -1199,6 +1212,7 @@ namespace model
             addPeriodicLoops();
             addIrradiationLoops();
             addStackingFaultTetrahedra();
+            addIndividualStackingFaultTetrahedra();
             addEshelbyInclusions();
             writeConfigFiles(0);
             
@@ -1207,7 +1221,7 @@ namespace model
         /**********************************************************************/
         void writeConfigFiles(const size_t& fileID)
         {
-
+            
             auxIO.setGlidePlaneBoundaries(glidePlaneFactory); // change this function to take a GlidePlaneFactory during write
             
             if(outputBinary)
@@ -1223,93 +1237,187 @@ namespace model
                 auxIO.writeTxt(fileID);
             }
         }
-
+        
+        /**********************************************************************/
+        void addIndividualStackingFaultTetrahedra()
+        {
+            if(sftPlaneIDs.size())
+            {
+                std::cout<<magentaBoldColor<<"Generating individual Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
+                if(int(sftPlaneIDs.size())!=sftBasePoints.rows())
+                {
+                    std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+                    std::cout<<"sftBasePoints.rows()="<<sftBasePoints.rows()<<std::endl;
+                    std::cout<<"You must provide one point for each SFT. Each point is a row of the matrix sftBasePoints. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                
+                if(sftPlaneIDs.size()!=sftSizes.size())
+                {
+                    std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+                    std::cout<<"sftSizes.size()="<<sftSizes.size()<<std::endl;
+                    std::cout<<"You must provide one size for each SFT. Each size is an element of the vector sftSizes. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                
+                if(sftPlaneIDs.size()!=sftIsInverted.size())
+                {
+                    std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+                    std::cout<<"sftIsInverted()="<<sftSizes.size()<<std::endl;
+                    std::cout<<"You must provide one boolean value of sftIsInverted for each SFT. Each value is an element of the vector sftIsInverted. EXITING."<<std::endl;
+                    exit(EXIT_FAILURE);
+                }
+                
+                int generated(0);
+                for(size_t k=0;k<sftPlaneIDs.size();++k)
+                {
+                    const int& rSS(sftPlaneIDs[k]);
+                    
+                    
+                    if(rSS>=0)
+                    {
+                        // Get grain
+                        std::pair<bool,const Simplex<dim,dim>*> found=mesh.search(sftBasePoints.row(k));
+                        if(!found.first)
+                        {
+                            std::cout<<"Point "<<sftBasePoints.row(k)<<" is outside mesh. EXITING."<<std::endl;
+                            exit(EXIT_FAILURE);
+                        }
+                        const int grainID=found.second->region->regionID;
+                        
+                        // Get slip system
+                        if(rSS>=int(poly.grain(grainID).planeNormals().size()))
+                        {
+                            std::cout<<"requested planeNormal ID="<<rSS<<std::endl;
+                            std::cout<<"# of plane normals ="<<poly.grain(grainID).planeNormals().size()<<std::endl;
+                            std::cout<<"Requested planeNormal does not exist. EXITING."<<std::endl;
+                            exit(EXIT_FAILURE);
+                        }
+//                        const auto& planeNormal(poly.grain(grainID).planeNormals()[rSS]);
+                        
+                        const auto basePlane(sftIsInverted[k]? LatticePlaneBase(poly.grain(grainID).planeNormals()[rSS].primitiveVectors.second*(-1),poly.grain(grainID).planeNormals()[rSS].primitiveVectors.first*(-1)) : poly.grain(grainID).planeNormals()[rSS]);
+                        const auto unitNormal(basePlane.cartesian().normalized());
+                        const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(basePlane,sftBasePoints.row(k));
+                        const VectorDimD basePoint(sftBasePoints.row(k).transpose()-sftBasePoints.row(k).transpose().dot(unitNormal)*unitNormal+unitNormal*basePlane.planeSpacing()*heightPair.second);
+                        generated+=addSingleStackingFaultTetrahedron(grainID,basePlane,basePoint,std::round(sftSizes[k]/poly.b_SI));
+                        std::cout<<"# individual SFTs="<<generated<<std::endl;
+                    }
+                    else
+                    {
+                        std::cout<<"negative slip system ID. Skipping entries."<<std::endl;
+                    }
+                }
+            }
+        }
+        
+        /**********************************************************************/
+        bool addSingleStackingFaultTetrahedron(const int& grainID,const LatticePlaneBase& basePlane,const VectorDimD& tentativeBasePoint,const int& Li)
+        {
+            if(Li>1)
+            {
+                const VectorDimD unitNormal(basePlane.cartesian().normalized());
+                std::vector<VectorDimD> nodePos;
+                const auto faceBaryShift((basePlane.primitiveVectors.first+basePlane.primitiveVectors.second).cartesian()*Li/3.0);
+                const VectorDimD corner(poly.grain(grainID).snapToLattice(tentativeBasePoint-faceBaryShift).cartesian());
+                nodePos.push_back(corner);
+                nodePos.push_back(corner+basePlane.primitiveVectors.first.cartesian()*Li);
+                nodePos.push_back(corner+basePlane.primitiveVectors.second.cartesian()*Li);
+                nodePos.push_back((nodePos[0]+nodePos[1]+nodePos[2])/3.0-unitNormal*Li*sqrt(2.0/3.0));
+                
+                if(allPointsInGrain(nodePos,grainID))
+                {
+                    
+                    configIO.nodes().emplace_back(nodeID+0,nodePos[0],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0); // base point   0
+                    configIO.nodes().emplace_back(nodeID+1,nodePos[1],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0); // base point   1
+                    configIO.nodes().emplace_back(nodeID+2,nodePos[2],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0); // base point   2
+                    configIO.nodes().emplace_back(nodeID+3,nodePos[3],Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0); // vertex point 3
+                    
+                    // base loop 0->1->2 (the Frank loop)
+                    const VectorDimD b012(basePlane.interplaneVector()); // Frank loops are platelets of vanancies
+                    configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+1,0);
+                    configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+2,0);
+                    configIO.links().emplace_back(loopID+0,nodeID+2,nodeID+0,0);
+                    configIO.loops().emplace_back(loopID+0,b012,unitNormal,nodePos[0],grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero());
+                    
+                    // loop 1->3->2
+                    const VectorDimD b132((0.5*(nodePos[1]+nodePos[2])-nodePos[3]).normalized()*sqrt(3.0)/3.0);
+                    configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+3,0);
+                    configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+2,0);
+                    configIO.links().emplace_back(loopID+1,nodeID+2,nodeID+1,0);
+                    configIO.loops().emplace_back(loopID+1,b132,(nodePos[3]-nodePos[1]).cross(nodePos[2]-nodePos[3]).normalized(),nodePos[1],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                    
+                    // loop 2->3->0
+                    const VectorDimD b230((0.5*(nodePos[2]+nodePos[0])-nodePos[3]).normalized()*sqrt(3.0)/3.0);
+                    configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+3,0);
+                    configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+0,0);
+                    configIO.links().emplace_back(loopID+2,nodeID+0,nodeID+2,0);
+                    configIO.loops().emplace_back(loopID+2,b230,(nodePos[3]-nodePos[2]).cross(nodePos[0]-nodePos[3]).normalized(),nodePos[2],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                    
+                    // loop 0->3->1
+                    const VectorDimD b031((0.5*(nodePos[0]+nodePos[1])-nodePos[3]).normalized()*sqrt(3.0)/3.0);
+                    configIO.links().emplace_back(loopID+3,nodeID+0,nodeID+3,0);
+                    configIO.links().emplace_back(loopID+3,nodeID+3,nodeID+1,0);
+                    configIO.links().emplace_back(loopID+3,nodeID+1,nodeID+0,0);
+                    configIO.loops().emplace_back(loopID+3,b031,(nodePos[3]-nodePos[0]).cross(nodePos[1]-nodePos[3]).normalized(),nodePos[0],grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
+                    
+                    
+                    snID++;
+                    loopID+=4;
+                    nodeID+=4;
+                    return true;
+                }
+            }
+            return false;
+            
+        }
+        
+        
         /**********************************************************************/
         void addStackingFaultTetrahedra()
         {
-
+            
             if(targetSFTdensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
-
-
+                
                 if(poly.crystalStructure=="FCC")
                 {
                     size_t ndefects=0;
                     double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-
-                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
-                    const int& grainID=rp.second;   // random grain ID
-                    const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
-
-
-                    LatticeVector<3> a1(VectorDimI(1,0,0),poly.grain(grainID)); // [011]
-                    LatticeVector<3> a2(VectorDimI(0,1,0),poly.grain(grainID)); // [101]
-                    LatticeVector<3> a3(VectorDimI(0,0,1),poly.grain(grainID)); // [110]
-                    LatticeVector<3> a12(a2-a1); // [1-10]
-                    LatticeVector<3> a23(a3-a2); // [01-1]
-                    LatticeVector<3> a31(a1-a3); // [-101]
-
-                    int Li=100;
-                    const VectorDimD P0(L0.cartesian());
-                    const VectorDimD P1(P0+a1.cartesian()*Li);
-                    const VectorDimD P2(P0+a2.cartesian()*Li);
-                    const VectorDimD P3(P0+a3.cartesian()*Li);
-
-                    if(   mesh.searchRegion(grainID,P1).first
-                       && mesh.searchRegion(grainID,P1).first
-                       && mesh.searchRegion(grainID,P2).first)
+                    
+                    while(defectsDensity<targetSFTdensity)
                     {
+                        const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                        const int& grainID=rp.second;   // random grain ID
+                        const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                         
-                        assert(false && "FINISH IMPLEMENTATION< CHECK ALL BURGERS VECTORS");
+                        std::uniform_int_distribution<> planeNormalDistribution(0,poly.grain(grainID).planeNormals().size()-1);
+                        const int rSS=planeNormalDistribution(generator); // a random SlipSystem ID
                         
-                        VectorDimD b=L0.cartesian();
-
-                        configIO.nodes().emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        configIO.nodes().emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-                        configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
-
-                        configIO.links().emplace_back(loopID+0,nodeID+0,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+0,nodeID+2,nodeID+1,0);
-                        configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
-                        configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+1,0);
-                        configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+1,nodeID+3,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
-                        configIO.links().emplace_back(loopID+2,nodeID+0,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+2,nodeID+3,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+2,nodeID+2,nodeID+0,0);
-                        configIO.loops().emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
-                        configIO.links().emplace_back(loopID+3,nodeID+1,nodeID+2,0);
-                        configIO.links().emplace_back(loopID+3,nodeID+2,nodeID+3,0);
-                        configIO.links().emplace_back(loopID+3,nodeID+3,nodeID+1,0);
-                        configIO.loops().emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,-1,VectorDimD::Zero());
-
-
-                        snID++;
-                        loopID+=4;
-                        nodeID+=4;
-                        ndefects++;
+                        std::uniform_int_distribution<> invertedThompsonTetrahedronDistribution(0,1);
+                        const bool invertedSFT(invertedThompsonTetrahedronDistribution(generator));
+                        const auto basePlane(invertedSFT? LatticePlaneBase(poly.grain(grainID).planeNormals()[rSS].primitiveVectors.second*(-1),poly.grain(grainID).planeNormals()[rSS].primitiveVectors.first*(-1)) : poly.grain(grainID).planeNormals()[rSS]);
+//
+//
+//                        const LatticePlaneBase& basePlane(poly.grain(grainID).planeNormals()[rSS]);
+                        
+                        std::normal_distribution<double> sftSizeDistribution(sftSizeMean,sftSizeStd);
+                        
+                        const int Li(std::round(sftSizeDistribution(generator)/poly.b_SI));
+                        
+                        ndefects+=addSingleStackingFaultTetrahedron(grainID,basePlane,L0.cartesian(),Li);
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
                         std::cout<<"SFT density="<<defectsDensity<<std::endl;
-
-
                     }
-
                 }
                 else
                 {
                     std::cout<<"SFTs can only be generated for FCC crystals"<<std::endl;
                 }
             }
-
+            
         }
-
+        
         /**********************************************************************/
         bool allPointsInGrain(const std::vector<VectorDimD>& points,const int& grainID)
         {
@@ -1324,14 +1432,14 @@ namespace model
             }
             return temp;
         }
-
+        
         /**********************************************************************/
         void addIrradiationLoopsFCC()
         {// Irradiation loops in FCC are Frank loops
-
+            
             const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
             std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
-
+            
             size_t ndefects=0;
             double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
             while(defectsDensity<targetIrradiationLoopDensity)
@@ -1346,11 +1454,11 @@ namespace model
                 const auto& n(poly.grain(grainID).planeNormals()[rSS]); // a random {111} plane
                 const VectorDimD unitNormal(n.cartesian().normalized());
                 const VectorDimD b(n.planeSpacing()*unitNormal); // Frank loops are plateletslane of vanancies/interstitials
-
+                
                 const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
                 const double radius(0.5*diameter_SI/poly.b_SI);
                 const VectorDimD R(randomOrthogonalUnitVector(b)*radius);
-
+                
                 std::vector<VectorDimD> nodePos;
                 for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
                 {
@@ -1365,7 +1473,7 @@ namespace model
                 }
             }
         }
-
+        
         /**********************************************************************/
         void addIrradiationLoopsHCP()
         {// Irradiation loops in HCP are prismatic+basal loops
@@ -1528,68 +1636,68 @@ namespace model
             }
         }
         
-//        /**********************************************************************/
-//        void addIrradiationLoopsHCP()
-//        {// Irradiation loops in FCC are Frank loops.
-//         // TO DO: actaully Frank loops can be unfaulted and become prismatic (exagonal) loops bounded by pairs of {111} planes and {001} planes. See P. B. Hirsch , J. Silcox , R. E. Smallman & K. H. Westmacott
-//
-//            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
-//            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
-//
-//            size_t ndefects=0;
-//            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-//            while(defectsDensity<targetIrradiationLoopDensity)
-//            {
-//                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
-//                const int& grainID=rp.second;   // random grain ID
-//                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
-//                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-//
-//                std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
-//                const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
-//                const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-//
-//                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
-//                const double radius(0.5*diameter_SI/poly.b_SI);
-//                const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
-//
-//
-//                std::vector<VectorDimD> nodePos;
-//                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
-//                {
-//                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
-//                }
-//
-//                const double planeSpacing(slipSystem.n.planeSpacing());
-//                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON)
-//                {// prismatic plane spacing
-//                    const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
-//                    const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
-//                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
-//                    {
-//                        ndefects++;
-//                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-//                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
-//                    }
-//                }
-//                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
-//                {// basal plane spacing
-//                    const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
-//                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
-//                    {
-//                        ndefects++;
-//                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-//                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
-//                    }
-//                }
-//                else
-//                {
-//
-//                }
-//            }
-//        }
+        //        /**********************************************************************/
+        //        void addIrradiationLoopsHCP()
+        //        {// Irradiation loops in FCC are Frank loops.
+        //         // TO DO: actaully Frank loops can be unfaulted and become prismatic (exagonal) loops bounded by pairs of {111} planes and {001} planes. See P. B. Hirsch , J. Silcox , R. E. Smallman & K. H. Westmacott
+        //
+        //            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
+        //            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+        //
+        //            size_t ndefects=0;
+        //            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+        //            while(defectsDensity<targetIrradiationLoopDensity)
+        //            {
+        //                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+        //                const int& grainID=rp.second;   // random grain ID
+        //                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+        //                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+        //
+        //                std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
+        //                const int rSS=slipSystemDistribution(generator); // a random SlipSystem ID
+        //                const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+        //
+        //                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
+        //                const double radius(0.5*diameter_SI/poly.b_SI);
+        //                const VectorDimD R(slipSystem.s.cartesian().normalized()*radius);
+        //
+        //
+        //                std::vector<VectorDimD> nodePos;
+        //                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
+        //                {
+        //                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, slipSystem.unitNormal)*R);
+        //                }
+        //
+        //                const double planeSpacing(slipSystem.n.planeSpacing());
+        //                if(fabs(planeSpacing-sqrt(3.0)/2.0)<FLT_EPSILON)
+        //                {// prismatic plane spacing
+        //                    const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
+        //                    const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
+        //                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+        //                    {
+        //                        ndefects++;
+        //                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+        //                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+        //                    }
+        //                }
+        //                else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
+        //                {// basal plane spacing
+        //                    const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
+        //                    if(addSingleLoop(true,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,-1,VectorDimD::Zero()))
+        //                    {
+        //                        ndefects++;
+        //                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
+        //                        std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
+        //                    }
+        //                }
+        //                else
+        //                {
+        //
+        //                }
+        //            }
+        //        }
         
-
+        
         /**********************************************************************/
         void addIrradiationLoopsBCC()
         {
@@ -1735,7 +1843,7 @@ namespace model
             if(targetIrradiationLoopDensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
-
+                
                 if(poly.crystalStructure=="BCC")
                 {
                     addIrradiationLoopsBCC();
@@ -1752,67 +1860,67 @@ namespace model
                 {
                     std::cout<<"irradiation loops supported for FCC/BCC/HEX crystals only"<<std::endl;
                 }
-
+                
             }
         }
-
+        
         /**********************************************************************/
         double deltaHelicity(const std::vector<VectorDimD>& newPoints,
                              const VectorDimD& newBurgers) const
         {
-
+            
             double h(0.0);
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
                 h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
-
+            
             return h;
         }
-
+        
         /**********************************************************************/
         std::pair<LatticeVector<dim>,int> randomPointInMesh() const
         {
             return poly.randomLatticePointInMesh();
         }
-
+        
         /**********************************************************************/
         double randomSize()
         {
             std::uniform_real_distribution<double> dist(minSize,maxSize);
             return dist(generator);
         }
-
+        
         /**********************************************************************/
         int randomSign()
         {
             std::uniform_int_distribution<> dis(0,1);
             return  dis(generator)*2-1;
         }
-
+        
         /**********************************************************************/
         static std::map<double,VectorDimD> boundaryProjection(const VectorDimD& P0,
                                                               const VectorDimD& P1,
                                                               const VectorDimD& D,
-//                                                              const PlaneMeshIntersectionContainerType& pp
+                                                              //                                                              const PlaneMeshIntersectionContainerType& pp
                                                               const MeshBoundaryContainerType& pp)
         {
-
-
-
+            
+            
+            
             const double dNorm(D.norm());
             assert(dNorm>FLT_EPSILON);
             const VectorDimD dir=D/dNorm;
             // Let a point v on the boundary be written as v=P0+u1*(P1-P0)+u2*d
             // then we have [P1-P0 d]*[u1 u2]^T=v-P0
-
+            
             Eigen::Matrix<double,3,2> A;
             A.col(0)=P1-P0;
             A.col(1)=dir;
             const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
             assert(llt.info()==Eigen::Success);
-
+            
             std::map<double,VectorDimD> temp; // keep points sorted by parameter u1
             for(size_t m=0;m<pp.size();++m)
             {
@@ -1821,61 +1929,61 @@ namespace model
                 {
                     temp.emplace(x(0),pp[m]->P0);
                 }
-
+                
                 const Eigen::Matrix<double,2,1> y=llt.solve(A.transpose()*(pp[m]->P1-P0));
                 if(y(0)>FLT_EPSILON && y(0)<1.0-FLT_EPSILON && y(1)>FLT_EPSILON)
                 {
                     temp.emplace(y(0),pp[m]->P1);
                 }
-
+                
             }
-
+            
             return temp;
-
-
+            
+            
         }
-
+        
         /**********************************************************************/
         static std::pair<int,VectorDimD> boundaryProjection(const VectorDimD& P,
                                                             const VectorDimD& D,
-//                                                            const PlaneMeshIntersectionContainerType& pp,
+                                                            //                                                            const PlaneMeshIntersectionContainerType& pp,
                                                             const MeshBoundaryContainerType& pp)
         {
             const double dNorm(D.norm());
             assert(dNorm>FLT_EPSILON);
             const VectorDimD dir=D/dNorm;
             // line1 is P+u1*dir, u>0
-
+            
             bool success=false;
             std::pair<int,VectorDimD> temp=std::make_pair(-1,VectorDimD::Zero());
-
+            
             for(size_t k=0;k<pp.size();++k)
             {
-//                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
+                //                const size_t k1 = ((k==(pp.size()-1))? 0 : k+1);
                 const VectorDimD& v0=pp[k]->P0;
                 const VectorDimD& v1=pp[k]->P1;
                 // line2 is v0+u2*(v1-v0), 0<=u2<=1
-
+                
                 //P+u1*dir=v0+u2*(v1-v0)
                 // [dir -(v1-v0)] [u1 u2] = [v0-P]
                 // In least square sense
                 // [dir -(v1-v0)]^T*[dir -(v1-v0)]* [u1 u2] = [v0-P]
-
+                
                 Eigen::Matrix<double,3,2> A;
                 A.col(0)=dir;
                 A.col(1)=-(v1-v0);
-
+                
                 const Eigen::Matrix<double,3,1> b=v0-P;
-
+                
                 const Eigen::LLT<Eigen::Matrix<double,2,2>> llt(A.transpose()*A);
                 //                std::cout<<"DO NOT USE LLT TO SEE IF SYSTEM HAS SOLUTION. See https://eigen.tuxfamily.org/dox/classEigen_1_1LDLT.html#a858dc77b65dd48248299bb6a6a758abf"<<std::endl;
-
-
+                
+                
                 if(llt.info()==Eigen::Success)
                 {
-
+                    
                     const Eigen::Matrix<double,2,1> x=llt.solve(A.transpose()*b);
-
+                    
                     if(x(0)>=0.0 && x(1)>=0.0 && x(1)<=1.0)
                     {
                         success=true;
@@ -1883,16 +1991,16 @@ namespace model
                         break;
                     }
                 }
-
+                
             }
-
+            
             assert(success);
             return temp;
         }
-
-
-
+        
+        
+        
     };
-
+    
 }
 #endif

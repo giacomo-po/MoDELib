@@ -6,6 +6,7 @@ useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
+enablePartials=1;
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
@@ -62,7 +63,7 @@ outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
-computeElasticEnergyPerLength=1;
+computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -76,8 +77,8 @@ coreSize=2.0;
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
-Lmin=0.025;
-Lmax=0.080;
+Lmin=0.02;
+Lmax=0.08;
 nodeRemoveAngleDeg=10;
 
 ######################################

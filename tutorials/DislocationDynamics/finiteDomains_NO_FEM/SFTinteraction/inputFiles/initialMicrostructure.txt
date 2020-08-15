@@ -25,10 +25,10 @@ targetPrismaticLoopDensity=0e13;
 
 #######################################
 # Individual straight dislocations
-straightDislocationsSlipSystemIDs=0 3 -1 -1;
+straightDislocationsSlipSystemIDs=0 2 -1 -1;
 straightDislocationsAngleFromScrewOrientation=-30.0 30.0 0.0 0.0;
-pointsAlongStraightDislocations=0.0 -1.0 50.0
-                                0.0  1.0 50.0
+pointsAlongStraightDislocations=0.0 -2.0 50.0
+                                0.0  2.0 50.0
 								0.0 0.0 51.0
 								0.0 0.0 49.0;
 				
@@ -83,4 +83,14 @@ inclusionsMobilityReduction=1.0 1.0;
 
 #######################################
 # Stacking Fault Tetrahedra
-targetSFTdensity=0e19;
+targetSFTdensity=0e24;
+sftSizeMean=2.5e-09;
+sftSizeStd=1e-9;     
+
+#######################################
+# Individual Stacking Fault Tetrahedra
+sftPlaneIDs=-1 0; #[-] planeID of the SFTs basal planes (planes of Frank loop). Use -1 to disable
+sftIsInverted=0 0; #[-] 0 = "positive" Thompson tetrahedron, 1 = "negative" Thompson tetrahedron
+sftSizes=2.5e-09 2.5e-09; #[m] side length of the SFTs. One value for each SFT
+sftBasePoints=0.0  10.0 47.0
+              0.0  10.0 53.0; #[m] centroid of the SFTs basal planes. One row for each SFT

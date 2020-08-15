@@ -1,6 +1,5 @@
 materialName=Zr;
 crystalStructure=HEX;
-enablePartials=1;
 b_SI=0.3233e-9; #0.3615e-9; # [m] 		Burgers vector magnitude 
 mu0_SI=33e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
