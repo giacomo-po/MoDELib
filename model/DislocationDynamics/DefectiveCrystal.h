@@ -135,7 +135,7 @@ namespace model
             {
                 if (!(runID%bvpSolver->stepsBetweenBVPupdates))
                 {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
-                    model::cout<<"		Updating elastic bvp... "<<std::endl;
+//                    model::cout<<"		Updating BVPs... "<<std::endl;
                     bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*DN, isClimbStep);
                 }
             }
@@ -147,17 +147,16 @@ namespace model
         
     public:
         
-        
         /**********************************************************************/
         DefectiveCrystal(int& argc, char* argv[]) :
         /* init */ simulationParameters(argc,argv)
-        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
+        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose())
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
         /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
         //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
-        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)
+        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(*DN) : nullptr)
         /* init */,externalLoadController(getExternalLoadController(simulationParameters,*this,simulationParameters.runID))
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
@@ -166,6 +165,7 @@ namespace model
             if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
                || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
             {
+                assert(false && "PERIODIC SIMULATIONS ONLY AVAILABLE in MoDELib 2");
                 assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
                 
                 for(const auto& rIter : mesh.regions())

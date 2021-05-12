@@ -16,11 +16,11 @@ namespace model
     
  
     /******************************************************************************/
-    template <typename ElementType,int rows,int cols>
+    template <int dim,int rows,int cols>
     struct FEMbaseEvaluation : public Eigen::Matrix<double,rows,cols>
     {
         
-        typedef Eigen::Matrix<double,ElementType::dim,1> VectorDim;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         const VectorDim P;
         

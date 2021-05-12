@@ -611,40 +611,40 @@ namespace model
         void outputFiles(const size_t& runID) const
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           */
-            model::cout<<"		";
+//            model::cout<<"		";
             configIO().write(runID,DN.outputBinary);
-            model::cout<<"        ";
+//            model::cout<<"        ";
             auxIO().write(runID,DN.outputBinary);
 
-            if(DN.outputElasticEnergy)
-            {
-                //                this->template computeNeighborField<ElasticEnergy>();
-                
-                assert(0 && "RE-IMPLEMENT THIS FOR STRAIGHT SEGMENTS");
-                //
-                //                
-                //                if(outputElasticEnergy)
-                //                {
-                //                    //                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
-                //                }
-                
-                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
-                //                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
-                //                SequentialOutputFile<'W',1>::set_count(runID);
-                //                SequentialOutputFile<'W',1>::set_increment(DN.outputFrequency);
-                //                SequentialOutputFile<'W',1> w_file; //energy_file
-                //                int ll=0;
-                //                for (const auto& linkIter : DN.links())
-                //                {
-                //                    const int qOrder(linkIter.second->rgauss.cols());
-                //                    for (size_t q=0;q<linkIter.second->quadratureParticleContainer.size();++q)
-                //                    {
-                //                        w_file << ll*qOrder+q<<" "<< linkIter.second->rgauss.col(q).transpose()<<" "<< linkIter.second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
-                //                    }
-                //                    ll++;
-                //                }
-                //                model::cout<<", W/W_"<<w_file.sID<<std::flush;
-            }
+//            if(DN.outputElasticEnergy)
+//            {
+//                //                this->template computeNeighborField<ElasticEnergy>();
+//                
+//                assert(0 && "RE-IMPLEMENT THIS FOR STRAIGHT SEGMENTS");
+//                //
+//                //                
+//                //                if(outputElasticEnergy)
+//                //                {
+//                //                    //                typedef typename DislocationParticleType::ElasticEnergy ElasticEnergy;
+//                //                }
+//                
+//                assert(0 && "FINISH BINARY OUTPUT OF QUADRATURE POINTS");
+//                //                typedef typename DislocationNetworkType::DislocationParticleType::ElasticEnergy ElasticEnergy;
+//                //                SequentialOutputFile<'W',1>::set_count(runID);
+//                //                SequentialOutputFile<'W',1>::set_increment(DN.outputFrequency);
+//                //                SequentialOutputFile<'W',1> w_file; //energy_file
+//                //                int ll=0;
+//                //                for (const auto& linkIter : DN.links())
+//                //                {
+//                //                    const int qOrder(linkIter.second->rgauss.cols());
+//                //                    for (size_t q=0;q<linkIter.second->quadratureParticleContainer.size();++q)
+//                //                    {
+//                //                        w_file << ll*qOrder+q<<" "<< linkIter.second->rgauss.col(q).transpose()<<" "<< linkIter.second->quadratureParticleContainer[q]->template field<ElasticEnergy>()<<"\n";
+//                //                    }
+//                //                    ll++;
+//                //                }
+//                //                model::cout<<", W/W_"<<w_file.sID<<std::flush;
+//            }
             
             //            typedef BoundaryDisplacementPoint<DislocationNetworkType> FieldPointType;
             //            typedef typename FieldPointType::DisplacementField DisplacementField;
@@ -712,27 +712,27 @@ namespace model
                 model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
-            if (DN.bvpSolver && DN.outputFEMsolution )
-            {
-                if(!(runID%DN.bvpSolver->stepsBetweenBVPupdates))
-                {// Output displacement and stress on external mesh faces
-                    const auto t0=std::chrono::system_clock::now();
-                    model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                    model::SequentialOutputFile<'U',true> u_file;
-                    model::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
-                    u_file<<DN.bvpSolver->displacement().onBoundary();
-                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-                    
-                    const auto t1=std::chrono::system_clock::now();
-                    model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
-                    model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
-                    model::SequentialOutputFile<'S',true> s_file;
-                    model::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
-                    s_file<<DN.bvpSolver->stress().onBoundary();
-                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
-                }
-            }
+//            if (DN.bvpSolver && DN.outputFEMsolution )
+//            {
+//                if(!(runID%DN.bvpSolver->stepsBetweenBVPupdates))
+//                {// Output displacement and stress on external mesh faces
+//                    const auto t0=std::chrono::system_clock::now();
+//                    model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+//                    model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
+//                    model::SequentialOutputFile<'U',true> u_file;
+//                    model::cout<<"        writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
+//                    u_file<<DN.bvpSolver->displacement().onBoundary();
+//                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//                    
+//                    const auto t1=std::chrono::system_clock::now();
+//                    model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+//                    model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
+//                    model::SequentialOutputFile<'S',true> s_file;
+//                    model::cout<<"        writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
+//                    s_file<<DN.bvpSolver->stress().onBoundary();
+//                    model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+//                }
+//            }
             
 
             
@@ -748,7 +748,7 @@ namespace model
             
             // Output to F file
             UniqueOutputFile<'F'> f_file;
-            model::cout<<" F/F_0.txt"<<std::flush;
+            model::cout<<"Writing F/F_0.txt"<<std::flush;
             
 //            std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
             std::ofstream F_labels;
@@ -771,7 +771,7 @@ namespace model
             //            if(DN.outputPlasticDistortion)
             //            {
             const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
-            f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
+            f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" "<<pD.trace()<<" ";
             if(runID==0)
             {
                 F_labels<<"betaP_11\n";
@@ -783,14 +783,13 @@ namespace model
                 F_labels<<"betaP_31\n";
                 F_labels<<"betaP_32\n";
                 F_labels<<"betaP_33\n";
-                //                    labelCol+=9;
+                F_labels<<"trace(betaP)\n";
             }
-            //            }
             
             if(DN.outputPlasticDistortionRate)
             {
                 const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
-                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
+                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" "<<pDR.trace()<<" ";
                 if(runID==0)
                 {
                     F_labels<<"dotBetaP_11 [cs/b]\n";
@@ -802,24 +801,47 @@ namespace model
                     F_labels<<"dotBetaP_31 [cs/b]\n";
                     F_labels<<"dotBetaP_32 [cs/b]\n";
                     F_labels<<"dotBetaP_33 [cs/b]\n";
-                    //                    labelCol+=9;
+                    F_labels<<"trace(dotBetaP) [cs/b]\n";
                 }
             }
             
             if(DN.outputDislocationLength)
             {
-                const std::tuple<double,double,double,double> length=DN.networkLength();
+                const std::tuple<double,double,double,double,std::vector<double>> length=DN.networkLength();
                 f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" "<<std::get<3>(length)<<" ";
+                for(size_t k=0;k<std::get<4>(length).size();++k)
+                {
+                    f_file<<std::get<4>(length)[k]<<" ";
+                }
                 if(runID==0)
                 {
                     F_labels<<"glissile length [b]\n";
                     F_labels<<"sessile length [b]\n";
                     F_labels<<"boundary length [b]\n";
                     F_labels<<"grain boundary length [b]\n";
-                    //                    labelCol+=4;
+                    for(size_t k=0;k<std::get<4>(length).size();++k)
+                    {
+                        F_labels<<"SlipSystem "<<k<<" length [b]\n";
+                    }
                 }
             }
             
+            if(DN.outputSlipSystemStrain)
+            {
+                const std::vector<double> strains(DN.slipSystemStrains());
+                for(const auto& strain : strains)
+                {
+                    f_file<<strain<<" ";
+                }
+                if(runID==0)
+                {
+                    for(size_t k=0;k<strains.size();++k)
+                    {
+                        F_labels<<"SlipSystem "<<k<<" strain [-]\n";
+                    }
+                }
+            }
+                        
             if(DN.computeElasticEnergyPerLength)
             {
                 double eE(0.0);

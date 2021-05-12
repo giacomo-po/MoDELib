@@ -56,7 +56,8 @@ namespace model
     /**************************************************************************/
     template <typename Derived>
     class PlanarDislocationSegment : public SplineSegment<Derived,TypeTraits<Derived>::dim,TypeTraits<Derived>::corder>
-    /*                            */,public ConfinedDislocationObject<TypeTraits<Derived>::dim>
+//    /*                            */,public ConfinedDislocationObject<TypeTraits<Derived>::dim>
+    /*                            */,public ConfinedDislocationObject<Derived>
     //    /*                            */,private std::set<const GlidePlane<TypeTraits<Derived>::dim>*>
     ////    /*                      */,private std::set<const GrainBoundary<TypeTraits<Derived>::dim>*>
     //    /*                            */,private std::set<const Grain<TypeTraits<Derived>::dim>*>
@@ -70,7 +71,7 @@ namespace model
         static constexpr int dim=TypeTraits<Derived>::dim; // make dim available outside class
         static constexpr int corder=TypeTraits<Derived>::corder; // make dim available outside class
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
-        typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
+        typedef ConfinedDislocationObject<Derived> ConfinedDislocationObjectType;
         typedef Derived LinkType;
         typedef StraightDislocationSegment<dim> StraightDislocationSegmentType;
         typedef typename TypeTraits<LinkType>::LoopType LoopType;
@@ -90,6 +91,9 @@ namespace model
         static constexpr int pOrder=SplineSegmentType::pOrder;
         typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
         typedef DislocationQuadraturePoint<dim,corder> DislocationQuadraturePointType;
+        typedef DislocationQuadraturePointContainer<dim,corder> DislocationQuadraturePointContainerType;
+        typedef typename DislocationQuadraturePointContainerType::QuadratureDynamicType QuadratureDynamicType;
+
         typedef DislocationParticle<dim> DislocationParticleType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
@@ -127,6 +131,10 @@ namespace model
 
     public:
         
+#ifdef _MODEL_GREATWHITE_
+#include <DislocationSegmentGreatWhite.h>
+#endif
+        
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
         {
@@ -144,7 +152,7 @@ namespace model
                                  const std::shared_ptr<NodeType>& nJ) :
 //        /* init */ ConfinedDislocationObjectType(nI->network())
         /* init */ SplineSegmentType(nI,nJ)
-        /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
+        /* init */,ConfinedDislocationObjectType(this->network().mesh)
         /* init */,Burgers(VectorDim::Zero())
         /* init */,BurgersNorm(Burgers.norm())
         //        /* init */,_isBoundarySegment(false)
@@ -172,7 +180,7 @@ namespace model
         void updateGeometry()
         {
             SplineSegmentType::updateGeometry();
-            this->confinedObject().updateGeometry(this->source->get_P(),this->sink->get_P());
+            this->confinedObject().updateGeometry();
             straight.updateGeometry();
             //            addMeshFaces();
             //            _isBoundarySegment=this->source->isBoundaryNode() && this->sink->isBoundaryNode() && boundingBoxSegments().contains(0.5*(this->source->get_P()+this->sink->get_P()));
@@ -183,29 +191,134 @@ namespace model
         /**********************************************************************/
         void updateSlipSystem()
         {
-            std::set<std::shared_ptr<SlipSystem>> ssSet;
-            for(const auto& loopLink : this->loopLinks())
-            {
-                if(loopLink->loop()->slipSystem())
-                {
-                    ssSet.insert(loopLink->loop()->slipSystem());
-                }
-            }
             
-            if(ssSet.size()==1)
-            {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
-                _slipSystem=*ssSet.begin();
-            }
-            else
+            if (this->grains().size() == 0)
             {
                 _slipSystem=nullptr;
             }
-            if(_slipSystem)
+            else if (this->grains().size() == 1)
             {
-                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
-                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+                std::set<std::shared_ptr<SlipSystem>> ssSet;
+                
+                for (const auto &loopLink : this->loopLinks())
+                {
+                    if (loopLink->loop()->slipSystem())
+                    {
+                        ssSet.insert(loopLink->loop()->slipSystem());
+                    }
+                }
+                
+                if (ssSet.size() == 1)
+                {
+                    _slipSystem = *ssSet.begin();
+                }
+                else
+                { // ssSet.size()==0
+                    _slipSystem = nullptr;
+                }
             }
+            else
+            {
+                assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
+                _slipSystem = nullptr;
+            }
+            
+            if (_slipSystem)
+            {
+                VerbosePlanarDislocationSegment(3, "_slipSystem.s= " << _slipSystem->s.cartesian().transpose() << std::endl;);
+                VerbosePlanarDislocationSegment(3, "_slipSystem.n= " << _slipSystem->unitNormal.transpose() << std::endl;);
+            }
+            
+//            std::set<std::shared_ptr<SlipSystem>> ssSet;
+//            for(const auto& loopLink : this->loopLinks())
+//            {
+//                if(loopLink->loop()->slipSystem())
+//                {
+//                    ssSet.insert(loopLink->loop()->slipSystem());
+//                }
+//            }
+//
+//            if(ssSet.size()==1)
+//            {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
+//                _slipSystem=*ssSet.begin();
+//            }
+//            else
+//            {
+//                _slipSystem=nullptr;
+//            }
+//            if(_slipSystem)
+//            {
+//                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
+//                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+//            }
 
+//            if(this->grains().size()==1)
+//            {
+//                std::set<std::shared_ptr<SlipSystem>> ssSet;
+//
+//                for(const auto& loopLink : this->loopLinks())
+//                {
+//                    if(loopLink->loop()->slipSystem())
+//                    {
+//                        ssSet.insert(loopLink->loop()->slipSystem());
+//                    }
+//                }
+//
+//                if(ssSet.size()==1)
+//                {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
+//                    _slipSystem=*ssSet.begin();
+//                }
+//                else if(ssSet.size()>1)
+//                {
+//                    const auto  firstSlipSystem(**ssSet.begin());
+//                    //            const auto& firstN(firstSlipSystem.n);
+//                    RationalLatticeDirection<dim>  s(firstSlipSystem.s*0);
+//                    for(const auto& ss : ssSet)
+//                    {
+//                        _slipSystem=nullptr;
+//                        if(ss->unitNormal.cross(firstSlipSystem.unitNormal).squaredNorm()<FLT_EPSILON)
+//                        {
+//                            if(ss->unitNormal.dot(firstSlipSystem.unitNormal)>0.0)
+//                            {// aligned normals
+//                                s=s+ss->s;
+//                            }
+//                            else
+//                            {// opposite normals
+//                                s=s-ss->s;
+//                            }
+//                        }
+//                        else
+//                        {
+//                            s=firstSlipSystem.s*0;
+//                            break;
+//                        }
+//                    }
+//                    for(const auto& ss : *this->grains().begin()->slipSystems())
+//                    {
+//                        if(ss->isSameAs(s,firstSlipSystem.n))
+//                        {
+//                            _slipSystem=ss;
+//                            break;
+//                        }
+//                    }
+//                }
+//                else
+//                {// ssSet.size()==0
+//                    _slipSystem=nullptr;
+//                }
+//            }
+//            else
+//            {
+//                assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
+//                _slipSystem=nullptr;
+//            }
+//
+//            if(_slipSystem)
+//            {
+//                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
+//                VerbosePlanarDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+//            }
+            
         }
         
         /**********************************************************************/
@@ -226,6 +339,7 @@ namespace model
             
 //            VerbosePlanarDislocationSegment(3,"adding GlidePlane with bounding box:\n"<<pL->loop()->glidePlane->meshIntersections<<std::endl;);
             this->confinedObject().addGlidePlane(pL->loop()->glidePlane.get());
+            this->confinedObject().updateGeometry();
             updateSlipSystem();
         }
         
@@ -252,6 +366,7 @@ namespace model
             for(const auto& loopLink : this->loopLinks())
             {
                 this->confinedObject().addGlidePlane(loopLink->loop()->glidePlane.get());
+                this->confinedObject().updateGeometry();
             }
             
             updateSlipSystem();
@@ -285,7 +400,7 @@ namespace model
         /**********************************************************************/
         void assembleGlide()
         {
-            this->updateForcesAndVelocities(*this,quadPerLength,false);
+            this->updateForcesAndVelocities(*this);
             Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
             Kqq=this->nodalVelocityMatrix(*this);
             if(assembleWithTangentProjection)
@@ -426,18 +541,18 @@ namespace model
         }
         
         
-        bool hasPeriodicLoop() const
-        {
-            bool temp(false);
-            for(const auto& loopLink : this->loopLinks())
-            {
-                if(loopLink->loop()->loopType==DislocationLoopIO<dim>::PERIODICLOOP)
-                {
-                    temp=true;
-                }
-            }
-            return temp;
-        }
+//        bool hasPeriodicLoop() const
+//        {
+//            bool temp(false);
+//            for(const auto& loopLink : this->loopLinks())
+//            {
+//                if(loopLink->loop()->loopType==DislocationLoopIO<dim>::PERIODICLOOP)
+//                {
+//                    temp=true;
+//                }
+//            }
+//            return temp;
+//        }
         
         /**********************************************************************/
         bool hasZeroBurgers() const

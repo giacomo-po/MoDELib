@@ -1,0 +1,162 @@
+Nombre de coefficients de Fourier à calculer dans chaque direction
+1er vecteur de périodicité de la fonction a interpoler
+2nd vecteur de périodicité de la fonction a interpoler
+Nom du fichier de données où lire la fonction
+Numéro de colonne où lire la position
+Numéro de colonne où lire la fonction
+Constante à retrancher de la fonction
+Facteur multiplicatif
+Nom du fichier contenant les opérations de symétrie
+ 
+=========================
+Input symmetry operations
+ 
+Number of symmetry operations, nSym = 6
+ 
+  operation 1
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+  operation 2
+  rot =  0.500000      0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+  operation 3
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+  operation 4
+  rot =  0.500000     -0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+  operation 5
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+  operation 6
+  rot =  -1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+ 
+=========================
+Space group
+ 
+Number of symmetry operations, nSym = 6
+ 
+  operation 1
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+  operation 2
+  rot =  0.500000      0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+  operation 3
+  rot =  0.500000     -0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+  operation 4
+  rot =  -1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+ 
+  operation 5
+  rot = -0.500000     -0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+  operation 6
+  rot = -0.500000      0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+ 
+nFCsym(1:2) = 2 2
+nFC(1:2)    = 3 3
+n = 0 :  fcost =   122586.    
+n = 1 :  fcost =   117063.    
+n = 2 :  fcost =   111808.    
+n = 3 :  fcost =   101746.    
+n = 4 :  fcost =   90188.6    
+n = 5 :  fcost =   76618.4    
+n = 6 :  fcost =   62501.3    
+n = 7 :  fcost =   48455.2    
+n = 8 :  fcost =   35474.8    
+n = 9 :  fcost =   24295.1    
+n = 10 :  fcost =   15595.1    
+n = 11 :  fcost =   9850.25    
+n = 12 :  fcost =   7347.05    
+n = 13 :  fcost =   8153.00    
+n = 14 :  fcost =   12121.5     power < 0
+n = 15 :  fcost =   11741.8     power < 0
+n = 16 :  fcost =   11382.8    
+n = 17 :  fcost =   10699.4    
+n = 18 :  fcost =   9923.54    
+n = 19 :  fcost =   9025.77    
+n = 20 :  fcost =   8111.37    
+n = 21 :  fcost =   7227.48    
+n = 22 :  fcost =   6444.36    
+n = 23 :  fcost =   5812.61    
+n = 24 :  fcost =   5375.68    
+n = 25 :  fcost =   5160.30    
+n = 26 :  fcost =   5177.18    
+n = 27 :  fcost =   5419.65     power < 0
+n = 28 :  fcost =   5400.89     power < 0
+n = 29 :  fcost =   5383.12    
+n = 30 :  fcost =   5349.22    
+n = 31 :  fcost =   5310.55    
+n = 32 :  fcost =   5265.51    
+n = 33 :  fcost =   5219.21    
+n = 34 :  fcost =   5173.81    
+n = 35 :  fcost =   5132.69    
+n = 36 :  fcost =   5098.25    
+n = 37 :  fcost =   5072.56    
+n = 38 :  fcost =   5056.93    
+n = 39 :  fcost =   5051.91    
+n = 40 :  fcost =   5057.25     power < 0
+n = 41 :  fcost =   5055.78     power < 0
+n = 42 :  fcost =   5054.35    
+n = 43 :  fcost =   5051.60    
+n = 44 :  fcost =   5048.36    
+n = 45 :  fcost =   5044.44    
+n = 46 :  fcost =   5040.17    
+n = 47 :  fcost =   5035.65    
+n = 48 :  fcost =   5031.11    
+n = 49 :  fcost =   5026.67    
+n = 50 :  fcost =   5022.48    
+n = 51 :  fcost =   5018.65    
+n = 52 :  fcost =   5015.24    
+n = 53 :  fcost =   5012.28    
+n = 54 :  fcost =   5009.78    
+n = 55 :  fcost =   5007.69    
+n = 56 :  fcost =   5005.95    
+n = 57 :  fcost =   5004.48    
+n = 58 :  fcost =   5003.18    
+n = 59 :  fcost =   5001.97    
+n = 60 :  fcost =   5000.75    
+n = 61 :  fcost =   4999.48    
+n = 62 :  fcost =   4998.11    
+n = 63 :  fcost =   4996.62    
+n = 64 :  fcost =   4995.04    
+n = 65 :  fcost =   4993.41    
+n = 66 :  fcost =   4991.82    
+n = 67 :  fcost =   4990.35    
+n = 68 :  fcost =   4989.13    
+n = 69 :  fcost =   4988.26    
+n = 70 :  fcost =   4987.87    
+Fichier de sortie pour les coef de Fourier
+Interpolation: origine de la grille
+Interpolation: extrémité du premier côté de la grille
+Interpolation: extrémité du second côté de la grille
+Interpolation: nombre de valeurs dans chaque direction
+Fichier de sortie pour l'interpolation
+ 
+Ecart type:    20.3876319400    

@@ -39,6 +39,8 @@
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkContext2D.h>
 #include <vtkBrush.h>
+#include <vtkSliderWidget.h>
+#include <vtkSliderRepresentation2D.h>
 
 //#include <vtkProperty.h>
 //#include <vtkPropPicker.h>
@@ -56,12 +58,31 @@
 
 //#include <EigenDataReader.h>
 #include <TextFileParser.h>
+//#include <FieldActor.h>
 
 //#include <VertexReader.h>
 
 
 namespace model
 {
+    
+    class vtkSliderCallback : public vtkCommand
+    {
+    public:
+        static vtkSliderCallback *New()
+        {
+            return new vtkSliderCallback;
+        }
+        virtual void Execute(vtkObject *caller, unsigned long, void*)
+        {
+            vtkSliderWidget *sliderWidget =            reinterpret_cast<vtkSliderWidget*>(caller);
+//            this->SphereSource->SetPhiResolution(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+//            this->SphereSource->SetThetaResolution(static_cast<vtkSliderRepresentation *>(sliderWidget->GetRepresentation())->GetValue());
+        }
+//        vtkSliderCallback():SphereSource(0) {}
+//        vtkSphereSource *SphereSource;
+    };
+    
     
     /**************************************************************************/
     /**************************************************************************/
@@ -70,7 +91,7 @@ namespace model
         
         vtkSmartPointer<vtkRenderWindow> renderWindow;
         vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor;
-        vtkSmartPointer<vtkRenderer> ddRenderer;
+//        vtkSmartPointer<vtkRenderer> ddRenderer;
         vtkSmartPointer<vtkRenderer> plotRenderer;
         vtkSmartPointer<model::DDinteractionStyle> style;
 
@@ -81,11 +102,76 @@ namespace model
         DDvtk() :
         /* init */ renderWindow(vtkSmartPointer<vtkRenderWindow>::New()),
         /* init */ renderWindowInteractor(vtkSmartPointer<vtkRenderWindowInteractor>::New()),
-        /* init */ ddRenderer(vtkSmartPointer<vtkRenderer>::New()),
+//        /* init */ ddRenderer(vtkSmartPointer<vtkRenderer>::New()),
         /* init */ style(vtkSmartPointer<model::DDinteractionStyle>::New()),
         /* init */ plotRenderer(vtkSmartPointer<vtkRenderer>::New())
 //        axes(vtkSmartPointer<vtkAxesActor>::New())
         {
+            
+
+//            vtkSmartPointer<FieldActor> myCallback = vtkSmartPointer<FieldActor>::New();
+////            myCallback->mesh=&style->meshActor.mesh;
+////            myCallback->plane = style->meshActor.clipPlane;
+////            myCallback->ddSegments = &style->ddConfig.segments;
+////            myCallback->nodeMap=&style->ddConfig.nodeMap();
+//            vtkSmartPointer<vtkImplicitPlaneRepresentation> rep = vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
+//            rep->SetPlaceFactor(0.15); // This must be set prior to placing the widget
+//            rep->PlaceWidget(style->meshActor.clipActor->GetBounds());
+//            rep->SetNormal(style->meshActor.clipPlane->GetNormal());
+//            vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget = vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
+//            planeWidget->SetInteractor(renderWindowInteractor);
+//            planeWidget->SetRepresentation(rep);
+//            planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
+//            style->ddRenderer->AddActor(myCallback->meshActor);
+//            planeWidget->On();
+
+            
+            
+//            planeWidget->OutsideBoundsOff();
+//
+//            vtkSmartPointer<vtkSliderRepresentation2D> sliderRep =  vtkSmartPointer<vtkSliderRepresentation2D>::New();
+//            sliderRep->SetMinimumValue(1.0);
+//            sliderRep->SetMaximumValue(100.0);
+//            sliderRep->SetValue(10.0);
+//            sliderRep->SetTitleText("Element Size");
+//
+//            sliderRep->GetSliderProperty()->SetColor(1,0,0);//red
+//
+//            // Change the color of the text indicating what the slider controls
+//            sliderRep->GetTitleProperty()->SetColor(1,0,0);//red
+//
+//            // Change the color of the text displaying the value
+//            sliderRep->GetLabelProperty()->SetColor(1,0,0);//red
+//
+//            // Change the color of the knob when the mouse is held on it
+//            sliderRep->GetSelectedProperty()->SetColor(0,1,0);//green
+//
+//            // Change the color of the bar
+//            sliderRep->GetTubeProperty()->SetColor(1,1,0);//yellow
+//
+//            // Change the color of the ends of the bar
+//            sliderRep->GetCapProperty()->SetColor(1,1,0);//yellow
+//            sliderRep->GetPoint1Coordinate()->SetCoordinateSystemToDisplay();
+//            sliderRep->GetPoint1Coordinate()->SetValue(40 ,40);
+//            sliderRep->GetPoint2Coordinate()->SetCoordinateSystemToDisplay();
+//            sliderRep->GetPoint2Coordinate()->SetValue(100, 40);
+//
+//            vtkSmartPointer<vtkSliderWidget> sliderWidget =
+//            vtkSmartPointer<vtkSliderWidget>::New();
+//            sliderWidget->SetInteractor(renderWindowInteractor);
+//            sliderWidget->SetRepresentation(sliderRep);
+//            sliderWidget->SetAnimationModeToAnimate();
+//            sliderWidget->EnabledOn();
+//            vtkSmartPointer<vtkSliderCallback> callback =
+//            vtkSmartPointer<vtkSliderCallback>::New();
+////            callback->SphereSource = sphereSource;
+//
+//            sliderWidget->AddObserver(vtkCommand::InteractionEvent,callback);
+//            renderWindowInteractor->Initialize();
+
+            
+
+
             
 //            int meshID=TextFileParser("inputFiles/DD.txt").readScalar<int>("meshID",false);
 //            model::EigenDataReader EDR;
@@ -101,8 +187,8 @@ namespace model
             renderWindow->SetSize(1920,1080); // HD (width, height)
 
             renderWindowInteractor->SetRenderWindow(renderWindow);
-            ddRenderer->SetBackground(1,1,1); // Background color white
-            ddRenderer->SetViewport(0.0,0,0.5,1);
+//            ddRenderer->SetBackground(1,1,1); // Background color white
+//            ddRenderer->SetViewport(0.0,0,0.5,1);
             
 //            renderWindow->SetAlphaBitPlanes(true);
 //            // 2. Force to not pick a framebuffer with a multisample buffer
@@ -119,22 +205,30 @@ namespace model
 //            ddRenderer->SetOcclusionRatio(0.5);
 
 
-            renderWindow->AddRenderer(ddRenderer);
+            
+            renderWindow->AddRenderer(style->ddRenderer);
+
             renderWindow->AddRenderer(plotRenderer);
 
             renderWindowInteractor->SetInteractorStyle(style);
-            style->SetDefaultRenderer(ddRenderer);
+
+//            style->SetDefaultRenderer(ddRenderer);
             
-            style->init(ddRenderer,plotRenderer);
+            style->init(plotRenderer);
+
 
             
             // Start
-            ddRenderer->ResetCamera();
+            style->ddRenderer->ResetCamera();
             renderWindow->LineSmoothingOn();
             renderWindow->PolygonSmoothingOn();
             renderWindow->PointSmoothingOn();
             renderWindow->SetMultiSamples(1);
             renderWindow->Render();
+            
+
+//            planeWidget->On();
+
             renderWindowInteractor->Start();
             
 

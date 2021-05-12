@@ -34,9 +34,9 @@ namespace model
         typedef typename PlanarDislocationSegmentType::MatrixDim MatrixDim;
         typedef DislocationParticle<dim> DislocationParticleType;
         
-#ifdef _MODEL_GREATWHITE_
-#include <DislocationSegmentGreatWhite.h>
-#endif
+//#ifdef _MODEL_GREATWHITE_
+//#include <DislocationSegmentGreatWhite.h>
+//#endif
 
         /**********************************************************************/
         DislocationSegment(const std::shared_ptr<NodeType>& nI,

@@ -200,7 +200,7 @@ namespace model
             //                return dt;
             //            }
             
-            return dxMax/vmax;
+            return vmax>0.0? dxMax/vmax : 0.0;
             //vmax > DN.poly.cs*shearWaveSpeedFraction? dxMax/vmax : dxMax/(DN.poly.cs*shearWaveSpeedFraction);
             
             //            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
@@ -230,6 +230,11 @@ namespace model
 #ifndef _MODEL_GREATWHITE_
     double DDtimeIntegrator<0>::dxMax=10.0;
     double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
+#else
+#ifdef _MODEL_GREATWHITE_standalone
+    double DDtimeIntegrator<0>::dxMax=10.0;
+    double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
+#endif
 #endif
 
     //template <>

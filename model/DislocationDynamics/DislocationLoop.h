@@ -21,7 +21,6 @@
 #include <PlanarDislocationLoop.h>
 #include <SlipSystem.h>
 
-//#include <PlanarPolygon.h>
 
 
 namespace model
@@ -57,7 +56,7 @@ namespace model
         typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
         typedef PlanarDislocationLoop<DislocationLoopType> BaseLoopType;
         typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
-        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
+//        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
 

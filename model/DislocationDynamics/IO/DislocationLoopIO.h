@@ -29,8 +29,8 @@ namespace model
          VectorDim P;          // velocity
          size_t grainID;          // component ID
          int loopType;
-         long int periodicLoopID;          // sID
-            VectorDim periodicShift;
+//         long int periodicLoopID;          // sID
+//            VectorDim periodicShift;
          std::tuple<double,double,double> loopLength;
         double slippedArea;
         
@@ -43,8 +43,8 @@ namespace model
         /* init */,P(dL.glidePlane? dL.glidePlane->P : dL.links().begin()->second->source()->get_P() )
         /* init */,grainID(dL.grain.grainID)
         /* init */,loopType(dL.loopType)
-        /* init */,periodicLoopID(dL.periodicLoop? dL.periodicLoop->sID : -1)
-        /* init */,periodicShift(dL.periodicShift)
+//        /* init */,periodicLoopID(dL.periodicLoop? dL.periodicLoop->sID : -1)
+//        /* init */,periodicShift(dL.periodicShift)
         /* init */,loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
         /* init */,slippedArea(dL.slippedArea())
         {
@@ -57,17 +57,18 @@ namespace model
                           const VectorDim& N_in,          // velocity
                           const VectorDim& P_in,          // velocity
                           const size_t& grainID_in,
-                          const int& loopType_in,
-                          const long int& periodicLoopID_in,
-                          const VectorDim& periodicShift_in) :
+                          const int& loopType_in
+//                          const long int& periodicLoopID_in,
+//                          const VectorDim& periodicShift_in
+                          ) :
         /* init */ sID(sID_in)
         /* init */,B(B_in)
         /* init */,N(N_in)
         /* init */,P(P_in)
         /* init */,grainID(grainID_in)
         /* init */,loopType(loopType_in)
-        /* init */,periodicLoopID(periodicLoopID_in)
-        /* init */,periodicShift(periodicShift_in)
+//        /* init */,periodicLoopID(periodicLoopID_in)
+//        /* init */,periodicShift(periodicShift_in)
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         /* init */,slippedArea(0.0)
         {
@@ -82,8 +83,8 @@ namespace model
         /* init */,P(VectorDim::Zero())
         /* init */,grainID(0)
         /* init */,loopType(0)
-        /* init */,periodicLoopID(-1)
-        /* init */,periodicShift(VectorDim::Zero())
+//        /* init */,periodicLoopID(-1)
+//        /* init */,periodicShift(VectorDim::Zero())
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         /* init */,slippedArea(0.0)
         {
@@ -98,8 +99,8 @@ namespace model
         /* init */,P(VectorDim::Zero())
         /* init */,grainID(0)
         /* init */,loopType(0)
-        /* init */,periodicLoopID(-1)
-        /* init */,periodicShift(VectorDim::Zero())
+//        /* init */,periodicLoopID(-1)
+//        /* init */,periodicShift(VectorDim::Zero())
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
         /* init */,slippedArea(0.0)
         {
@@ -118,11 +119,11 @@ namespace model
             }
             ss>>grainID;
             ss>>loopType;
-            ss>>periodicLoopID;
-            for(int d=0;d<dim;++d)
-            {
-                ss>>periodicShift(d);
-            }
+//            ss>>periodicLoopID;
+//            for(int d=0;d<dim;++d)
+//            {
+//                ss>>periodicShift(d);
+//            }
             double l1,l2,l3;
             ss>>l1>>l2>>l3;
             loopLength=std::make_tuple(l1,l2,l3);
@@ -139,8 +140,8 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
             /**/<< ds.grainID<<"\t"
             /**/<< ds.loopType<<"\t"
-            /**/<< ds.periodicLoopID<<"\t"
-            /**/<< ds.periodicShift.transpose()<<"\t"
+//            /**/<< ds.periodicLoopID<<"\t"
+//            /**/<< ds.periodicShift.transpose()<<"\t"
             /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength)<<"\t"
             /**/<< ds.slippedArea;
             return os;

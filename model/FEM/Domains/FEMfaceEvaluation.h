@@ -17,7 +17,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     template <typename ElementType,int rows,int cols>
-    struct FEMfaceEvaluation : public FEMbaseEvaluation<ElementType,rows,cols>
+    struct FEMfaceEvaluation : public FEMbaseEvaluation<ElementType::dim,rows,cols>
     {
         constexpr static int dim=ElementType::dim;
         const ElementType& ele;
@@ -31,7 +31,7 @@ namespace model
                                  const Eigen::Matrix<double,dim+1,1>& _domainBary,
                                  const int& _boundaryFace,
                                  const double& _weight) :
-        /* init */ FEMbaseEvaluation<ElementType,rows,cols>(_ele.position(_domainBary))
+        /* init */ FEMbaseEvaluation<ElementType::dim,rows,cols>(_ele.position(_domainBary))
 //        /* init */ Eigen::Matrix<double,rows,cols>(Eigen::Matrix<double,rows,cols>::Zero()),
         /* init */,ele(_ele)
         /* init */,domainBary(_domainBary)

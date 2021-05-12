@@ -1,6 +1,0 @@
-materialFile=../../MaterialsLibrary/Cu.txt;
-meshFile=../../MeshLibrary/Cube4000TopRefined.msh;
-
-C2G0=1 0 0
-     0 1 0
-     0 0 1;

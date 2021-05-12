@@ -189,8 +189,6 @@ namespace model
           * @param[in] constrainDof array of booleans indicating which dofs are to be constrained
           */
             
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Adding Dirichlet condition..."<<std::flush;
             // Check that at least one constrainDof is true
             bool isConstrained(false);
             for(int dof=0;dof<dofPerNode;++dof)
@@ -227,9 +225,7 @@ namespace model
                         }
                     }
                 }
-            }
-            
-            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }            
         }
         
     };

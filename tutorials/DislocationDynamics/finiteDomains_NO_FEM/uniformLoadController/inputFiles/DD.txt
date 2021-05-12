@@ -7,6 +7,7 @@ useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 enablePartials=0;
+absoluteTemperature=300; # [K] temperature
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
@@ -18,17 +19,14 @@ stepsBetweenBVPupdates = 10;
 virtualSegmentDistance=500;
 use_directSolver_FEM=0;
 solverTolerance=0.0001;
-# Surface nucleation model (0=no nucleation)
-surfaceNucleationModel=0;
+surfaceDislocationNucleationModel=0; # Surface nucleation model (0=no nucleation)
+criticalSurfaceDislocationNucleationShearStress=0.07;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
 periodicImages_x=0;
 periodicImages_y=0;
 periodicImages_z=0;
-
-######################################
-quadPerLength=0.1;
 
 ######################################
 # TIME STEP
@@ -50,17 +48,18 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=100;
 outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
-outputDislocationLength=0;
+outputDislocationLength=1;
 outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
+outputSlipSystemStrain=1;
 outputPeriodicConfiguration=0;
 computeElasticEnergyPerLength=0;
 
@@ -68,13 +67,14 @@ computeElasticEnergyPerLength=0;
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=2.0;
+quadPerLength=0.1;
 
 ######################################
 # NETWORK REMESHING
 # Enable/disable node redistribution 
 # remeshFrequency = 0 redistribution is disabled (not recommended)
 # remeshFrequency = n redistribution every n steps (recommended)
-# Note that Lmax and Lmin are relative to box size if use_boundary =1
+# Note that Lmax and Lmin are relative to box size
 remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
@@ -88,13 +88,13 @@ maxJunctionIterations=1;
 collisionTol=3;
 
 ######################################
-# BOUNDARY MESH
-surfaceAttractionDistance=20;
-
-######################################
 # Enable/disable cross-slip
 crossSlipModel=1;
 crossSlipDeg=2.0;
+
+######################################
+# BOUNDARY MESH
+surfaceAttractionDistance=20;
 
 ######################################
 # GRAIN-BOUNDARY MODEL

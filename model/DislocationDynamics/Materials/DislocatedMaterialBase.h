@@ -51,11 +51,11 @@ namespace model
         
         // Vacancy concentration
 //        const double Omega;     // shear wave speed [-]
+        const double dOmegav;
         const double Ufv_SI;
         const double Ufv;
-        const double DVv;
-        const double Udv_SI;        // shear wave speed [-]
-        const double Udv;        // shear wave speed [-]
+        const double Umv_SI;     // vacancy migration energy [eV]
+        const double Umv;        // vacancy migration energy [-]
         const double D0v_SI;        // shear wave speed [-]
         const double Dv;        // shear wave speed [-]
 //        const double c0;        // shear wave speed [-]
@@ -75,7 +75,7 @@ namespace model
         /* init */ materialFile(getMaterialFile(fileName))
         /* init */,materialName(TextFileParser(materialFile).readString("materialName",true))
         /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
-        /* init */,T(TextFileParser(materialFile).readScalar<double>("T",true))
+        /* init */,T(TextFileParser("./inputFiles/DD.txt").readScalar<double>("absoluteTemperature",true))
         /* init */,Tm(TextFileParser(materialFile).readScalar<double>("Tm",true))
         /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))
         /* init */,mu1_SI(TextFileParser(materialFile).readScalar<double>("mu1_SI",true))
@@ -91,19 +91,21 @@ namespace model
         /* init */,cs(1.0)
 //        /* init */,Omega(atomicVolume(crystalStructure))
 //        /* init */,Omega(TextFileParser(materialFile).readScalar<double>("Omega_SI",true) * 1e-30 /std::pow(b_SI,3))
+        /* init */,dOmegav(TextFileParser(materialFile).readScalar<double>("dOmegav",true))
         /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
-        /* init */,DVv(TextFileParser(materialFile).readScalar<double>("DVv",true))
-        /* init */,Udv_SI(TextFileParser(materialFile).readScalar<double>("Udv_eV",true) * eV2J)
-        /* init */,Udv(Udv_SI/mu_SI/std::pow(b_SI,3))
+        /* init */,Umv_SI(TextFileParser(materialFile).readScalar<double>("Umv_eV",true) * eV2J)
+        /* init */,Umv(Umv_SI/mu_SI/std::pow(b_SI,3))
         /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
-        /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Udv/kB/T))
+        /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Umv/kB/T))
         {
 //            model::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
 
 //            std::cout<<"FINISH CALCULATION OF ATOMIC VOLUME AND REMOVE IT FROM INPUT FILE"<<std::endl;
             
         }
+        
+  
         
     };
 }

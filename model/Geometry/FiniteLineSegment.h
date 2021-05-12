@@ -42,7 +42,7 @@ namespace model
         {/*!\param[in] x point to be snapped to the FiniteLineSegment
           * \returns the closest point to x on the FiniteLineSegment
           *
-          * miminime distance to the line:
+          * minimize distance to the line:
           * u=argMin{ (P0+u*(P1-P0)-x)^2 }
           * (P0+u*(P1-P0)-x)*(P1-P0)=0
           * u=(x-P0)*(P1-P0)/(P1-P0)^2

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  3 AUG 2020 13:46
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  28 DEC 2020 18:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -974,6 +974,24 @@ LaTeX Warning: Label `interaction_energy_loop_vector' multiply defined.
 
 LaTeX Warning: Label `FEMforceVectorDD1' multiply defined.
 
+
+LaTeX Warning: Label `DDDnutshell' multiply defined.
+
+
+LaTeX Warning: Label `cylindricalPunchTutorial1' multiply defined.
+
+
+LaTeX Warning: Label `sub@cylindricalPunchTutorial1' multiply defined.
+
+
+LaTeX Warning: Label `cylindricalPunchTutorial2' multiply defined.
+
+
+LaTeX Warning: Label `sub@cylindricalPunchTutorial2' multiply defined.
+
+
+LaTeX Warning: Label `DDDnutshell' multiply defined.
+
 (./fourierSphere.aux)
 
 LaTeX Warning: Label `interaction_energy_classical' multiply defined.
@@ -1058,20 +1076,20 @@ LaTeX Info: Redefining \nameref on input line 81.
 \@outlinefile=\write6
 \openout6 = `MoDELib_manual.out'.
 
-<straight_lines.jpeg, id=175, 1610.015pt x 2082.78125pt>
-File: straight_lines.jpeg Graphic file (type jpg)
-<use straight_lines.jpeg>
-Package pdftex.def Info: straight_lines.jpeg  used on input line 90.
+<Figures/straight_lines.jpeg, id=183, 1610.015pt x 2082.78125pt>
+File: Figures/straight_lines.jpeg Graphic file (type jpg)
+<use Figures/straight_lines.jpeg>
+Package pdftex.def Info: Figures/straight_lines.jpeg  used on input line 90.
 (pdftex.def)             Requested size: 614.29332pt x 794.96098pt.
  [1
 
-{/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./strai
-ght_lines.jpeg>] [2
+{/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map} <./Figur
+es/straight_lines.jpeg>]
+[2
 
 ] [3
 
-]
-(./MoDELib_manual.toc
+] (./MoDELib_manual.toc
 LaTeX Font Info:    Try loading font information for U+msa on input line 2.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsa.fd
@@ -1107,10 +1125,10 @@ LaTeX Warning: Reference `BVPStrategy' on page 17 undefined on input line 787.
 
 [17]) (./tex/MoDElib.tex [18]
 Chapter 2.
-<image_650.jpg, id=522, 726.715pt x 714.67pt>
-File: image_650.jpg Graphic file (type jpg)
-<use image_650.jpg>
-Package pdftex.def Info: image_650.jpg  used on input line 32.
+<Figures/image_650.jpg, id=532, 726.715pt x 714.67pt>
+File: Figures/image_650.jpg Graphic file (type jpg)
+<use Figures/image_650.jpg>
+Package pdftex.def Info: Figures/image_650.jpg  used on input line 32.
 (pdftex.def)             Requested size: 225.4804pt x 221.7417pt.
 
 LaTeX Warning: `h' float specifier changed to `ht'.
@@ -1119,21 +1137,69 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 LaTeX Warning: Reference `runningMoDELib' on page 19 undefined on input line 66
 .
 
+<Figures/cylindricalPunchTutorial_1.png, id=534, 1409.76688pt x 848.67062pt>
+File: Figures/cylindricalPunchTutorial_1.png Graphic file (type png)
+<use Figures/cylindricalPunchTutorial_1.png>
+Package pdftex.def Info: Figures/cylindricalPunchTutorial_1.png  used on input 
+line 79.
+(pdftex.def)             Requested size: 469.75502pt x 282.7816pt.
+<Figures/cylindricalPunchTutorial_2.png, id=536, 1405.75188pt x 848.16875pt>
+File: Figures/cylindricalPunchTutorial_2.png Graphic file (type png)
+<use Figures/cylindricalPunchTutorial_2.png>
+Package pdftex.def Info: Figures/cylindricalPunchTutorial_2.png  used on input 
+line 84.
+(pdftex.def)             Requested size: 469.75502pt x 283.42972pt.
+
+LaTeX Warning: Float too large for page by 2.78131pt on input line 90.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<Figures/cylindricalPunchTutorial_3.png, id=537, 1406.25375pt x 845.1575pt>
+File: Figures/cylindricalPunchTutorial_3.png Graphic file (type png)
+<use Figures/cylindricalPunchTutorial_3.png>
+Package pdftex.def Info: Figures/cylindricalPunchTutorial_3.png  used on input 
+line 95.
+(pdftex.def)             Requested size: 469.75502pt x 282.32028pt.
+<Figures/cylindricalPunchTutorial_4.png, id=538, 1405.25pt x 848.67062pt>
+File: Figures/cylindricalPunchTutorial_4.png Graphic file (type png)
+<use Figures/cylindricalPunchTutorial_4.png>
+Package pdftex.def Info: Figures/cylindricalPunchTutorial_4.png  used on input 
+line 100.
+(pdftex.def)             Requested size: 469.75502pt x 283.70102pt.
+
+LaTeX Warning: Float too large for page by 2.5913pt on input line 106.
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+<Figures/cylindricalPunchTutorial_5.png, id=539, 1400.23125pt x 845.1575pt>
+File: Figures/cylindricalPunchTutorial_5.png Graphic file (type png)
+<use Figures/cylindricalPunchTutorial_5.png>
+Package pdftex.def Info: Figures/cylindricalPunchTutorial_5.png  used on input 
+line 111.
+(pdftex.def)             Requested size: 469.75502pt x 283.53252pt.
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 ) (./tex/math.tex [19
 
-] [20 <./image_650.jpg>]
+] [20 <./Figures/image_650.jpg>] [21 <./Figures/cylindricalPunchTutorial_1.png>
+ <./Figures/cylindricalPunchTutorial_2.png>] [22 <./Figures/cylindricalPunchTut
+orial_3.png> <./Figures/cylindricalPunchTutorial_4.png>]
+[23 <./Figures/cylindricalPunchTutorial_5.png>]
 Appendix A.
 
-Package natbib Warning: Citation `Slattery2006' on page 21 undefined on input l
+Package natbib Warning: Citation `Slattery2006' on page 24 undefined on input l
 ine 27.
 
 
-Package natbib Warning: Citation `Scovazzi2007' on page 21 undefined on input l
+Package natbib Warning: Citation `Scovazzi2007' on page 24 undefined on input l
 ine 27.
 
-[21
+[24
 
-] [22] [23]
+] [25] [26]
 Overfull \hbox (6.19035pt too wide) in paragraph at lines 173--174
 \OT1/cmr/m/n/10 Throughout this doc-u-ment, the sym-bol $\OMS/cmsy/m/n/10 ^^C$ 
 \OT1/cmr/m/n/10 stands for the con-vo-lu-tion op-er-a-tor over the in-fi-nite t
@@ -1143,24 +1209,24 @@ hree-dimensional
 \openout2 = `fourierSphere.aux'.
 
 No file fourierSphere.tex.
-[24]
+[27]
 Overfull \hbox (16.92053pt too wide) detected at line 223
 []
  []
 
 
-Package natbib Warning: Citation `Lifshitz:1947aa' on page 25 undefined on inpu
+Package natbib Warning: Citation `Lifshitz:1947aa' on page 28 undefined on inpu
 t line 229.
 
 
-Package natbib Warning: Citation `Synge:1957aa' on page 25 undefined on input l
+Package natbib Warning: Citation `Synge:1957aa' on page 28 undefined on input l
 ine 229.
 
 
-Package natbib Warning: Citation `Kirchner:1983' on page 25 undefined on input 
+Package natbib Warning: Citation `Kirchner:1983' on page 28 undefined on input 
 line 231.
 
-) (./tex/straightDislocations.tex [25
+) (./tex/straightDislocations.tex [28
 
 
 ]
@@ -1169,9 +1235,9 @@ Appendix B.
 Package hyperref Warning: Difference (2) between bookmark levels is greater 
 (hyperref)                than one, level fixed on input line 7.
 
-[26
+[29
 
-] [27] [28] [29] [30]
+] [30] [31] [32] [33]
 Overfull \hbox (21.20805pt too wide) detected at line 234
 []
  []
@@ -1186,16 +1252,16 @@ Overfull \hbox (38.49815pt too wide) detected at line 274
 []
  []
 
-[31] [32] [33] [34]
+[34] [35] [36] [37]
 Overfull \hbox (24.341pt too wide) detected at line 415
 []
  []
 
 
-Package natbib Warning: Citation `Asvestas:wt' on page 35 undefined on input li
+Package natbib Warning: Citation `Asvestas:wt' on page 38 undefined on input li
 ne 438.
 
-[35] [36]
+[38] [39]
 Overfull \hbox (17.59842pt too wide) detected at line 527
 []
  []
@@ -1204,11 +1270,11 @@ Overfull \hbox (17.59842pt too wide) detected at line 527
 \tf@brf=\write8
 \openout8 = `MoDELib_manual.brf'.
 
- [37])
+ [40])
 
 Package natbib Warning: There were undefined citations.
 
-[38
+[41
 
 ]
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 135.
@@ -1217,10 +1283,15 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 135.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 135.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 135.
 Package rerunfilecheck Info: File `MoDELib_manual.out' has not changed.
-(rerunfilecheck)             Checksum: 241CE8C597BF64B9FC6C400C9393CC23;2863.
-Package rerunfilecheck Info: File `MoDELib_manual.brf' has not changed.
-(rerunfilecheck)             Checksum: 6F3B65D716923B9D44F9DD02A302D745;1214.
+(rerunfilecheck)             Checksum: 8F45E4EFE26CFB3ACCC9E0C08347FDD2;2990.
 
+
+Package rerunfilecheck Warning: File `MoDELib_manual.brf' has changed.
+(rerunfilecheck)                Rerun to get bibliographical references right.
+
+Package rerunfilecheck Info: Checksums for `MoDELib_manual.brf':
+(rerunfilecheck)             Before: BF503648883C1A3B50DB18D1CF354672;1214
+(rerunfilecheck)             After:  1CC3E1907543CFD689B0653C20C9CB21;1214.
 
 LaTeX Warning: There were undefined references.
 
@@ -1229,10 +1300,10 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 34124 strings out of 492649
- 683416 string characters out of 6129622
- 879164 words of memory out of 5000000
- 37182 multiletter control sequences out of 15000+600000
+ 34163 strings out of 492649
+ 684728 string characters out of 6129622
+ 879320 words of memory out of 5000000
+ 37208 multiletter control sequences out of 15000+600000
  542744 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  63i,20n,101p,10531b,725s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1267,10 +1338,10 @@ xmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/2018/tex
 mf-dist/fonts/type1/public/amsfonts/latxfont/line10.pfb></usr/local/texlive/201
 8/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive
 /2018/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm7.pfb>
-Output written on MoDELib_manual.pdf (38 pages, 2540226 bytes).
+Output written on MoDELib_manual.pdf (41 pages, 5867678 bytes).
 PDF statistics:
- 955 PDF objects out of 1000 (max. 8388607)
- 849 compressed objects within 9 object streams
- 333 named destinations out of 1000 (max. 500000)
- 431 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 992 PDF objects out of 1000 (max. 8388607)
+ 873 compressed objects within 9 object streams
+ 341 named destinations out of 1000 (max. 500000)
+ 472 words of extra memory for PDF output out of 10000 (max. 10000000)
 

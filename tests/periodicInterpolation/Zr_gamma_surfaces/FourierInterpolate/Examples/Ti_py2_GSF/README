@@ -1,0 +1,25 @@
+We want to interpolate the data in file energy.res with 2D FFT taking care of symmetries.
+Lines in input data file energy.res can be commented with #
+
+Command:
+fourierFit2D_sym
+
+You need to enter then the information contained in file input.fourierFit2D_sym,
+or you can directly launch 
+fourierFit2D_sym < input.fourierFit2D_sym
+
+The symmetry operations are described in file input.symmetrize.
+
+
+
+Output files:
+energy.interpole: interpolated function on the desired grid.
+fourier.coef: coefficients of the 2D Fourier series
+
+
+
+Post-treatment:
+You can plot the result using the gnuplot script energy.gnu
+command: gnuplot energy.gnu
+ouput postscript image: energy.eps
+

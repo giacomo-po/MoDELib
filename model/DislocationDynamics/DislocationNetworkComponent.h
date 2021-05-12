@@ -58,7 +58,7 @@ namespace model
             size_t k=0;
             for (typename NodeContainerType::iterator nodeIter=NC.nodeBegin();nodeIter!=NC.nodeEnd();++nodeIter)
             {
-                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // double cast to remove some numerical noise
+                nodeIter->second->set_V(X.segment(NdofXnode*k,NdofXnode));
                 ++k;
             }
         }
@@ -160,98 +160,98 @@ namespace model
         }
    //Added by Yash
         //Improved Version 2
-        size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const
-        {
-            // typedef std::map <std::pair< NodeType *, NodeType * >, std::tuple<NodeType *,double, NodeType *,double>> PeriodicConnectivityType;
-            size_t constrainedI = 0;
-            size_t unconstrainedNodes = 0;
-            std::map<size_t, size_t> correctedJPosition;
-            for (const auto &node : NC.nodes())
-            {
-
-                if (node.second->isBoundaryNode())
-                {
-                    const auto linkMapBNodes = node.second->getNodesMapforPeriodicAssembly();
-                    bool temp(std::get<0>(linkMapBNodes) && std::get<1>(linkMapBNodes) && std::get<2>(linkMapBNodes));
-                    if (temp)
-                    {
-                        constrainedI++;
-                    }
-                    else
-                    {
-                        const size_t ntempsnID(node.second->snID()); //Global position in the constraint matrix (j)
-                        correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
-                    }
-                    
-                }
-                else
-                {
-                    const size_t ntempsnID(node.second->snID()); //Global position in the constraint matrix (j)
-                    correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
-                }
-            }
-            for (const auto &node : NC.nodes())
-            {
-                const size_t ntempj(node.second->snID()); //Global position in the constraint matrix (j)
-                // std::cout<<"node.second->sID(is a Boundary node) "<<node.second->sID<<" ("<<node.second->isBoundaryNode()<<" )"<<std::endl;
-                if (node.second->isBoundaryNode())
-                {
-                    const auto linkMapBNodes = node.second->getNodesMapforPeriodicAssembly();
-                    bool temp(std::get<0>(linkMapBNodes) && std::get<1>(linkMapBNodes) && std::get<2>(linkMapBNodes) );
-                    if (temp)
-                    {
-                        assert(std::get<1>(linkMapBNodes)->sID == node.second->sID);
-                        const double lij(std::get<3>(linkMapBNodes));
-                        const double ljk(std::get<4>(linkMapBNodes));
-
-                        size_t ntempi(std::get<0>(linkMapBNodes)->snID()); //Global position in the constraint matrix corresponding to the original link (i)
-                        size_t ntempk(std::get<2>(linkMapBNodes)->snID()); //Global position in the constraint matrix corresponding to the neighbor link (k)
-                        const double lijk(lij + ljk);
-
-                        //First check if ntempi and ntempj are both non-boundary nodes, if not, the constraints are needed to be multiplied and ntempi and ntempk updated
-                        // std::cout << "Ntempi node " << std::get<0>(nodeinLinks.second)->sID << std::endl;
-                        // std::cout << "Ntempj node " << node.second->sID << std::endl;
-                        // std::cout << "Ntempk node " << std::get<2>(nodeinLinks.second)->sID << std::endl;
-
-                        assert(correctedJPosition.find(ntempi) != correctedJPosition.end());
-                        assert(correctedJPosition.find(ntempk) != correctedJPosition.end());
-
-                        const size_t correctedI(correctedJPosition.find(ntempi)->second);
-                        const size_t correctedK(correctedJPosition.find(ntempk)->second);
-
-                        for (size_t d = 0; d < dim; ++d)
-                        {
-                            // zT.emplace_back(dim*ntempj+d,dim*ntempi+d,ljk/lijk);
-
-                            zT.emplace_back(dim * ntempj + d, dim * correctedI + d, ljk / lijk);
-                            zT.emplace_back(dim * ntempj + d, dim * correctedK + d, lij / lijk);
-                        }
-                    }
-                    else
-                    {
-                        assert(correctedJPosition.find(node.second->snID()) != correctedJPosition.end());
-
-                        const size_t correctedJ(correctedJPosition.find(node.second->snID())->second);
-                        for (size_t d = 0; d < dim; ++d)
-                        {
-                            zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
-                        }
-                        unconstrainedNodes++;
-                    }
-                }
-                else
-                {
-                    assert(correctedJPosition.find(node.second->snID()) != correctedJPosition.end());
-                    const size_t correctedJ(correctedJPosition.find(node.second->snID())->second);
-                    for (size_t d = 0; d < dim; ++d)
-                    {
-                        zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
-                    }
-                    unconstrainedNodes++;
-                }
-            }
-            return unconstrainedNodes;
-        }
+//        size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const
+//        {
+//            // typedef std::map <std::pair< NodeType *, NodeType * >, std::tuple<NodeType *,double, NodeType *,double>> PeriodicConnectivityType;
+//            size_t constrainedI = 0;
+//            size_t unconstrainedNodes = 0;
+//            std::map<size_t, size_t> correctedJPosition;
+//            for (const auto &node : NC.nodes())
+//            {
+//
+//                if (node.second->isBoundaryNode())
+//                {
+//                    const auto linkMapBNodes = node.second->getNodesMapforPeriodicAssembly();
+//                    bool temp(std::get<0>(linkMapBNodes) && std::get<1>(linkMapBNodes) && std::get<2>(linkMapBNodes));
+//                    if (temp)
+//                    {
+//                        constrainedI++;
+//                    }
+//                    else
+//                    {
+//                        const size_t ntempsnID(node.second->snID()); //Global position in the constraint matrix (j)
+//                        correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
+//                    }
+//
+//                }
+//                else
+//                {
+//                    const size_t ntempsnID(node.second->snID()); //Global position in the constraint matrix (j)
+//                    correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
+//                }
+//            }
+//            for (const auto &node : NC.nodes())
+//            {
+//                const size_t ntempj(node.second->snID()); //Global position in the constraint matrix (j)
+//                // std::cout<<"node.second->sID(is a Boundary node) "<<node.second->sID<<" ("<<node.second->isBoundaryNode()<<" )"<<std::endl;
+//                if (node.second->isBoundaryNode())
+//                {
+//                    const auto linkMapBNodes = node.second->getNodesMapforPeriodicAssembly();
+//                    bool temp(std::get<0>(linkMapBNodes) && std::get<1>(linkMapBNodes) && std::get<2>(linkMapBNodes) );
+//                    if (temp)
+//                    {
+//                        assert(std::get<1>(linkMapBNodes)->sID == node.second->sID);
+//                        const double lij(std::get<3>(linkMapBNodes));
+//                        const double ljk(std::get<4>(linkMapBNodes));
+//
+//                        size_t ntempi(std::get<0>(linkMapBNodes)->snID()); //Global position in the constraint matrix corresponding to the original link (i)
+//                        size_t ntempk(std::get<2>(linkMapBNodes)->snID()); //Global position in the constraint matrix corresponding to the neighbor link (k)
+//                        const double lijk(lij + ljk);
+//
+//                        //First check if ntempi and ntempj are both non-boundary nodes, if not, the constraints are needed to be multiplied and ntempi and ntempk updated
+//                        // std::cout << "Ntempi node " << std::get<0>(nodeinLinks.second)->sID << std::endl;
+//                        // std::cout << "Ntempj node " << node.second->sID << std::endl;
+//                        // std::cout << "Ntempk node " << std::get<2>(nodeinLinks.second)->sID << std::endl;
+//
+//                        assert(correctedJPosition.find(ntempi) != correctedJPosition.end());
+//                        assert(correctedJPosition.find(ntempk) != correctedJPosition.end());
+//
+//                        const size_t correctedI(correctedJPosition.find(ntempi)->second);
+//                        const size_t correctedK(correctedJPosition.find(ntempk)->second);
+//
+//                        for (size_t d = 0; d < dim; ++d)
+//                        {
+//                            // zT.emplace_back(dim*ntempj+d,dim*ntempi+d,ljk/lijk);
+//
+//                            zT.emplace_back(dim * ntempj + d, dim * correctedI + d, ljk / lijk);
+//                            zT.emplace_back(dim * ntempj + d, dim * correctedK + d, lij / lijk);
+//                        }
+//                    }
+//                    else
+//                    {
+//                        assert(correctedJPosition.find(node.second->snID()) != correctedJPosition.end());
+//
+//                        const size_t correctedJ(correctedJPosition.find(node.second->snID())->second);
+//                        for (size_t d = 0; d < dim; ++d)
+//                        {
+//                            zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+//                        }
+//                        unconstrainedNodes++;
+//                    }
+//                }
+//                else
+//                {
+//                    assert(correctedJPosition.find(node.second->snID()) != correctedJPosition.end());
+//                    const size_t correctedJ(correctedJPosition.find(node.second->snID())->second);
+//                    for (size_t d = 0; d < dim; ++d)
+//                    {
+//                        zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+//                    }
+//                    unconstrainedNodes++;
+//                }
+//            }
+//            return unconstrainedNodes;
+//        }
         // //Added by Yash
         // //Improved Version
         // size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const
@@ -497,83 +497,83 @@ namespace model
 
         /************************************************************/
         //Added by Yash
-        void assembleConstraintsforPeriodicSimulations(TripletContainerType &cT, const double &pfactor) const
-        {
-            for (const auto &node : NC.nodes())
-            {
-                if (node.second->isBoundaryNode())
-                {
-                    const auto linkMapBNodes = node.second->getLinksMapsforBoundaryNodes();
-                    assert(linkMapBNodes.size() == 1 && "FINISH HERE");
-                    for (const auto &links : linkMapBNodes)
-                    {
-                        const double ljk((links.first->source->get_P() - links.first->sink->get_P()).norm());
-                        const double lij((links.second->source->get_P() - links.second->sink->get_P()).norm());
-                        const double lijk(lij + ljk);
-                        if (links.first->source->isBoundaryNode() && links.second->source->isBoundaryNode())
-                        {
-                            const size_t ntempj(links.second->source->snID()); //Global position in the constraint matrix (j)
-                            const size_t ntempi(links.second->sink->snID());   //Global position in the constraint matrix corresponding to the original link (i)
-                            const size_t ntempk(links.first->sink->snID());    //Global position in the constraint matrix corresponding to the neighbor link (k)
-                            //assemble from the sinks of both links
-                            for (size_t d = 0; d < dim; ++d)
-                            {
-                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
-                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
-                            }
-                        }
-                        else if (links.first->sink->isBoundaryNode() && links.second->source->isBoundaryNode())
-                        {
-                            const size_t ntempj(links.second->source->snID()); //Global position in the constraint matrix (j)
-                            const size_t ntempi(links.second->sink->snID());   //Global position in the constraint matrix corresponding to the original link (i)
-                            const size_t ntempk(links.first->source->snID());  //Global position in the constraint matrix corresponding to the neighbor link (k)
-                            //assemble from the sinks of both links
-                            for (size_t d = 0; d < dim; ++d)
-                            {
-                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
-                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
-                            }
-                        }
-                        else if (links.first->source->isBoundaryNode() && links.second->sink->isBoundaryNode())
-                        {
-                            const size_t ntempj(links.second->sink->snID());   //Global position in the constraint matrix (j)
-                            const size_t ntempi(links.second->source->snID()); //Global position in the constraint matrix corresponding to the original link (i)
-                            const size_t ntempk(links.first->sink->snID());    //Global position in the constraint matrix corresponding to the neighbor link (k)
-                            //assemble from the sinks of both links
-                            for (size_t d = 0; d < dim; ++d)
-                            {
-                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
-                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
-                            }
-                        }
-                        else if (links.first->sink->isBoundaryNode() && links.second->sink->isBoundaryNode())
-                        {
-                            const size_t ntempj(links.second->sink->snID());   //Global position in the constraint matrix (j)
-                            const size_t ntempi(links.second->source->snID()); //Global position in the constraint matrix corresponding to the original link (i)
-                            const size_t ntempk(links.first->source->snID());  //Global position in the constraint matrix corresponding to the neighbor link (k)
-                            //assemble from the sinks of both links
-                            for (size_t d = 0; d < dim; ++d)
-                            {
-                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
-                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
-                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+//        void assembleConstraintsforPeriodicSimulations(TripletContainerType &cT, const double &pfactor) const
+//        {
+//            for (const auto &node : NC.nodes())
+//            {
+//                if (node.second->isBoundaryNode())
+//                {
+//                    const auto linkMapBNodes = node.second->getLinksMapsforBoundaryNodes();
+//                    assert(linkMapBNodes.size() == 1 && "FINISH HERE");
+//                    for (const auto &links : linkMapBNodes)
+//                    {
+//                        const double ljk((links.first->source->get_P() - links.first->sink->get_P()).norm());
+//                        const double lij((links.second->source->get_P() - links.second->sink->get_P()).norm());
+//                        const double lijk(lij + ljk);
+//                        if (links.first->source->isBoundaryNode() && links.second->source->isBoundaryNode())
+//                        {
+//                            const size_t ntempj(links.second->source->snID()); //Global position in the constraint matrix (j)
+//                            const size_t ntempi(links.second->sink->snID());   //Global position in the constraint matrix corresponding to the original link (i)
+//                            const size_t ntempk(links.first->sink->snID());    //Global position in the constraint matrix corresponding to the neighbor link (k)
+//                            //assemble from the sinks of both links
+//                            for (size_t d = 0; d < dim; ++d)
+//                            {
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
+//                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
+//                            }
+//                        }
+//                        else if (links.first->sink->isBoundaryNode() && links.second->source->isBoundaryNode())
+//                        {
+//                            const size_t ntempj(links.second->source->snID()); //Global position in the constraint matrix (j)
+//                            const size_t ntempi(links.second->sink->snID());   //Global position in the constraint matrix corresponding to the original link (i)
+//                            const size_t ntempk(links.first->source->snID());  //Global position in the constraint matrix corresponding to the neighbor link (k)
+//                            //assemble from the sinks of both links
+//                            for (size_t d = 0; d < dim; ++d)
+//                            {
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
+//                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
+//                            }
+//                        }
+//                        else if (links.first->source->isBoundaryNode() && links.second->sink->isBoundaryNode())
+//                        {
+//                            const size_t ntempj(links.second->sink->snID());   //Global position in the constraint matrix (j)
+//                            const size_t ntempi(links.second->source->snID()); //Global position in the constraint matrix corresponding to the original link (i)
+//                            const size_t ntempk(links.first->sink->snID());    //Global position in the constraint matrix corresponding to the neighbor link (k)
+//                            //assemble from the sinks of both links
+//                            for (size_t d = 0; d < dim; ++d)
+//                            {
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
+//                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
+//                            }
+//                        }
+//                        else if (links.first->sink->isBoundaryNode() && links.second->sink->isBoundaryNode())
+//                        {
+//                            const size_t ntempj(links.second->sink->snID());   //Global position in the constraint matrix (j)
+//                            const size_t ntempi(links.second->source->snID()); //Global position in the constraint matrix corresponding to the original link (i)
+//                            const size_t ntempk(links.first->source->snID());  //Global position in the constraint matrix corresponding to the neighbor link (k)
+//                            //assemble from the sinks of both links
+//                            for (size_t d = 0; d < dim; ++d)
+//                            {
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempj + d, pfactor * 1.0);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempi + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempi + d, dim * ntempj + d, -pfactor * ljk / lijk);
+//                                cT.emplace_back(dim * ntempj + d, dim * ntempk + d, -pfactor * lij / lijk);
+//                                cT.emplace_back(dim * ntempk + d, dim * ntempj + d, -pfactor * lij / lijk);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
         /************************************************************/
         size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq)
         {
@@ -707,85 +707,85 @@ namespace model
 
                 if (NC.nodeBegin()->second->network().simulationParameters.isPeriodicSimulation())
                 {
-                    TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
-                    Eigen::VectorXd Fq;        // the vector of nodal forces
-                    const size_t Ndof = assembleNCtriplets(kqqT, Fq);
-
-                    TripletContainerType zT;
-                    // std::cout<<"Node order size is "<<NC.nodeOrder()<<std::endl;
-                    size_t nUnconstrained = assembleConstraintsforPeriodicSimulationsNULL(zT);
-                    SparseMatrixType K(Ndof, Ndof);
-                    // std::cout<<"Ndof is "<<Ndof<<std::endl;
-                    K.setFromTriplets(kqqT.begin(), kqqT.end());
-                    SparseMatrixType Z(Ndof, dim * nUnconstrained);
-                    // std::cout<<"Setting up sparse matrix Z "<<std::endl;
-                    // std::cout<<"nUnconstrained is "<<nUnconstrained<<std::endl;
-                    // std::cout<<"Printing the triplets \n";
-                    // for (const auto& trip : zT)
-                    // {
-                    //     std::cout<<trip.row()<<", "<<trip.col()<<", "<<trip.value()<<std::endl;
-                    // }
-                    Z.setFromTriplets(zT.begin(), zT.end());
-                    // std::cout<<"Set up sparse matrix "<<std::endl;
-
-                    SparseMatrixType kqqZ(Z.transpose() * K * Z);
-                    // std::cout<<"KqqZ \n";
-                    // std::cout<<Eigen::MatrixXd(kqqZ)<<std::endl;
-
-                    // Zienkiewicz (See [1], section 16.2.4) discusses three methods for lumping the mass matrix
-                    TripletContainerType lumpedTriplets;
-                    for (int k = 0; k < kqqZ.outerSize(); ++k)
-                    {
-
-                        for (SparseMatrixType::InnerIterator it(kqqZ, k); it; ++it)
-                        {
-                            if (it.row() == it.col())
-                            {
-                                lumpedTriplets.emplace_back(it.row(), it.col(), it.value());
-                            }
-                            else
-                            {
-                                lumpedTriplets.emplace_back(it.row(), it.row(), 0.5 * it.value());
-                                lumpedTriplets.emplace_back(it.col(), it.col(), 0.5 * it.value());
-                            }
-                        }
-                    }
-                    SparseMatrixType kqq(nUnconstrained * dim, nUnconstrained * dim);
-                    kqq.setFromTriplets(lumpedTriplets.begin(), lumpedTriplets.end());
-                    Eigen::VectorXd Fqz(Z.transpose() * Fq);
-                    Eigen::VectorXd Kd(kqq.diagonal());
-                    // std::cout<<"Fqz "<<std::endl;
-                    // std::cout<<Fqz<<std::endl;
-                    // std::cout<<"Kd "<<std::endl;
-                    // std::cout<<Kd<<std::endl;
-
-                    Eigen::VectorXd x(Eigen::VectorXd::Zero(dim * nUnconstrained)); //Unconstrained Solution
-                    if (outputKF)
-                    {
-                        assert(0 && "RE-ENABLE OUTPUT");
-                        std::ofstream fileK("K_" + std::to_string(runID) + "_" + std::to_string(NC.sID) + ".txt");
-                        //                fileK<<Kd;
-                        std::ofstream fileF("F_" + std::to_string(runID) + "_" + std::to_string(NC.sID) + ".txt");
-                        //                fileF<<Fq;
-                    }
-                    // Check diagonal and force
-                    for (int k = 0; k < Kd.size(); ++k)
-                    {
-                        if (fabs(Kd(k)) > FLT_EPSILON)
-                        { // stiffness not zero
-                            x(k) = Fqz(k) / Kd(k);
-                        }
-                        else
-                        { // stiffness is zero
-                            if(fabs(Fqz(k)) > FLT_EPSILON)
-                            {
-                                std::cout<<"Kd(k)="<<Kd(k)<<std::endl;
-                                std::cout<<"Fqz(k)="<<Fqz(k)<<std::endl;
-                                assert(false && "if stiffness is zero also force must be zero.");
-                            }
-                        }
-                    }
-                    storeNodeSolution((Z * x).segment(0, Ndof));
+//                    TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
+//                    Eigen::VectorXd Fq;        // the vector of nodal forces
+//                    const size_t Ndof = assembleNCtriplets(kqqT, Fq);
+//
+//                    TripletContainerType zT;
+//                    // std::cout<<"Node order size is "<<NC.nodeOrder()<<std::endl;
+//                    size_t nUnconstrained = assembleConstraintsforPeriodicSimulationsNULL(zT);
+//                    SparseMatrixType K(Ndof, Ndof);
+//                    // std::cout<<"Ndof is "<<Ndof<<std::endl;
+//                    K.setFromTriplets(kqqT.begin(), kqqT.end());
+//                    SparseMatrixType Z(Ndof, dim * nUnconstrained);
+//                    // std::cout<<"Setting up sparse matrix Z "<<std::endl;
+//                    // std::cout<<"nUnconstrained is "<<nUnconstrained<<std::endl;
+//                    // std::cout<<"Printing the triplets \n";
+//                    // for (const auto& trip : zT)
+//                    // {
+//                    //     std::cout<<trip.row()<<", "<<trip.col()<<", "<<trip.value()<<std::endl;
+//                    // }
+//                    Z.setFromTriplets(zT.begin(), zT.end());
+//                    // std::cout<<"Set up sparse matrix "<<std::endl;
+//
+//                    SparseMatrixType kqqZ(Z.transpose() * K * Z);
+//                    // std::cout<<"KqqZ \n";
+//                    // std::cout<<Eigen::MatrixXd(kqqZ)<<std::endl;
+//
+//                    // Zienkiewicz (See [1], section 16.2.4) discusses three methods for lumping the mass matrix
+//                    TripletContainerType lumpedTriplets;
+//                    for (int k = 0; k < kqqZ.outerSize(); ++k)
+//                    {
+//
+//                        for (SparseMatrixType::InnerIterator it(kqqZ, k); it; ++it)
+//                        {
+//                            if (it.row() == it.col())
+//                            {
+//                                lumpedTriplets.emplace_back(it.row(), it.col(), it.value());
+//                            }
+//                            else
+//                            {
+//                                lumpedTriplets.emplace_back(it.row(), it.row(), 0.5 * it.value());
+//                                lumpedTriplets.emplace_back(it.col(), it.col(), 0.5 * it.value());
+//                            }
+//                        }
+//                    }
+//                    SparseMatrixType kqq(nUnconstrained * dim, nUnconstrained * dim);
+//                    kqq.setFromTriplets(lumpedTriplets.begin(), lumpedTriplets.end());
+//                    Eigen::VectorXd Fqz(Z.transpose() * Fq);
+//                    Eigen::VectorXd Kd(kqq.diagonal());
+//                    // std::cout<<"Fqz "<<std::endl;
+//                    // std::cout<<Fqz<<std::endl;
+//                    // std::cout<<"Kd "<<std::endl;
+//                    // std::cout<<Kd<<std::endl;
+//
+//                    Eigen::VectorXd x(Eigen::VectorXd::Zero(dim * nUnconstrained)); //Unconstrained Solution
+//                    if (outputKF)
+//                    {
+//                        assert(0 && "RE-ENABLE OUTPUT");
+//                        std::ofstream fileK("K_" + std::to_string(runID) + "_" + std::to_string(NC.sID) + ".txt");
+//                        //                fileK<<Kd;
+//                        std::ofstream fileF("F_" + std::to_string(runID) + "_" + std::to_string(NC.sID) + ".txt");
+//                        //                fileF<<Fq;
+//                    }
+//                    // Check diagonal and force
+//                    for (int k = 0; k < Kd.size(); ++k)
+//                    {
+//                        if (fabs(Kd(k)) > FLT_EPSILON)
+//                        { // stiffness not zero
+//                            x(k) = Fqz(k) / Kd(k);
+//                        }
+//                        else
+//                        { // stiffness is zero
+//                            if(fabs(Fqz(k)) > FLT_EPSILON)
+//                            {
+//                                std::cout<<"Kd(k)="<<Kd(k)<<std::endl;
+//                                std::cout<<"Fqz(k)="<<Fqz(k)<<std::endl;
+//                                assert(false && "if stiffness is zero also force must be zero.");
+//                            }
+//                        }
+//                    }
+//                    storeNodeSolution((Z * x).segment(0, Ndof));
                 }
                 else
                 {

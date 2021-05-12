@@ -22,7 +22,6 @@
 #include <DislocationLoopIO.h>
 #include <DislocationEdgeIO.h>
 #include <DislocationSegmentIO.h>
-//#include <PeriodicLoopIO.h>
 #include <MPIcout.h>
 
 
@@ -45,6 +44,9 @@ namespace model
         void make_maps()
         {
             // node map
+            nodeMap().clear();
+            loopMap().clear();
+            
             for(const auto& node : nodes())
             {
                 nodeMap().emplace(node.sID,&node);
@@ -403,20 +405,13 @@ namespace model
         void readTxt(const size_t& runID)
         {
             const std::string filename(this->getTxtFilename(runID));
-            
             std::ifstream infile (filename.c_str(), std::ios::in);
             if(infile.is_open())
             {
-                const auto t0=std::chrono::system_clock::now();
-                model::cout<<"reading "<<filename<<std::flush;
                 
-                readTxtStream(infile);
+                readTxtStream(infile,filename);
                 infile.close();
                 
-                model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-                model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
-                model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-                model::cout<<"  "<<links().size()<<" links "<<std::endl;
             }
             else
             {
@@ -430,8 +425,12 @@ namespace model
         
         
         /**********************************************************************/
-        void readTxtStream(std::istream &infile)
+        void readTxtStream(std::istream &infile,const std::string& filename="")
         {
+            
+            const auto t0=std::chrono::system_clock::now();
+            model::cout<<"reading "<<filename<<std::flush;
+
             
             size_t sizeV;
             size_t sizeL;
@@ -487,9 +486,10 @@ namespace model
             
             make_maps();
             
-            model::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
-            model::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
-            model::cout<<" READING:  "<<links().size()<<" links "<<std::endl;
+            model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+            model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
+            model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
+            model::cout<<"  "<<links().size()<<" links "<<std::endl;
             
         }
         

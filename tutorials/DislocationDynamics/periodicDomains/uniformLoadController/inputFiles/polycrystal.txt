@@ -1,6 +1,0 @@
-materialFile=../../MaterialsLibrary/Cu.txt;
-meshFile=../../MeshLibrary/fcc_commensurate_prism.msh;
-
-C2G1=1 0 0
-     0 1 0
-     0 0 1;

@@ -82,7 +82,7 @@ namespace model
         void remeshByRemoval()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Remeshing network: removing... "<<std::flush;
+            model::cout<<"Remeshing network: removing... "<<std::flush;
             
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
@@ -215,7 +215,7 @@ namespace model
         void remeshByExpansion()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Remeshing network: expanding... "<<std::flush;
+            model::cout<<"Remeshing network: expanding... "<<std::flush;
             
             //            model::cout<<"expanding..."<<std::flush;
             
@@ -394,7 +394,7 @@ namespace model
         /**********************************************************************/
         void contract0chordSegments()
         {
-            model::cout<<"		Contracting zero-chord segments... "<<std::flush;
+            model::cout<<"Contracting zero-chord segments... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
@@ -476,15 +476,43 @@ namespace model
 //                    remeshByContraction();
                     remeshByExpansion();
                     contract0chordSegments();
+//                    remove0AreaLoops();
                 }
             }
         }
         
-        
-        
-        
-        
-        
+        /**********************************************************************/
+        void remove0AreaLoops()
+        {
+            const auto t0= std::chrono::system_clock::now();
+            model::cout<<"        Removing zero-area loops ... "<<std::flush;
+            std::set<size_t> loopIDs;
+            for(const auto& loop : DN.loops())
+            {
+                    if(loop.second->slippedArea()<FLT_EPSILON)
+                    {// loop has zero area
+                        bool allNodesConfined(true);
+                        for(const auto& loopLink : loop.second->links())
+                        {
+                            allNodesConfined*=loopLink.second->source()->hasGlidePlaneIntersections();
+                            if(!allNodesConfined)
+                            {
+                                break;
+                            }
+                        }
+                        if(allNodesConfined)
+                        {// all nodes are confined, so loop can not increase its area
+                            loopIDs.insert(loop.second->sID);
+                        }
+                    }
+            }
+            
+            for(const auto& loopID : loopIDs)
+            {
+                DN.deleteLoop(loopID);
+            }
+            model::cout<<loopIDs.size()<<" deleted"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        }
         
         /**********************************************************************/
         void loopInversion(const double& dt)

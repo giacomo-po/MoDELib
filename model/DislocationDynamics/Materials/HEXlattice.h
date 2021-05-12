@@ -105,10 +105,6 @@ namespace model
             LatticeVectorType a3(a2-a1);
             LatticeVectorType c(VectorDimI(0,0,1),lat);
             
-            //            std::shared_ptr<DislocationMobilityBase> basalMobility(new DislocationMobilityHEXbasal(materialBase));
-            //            std::shared_ptr<DislocationMobilityBase> prismaticMobility(new DislocationMobilityHEXprismatic(materialBase));
-            //            std::shared_ptr<DislocationMobilityBase> pyramidalMobility(new DislocationMobilityHEXpyramidal(materialBase));
-            
             const std::shared_ptr<DislocationMobilityBase>& basalMobility(mobilities.at("hexBasal"));
             const std::shared_ptr<DislocationMobilityBase>& prismaticMobility(mobilities.at("hexPrismatic"));
             const std::shared_ptr<DislocationMobilityBase>& pyramidalMobility(mobilities.at("hexPyramidal"));
@@ -122,30 +118,18 @@ namespace model
                 const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
                 const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
                 
-                const Eigen::Matrix<double,7,2> waveVectorsBasal((Eigen::Matrix<double,7,2>()<<0.0, 0.0, // value at origin
-                                                             /*                        */ 0.0, 1.0,
-                                                             /*                        */ 1.0, 0.0,
-                                                             /*                        */ 1.0, 1.0,
-                                                             /*                        */ 1.0,-1.0,
-                                                             /*                        */ 1.0, 2.0,
-                                                             /*                        */ 2.0, 1.0).finished());
+                const Eigen::Matrix<double,3,2> waveVectorsBasal((Eigen::Matrix<double,3,2>()<<0.0, 0.0, // value at origin
+                                                                  /*                        */ 0.0, 1.0,
+                                                                  /*                        */ 1.0,-1.0).finished());
                 
-                const Eigen::Matrix<double,6,3> fBasal((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
-                                                   /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
-                                                   /*                        */ 0.25,sqrt(3.0)/12.0,USF,
-                                                   /*                        */ 0.75,sqrt(3.0)/12.0,USF,
-                                                   /*                        */ 0.50,sqrt(3.0)/3.0, USF,
-                                                   /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
-                const Eigen::Matrix<double,7,5> dfBasal((Eigen::Matrix<double,7,5>()<<0.00,0.0,1.0,0.0,0.0,
-                                                    /*                        */ 0.00,0.0,           0.0,        1.0,0.0, //  symm
-                                                    /*                        */ 0.50,0.0,           1.0,        0.0,0.0, //  symm
-                                                    /*                        */ 0.25,sqrt(3.0)/4.0, 0.5,sqrt(3.0)/2,0.0, //  symm
-                                                    /*                        */ 0.75,sqrt(3.0)/4.0,-0.5,sqrt(3.0)/2,0.0, //  symm
-                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 1.0,0.0        ,0.0, //  symm
-                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.0).finished());
-
+                const Eigen::Matrix<double,4,3> fBasal((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0, // value at origin
+                                                        /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+                                                        /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+                                                        /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
                 
-                std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a2),waveVectorsBasal,fBasal,dfBasal));
+                const int rotSymmBasal(3);
+                const std::vector<Eigen::Matrix<double,2,1>> mirSymmBasal;
+                std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a2),waveVectorsBasal,fBasal,rotSymmBasal,mirSymmBasal));
                 temp.emplace_back(new SlipSystem(a1,a2, RationalLatticeDirection<3>(Rational(1,3),(a1+a2)*(+1)),basalMobility,gammaSurface0));
                 temp.emplace_back(new SlipSystem(a1,a2, RationalLatticeDirection<3>(Rational(1,3),(a1+a2)*(-1)),basalMobility,gammaSurface0));
                 temp.emplace_back(new SlipSystem(a1,a2, RationalLatticeDirection<3>(Rational(1,3),(a3-a1)*(+1)),basalMobility,gammaSurface0));
@@ -159,35 +143,31 @@ namespace model
                 const double PSF2(TextFileParser(material.materialFile).readScalar<double>("PSF2_SI",true)/(material.mu_SI*material.b_SI));
                 const double PSF3(TextFileParser(material.materialFile).readScalar<double>("PSF3_SI",true)/(material.mu_SI*material.b_SI));
                 
-                const Eigen::Matrix<double,6,2> waveVectorsPrism((Eigen::Matrix<double,6,2>()<<0.0, 0.0, // value at origin
-                                                             /*                        */ 0.0, 1.0,
-                                                             /*                        */ 1.0, 0.0,
-                                                             /*                        */ 1.0, 1.0,
-                                                             /*                        */ 1.0,-1.0,
-                                                             /*                        */ 2.0, 0.0).finished());
+                const Eigen::Matrix<double,5,2> waveVectorsPrism((Eigen::Matrix<double,5,2>()<<0.0, 0.0,
+                                                                  /*                        */ 1.0, 0.0,
+                                                                  /*                        */ 0.0, 1.0,
+                                                                  /*                        */ 1.0, 1.0,
+                                                                  /*                        */ 2.0, 0.0).finished());
                 
-                const Eigen::Matrix<double,6,3> fPrism((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
-                                                   /*                        */ 0.50,              0.0,PSF0,
-                                                   /*                        */ 0.00,sqrt(8.0/3.0)/2.0,PSF1,
-                                                   /*                        */ 0.25,sqrt(8.0/3.0)/4.0,PSF2,
-                                                   /*                        */ 0.75,sqrt(8.0/3.0)/4.0,PSF2,
-                                                   /*                        */ 0.50,sqrt(8.0/3.0)/2.0,PSF3).finished());
-                const Eigen::Matrix<double,5,5> dfPrism((Eigen::Matrix<double,5,5>()<<0.00,0.0,1.0,0.0,0.0,
-                                                    /*                        */ 0.00,0.0,              0.0,1.0,0.0, //  symm
-                                                    /*                        */ 0.50,0.0,              1.0,0.0,0.0, //  symm
-                                                    /*                        */ 0.50,sqrt(8.0/3.0)/2.0,1.0,0.0,0.0, //  symm
-                                                    /*                        */ 0.50,sqrt(8.0/3.0)/2.0,0.0,1.0,0.0).finished());
-
+                const Eigen::Matrix<double,5,3> fPrism((Eigen::Matrix<double,5,3>()<<0.00,0.0, 0.0, // value at origin
+                                                        /*                        */ 0.50,              0.0,PSF0,
+                                                        /*                        */ 0.00,sqrt(8.0/3.0)/2.0,PSF1,
+                                                        /*                        */ 0.25,sqrt(8.0/3.0)/4.0,PSF2,
+                                                        /*                        */ 0.50,sqrt(8.0/3.0)/2.0,PSF3).finished());
                 
-                std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a1,c),waveVectorsPrism,fPrism,dfPrism));
+                const int rotSymmPrism(1);
+                std::vector<Eigen::Matrix<double,2,1>> mirSymmPrism;
+                mirSymmPrism.push_back((Eigen::Matrix<double,2,1>()<<1.0,0.0).finished()); // symm with respect to local y-axis
+                mirSymmPrism.push_back((Eigen::Matrix<double,2,1>()<<0.0,1.0).finished()); // symm with respect to local x-axis
+                std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a1,c),waveVectorsPrism,fPrism,rotSymmPrism,mirSymmPrism));
                 temp.emplace_back(new SlipSystem(a1,c, RationalLatticeDirection<3>(Rational(1,2),a1*(+1)),prismaticMobility,gammaSurface1));
                 temp.emplace_back(new SlipSystem(a1,c, RationalLatticeDirection<3>(Rational(1,2),a1*(-1)),prismaticMobility,gammaSurface1));
                 
-                std::shared_ptr<GammaSurface> gammaSurface2(new GammaSurface(LatticePlaneBase(a2,c),waveVectorsPrism,fPrism,dfPrism));
+                std::shared_ptr<GammaSurface> gammaSurface2(new GammaSurface(LatticePlaneBase(a2,c),waveVectorsPrism,fPrism,rotSymmPrism,mirSymmPrism));
                 temp.emplace_back(new SlipSystem(a2,c, RationalLatticeDirection<3>(Rational(1,2),a2*(+1)),prismaticMobility,gammaSurface2));
                 temp.emplace_back(new SlipSystem(a2,c, RationalLatticeDirection<3>(Rational(1,2),a2*(-1)),prismaticMobility,gammaSurface2));
                 
-                std::shared_ptr<GammaSurface> gammaSurface3(new GammaSurface(LatticePlaneBase(a3,c),waveVectorsPrism,fPrism,dfPrism));
+                std::shared_ptr<GammaSurface> gammaSurface3(new GammaSurface(LatticePlaneBase(a3,c),waveVectorsPrism,fPrism,rotSymmPrism,mirSymmPrism));
                 temp.emplace_back(new SlipSystem(a3,c, RationalLatticeDirection<3>(Rational(1,2),a3*(+1)),prismaticMobility,gammaSurface3));
                 temp.emplace_back(new SlipSystem(a3,c, RationalLatticeDirection<3>(Rational(1,2),a3*(-1)),prismaticMobility,gammaSurface3));
                 
@@ -238,3 +218,37 @@ namespace model
 } // namespace model
 #endif
 
+
+//                const Eigen::Matrix<double,6,3> fBasal((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
+//                                                   /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+//                                                   /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+//                                                   /*                        */ 0.75,sqrt(3.0)/12.0,USF,
+//                                                   /*                        */ 0.50,sqrt(3.0)/3.0, USF,
+//                                                   /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
+//                const Eigen::Matrix<double,7,5> dfBasal((Eigen::Matrix<double,7,5>()<<0.00,0.0,1.0,0.0,0.0,
+//                                                    /*                        */ 0.00,0.0,           0.0,        1.0,0.0, //  symm
+//                                                    /*                        */ 0.50,0.0,           1.0,        0.0,0.0, //  symm
+//                                                    /*                        */ 0.25,sqrt(3.0)/4.0, 0.5,sqrt(3.0)/2,0.0, //  symm
+//                                                    /*                        */ 0.75,sqrt(3.0)/4.0,-0.5,sqrt(3.0)/2,0.0, //  symm
+//                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 1.0,0.0        ,0.0, //  symm
+//                                                    /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.0).finished());
+
+
+//                const Eigen::Matrix<double,6,2> waveVectorsPrism((Eigen::Matrix<double,6,2>()<<0.0, 0.0, // value at origin
+//                                                             /*                        */ 0.0, 1.0,
+//                                                             /*                        */ 1.0, 0.0,
+//                                                             /*                        */ 1.0, 1.0,
+//                                                             /*                        */ 1.0,-1.0,
+//                                                             /*                        */ 2.0, 0.0).finished());
+//
+//                const Eigen::Matrix<double,6,3> fPrism((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
+//                                                   /*                        */ 0.50,              0.0,PSF0,
+//                                                   /*                        */ 0.00,sqrt(8.0/3.0)/2.0,PSF1,
+//                                                   /*                        */ 0.25,sqrt(8.0/3.0)/4.0,PSF2,
+//                                                   /*                        */ 0.75,sqrt(8.0/3.0)/4.0,PSF2,
+//                                                   /*                        */ 0.50,sqrt(8.0/3.0)/2.0,PSF3).finished());
+//                const Eigen::Matrix<double,5,5> dfPrism((Eigen::Matrix<double,5,5>()<<0.00,0.0,1.0,0.0,0.0,
+//                                                    /*                        */ 0.00,0.0,              0.0,1.0,0.0, //  symm
+//                                                    /*                        */ 0.50,0.0,              1.0,0.0,0.0, //  symm
+//                                                    /*                        */ 0.50,sqrt(8.0/3.0)/2.0,1.0,0.0,0.0, //  symm
+//                                                    /*                        */ 0.50,sqrt(8.0/3.0)/2.0,0.0,1.0,0.0).finished());

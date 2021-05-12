@@ -53,7 +53,7 @@ namespace model
         /*init list */ testExp(_testExp),
         /*init list */ list(_list)
         {
-            model::cout<<greenColor<<"Creating LinearWeakList "<<defaultColor<<std::endl;
+//            model::cout<<greenColor<<"Creating LinearWeakList "<<defaultColor<<std::endl;
         }
 
         /**********************************************************************/
@@ -62,7 +62,7 @@ namespace model
         /*init list */ testExp(std::move(_testExp)),
         /*init list */ list(_list)
         {
-            model::cout<<greenColor<<"Creating LinearWeakList "<<defaultColor<<std::endl;
+//            model::cout<<greenColor<<"Creating LinearWeakList "<<defaultColor<<std::endl;
         }
 //
 ////        /**********************************************************************/
@@ -75,8 +75,8 @@ namespace model
         Eigen::Matrix<double,Eigen::Dynamic,1> globalVector() const
         {
 
-            model::cout<<"Assembling LinearWeakList (list size="<<list.size()<<") ..."<<std::flush;
-            const auto t0= std::chrono::system_clock::now();
+//            model::cout<<"Assembling LinearWeakList (list size="<<list.size()<<") ..."<<std::flush;
+//            const auto t0= std::chrono::system_clock::now();
 
             Eigen::Matrix<double,Eigen::Dynamic,1> _globalVector(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(TrialBase<TrialFunctionType>::gSize()));
 
@@ -101,7 +101,7 @@ namespace model
                     _globalVector(gI) += ve(i);
                 }
             }
-            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
+//            model::cout<<" done.["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
 
             return _globalVector;
         }

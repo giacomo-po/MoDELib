@@ -35,14 +35,24 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkClipPolyData.h>
 #include <vtkPlane.h>
+#include <vtkSphereSource.h>
+#include <vtkPlane.h>
+#include <vtkCommand.h>
+#include <vtkImplicitPlaneWidget2.h>
+#include <vtkImplicitPlaneRepresentation.h>
+#include <vtkNamedColors.h>
+#include <vtkLookupTable.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkPointData.h>
 #include <random>
+#include <algorithm>
 
 #include <TextFileParser.h>
 
 #include <SimplicialMesh.h>
-//#include <VertexReader.h>
-#include <IDreader.h>
 #include <DDauxIO.h>
+
+//#include <VertexReader.h>
 
 // See this for plane interactor
 // https://www.vtk.org/Wiki/VTK/Examples/Cxx/Widgets/ImplicitPlaneWidget2
@@ -52,6 +62,9 @@
 
 namespace model
 {
+    
+
+    
     
     //    struct SimplicialMeshActor : public VertexReader<'D',4,float>//: public vtkSmartPointer<vtkActor>
     struct SimplicialMeshActor  //public IDreader<'D',1,3,float>//: public vtkSmartPointer<vtkActor>
@@ -88,50 +101,57 @@ namespace model
         vtkSmartPointer<vtkDataSetMapper> clipMapper;
         vtkSmartPointer<vtkActor> clipActor;
         
-        SimplicialMesh<3> mesh;
-        bool dispFileIsGood;
+//        vtkSmartPointer<vtkSphereSource> fieldSphereSource;
+//        vtkSmartPointer<vtkPlane> fieldPlane;
+//        vtkSmartPointer<vtkClipPolyData> fieldClipper;
+//        vtkSmartPointer<vtkPolyDataMapper> fieldMapper;
+//        vtkSmartPointer<vtkActor> fieldActor;
+//        vtkSmartPointer<vtkIPWCallback> fieldCallback;
+//        vtkSmartPointer<vtkImplicitPlaneRepresentation> fieldRep;
+//        vtkSmartPointer<vtkImplicitPlaneWidget2> fieldPlaneWidget;
+        
+        vtkRenderer* const renderer;
+        const SimplicialMesh<3>& mesh;
         static bool showGrainColors;
         static bool showRegionBoundaries;
         static bool showFaceBoundaries;
         static bool showMesh;
 
         /**************************************************************************/
-        SimplicialMeshActor() :
-        /* init */ pts(vtkSmartPointer<vtkPoints>::New()),
-        /* init */ polydata(vtkSmartPointer<vtkPolyData>::New()),
-        /* init */ mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ actor(vtkSmartPointer<vtkActor>::New()),
-        /* init */ facePts(vtkSmartPointer<vtkPoints>::New()),
-        /* init */ facePolydata(vtkSmartPointer<vtkPolyData>::New()),
-        /* init */ faceMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        /* init */ faceActor(vtkSmartPointer<vtkActor>::New()),
-        gbColors(vtkSmartPointer<vtkUnsignedCharArray>::New()),
-        gbPoints(vtkSmartPointer<vtkPoints>::New()),
-        gbTriangles(vtkSmartPointer<vtkCellArray>::New()),
-        gbTrianglePolyData(vtkSmartPointer<vtkPolyData>::New()),
-        gbMapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
-        gbActor(vtkSmartPointer<vtkActor>::New()),
-        clipPlane(vtkSmartPointer<vtkPlane>::New()),
-        clipper(vtkSmartPointer<vtkClipPolyData>::New()),
-        clippedPolyData(vtkSmartPointer<vtkPolyData>::New()),
-        clipMapper(vtkSmartPointer<vtkDataSetMapper>::New()),
-        clipActor(vtkSmartPointer<vtkActor>::New()),
-        /* init */ dispFileIsGood(false)
+        SimplicialMeshActor(vtkRenderer* const renderer_in, const SimplicialMesh<3>& mesh_in) :
+        /* init */ renderer(renderer_in)
+        /* init */,mesh(mesh_in)
+        /* init */,pts(vtkSmartPointer<vtkPoints>::New())
+        /* init */,polydata(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,mapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,actor(vtkSmartPointer<vtkActor>::New())
+        /* init */,facePts(vtkSmartPointer<vtkPoints>::New())
+        /* init */,facePolydata(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,faceMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,faceActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,gbColors(vtkSmartPointer<vtkUnsignedCharArray>::New())
+        /* init */,gbPoints(vtkSmartPointer<vtkPoints>::New())
+        /* init */,gbTriangles(vtkSmartPointer<vtkCellArray>::New())
+        /* init */,gbTrianglePolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,gbMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,gbActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,clipPlane(vtkSmartPointer<vtkPlane>::New())
+        /* init */,clipper(vtkSmartPointer<vtkClipPolyData>::New())
+        /* init */,clippedPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,clipMapper(vtkSmartPointer<vtkDataSetMapper>::New())
+        /* init */,clipActor(vtkSmartPointer<vtkActor>::New())
         {
             
             Eigen::Matrix<double,3,1> c(0.5*(mesh.xMax()+mesh.xMin()));
             clipPlane->SetOrigin(c(0),c(1),c(2));
             clipPlane->SetNormal(1.0, 0.0, 0.0);
             
-        }
-        
-        /**************************************************************************/
-        void init(vtkRenderer* renderer)
-        {
-            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
+//            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
+            
+            
             
             polydata->Allocate();
-
+            
             size_t pointID(0);
             for (const auto& node : mesh.observer<0>())
             {
@@ -141,62 +161,50 @@ namespace model
                                          node.second->P0(1),
                                          node.second->P0(2));
                     
-//                    pts->InsertNextPoint(edge.second->child(1).P0(0),
-//                                         edge.second->child(1).P0(1),
-//                                         edge.second->child(1).P0(2));
+                    //                    pts->InsertNextPoint(edge.second->child(1).P0(0),
+                    //                                         edge.second->child(1).P0(1),
+                    //                                         edge.second->child(1).P0(2));
                     sIDtoVtkPointsMap.emplace(node.second->xID(0),std::make_pair(pointID,Eigen::Matrix<double,3,1>::Zero()));
                     pointID++;
                 }
             }
             
-//            std::cout<<"done inserting points"<<std::endl;
+            //            std::cout<<"done inserting points"<<std::endl;
             
-//            size_t connectivityID=0;
+            
+            
+            //            size_t connectivityID=0;
             for (const auto& edge : mesh.observer<1>())
             {
                 if(edge.second->isBoundarySimplex())
                 {
-//                    pts->InsertNextPoint(edge.second->child(0).P0(0),
-//                                         edge.second->child(0).P0(1),
-//                                         edge.second->child(0).P0(2));
-//
-//                    pts->InsertNextPoint(edge.second->child(1).P0(0),
-//                                         edge.second->child(1).P0(1),
-//                                         edge.second->child(1).P0(2));
-                    
-//                    connectivity[0] = connectivityID;
-//                    connectivity[1] = connectivityID+1;
-
                     const auto iter0(sIDtoVtkPointsMap.find(edge.second->child(0).xID(0)));
                     assert(iter0!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
-
+                    
                     const auto iter1(sIDtoVtkPointsMap.find(edge.second->child(1).xID(0)));
                     assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
-
+                    
                     vtkIdType connectivity[2];
                     connectivity[0] = iter0->second.first;
                     connectivity[1] = iter1->second.first;
-
-
                     polydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
-                    
-//                    connectivityID+=2;
                 }
             }
             
-//                        std::cout<<"done inserting lines"<<std::endl;
+            
+            
             
             polydata->SetPoints(pts);
             
             mapper->SetInputData(polydata);
             
             actor->SetMapper ( mapper );
-//            actor->GetProperty()->SetLineWidth(0.1);
+            //            actor->GetProperty()->SetLineWidth(0.1);
             actor->GetProperty()->SetLineWidth(0.5);
-
+            
             actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
-//            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
-
+            //            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+            
             //            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
             actor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
             
@@ -208,16 +216,16 @@ namespace model
                 {
                     for(int k=0;k<face.second->convexHull().size();++k)
                     {
-//                        const int k1(k<convexHull().size()-1? k+1 : 0);
+                        //                        const int k1(k<convexHull().size()-1? k+1 : 0);
                         
                         facePts->InsertNextPoint(face.second->convexHull()[k]->P0(0),
                                                  face.second->convexHull()[k]->P0(1),
                                                  face.second->convexHull()[k]->P0(2));
-
+                        
                         vtkIdType connectivity[2];
                         connectivity[0] = faceConnectivityID;
                         connectivity[1] = k<face.second->convexHull().size()-1? faceConnectivityID+1 : faceConnectivityID+1-face.second->convexHull().size();//connectivityID+1;
-
+                        
                         facePolydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
                         
                         faceConnectivityID+=1;
@@ -230,8 +238,8 @@ namespace model
             faceActor->GetProperty()->SetLineWidth(2.0);
             faceActor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
             faceActor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
-
-
+            
+            
             
             gbColors->SetNumberOfComponents(3);
             gbColors->SetName("Colors");
@@ -239,172 +247,319 @@ namespace model
             
             std::mt19937 generator;
             std::uniform_int_distribution<> distribution(0,255);
-
+            
             
             std::map<int,Eigen::Matrix<int,1,3>> grainColors;
             for(const auto& region : mesh.regions())
             {
                 const int clr=distribution(generator); // a random SlipSystem ID
                 grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Random()*255);
-//                grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Constant(clr)*255);
+                //                grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Constant(clr)*255);
             }
             
             
             if(showGrainColors)
-            {
+            {// Color triangles the grain they belong to. TO DO: triangles can be replaced by mesh faces
+                const double faceOffset(1.0e-1);
                 
                 for(const auto& meshTriangle : mesh.observer<2>())
                 {
                     if(meshTriangle.second->isBoundarySimplex())
                     {
-                        const int regionID=meshTriangle.second->parents().begin()->second->region->regionID;
-                        
                         const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
+                        const int regionID=meshTriangle.second->parents().begin()->second->region->regionID;
+                        const Eigen::Matrix<int,1,3>& regionClr(grainColors.at(regionID));
                         
                         gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
                         gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
                         gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
-                        
-                        
                         vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
                         triangle->GetPointIds()->SetId (0,triPtID+0);
                         triangle->GetPointIds()->SetId (1,triPtID+1);
                         triangle->GetPointIds()->SetId (2,triPtID+2);
-                        
-                        
-                        const Eigen::Matrix<int,1,3>& regionClr(grainColors.at(regionID));
                         gbColors->InsertNextTuple3(regionClr(0),regionClr(1),regionClr(2)); // use this to assig color to each vertex
-                        
-                        
                         gbTriangles->InsertNextCell ( triangle );
-                        
                         triPtID+=3;
                     }
-                }
-            }
-            
-            const double faceOffset(1.0e-1);
-            
-            // grain-boundaries
-//            if(showRegionBoundaries)
-//            {
-            
-                
-                //                Eigen::MatrixXi regionColors(Eigen::MatrixXi::Random(mesh.regions().size(),3));
-                
-                unsigned char clr[3] = {0, 100, 100};
-                //                gbColors->SetNumberOfComponents(3);
-                //                gbColors->SetName("Colors");
-                //                gbColors->InsertNextTypedTuple(red);
-                //                size_t triPtID=0;
-                for(const auto& meshTriangle : mesh.observer<2>())
-                {
-                    if(meshTriangle.second->isRegionBoundarySimplex())
+                    else if(meshTriangle.second->isRegionBoundarySimplex())
                     {
                         const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
                         
                         const int regionID1=meshTriangle.second->parents().begin()->second->region->regionID;
                         const int regionID2=meshTriangle.second->parents().rbegin()->second->region->regionID;
-
+                        
                         const Eigen::Matrix<double,3,1> n1=-meshTriangle.second->outNormal(regionID1).normalized();
                         const Eigen::Matrix<double,3,1> n2=-meshTriangle.second->outNormal(regionID2).normalized();
                         
                         const Eigen::Matrix<int,1,3>& regionClr1(grainColors.at(regionID1));
                         const Eigen::Matrix<int,1,3>& regionClr2(grainColors.at(regionID2));
                         
+                        // Triangle on first grain
                         gbPoints->InsertNextPoint ( vM(0,0)+faceOffset*n1(0), vM(1,0)+faceOffset*n1(1), vM(2,0)+faceOffset*n1(2) );
                         gbPoints->InsertNextPoint ( vM(0,1)+faceOffset*n1(0), vM(1,1)+faceOffset*n1(1), vM(2,1)+faceOffset*n1(2) );
                         gbPoints->InsertNextPoint ( vM(0,2)+faceOffset*n1(0), vM(1,2)+faceOffset*n1(1), vM(2,2)+faceOffset*n1(2) );
-                        
                         vtkSmartPointer<vtkTriangle> triangle1 = vtkSmartPointer<vtkTriangle>::New();
                         triangle1->GetPointIds()->SetId (0,triPtID+0);
                         triangle1->GetPointIds()->SetId (1,triPtID+1);
                         triangle1->GetPointIds()->SetId (2,triPtID+2);
-                        
-                        
                         gbTriangles->InsertNextCell ( triangle1 );
-                        
-                         //                       gbColors->InsertNextTuple3(0,100,100); // use this to assig color to each vertex
-//                        gbColors->InsertNextTuple3((regionClr1(0)+regionClr2(0))/2,(regionClr1(1)+regionClr2(1))/2,(regionClr1(2)+regionClr2(2))/2); // use this to assig color to each vertex
                         gbColors->InsertNextTuple3(regionClr1(0),regionClr1(1),regionClr1(2)); // use this to assig color to each vertex
-                        
-                        
                         triPtID+=3;
                         
+                        // Triangle on second grain
                         gbPoints->InsertNextPoint ( vM(0,0)+faceOffset*n2(0), vM(1,0)+faceOffset*n2(1), vM(2,0)+faceOffset*n2(2) );
                         gbPoints->InsertNextPoint ( vM(0,1)+faceOffset*n2(0), vM(1,1)+faceOffset*n2(1), vM(2,1)+faceOffset*n2(2) );
                         gbPoints->InsertNextPoint ( vM(0,2)+faceOffset*n2(0), vM(1,2)+faceOffset*n2(1), vM(2,2)+faceOffset*n2(2) );
-                        
                         vtkSmartPointer<vtkTriangle> triangle2 = vtkSmartPointer<vtkTriangle>::New();
                         triangle2->GetPointIds()->SetId (0,triPtID+0);
                         triangle2->GetPointIds()->SetId (1,triPtID+1);
                         triangle2->GetPointIds()->SetId (2,triPtID+2);
-                        
-                        
                         gbTriangles->InsertNextCell ( triangle2 );
-                        
-                        //                       gbColors->InsertNextTuple3(0,100,100); // use this to assig color to each vertex
                         gbColors->InsertNextTuple3(regionClr2(0),regionClr2(1),regionClr2(2)); // use this to assig color to each vertex
-                        
-                        
                         triPtID+=3;
                     }
                 }
-                
-                // to show triangle edges:
-                // http://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
-                // https://stackoverflow.com/questions/7548966/how-to-display-only-triangle-boundaries-on-textured-surface-in-vtk
-                // or loop over SimplexObserver<3,1>
-                //                for(const auto& edge : SimplexObserver<3,1>::simplices())
-                //                {
-                //                    if(edge.second->isRegionBoundarySimplex())
-                //                    {
-                //
-                //                    }
-                //                }
-//            }
+            }
             
             gbTrianglePolyData->SetPoints ( gbPoints );
             gbTrianglePolyData->SetPolys ( gbTriangles );
-            gbTrianglePolyData->SetPolys ( gbTriangles );
             gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
-
-            
-            //                gbTrianglePolyData->GetCellData()->SetScalars(gbColors); // use this to assig color to each vertex
-            
             gbMapper->SetInputData(gbTrianglePolyData);
             gbActor->SetMapper(gbMapper);
             gbActor->GetProperty()->SetOpacity(0.2);
             gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
-//            gbActor->GetProperty()->SetOpacity(1);
             
-            //            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
-            
-//            clipper->SetInputConnection(gbTriangles->GetOutputPort());
             clipper->SetInputData(gbTrianglePolyData);
-
             clipper->SetClipFunction(clipPlane);
             clipper->SetValue(0);
             clipper->Update();
-
-            clippedPolyData = clipper->GetOutput();
-            clipMapper->SetInputData(clippedPolyData);
+            clipMapper->SetInputConnection(clipper->GetOutputPort());
             clipActor->SetMapper(clipMapper);
             
             
             renderer->AddActor(gbActor);
-//            renderer->AddActor(clipActor);
+            //            renderer->AddActor(clipActor); // enable to clip grain boundaries
             
             
             // Update
-//            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
+            //            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
             modifyPts();
             
             // Render
             renderer->AddActor(actor);
             renderer->AddActor(faceActor);
-
+            
         }
+        
+//        /**************************************************************************/
+//        void init(vtkRenderer* renderer)
+//        {
+//
+//            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
+//
+//
+//
+//            polydata->Allocate();
+//
+//            size_t pointID(0);
+//            for (const auto& node : mesh.observer<0>())
+//            {
+//                if(node.second->isBoundarySimplex())
+//                {
+//                    pts->InsertNextPoint(node.second->P0(0),
+//                                         node.second->P0(1),
+//                                         node.second->P0(2));
+//
+////                    pts->InsertNextPoint(edge.second->child(1).P0(0),
+////                                         edge.second->child(1).P0(1),
+////                                         edge.second->child(1).P0(2));
+//                    sIDtoVtkPointsMap.emplace(node.second->xID(0),std::make_pair(pointID,Eigen::Matrix<double,3,1>::Zero()));
+//                    pointID++;
+//                }
+//            }
+//
+////            std::cout<<"done inserting points"<<std::endl;
+//
+//
+//
+////            size_t connectivityID=0;
+//            for (const auto& edge : mesh.observer<1>())
+//            {
+//                if(edge.second->isBoundarySimplex())
+//                {
+//                    const auto iter0(sIDtoVtkPointsMap.find(edge.second->child(0).xID(0)));
+//                    assert(iter0!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
+//
+//                    const auto iter1(sIDtoVtkPointsMap.find(edge.second->child(1).xID(0)));
+//                    assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
+//
+//                    vtkIdType connectivity[2];
+//                    connectivity[0] = iter0->second.first;
+//                    connectivity[1] = iter1->second.first;
+//                    polydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+//                }
+//            }
+//
+//
+//
+//
+//            polydata->SetPoints(pts);
+//
+//            mapper->SetInputData(polydata);
+//
+//            actor->SetMapper ( mapper );
+////            actor->GetProperty()->SetLineWidth(0.1);
+//            actor->GetProperty()->SetLineWidth(0.5);
+//
+//            actor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+////            actor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+//
+//            //            actor->GetProperty()->SetOpacity(0.15); //Make the mesh have some transparency.
+//            actor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
+//
+//            facePolydata->Allocate();
+//            size_t faceConnectivityID=0;
+//            for(auto region : mesh.regions())
+//            {// Sum number of external faces for final check
+//                for(auto& face : region.second->faces())
+//                {
+//                    for(int k=0;k<face.second->convexHull().size();++k)
+//                    {
+////                        const int k1(k<convexHull().size()-1? k+1 : 0);
+//
+//                        facePts->InsertNextPoint(face.second->convexHull()[k]->P0(0),
+//                                                 face.second->convexHull()[k]->P0(1),
+//                                                 face.second->convexHull()[k]->P0(2));
+//
+//                        vtkIdType connectivity[2];
+//                        connectivity[0] = faceConnectivityID;
+//                        connectivity[1] = k<face.second->convexHull().size()-1? faceConnectivityID+1 : faceConnectivityID+1-face.second->convexHull().size();//connectivityID+1;
+//
+//                        facePolydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+//
+//                        faceConnectivityID+=1;
+//                    }
+//                }
+//            }
+//            facePolydata->SetPoints(facePts);
+//            faceMapper->SetInputData(facePolydata);
+//            faceActor->SetMapper ( faceMapper );
+//            faceActor->GetProperty()->SetLineWidth(2.0);
+//            faceActor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
+//            faceActor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
+//
+//
+//
+//            gbColors->SetNumberOfComponents(3);
+//            gbColors->SetName("Colors");
+//            size_t triPtID=0;
+//
+//            std::mt19937 generator;
+//            std::uniform_int_distribution<> distribution(0,255);
+//
+//
+//            std::map<int,Eigen::Matrix<int,1,3>> grainColors;
+//            for(const auto& region : mesh.regions())
+//            {
+//                const int clr=distribution(generator); // a random SlipSystem ID
+//                grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Random()*255);
+////                grainColors.emplace(region.first,Eigen::Matrix<int,1,3>::Constant(clr)*255);
+//            }
+//
+//
+//            if(showGrainColors)
+//            {// Color triangles the grain they belong to. TO DO: triangles can be replaced by mesh faces
+//                const double faceOffset(1.0e-1);
+//
+//                for(const auto& meshTriangle : mesh.observer<2>())
+//                {
+//                    if(meshTriangle.second->isBoundarySimplex())
+//                    {
+//                        const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
+//                        const int regionID=meshTriangle.second->parents().begin()->second->region->regionID;
+//                        const Eigen::Matrix<int,1,3>& regionClr(grainColors.at(regionID));
+//
+//                        gbPoints->InsertNextPoint ( vM(0,0), vM(1,0), vM(2,0) );
+//                        gbPoints->InsertNextPoint ( vM(0,1), vM(1,1), vM(2,1) );
+//                        gbPoints->InsertNextPoint ( vM(0,2), vM(1,2), vM(2,2) );
+//                        vtkSmartPointer<vtkTriangle> triangle = vtkSmartPointer<vtkTriangle>::New();
+//                        triangle->GetPointIds()->SetId (0,triPtID+0);
+//                        triangle->GetPointIds()->SetId (1,triPtID+1);
+//                        triangle->GetPointIds()->SetId (2,triPtID+2);
+//                        gbColors->InsertNextTuple3(regionClr(0),regionClr(1),regionClr(2)); // use this to assig color to each vertex
+//                        gbTriangles->InsertNextCell ( triangle );
+//                        triPtID+=3;
+//                    }
+//                    else if(meshTriangle.second->isRegionBoundarySimplex())
+//                    {
+//                        const Eigen::Matrix<double,3,3> vM(meshTriangle.second->vertexPositionMatrix());
+//
+//                        const int regionID1=meshTriangle.second->parents().begin()->second->region->regionID;
+//                        const int regionID2=meshTriangle.second->parents().rbegin()->second->region->regionID;
+//
+//                        const Eigen::Matrix<double,3,1> n1=-meshTriangle.second->outNormal(regionID1).normalized();
+//                        const Eigen::Matrix<double,3,1> n2=-meshTriangle.second->outNormal(regionID2).normalized();
+//
+//                        const Eigen::Matrix<int,1,3>& regionClr1(grainColors.at(regionID1));
+//                        const Eigen::Matrix<int,1,3>& regionClr2(grainColors.at(regionID2));
+//
+//                        // Triangle on first grain
+//                        gbPoints->InsertNextPoint ( vM(0,0)+faceOffset*n1(0), vM(1,0)+faceOffset*n1(1), vM(2,0)+faceOffset*n1(2) );
+//                        gbPoints->InsertNextPoint ( vM(0,1)+faceOffset*n1(0), vM(1,1)+faceOffset*n1(1), vM(2,1)+faceOffset*n1(2) );
+//                        gbPoints->InsertNextPoint ( vM(0,2)+faceOffset*n1(0), vM(1,2)+faceOffset*n1(1), vM(2,2)+faceOffset*n1(2) );
+//                        vtkSmartPointer<vtkTriangle> triangle1 = vtkSmartPointer<vtkTriangle>::New();
+//                        triangle1->GetPointIds()->SetId (0,triPtID+0);
+//                        triangle1->GetPointIds()->SetId (1,triPtID+1);
+//                        triangle1->GetPointIds()->SetId (2,triPtID+2);
+//                        gbTriangles->InsertNextCell ( triangle1 );
+//                        gbColors->InsertNextTuple3(regionClr1(0),regionClr1(1),regionClr1(2)); // use this to assig color to each vertex
+//                        triPtID+=3;
+//
+//                        // Triangle on second grain
+//                        gbPoints->InsertNextPoint ( vM(0,0)+faceOffset*n2(0), vM(1,0)+faceOffset*n2(1), vM(2,0)+faceOffset*n2(2) );
+//                        gbPoints->InsertNextPoint ( vM(0,1)+faceOffset*n2(0), vM(1,1)+faceOffset*n2(1), vM(2,1)+faceOffset*n2(2) );
+//                        gbPoints->InsertNextPoint ( vM(0,2)+faceOffset*n2(0), vM(1,2)+faceOffset*n2(1), vM(2,2)+faceOffset*n2(2) );
+//                        vtkSmartPointer<vtkTriangle> triangle2 = vtkSmartPointer<vtkTriangle>::New();
+//                        triangle2->GetPointIds()->SetId (0,triPtID+0);
+//                        triangle2->GetPointIds()->SetId (1,triPtID+1);
+//                        triangle2->GetPointIds()->SetId (2,triPtID+2);
+//                        gbTriangles->InsertNextCell ( triangle2 );
+//                        gbColors->InsertNextTuple3(regionClr2(0),regionClr2(1),regionClr2(2)); // use this to assig color to each vertex
+//                        triPtID+=3;
+//                    }
+//                }
+//            }
+//
+//            gbTrianglePolyData->SetPoints ( gbPoints );
+//            gbTrianglePolyData->SetPolys ( gbTriangles );
+//            gbTrianglePolyData->GetCellData()->SetScalars(gbColors);
+//            gbMapper->SetInputData(gbTrianglePolyData);
+//            gbActor->SetMapper(gbMapper);
+//            gbActor->GetProperty()->SetOpacity(0.2);
+//            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
+//
+//            clipper->SetInputData(gbTrianglePolyData);
+//            clipper->SetClipFunction(clipPlane);
+//            clipper->SetValue(0);
+//            clipper->Update();
+//            clipMapper->SetInputConnection(clipper->GetOutputPort());
+//            clipActor->SetMapper(clipMapper);
+//
+//
+//            renderer->AddActor(gbActor);
+////            renderer->AddActor(clipActor); // enable to clip grain boundaries
+//
+//
+//            // Update
+////            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
+//            modifyPts();
+//
+//            // Render
+//            renderer->AddActor(actor);
+//            renderer->AddActor(faceActor);
+////            renderer->AddActor(fieldActor);
+//
+//        }
         
         /**************************************************************************/
         void update(const DDauxIO<3>& ddAux)
@@ -562,8 +717,8 @@ namespace model
     };
     
     double SimplicialMeshActor::dispCorr=1.0;
-    bool SimplicialMeshActor::showGrainColors=false;
-    bool SimplicialMeshActor::showRegionBoundaries=true;
+    bool SimplicialMeshActor::showGrainColors=true;
+    bool SimplicialMeshActor::showRegionBoundaries=false;
     bool SimplicialMeshActor::showFaceBoundaries=true;
     bool SimplicialMeshActor::showMesh=true;
 

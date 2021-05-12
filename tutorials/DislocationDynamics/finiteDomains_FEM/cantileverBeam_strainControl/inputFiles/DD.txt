@@ -10,7 +10,7 @@ enablePartials=0;
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
-externalLoadControllerName=UniformExternalLoadController;
+externalLoadControllerName=none;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
@@ -58,7 +58,7 @@ outputMeshDisplacement=1;
 outputFEMsolution=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=1;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;

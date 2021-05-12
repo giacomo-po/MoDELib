@@ -7,6 +7,7 @@ useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 enablePartials=1;
+absoluteTemperature=300; # [K] temperature
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
@@ -18,18 +19,14 @@ stepsBetweenBVPupdates = 10;
 virtualSegmentDistance=500;
 use_directSolver_FEM=0;
 solverTolerance=0.0001;
-# Surface nucleation model (0=no nucleation)
-surfaceNucleationModel=0;
+surfaceDislocationNucleationModel=0; # Surface nucleation model (0=no nucleation)
+criticalSurfaceDislocationNucleationShearStress=0.07;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-periodicImages_x=2;
+periodicImages_x=0;
 periodicImages_y=0;
 periodicImages_z=0;
-
-######################################
-quadPerLength=1.0;
-
 
 ######################################
 # TIME STEP
@@ -58,17 +55,19 @@ outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
+outputSlipSystemStrain=0;
 outputDislocationLength=0;
 outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
-computeElasticEnergyPerLength=0;
+computeElasticEnergyPerLength=1;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=2.0;
+quadPerLength=1.0;
 
 ######################################
 # NETWORK REMESHING
@@ -84,18 +83,18 @@ nodeRemoveAngleDeg=10;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=0;
+maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
-
-######################################
-# BOUNDARY MESH
-surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
 crossSlipModel=0;
 crossSlipDeg=2.0;
+
+######################################
+# BOUNDARY MESH
+surfaceAttractionDistance=20;
 
 ######################################
 # GRAIN-BOUNDARY MODEL

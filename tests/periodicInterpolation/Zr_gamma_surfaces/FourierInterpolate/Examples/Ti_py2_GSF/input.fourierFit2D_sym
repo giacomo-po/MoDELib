@@ -1,0 +1,15 @@
+5 5
+1.872492   0.000000
+ 0.000000   1.732051
+energy.res
+3
+5
+0.
+1.
+input.symmetrize
+fourier.coef
+0. 0.
+1.872492   0.000000
+ 0.000000   1.732051
+101 101
+energy.interpole

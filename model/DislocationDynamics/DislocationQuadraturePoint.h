@@ -18,6 +18,7 @@
 #include <StraightDislocationSegment.h>
 #include <EshelbyInclusion.h>
 #include <DefectiveCrystalParameters.h>
+#include <Polygon2D.h>
 
 namespace model
 {
@@ -242,6 +243,8 @@ namespace model
     class DislocationQuadraturePointContainer : public std::deque<DislocationQuadraturePoint<dim,corder>>
     
     {
+        
+    public:
         static constexpr int Ncoeff= SplineBase<dim,corder>::Ncoeff;
         static constexpr int Ndof= SplineBase<dim,corder>::Ndof;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -257,6 +260,7 @@ namespace model
         typedef typename DislocationQuadraturePointType::QuadratureDynamicType QuadratureDynamicType;
         typedef typename DislocationQuadraturePointType::QuadPowDynamicType QuadPowDynamicType;
         
+    private:
         /**********************************************************************/
         VectorNdof nodalVelocityLinearKernel(const int& k) const
         { /*!@param[in] k the current quadrature point
@@ -381,11 +385,9 @@ namespace model
 #else
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& parentSegment,
-                                       const double& quadPerLength,
-                                       const double& isClimbStep)
+        void updateForcesAndVelocities(const LinkType& parentSegment)
         {
-            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
+//            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep); // do not create quadrature points in parallel
             
             
             if(this->size())

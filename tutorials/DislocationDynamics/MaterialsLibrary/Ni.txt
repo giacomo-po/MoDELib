@@ -5,7 +5,6 @@ mu0_SI=76e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
 nu=0.31;		# [-]		Poisson's ratio
 rho_SI=8908.0;	# [kg/m^3]	mass density
-T=300;			# [K]		temperature
 Tm=1728;		# [K]		melting temperature
 
 # Mobility parameters
@@ -20,8 +19,8 @@ USF_SI= 863e-3; # [J/m^2]	 unstable stacking fault energy (Wu et al., Applied Su
 MSF_SI=1700e-3; # [J/m^2]	 maximum stacking fault energy (??)
 
 # Vacancy diffusion
+dOmegav=0;	# [-]	Relative vacancy relaxation volume
 Ufv_eV=0;	# [eV]	Vacancy formation energy
-DVv=-0;	# [-]	Relative vacancy relaxation volume
-Udv_eV=0; 	# [eV]	Vacancy migration energy
+Umv_eV=0; 	# [eV]	Vacancy migration energy
 D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
 

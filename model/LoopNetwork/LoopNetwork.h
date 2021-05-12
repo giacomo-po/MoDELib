@@ -413,7 +413,8 @@ namespace model
             //            }
             
             
-            return !this->node(node->sID).first;
+//            return !this->node(node->sID).first;
+            return true;
         }
         
     public:
@@ -559,15 +560,6 @@ namespace model
                 connect(std::get<0>(tup),newNode, std::get<2>(tup));
                 connect(newNode,std::get<1>(tup), std::get<2>(tup));
             }
-            
-            //            // Delete all LoopLinks of type i->j or j->i
-            //            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
-            //            loopLinks().erase(key);
-            //            for (const auto& tup : expandDeq)
-            //            {
-            //                connect(std::get<0>(tup),newNode, std::get<2>(tup));
-            //                connect(newNode,std::get<1>(tup), std::get<2>(tup));
-            //            }
             return newNode;
         }
         
@@ -575,45 +567,12 @@ namespace model
         SharedNodePtrType expand(const IsConstNetworkLinkType Lij, const SharedNodePtrType& newNode)
         {
             assert(Lij.first && "Expanding non-existing link");
-//            VerboseLoopNetwork(1,"expanding "<<Lij.second->tag()<<std::endl);
-//            // Store what needs to be connected (i,new,j,Loop), or (j,new,i,Loop). This also holds temporarily disconnected nodes
-//            std::deque<ExpandTupleType> expandDeq;
-//            for(const auto& llink : Lij.second->loopLinks())
-//            {
-//                expandDeq.emplace_back(llink->source(),llink->sink(),llink->loop());
-//            }
-//
-//            for(const auto& tup : expandDeq)
-//            {
-//                disconnect(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup));
-//                connect(std::get<0>(tup),newNode, std::get<2>(tup));
-//                connect(newNode,std::get<1>(tup), std::get<2>(tup));
-//            }
-//
-////            // Delete all LoopLinks of type i->j or j->i
-////            const auto key=LoopLinkType::loopLinkKey(Lij.second->source->sID,Lij.second->sink->sID);
-////            loopLinks().erase(key);
-//
-////            for (const auto& tup : expandDeq)
-////            {
-////                connect(std::get<0>(tup),newNode, std::get<2>(tup));
-////                connect(newNode,std::get<1>(tup), std::get<2>(tup));
-////            }
-//            return newNode;
             return expand(Lij.second,newNode);
         }
         
         /**********************************************************************/
         SharedNodePtrType expand(const size_t& a, const size_t& b, const SharedNodePtrType& newNode)
         {
-//            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
-            //            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-            
-//            const auto key=LoopLinkType::loopLinkKey(a,b);
-//            const size_t& i=key.first;
-//            const size_t& j=key.second;
-            
-            // Find NetworkLink i->j
             const IsConstNetworkLinkType Lij(this->link(std::min(a,b),std::max(a,b)));
             return expand(Lij,newNode);
         }
@@ -622,18 +581,6 @@ namespace model
         template <typename ...NodeArgTypes>
         SharedNodePtrType expand(const size_t& a, const size_t& b, const NodeArgTypes&... Args)
         {
-            // Create new node
-//            VerboseLoopNetwork(1,"expanding "<<a<<","<<b<<std::endl);
-//            //            assert(danglingNodes().empty() && "You must call clearDanglingNodes() after inserting all loops.");
-//
-//            const auto key=LoopLinkType::loopLinkKey(a,b);
-//            const size_t& i=key.first;
-//            const size_t& j=key.second;
-//
-//            // Find NetworkLink i->j
-//            const IsConstNetworkLinkType Lij(this->link(i,j));
-//            // Create new Node
-//            SharedNodePtrType newNode=SharedNodePtrType(new NodeType(*Lij.second,Args...));
             const IsConstNetworkLinkType Lij(this->link(std::min(a,b),std::max(a,b)));
             return expand(Lij,SharedNodePtrType(new NodeType(*Lij.second,Args...)));
         }
@@ -782,127 +729,127 @@ namespace model
             }
             
             
-            std::deque<std::tuple<const LoopLinkType* const,const LoopLinkType* const,int>> mergeDeque;
-            for(const auto& neighborA : nA->neighbors())
-            {
-                for(const auto& neighborB : nB->neighbors())
-                {
-                    if(std::get<0>(neighborA.second)==std::get<0>(neighborB.second))
-                    {
-                        for(const auto& linkA : std::get<1>(neighborA.second)->loopLinks())
-                        {
-                            for(const auto& linkB : std::get<1>(neighborB.second)->loopLinks())
-                            {
-                                if(linkA->loop()!=linkB->loop())
-                                {
-                                    if(linkA->source()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
-                                    {// links in same sense
-                                        if(linkA->loop()->isMergeable(linkB->loop()))
-                                        {
-                                            mergeDeque.emplace_back(linkA,linkB,0);
-                                            break;
-                                        }
-                                    }
-                                    if(linkA->sink()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
-                                    {// links in same sense
-                                        if(linkA->loop()->isMergeable(linkB->loop()))
-                                        {
-                                            mergeDeque.emplace_back(linkA,linkB,1);
-                                            break;
-                                        }
-                                    }
-                                    
-                                    if(linkA->source()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
-                                    {// links in opposite sense
-                                        if(linkA->loop()->isMergeable(linkB->loop()))
-                                        {
-                                            mergeDeque.emplace_back(linkA,linkB,2);
-                                            break;
-                                        }
-                                    }
-                                    if(linkA->sink()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
-                                    {// links in opposite sense
-                                        if(linkA->loop()->isMergeable(linkB->loop()))
-                                        {
-                                            mergeDeque.emplace_back(linkA,linkB,3);
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            VerboseLoopNetwork(2,"contracting, mergeDeque.size()="<<mergeDeque.size()<<std::endl);
-
-            for(const auto& tup : mergeDeque)
-            {
-                auto sourceA(std::get<0>(tup)->source());
-                auto sinkA(std::get<0>(tup)->sink());
-                auto loopA(std::get<0>(tup)->loop());
-                disconnect(sourceA,sinkA,loopA);
-                
-                switch (std::get<2>(tup))
-                {
-                    case 0:
-                    {
-                        VerboseLoopNetwork(2,"contracting, merging case 0"<<std::endl);
-                        connect(std::get<1>(tup)->sink(),sinkA,loopA);
-                        auto currentLinkB(std::get<1>(tup));
-                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
-                        {
-                            currentLinkB=currentLinkB->prev;
-                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
-                        }
-                        break;
-                    }
-                    case 1:
-                    {
-                        VerboseLoopNetwork(2,"contracting, merging case 1"<<std::endl);
-                        connect(sourceA,std::get<1>(tup)->source(),loopA);
-                        auto currentLinkB(std::get<1>(tup));
-                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
-                        {
-                            currentLinkB=currentLinkB->prev;
-                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
-                        }
-                        break;
-                    }
-                    case 2:
-                    {
-                        VerboseLoopNetwork(2,"contracting, merging case 2"<<std::endl);
-                        connect(std::get<1>(tup)->source(),sinkA,loopA);
-                        auto currentLinkB(std::get<1>(tup));
-                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
-                        {
-                            currentLinkB=currentLinkB->next;
-                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
-                        }
-                        break;
-                    }
-                    case 3:
-                    {
-                        VerboseLoopNetwork(2,"contracting, merging case 3"<<std::endl);
-                        connect(sourceA,std::get<1>(tup)->sink(),loopA);
-                        auto currentLinkB(std::get<1>(tup));
-                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
-                        {
-                            currentLinkB=currentLinkB->next;
-                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
-                        }
-                        break;
-                    }
-                    default:
-                    {
-                        break;
-                    }
-                }
-                
-                VerboseLoopNetwork(2,"contracting, deleting merged loop"<<std::endl);
-                deleteLoop(std::get<1>(tup)->loop()->sID);
-            }
+//            std::deque<std::tuple<const LoopLinkType* const,const LoopLinkType* const,int>> mergeDeque;
+//            for(const auto& neighborA : nA->neighbors())
+//            {
+//                for(const auto& neighborB : nB->neighbors())
+//                {
+//                    if(std::get<0>(neighborA.second)==std::get<0>(neighborB.second))
+//                    {
+//                        for(const auto& linkA : std::get<1>(neighborA.second)->loopLinks())
+//                        {
+//                            for(const auto& linkB : std::get<1>(neighborB.second)->loopLinks())
+//                            {
+//                                if(linkA->loop()!=linkB->loop())
+//                                {
+//                                    if(linkA->source()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
+//                                    {// links in same sense
+//                                        if(linkA->loop()->isMergeable(linkB->loop()))
+//                                        {
+//                                            mergeDeque.emplace_back(linkA,linkB,0);
+//                                            break;
+//                                        }
+//                                    }
+//                                    if(linkA->sink()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()+linkB->loop()->flow()))
+//                                    {// links in same sense
+//                                        if(linkA->loop()->isMergeable(linkB->loop()))
+//                                        {
+//                                            mergeDeque.emplace_back(linkA,linkB,1);
+//                                            break;
+//                                        }
+//                                    }
+//                                    
+//                                    if(linkA->source()==linkB->sink() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
+//                                    {// links in opposite sense
+//                                        if(linkA->loop()->isMergeable(linkB->loop()))
+//                                        {
+//                                            mergeDeque.emplace_back(linkA,linkB,2);
+//                                            break;
+//                                        }
+//                                    }
+//                                    if(linkA->sink()==linkB->source() && NullFlow<FlowType>::isZero(linkA->loop()->flow()-linkB->loop()->flow()))
+//                                    {// links in opposite sense
+//                                        if(linkA->loop()->isMergeable(linkB->loop()))
+//                                        {
+//                                            mergeDeque.emplace_back(linkA,linkB,3);
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//            
+//            VerboseLoopNetwork(2,"contracting, mergeDeque.size()="<<mergeDeque.size()<<std::endl);
+//
+//            for(const auto& tup : mergeDeque)
+//            {
+//                auto sourceA(std::get<0>(tup)->source());
+//                auto sinkA(std::get<0>(tup)->sink());
+//                auto loopA(std::get<0>(tup)->loop());
+//                disconnect(sourceA,sinkA,loopA);
+//                
+//                switch (std::get<2>(tup))
+//                {
+//                    case 0:
+//                    {
+//                        VerboseLoopNetwork(2,"contracting, merging case 0"<<std::endl);
+//                        connect(std::get<1>(tup)->sink(),sinkA,loopA);
+//                        auto currentLinkB(std::get<1>(tup));
+//                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
+//                        {
+//                            currentLinkB=currentLinkB->prev;
+//                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
+//                        }
+//                        break;
+//                    }
+//                    case 1:
+//                    {
+//                        VerboseLoopNetwork(2,"contracting, merging case 1"<<std::endl);
+//                        connect(sourceA,std::get<1>(tup)->source(),loopA);
+//                        auto currentLinkB(std::get<1>(tup));
+//                        while(currentLinkB->source()!=std::get<1>(tup)->sink())
+//                        {
+//                            currentLinkB=currentLinkB->prev;
+//                            connect(currentLinkB->sink(),currentLinkB->source(),loopA);
+//                        }
+//                        break;
+//                    }
+//                    case 2:
+//                    {
+//                        VerboseLoopNetwork(2,"contracting, merging case 2"<<std::endl);
+//                        connect(std::get<1>(tup)->source(),sinkA,loopA);
+//                        auto currentLinkB(std::get<1>(tup));
+//                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
+//                        {
+//                            currentLinkB=currentLinkB->next;
+//                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
+//                        }
+//                        break;
+//                    }
+//                    case 3:
+//                    {
+//                        VerboseLoopNetwork(2,"contracting, merging case 3"<<std::endl);
+//                        connect(sourceA,std::get<1>(tup)->sink(),loopA);
+//                        auto currentLinkB(std::get<1>(tup));
+//                        while(currentLinkB->sink()!=std::get<1>(tup)->source())
+//                        {
+//                            currentLinkB=currentLinkB->next;
+//                            connect(currentLinkB->source(),currentLinkB->sink(),loopA);
+//                        }
+//                        break;
+//                    }
+//                    default:
+//                    {
+//                        break;
+//                    }
+//                }
+//                
+//                VerboseLoopNetwork(2,"contracting, deleting merged loop"<<std::endl);
+//                deleteLoop(std::get<1>(tup)->loop()->sID);
+//            }
             
             
             // Store links connected to b

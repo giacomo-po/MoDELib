@@ -4,8 +4,9 @@
 USE_ICC = 0
 usePARDISO = 1
 useGREATWHITE = 0
+useGREATWHITEstandalone = 0
 MODEL_INCLUDE =../../../..
-GREATWHITE_INCLUDE= $(MODEL_INCLUDE)/../GreatWhite
+GREATWHITE_INCLUDE= /Users/giacomo/Documents/moose_modelib/GreatWhite/include/model_GreatWhite
 EIGEN_INCLUDE =/usr/local/include
 MKL_INCLUDE=/opt/intel/mkl/include
 
@@ -16,7 +17,7 @@ MKL_INCLUDE=/opt/intel/mkl/include
 include ../../buildSymlink.mk
 IDIR += -I./
 IDIR += -I$(all_header_dir)
-#IDIR += -I$(MODEL_INCLUDE)
+IDIR += -I$(MODEL_INCLUDE)
 IDIR += -I$(EIGEN_INCLUDE)
 IDIR += -I$(GREATWHITE_INCLUDE)
 
@@ -88,6 +89,9 @@ endif
 
 ifeq ($(useGREATWHITE), 1)
 	CFLAGS += -D _MODEL_GREATWHITE_
+	ifeq ($(useGREATWHITEstandalone), 1)
+		CFLAGS += -D _MODEL_GREATWHITE_standalone
+	endif
 endif
 
 

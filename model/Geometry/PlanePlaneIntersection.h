@@ -22,16 +22,16 @@ namespace model
     struct PlanePlaneIntersection
     {
         enum IntersectionType {PARALLEL,COINCIDENT,INCIDENT};
-        typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        typedef std::tuple<IntersectionType,VectorDimD,VectorDimD> SolutionType;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef std::tuple<IntersectionType,VectorDim,VectorDim> SolutionType;
         
         
         /**********************************************************************/
-        static bool checkIntersection(const VectorDimD& C,
-                                      const VectorDimD& p1,
-                                      const VectorDimD& n1,
-                                      const VectorDimD& p2,
-                                      const VectorDimD& n2,
+        static bool checkIntersection(const VectorDim& C,
+                                      const VectorDim& p1,
+                                      const VectorDim& n1,
+                                      const VectorDim& p2,
+                                      const VectorDim& n2,
                                       const double& tol)
         {
         
@@ -58,10 +58,10 @@ namespace model
         }
         
         /**********************************************************************/
-        static SolutionType findIntersection(const VectorDimD& p1,
-                                             const VectorDimD& N1,
-                                             const VectorDimD& p2,
-                                             const VectorDimD& N2,
+        static SolutionType findIntersection(const VectorDim& p1,
+                                             const VectorDim& N1,
+                                             const VectorDim& p2,
+                                             const VectorDim& N2,
                                              const double& tol)
         {
             
@@ -70,9 +70,9 @@ namespace model
             assert(normN1>tol);
             assert(normN2>tol);
             
-            const VectorDimD n1(N1/normN1);
-            const VectorDimD n2(N2/normN2);
-            const VectorDimD D(n1.cross(n2));
+            const VectorDim n1(N1/normN1);
+            const VectorDim n2(N2/normN2);
+            const VectorDim D(n1.cross(n2));
             const double normD(D.norm());
               
             if(normD>tol)
@@ -91,7 +91,7 @@ namespace model
                 b(dim+0)=p1.dot(n1);
                 b(dim+1)=p2.dot(n2);
                 
-                const VectorDimD C=M.ldlt().solve(b).template segment<dim>(0);
+                const VectorDim C=M.ldlt().solve(b).template segment<dim>(0);
                 assert(checkIntersection(C,p1,n1,p2,n2,tol) && "PlanePlaneIntersection FAILED.");
 
                 return std::make_tuple(INCIDENT,C,D/normD);
@@ -100,11 +100,11 @@ namespace model
             {
                 if(fabs((p1-p2).dot(n1))<tol)
                 {// coincident planes
-                    return std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDimD::Zero());
+                    return std::make_tuple(COINCIDENT,0.5*(p1+p2),VectorDim::Zero());
                 }
                 else
                 {// paralle planes
-                    return std::make_tuple(PARALLEL,0.5*(p1+p2),VectorDimD::Zero());
+                    return std::make_tuple(PARALLEL,0.5*(p1+p2),VectorDim::Zero());
                 }
             }
         }
@@ -115,14 +115,14 @@ namespace model
         
         const SolutionType sol;
         const IntersectionType& type;
-        const VectorDimD& P;
-        const VectorDimD& d;
+        const VectorDim& P;
+        const VectorDim& d;
         
         /**********************************************************************/
-        PlanePlaneIntersection(const VectorDimD& p1,
-                               const VectorDimD& n1,
-                               const VectorDimD& p2,
-                               const VectorDimD& n2,
+        PlanePlaneIntersection(const VectorDim& p1,
+                               const VectorDim& n1,
+                               const VectorDim& p2,
+                               const VectorDim& n2,
                                const double& tolerance=FLT_EPSILON) :
         /* init */ sol(findIntersection(p1,n1,p2,n2,tolerance)),
         /* init */ type(std::get<0>(sol)),
@@ -140,6 +140,28 @@ namespace model
         /* init */ P(std::get<1>(sol)),
         /* init */ d(std::get<2>(sol))
         {
+            
+        }
+        
+        std::pair<bool,VectorDim> snapToIntersection(const VectorDim& x) const
+        {/*!\param[in] x point to be snapped to the FiniteLineSegment
+          * \returns the closest point to x on the FiniteLineSegment
+          *
+          * miminime distance to the line:
+          * u=argMin{ (P0+u*(P1-P0)-x)^2 }
+          * (P0+u*(P1-P0)-x)*(P1-P0)=0
+          * u=(x-P0)*(P1-P0)/(P1-P0)^2
+          */
+            
+            if(d.squaredNorm()>FLT_EPSILON)
+            {
+                const double u=(x-P).dot(d);
+                return std::make_pair(true,P+u*d);
+            }
+            else
+            {
+                return std::make_pair(false,x);
+            }
         }
         
     };

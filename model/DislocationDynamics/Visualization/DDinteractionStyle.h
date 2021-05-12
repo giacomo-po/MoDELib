@@ -34,7 +34,9 @@
 #include <TextFileParser.h>
 #include <PlotActor.h>
 #include <DDauxVtk.h>
-
+#include <DDconfigVtk.h>
+#include <FieldActor.h>
+#include <BVPsolverBase.h>
 
 namespace model
 {
@@ -44,16 +46,18 @@ namespace model
     //                                                                call Modified() on it if necessary) and the renderer would
     //automatically display the new points.
     
-    class DDinteractionStyle :
-    /* inherit */ public vtkInteractorStyleTrackballCamera
+    class DDinteractionStyle : public vtkInteractorStyleTrackballCamera
     //    public vtkInteractorStyleMultiTouchCamera
     {
         
-        std::unique_ptr<DislocationSegmentActor> ddSegments;
+    public:
+        vtkSmartPointer<vtkRenderer> ddRenderer;
+
+    private:
 //        std::unique_ptr<PKActor> ddPK;
 //        std::unique_ptr<GlidePlaneActor> ddAux;
         std::unique_ptr<DDauxVtk> ddAux;
-        
+
         std::unique_ptr<InclusionActor> inclusions;
         std::unique_ptr<PlotActor> plot;
         vtkSmartPointer<vtkAxesActor> axes;
@@ -85,29 +89,56 @@ namespace model
         static DDinteractionStyle* New();
         vtkTypeMacro(DDinteractionStyle, vtkInteractorStyleTrackballCamera);
         
+        SimplicialMesh<3> mesh;
+        Polycrystal<3> poly;
+        BVPsolverBase<3> bvpSolver;
         SimplicialMeshActor meshActor;
-        vtkRenderer* ddRenderer;
+        DDconfigVtk ddConfig;
+        FieldActor fieldActor;
+
+//        std::unique_ptr<DislocationSegmentActor> ddSegments;
+//        DislocationSegmentActor ddSegments;
+//        vtkRenderer* ddRenderer;
         vtkRenderer* plotRenderer;
         
         /**********************************************************************/
         DDinteractionStyle() :
-        axes(vtkSmartPointer<vtkAxesActor>::New()),
-        widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New()),
-        /* init list   */ xCol(0),
-        /* init list   */ yCol(2),
-        /* init list   */ winFrac(0.5),
-        /* init list   */ saveImage(false),
-        /* init list   */ imageType(1),
-        /* init list   */ imageMagnification(1),
-        /* init list   */ imageTransparentBackground(false),
-        /* init list   */ frameIncrement(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputFrequency",false)),
-        /* init list   */ currentFrameID(-1),
-        /* init list   */ lastFrameID(currentFrameID),
-        /* init list   */ autoSpin(false),
-        /* init list   */ degPerStep(0.0),
-        /* init list   */ spinAxis(Eigen::Matrix<double,3,1>::Zero()),
-        /* init list   */ axisWidgetEnabled(true)
+        /* init */ ddRenderer(vtkSmartPointer<vtkRenderer>::New())
+        /* init */,axes(vtkSmartPointer<vtkAxesActor>::New())
+        /* init */,widget(vtkSmartPointer<vtkOrientationMarkerWidget>::New())
+        /* init */,xCol(0)
+        /* init */,yCol(2)
+        /* init */,winFrac(0.5)
+        /* init */,saveImage(false)
+        /* init */,imageType(1)
+        /* init */,imageMagnification(1)
+        /* init */,imageTransparentBackground(false)
+        /* init */,frameIncrement(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputFrequency",false))
+        /* init */,currentFrameID(-1)
+        /* init */,lastFrameID(currentFrameID)
+        /* init */,autoSpin(false)
+        /* init */,degPerStep(0.0)
+        /* init */,spinAxis(Eigen::Matrix<double,3,1>::Zero())
+        /* init */,axisWidgetEnabled(true)
+//        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
+        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose())
+        /* init */,poly("./inputFiles/polycrystal.txt",mesh)
+        /* init */,bvpSolver(poly)
+        /* init */,meshActor(ddRenderer,mesh)
+        /* init */,ddConfig(ddRenderer,mesh)
+        /* init */,fieldActor(meshActor,ddConfig,bvpSolver,meshActor.clipPlane,ddRenderer)
+//        /* init */,ddSegments(0/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh)
         {
+            
+//            meshActor.ddSegments=&ddSegments.ddSegments;
+            
+            ddRenderer->SetBackground(1,1,1); // Background color white
+            ddRenderer->SetViewport(0.0,0,0.5,1);
+//            ddRenderer->ResetCamera();
+            this->SetDefaultRenderer(ddRenderer);
+
+
+
             LastPickedActor = NULL;
             LastPickedProperty = vtkProperty::New();
             
@@ -124,22 +155,9 @@ namespace model
                 int colID=0;
                 while (std::getline(ifs, line))
                 {
-//                    std::stringstream ss(line);
-//                    
-//                    int colID;
-//                    ss>>colID;
-//                    std::string label;
-//                    std::string temp;
-//                    
-//                    while (ss >> temp)
-//                    {
-//                        label+=" "+temp;
-//                    }
-                    
                     FlabelsMap.emplace(colID,line);
                     colID++;
                 }
-                
             }
             else
             {
@@ -150,13 +168,15 @@ namespace model
         }
         
         
-        void init(vtkRenderer* _ddRenderer,vtkRenderer* _plotRenderer)
+        void init(vtkRenderer* _plotRenderer)
         {
         
-            ddRenderer=_ddRenderer;
+//            ddRenderer=_ddRenderer;
             plotRenderer=_plotRenderer;
             
-            meshActor.init(ddRenderer);
+//            meshActor.init(ddRenderer);
+            
+//            ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
             
             loadFrame(0);
             
@@ -170,6 +190,8 @@ namespace model
             widget->SetEnabled( axisWidgetEnabled );
             widget->InteractiveOn();
 
+            fieldActor.planeWidget->SetInteractor(this->Interactor);
+//            fieldActor.planeWidget->On();
             
             plotRenderer->SetBackground(1,1,1);
             plotRenderer->SetViewport(0.5,0,1.0,1);
@@ -202,13 +224,39 @@ namespace model
                 }
                 
                 // Update ddActors
+                ddConfig.updateConfiguration(frameID);
+                
                 ddAux.reset(new DDauxVtk(frameID,ddRenderer));
+                if(bvpSolver.displacement().gSize()==ddAux->displacementFEM.size())
+                {
+                   bvpSolver.displacement()=ddAux->displacementFEM;
+                }
+                else
+                {
+                    bvpSolver.displacement()=Eigen::VectorXd::Zero(bvpSolver.displacement().gSize());
+                }
+                if(bvpSolver.vacancyConcentration().gSize()==ddAux->vacancyFEM.size())
+                {
+                    bvpSolver.vacancyConcentration()=ddAux->vacancyFEM;
+                }
+                else
+                {
+                    bvpSolver.vacancyConcentration()=Eigen::VectorXd::Zero(bvpSolver.vacancyConcentration().gSize());
+                }
+                
+                
+                
                 meshActor.update(*ddAux/*,lastFrameID,degPerStep,spinAxis*/);
-                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
+//                ddSegments.updateConfiguration(frameID);
+//                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
 //                ddPK.reset(new PKActor(frameID,ddRenderer));
                 inclusions.reset(new InclusionActor(0,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
-                
+                if(fieldActor.meshActor->GetVisibility())
+                {
+                    fieldActor.compute();
+                }
+                    
 
                 const double spinAxisNorm(spinAxis.norm());
                 if(autoSpin && degPerStep && spinAxisNorm)
@@ -551,6 +599,26 @@ namespace model
                 std::cout<<"      8 show/hide glide planes "<<std::endl;
                 
             }
+            else if(key == "f")
+            {
+                selectedKey="f";
+//                fieldActor.enableWidget=true;
+//                fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+//                fieldActor.meshActor->VisibilityOff();
+                ddRenderer->Render();
+                this->Interactor->Render();
+                std::cout<<"selecting objects: field plane"<<std::endl;
+//                std::cout<<"    +/- to increase tube radius"<<std::endl;
+                std::cout<<"      0 to show/hide plane widget"<<std::endl;
+                std::cout<<"      1 to remesh plane"<<std::endl;
+                std::cout<<"      2 compute fields"<<std::endl;
+                std::cout<<"      3 select field"<<std::endl;
+                std::cout<<"      4 select colorbar limits"<<std::endl;
+                std::cout<<"      5 enter mesh size in [b^2]"<<std::endl;
+                std::cout<<"      6 toggle colorbar visibility"<<std::endl;
+
+
+            }
             else if(key == "g")
             {
                 if(selectedKey[0]=='g')
@@ -559,20 +627,20 @@ namespace model
                     if(ddAux!=nullptr)
                     {
                         ddAux->showGlidePlanes=false;
-                        ddAux->showPeriodicGlidePlanes=false;
-                        ddAux->showPeriodicLoops=false;
+//                        ddAux->showPeriodicGlidePlanes=false;
+//                        ddAux->showPeriodicLoops=false;
                         ddAux->modify();
                         this->Interactor->Render();
                         std::cout<<"showGlidePlanes="<<ddAux->showGlidePlanes<<std::endl;
-                        std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
+//                        std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
                     }
                 }
                 else
                 {
                     selectedKey="g";
                     std::cout<<"selecting objects: glide planes"<<std::endl;
-                    std::cout<<"    1 to show periodic glide planes"<<std::endl;
-                    std::cout<<"    2 to show periodic loops"<<std::endl;
+//                    std::cout<<"    1 to show periodic glide planes"<<std::endl;
+//                    std::cout<<"    2 to show periodic loops"<<std::endl;
                     std::cout<<"    +/- to increase opacity"<<std::endl;
                     if(ddAux!=nullptr)
                     {
@@ -761,12 +829,9 @@ namespace model
                 if(selectedKey[0]=='t')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showSlippedArea=false;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showSlippedArea=false;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
                 }
                 else
                 {
@@ -774,13 +839,9 @@ namespace model
                     std::cout<<"selecting objects: Slipped Areas"<<std::endl;
                     std::cout<<"    +/- to increase/decrease opacity"<<std::endl;
                     
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showSlippedArea=true;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showSlippedArea=true;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
-                    
                 }
             }
             else if(key == "v")
@@ -788,12 +849,9 @@ namespace model
                 if(selectedKey[0]=='v')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showNodes=false;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showNodes=false;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
                 }
                 else
                 {
@@ -802,13 +860,9 @@ namespace model
                     std::cout<<"      1 to show/hide node IDs"<<std::endl;
                     std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
                     
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showNodes=true;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showNodes=true;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
-                    
                 }
             }
             else if(key == "w")
@@ -816,27 +870,18 @@ namespace model
                 if(selectedKey[0]=='w')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showVelocities=false;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showVelocities=false;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
                 }
                 else
                 {
                     selectedKey="w";
                     std::cout<<"selecting objects: nodal velocities"<<std::endl;
                     std::cout<<"    +/- to increase vector size"<<std::endl;
-                    
-                    if(ddSegments.get()!=nullptr)
-                    {
-                        DislocationSegmentActor::showVelocities=true;
-                        ddSegments->modify();
+                        DDconfigVtkBase::showVelocities=true;
+                        ddConfig.modify();
                         this->Interactor->Render();
-                    }
-                    
-                    
                 }
             }
             
@@ -845,81 +890,181 @@ namespace model
                 
                 if(key == "equal")
                 {
-                    DislocationSegmentActor::tubeRadius*=2.0;
-                    ddSegments->modify();
-                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    DDconfigVtkBase::tubeRadius*=2.0;
+                    ddConfig.modify();
+                    std::cout<<"tube radius="<<DDconfigVtkBase::tubeRadius<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
-                    DislocationSegmentActor::tubeRadius*=0.5;
-                    ddSegments->modify();
-                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    DDconfigVtkBase::tubeRadius*=0.5;
+                    ddConfig.modify();
+                    std::cout<<"tube radius="<<DDconfigVtkBase::tubeRadius<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "0")
                 {
-                    DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
-                    ddSegments->modify();
+                    DDconfigVtkBase::showZeroBuergers=!DDconfigVtkBase::showZeroBuergers;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 if(key == "1")
                 {
-                    DislocationSegmentActor::showBoundarySegments=!DislocationSegmentActor::showBoundarySegments;
-                    ddSegments->modify();
+                    DDconfigVtkBase::showBoundarySegments=!DDconfigVtkBase::showBoundarySegments;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 if(key == "2")
                 {
-                    DislocationSegmentActor::scaleRadiusByBurgers=!DislocationSegmentActor::scaleRadiusByBurgers;
-                    std::cout<<"scaleRadiusByBurgers="<<DislocationSegmentActor::scaleRadiusByBurgers<<std::endl;
-                    ddSegments->modify();
+                    DDconfigVtkBase::scaleRadiusByBurgers=!DDconfigVtkBase::scaleRadiusByBurgers;
+                    std::cout<<"scaleRadiusByBurgers="<<DDconfigVtkBase::scaleRadiusByBurgers<<std::endl;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 if(key == "3")
                 {
-                    DislocationSegmentActor::blackGrainBoundarySegments=!DislocationSegmentActor::blackGrainBoundarySegments;
-                    std::cout<<"blackGrainBoundarySegments="<<DislocationSegmentActor::blackGrainBoundarySegments<<std::endl;
-                    ddSegments->modify();
+                    DDconfigVtkBase::blackGrainBoundarySegments=!DDconfigVtkBase::blackGrainBoundarySegments;
+                    std::cout<<"blackGrainBoundarySegments="<<DDconfigVtkBase::blackGrainBoundarySegments<<std::endl;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 if(key == "4")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
+                    DDconfigVtkBase::clr=DDconfigVtkBase::colorBurgers;
                     std::cout<<"DislocationSegment color scheme = Burgers. Reload frame to update colors."<<std::endl;
-//                    ddSegments->modify();
+//                    ddConfig.modify();
 //                    this->Interactor->Render();
                 }
                 if(key == "5")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorSessile;
+                    DDconfigVtkBase::clr=DDconfigVtkBase::colorSessile;
                     std::cout<<"DislocationSegment color scheme = Glissile/Sessile. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig.modify();
                     //                    this->Interactor->Render();
                 }
                 if(key == "6")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorEdgeScrew;
+                    DDconfigVtkBase::clr=DDconfigVtkBase::colorEdgeScrew;
                     std::cout<<"DislocationSegment color scheme = screw/edge. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig.modify();
                     //                    this->Interactor->Render();
                 }
                 if(key == "7")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorNormal;
+                    DDconfigVtkBase::clr=DDconfigVtkBase::colorNormal;
                     std::cout<<"DislocationSegment color scheme = planeNormal. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig.modify();
                     //                    this->Interactor->Render();
                 }
 //                if(key == "8")
 //                {
-//                    DislocationSegmentActor::showGlidePlanes=!DislocationSegmentActor::showGlidePlanes;
-//                    std::cout<<"show GlidePlanes="<<DislocationSegmentActor::showGlidePlanes<<std::endl;
-//                    ddSegments->modify();
-//                    //                    ddSegments->modify();
+//                    DDconfigVtkBase::showGlidePlanes=!DDconfigVtkBase::showGlidePlanes;
+//                    std::cout<<"show GlidePlanes="<<DDconfigVtkBase::showGlidePlanes<<std::endl;
+//                    ddConfig.modify();
+//                    //                    ddConfig.modify();
 //                    //                    this->Interactor->Render();
 //                }
                 
+            }
+            else if(selectedKey[0]=='f')
+            {
+                if(key == "0")
+                {
+                    //                fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+                    //                fieldActor.meshActor->VisibilityOff();
+                    fieldActor.enableWidget=!fieldActor.enableWidget;
+                    fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+                    fieldActor.meshActor->VisibilityOff();
+                    ddRenderer->Render();
+                    this->Interactor->Render();
+                }
+                else if(key == "1")
+                {
+                    fieldActor.enableWidget=false;
+                    fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+                    fieldActor.meshActor->VisibilityOn();
+                    fieldActor.remesh();
+                    ddRenderer->Render();
+                    this->Interactor->Render();
+                }
+                else if(key == "2")
+                {
+                    fieldActor.enableWidget=false;
+                    fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+                    fieldActor.meshActor->VisibilityOn();
+                    fieldActor.compute();
+                    ddRenderer->Render();
+                    this->Interactor->Render();
+                }
+                else if(key == "3")
+                {
+                    fieldActor.enableWidget=false;
+                    fieldActor.planeWidget->SetEnabled( fieldActor.enableWidget );
+                    fieldActor.meshActor->VisibilityOn();
+                    std::cout<<"Available fields:"<<std::endl;
+                    std::cout<<"0: sigma_11 (DD)"<<std::endl;
+                    std::cout<<"1: sigma_12 (DD)"<<std::endl;
+                    std::cout<<"2: sigma_13 (DD)"<<std::endl;
+                    std::cout<<"3: sigma_22 (DD)"<<std::endl;
+                    std::cout<<"4: sigma_23 (DD)"<<std::endl;
+                    std::cout<<"5: sigma_33 (DD)"<<std::endl;
+                    
+                    std::cout<<"6: sigma_11 (FEM)"<<std::endl;
+                    std::cout<<"7: sigma_12 (FEM)"<<std::endl;
+                    std::cout<<"8: sigma_13 (FEM)"<<std::endl;
+                    std::cout<<"9: sigma_22 (FEM)"<<std::endl;
+                    std::cout<<"10: sigma_23 (FEM)"<<std::endl;
+                    std::cout<<"11: sigma_33 (FEM)"<<std::endl;
+
+                    std::cout<<"12: sigma_11 (DD+FEM)"<<std::endl;
+                    std::cout<<"13: sigma_12 (DD+FEM)"<<std::endl;
+                    std::cout<<"14: sigma_13 (DD+FEM)"<<std::endl;
+                    std::cout<<"15: sigma_22 (DD+FEM)"<<std::endl;
+                    std::cout<<"16: sigma_23 (DD+FEM)"<<std::endl;
+                    std::cout<<"17: sigma_33 (DD+FEM)"<<std::endl;
+
+                    std::cout<<"18: vacancy concentration (DD)"<<std::endl;
+                    std::cout<<"19: vacancy concentration (FEM)"<<std::endl;
+                    std::cout<<"20: vacancy concentration (DD+FEM)"<<std::endl;
+                    std::cout<<"Enter field ID to plot:"<<std::flush;
+                    std::cin >> FieldActor::plotChoice;
+                    std::cout <<std::endl;
+                    fieldActor.plotField();
+                    ddRenderer->Render();
+                    this->Interactor->Render();
+                }
+                else if(key == "4")
+                {
+                    std::cout<<"Enter colorbar minimum limits:"<<std::flush;
+                    std::cin >> FieldActor::lutMin;
+                    std::cout<<"Enter colorbar maximum limits:"<<std::flush;
+                    std::cin >> FieldActor::lutMax;
+                    fieldActor.plotField();
+                    ddRenderer->Render();
+                    this->Interactor->Render();
+                }
+                else if(key == "5")
+                {
+                    fieldActor.meshActor->VisibilityOn();
+                    std::cout<<"Enter mesh size in [b^2]:"<<std::flush;
+                    std::cin >> FieldActor::meshSize;
+                    std::cout <<std::endl;
+                    if(FieldActor::meshSize<=0.0)
+                    {
+                        FieldActor::meshSize=100;
+                        std::cout<<"invalid mesh size, reverting to meshSize="<<FieldActor::meshSize<<std::endl;
+                    }
+                    else
+                    {
+                        fieldActor.remesh();
+                    }
+                }
+                else if(key == "6")
+                {
+                    fieldActor.scalarBar->SetVisibility(!fieldActor.scalarBar->GetVisibility());
+                    std::cout<<"scalarBar visibility="<<fieldActor.scalarBar->GetVisibility()<<std::flush;
+                    this->Interactor->Render();
+                }
             }
             else if(selectedKey[0]=='m')
             {
@@ -1073,38 +1218,38 @@ namespace model
             {
                 if(key == "1")
                 {
-                    DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
-                    ddSegments->modify();
+                    DDconfigVtkBase::showNodeIDs=!DDconfigVtkBase::showNodeIDs;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 
                 if(key == "2")
                 {
-                    DislocationSegmentActor::showSingleNode=!DislocationSegmentActor::showSingleNode;
-                    if(DislocationSegmentActor::showSingleNode)
+                    DDconfigVtkBase::showSingleNode=!DDconfigVtkBase::showSingleNode;
+                    if(DDconfigVtkBase::showSingleNode)
                     {
                         std::cout << "Enter node ID "<<std::flush;
-                        std::cin >> DislocationSegmentActor::singleNodeID;
+                        std::cin >> DDconfigVtkBase::singleNodeID;
                         std::cout <<std::endl;
                     }
-                    ddSegments->modify();
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
             }
             else if(selectedKey[0]=='w')
             {
-                if(key == "equal" && ddSegments.get()!=nullptr)
+                if(key == "equal" )
                 {
-                    DislocationSegmentActor::velocityFactor*=2.0;
-                    ddSegments->modify();
-                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    DDconfigVtkBase::velocityFactor*=2.0;
+                    ddConfig.modify();
+                    std::cout<<"velocity scaling="<<DDconfigVtkBase::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
-                if(key == "minus" && ddSegments.get()!=nullptr)
+                if(key == "minus" )
                 {
-                    DislocationSegmentActor::velocityFactor*=0.5;
-                    ddSegments->modify();
-                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    DDconfigVtkBase::velocityFactor*=0.5;
+                    ddConfig.modify();
+                    std::cout<<"velocity scaling="<<DDconfigVtkBase::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 
@@ -1125,33 +1270,33 @@ namespace model
                     this->Interactor->Render();
                     std::cout<<"glidePlaneOpacity="<<ddAux->glidePlaneOpacity<<std::endl;
                 }
-                if(key == "1" && ddAux!=nullptr)
-                {
-                    ddAux->showPeriodicGlidePlanes=!ddAux->showPeriodicGlidePlanes;
-                    ddAux->modify();
-                    this->Interactor->Render();
-                    std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
-                }
-                if(key == "2" && ddAux!=nullptr)
-                {
-                    ddAux->showPeriodicLoops=!ddAux->showPeriodicLoops;
-                    ddAux->modify();
-                    this->Interactor->Render();
-                    std::cout<<"showPeriodicLoops="<<ddAux->showPeriodicLoops<<std::endl;
-                }
+//                if(key == "1" && ddAux!=nullptr)
+//                {
+//                    ddAux->showPeriodicGlidePlanes=!ddAux->showPeriodicGlidePlanes;
+//                    ddAux->modify();
+//                    this->Interactor->Render();
+//                    std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
+//                }
+//                if(key == "2" && ddAux!=nullptr)
+//                {
+//                    ddAux->showPeriodicLoops=!ddAux->showPeriodicLoops;
+//                    ddAux->modify();
+//                    this->Interactor->Render();
+//                    std::cout<<"showPeriodicLoops="<<ddAux->showPeriodicLoops<<std::endl;
+//                }
             }
             else if(selectedKey[0]=='t')
             {
-                if(key == "equal" && ddSegments.get()!=nullptr)
+                if(key == "equal" )
                 {
-                    DislocationSegmentActor::slippedAreaOpacity*=1.25;
-                    ddSegments->modify();
+                    DDconfigVtkBase::slippedAreaOpacity*=1.25;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
-                if(key == "minus" && ddSegments.get()!=nullptr)
+                if(key == "minus" )
                 {
-                    DislocationSegmentActor::slippedAreaOpacity/=1.25;
-                    ddSegments->modify();
+                    DDconfigVtkBase::slippedAreaOpacity/=1.25;
+                    ddConfig.modify();
                     this->Interactor->Render();
                 }
                 

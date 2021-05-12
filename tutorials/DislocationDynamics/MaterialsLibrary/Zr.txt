@@ -5,7 +5,6 @@ mu0_SI=33e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
 nu=0.34;		# [-]		Poisson's ratio
 rho_SI=6520.0;	# [kg/m^3]	mass density
-T=300;			# [K]		temperature
 Tm=2128;		# [K]		melting temperature
 
 
@@ -59,7 +58,7 @@ PSF2_SI= 645e-3; # [J/m^2]      stacking fault energy at (0.25,c/4) and (0.75,c/
 PSF3_SI= 720e-3; # [J/m^2]      stacking fault energy at (0.5 ,c/2) (Clouet Phy. Rev. B 86 2012 144104)
 
 # Vacancy diffusion
+dOmegav=0.405;	# [-]	Relative vacancy relaxation volume
 Ufv_eV=0.67;	# [eV]	Vacancy formation energy
-DVv=-0.405;	# [-]	Relative vacancy relaxation volume
-Udv_eV=0.61; 	# [eV]	Vacancy migration energy
+Umv_eV=0.61; 	# [eV]	Vacancy migration energy
 D0v_SI=1.18e-5;	    # [m^2/s]	vacancy diffusion coefficient

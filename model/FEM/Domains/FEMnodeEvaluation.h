@@ -18,7 +18,7 @@ namespace model
  
     /******************************************************************************/
     template <typename ElementType,int rows,int cols>
-    struct FEMnodeEvaluation : public FEMbaseEvaluation<ElementType,rows,cols>
+    struct FEMnodeEvaluation : public FEMbaseEvaluation<ElementType::dim,rows,cols>
     {
         
         typedef Eigen::Matrix<double,ElementType::dim,1> VectorDim;
@@ -27,7 +27,7 @@ namespace model
         
         /**********************************************************************/
         FEMnodeEvaluation(const size_t& _pointID,const VectorDim& _P) :
-        /* init */ FEMbaseEvaluation<ElementType,rows,cols>(_P)
+        /* init */ FEMbaseEvaluation<ElementType::dim,rows,cols>(_P)
         /* init */,pointID(_pointID)
         {
         }

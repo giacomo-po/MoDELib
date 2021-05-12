@@ -125,7 +125,7 @@ namespace model
             os  << ds.sourceID<<"\t"
             /**/<< ds.sinkID<<"\t"
             /**/<< ds.qID<<"\t"
-            /**/<< ds.r.transpose()<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.r.transpose()<<"\t"
             /**/<< ds.j<<"\t"
             /**/<< ds.rl.transpose()<<"\t";
             for(int d=0;d<dim;++d)

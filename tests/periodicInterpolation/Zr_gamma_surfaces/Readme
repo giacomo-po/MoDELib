@@ -1,0 +1,19 @@
+energy.res/energy.new: contains the raw data, directly coming from EAM or ab initio
+	They can be plotted with gnuplot script energy.gnu
+		gnuplot energy.gnu
+
+interpole.res: Fourier interpolation
+	corresponding gnuplot script file: interpole.gnu and projection_interpole.gnu
+
+The Fourier interpolation is obtained with the program 
+	fourierInterpolate2D < input.fourier
+You need to compile this program in the corresponding subdirectory
+The input instructions for this program are in French (sorry), 
+but if it is a problem I can tranlate. 
+This program simply makes a Fourier transform by Fourier transformation.
+Result of the interpolation is written in file interpole.res, 
+while the coefficient of the Fourier series are in fourier.res.
+This program will lead strange things if you include too many harmonics 
+in the Fourier harmonics.  It may be better then to use the program fourierFit2D
+which makes a least square fitting. You will have to adapt a little bit the 
+file input.dat containing the input parameters.

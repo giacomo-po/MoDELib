@@ -1,1 +1,0 @@
-/usr/bin/g++   -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/tri.dir/src/main.cpp.o CMakeFiles/tri.dir/src/assert.cpp.o CMakeFiles/tri.dir/src/del_impl.cpp.o  -o tri 

@@ -70,7 +70,7 @@ namespace model
             
         }
         
-        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface)
+        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const
         {
             const auto iter(gammaSurfaceMap.find(matrixGammaSurface));
             return iter==gammaSurfaceMap.end()? 0.0 : iter->second(b);

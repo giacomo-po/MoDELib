@@ -68,14 +68,16 @@
 #include <ExternalLoadControllerBase.h>
 //#include <ExternalLoadController.h>
 #include <DislocationInjector.h>
-#include <PeriodicDislocationLoop.h>
+//#include <PeriodicDislocationLoop.h>
 //#include <PeriodicLoopObserver.h>
 
 //#include <PeriodicDislocationSuperLoop.h>
 //#include <PlanarDislocationSuperLoop.h>
 
 #ifdef _MODEL_GREATWHITE_
+#ifndef _MODEL_GREATWHITE_standalone
 #include <MooseSolution.h>
+#endif
 #endif
 
 namespace model
@@ -122,11 +124,11 @@ namespace model
         typedef std::map<size_t,EshelbyInclusion<_dim>> EshelbyInclusionContainerType;
         typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
         typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
-        typedef PeriodicDislocationLoop<DislocationNetworkType> PeriodicDislocationLoopType;
+//        typedef PeriodicDislocationLoop<DislocationNetworkType> PeriodicDislocationLoopType;
         
-#ifdef DislocationNucleationFile
-#include DislocationNucleationFile
-#endif
+//#ifdef DislocationNucleationFile
+//#include DislocationNucleationFile
+//#endif
         
 #ifdef _MODEL_GREATWHITE_
 #include <DislocationNetworkGreatWhite.h>
@@ -151,6 +153,7 @@ namespace model
                 
                 
                 // First clean up outdated boundary loops
+//                std::cout<<"listing loops"<<std::endl;
                 std::set<size_t> removeLoops;
                 for(const auto& loop : this->loops())
                 {
@@ -160,19 +163,31 @@ namespace model
                     }
                 }
                 
+//                                std::cout<<"removing loops"<<std::endl;
                 for(const size_t& loopID : removeLoops)
                 {// Remove the virtual loops with ID in removeLoops
                     this->deleteLoop(loopID);
                 }
                 
                 
-                
+//                std::cout<<"reconstrucing loops"<<std::endl;
+
                 // Now reconstruct virtual boundary loops
                 std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
                 for(const auto& link : this->links())
                 {
+                    
+
                     if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
                     {
+                        
+//                        std::cout<<"link "<<link.second->tag()<<std::endl;
+//                        std::cout<<"isBoundarySegment "<<link.second->isBoundarySegment()<<std::endl;
+//                        std::cout<<"hasZeroBurgers "<<link.second->hasZeroBurgers()<<std::endl;
+//                        std::cout<<"sourceVirtual "<<link.second->source->virtualBoundaryNode()->sID<<std::endl;
+//                        std::cout<<"sinkVirtual "<<link.second->sink->virtualBoundaryNode()->sID<<std::endl;
+//                        std::cout<<"grain "<<(*link.second->grains().begin())->grainID<<std::endl;
+                        
                         virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
                                                        link.second->burgers(),
                                                        (*link.second->grains().begin())->grainID,
@@ -180,6 +195,8 @@ namespace model
                     }
                 }
                 
+//                std::cout<<"inserting loops"<<std::endl;
+
                 for(const auto& tup : virtualLoopVector)
                 {// Insert the new virtual loops
                     this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
@@ -196,11 +213,12 @@ namespace model
         const SimplicialMesh<dim>& mesh;
         const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim> glidePlaneFactory;
-        const std::unique_ptr<PeriodicDislocationLoopFactory<DislocationNetworkType>> periodicDislocationLoopFactory;
+//        const std::unique_ptr<PeriodicDislocationLoopFactory<DislocationNetworkType>> periodicDislocationLoopFactory;
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
         const std::vector<VectorDim>& periodicShifts;
         DislocationNetworkRemesh<DislocationNetworkType> networkRemesher;
+        DislocationInjector<DislocationNetworkType> dislocationInjector;
         DislocationJunctionFormation<DislocationNetworkType> junctionsMaker;
         DislocationNodeContraction<DislocationNetworkType> nodeContractor;
         GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
@@ -224,8 +242,9 @@ namespace model
         bool outputQuadraturePoints;
         bool outputLinkingNumbers;
         bool outputLoopLength;
+        bool outputSlipSystemStrain;
         bool outputSegmentPairDistances;
-        bool outputPeriodicConfiguration;
+//        bool outputPeriodicConfiguration;
         const bool computeElasticEnergyPerLength;
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
@@ -247,11 +266,12 @@ namespace model
         /* init */,mesh(_mesh)
         /* init */,poly(_poly)
         /* init */,glidePlaneFactory(poly)
-        /* init */,periodicDislocationLoopFactory(simulationParameters.isPeriodicSimulation()? new PeriodicDislocationLoopFactory<DislocationNetworkType>(poly,glidePlaneFactory) : nullptr)
+//        /* init */,periodicDislocationLoopFactory(simulationParameters.isPeriodicSimulation()? new PeriodicDislocationLoopFactory<DislocationNetworkType>(poly,glidePlaneFactory) : nullptr)
         /* init */,bvpSolver(_bvpSolver)
         /* init */,externalLoadController(_externalLoadController)
         /* init */,periodicShifts(_periodicShifts)
         /* init */,networkRemesher(*this)
+        /* init */,dislocationInjector(*this)
         /* init */,junctionsMaker(*this)
         /* init */,nodeContractor(*this)
         /* init */,gbTransmission(*this)
@@ -281,8 +301,9 @@ namespace model
         /* init */,outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
         /* init */,outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
         /* init */,outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true))
+        /* init */,outputSlipSystemStrain(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSlipSystemStrain",true))
         /* init */,outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
-        /* init */,outputPeriodicConfiguration(simulationParameters.isPeriodicSimulation()? TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPeriodicConfiguration",true) : false)
+//        /* init */,outputPeriodicConfiguration(simulationParameters.isPeriodicSimulation()? TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPeriodicConfiguration",true) : false)
         //        /* init */ _userOutputColumn(3)
         /* init */,computeElasticEnergyPerLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeElasticEnergyPerLength",true))
         /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
@@ -299,7 +320,7 @@ namespace model
             LinkType::initFromFile("inputFiles/DD.txt");
             NodeType::initFromFile("inputFiles/DD.txt");
             LoopType::initFromFile("inputFiles/DD.txt");
-            PeriodicDislocationBase::initFromFile("inputFiles/DD.txt");
+//            PeriodicDislocationBase::initFromFile("inputFiles/DD.txt");
             DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
             DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
             DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
@@ -472,8 +493,8 @@ namespace model
                         GlidePlaneKey<dim> loopPlaneKey(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
                         if(simulationParameters.isPeriodicSimulation())
                         {
-                            const size_t newLoopID=this->insertLoop(loopNodes,loop.B,glidePlaneFactory.get(loopPlaneKey),loop.periodicShift)->sID;
-                            assert(loop.sID==newLoopID);
+//                            const size_t newLoopID=this->insertLoop(loopNodes,loop.B,glidePlaneFactory.get(loopPlaneKey),loop.periodicShift)->sID;
+//                            assert(loop.sID==newLoopID);
                         }
                         else
                         {
@@ -616,127 +637,28 @@ namespace model
         /**********************************************************************/
         void singleGlideStepDiscreteEvents(const long int& runID)
         {
-            //! A simulation step consists of the following:
-            //            model::cout<<blueBoldColor<< "runID="<<runID<<" (of "<<Nsteps<<")"
-            //            /*                    */<< ", time="<<totalTime
-            //            /*                    */<< ": nodes="<<this->nodes().size()
-            //            /*                    */<< ", segments="<<this->links().size()
-            //            /*                    */<< ", loopSegments="<<this->loopLinks().size()
-            //            /*                    */<< ", loops="<<this->loops().size()
-            //            /*                    */<< ", components="<<this->components().size()
-            //            /*                    */<< defaultColor<<std::endl;
-            
-            //! 1- Check that all nodes are balanced
-            //            checkBalance();
-            
-            //! 2 - Update quadrature points
-            //            updateQuadraturePoints();
-            //            updateStressStraightSegments();
-            
-            //            for(auto& loop : this->loops()) // TODO: PARALLELIZE THIS LOOP
-            //            {// copmute slipped areas and right-handed normal
-            //                loop.second->updateGeometry();
-            //            }
-            //            updatePlasticDistortionRateFromAreas();
-            
-            //! 3- Calculate BVP correction
-            //            updateLoadControllers(runID);
-            
-            //#ifdef DislocationNucleationFile
-            //            if(use_bvp && !(runID%use_bvp))
-            //            {
-            //                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-            //                updateQuadraturePoints();
-            //            }
-            //#endif
-            //            assembleAndSolve(runID,straightSegmentsDeq);
-            //            computeNodaVelocities(runID);
-            
-            
-            //! 4- Solve the equation of motion
-            
-            
-            //! 5- Compute time step dt (based on max nodal velocity) and increment totalTime
-            // make_dt();
-            
-            
-            
-            //! 6- Output the current configuration before changing it
-            //            output(runID);
-            //            io().output(runID);
-            
-            
-            //! 7- Moves DislocationNodes(s) to their new configuration using stored velocity and dt
-            //            move(dt);
-            
-            //! 8- Update accumulated quantities (totalTime and plasticDistortion)
-            //            totalTime+=dt;
-            //            updatePlasticDistortionRateFromVelocities();
-            
-            
-            //! 9- Contract segments of zero-length
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-            
-            //            if(runID>0)
-            //            {
-            //                removeZeroAreaLoops();
-            //            }
-            
-            //! 10- Cross Slip (needs upated PK force)
+           
             DislocationCrossSlip<DislocationNetworkType> crossSlip(*this);
             crossSlip.execute();
 
+            junctionsMaker.formJunctions();
             
-            //                        gbTransmission.transmit();
-            //gbTransmission.directTransmit();
-            
-            //
-            //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
-            
-            //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
-            
-            
-            //! 11- detect loops that shrink to zero and expand as inverted loops
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).loopInversion(dt);
-            
-            //! 12- Form Junctions
-            junctionsMaker.formJunctions(DDtimeIntegrator<0>::dxMax);
-            
-            //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-            //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-            
-            
-            
-            //! 13- Node redistribution
             networkRemesher.remesh(runID);
             
-            //            createImageLoops();
-            //            updateImageLoops();
-            updateVirtualBoundaryLoops();
+            junctionsMaker.glissileJunctions(DDtimeIntegrator<0>::dxMax);
             
-            //            mergeLoopsAtNodes();
+            if(bvpSolver)
+            {
+                if (!(runID%bvpSolver->stepsBetweenBVPupdates))
+                {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
+                    dislocationInjector.injectDislocaitons();
+                }
+            }
+
+//            updateVirtualBoundaryLoops();
             
-            //            DislocationInjector<DislocationNetworkType>(*this).insertRandomStraightDislocation();
-            
-            //! 9- Contract segments of zero-length
-            //            DislocationNetworkRemesh<DislocationNetworkType>(*this).contract0chordSegments();
-            
-            //! 14- If BVP solver is not used, remove DislocationSegment(s) that exited the boundary
-            //            removeBoundarySegments();
-            
-            //            removeSmallComponents(3.0*dx,4);
-            
-            //            make_bndNormals();
-            
-            //! 16 - Increment runID counter
-            //            ++runID;     // increment the runID counter
         }
-        
-        //        const VectorDim periodicVector(const Eigen::Array<int,dim,1>& cellID) const
-        //        {
-        //            return (meshDimensions.array()*cellID.template cast<double>()).matrix();
-        //        }
-        
+                
         /**********************************************************************/
         const EshelbyInclusionContainerType& eshelbyInclusions() const
         {
@@ -771,51 +693,15 @@ namespace model
             
             if(corder==0)
             {// For straight segments use analytical expression of stress field
-                //                const auto t0= std::chrono::system_clock::now();
-                //                model::cout<<"		Collecting StressStraight objects: "<<std::flush;
-                //
-                //                size_t currentSize=0;
-                //                if(computeDDinteractions)
-                //                {
-                //                    for(const auto& link : this->networkLinks())
-                //                    {
-                //                        link.second->addToStressStraight(straightSegmentsDeq);
-                //                    }
-                //
-                //                    currentSize=straightSegmentsDeq.size();
-                //
-                //                    const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
-                //
-                //                    for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
-                //                    {
-                //                        for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
-                //                        {
-                //                            for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
-                //                            {
-                //
-                //                                const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-                //
-                //                                if( cellID.squaredNorm()!=0) //skip current cell
-                //                                {
-                //                                    for (size_t c=0;c<currentSize;++c)
-                //                                    {
-                //                                        const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                //                                        const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
-                //
-                //                                        straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
-                //                                    }
-                //                                }
-                //                            }
-                //                        }
-                //                    }
-                //
-                //
-                //                }
-                //                model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-                //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-                //
+  
                 const auto t1= std::chrono::system_clock::now();
-                model::cout<<"		Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+                model::cout<<"Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+
+                for (auto& linkIter : this->links())
+                {// do not create quadrature points in parallel
+                    linkIter.second->updateQuadraturePoints(*linkIter.second,linkIter.second->quadPerLength,false);
+                }
+
 #ifdef _OPENMP
                 //                const size_t nThreads = omp_get_max_threads();
                 EqualIteratorRange<typename NetworkLinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
@@ -897,7 +783,7 @@ namespace model
             
             //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
             const auto t2= std::chrono::system_clock::now();
-            model::cout<<"		Assembling NetworkComponents and solving "<<std::flush;
+            model::cout<<"Assembling NetworkComponents and solving "<<std::flush;
             
             
             
@@ -999,22 +885,22 @@ namespace model
 
 
                 
-                std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>> rveNodesMap;
-                for(const auto& pair : *periodicDislocationLoopFactory)
-                {// output periodic glide planes too
-                    
-                    if(!pair.second.expired())
-                    {
-                        const auto periodicLoop(pair.second.lock());
-//                        periodicLoop->updateRVEloops(*this,dt_in,rveNodesMap);
-                    }
-                }
+//                std::map<Eigen::Matrix<double, DislocationNetworkType::dim,1>, const std::shared_ptr<NodeType>, CompareVectorsByComponent<double,DislocationNetworkType::dim,float>> rveNodesMap;
+//                for(const auto& pair : *periodicDislocationLoopFactory)
+//                {// output periodic glide planes too
+//
+//                    if(!pair.second.expired())
+//                    {
+//                        const auto periodicLoop(pair.second.lock());
+////                        periodicLoop->updateRVEloops(*this,dt_in,rveNodesMap);
+//                    }
+//                }
                 
 
             }
             else
             {
-                model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
+                model::cout<<"Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
                 const auto t0= std::chrono::system_clock::now();
                 for (auto& nodeIter : this->nodes())
                 {
@@ -1030,9 +916,6 @@ namespace model
         /**********************************************************************/
         void updatePlasticDistortionRateFromAreas()
         {
-            //            if(!computePlasticDistortionRateFromVelocities)
-            //            {
-            
             const double dt(simulationParameters.totalTime-_plasticDistortionFromAreas.first);
             if(dt>=0.0)
             {
@@ -1043,19 +926,6 @@ namespace model
                 }
                 _plasticDistortionFromAreas=std::make_pair(simulationParameters.totalTime,pd); // update old values
             }
-//
-//            const MatrixDimD old(_plasticDistortionFromAreas);
-////            _plasticDistortionFromAreas.setZero();
-////            for(const auto& loop : this->loops())
-////            {
-////                _plasticDistortionFromAreas+= loop.second->plasticDistortion();
-////            }
-//            _plasticDistortionFromAreas=plasticDistortion();
-//            if(dt>0.0)
-//            {
-//                _plasticDistortionRateFromAreas=(_plasticDistortionFromAreas-old)/dt;
-//            }
-            //            }
         }
         
         /**********************************************************************/
@@ -1075,12 +945,6 @@ namespace model
             return temp;
         }
         
-        //        /**********************************************************************/
-        //        const MatrixDimD& plasticDistortion() const
-        //        {
-        //            return computePlasticDistortionRateFromVelocities? _plasticDistortionFromVelocities : _plasticDistortionFromAreas;
-        //        }
-        
         /**********************************************************************/
         MatrixDimD plasticStrainRate() const
         {/*!\returns the plastic strain rate tensor generated during the last time step.
@@ -1090,7 +954,21 @@ namespace model
         }
         
         /**********************************************************************/
-        std::tuple<double,double,double,double> networkLength() const
+        std::vector<double> slipSystemStrains() const
+        {
+            std::vector<double> temp(SlipSystem::get_count(),0.0);
+            for(auto& loop : this->loops())
+            {
+                if(loop.second->slipSystem())
+                {
+                    temp[loop.second->slipSystem()->sID]+=loop.second->slippedArea()*loop.second->burgers().norm()/mesh.volume();
+                }
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::tuple<double,double,double,double,std::vector<double>> networkLength() const
         {/*!\returns the total line length of the DislocationNetwork. The return
           * value is a tuple, where the first value is the length of bulk glissile
           * dislocations, the second value is the length of bulk sessile
@@ -1101,6 +979,7 @@ namespace model
             double bulkSessileLength(0.0);
             double boundaryLength(0.0);
             double grainBoundaryLength(0.0);
+            std::vector<double> slipSystemGlissileLengths(SlipSystem::get_count(),0.0);
             
             for(auto& loop : this->loops())
             {
@@ -1124,13 +1003,18 @@ namespace model
                             }
                             else
                             {
-                                bulkGlissileLength+=loopLink.second->pLink->chord().norm()/loopLink.second->pLink->loopLinks().size();
+                                const double glissileLength(loopLink.second->pLink->chord().norm()/loopLink.second->pLink->loopLinks().size());
+                                bulkGlissileLength+=glissileLength;
+                                if(loopLink.second->pLink->slipSystem())
+                                {
+                                    slipSystemGlissileLengths[loopLink.second->pLink->slipSystem()->sID]+=glissileLength;
+                                }
                             }
                         }
                     }
                 }
             }
-            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
+            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength,slipSystemGlissileLengths);
         }
         
         /**********************************************************************/
@@ -1158,7 +1042,21 @@ namespace model
         }
         
         /**********************************************************************/
-        void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const
+        template<typename OtherElementType>
+        void stress(std::deque<FEMfaceEvaluation<OtherElementType,dim,dim>>& fieldPoints) const
+        {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+            for(size_t k=0;k<fieldPoints.size();++k)
+            {
+                fieldPoints[k]=stress(fieldPoints[k].P);
+            }
+        }
+        
+        /**********************************************************************/
+        template<typename OtherElementType>
+        void stress(std::deque<FEMnodeEvaluation<OtherElementType,dim,dim>>& fieldPoints) const
         {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -1212,7 +1110,8 @@ namespace model
         }
         
         /**********************************************************************/
-        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
+        template<typename OtherElementType>
+        void displacement(std::vector<FEMnodeEvaluation<OtherElementType,dim,1>>& fieldPoints) const
         {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -1234,6 +1133,8 @@ namespace model
         {
             return DislocationNetworkIOType(*this,folderSuffix);
         }
+        
+
         
     };
     

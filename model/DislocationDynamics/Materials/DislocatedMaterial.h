@@ -102,18 +102,12 @@ namespace model
                 exit(EXIT_FAILURE);
                 return 0.0;
             }
-            
-            //            std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
-            
-            //           return 1.0;
         }
         
     public:
         
         const std::map<std::string,std::shared_ptr<DislocationMobilityBase>> dislocationMobilities;
-        
-                const double Omega;     // shear wave speed [-]
-        
+        const double Omega;      // atomic volume
         static double C1;        // 1-nu
         static double C2;        // 1.0/(4.0*M_PI*C1)
         static double C3;        // 1.0-2.0*nu;
@@ -130,13 +124,21 @@ namespace model
             model::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
             model::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
             model::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
+            model::cout<<magentaColor<<"  units of temperature: 1 [K]"<<defaultColor<<std::endl;
 
             C1=1.0-nu;
             C2=1.0/(4.0*M_PI*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
             Nu=nu;
-            
+        }
+        
+        /**********************************************************************/
+        double equilibriumVacancyConcentration(const double& stressTrace) const
+        {
+            return exp(-(Ufv+stressTrace*dOmegav*Omega/3.0)/kB/T);
+//            return exp(-Ufv/kB/T);
+
         }
         
     };

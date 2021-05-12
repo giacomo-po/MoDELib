@@ -63,26 +63,41 @@ namespace model
         const LatticePlaneBase latticePlane;
         const Eigen::Matrix3d G2L;
         
-        GammaSurface(const LatticePlaneBase& n,
-                                   const VectorLowerDimI& nums_in,
-                                   const VectorLowerDimI& dens_in,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
-                                   const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
-        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),nums_in,dens_in,f,df)
-        /* init */,latticePlane(n)
-        /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
-        {
-            
-            model::cout<<greenBoldColor<<"Creating GammaSurface on "<<n.cartesian().normalized().transpose()<<" plane"<<std::endl;
-
-            
-        }
+//        GammaSurface(const LatticePlaneBase& n,
+//                                   const VectorLowerDimI& nums_in,
+//                                   const VectorLowerDimI& dens_in,
+//                                   const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
+//                                   const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
+//        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),nums_in,dens_in,f,df)
+//        /* init */,latticePlane(n)
+//        /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
+//        {
+//
+//            model::cout<<greenBoldColor<<"Creating GammaSurface on "<<n.cartesian().normalized().transpose()<<" plane"<<std::endl;
+//
+//
+//        }
         
+//        GammaSurface(const LatticePlaneBase& n,
+//                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim>& waveVectors_in,
+//                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
+//                     const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
+//        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),waveVectors_in,f,df)
+//        /* init */,latticePlane(n)
+//        /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
+//        {
+//
+//            model::cout<<greenBoldColor<<"Creating GammaSurface on "<<n.cartesian().normalized().transpose()<<" plane"<<std::endl;
+//
+//
+//        }
+
         GammaSurface(const LatticePlaneBase& n,
-                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim>& waveVectors_in,
+                     const Eigen::Matrix<double,Eigen::Dynamic,lowerDim>& waveVectors,
                      const Eigen::Matrix<double,Eigen::Dynamic,lowerDim+1>& f,
-                     const Eigen::Matrix<double,Eigen::Dynamic,2*lowerDim+1>& df) :
-        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),waveVectors_in,f,df)
+                     const int& rotSymm,
+                     const std::vector<Eigen::Matrix<double,lowerDim,1>>& mirSymm) :
+        /* init */ PeriodicLatticeInterpolant<2>(getLocalBasis(n),waveVectors,f,rotSymm,mirSymm)
         /* init */,latticePlane(n)
         /* init */,G2L(getG2L(n.primitiveVectors.first.cartesian(),n.cartesian().normalized()))
         {

@@ -1,0 +1,91 @@
+Nombre de coefficients de Fourier à calculer dans chaque direction
+1er vecteur de périodicité de la fonction a interpoler
+2nd vecteur de périodicité de la fonction a interpoler
+Nom du fichier de données où lire la fonction
+Numéro de colonne où lire la position
+Numéro de colonne où lire la fonction
+Constante à retrancher de la fonction
+Facteur multiplicatif
+Nom du fichier contenant les opérations de symétrie
+
+=========================
+Input symmetry operations
+
+Number of symmetry operations, nSym = 6
+
+  operation 1
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+  operation 2
+  rot =  0.500000      0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+  operation 3
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+  operation 4
+  rot =  0.500000     -0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+  operation 5
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+  operation 6
+  rot =  -1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+
+=========================
+Space group
+
+Number of symmetry operations, nSym = 6
+
+  operation 1
+  rot =   1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+  operation 2
+  rot =  0.500000      0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+  operation 3
+  rot =  0.500000     -0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+  operation 4
+  rot =  -1.00000       0.00000    
+          0.00000       1.00000    
+    u =   0.00000       0.00000    
+
+  operation 5
+  rot = -0.500000     -0.866025    
+         0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+  operation 6
+  rot = -0.500000      0.866025    
+        -0.866025     -0.500000    
+    u =   0.00000       0.00000    
+
+nFCsym(1:2) = 2 2
+nFC(1:2)    = 3 3
+Fichier de sortie pour les coef de Fourier
+Interpolation: origine de la grille
+Interpolation: extrémité du premier côté de la grille
+Interpolation: extrémité du second côté de la grille
+Interpolation: nombre de valeurs dans chaque direction
+Fichier de sortie pour l'interpolation
+
+Ecart type:    22.8348308017    

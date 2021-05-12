@@ -30,6 +30,7 @@
 #include <KeyConstructableSharedPtrFactory.h>
 #include <GlidePlaneKey.h>
 
+
 namespace model
 {
     
@@ -75,7 +76,7 @@ namespace model
         typedef GlidePlane<dim> GlidePlaneType;
         typedef MeshPlane<dim> MeshPlaneType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        typedef typename GlidePlaneType::GlidePlaneKeyType GlidePlaneKeyType;
+        typedef GlidePlaneKey<dim> GlidePlaneKeyType;
         typedef KeyConstructableWeakPtrFactory<GlidePlaneFactory<dim>> GlidePlaneMapType;
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;

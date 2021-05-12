@@ -10,7 +10,7 @@ enablePartials=0;
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
-externalLoadControllerName=UniformExternalLoadController;
+externalLoadControllerName=none;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)

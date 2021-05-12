@@ -125,50 +125,30 @@ namespace model
                 if(enablePartials)
                 {
                     
-//                    const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
-//                    const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
-//
-//                    //                    const Eigen::Matrix<double,2,2> A((Eigen::Matrix<double,2,2>()<<1.0,0.5,
-//                    //                                                                                   0.0,sqrt(3.0)/2).finished());
-//
-//                    const Eigen::Matrix<double,2,1> N((Eigen::Matrix<double,2,1>()<<2,2).finished()); // Number of wave vectors =N(0)xN(1)x2
-//                    const Eigen::Matrix<double,2,1> D(Eigen::Matrix<double,2,1>::Ones());
-//                    const Eigen::Matrix<double,5,3> f((Eigen::Matrix<double,5,3>()<<0.0 ,0.0          , 0.0, // value at origin
-//                                                       /*                        */ 0.50,sqrt(3.0)/6.0,ISF,
-//                                                       /*                        */ 0.25,sqrt(3.0)/12.0,USF,
-//                                                       /*                        */ 0.75,sqrt(3.0)/12.0,USF,
-//                                                       /*                        */ 0.50,sqrt(3.0)/3.0,USF).finished());
-//                    const Eigen::Matrix<double,3,5> df((Eigen::Matrix<double,3,5>()<<0.25,sqrt(3.0)/12.0,-0.5,sqrt(3.0)/2,0.0, //  symm
-//                                                        /*                        */ 0.75,sqrt(3.0)/12.0, 0.5,sqrt(3.0)/2,0.0, //  symm
-//                                                        /*                        */ 0.50,sqrt(3.0)/3.0 ,1.0 ,0.0        ,0.0).finished()); // symm
-
                     const double ISF(TextFileParser(material.materialFile).readScalar<double>("ISF_SI",true)/(material.mu_SI*material.b_SI));
                     const double USF(TextFileParser(material.materialFile).readScalar<double>("USF_SI",true)/(material.mu_SI*material.b_SI));
                     const double MSF(TextFileParser(material.materialFile).readScalar<double>("MSF_SI",true)/(material.mu_SI*material.b_SI));
                     
-                    const Eigen::Matrix<double,7,2> waveVectors((Eigen::Matrix<double,7,2>()<<0.0, 0.0, // value at origin
-                                                                      /*                        */ 0.0, 1.0,
-                                                                      /*                        */ 1.0, 0.0,
-                                                                      /*                        */ 1.0, 1.0,
-                                                                      /*                        */ 1.0,-1.0,
-                                                                      /*                        */ 1.0, 2.0,
-                                                                      /*                        */ 2.0, 1.0).finished());
+                    const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
+                                                                 /*                        */ 0.0, 1.0,
+                                                                 /*                        */ 1.0,-1.0
+                                                                 ).finished());
                     
-                    const Eigen::Matrix<double,6,3> f((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0, // value at origin
-                                                            /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
-                                                            /*                        */ 0.25,sqrt(3.0)/12.0,USF,
-                                                            /*                        */ 0.75,sqrt(3.0)/12.0,USF,
-                                                            /*                        */ 0.50,sqrt(3.0)/3.0, USF,
-                                                            /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
-                    const Eigen::Matrix<double,7,5> df((Eigen::Matrix<double,7,5>()<<0.00,0.0,1.0,0.0,0.0,
-                                                             /*                        */ 0.00,0.0,           0.0,        1.0,0.0, //  symm
-                                                             /*                        */ 0.50,0.0,           1.0,        0.0,0.0, //  symm
-                                                             /*                        */ 0.25,sqrt(3.0)/4.0, 0.5,sqrt(3.0)/2,0.0, //  symm
-                                                             /*                        */ 0.75,sqrt(3.0)/4.0,-0.5,sqrt(3.0)/2,0.0, //  symm
-                                                             /*                        */ 1.00,sqrt(3.0)/3.0, 1.0,0.0        ,0.0, //  symm
-                                                             /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.0).finished());
+                    const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0, 
+                                                       /*                        */ 0.50,sqrt(3.0)/6.0, ISF,
+                                                       /*                        */ 0.25,sqrt(3.0)/12.0,USF,
+                                                       /*                        */ 1.00,sqrt(3.0)/3.0, MSF).finished());
                     
-                    std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a3),waveVectors,f,df));
+//                    const Eigen::Matrix<double,7,5> df((Eigen::Matrix<double,7,5>()<<0.00,0.0,1.0,0.0,0.0,
+//                                                        /*                        */ 0.00,0.0,           0.0,        1.0,0.0, //  symm
+//                                                        /*                        */ 0.50,0.0,           1.0,        0.0,0.0, //  symm
+//                                                        /*                        */ 0.25,sqrt(3.0)/4.0, 0.5,sqrt(3.0)/2,0.0, //  symm
+//                                                        /*                        */ 0.75,sqrt(3.0)/4.0,-0.5,sqrt(3.0)/2,0.0, //  symm
+//                                                        /*                        */ 1.00,sqrt(3.0)/3.0, 1.0,0.0        ,0.0, //  symm
+//                                                        /*                        */ 1.00,sqrt(3.0)/3.0, 0.0,1.0        ,0.0).finished());
+                    const int rotSymm(3);
+                    const std::vector<Eigen::Matrix<double,2,1>> mirSymm;
+                    std::shared_ptr<GammaSurface> gammaSurface0(new GammaSurface(LatticePlaneBase(a1,a3),waveVectors,f,rotSymm,mirSymm));
                     temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a3)*(-1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
@@ -176,7 +156,7 @@ namespace model
                     temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1,a3, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface0));               // is (-1, 1,-1) in cartesian
                     
-                    std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a3,a2),waveVectors,f,df));
+                    std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a3,a2),waveVectors,f,rotSymm,mirSymm));
                     temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3+a2)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3+a2)*(-1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a2)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
@@ -184,7 +164,7 @@ namespace model
                     temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a3)*(+1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a3,a2, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a3)*(-1)),fccMobility,gammaSurface1));               // is (-1, 1,-1) in cartesian
                     
-                    std::shared_ptr<GammaSurface> gammaSurface2(new GammaSurface(LatticePlaneBase(a2,a1),waveVectors,f,df));
+                    std::shared_ptr<GammaSurface> gammaSurface2(new GammaSurface(LatticePlaneBase(a2,a1),waveVectors,f,rotSymm,mirSymm));
                     temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2+a1)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2+a1)*(-1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
@@ -192,15 +172,13 @@ namespace model
                     temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2)*(+1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a2,a1, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2)*(-1)),fccMobility,gammaSurface2));               // is (-1, 1,-1) in cartesian
                     
-                    std::shared_ptr<GammaSurface> gammaSurface3(new GammaSurface(LatticePlaneBase(a1-a3,a2-a3),waveVectors,f,df));
+                    std::shared_ptr<GammaSurface> gammaSurface3(new GammaSurface(LatticePlaneBase(a1-a3,a2-a3),waveVectors,f,rotSymm,mirSymm));
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a2-a3*2)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1+a2-a3*2)*(-1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2-a3)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a2-a3)*(-1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1-a3)*(+1)),fccMobility,gammaSurface3));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(a1-a3,a2-a3, RationalLatticeDirection<3>(Rational(1,3),(a2*2-a1-a3)*(-1)),fccMobility,gammaSurface3));                 // is (-1, 1,-1) in cartesian           // is (-1, 1,-1) in cartesian
-                    
-                    
                     
                 }
                 else
@@ -264,7 +242,7 @@ namespace model
         
         
     };
-        
+    
 } // namespace model
 #endif
 

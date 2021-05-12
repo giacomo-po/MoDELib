@@ -265,6 +265,21 @@ namespace model
             return *this;
         }
         
+        
+        /**********************************************************************/
+        NeighborContainerType commonNeighbors(const NodeType& other) const
+        {
+            NeighborContainerType temp;
+            for(const auto& neighbor : neighbors())
+            {
+                if(other. neighbors().find(neighbor.first)!=other. neighbors().end())
+                {
+                    temp.emplace(neighbor.first,neighbor.second);
+                }
+            }
+            return temp;
+        }
+        
         /**********************************************************************/
         bool isSimple() const
         {/*!\returns true if neighbors().size()==2
