@@ -494,14 +494,16 @@ namespace model
         {
             
             vOld=velocity; // store current value of velocity before updating
-            velocity=(vNew/velocityRoundFactor).array().round().matrix()*velocityRoundFactor; // keep only 10 digits in velocity to kill numerical noise from solver
-            
+            velocity=vNew;
+//            velocity=(vNew/velocityRoundFactor).array().round().matrix()*velocityRoundFactor; // keep only 10 digits in velocity to kill numerical noise from solver            
 //            std::cout<<std::setprecision(15)<<std::scientific<<"DislocationNode "<<this->sID<<" vNew="<<vNew.transpose()<<std::endl;
 //            std::cout<<std::setprecision(15)<<std::scientific<<"DislocationNode "<<this->sID<<" velocity="<<velocity.transpose()<<std::endl;
 //            nodeIter->second->set_V((X.segment(NdofXnode*k,NdofXnode)/1.0e-7).array().round().matrix()*1.0e-7);
 
             
             projectVelocity();
+            velocity=(velocity/velocityRoundFactor).array().round().matrix()*velocityRoundFactor; // keep only 10 digits in velocity to kill numerical noise from solver
+
             
 //            std::cout<<std::setprecision(15)<<std::scientific<<"DislocationNode "<<this->sID<<" p_velocity="<<velocity.transpose()<<std::endl;
 

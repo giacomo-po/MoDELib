@@ -48,7 +48,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=100;
+outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
@@ -56,7 +56,7 @@ outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
 outputDislocationLength=1;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputSlipSystemStrain=1;
@@ -89,7 +89,7 @@ collisionTol=3;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipDeg=2.0;
 
 ######################################

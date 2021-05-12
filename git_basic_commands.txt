@@ -4,7 +4,7 @@
 git clone https://github.com/giacomo-po/MoDELib.git MoDELib
 
 2) Changing working branch
-hg update ‘name of branch’
+git update ‘name of branch’
 
 3) Committing and pushing changes:
 cd MODEL
@@ -12,3 +12,6 @@ cd MODEL
 git add -A
 git commit -m "<message>"
 git push 
+
+4) Pull changes from repo
+git pull
