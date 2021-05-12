@@ -9,6 +9,7 @@ Tm=2128;		# [K]		melting temperature
 
 
 # Mobility parameters in prismatic planes (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
+enablePrismaticSlipSystems=1;
 B0e_SI_p=50.e-6;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations in 
 B1e_SI_p=0.0;	# [Pa*s/K]	temperature-dependent drag coefficient for edge  dislocations
 B0s_SI_p=50.e-6;		# [Pa*s]	temperature-independent drag coefficient for screw  dislocations
@@ -17,7 +18,7 @@ Bk_SI_p=50.e-6;		# [Pa*s]	drag coefficient for kinks
 dH0_eV_p=2.3;		# [eV]		enthalpy barrier for kink nucleation
 p_p=0.86;				# [-]		mobility exponent
 q_p=1.69;				# [-]		mobility exponent
-Tf_p=0.7998;				# [-]		athermal transition temperature in fraction of Tm 
+Tf_p=0.8;				# [-]		athermal transition temperature in fraction of Tm 
 tauC_SI_p=38.22e6;		# [Pa]		Peierls stress
 a0_p=1;			# [-]		non-Schmid coefficient
 a1_p=0;			# [-]		non-Schmid coefficient
@@ -25,6 +26,7 @@ a2_p=0;			# [-]		non-Schmid coefficient
 a3_p=0;			# [-]		non-Schmid coefficient
 
 # Mobility parameters in basal planes
+enableBasalSlipSystems=1;
 B0e_SI_b=50.e-6;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations
 B1e_SI_b=0.0;	# [Pa*s/K]	temperature-dependent drag coefficient for edge  dislocations
 B0s_SI_b=50.e-6;		# [Pa*s]	temperature-independent drag coefficient for screw  dislocations
@@ -33,7 +35,7 @@ Bk_SI_b=50.e-6;		# [Pa*s]	drag coefficient for kinks
 dH0_eV_b=5.06;		# [eV]		enthalpy barrier for kink nucleation
 p_b=0.86;				# [-]		mobility exponent
 q_b=1.69;				# [-]		mobility exponent
-Tf_b=0.7998;				# [-]		athermal transition temperature in fraction of Tm 
+Tf_b=0.8;				# [-]		athermal transition temperature in fraction of Tm 
 tauC_SI_b=137.24e6;		# [Pa]		Peierls stress
 a0_b=1;			# [-]		non-Schmid coefficient
 a1_b=0;			# [-]		non-Schmid coefficient
@@ -41,24 +43,14 @@ a2_b=0;			# [-]		non-Schmid coefficient
 a3_b=0;			# [-]		non-Schmid coefficient
 
 # Mobility parameters in pyramidal planes
+enablePyramidalSlipSystems=0;
 B0e_SI_py=50.e20;			# [Pa*s]	temperature-independent drag coefficient for edge  dislocations			
 B1e_SI_py=0.0;	# [Pa*s]	temperature-dependent drag coefficient for edge  dislocations			
 B0s_SI_py=50.e20;			# [Pa*s]	temperature-independent drag coefficient for screw dislocations	
 B1s_SI_py=0.0;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations	
 
-# Basal Gamma-surface
-ISF_SI= 213e-3; # [J/m^2]	intrinsic stacking fault energy (Clouet Phy. Rev. B 86 2012 144104)
-USF_SI= 235e-3; # [J/m^2]	unstable stacking fault energy (Clouet Phy. Rev. B 86 2012 144104)
-MSF_SI= 656e-3; # [J/m^2]	maximal stacking fault energy (Clouet Phy. Rev. B 86 2012 144104)
-
-# Prism Gamma-surface
-PSF0_SI= 211e-3; # [J/m^2]      stacking fault energy at (0.5 ,0) (Clouet Phy. Rev. B 86 2012 144104)
-PSF1_SI=1350e-3; # [J/m^2]      stacking fault energy at (0.  ,c/2) (Clouet Phy. Rev. B 86 2012 144104)
-PSF2_SI= 645e-3; # [J/m^2]      stacking fault energy at (0.25,c/4) and (0.75,c/4) (Clouet Phy. Rev. B 86 2012 144104)
-PSF3_SI= 720e-3; # [J/m^2]      stacking fault energy at (0.5 ,c/2) (Clouet Phy. Rev. B 86 2012 144104)
-
 # Vacancy diffusion
-dOmegav=0.405;	# [-]	Relative vacancy relaxation volume
-Ufv_eV=0.67;	# [eV]	Vacancy formation energy
-Umv_eV=0.61; 	# [eV]	Vacancy migration energy
+dOmegav=0.405;		# [-]		Relative vacancy relaxation volume
+Ufv_eV=0.67;		# [eV]		Vacancy formation energy
+Umv_eV=0.61; 		# [eV]		Vacancy migration energy
 D0v_SI=1.18e-5;	    # [m^2/s]	vacancy diffusion coefficient

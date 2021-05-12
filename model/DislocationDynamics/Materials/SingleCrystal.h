@@ -64,24 +64,24 @@ namespace model
         }
         
         /**********************************************************************/
-        static PlaneNormalContainerType getPlaneNormals(const std::string& crystalStructure,
+        static PlaneNormalContainerType getPlaneNormals(const DislocatedMaterial<dim,Isotropic>& material,
                                                         const LatticeType& lat)
         {
-            if(crystalStructure=="BCC")
+            if(material.crystalStructure=="BCC")
             {
                 return BCClattice<dim>::reciprocalPlaneNormals(lat);
             }
-            else if(crystalStructure=="FCC")
+            else if(material.crystalStructure=="FCC")
             {
                 return FCClattice<dim>::reciprocalPlaneNormals(lat);
             }
-            else if(crystalStructure=="HEX")
+            else if(material.crystalStructure=="HEX")
             {
-                return HEXlattice<dim>::reciprocalPlaneNormals(lat);
+                return HEXlattice<dim>::reciprocalPlaneNormals(material,lat);
             }
             else
             {
-                std::cout<<"Unknown crystal structure '"<<crystalStructure<<"'. Exiting."<<std::endl;
+                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
                 exit(EXIT_FAILURE);
             }
         }
@@ -117,7 +117,7 @@ namespace model
         /**********************************************************************/
         SingleCrystal(const DislocatedMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
         /* init */ LatticeType(getLatticeBasis(material),C2G)
-        /* init */,PlaneNormalContainerType(getPlaneNormals(material.crystalStructure,*this))
+        /* init */,PlaneNormalContainerType(getPlaneNormals(material,*this))
         /* init */,SlipSystemContainerType(getSlipSystems(material,*this))
         {
                         

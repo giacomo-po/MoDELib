@@ -540,15 +540,18 @@ namespace model
         
         
         static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
+
         const size_t maxJunctionIterations;
         const int verboseJunctions;
+        const bool mergeGlissileJunctions;
         const double infiniteLineLength;
-        
+
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
         /* init */,verboseJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
+        /* init */,mergeGlissileJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("mergeGlissileJunctions",true))
         /* init */,infiniteLineLength(10000.0)
         {
             
@@ -579,7 +582,6 @@ namespace model
             
             std::map<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>,std::set<std::shared_ptr<NodeType>>> expDeq;
             
-            bool mergeGlissileJunctions(false);
             
             for (const auto &link : DN.links())
             {
@@ -774,6 +776,10 @@ namespace model
     // Declare Static Data
     template <typename DislocationNetworkType>
     double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
+
+
+    
+    
 }
 #endif
 
