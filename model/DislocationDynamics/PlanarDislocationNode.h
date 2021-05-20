@@ -78,8 +78,6 @@ namespace model
         typedef typename NodeBaseType::NeighborContainerType NeighborContainerType;
         typedef typename NodeBaseType::LoopLinkContainerType LoopLinkContainerType;
         
-//        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
-//        typedef PeriodicDislocationNode<LoopNetworkType> PeriodicDislocationNodeType;
         
         static bool use_velocityFilter;
         static double velocityReductionFactor;
@@ -260,6 +258,21 @@ namespace model
         PlanarDislocationNode(const LinkType& pL,
                               const double& u) :
         /* init */ NodeBaseType(pL.loopNetwork,pL.get_r(u))
+        /* base */,ConfinedDislocationObjectType(this->network().mesh)
+        /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
+        /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
+        /* init */,vOld(velocity)
+        /* init */,velocityReductionCoeff(std::min(pL.source->velocityReduction(),pL.sink->velocityReduction()))
+        /* init */,masterNode(nullptr)
+        {/*! Constructor from ExpandingEdge and DOF
+          */
+            VerbosePlanarDislocationNode(1,"Creating PlanarDislocationNode "<<this->sID<<" from expanding "<<pL.source->sID<<"->"<<pL.sink->sID<<std::endl;);
+        }
+        
+        /**********************************************************************/
+        PlanarDislocationNode(const LinkType& pL,
+                              const VectorDim& P) :
+        /* init */ NodeBaseType(pL.loopNetwork,P)
         /* base */,ConfinedDislocationObjectType(this->network().mesh)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),pL.source->includingSimplex()))
         /* init */,velocity((pL.source->velocity+pL.sink->velocity)*0.5) // TO DO: this should be calculated using shape functions from source and sink nodes of the link
@@ -1176,6 +1189,9 @@ namespace model
                         {// sessile segments cannot change direction if this node is moved
                             const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
                             const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
+                            VerbosePlanarDislocationNode(4,"  currentNorm= "<<currentNorm<<std::endl;);
+                            VerbosePlanarDislocationNode(4,"  newNorm= "<<newNorm<<std::endl;);
+
                             if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
                             {
                                 const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);

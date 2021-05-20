@@ -48,7 +48,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=100;
+outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 outputElasticEnergy=0;
@@ -84,7 +84,7 @@ nodeRemoveAngleDeg=10;
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
 maxJunctionIterations=1;
-mergeGlissileJunctions=0;
+mergeGlissileJunctions=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=3;
 
@@ -109,7 +109,7 @@ parametrizationExponent=0.5;
 computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;
-verbosePlanarDislocationNode=0;
+verbosePlanarDislocationNode=4;
 verboseNodeContraction=0;
 verbosePlanarDislocationSegment=0;
 verbosePlanarDislocationLoop=0;

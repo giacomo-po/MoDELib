@@ -1,0 +1,69 @@
+runID
+time [b/cs]
+dt [b/cs]
+betaP_11
+betaP_12
+betaP_13
+betaP_21
+betaP_22
+betaP_23
+betaP_31
+betaP_32
+betaP_33
+trace(betaP)
+dotBetaP_11 [cs/b]
+dotBetaP_12 [cs/b]
+dotBetaP_13 [cs/b]
+dotBetaP_21 [cs/b]
+dotBetaP_22 [cs/b]
+dotBetaP_23 [cs/b]
+dotBetaP_31 [cs/b]
+dotBetaP_32 [cs/b]
+dotBetaP_33 [cs/b]
+trace(dotBetaP) [cs/b]
+glissile length [b]
+sessile length [b]
+boundary length [b]
+grain boundary length [b]
+SlipSystem 0 length [b]
+SlipSystem 1 length [b]
+SlipSystem 2 length [b]
+SlipSystem 3 length [b]
+SlipSystem 4 length [b]
+SlipSystem 5 length [b]
+SlipSystem 6 length [b]
+SlipSystem 7 length [b]
+SlipSystem 8 length [b]
+SlipSystem 9 length [b]
+SlipSystem 10 length [b]
+SlipSystem 11 length [b]
+SlipSystem 0 strain [-]
+SlipSystem 1 strain [-]
+SlipSystem 2 strain [-]
+SlipSystem 3 strain [-]
+SlipSystem 4 strain [-]
+SlipSystem 5 strain [-]
+SlipSystem 6 strain [-]
+SlipSystem 7 strain [-]
+SlipSystem 8 strain [-]
+SlipSystem 9 strain [-]
+SlipSystem 10 strain [-]
+SlipSystem 11 strain [-]
+e_11
+e_12
+e_13
+e_21
+e_22
+e_23
+e_31
+e_32
+e_33
+s_11 [mu]
+s_12 [mu]
+s_13 [mu]
+s_21 [mu]
+s_22 [mu]
+s_23 [mu]
+s_31 [mu]
+s_32 [mu]
+s_33 [mu]

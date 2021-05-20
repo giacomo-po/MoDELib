@@ -678,9 +678,12 @@ namespace model
                         {// face not a current confining face
                             for(const auto& link : linkContainer)
                             {
-                                if(face.second->asPlane().contains(link->source->get_P()) && face.second->asPlane().contains(link->sink->get_P()))
+                                if(link->chordLength()>FLT_EPSILON)
                                 {
-                                    meshFaces().insert(face.second.get());
+                                    if(face.second->asPlane().contains(link->source->get_P()) && face.second->asPlane().contains(link->sink->get_P()))
+                                    {
+                                        meshFaces().insert(face.second.get());
+                                    }
                                 }
                             }
 //                            bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false

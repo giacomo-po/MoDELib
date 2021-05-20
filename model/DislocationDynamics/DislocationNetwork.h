@@ -645,7 +645,7 @@ namespace model
             
             networkRemesher.remesh(runID);
             
-            junctionsMaker.glissileJunctions(DDtimeIntegrator<0>::dxMax);
+            junctionsMaker.glissileJunctions(4.0*networkRemesher.Lmin);
             
             if(bvpSolver)
             {

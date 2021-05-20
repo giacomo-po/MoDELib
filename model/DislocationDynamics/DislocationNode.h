@@ -71,6 +71,16 @@ namespace model
         }
         
         /**********************************************************************/
+        DislocationNode(const LinkType& pL,
+                        const VectorDim& P) :
+        /* base constructor */ NodeBaseType(pL,P)
+        /* init */,_climbVelocityScalar(0.5*(pL.source->climbVelocityScalar()+pL.sink->climbVelocityScalar()))
+        /* init */,_climbVelocity(0.5*(pL.source->climbVelocity()+pL.sink->climbVelocity()))
+        {/*! Constructor from ExpandingEdge and DOF
+          */
+        }
+        
+        /**********************************************************************/
         DislocationNode(LoopNetworkType* const ln,
                         const VectorDim& Pin,
                         NodeType* const master) :

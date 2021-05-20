@@ -19,7 +19,7 @@
 #include <StaticID.h>
 
 //#include <DislocationStress.h>
-
+// http://solidmechanics.org/text/Chapter5_4/Chapter5_4.htm
 #include <SlipSystem.h>
 
 namespace model
@@ -39,7 +39,7 @@ namespace model
         const int typeID;
         const double L;
         const double M;
-        const double K;
+//        const double K;
 
     private:
         VectorDim C;
@@ -90,7 +90,7 @@ namespace model
         /* init */,typeID(_type)
         /* init */,L((5.0*nu-1.0)/15.0/(1.0-nu))
         /* init */,M((4.0-5.0*nu)/15.0/(1.0-nu))
-        /* init */,K((3.0*L+2.0*M)/3.0)
+//        /* init */,K((3.0*L+2.0*M)/3.0)
         /* init */,C(_C)
         /* init */,a(_a)
         /* init */,a2(a*a)
@@ -112,12 +112,12 @@ namespace model
         MatrixDim stress(const VectorDim& x) const
         {
             
-            const VectorDim r(x-C);
-            const double R2(r.squaredNorm());
-            const double R(sqrt(R2));
-            
             if(eTNorm>FLT_EPSILON)
             {
+                const VectorDim r(x-C);
+                const double R2(r.squaredNorm());
+                const double R(sqrt(R2));
+                
                 if(R>a)
                 {
                     const double R3=std::pow(R,3);
@@ -136,7 +136,7 @@ namespace model
                 }
                 else
                 {
-                    return 2.0*mu*((L+nu/(1.0-2.0*nu)*3.0*K)*eT.trace()*MatrixDim::Identity()+2.0*M*eT);
+                    return 2.0*mu*((L+nu/(1.0-2.0*nu)*(2.0*M+3.0*L))*eT.trace()*MatrixDim::Identity()+2.0*M*eT)-pT;
                 }
             }
             else
