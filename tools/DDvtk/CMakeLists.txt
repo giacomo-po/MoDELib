@@ -12,7 +12,7 @@ include_directories(../../header_symlinks)
 
 set(CMAKE_BUILD_TYPE Release)
 
-set_property(TARGET DDvtk PROPERTY CXX_STANDARD 17)
+set_property(TARGET DDvtk PROPERTY CXX_STANDARD 14)
 
 if(VTK_LIBRARIES)
   target_link_libraries(DDvtk ${VTK_LIBRARIES})

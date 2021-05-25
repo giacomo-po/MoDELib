@@ -66,6 +66,11 @@ namespace model
                     break;
                 }
                     
+//                case DefectiveCrystalParameters::PERIODIC:
+//                {
+//                 // FINISH HERE
+//                    break;
+//                }
             }
             return DN.contractSecond(nA,nB);
         }
@@ -139,7 +144,7 @@ namespace model
                 {// either one of the nodes is a boundary node. Therefore the contraction point must be a boundary node
                     
                     //BoundingMeshSegments<dim> temp(nA->boundingBoxSegments(),nB->boundingBoxSegments());
-                    const ConfinedDislocationObject<NodeType> cdo(*nA,*nB);
+                    const ConfinedDislocationObject<dim> cdo(*nA,*nB);
                     const BoundingMeshSegments<dim>& temp(cdo.boundingBoxSegments());
 
                     VerboseNodeContraction(1,"temp.size="<<temp.size()<<std::endl;);
@@ -333,7 +338,7 @@ namespace model
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                             {
                                 VerboseNodeContraction(1,"DislocationNodeContraction case 8b"<<std::endl;);
-                                const ConfinedDislocationObject<NodeType> cdo(*nA,*nB);
+                                const ConfinedDislocationObject<dim> cdo(*nA,*nB);
                                 const BoundingMeshSegments<dim>& temp(cdo.boundingBoxSegments());
                                 switch (temp.size())
                                 {

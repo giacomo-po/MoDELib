@@ -16,7 +16,7 @@
 
 #include <Eigen/Dense>
 #include <DislocatedMaterial.h>
-#include <DislocationStress.h>
+//#include <DislocationStress.h>
 
 namespace model
 {
@@ -156,29 +156,6 @@ namespace model
             /*  */ +bCt.dot(r)/Yat/Ra/MaterialType::C1/8.0/M_PI*Ya;
         }
         
-        double elasticInteractionEnergy_kernel(const VectorDim& z,const VectorDim& tA,const VectorDim& bA) const
-        {
-            const Scalar za(sqrt(z.squaredNorm()+DislocationStress<dim>::a2));
-            const VectorDim Ya(z+za*t);
-            const Scalar Yat(Ya.dot(t));
-            const Scalar logYat(log(Yat));
-            const Scalar zaYat(za*Yat);
-
-            const Scalar bAtA(bA.dot(tA));
-            const Scalar bt(b.dot(t));
-            const Scalar bAt(bA.dot(t));
-            const Scalar btA(b.dot(tA));
-            const Scalar bAb(bA.dot(b));
-            const Scalar tAt(tA.dot(t));
-            const Scalar zt(z.dot(t));
-            const Scalar zb(z.dot(b));
-            const Scalar zbA(z.dot(bA));
-            return (0.5*MaterialType::C1*bAtA*bt+MaterialType::Nu*bAt*btA)*(2.0+2.0*logYat-DislocationStress<dim>::a2/zaYat)
-            /*  */-bAb*tAt*(1.5+logYat-DislocationStress<dim>::a2/zaYat)
-            /*  */-bAt*bt*tAt*(0.5+logYat+zt/Yat)
-            /*  */+tAt/Yat*(zbA*zb/za+bAt*zb+bt*zbA);
-        }
-        
     public:
         
         
@@ -245,12 +222,6 @@ namespace model
           * Note: the return value  does NOT include the solid-angle contribution to the displacement field.
           */
             return length>FLT_EPSILON? (displacement_kernel(P1-x)-displacement_kernel(P0-x)).eval() : VectorDim::Zero();
-        }
-        
-        double elasticInteractionEnergy(const VectorDim& xA,const VectorDim& tA,const VectorDim& bA) const
-        {
-            
-            return -0.5*MaterialType::C2*(elasticInteractionEnergy_kernel(P1-xA,tA,bA)-elasticInteractionEnergy_kernel(P0-xA,tA,bA));
         }
         
 	};	

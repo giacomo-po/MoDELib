@@ -41,7 +41,7 @@ sudo port install vtk
 Unfortunately, vtk is only compatible with the system g++/gcc (clang). Therefore, when invoking cmake, we need to specify the system compiler:
 \verbatim
 cd tools/DDvtk 
-cmake . -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_C_COMPILER=/usr/bin/gcc
+cmake . -DCMAKE_CXX_COMPILER=/usr/bin/g++ -DCMAKE_CC_COMPILER=/usr/bin/gcc
 make
 \endverbatim
 

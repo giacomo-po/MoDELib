@@ -18,7 +18,6 @@
 #include <StraightDislocationSegment.h>
 #include <EshelbyInclusion.h>
 #include <DefectiveCrystalParameters.h>
-#include <Polygon2D.h>
 
 namespace model
 {
@@ -50,9 +49,7 @@ namespace model
         
         MatrixDim stress;
         VectorDim pkForce;
-        VectorDim stackingFaultForce;
         VectorDim glideVelocity;
-        double elasticEnergyPerLength;
         
 #ifdef _MODEL_GREATWHITE_
 #include <DislocationQuadraturePointGreatWhite.h>
@@ -74,9 +71,7 @@ namespace model
         /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
-        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
-        /* init */,elasticEnergyPerLength(0.0)
         {
             
         }
@@ -94,9 +89,7 @@ namespace model
         /* init */,dL(0.0)
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
-        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
-        /* init */,elasticEnergyPerLength(0.0)
         {
             
         }
@@ -107,12 +100,11 @@ namespace model
         friend T& operator << (T& os, const DislocationQuadraturePoint<dim,corder>& dqp)
         {
             os  << dqp.sourceID<<" "<<dqp.sinkID<<" "<<dqp.qID<<" "
-            /**/<< std::setprecision(15)<<std::scientific<< dqp.SF<<" "
+            /**/<< dqp.SF<<" "
             /**/<< dqp.r.transpose()<<" "
             /**/<< dqp.ru.transpose()<<" "
             /**/<< dqp.j<<" "
-            /**/<< dqp.pkForce.transpose()<<" "
-            /**/<< dqp.elasticEnergyPerLength;
+            /**/<< dqp.pkForce.transpose();
             return os;
         }
         
@@ -176,11 +168,11 @@ namespace model
                 if(glideForceNorm>FLT_EPSILON)
                 {
                     
-                    //                    double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
-                    double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
-                                                                             parentSegment.network().poly.T,
-                                                                             dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
-                    
+//                    double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
+                      double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
+                                                                              parentSegment.network().poly.T,
+                                                                              dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
+
                     if(v<0.0 && v>=-FLT_EPSILON)
                     {
                         v=0.0; // kill roundoff errors for small negative velocities
@@ -205,7 +197,7 @@ namespace model
                     vv= v * glideForce/glideForceNorm;
                 }
                 return vv;
-                
+
             }
             else
             {
@@ -214,20 +206,20 @@ namespace model
             
         }
         
-        //        /**********************************************************************/
-        //        std::set<const EshelbyInclusion<dim>*> getInclusions(const std::map<size_t,EshelbyInclusion<dim>>& inclusionContainer,
-        //                                                            const VectorDim& x)
-        //        {
-        //            std::set<const EshelbyInclusion<dim>*> temp;
-        //            for(const auto& pair : inclusionContainer)
-        //            {
-        //                if(pair.second.cointains(x))
-        //                {
-        //                    temp.insert(&pair.second);
-        //                }
-        //            }
-        //            return temp;
-        //        }
+//        /**********************************************************************/
+//        std::set<const EshelbyInclusion<dim>*> getInclusions(const std::map<size_t,EshelbyInclusion<dim>>& inclusionContainer,
+//                                                            const VectorDim& x)
+//        {
+//            std::set<const EshelbyInclusion<dim>*> temp;
+//            for(const auto& pair : inclusionContainer)
+//            {
+//                if(pair.second.cointains(x))
+//                {
+//                    temp.insert(&pair.second);
+//                }
+//            }
+//            return temp;
+//        }
         
         
         /**********************************************************************/
@@ -235,7 +227,7 @@ namespace model
         void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);
-            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce,stress,rl,dL);
+            glideVelocity=getGlideVelocity(parentSegment,r,pkForce,stress,rl,dL);
         }
     };
     
@@ -243,8 +235,6 @@ namespace model
     class DislocationQuadraturePointContainer : public std::deque<DislocationQuadraturePoint<dim,corder>>
     
     {
-        
-    public:
         static constexpr int Ncoeff= SplineBase<dim,corder>::Ncoeff;
         static constexpr int Ndof= SplineBase<dim,corder>::Ndof;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -260,7 +250,6 @@ namespace model
         typedef typename DislocationQuadraturePointType::QuadratureDynamicType QuadratureDynamicType;
         typedef typename DislocationQuadraturePointType::QuadPowDynamicType QuadPowDynamicType;
         
-    private:
         /**********************************************************************/
         VectorNdof nodalVelocityLinearKernel(const int& k) const
         { /*!@param[in] k the current quadrature point
@@ -296,87 +285,10 @@ namespace model
             return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
         }
         
-        template<typename LinkType>
-        void computeMatrixStackingFaultForces(const LinkType& parentSegment)
-        {
-            const double eps=1.0e-2;
-            MatrixDim temp(MatrixDim::Zero());
-            if(parentSegment.isGlissile())
-            {// slipSystem must exist
-                assert(parentSegment.glidePlanes().size()==1);
-                const auto& glidePlane(*parentSegment.glidePlanes().begin());
-                for(const auto& loopLink : parentSegment.loopLinks())
-                {
-                    if(loopLink->loop()->slipSystem())
-                    {// gamma surface must exist to perform force calculation
-                        if(loopLink->loop()->slipSystem()->gammaSurface)
-                        {// gamma surface must exist to perform force calculation
-                            VectorDim outDir((loopLink->sink()->get_P() - loopLink->source()->get_P()).cross(loopLink->loop()->rightHandedUnitNormal()));
-                            const double outDirNorm(outDir.norm());
-                            if(outDirNorm>FLT_EPSILON)
-                            {
-                                outDir/=outDirNorm;
-                                std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
-                                for(const auto& otherLoop: parentSegment.network().loops())
-                                {
-                                    if(otherLoop.second->slipSystem() && glidePlane==otherLoop.second->glidePlane.get())
-                                    {
-                                        if(otherLoop.second->slipSystem()->isPartial())
-                                        {// only partial dislocations will contribute to a change in gamma surface
-                                            const double nRdotnR(loopLink->loop()->rightHandedUnitNormal().dot(otherLoop.second->rightHandedUnitNormal()));
-                                            if(std::fabs(nRdotnR)>FLT_EPSILON)
-                                            {
-                                                std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
-                                                for(const auto& otherLoopLink : otherLoop.second->linkSequence())
-                                                {
-                                                    otherLocalNodes.push_back((loopLink->loop()->slipSystem()->gammaSurface->G2L*(otherLoopLink->source()->get_P()-glidePlane->P)).template segment<dim-1>(0));
-                                                }
-                                                
-                                                for(size_t q=0;q<quadraturePoints().size();++q)
-                                                {
-                                                    const auto& qPoint(quadraturePoints()[q]);
-                                                    const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-                                                    const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop()->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-                                                    
-                                                    const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
-                                                    const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
-                                                    qPointSlip[q].first -=wn1*otherLoop.second->burgers(); // slip vector is negative the burgers vector
-                                                    qPointSlip[q].second-=wn2*otherLoop.second->burgers(); // slip vector is negative the burgers vector
-                                                    
-                                                    //                                                        if(nRdotnR>FLT_EPSILON)
-                                                    //                                                        {// same rightHandedUnitNormal
-                                                    //                                                            qPointSlip[q].first +=wn1*otherLoop.second->burgers();
-                                                    //                                                            qPointSlip[q].second+=wn2*otherLoop.second->burgers();
-                                                    //                                                        }
-                                                    //                                                        else
-                                                    //                                                        {// opposite rightHandedUnitNormal
-                                                    //                                                            qPointSlip[q].first -=wn1*otherLoop.second->burgers();
-                                                    //                                                            qPointSlip[q].second-=wn2*otherLoop.second->burgers();
-                                                    //                                                        }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                
-                                for(size_t q=0;q<quadraturePoints().size();++q)
-                                {
-                                    if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-                                    {
-                                        const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-                                        const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-                                        quadraturePoints()[q].stackingFaultForce+= -(gamma2-gamma1)*outDir; // * fact
-                                    }
-                                }
-                                
-                            }
-                            
-                        }
-                    }
-                }
-            }
-        }
+//        double vacancyConcentrationKernel(const int& k,const VectorDim& x) const
+//        {
+//            return quadraturePoint(k).climbVelocity/(quadraturePoint(k).r-x).norm()*this->quadraturePoint(k).j;
+//        }
         
     public:
         
@@ -385,9 +297,11 @@ namespace model
 #else
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& parentSegment)
+        void updateForcesAndVelocities(const LinkType& parentSegment,
+                                       const double& quadPerLength,
+                                       const double& isClimbStep)
         {
-//            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep); // do not create quadrature points in parallel
+            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             
             
             if(this->size())
@@ -400,7 +314,7 @@ namespace model
                     {
                         if(   !link.second->hasZeroBurgers()
                            && !(link.second->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-                           //                           && !(link.second->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+//                           && !(link.second->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
                            )
                         {
                             
@@ -440,27 +354,12 @@ namespace model
                                         qPoint.stress += stressC;
                                     }
                                 }
+                                
                             }
-                            
-                            if(parentSegment.network().computeElasticEnergyPerLength)
-                            {
-                                for(const auto& shift : parentSegment.network().periodicShifts)
-                                {
-                                    for (auto& qPoint : quadraturePoints())
-                                    {
-                                        qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
-                                    }
-                                }
-                            }
-                            
                         }
                     }
                 }
                 
-                
-                // Stacking fault contribution in the matrix
-                //                computeMatrixStackingFaultStress(parentSegment);
-                computeMatrixStackingFaultForces(parentSegment);
                 
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())
@@ -488,13 +387,13 @@ namespace model
                             qPoint.stress += inclusion.second.stress(qPoint.r+shift);
                         }
                     }
+                    
                     qPoint.updateForcesAndVelocities(parentSegment);
                 }
-                
             }
         }
 #endif
-        
+
         
         /**********************************************************************/
         template<typename LinkType>
@@ -538,7 +437,7 @@ namespace model
             return this->operator[](k);
         }
         
-        
+
         
         /**********************************************************************/
         VectorNdof nodalVelocityVector() const

@@ -20,7 +20,6 @@
 #include <PlanarMeshFace.h>
 #include <FiniteLineSegment.h>
 #include <LineLineIntersection.h>
-#include <TypeTraits.h>
 
 //#include <BoundingFiniteLineSegments.h>
 
@@ -29,15 +28,12 @@ namespace model
     
     
     
-    template <typename Derived>
-    struct ConfinedDislocationObject : private std::set<const GlidePlane<TypeTraits<Derived>::dim>*>
-    /*                              */,private std::set<const PlanarMeshFace<TypeTraits<Derived>::dim>*>
-    /*                              */,public BoundingMeshSegments<TypeTraits<Derived>::dim>
+    template <int dim>
+    struct ConfinedDislocationObject : private std::set<const GlidePlane<dim>*>
+    /*                              */,private std::set<const PlanarMeshFace<dim>*>
+    /*                              */,public BoundingMeshSegments<dim>
     {
         
-        static constexpr int dim=TypeTraits<Derived>::dim;
-        typedef typename TypeTraits<Derived>::LinkType LinkType;
-        typedef std::set<const LinkType*> LinkContainerType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Grain<dim> GrainType;
         typedef std::set<const GrainType*> GrainContainerType;
@@ -46,18 +42,10 @@ namespace model
         typedef PlanarMeshFace<dim> PlanarMeshFaceType;
         typedef std::set<const PlanarMeshFaceType*> PlanarMeshFaceContainerType;
         typedef MeshBoundarySegment<dim> MeshBoundarySegmentType;
-        typedef std::vector<std::pair<VectorDim,VectorDim>> PositionCointainerType;
+        typedef std::vector<VectorDim> PositionCointainerType;
         
         
     private:
-        
-        /**********************************************************************/
-        const Derived&   derived() const
-        {
-            return *static_cast<const Derived*>(this);
-            
-        }
-
         
         /**********************************************************************/
         void updateBoundingBoxWithMeshFace(const PlanarMeshFace<dim>& face)
@@ -118,14 +106,8 @@ namespace model
         
         
         //        GlidePlaneObserver<dim>& gpObserver;
-    public:
-        const SimplicialMesh<dim>& mesh;
-
-    private:
-//        PositionCointainerType posCointainer;
-        LinkContainerType linkContainer;
+        PositionCointainerType posCointainer;
         std::unique_ptr<FiniteLineSegment<dim>> _glidePlaneIntersections;
-        BoundingMeshSegments<dim> glidePlanesBox;
         bool _isOnExternalBoundary;
         bool _isOnInternalBoundary;
         VectorDim _outNormal;
@@ -134,50 +116,44 @@ namespace model
     public:
         
         /**********************************************************************/
-        ConfinedDislocationObject(const SimplicialMesh<dim>& mesh_in) :
+        ConfinedDislocationObject(const PositionCointainerType& temp) :
         //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
         //        /* init */ gpObserver(gpo)
-        /* init */ mesh(mesh_in)
-        /* init */,_isOnExternalBoundary(false)
+        /* init */ _isOnExternalBoundary(false)
         /* init */,_isOnInternalBoundary(false)
         /* init */,_outNormal(VectorDim::Zero())
         {
-            updateGeometry();
+            updateGeometry(temp);
         }
         
-//        /**********************************************************************/
-//        ConfinedDislocationObject(const SimplicialMesh<dim>& mesh_in,
-//                                  const VectorDim& P0) :
-//        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
-//        //        /* init */ gpObserver(gpo)
-//        /* init */ mesh(mesh_in)
-//        /* init */,_isOnExternalBoundary(false)
-//        /* init */,_isOnInternalBoundary(false)
-//        /* init */,_outNormal(VectorDim::Zero())
-//        {
-//            updateGeometry(P0);
-//        }
-//
-//        /**********************************************************************/
-//        ConfinedDislocationObject(const SimplicialMesh<dim>& mesh_in,
-//                                  const VectorDim& P0,const VectorDim& P1) :
-//        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
-//        //        /* init */ gpObserver(gpo)
-//        /* init */ mesh(mesh_in)
-//        /* init */,_isOnExternalBoundary(false)
-//        /* init */,_isOnInternalBoundary(false)
-//        /* init */,_outNormal(VectorDim::Zero())
-//        {
-//            updateGeometry(P0,P1);
-//        }
+        /**********************************************************************/
+        ConfinedDislocationObject(const VectorDim& P0) :
+        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
+        //        /* init */ gpObserver(gpo)
+        /* init */ _isOnExternalBoundary(false)
+        /* init */,_isOnInternalBoundary(false)
+        /* init */,_outNormal(VectorDim::Zero())
+        {
+            updateGeometry(P0);
+        }
+        
+        /**********************************************************************/
+        ConfinedDislocationObject(const VectorDim& P0,const VectorDim& P1) :
+        //        ConfinedDislocationObject(GlidePlaneObserver<dim>& gpo) :
+        //        /* init */ gpObserver(gpo)
+        /* init */ _isOnExternalBoundary(false)
+        /* init */,_isOnInternalBoundary(false)
+        /* init */,_outNormal(VectorDim::Zero())
+        {
+            updateGeometry(P0,P1);
+        }
         
         
         /**********************************************************************/
-        ConfinedDislocationObject(const ConfinedDislocationObject<Derived>& A,
-                                  const ConfinedDislocationObject<Derived>& B) :
+        ConfinedDislocationObject(const ConfinedDislocationObject<dim>& A,
+                                  const ConfinedDislocationObject<dim>& B) :
         //        /* init */ gpObserver(A.gpObserver)
-        /* init */ mesh(A.mesh)
-        /* init */,_isOnExternalBoundary(A.isOnExternalBoundary() || B.isOnExternalBoundary())
+        /* init */ _isOnExternalBoundary(A.isOnExternalBoundary() || B.isOnExternalBoundary())
         /* init */,_isOnInternalBoundary(A.isOnInternalBoundary() || B.isOnInternalBoundary())
         /* init */,_outNormal(VectorDim::Zero())
         {
@@ -217,7 +193,6 @@ namespace model
             glidePlanes().clear();
 //            meshFaces().clear(); // NEVER CLEAR CONFINING FACES !!!
             _glidePlaneIntersections.reset(nullptr);
-            glidePlanesBox.clear();
             this->boundingBoxSegments().clear();
         }
         
@@ -312,12 +287,6 @@ namespace model
         }
         
         /**********************************************************************/
-        bool hasGlidePlaneIntersections() const
-        {
-            return _glidePlaneIntersections!=nullptr;
-        }
-        
-        /**********************************************************************/
         const bool& isOnExternalBoundary() const
         {/*!\returns _isOnExternalBoundarySegment.
           */
@@ -342,37 +311,20 @@ namespace model
             return _outNormal;
         }
         
-//        /**********************************************************************/
-//        void updateGeometry(const VectorDim& P0)
-//        {
-//            posCointainer.clear();
-//            posCointainer.push_back(P0);
-//            updateConfinement();
-//        }
-//
-//        /**********************************************************************/
-//        void updateGeometry(const VectorDim& P0,const VectorDim& P1)
-//        {
-//            posCointainer.clear();
-//            posCointainer.push_back(P0);
-//            posCointainer.push_back(P1);
-//            updateConfinement();
-//        }
-//
-//        /**********************************************************************/
-//        void updateGeometry(const PositionCointainerType& temp)
-//        {
-//            posCointainer=temp;
-//            updateConfinement();
-//        }
-        
-        void updateGeometry()
+        /**********************************************************************/
+        void updateGeometry(const VectorDim& P0)
         {
-            linkContainer.clear();
-            for(const auto& loopLink : derived().loopLinks())
-            {
-                linkContainer.emplace(loopLink->pLink.get());
-            }
+            posCointainer.clear();
+            posCointainer.push_back(P0);
+            updateConfinement();
+        }
+        
+        /**********************************************************************/
+        void updateGeometry(const VectorDim& P0,const VectorDim& P1)
+        {
+            posCointainer.clear();
+            posCointainer.push_back(P0);
+            posCointainer.push_back(P1);
             updateConfinement();
         }
         
@@ -393,7 +345,6 @@ namespace model
                         case 0:
                         {// there must be at least one glide plane
                             _glidePlaneIntersections.reset(nullptr);
-                            glidePlanesBox.clear();
                             this->boundingBoxSegments().clear();
                             assert(0 && "AT LEAST ONE GLIDE PLANE MUST EXIST");
                             break;
@@ -403,12 +354,10 @@ namespace model
                         {// if there is only one glide plane, then _glidePlaneIntersections must be empty
                             //VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updateMeshPlaneIntersections, case 1"<<std::endl;);
                             _glidePlaneIntersections.reset(nullptr);
-                            glidePlanesBox.clear();
                             this->boundingBoxSegments().clear();
                             for(const auto& seg : lastGlidePlane->meshIntersections)
                             {// copy boundary segments from plane
-                                glidePlanesBox.push_back(seg);
-//                                this->boundingBoxSegments().push_back(seg);
+                                this->boundingBoxSegments().push_back(seg);
                             }
                             break;
                         }
@@ -419,8 +368,6 @@ namespace model
                             //                    assert(_glidePlaneIntersections.size()==0 && "_glidePlaneIntersections must be empty");
                             _glidePlaneIntersections.reset(nullptr);
                             this->boundingBoxSegments().clear();
-                            glidePlanesBox.clear();
-
                             //
                             //                            assert(!_glidePlaneIntersections && "_glidePlaneIntersections must be empty");
                             
@@ -455,8 +402,7 @@ namespace model
                                 }
                                 assert(roots.size()==2 && "THERE MUST BE 2 INTERSECTION POINTS BETWEEN GLIDEPLANE(s) and GRAIN-BOUNDARY PERIMETER");
                                 _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(*roots.begin(),*roots.rbegin()));
-                                glidePlanesBox.emplace_back(new MeshBoundarySegment<dim>(*roots.begin(),*roots.rbegin(),gb.face.get()));
-//                                this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(*roots.begin(),*roots.rbegin(),gb.face.get()));
+                                this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(*roots.begin(),*roots.rbegin(),gb.face.get()));
                             }
                             else if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
                             {/* If the two planes are incident then the intersection of
@@ -486,8 +432,7 @@ namespace model
                                     {// a coincident line was found, which means that the glide planes intersec on a boundary face
 //                                        std::cout<<"coincident"<<std::endl;
                                         _glidePlaneIntersections.reset(new FiniteLineSegment<dim>(meshInt->P0,meshInt->P1));
-//                                        this->boundingBoxSegments().push_back(meshInt);
-                                        glidePlanesBox.push_back(meshInt);
+                                        this->boundingBoxSegments().push_back(meshInt);
                                         break;
                                     }
                                 }
@@ -496,7 +441,7 @@ namespace model
                                 {// no coincident intersection was found
                                     if(roots.size()!=2)
                                     {
-                                        if(linkContainer.size())
+                                        if(posCointainer.size())
                                         {
                                             model::cout<<"Plane0 bounding box:"<<std::endl;
                                             std::cout<<glidePlane0.meshIntersections<<std::endl;
@@ -541,15 +486,13 @@ namespace model
                                             }
                                         }
                                         
-//                                        this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(root,root,faces));
-                                        glidePlanesBox.emplace_back(new MeshBoundarySegment<dim>(root,root,faces));
-
+                                        this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(root,root,faces));
                                     }
                                 }
                             }
                             else
                             {// parallel planes. _glidePlaneIntersections remians null and boundingBoxSegments is empty
-                                if(linkContainer.size())
+                                if(posCointainer.size())
                                 {
                                     assert(0 && "Intersection must be COINCIDENT or INCIDENT.");
                                 }
@@ -585,8 +528,7 @@ namespace model
                                         
                                         // Update this->boundingBoxSegments()
                                         std::set<const PlanarMeshFace<dim>*> faces;
-//                                        const auto containingSegments(this->boundingBoxSegments().containingSegments(x));
-                                        const auto containingSegments(glidePlanesBox.containingSegments(x));
+                                        const auto containingSegments(this->boundingBoxSegments().containingSegments(x));
                                         for(const auto& meshInt : containingSegments)
                                         {
                                             for(const auto& curFace : meshInt->faces)
@@ -594,12 +536,10 @@ namespace model
                                                 faces.insert(curFace);
                                             }
                                         }
-                                        glidePlanesBox.clear();
                                         this->boundingBoxSegments().clear();
                                         if(faces.size())
                                         {
-//                                            this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(x,x,faces));
-                                            glidePlanesBox.emplace_back(new MeshBoundarySegment<dim>(x,x,faces));
+                                            this->boundingBoxSegments().emplace_back(new MeshBoundarySegment<dim>(x,x,faces));
                                         }
                                         break;
                                     }
@@ -607,10 +547,9 @@ namespace model
                                     default:
                                     {
                                         _glidePlaneIntersections.reset(nullptr);
-                                        glidePlanesBox.clear();
                                         this->boundingBoxSegments().clear();
                                         
-                                        if(linkContainer.size())
+                                        if(posCointainer.size())
                                         {// an actual dislocation object is being confined
                                             //                                    model::cout<<"PlanarDislocationNode "<<this->sID<<std::endl;
                                             model::cout<<"MeshPlanes are:"<<std::endl;
@@ -637,7 +576,6 @@ namespace model
                             }
                             else
                             {
-                                glidePlanesBox.clear();
                                 this->boundingBoxSegments().clear();
                             }
                         }
@@ -652,92 +590,55 @@ namespace model
         /**********************************************************************/
         void updateConfinement()
         {
-            meshFaces().clear();
-            if(glidePlanes().size())
+            for(const auto& glidePlane : glidePlanes())
             {
-                for(const auto& glidePlane : glidePlanes())
+                
+                for(const auto& pos : posCointainer)
                 {
-                    
-//                    for(const auto& link : linkContainer)
-//                    {
-//                        assert(glidePlane->contains(link->source->get_P()) && "glidePlane MUST CONTAIN SOUCE");
-//                        assert(glidePlane->contains(link->sink->get_P()) && "glidePlane MUST CONTAIN SINK");
-//
-//                    }
-                    
-                    for(const auto& face : glidePlane->grain.region.faces())
-                    {
-                        //                    if(meshFaces().find(face.second.get())!=meshFaces().end())
-                        //                    {// face is already a current confining face
-                        //                        for(const auto& pos : posCointainer)
-                        //                        {
-                        //                            assert(face.second->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
-                        //                        }
-                        //                    }
-                        if(meshFaces().find(face.second.get())==meshFaces().end())
-                        {// face not a current confining face
-                            for(const auto& link : linkContainer)
-                            {
-                                if(link->chordLength()>FLT_EPSILON)
-                                {
-                                    if(face.second->asPlane().contains(link->source->get_P()) && face.second->asPlane().contains(link->sink->get_P()))
-                                    {
-                                        meshFaces().insert(face.second.get());
-                                    }
-                                }
-                            }
-//                            bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
-//                            for(const auto& pos : posCointainer)
-//                            {
-//                                cointained*=face.second->asPlane().contains(pos);
-//                            }
-//                            if(cointained)
-//                            {// faces contains all positions
-//                                //                            updateBoundingBoxWithMeshFace(*face.second);
-//                            }
-                        }
-                    }
+                    assert(glidePlane->contains(pos) && "glidePlane MUST CONTAIN POSITION");
                 }
-            }
-            else
-            {// no glide plane, use mesh directly
-                for(const auto& rIter : mesh.regions())
+                
+                for(const auto& face : glidePlane->grain.region.faces())
                 {
-                    for(const auto& face : rIter.second->faces())
-                    {
-                        for(const auto& link : linkContainer)
+                    //                    if(meshFaces().find(face.second.get())!=meshFaces().end())
+                    //                    {// face is already a current confining face
+                    //                        for(const auto& pos : posCointainer)
+                    //                        {
+                    //                            assert(face.second->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
+                    //                        }
+                    //                    }
+                    if(meshFaces().find(face.second.get())==meshFaces().end())
+                    {// face not a current confining face
+                        bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
+                        for(const auto& pos : posCointainer)
                         {
-                            if(face.second->asPlane().contains(link->source->get_P()) && face.second->asPlane().contains(link->sink->get_P()))
-                            {
-                                meshFaces().insert(face.second.get());
-                            }
+                            cointained*=face.second->asPlane().contains(pos);
                         }
-//                        bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
-//                        for(const auto& pos : posCointainer)
-//                        {
-//                            cointained*=face.second->asPlane().contains(pos);
-//                        }
-//                        if(cointained)
-//                        {// faces contains all positions
-//                            meshFaces().insert(face.second.get());
-//                        }
+                        if(cointained)
+                        {// faces contains all positions
+                            meshFaces().insert(face.second.get());
+                            //                            updateBoundingBoxWithMeshFace(*face.second);
+                        }
                     }
                 }
             }
             
+            
+            //            updateBoundingBoxWithMeshFaces();
+            
+            
+            
             // Update _isOnExternalBoundary, _isOnInternalBoundary, and _outNormal
-            this->boundingBoxSegments()=glidePlanesBox;
             _isOnExternalBoundary=false;
             _isOnInternalBoundary=false;
             _outNormal.setZero();
             for(const auto& face : meshFaces())
             {
                 
-//                for(const auto& link : linkContainer)
-//                {// A face must include all positions
-//                    assert(face->asPlane().contains(link->source->get_P()) && "FACE MUST CONTAIN SOURCE");
-//                    assert(face->asPlane().contains(link->sink->get_P()) && "FACE MUST CONTAIN SINK");
-//                }
+                for(const auto& pos : posCointainer)
+                {// A face must include all positions
+                    assert(face->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
+                }
                 
                 updateBoundingBoxWithMeshFace(*face);
                 

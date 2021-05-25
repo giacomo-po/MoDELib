@@ -32,7 +32,6 @@ namespace model
 //         long int periodicLoopID;          // sID
 //            VectorDim periodicShift;
          std::tuple<double,double,double> loopLength;
-        double slippedArea;
         
         /**********************************************************************/
         template<typename DislocationLoopType>
@@ -46,7 +45,6 @@ namespace model
 //        /* init */,periodicLoopID(dL.periodicLoop? dL.periodicLoop->sID : -1)
 //        /* init */,periodicShift(dL.periodicShift)
         /* init */,loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
-        /* init */,slippedArea(dL.slippedArea())
         {
             
         }
@@ -70,7 +68,6 @@ namespace model
 //        /* init */,periodicLoopID(periodicLoopID_in)
 //        /* init */,periodicShift(periodicShift_in)
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
-        /* init */,slippedArea(0.0)
         {
             
         }
@@ -86,7 +83,6 @@ namespace model
 //        /* init */,periodicLoopID(-1)
 //        /* init */,periodicShift(VectorDim::Zero())
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
-        /* init */,slippedArea(0.0)
         {
             
         }
@@ -102,7 +98,6 @@ namespace model
 //        /* init */,periodicLoopID(-1)
 //        /* init */,periodicShift(VectorDim::Zero())
         /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
-        /* init */,slippedArea(0.0)
         {
             ss>>sID;
             for(int d=0;d<dim;++d)
@@ -127,7 +122,6 @@ namespace model
             double l1,l2,l3;
             ss>>l1>>l2>>l3;
             loopLength=std::make_tuple(l1,l2,l3);
-            ss>>slippedArea;
         }
         
         /**********************************************************************/
@@ -142,8 +136,7 @@ namespace model
             /**/<< ds.loopType<<"\t"
 //            /**/<< ds.periodicLoopID<<"\t"
 //            /**/<< ds.periodicShift.transpose()<<"\t"
-            /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength)<<"\t"
-            /**/<< ds.slippedArea;
+            /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength);
             return os;
         }
         

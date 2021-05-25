@@ -20,7 +20,7 @@
 #include <Eigen/Geometry>
 #include <MPIcout.h> // defines model::cout
 #include <TerminalColors.h> // defines mode::cout
-#include <DislocatedMaterialBase.h>
+#include <PolycrystallineMaterialBase.h>
 #include <StaticID.h>
 
 namespace model
@@ -65,12 +65,6 @@ namespace model
 #ifndef _MODEL_GREATWHITE_
     std::vector<std::default_random_engine> StochasticForceGenerator::generators;
     std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
-#else
-#ifdef _MODEL_GREATWHITE_standalone
-    std::vector<std::default_random_engine> StochasticForceGenerator::generators;
-    std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
-#endif
-
 #endif
     
     /**************************************************************************/

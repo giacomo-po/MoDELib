@@ -135,7 +135,7 @@ namespace model
             {
                 if (!(runID%bvpSolver->stepsBetweenBVPupdates))
                 {// enter the if statement if use_bvp!=0 and runID is a multiple of use_bvp
-//                    model::cout<<"		Updating BVPs... "<<std::endl;
+                    model::cout<<"		Updating elastic bvp... "<<std::endl;
                     bvpSolver->template assembleAndSolve<DislocationNetworkType,quadraturePerTriangle>(*DN, isClimbStep);
                 }
             }
@@ -147,16 +147,17 @@ namespace model
         
     public:
         
+        
         /**********************************************************************/
         DefectiveCrystal(int& argc, char* argv[]) :
         /* init */ simulationParameters(argc,argv)
-        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose())
+        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
         /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
         //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
-        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(*DN) : nullptr)
+        /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)
         /* init */,externalLoadController(getExternalLoadController(simulationParameters,*this,simulationParameters.runID))
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
@@ -165,7 +166,6 @@ namespace model
             if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
                || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
             {
-                assert(false && "PERIODIC SIMULATIONS ONLY AVAILABLE in MoDELib 2");
                 assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
                 
                 for(const auto& rIter : mesh.regions())
@@ -257,117 +257,117 @@ namespace model
         //            }
         //        }
         
-        /**********************************************************************/
-        void singleGlideStep()
-        {
-            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
-            /*                    */<< ", time="<<simulationParameters.totalTime;
-            if(DN)
-            {
-                model::cout<< ": nodes="<<DN->nodes().size()
-                /*                    */<< ", segments="<<DN->links().size()
-                /*                    */<< ", loopSegments="<<DN->loopLinks().size()
-                /*                    */<< ", loops="<<DN->loops().size()
-                /*                    */<< ", components="<<DN->components().size();
-            }
-            model::cout<< defaultColor<<std::endl;
-            
-            if(DN)
-            {
-                DN->updateGeometry();
-                updateLoadControllers(simulationParameters.runID, false);
-                
-                DN->assembleAndSolveGlide(simulationParameters.runID);
-                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
-                // output
-                DN->io().output(simulationParameters.runID);
-
-                
-                //                for(const auto& loop : DN->loops())
-                //                {
-                //                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-                //                    {
-                //                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
-                //                    }
-                //                }
-                
-                // move
-                DN->moveGlide(simulationParameters.dt);
-                
-                // menage discrete topological events
-                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
-            }
-            simulationParameters.totalTime+=simulationParameters.dt;
-            ++simulationParameters.runID;
-        }
-        
-        /**********************************************************************/
-        void runGlideSteps()
-        {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
-          */
-            const auto t0= std::chrono::system_clock::now();
-            while (simulationParameters.runID<simulationParameters.Nsteps)
-            {
-                model::cout<<std::endl; // leave a blank line
-                singleGlideStep();
-            }
-            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
-        }
-        
-        /**********************************************************************/
-#ifdef _MODEL_GREATWHITE_
-#include <DefectiveCrystalGreatWhite.h>
-#endif
-        
-        
-        /**********************************************************************/
-        VectorDim displacement(const VectorDim& x) const
-        {/*!\param[in] P position vector
-          * \returns The displacement field in the DefectiveCrystal at P
-          */
-            VectorDim temp(VectorDim::Zero());
-            if(DN)
-            {
-                temp+=DN->displacement(x);
-            }
-            if(CS)
-            {
-                temp+=CS->displacement(x);
-            }
-            return temp;
-        }
-        
-        /**********************************************************************/
-        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
-        {
-            if(DN)
-            {
-                DN->displacement(fieldPoints);
-            }
-            if(CS)
-            {
-                CS->displacement(fieldPoints);
-            }
-        }
-        
-        /**********************************************************************/
-        MatrixDim stress(const VectorDim& x) const
-        {/*!\param[in] P position vector
-          * \returns The stress field in the DefectiveCrystal at P
-          * Note:
-          */
-            MatrixDim temp(MatrixDim::Zero());
-            if(DN)
-            {
-                temp+=DN->stress(x);
-            }
-            if(CS)
-            {
-                temp+=CS->stress(x);
-            }
-            return temp;
-        }
-        
+//        /**********************************************************************/
+//        void singleGlideStep()
+//        {
+//            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
+//            /*                    */<< ", time="<<simulationParameters.totalTime;
+//            if(DN)
+//            {
+//                model::cout<< ": nodes="<<DN->nodes().size()
+//                /*                    */<< ", segments="<<DN->links().size()
+//                /*                    */<< ", loopSegments="<<DN->loopLinks().size()
+//                /*                    */<< ", loops="<<DN->loops().size()
+//                /*                    */<< ", components="<<DN->components().size();
+//            }
+//            model::cout<< defaultColor<<std::endl;
+//
+//            if(DN)
+//            {
+//                DN->updateGeometry();
+//                updateLoadControllers(simulationParameters.runID, false);
+//
+//                DN->assembleAndSolveGlide(simulationParameters.runID);
+//                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
+//                // output
+//                DN->io().output(simulationParameters.runID);
+//
+//
+//                //                for(const auto& loop : DN->loops())
+//                //                {
+//                //                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
+//                //                    {
+//                //                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
+//                //                    }
+//                //                }
+//
+//                // move
+//                DN->moveGlide(simulationParameters.dt);
+//
+//                // menage discrete topological events
+//                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
+//            }
+//            simulationParameters.totalTime+=simulationParameters.dt;
+//            ++simulationParameters.runID;
+//        }
+//
+//        /**********************************************************************/
+//        void runGlideSteps()
+//        {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
+//          */
+//            const auto t0= std::chrono::system_clock::now();
+//            while (simulationParameters.runID<simulationParameters.Nsteps)
+//            {
+//                model::cout<<std::endl; // leave a blank line
+//                singleGlideStep();
+//            }
+//            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
+//        }
+//
+//        /**********************************************************************/
+//#ifdef _MODEL_GREATWHITE_
+//#include <DefectiveCrystalGreatWhite.h>
+//#endif
+//
+//
+//        /**********************************************************************/
+//        VectorDim displacement(const VectorDim& x) const
+//        {/*!\param[in] P position vector
+//          * \returns The displacement field in the DefectiveCrystal at P
+//          */
+//            VectorDim temp(VectorDim::Zero());
+//            if(DN)
+//            {
+//                temp+=DN->displacement(x);
+//            }
+//            if(CS)
+//            {
+//                temp+=CS->displacement(x);
+//            }
+//            return temp;
+//        }
+//
+//        /**********************************************************************/
+//        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
+//        {
+//            if(DN)
+//            {
+//                DN->displacement(fieldPoints);
+//            }
+//            if(CS)
+//            {
+//                CS->displacement(fieldPoints);
+//            }
+//        }
+//
+//        /**********************************************************************/
+//        MatrixDim stress(const VectorDim& x) const
+//        {/*!\param[in] P position vector
+//          * \returns The stress field in the DefectiveCrystal at P
+//          * Note:
+//          */
+//            MatrixDim temp(MatrixDim::Zero());
+//            if(DN)
+//            {
+//                temp+=DN->stress(x);
+//            }
+//            if(CS)
+//            {
+//                temp+=CS->stress(x);
+//            }
+//            return temp;
+//        }
+//
         /**********************************************************************/
         MatrixDim plasticDistortion() const
         {/*!\param[in] P position vector
@@ -385,7 +385,7 @@ namespace model
             }
             return temp;
         }
-        
+
         /**********************************************************************/
         MatrixDim plasticDistortionRate() const
         {/*!\param[in] P position vector
@@ -403,7 +403,7 @@ namespace model
             }
             return temp;
         }
-        
+
         /**********************************************************************/
         MatrixDim plasticStrainRate() const
         {/*!\param[in] P position vector
@@ -413,7 +413,7 @@ namespace model
             MatrixDim temp(plasticDistortionRate());
             return 0.5*(temp+temp.transpose());
         }
-        
+//
     };
 }
 #endif

@@ -54,7 +54,7 @@ int main (int argc, char * const argv[])
     {
         s = (Eigen::Matrix<double,3,1>()<< 1.0,0.0,0.0).finished().normalized();
         m = (Eigen::Matrix<double,3,1>()<<1.0,2.0,3.0).finished().normalized();
-        bool isBasal(false);
+        bool isBasal(true);
         if(isBasal)
         {
             n = (Eigen::Matrix<double,3,1>()<< 0.0,0.0,1.0).finished().normalized();

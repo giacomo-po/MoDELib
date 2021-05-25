@@ -30,9 +30,7 @@ namespace model
         
         MatrixDim stress;
         VectorDim pkForce;
-        VectorDim stackingFaultForce;
         VectorDim glideVelocity;
-        double elasticEnergyPerLength;
         
         /**********************************************************************/
         DislocationQuadraturePointIO() :
@@ -44,9 +42,7 @@ namespace model
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
-        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
-        /* init */,elasticEnergyPerLength(0.0)
         {
         }
         
@@ -61,9 +57,7 @@ namespace model
         /* init */,rl(qPoint.rl)
         /* init */,stress(qPoint.stress)
         /* init */,pkForce(qPoint.pkForce)
-        /* init */,stackingFaultForce(qPoint.stackingFaultForce)
         /* init */,glideVelocity(qPoint.glideVelocity)
-        /* init */,elasticEnergyPerLength(qPoint.elasticEnergyPerLength)
         {
             
         }
@@ -78,9 +72,7 @@ namespace model
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
-        /* init */,stackingFaultForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
-        /* init */,elasticEnergyPerLength(0.0)
         {
             
             ss>>sourceID;
@@ -108,14 +100,8 @@ namespace model
             }
             for(int d=0;d<dim;++d)
             {
-                ss>>stackingFaultForce(d);
-            }
-            for(int d=0;d<dim;++d)
-            {
                 ss>>glideVelocity(d);
             }
-            ss>>elasticEnergyPerLength;
-
         }
         
         /**********************************************************************/
@@ -125,7 +111,7 @@ namespace model
             os  << ds.sourceID<<"\t"
             /**/<< ds.sinkID<<"\t"
             /**/<< ds.qID<<"\t"
-            /**/<< std::setprecision(15)<<std::scientific<<ds.r.transpose()<<"\t"
+            /**/<< ds.r.transpose()<<"\t"
             /**/<< ds.j<<"\t"
             /**/<< ds.rl.transpose()<<"\t";
             for(int d=0;d<dim;++d)
@@ -133,9 +119,7 @@ namespace model
                 os  << ds.stress.row(d)<<" ";
             }
             os  << ds.pkForce.transpose()<<"\t"
-            /**/<< ds.stackingFaultForce.transpose()<<"\t"
-            /**/<< ds.glideVelocity.transpose()<<"\t"
-            /**/<< ds.elasticEnergyPerLength;
+            /**/<< ds.glideVelocity.transpose();
             return os;
         }
         

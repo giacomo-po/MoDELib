@@ -23,25 +23,22 @@
 \contentsline {chapter}{\numberline {2}Discrete Dislocation Dynamics in MoDELib}{19}{chapter.2}
 \contentsline {section}{\numberline {2.1}Topology of dislocation networks}{19}{section.2.1}
 \contentsline {subsection}{\numberline {2.1.1}Topological operations}{19}{subsection.2.1.1}
-\contentsline {section}{\numberline {2.2}Tutorials}{19}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Cylindrical punch}{19}{subsection.2.2.1}
-\contentsline {chapter}{\numberline {A}Review of tensor calculus}{24}{appendix.A}
-\contentsline {section}{\numberline {A.1}Mathematical preliminaries}{24}{section.A.1}
-\contentsline {subsection}{\numberline {A.1.1}Kelvin-Stokes Theorem}{24}{subsection.A.1.1}
-\contentsline {subsection}{\numberline {A.1.2}Surface Divergence Theorem}{24}{subsection.A.1.2}
-\contentsline {subsection}{\numberline {A.1.3}Surface Transport Theorem}{24}{subsection.A.1.3}
-\contentsline {subsection}{\numberline {A.1.4}Solid angles and line integration}{25}{subsection.A.1.4}
-\contentsline {section}{\numberline {A.2}OLD NOTES: Elastic Energy of a Dislocation Loop}{26}{section.A.2}
-\contentsline {subsection}{\numberline {A.2.1}Volume to Surface}{26}{subsection.A.2.1}
-\contentsline {section}{\numberline {A.3}Convolution integrals}{27}{section.A.3}
-\contentsline {section}{\numberline {A.4}The nabla operator}{28}{section.A.4}
-\contentsline {section}{\numberline {A.5}The Green's tensor and the F-tensor in classical anisotropic elasticity}{28}{section.A.5}
-\contentsline {chapter}{\numberline {B}Elastic fields of piecewise-straight dislocations loop}{29}{appendix.B}
-\contentsline {subsection}{\numberline {B.0.1}Straight segments}{29}{subsection.B.0.1}
-\contentsline {subsection}{\numberline {B.0.2}Stress field of a straight segment}{34}{subsection.B.0.2}
-\contentsline {subsubsection}{Stress of a straight segment on a distant point}{35}{section*.18}
-\contentsline {subsubsection}{Stress of a straight segment in the neighborhood of a far point}{37}{section*.19}
-\contentsline {subsection}{\numberline {B.0.3}Straight Displacement}{38}{subsection.B.0.3}
-\contentsline {subsubsection}{Straight Solid Angle}{38}{section*.20}
-\contentsline {subsubsection}{Non-singular Straight Solid Angle}{40}{section*.21}
-\contentsline {section}{\numberline {B.1}Non-singular energy density}{40}{section.B.1}
+\contentsline {chapter}{\numberline {A}Review of tensor calculus}{21}{appendix.A}
+\contentsline {section}{\numberline {A.1}Mathematical preliminaries}{21}{section.A.1}
+\contentsline {subsection}{\numberline {A.1.1}Kelvin-Stokes Theorem}{21}{subsection.A.1.1}
+\contentsline {subsection}{\numberline {A.1.2}Surface Divergence Theorem}{21}{subsection.A.1.2}
+\contentsline {subsection}{\numberline {A.1.3}Surface Transport Theorem}{21}{subsection.A.1.3}
+\contentsline {subsection}{\numberline {A.1.4}Solid angles and line integration}{22}{subsection.A.1.4}
+\contentsline {section}{\numberline {A.2}OLD NOTES: Elastic Energy of a Dislocation Loop}{23}{section.A.2}
+\contentsline {subsection}{\numberline {A.2.1}Volume to Surface}{23}{subsection.A.2.1}
+\contentsline {section}{\numberline {A.3}Convolution integrals}{24}{section.A.3}
+\contentsline {section}{\numberline {A.4}The nabla operator}{25}{section.A.4}
+\contentsline {section}{\numberline {A.5}The Green's tensor and the F-tensor in classical anisotropic elasticity}{25}{section.A.5}
+\contentsline {chapter}{\numberline {B}Elastic fields of piecewise-straight dislocations loop}{26}{appendix.B}
+\contentsline {subsection}{\numberline {B.0.1}Straight segments}{26}{subsection.B.0.1}
+\contentsline {subsection}{\numberline {B.0.2}Stress field of a straight segment}{31}{subsection.B.0.2}
+\contentsline {subsubsection}{Stress of a straight segment on a distant point}{32}{section*.15}
+\contentsline {subsubsection}{Stress of a straight segment in the neighborhood of a far point}{34}{section*.16}
+\contentsline {subsection}{\numberline {B.0.3}Straight Displacement}{35}{subsection.B.0.3}
+\contentsline {subsubsection}{Straight Solid Angle}{35}{section*.17}
+\contentsline {subsubsection}{Non-singular Straight Solid Angle}{37}{section*.18}

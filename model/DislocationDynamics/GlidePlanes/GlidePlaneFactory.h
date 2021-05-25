@@ -27,9 +27,8 @@
 #include <CRTP.h>
 #include <TypeTraits.h>
 #include <Polycrystal.h>
-#include <KeyConstructableSharedPtrFactory.h>
+#include <WeakPtrFactories.h>
 #include <GlidePlaneKey.h>
-
 
 namespace model
 {
@@ -39,36 +38,36 @@ namespace model
     
     template <int dim>
     struct GlidePlane; // class predeclaration
-    
-    template<int dim>
-    struct GlidePlaneFactory;
+//
+//    template<int dim>
+//    struct GlidePlaneFactory;
     
  
     
-    template<int dim>
-    struct GlidePlaneFactoryTraits
-    {
-        typedef GlidePlane<dim> ValueType;
-        typedef GlidePlaneKey<dim> KeyType;
-        typedef std::less<KeyType> CompareType;
-
-    };
-    
-    template<int dim>
-    struct TypeTraits<GlidePlaneFactory<dim>> : public GlidePlaneFactoryTraits<dim>
-    {
-
-    };
-    
-    template<int dim>
-    struct TypeTraits<GlidePlane<dim>> : public GlidePlaneFactoryTraits<dim>
-    {
-        
-    };
+//    template<int dim>
+//    struct GlidePlaneFactoryTraits
+//    {
+//        typedef GlidePlane<dim> ValueType;
+//        typedef GlidePlaneKey<dim> KeyType;
+//        typedef std::less<KeyType> CompareType;
+//
+//    };
+//
+//    template<int dim>
+//    struct TypeTraits<GlidePlaneFactory<dim>> : public GlidePlaneFactoryTraits<dim>
+//    {
+//
+//    };
+//
+//    template<int dim>
+//    struct TypeTraits<GlidePlane<dim>> : public GlidePlaneFactoryTraits<dim>
+//    {
+//
+//    };
     
     /**************************************************************************/
     template<int dim>
-    struct GlidePlaneFactory : public KeyConstructableWeakPtrFactory<GlidePlaneFactory<dim>>
+    struct GlidePlaneFactory : public KeyConstructableWeakPtrFactory<GlidePlaneFactory<dim>,GlidePlane<dim>>
     /*                      */,private std::map<std::pair<size_t,size_t>,PlanePlaneIntersection<dim>>
     {
 
@@ -76,8 +75,8 @@ namespace model
         typedef GlidePlane<dim> GlidePlaneType;
         typedef MeshPlane<dim> MeshPlaneType;
         typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        typedef GlidePlaneKey<dim> GlidePlaneKeyType;
-        typedef KeyConstructableWeakPtrFactory<GlidePlaneFactory<dim>> GlidePlaneMapType;
+        typedef typename GlidePlaneType::GlidePlaneKeyType GlidePlaneKeyType;
+        typedef KeyConstructableWeakPtrFactory<GlidePlaneFactory<dim>,GlidePlaneType> GlidePlaneMapType;
         typedef std::shared_ptr<GlidePlaneType> GlidePlaneSharedPtrType;
         typedef PlanePlaneIntersection<dim> PlanePlaneIntersectionType;
         typedef std::map<std::pair<size_t,size_t>,PlanePlaneIntersectionType> MeshPlaneIntersectionContainerType;

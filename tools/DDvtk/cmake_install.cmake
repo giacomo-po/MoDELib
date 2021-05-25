@@ -1,4 +1,4 @@
-# Install script for directory: /Users/giacomo/Documents/MoDELib_Git/tools/DDvtk
+# Install script for directory: /Users/giacomo/Documents/MoDELib/tools/DDvtk
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/giacomo/Documents/MoDELib_Git/tools/DDvtk/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/Users/giacomo/Documents/MoDELib/tools/DDvtk/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

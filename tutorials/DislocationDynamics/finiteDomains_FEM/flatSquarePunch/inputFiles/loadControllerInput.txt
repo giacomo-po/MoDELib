@@ -1,8 +1,0 @@
-######################################
-# Settings for BVP controller
-punchSize=500;
-epsilonDot=-1.0e-9;
-initialDisplacement=0;
-enable=1;
-relaxSteps=0;
-

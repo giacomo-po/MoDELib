@@ -20,8 +20,9 @@
 #include <SlipSystem.h>
 //#include <PeriodicDislocationLoopPair.h>
 //#include <BoundaryLoopLinkSequence.h>
-//#include <PeriodicDislocationLoop.h>
+#include <PeriodicDislocationLoop.h>
 //#include <PlanarDislocationLoopIO.h>
+//#include <PlanarPolygon.h>
 
 #ifndef NDEBUG
 #define VerbosePlanarDislocationLoop(N,x) if(verbosePlanarDislocationLoop>=N){model::cout<<x;}
@@ -52,14 +53,14 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef GlidePlane<dim> GlidePlaneType;
         typedef Eigen::Matrix<long int,dim+1,1> GlidePlaneKeyType;
-//        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
+        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
 
         const std::shared_ptr<GlidePlaneType> glidePlane;
         const Grain<dim>& grain;
         const int loopType;
-//        const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
+        const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
 
-//        const VectorDim periodicShift;
+        const VectorDim periodicShift;
         static int verbosePlanarDislocationLoop;
 
         
@@ -78,58 +79,58 @@ namespace model
             return (val > T(0)) - (val < T(0));
         }
         
-//        std::shared_ptr<PeriodicDislocationLoopType> getPeriodicLoop() const
-//        {
-//            if(this->network().simulationParameters.isPeriodicSimulation())
-//            {
-//                if(glidePlane)
-//                {
-//                    return this->network().periodicDislocationLoopFactory->get(*glidePlane);
-//                }
-//                else
-//                {
-//                    return nullptr;
-//                }
-//            }
-//            else
-//            {
-//                return nullptr;
-//            }
-//        }
-//
-//        VectorDim getPeriodicShift() const
-//        {
-//            if (this->network().simulationParameters.isPeriodicSimulation())
-//            {
-//                if (glidePlane)
-//                {
-//                    //glidePlane is the glide plane from which the shift is needed to be determined
-//                    const long int t(glidePlane->key.planeIndex() - periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex());
-//                    std::cout<<"GlidePlane Index "<<glidePlane->key.planeIndex()<<std::endl;
-//                    std::cout<<"Reference GlidePlane Index "<<periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex()<<std::endl;
-//
-//                    const Eigen::Matrix<long int, dim, 1> alphas(glidePlane->key.reciprocalDirectionComponents().transpose() * periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.N);
-//                    //Need to solve for alphas*k=t using diophantine equation
-//                    Eigen::Matrix<long int, dim, 1> sol(Eigen::Matrix<long int, dim, 1>::Zero());
-//                    DiophantineSolver::solveDiophantine3vars(alphas, t, sol);
-//                    std::cout<<"Alphas is "<<alphas.transpose()<<std::endl;
-//                    std::cout<<"t is "<<t<<std::endl;
-//                    std::cout<<"sol is "<<sol.transpose()<<std::endl;
-//
-//                    VectorDim shift(periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.latticeBasis * sol.template cast<double>());
-//                    std::cout<<"Shift in getPeriodicShift is "<<shift.transpose()<<std::endl;
-//                    return shift;
-//                }
-//                else
-//                {
-//                    return VectorDim::Zero();
-//                }
-//            }
-//            else
-//            {
-//                return VectorDim::Zero();
-//            }
-//        }
+        std::shared_ptr<PeriodicDislocationLoopType> getPeriodicLoop() const
+        {
+            if(this->network().simulationParameters.isPeriodicSimulation())
+            {
+                if(glidePlane)
+                {
+                    return this->network().periodicDislocationLoopFactory->get(*glidePlane);
+                }
+                else
+                {
+                    return nullptr;
+                }
+            }
+            else
+            {
+                return nullptr;
+            }
+        }
+        
+        VectorDim getPeriodicShift() const
+        {
+            if (this->network().simulationParameters.isPeriodicSimulation())
+            {
+                if (glidePlane)
+                {
+                    //glidePlane is the glide plane from which the shift is needed to be determined
+                    const long int t(glidePlane->key.planeIndex() - periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex());
+                    std::cout<<"GlidePlane Index "<<glidePlane->key.planeIndex()<<std::endl;
+                    std::cout<<"Reference GlidePlane Index "<<periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex()<<std::endl;
+
+                    const Eigen::Matrix<long int, dim, 1> alphas(glidePlane->key.reciprocalDirectionComponents().transpose() * periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.N);
+                    //Need to solve for alphas*k=t using diophantine equation
+                    Eigen::Matrix<long int, dim, 1> sol(Eigen::Matrix<long int, dim, 1>::Zero());
+                    DiophantineSolver::solveDiophantine3vars(alphas, t, sol);
+                    std::cout<<"Alphas is "<<alphas.transpose()<<std::endl;
+                    std::cout<<"t is "<<t<<std::endl;
+                    std::cout<<"sol is "<<sol.transpose()<<std::endl;
+
+                    VectorDim shift(periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.latticeBasis * sol.template cast<double>());
+                    std::cout<<"Shift in getPeriodicShift is "<<shift.transpose()<<std::endl;
+                    return shift;
+                }
+                else
+                {
+                    return VectorDim::Zero();
+                }
+            }
+            else
+            {
+                return VectorDim::Zero();
+            }
+        }
 
     public:
         
@@ -205,9 +206,9 @@ namespace model
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-//        /*      init */,periodicLoop(getPeriodicLoop())
-//        // /*      init */,periodicShift(VectorDim::Zero())
-//        /*      init */,periodicShift(getPeriodicShift())
+        /*      init */,periodicLoop(getPeriodicLoop())
+        // /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicShift(getPeriodicShift())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -219,32 +220,32 @@ namespace model
             assert(this->flow().dot(glidePlane->n)==0);
         }
         
-//        /**********************************************************************/
-//        template<typename FLowType>
-//        PlanarDislocationLoop(LoopNetworkType* const dn,
-//                              const FLowType& B,
-//                              const std::shared_ptr<GlidePlaneType>& glidePlane_in
-////                              const std::shared_ptr<PeriodicDislocationLoopType>& pLoop_in,
-////                              const VectorDim& shift_in
-//                              ) :
-//        /* base init */ BaseLoopType(dn,B)
-//        /*      init */,glidePlane(glidePlane_in)
-//        /*      init */,grain(glidePlane->grain)
-//        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-////        /*      init */,periodicLoop(getPeriodicLoop())
-////        /*      init */,periodicShift(shift_in)
-//        /*      init */,nA(VectorDim::Zero())
-//        /*      init */,_slippedArea(0.0)
-//        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-//        /*      init */,_rightHandedNormal(grain)
-//        /*      init */,_slipSystem(nullptr)
-//        {
-//            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" in PeriodicLoop "<<periodicLoop->sID<<std::endl;);
-//
-//            assert(this->flow().dot(glidePlane->n)==0);
-//
-////            periodicLoop->addLoop(this->p_derived());
-//        }
+        /**********************************************************************/
+        template<typename FLowType>
+        PlanarDislocationLoop(LoopNetworkType* const dn,
+                              const FLowType& B,
+                              const std::shared_ptr<GlidePlaneType>& glidePlane_in,
+//                              const std::shared_ptr<PeriodicDislocationLoopType>& pLoop_in,
+                              const VectorDim& shift_in
+                              ) :
+        /* base init */ BaseLoopType(dn,B)
+        /*      init */,glidePlane(glidePlane_in)
+        /*      init */,grain(glidePlane->grain)
+        /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+        /*      init */,periodicLoop(getPeriodicLoop())
+        /*      init */,periodicShift(shift_in)
+        /*      init */,nA(VectorDim::Zero())
+        /*      init */,_slippedArea(0.0)
+        /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+        /*      init */,_rightHandedNormal(grain)
+        /*      init */,_slipSystem(nullptr)
+        {
+            VerbosePlanarDislocationLoop(1,"Constructing PlanarDislocationLoop "<<this->sID<<" in PeriodicLoop "<<periodicLoop->sID<<std::endl;);
+
+            assert(this->flow().dot(glidePlane->n)==0);
+
+//            periodicLoop->addLoop(this->p_derived());
+        }
         
         /**********************************************************************/
         template<typename FLowType>
@@ -256,8 +257,8 @@ namespace model
         /*      init */,glidePlane(nullptr)
         /*      init */,grain(dn->poly.grain(grainID))
         /*      init */,loopType(_loopType)
-//        /*      init */,periodicLoop(nullptr)
-//        /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -273,8 +274,8 @@ namespace model
         /*      init */,glidePlane(other.glidePlane)
         /*      init */,grain(other.grain)
         /*      init */,loopType(other.loopType)
-//        /*      init */,periodicLoop(getPeriodicLoop())
-//        /*      init */,periodicShift(other.periodicShift)
+        /*      init */,periodicLoop(getPeriodicLoop())
+        /*      init */,periodicShift(other.periodicShift)
         /*      init */,nA(other.nA)
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -300,20 +301,20 @@ namespace model
         void addLoopLink(LoopLinkType* const pL)
         {
             Loop<Derived>::addLoopLink(pL); // forward to base class
-//            if(periodicLoop)
-//            {
-//                periodicLoop->addLoopLink(pL);
-//            }
+            if(periodicLoop)
+            {
+                periodicLoop->addLoopLink(pL);
+            }
         }
         
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
             Loop<Derived>::removeLoopLink(pL); // forward to base class
-//            if(periodicLoop)
-//            {
-//                periodicLoop->removeLoopLink(pL);
-//            }
+            if(periodicLoop)
+            {
+                periodicLoop->removeLoopLink(pL);
+            }
             //            updateBoundaryDecomposition();
         }
         
@@ -416,73 +417,39 @@ namespace model
             else
             {
                 const auto linkSeq(this->linkSequence());
-
-                if(linkSeq.size()>=3)
+                assert(linkSeq.size()==4);
+                
+                std::vector<std::pair<VectorDim,VectorDim>> triangle0;
+                triangle0.emplace_back(linkSeq[0]->source()->get_P(),linkSeq[0]->sink()->get_P());
+                triangle0.emplace_back(linkSeq[1]->source()->get_P(),linkSeq[1]->sink()->get_P());
+                triangle0.emplace_back(linkSeq[1]->sink()->get_P(),linkSeq[0]->source()->get_P());
+                const VectorDim planePoint0(triangle0[0].first);
+                VectorDim rhN0(VectorDim::Zero());
+                for(const auto& pair : triangle0)
                 {
-                    VectorDim rhN(VectorDim::Zero());
-                    const VectorDim planePoint(linkSeq[0]->source()->get_P());
-                    for(const auto& link : linkSeq)
-                    {
-                        rhN+= 0.5*(link->source()->get_P()-planePoint).cross(link->sink()->get_P()-link->source()->get_P());
-                    }
-                    const double rhNnorm(rhN.norm());
-                    bool isPlanar(rhNnorm>FLT_EPSILON);
-                    std::vector<std::pair<VectorDim,VectorDim>> segments;
-                    for(const auto& link : linkSeq)
-                    {
-                        isPlanar*=std::fabs((link->source()->get_P()-planePoint).dot(rhN))<FLT_EPSILON;
-                        segments.emplace_back(link->source()->get_P(),link->sink()->get_P());
-                    }
-
-                    if(isPlanar)
-                    {
-                        temp+=planarSolidAngle(x,planePoint,rhN/rhNnorm,segments);
-                    }
-                    else
-                    {
-                        if(linkSeq.size()==4)
-                        {// break loop in two triangles
-                            std::vector<std::pair<VectorDim,VectorDim>> triangle0;
-                            triangle0.emplace_back(linkSeq[0]->source()->get_P(),linkSeq[0]->sink()->get_P());
-                            triangle0.emplace_back(linkSeq[1]->source()->get_P(),linkSeq[1]->sink()->get_P());
-                            triangle0.emplace_back(linkSeq[1]->sink()->get_P(),linkSeq[0]->source()->get_P());
-                            const VectorDim planePoint0(triangle0[0].first);
-                            VectorDim rhN0(VectorDim::Zero());
-                            for(const auto& pair : triangle0)
-                            {
-                                rhN0+= 0.5*(pair.first-planePoint0).cross(pair.second-pair.first);
-                            }
-                            const double rhN0norm(rhN0.norm());
-                            if(rhN0norm>FLT_EPSILON)
-                            {
-                                temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
-                            }
-
-                            std::vector<std::pair<VectorDim,VectorDim>> triangle1;
-                            triangle1.emplace_back(linkSeq[2]->source()->get_P(),linkSeq[2]->sink()->get_P());
-                            triangle1.emplace_back(linkSeq[3]->source()->get_P(),linkSeq[3]->sink()->get_P());
-                            triangle1.emplace_back(linkSeq[3]->sink()->get_P(),linkSeq[2]->source()->get_P());
-                            const VectorDim planePoint1(triangle1[0].first);
-                            VectorDim rhN1(VectorDim::Zero());
-                            for(const auto& pair : triangle1)
-                            {
-                                rhN1+= 0.5*(pair.first-planePoint1).cross(pair.second-pair.first);
-                            }
-                            const double rhN1norm(rhN1.norm());
-                            if(rhN1norm>FLT_EPSILON)
-                            {
-                                temp+=planarSolidAngle(x,planePoint1,rhN1/rhN1norm,triangle1);
-                            }
-                        }
-                    }
-
+                    rhN0+= 0.5*(pair.first-planePoint0).cross(pair.second-pair.first);
                 }
-
-
-
-//                assert(linkSeq.size()==4);
-
-
+                const double rhN0norm(rhN0.norm());
+                if(rhN0norm>FLT_EPSILON)
+                {
+                    temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
+                }
+                
+                std::vector<std::pair<VectorDim,VectorDim>> triangle1;
+                triangle1.emplace_back(linkSeq[2]->source()->get_P(),linkSeq[2]->sink()->get_P());
+                triangle1.emplace_back(linkSeq[3]->source()->get_P(),linkSeq[3]->sink()->get_P());
+                triangle1.emplace_back(linkSeq[3]->sink()->get_P(),linkSeq[2]->source()->get_P());
+                const VectorDim planePoint1(triangle1[0].first);
+                VectorDim rhN1(VectorDim::Zero());
+                for(const auto& pair : triangle1)
+                {
+                    rhN1+= 0.5*(pair.first-planePoint1).cross(pair.second-pair.first);
+                }
+                const double rhN1norm(rhN1.norm());
+                if(rhN1norm>FLT_EPSILON)
+                {
+                    temp+=planarSolidAngle(x,planePoint1,rhN1/rhN1norm,triangle1);
+                }
             }
             return temp;
         }
@@ -624,53 +591,6 @@ namespace model
         {
             return glidePlane==other->glidePlane;
         }
-        
-//        std::vector<VectorDim> slipVectors(const PlanarDislocationLoop<Derived>& otherLoop,
-//                                       const std::deque<VectorDim>& otherPoints) const
-//        {
-//            std::vector<VectorDim> temp;
-//            if(glidePlane && glidePlane==otherLoop->glidePlane)
-//            {
-//                
-//                const double nRdotnR(rightHandedUnitNormal().dot(otherLoop.rightHandedUnitNormal()));
-//                if(std::fabs(nRdotnR)<FLT_EPSILON)
-//                {// either nR is zero
-//                    temp.resize(otherPoints.size(),VectorDim::Zero());
-//                }
-//                else
-//                {
-//                    std::vector<Eigen::Matrix<double,dim-1,1>> localNodes;
-//                    for(const auto& loopLink : this->links())
-//                    {
-//                        localNodes.push_back(this->localPosition(otherLoop.rightHandedNormal(),loopLink->source->get_P()));
-//                    }
-//
-//                    std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalPoints;
-//                    for(const auto& otherPoint : otherPoints)
-//                    {
-//                        otherLocalPoints.push_back(this->localPosition(otherLoop.rightHandedNormal(),otherPoint));
-//                    }
-//
-//                    
-//                 if(nRdotnR>FLT_EPSILON)
-//                 {// same rightHandedUnitNormal
-//                     for(const auto& otherLocalPoint : otherLocalPoints)
-//                     {
-//                         temp.push_back(Polygon2D::windingNumber(otherLocalPoint,localNodes)*burgers());
-//                     }
-//                 }
-//                    else
-//                    {// opposite rightHandedUnitNormal
-//                        for(const auto& otherLocalPoint : otherLocalPoints)
-//                        {
-//                            temp.push_back(-Polygon2D::windingNumber(otherLocalPoint,localNodes)*burgers());
-//                        }
-//                    }
-//                }
-//            }
-//            return temp;
-//        }
-        
     };
     
     template <typename Derived>

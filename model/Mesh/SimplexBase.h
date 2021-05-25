@@ -31,12 +31,12 @@ namespace model
         
         SimplicialMesh<dim>* const mesh;
         const SimplexIDType xID;
-        
+                
 		/**********************************************************************/
         SimplexBase(SimplicialMesh<dim>* const m,
                     const SimplexIDType& vIN) :
-        /* init */ mesh(m)
-        /* init */,xID(SimplexTraitsType::sortID(vIN))
+        /* init */ mesh(m),
+        /* init */ xID(SimplexTraitsType::sortID(vIN))
         {/*!
           */
 
@@ -55,9 +55,39 @@ namespace model
             for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
             {
                 const typename SimplexTraits<dim,0>::SimplexIDType vID(std::set<size_t>{xID[v]});
+//                vID<<xID(v);
+//                vID[0]=xID[v];
                 temp[v]=&mesh->template observer<0>().simplex(vID);
             }
             return temp;
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices>  vertexPositionMatrix() const
+        {
+            Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices> temp;
+            for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
+            {
+                const typename SimplexTraits<dim,0>::SimplexIDType vID(std::set<size_t>{xID[v]});
+//                vID<<xID(v);
+//                vID[0]=xID[v];
+//                temp.col(v)=SimplexObserver<dim,0>::pSimplex(vID)->P0;
+                temp.col(v)=mesh->template observer<0>().simplex(vID).P0;
+
+            }
+            return temp;
+        }
+        
+        /**********************************************************************/
+        Eigen::Matrix<double,dim,1>  center() const
+        {
+            Eigen::Matrix<double,dim,SimplexTraits<dim,order>::nVertices> P(vertexPositionMatrix());
+            Eigen::Matrix<double,dim,1> temp(Eigen::Matrix<double,dim,1>::Zero());
+            for (int v=0;v<SimplexTraits<dim,order>::nVertices;++v)
+            {
+                temp+=P.col(v);
+            }
+            return temp/SimplexTraits<dim,order>::nVertices;
         }
         
 	};

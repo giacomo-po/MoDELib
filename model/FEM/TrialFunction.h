@@ -226,11 +226,8 @@ namespace model
           * @param[in] cond the condition object
           * @param[in] constrainDof array of booleans indicating which dofs are to be constrained
           */
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"TrialFunction "<<_name<<", adding Dirichlet condition on "<<fe().nodeList(nodeListID).size()<<" nodes "<<std::flush;
+            
             TrialBase<TrialFunctionType>::addDirichletCondition(nodeListID,cond,constrainDof);
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
         }
         
 //        /**********************************************************************/

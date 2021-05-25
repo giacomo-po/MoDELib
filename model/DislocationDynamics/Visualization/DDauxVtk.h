@@ -40,15 +40,15 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> glidePlaneMapper;
         vtkSmartPointer<vtkActor> glidePlaneActor;
 
-//        vtkSmartPointer<vtkPoints> periodicGlidePlanePoints;
-//        vtkSmartPointer<vtkPolyData> periodicGlidePlanePolydata;
-//        vtkSmartPointer<vtkPolyDataMapper> periodicGlidePlaneMapper;
-//        vtkSmartPointer<vtkActor> periodicGlidePlaneActor;
-//
-//        vtkSmartPointer<vtkPoints> periodicLoopPoints;
-//        vtkSmartPointer<vtkPolyData> periodicLoopPolydata;
-//        vtkSmartPointer<vtkPolyDataMapper> periodicLoopMapper;
-//        vtkSmartPointer<vtkActor> periodicLoopActor;
+        vtkSmartPointer<vtkPoints> periodicGlidePlanePoints;
+        vtkSmartPointer<vtkPolyData> periodicGlidePlanePolydata;
+        vtkSmartPointer<vtkPolyDataMapper> periodicGlidePlaneMapper;
+        vtkSmartPointer<vtkActor> periodicGlidePlaneActor;
+
+        vtkSmartPointer<vtkPoints> periodicLoopPoints;
+        vtkSmartPointer<vtkPolyData> periodicLoopPolydata;
+        vtkSmartPointer<vtkPolyDataMapper> periodicLoopMapper;
+        vtkSmartPointer<vtkActor> periodicLoopActor;
 
         
         vtkSmartPointer<vtkPoints> quadraturePositions;
@@ -60,12 +60,6 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> quadraturePkMapper;
         vtkSmartPointer<vtkActor> quadraturePkActor;
         
-        vtkSmartPointer<vtkDoubleArray> quadratureSf;
-        vtkSmartPointer<vtkPolyData> quadratureSfPolyData;
-        vtkSmartPointer<vtkGlyph3D> quadratureSfGlyph;
-        vtkSmartPointer<vtkPolyDataMapper> quadratureSfMapper;
-        vtkSmartPointer<vtkActor> quadratureSfActor;
-
         vtkSmartPointer<vtkDoubleArray> quadratureGlideVelocities;
         vtkSmartPointer<vtkPolyData> quadratureGlideVelocitiesPolyData;
         vtkSmartPointer<vtkGlyph3D> quadratureGlideVelocitiesGlyph;
@@ -76,15 +70,11 @@ namespace model
         
         static bool showGlidePlanes;
         static float glidePlaneOpacity;
-//        static bool showPeriodicGlidePlanes;
-//        static bool showPeriodicLoops;
+        static bool showPeriodicGlidePlanes;
+        static bool showPeriodicLoops;
         static bool showPkforces;
-        static bool showSfforces;
-
         static bool showGlideVelocities;
         static float pkFactor;
-        static float sfFactor;
-
         static float glideVelocitiesFactor;
 
 
@@ -96,14 +86,14 @@ namespace model
         /* init */,glidePlanePolydata(vtkSmartPointer<vtkPolyData>::New())
         /* init */,glidePlaneMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,glidePlaneActor(vtkSmartPointer<vtkActor>::New())
-//        /* init */,periodicGlidePlanePoints(vtkSmartPointer<vtkPoints>::New())
-//        /* init */,periodicGlidePlanePolydata(vtkSmartPointer<vtkPolyData>::New())
-//        /* init */,periodicGlidePlaneMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
-//        /* init */,periodicGlidePlaneActor(vtkSmartPointer<vtkActor>::New())
-//        /* init */,periodicLoopPoints(vtkSmartPointer<vtkPoints>::New())
-//        /* init */,periodicLoopPolydata(vtkSmartPointer<vtkPolyData>::New())
-//        /* init */,periodicLoopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
-//        /* init */,periodicLoopActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,periodicGlidePlanePoints(vtkSmartPointer<vtkPoints>::New())
+        /* init */,periodicGlidePlanePolydata(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,periodicGlidePlaneMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,periodicGlidePlaneActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,periodicLoopPoints(vtkSmartPointer<vtkPoints>::New())
+        /* init */,periodicLoopPolydata(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,periodicLoopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,periodicLoopActor(vtkSmartPointer<vtkActor>::New())
         /* init */,quadraturePositions(vtkSmartPointer<vtkPoints>::New())
         /* init */,arrowSource(vtkSmartPointer<vtkArrowSource>::New())
         /* init */,quadraturePk(vtkSmartPointer<vtkDoubleArray>::New())
@@ -111,11 +101,6 @@ namespace model
         /* init */,quadraturePkGlyph(vtkSmartPointer<vtkGlyph3D>::New())
         /* init */,quadraturePkMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,quadraturePkActor(vtkSmartPointer<vtkActor>::New())
-        /* init */,quadratureSf(vtkSmartPointer<vtkDoubleArray>::New())
-        /* init */,quadratureSfPolyData(vtkSmartPointer<vtkPolyData>::New())
-        /* init */,quadratureSfGlyph(vtkSmartPointer<vtkGlyph3D>::New())
-        /* init */,quadratureSfMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
-        /* init */,quadratureSfActor(vtkSmartPointer<vtkActor>::New())
         /* init */,quadratureGlideVelocities(vtkSmartPointer<vtkDoubleArray>::New())
         /* init */,quadratureGlideVelocitiesPolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,quadratureGlideVelocitiesGlyph(vtkSmartPointer<vtkGlyph3D>::New())
@@ -125,10 +110,7 @@ namespace model
             
             quadraturePk->SetNumberOfComponents(3);
             quadraturePk->SetName("PkForce");
-
-            quadratureSf->SetNumberOfComponents(3);
-            quadratureSf->SetName("StackingFaultForce");
-
+            
             quadratureGlideVelocities->SetNumberOfComponents(3);
             quadratureGlideVelocities->SetName("glideVelocity");
 
@@ -142,8 +124,8 @@ namespace model
             }
             
             plotGlidePlaneBoundaries();
-//            plotPeriodicGlidePlaneBoundaries();
-//            plotPeriodicLoops();
+            plotPeriodicGlidePlaneBoundaries();
+            plotPeriodicLoops();
             plotQuadraturePointData();
 
         }
@@ -152,10 +134,9 @@ namespace model
         ~DDauxVtk()
         {
             renderer->RemoveActor(glidePlaneActor);
-//            renderer->RemoveActor(periodicGlidePlaneActor);
-//            renderer->RemoveActor(periodicLoopActor);
+            renderer->RemoveActor(periodicGlidePlaneActor);
+            renderer->RemoveActor(periodicLoopActor);
             renderer->RemoveActor(quadraturePkActor);
-            renderer->RemoveActor(quadratureSfActor);
             renderer->RemoveActor(quadratureGlideVelocitiesActor);
         }
         
@@ -192,90 +173,90 @@ namespace model
             renderer->AddActor(glidePlaneActor);
         }
         
-//        /**********************************************************************/
-//        void plotPeriodicLoops()
-//        {
-//
-//            std::map<size_t,size_t> periodicLoopMap; // nodeID,nodePositionInDDauxIO
-//            for(size_t k=0;k<periodicLoopNodes().size();++k)
-//            {
-//                const auto& node(periodicLoopNodes()[k]);
-//                periodicLoopMap.emplace(node.sID,k);
-//
-//                periodicLoopPoints->InsertNextPoint(node.Pg(0),
-//                                                    node.Pg(1),
-//                                                    node.Pg(2));
-//            }
-//
-//            periodicLoopPolydata->Allocate();
-//            size_t connectivityID=0;
-//            for(const auto& link : this->periodicLoopLinks())
-//            {
-////                glidePlaneBoundaryMap[gpb.glidePlaneID].push_back(&gpb);
-//
-////                glidePlanePoints->InsertNextPoint(gpb.P0(0),
-////                                                  gpb.P0(1),
-////                                                  gpb.P0(2));
-////
-////                glidePlanePoints->InsertNextPoint(gpb.P1(0),
-////                                                  gpb.P1(1),
-////                                                  gpb.P1(2));
-//
-//                const auto sourceIter(periodicLoopMap.find(link.sourceID));
-//                assert(sourceIter!=periodicLoopMap.end());
-//                const auto sinkIter(periodicLoopMap.find(link.sinkID));
-//                assert(sinkIter!=periodicLoopMap.end());
-//
-//                vtkIdType connectivity[2]; //points IDs of each line segment
-//                connectivity[0] = sourceIter->second;
-//                connectivity[1] = sinkIter->second;
-//                periodicLoopPolydata->InsertNextCell(VTK_LINE,2,connectivity);
-//                connectivityID+=2;
-//            }
-//            periodicLoopPolydata->SetPoints(periodicLoopPoints);
-//            periodicLoopMapper->SetInputData(periodicLoopPolydata);
-//            periodicLoopActor->SetMapper(periodicLoopMapper);
-//            periodicLoopActor->GetProperty()->SetLineWidth(2.0);
-//            periodicLoopActor->GetProperty()->SetColor(0.0,0,1.0);
-//            periodicLoopActor->GetProperty()->SetOpacity(glidePlaneOpacity);
-//            periodicLoopActor->SetVisibility(showPeriodicLoops);
-//            renderer->AddActor(periodicLoopActor);
-//        }
+        /**********************************************************************/
+        void plotPeriodicLoops()
+        {
+            
+            std::map<size_t,size_t> periodicLoopMap; // nodeID,nodePositionInDDauxIO
+            for(size_t k=0;k<periodicLoopNodes().size();++k)
+            {
+                const auto& node(periodicLoopNodes()[k]);
+                periodicLoopMap.emplace(node.sID,k);
 
-//        /**********************************************************************/
-//        void plotPeriodicGlidePlaneBoundaries()
-//        {
-//            periodicGlidePlanePolydata->Allocate();
-//            size_t connectivityID=0;
-//            for(const auto& patch : this->periodicGlidePlanePatches())
-//            {
-//                for(const auto& gpb : glidePlaneBoundaryMap[patch.glidePlaneID])
-//                {
+                periodicLoopPoints->InsertNextPoint(node.Pg(0),
+                                                    node.Pg(1),
+                                                    node.Pg(2));
+            }
+            
+            periodicLoopPolydata->Allocate();
+            size_t connectivityID=0;
+            for(const auto& link : this->periodicLoopLinks())
+            {
+//                glidePlaneBoundaryMap[gpb.glidePlaneID].push_back(&gpb);
+                
+//                glidePlanePoints->InsertNextPoint(gpb.P0(0),
+//                                                  gpb.P0(1),
+//                                                  gpb.P0(2));
 //
-//                    periodicGlidePlanePoints->InsertNextPoint(gpb->P0(0)-patch.shift(0),
-//                                                              gpb->P0(1)-patch.shift(1),
-//                                                              gpb->P0(2)-patch.shift(2));
-//
-//                    periodicGlidePlanePoints->InsertNextPoint(gpb->P1(0)-patch.shift(0),
-//                                                              gpb->P1(1)-patch.shift(1),
-//                                                              gpb->P1(2)-patch.shift(2));
-//
-//                    vtkIdType connectivity[2]; //points IDs of each line segment
-//                    connectivity[0] = connectivityID;
-//                    connectivity[1] = connectivityID+1;
-//                    periodicGlidePlanePolydata->InsertNextCell(VTK_LINE,2,connectivity);
-//                    connectivityID+=2;
-//                }
-//            }
-//            periodicGlidePlanePolydata->SetPoints(periodicGlidePlanePoints);
-//            periodicGlidePlaneMapper->SetInputData(periodicGlidePlanePolydata);
-//            periodicGlidePlaneActor->SetMapper(periodicGlidePlaneMapper);
-//            periodicGlidePlaneActor->GetProperty()->SetLineWidth(1.5);
-//            periodicGlidePlaneActor->GetProperty()->SetColor(0.0,0.5,0.7);
-//            periodicGlidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
-//            periodicGlidePlaneActor->SetVisibility(showPeriodicGlidePlanes);
-//            renderer->AddActor(periodicGlidePlaneActor);
-//        }
+//                glidePlanePoints->InsertNextPoint(gpb.P1(0),
+//                                                  gpb.P1(1),
+//                                                  gpb.P1(2));
+                
+                const auto sourceIter(periodicLoopMap.find(link.sourceID));
+                assert(sourceIter!=periodicLoopMap.end());
+                const auto sinkIter(periodicLoopMap.find(link.sinkID));
+                assert(sinkIter!=periodicLoopMap.end());
+
+                vtkIdType connectivity[2]; //points IDs of each line segment
+                connectivity[0] = sourceIter->second;
+                connectivity[1] = sinkIter->second;
+                periodicLoopPolydata->InsertNextCell(VTK_LINE,2,connectivity);
+                connectivityID+=2;
+            }
+            periodicLoopPolydata->SetPoints(periodicLoopPoints);
+            periodicLoopMapper->SetInputData(periodicLoopPolydata);
+            periodicLoopActor->SetMapper(periodicLoopMapper);
+            periodicLoopActor->GetProperty()->SetLineWidth(2.0);
+            periodicLoopActor->GetProperty()->SetColor(0.0,0,1.0);
+            periodicLoopActor->GetProperty()->SetOpacity(glidePlaneOpacity);
+            periodicLoopActor->SetVisibility(showPeriodicLoops);
+            renderer->AddActor(periodicLoopActor);
+        }
+
+        /**********************************************************************/
+        void plotPeriodicGlidePlaneBoundaries()
+        {
+            periodicGlidePlanePolydata->Allocate();
+            size_t connectivityID=0;
+            for(const auto& patch : this->periodicGlidePlanePatches())
+            {
+                for(const auto& gpb : glidePlaneBoundaryMap[patch.glidePlaneID])
+                {
+                    
+                    periodicGlidePlanePoints->InsertNextPoint(gpb->P0(0)-patch.shift(0),
+                                                              gpb->P0(1)-patch.shift(1),
+                                                              gpb->P0(2)-patch.shift(2));
+                    
+                    periodicGlidePlanePoints->InsertNextPoint(gpb->P1(0)-patch.shift(0),
+                                                              gpb->P1(1)-patch.shift(1),
+                                                              gpb->P1(2)-patch.shift(2));
+                    
+                    vtkIdType connectivity[2]; //points IDs of each line segment
+                    connectivity[0] = connectivityID;
+                    connectivity[1] = connectivityID+1;
+                    periodicGlidePlanePolydata->InsertNextCell(VTK_LINE,2,connectivity);
+                    connectivityID+=2;
+                }
+            }
+            periodicGlidePlanePolydata->SetPoints(periodicGlidePlanePoints);
+            periodicGlidePlaneMapper->SetInputData(periodicGlidePlanePolydata);
+            periodicGlidePlaneActor->SetMapper(periodicGlidePlaneMapper);
+            periodicGlidePlaneActor->GetProperty()->SetLineWidth(1.5);
+            periodicGlidePlaneActor->GetProperty()->SetColor(0.0,0.5,0.7);
+            periodicGlidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
+            periodicGlidePlaneActor->SetVisibility(showPeriodicGlidePlanes);
+            renderer->AddActor(periodicGlidePlaneActor);
+        }
         
         /**********************************************************************/
         void plotQuadraturePointData()
@@ -284,7 +265,6 @@ namespace model
             {
                 quadraturePositions->InsertNextPoint(q.r.data());  // origin of arrow
                 quadraturePk->InsertNextTuple(q.pkForce.data()); // arrow vactor
-                quadratureSf->InsertNextTuple(q.stackingFaultForce.data()); // arrow vactor
                 quadratureGlideVelocities->InsertNextTuple(q.glideVelocity.data()); // arrow vactor
             }
             
@@ -306,25 +286,6 @@ namespace model
             quadraturePkActor->GetProperty()->SetColor(0.0,0.0,1.0);
             quadraturePkActor->SetVisibility(showPkforces);
             renderer->AddActor(quadraturePkActor);
-            
-            quadratureSfPolyData->SetPoints(quadraturePositions);
-            quadratureSfPolyData->GetPointData()->SetVectors(quadratureSf);
-            quadratureSfPolyData->Modified();
-            quadratureSfGlyph->SetSourceConnection(arrowSource->GetOutputPort());
-            quadratureSfGlyph->SetInputData(quadratureSfPolyData);
-            quadratureSfGlyph->ScalingOn();
-            quadratureSfGlyph->SetScaleModeToScaleByVector();
-            quadratureSfGlyph->OrientOn();
-            quadratureSfGlyph->ClampingOff();
-            quadratureSfGlyph->SetVectorModeToUseVector();
-            quadratureSfGlyph->SetIndexModeToOff();
-            quadratureSfGlyph->SetScaleFactor(sfFactor);
-            quadratureSfMapper->SetInputConnection(quadratureSfGlyph->GetOutputPort());
-            quadratureSfMapper->ScalarVisibilityOff();
-            quadratureSfActor->SetMapper(quadratureSfMapper);
-            quadratureSfActor->GetProperty()->SetColor(1.0,0.0,0.0);
-            quadratureSfActor->SetVisibility(showSfforces);
-            renderer->AddActor(quadratureSfActor);
             
             quadratureGlideVelocitiesPolyData->SetPoints(quadraturePositions);
             quadratureGlideVelocitiesPolyData->GetPointData()->SetVectors(quadratureGlideVelocities);
@@ -355,19 +316,15 @@ namespace model
 
             quadraturePkGlyph->SetScaleFactor(pkFactor);
             quadraturePkActor->SetVisibility(showPkforces);
-
-            quadratureSfGlyph->SetScaleFactor(sfFactor);
-            quadratureSfActor->SetVisibility(showSfforces);
-
             
             quadratureGlideVelocitiesGlyph->SetScaleFactor(glideVelocitiesFactor);
             quadratureGlideVelocitiesActor->SetVisibility(showGlideVelocities);
             
-//            periodicGlidePlaneActor->SetVisibility(showPeriodicGlidePlanes);
-//            periodicGlidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
-//
-//            periodicLoopActor->SetVisibility(showPeriodicLoops);
-//            periodicLoopActor->GetProperty()->SetOpacity(glidePlaneOpacity);
+            periodicGlidePlaneActor->SetVisibility(showPeriodicGlidePlanes);
+            periodicGlidePlaneActor->GetProperty()->SetOpacity(glidePlaneOpacity);
+
+            periodicLoopActor->SetVisibility(showPeriodicLoops);
+            periodicLoopActor->GetProperty()->SetOpacity(glidePlaneOpacity);
 
             
         }
@@ -376,15 +333,11 @@ namespace model
     
     bool DDauxVtk::showGlidePlanes=false;
     float DDauxVtk::glidePlaneOpacity=0.5;
-//    bool DDauxVtk::showPeriodicGlidePlanes=false;
-//    bool DDauxVtk::showPeriodicLoops=false;
+    bool DDauxVtk::showPeriodicGlidePlanes=false;
+    bool DDauxVtk::showPeriodicLoops=false;
     bool DDauxVtk::showPkforces=false;
-    bool DDauxVtk::showSfforces=false;
-
     bool DDauxVtk::showGlideVelocities=false;
     float DDauxVtk::pkFactor=0.5;
-    float DDauxVtk::sfFactor=0.5;
-
     float DDauxVtk::glideVelocitiesFactor=0.5;
 
 }

@@ -141,28 +141,12 @@ namespace model
         int numberElements;
         std::map<int,size_t> numberElementsByType;
         
-//        Eigen::Matrix<double,3,3> A;  // mesh transformation x'=A*(x-x0);
-//        Eigen::Matrix<double,3,1> x0; // mesh transformation x'=A*(x-x0);
-        
         /**********************************************************************/
         GmshReader(const std::string& meshFileName) :
-        /* init */ elementTypes(getElementTypes())
+        /* init */elementTypes(getElementTypes())
         {
-            read(meshFileName,Eigen::Matrix<double,3,3>::Identity(),Eigen::Matrix<double,3,1>::Zero());
+            read(meshFileName);
         }
-        
-        GmshReader(const std::string& meshFileName,const Eigen::Matrix<double,3,3>& A,const Eigen::Matrix<double,3,1>& x0) :
-        /* init */ elementTypes(getElementTypes())
-        {
-            read(meshFileName,A,x0);
-        }
-        
-//        /**********************************************************************/
-//        void setMeshTransformation(const Eigen::Matrix<double,3,3>& A_in,const Eigen::Matrix<double,3,1>& x_in)
-//        {
-//            A=A_in;
-//            x0=x_in;
-//        }
         
         /**********************************************************************/
         const std::map<size_t,Eigen::Vector3d>& nodes() const
@@ -199,7 +183,7 @@ namespace model
         }
 
         
-        void readVersion2(std::ifstream& meshFile,const Eigen::Matrix<double,3,3>& A,const Eigen::Matrix<double,3,1>& x0)
+        void readVersion2(std::ifstream& meshFile)
         {
             std::string line;
             while (std::getline(meshFile, line))
@@ -232,7 +216,7 @@ namespace model
                         ss>>nodePos(0);
                         ss>>nodePos(1);
                         ss>>nodePos(2);
-                        const bool success=nodes().emplace(nodeID,A*(nodePos-x0)).second;
+                        const bool success=nodes().emplace(nodeID,nodePos).second;
                         if(!success)
                         {
                             std::cout<<"Could not insert node "<<nodeID<<" "<<nodePos.transpose()<<". Exiting."<<std::endl;
@@ -283,7 +267,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void read(const std::string& meshFileName,const Eigen::Matrix<double,3,3>& A,const Eigen::Matrix<double,3,1>& x0)
+        void read(const std::string& meshFileName)
         {
             nodes().clear();
             elements().clear();
@@ -311,7 +295,7 @@ namespace model
                         
                         if(version>=2.0 && version<3.0)
                         {
-                            readVersion2(meshFile,A,x0);
+                            readVersion2(meshFile);
                         }
                         else
                         {

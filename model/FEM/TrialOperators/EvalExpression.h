@@ -71,7 +71,6 @@ namespace model
             if(temp.first)
             {
                 val=trialExp().sfm(*(temp.second),temp.second->simplex.pos2bary(P))*TrialBaseType::dofs(*(temp.second));
-                guess=&temp.second->simplex; // change guess 
             }
             else
             {

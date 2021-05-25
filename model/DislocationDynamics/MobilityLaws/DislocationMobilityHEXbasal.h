@@ -83,7 +83,7 @@ namespace model
         }
 
         /**********************************************************************/
-        DislocationMobilityHEXbasal(const DislocatedMaterialBase& material) :
+        DislocationMobilityHEXbasal(const PolycrystallineMaterialBase& material) :
         /* init */ DislocationMobilityBase("HEX-basal mobility for "+material.materialName),
         /* init */ h(sqrt(3.0)/2.0), // units of b
         /* init */ w(25.0), // units of b
@@ -126,7 +126,7 @@ namespace model
 
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;
-            const VectorDim n1 = Eigen::AngleAxisd(M_PI/2.0,s)*n; // associated plane, pi/2 or -pi/2
+            const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
             
             // Compute components of non-Schmid model
             const double tau=s.transpose()*S*n; // magnitude of resolved shear stress
@@ -145,7 +145,7 @@ namespace model
             const double expCoeff = exp(-dH0*dg1/(2.0*kB_eV*T));
             
             // Compute screw drag coeff
-            const double sgm=0.5*sigmoid(-0.5*(0.05-dg1)/0.01);
+            const double sgm=0.5*sigmoid(-0.5*(0.05-dg1)/0.05);
             const double Bs=Bk*w/(2.0*h)*(1.0-sgm)+(B0s+B1s*T)*sgm; //kink-dominated to drag-dominated interpolation
             
             // Compute screw velocity
@@ -162,11 +162,8 @@ namespace model
             }
             
             // Interpolate ve and vs
-            // const double cos2=std::pow(s.dot(xi),2);
-            // return vs*cos2+ve*(1.0-cos2);
-            const double cos1=std::fabs(s.dot(xi));
-            const double sgm1=1.0/(1.0+exp(-2.0*(cos1-0.7)/0.05));
-            return vs*sgm1+ve*(1.0-sgm1);
+            const double cos2=std::pow(s.dot(xi),2);
+            return vs*cos2+ve*(1.0-cos2);
         }
         
     };

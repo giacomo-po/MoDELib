@@ -1,4 +1,4 @@
-materialFile=../../MaterialsLibrary/Zr.txt;
+materialFile=../../MaterialsLibrary/Cu.txt;
 meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
 #meshFile=../../MeshLibrary/cube4000fine.msh;
 #meshFile=../../MeshLibrary/polycrystalCyl_50.msh;
@@ -7,10 +7,3 @@ meshFile=../../MeshLibrary/small_block_structured1_fine_scaled_2order.msh;
 C2G1=1 0 0
      0 1 0
      0 0 1;
-     
-# Mesh transformation for each node x in the mesh
-# x'=A*(x-x0);
-A=1 0 0
-  0 1 0
-  0 0 1;  # affine transformation x'=A*(x-x0)
-x0=0 0 0; # shift in transformation x'=A*(x-x0)

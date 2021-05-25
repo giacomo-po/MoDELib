@@ -5,6 +5,7 @@ mu0_SI=161.0e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+m
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
 nu=0.28;		# [-]		Poisson's ratio
 rho_SI=19250.0;	# [kg/m^3]	mass density
+T=300;			# [K]		temperature
 Tm=3695.0;		# [K]		melting temperature
 
 # Mobility parameters (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
@@ -24,8 +25,8 @@ a2=2.32;			# [-]		non-Schmid coefficient
 a3=4.29;			# [-]		non-Schmid coefficient
 
 # Vacancy diffusion
-dOmegav=0;	# [-]	Relative vacancy relaxation volume
 Ufv_eV=0;	# [eV]	Vacancy formation energy
-Umv_eV=0; 	# [eV]	Vacancy migration energy
+DVv=0;	# [-]	Relative vacancy relaxation volume
+Udv_eV=0; 	# [eV]	Vacancy migration energy
 D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
 

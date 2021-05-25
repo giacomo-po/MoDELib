@@ -128,10 +128,10 @@ namespace model
         static constexpr int dim=3;
         
         /**********************************************************************/
-        void read(const std::string& meshFileName,const Eigen::Matrix<double,3,3>& A,const Eigen::Matrix<double,3,1>& x0)
+        void read(const std::string& meshFileName)
         {
             this->clear();
-            GmshReader gmshReader(meshFileName,A,x0);
+            GmshReader gmshReader(meshFileName);
             this->nodes()=gmshReader.nodes();
             //assert(nodeReader.size()==this->nodes().size());
             

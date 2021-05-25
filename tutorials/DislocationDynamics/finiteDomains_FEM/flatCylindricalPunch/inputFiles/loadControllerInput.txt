@@ -1,8 +1,0 @@
-######################################
-# Settings for BVP controller
-punchDiameter=750;
-epsilonDot=-1.0e-9;
-initialDisplacement=-15.6;
-enable=1;
-relaxSteps=0;
-

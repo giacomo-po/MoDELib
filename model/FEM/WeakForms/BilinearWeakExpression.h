@@ -9,8 +9,7 @@
 #ifndef model_BilinearWeakExpression_H_
 #define model_BilinearWeakExpression_H_
 
-#include <Eigen/Dense>
-#include <Eigen/SparseCore>
+
 #include <BilinearWeakExpression.h>
 
 

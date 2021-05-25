@@ -121,7 +121,7 @@ namespace model
         void execute()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Executing cross-slip: "<<std::flush;
+            model::cout<<"        Executing cross slip "<<std::flush;
             size_t executed(0);
             for(const auto& tup : crossSlipDeq)
             {
@@ -215,7 +215,8 @@ namespace model
                     }
                 }
             }
-            model::cout<<executed<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            std::cout<<executed<<" executed"<<std::endl;
+            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
         }
         
@@ -226,10 +227,10 @@ namespace model
             if(DN.crossSlipModel)
             {
                 const auto t0= std::chrono::system_clock::now();
-                model::cout<<"Finding cross-slip segments: "<<std::flush;
+                model::cout<<"		Finding CrossSlip segments: "<<std::flush;
                 crossSlipDeq=findCrossSlipSegments(DN.poly,DN.crossSlipModel);
                 VerboseCrossSlip(1,crossSlipDeq.size()<<" found"<<std::endl;);
-                model::cout<<crossSlipDeq.size()<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             }
             
         }

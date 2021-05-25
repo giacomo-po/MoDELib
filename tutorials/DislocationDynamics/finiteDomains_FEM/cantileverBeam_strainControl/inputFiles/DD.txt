@@ -6,11 +6,10 @@ useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
-enablePartials=0;
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
-externalLoadControllerName=none;
+externalLoadControllerName=UniformExternalLoadController;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
@@ -58,11 +57,10 @@ outputMeshDisplacement=1;
 outputFEMsolution=0;
 outputPlasticDistortionRate=0;
 outputDislocationLength=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=0;
-computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -105,7 +103,6 @@ parametrizationExponent=0.5;
 
 #####################################
 # DEBUGGING
-verboseLoopNetwork=0;
 computeDDinteractions=1;
 verboseJunctions=0;
 verboseRemesh=0;

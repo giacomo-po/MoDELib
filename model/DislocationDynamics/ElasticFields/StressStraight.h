@@ -15,7 +15,7 @@
 #endif
 
 #include <Eigen/Dense>
-#include <DislocatedMaterial.h>
+#include <PolycrystallineMaterial.h>
 //#include <DislocationStress.h>
 
 namespace model
@@ -29,7 +29,7 @@ namespace model
     {
         typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
         typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
-        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
+        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         
         /**********************************************************************/
         template<typename Derived>
@@ -162,9 +162,7 @@ namespace model
         const VectorDim P0;
         const VectorDim P1;
         const VectorDim b;
-        const double lengthSquared;
         const double length;
-        const VectorDim chord;
         const VectorDim t;
         const VectorDim bCt;
         
@@ -173,10 +171,8 @@ namespace model
         /* init list */ P0(_P0),
         /* init list */ P1(_P1),
         /* init list */ b(_b),
-        /* init list */ lengthSquared((P1-P0).squaredNorm()),
-        /* init list */ length(sqrt(lengthSquared)),
-        /* init list */ chord(P1-P0),
-        /* init list */ t(chord/length),
+        /* init list */ length((P1-P0).norm()),
+        /* init list */ t((P1-P0)/length),
         /* init list */ bCt(b.cross(t))
         {/*!\param[in] _P0 starting point of the segment
           * \param[in] _P0 ending point of the segment
@@ -212,29 +208,6 @@ namespace model
           * Note: the return value  does NOT include the solid-angle contribution to the displacement field.
           */
             return displacement_kernel(P1-x)-displacement_kernel(P0-x);
-        }
-        
-        /**********************************************************************/
-        double vacancyConcentration(const VectorDim& x, const VectorDim& sourceV,const VectorDim& sinkV,const double& Dv)
-        {
-            if(lengthSquared>FLT_EPSILON)
-            {
-                const double a(lengthSquared);
-                const double b(-2.0*(x-P0).dot(chord));
-                const double c((x-P0).squaredNorm()+DislocationStress<dim>::a2);
-                const double ba(b/a);
-                const double ca(c/a);
-                const double sqbca(sqrt(1.0+ba+ca));
-                const double sqca(sqrt(ca));
-                const double logTerm(log((2.0*sqbca+2.0+ba)/(2.0*sqca+ba)));
-                const double M0(((1.0+0.5*ba)*logTerm-sqbca+sqca)/(4.0*M_PI*Dv));
-                const double M1(     (-0.5*ba*logTerm+sqbca-sqca)/(4.0*M_PI*Dv));
-                return M0*bCt.dot(sourceV)+M1*bCt.dot(sinkV);
-            }
-            else
-            {
-                return 0.0;
-            }
         }
         
 	};	

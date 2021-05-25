@@ -35,17 +35,17 @@ namespace model
             return 0.5*A;
         }
         
-//        template<typename PointType>
-//        static double inside(const std::vector<PointType>& points, const PointType& test) 
-//        {
-//            double A(area(points));
-//            for(size_t k=0;k<points.size();++k)
-//            {
-//                const size_t k1(k<points.size()-1? k+1 : 0);
-//                A+=(points[k](0)-points[0](0))*(points[k1](1)-points[k](1))-(points[k](1)-points[0](1))*(points[k1](0)-points[k](0));
-//            }
-//            return 0.5*A;
-//        }
+        template<typename PointType>
+        static double inside(const std::vector<PointType>& points, const PointType& test) 
+        {
+            double A(area(points));
+            for(size_t k=0;k<points.size();++k)
+            {
+                const size_t k1(k<points.size()-1? k+1 : 0);
+                A+=(points[k](0)-points[0](0))*(points[k1](1)-points[k](1))-(points[k](1)-points[0](1))*(points[k1](0)-points[k](0));
+            }
+            return 0.5*A;
+        }
         
         template<typename PointType>
         static double isLeft(const PointType& P0, const PointType& P1, const PointType& P2 )

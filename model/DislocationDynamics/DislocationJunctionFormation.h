@@ -76,36 +76,26 @@ namespace model
                     
                     if(LA>FLT_EPSILON && LB>FLT_EPSILON)
                     {
+                        StressStraight<dim> stressA(ssd.x0-infiniteLineLength/LA*chordA,
+                                                    ssd.x0+infiniteLineLength/LA*chordA,
+                                                    linkA->burgers());
                         
-                        if (ssd.dMin > FLT_EPSILON)
+                        StressStraight<dim> stressB(ssd.x1-infiniteLineLength/LB*chordB,
+                                                    ssd.x1+infiniteLineLength/LB*chordB,
+                                                    linkB->burgers());
+                        
+                        const VectorDim forceOnA=(stressB.stress(ssd.x0)*linkA->burgers()).cross(chordA);
+                        const VectorDim forceOnB=(stressA.stress(ssd.x1)*linkB->burgers()).cross(chordB);
+                        
+                        if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
                         {
-                            
-                            StressStraight<dim> stressA(ssd.x0-infiniteLineLength/LA*chordA,
-                                                        ssd.x0+infiniteLineLength/LA*chordA,
-                                                        linkA->burgers());
-                            
-                            StressStraight<dim> stressB(ssd.x1-infiniteLineLength/LB*chordB,
-                                                        ssd.x1+infiniteLineLength/LB*chordB,
-                                                        linkB->burgers());
-
-                            VerboseJunctions(3, "Non-intersecting pair" << std::endl;);
-                            const VectorDim forceOnA = (stressB.stress(ssd.x0) * linkA->burgers()).cross(chordA);
-                            const VectorDim forceOnB = (stressA.stress(ssd.x1) * linkB->burgers()).cross(chordB);
-                            const VectorDim dxShift(ssd.x1 - ssd.x0);
-                            if (forceOnA.dot(dxShift) > FLT_EPSILON && forceOnB.dot(dxShift) < -FLT_EPSILON)
-                            {
-                                VerboseJunctions(3, "attractive pair 1" << std::endl;);
-                                isValidJunction = true; // for non-parallel lines this neglects the energy of rotation
-                            }
-                            else
-                            {
-                                VerboseJunctions(3, "non-attractive pair" << std::endl;);
-                            }
+                            VerboseJunctions(3,"attractive pair"<<std::endl;);
+                            isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
                         }
                         else
                         {
-                            VerboseJunctions(3, "Intersecting pair .. Determining via frank rule" << std::endl;);
-                            isValidJunction=(linkA->burgers().dot(linkB->burgers())*linkA->chord().dot(linkB->chord())<=0.0);
+                            VerboseJunctions(3,"non-attractive pair"<<std::endl;);
+                            
                         }
                     }
                 }
@@ -138,7 +128,7 @@ namespace model
           */
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Finding collisions: "<<std::flush;
+            model::cout<<"		Finding collisions "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
             SweepPlane<LinkType,dim> swp;
@@ -154,7 +144,7 @@ namespace model
                 }
             }
             swp.computeIntersectionPairs();
-            model::cout<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs, "<<defaultColor<<std::flush;
+            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
             
             
             std::deque<std::pair<const LinkType*,const LinkType*>> reducedIntersectionPairs;
@@ -179,10 +169,10 @@ namespace model
             }
             
             
-            model::cout<<reducedIntersectionPairs.size()<<" reduced pairs"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             const auto t1= std::chrono::system_clock::now();
-            model::cout<<"Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
+            model::cout<<"        Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
             
             //! 2- loop over all links and determine their intersections
 #ifdef _OPENMP
@@ -471,7 +461,7 @@ namespace model
             findIntersections(intersectionContainer,nThreads);
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Forming Junctions: "<<std::flush;
+            model::cout<<"		Forming Junctions: "<<std::flush;
             
             size_t nContracted=0;
             for (const auto& intersectionByThreadContainer : intersectionContainer)
@@ -526,68 +516,24 @@ namespace model
                     }
                 }
             }
-            model::cout<<nContracted<<" contracted"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            model::cout<<" ("<<nContracted<<" contracted)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             return nContracted;
-        }
-        
-
-        
-        
-        //! A reference to the DislocationNetwork
-        DislocationNetworkType& DN;
-        
-    public:
-        
-        
-        static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
-
-        const size_t maxJunctionIterations;
-        const int verboseJunctions;
-        const bool mergeGlissileJunctions;
-        const double infiniteLineLength;
-
-        /**********************************************************************/
-        DislocationJunctionFormation(DislocationNetworkType& DN_in) :
-        /* init */ DN(DN_in)
-        /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
-        /* init */,verboseJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
-        /* init */,mergeGlissileJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("mergeGlissileJunctions",true))
-        /* init */,infiniteLineLength(10000.0)
-        {
-            
-        }
-        
-        /**********************************************************************/
-        void formJunctions()
-        {
-            size_t nContracted=1;
-            size_t iterations=0;
-            while(nContracted && iterations<maxJunctionIterations)
-            {
-                nContracted=junctionStep();
-//                glissileJunctions(dx);
-                iterations++;
-            }
         }
         
         /**********************************************************************/
         void glissileJunctions(const double &dx)
         {
             const auto t0 = std::chrono::system_clock::now();
-            model::cout <<"Forming Glissile Junctions: " << std::flush;
+            model::cout << "        Forming Glissile Junctions: " << std::flush;
             
             std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, size_t, size_t>> glissDeq;
             
-            //            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, std::shared_ptr<NodeType>>> expDeq;
-            
-            std::map<std::pair<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>,std::set<std::shared_ptr<NodeType>>> expDeq;
-            
+            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, std::shared_ptr<NodeType>>> expDeq;
             
             for (const auto &link : DN.links())
             {
                 
-                //                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
-                if (link.second->loopLinks().size() > 1) // a junction
+                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
                 {
                     const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
                     const double chordNorm(chord.norm());
@@ -604,109 +550,116 @@ namespace model
                         {
                             
                             VerboseJunctions(2,"glissele junction, segment "<<link.second->tag()<<std::endl;);
-                            //                            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, std::shared_ptr<NodeType>>> linkExpDeq;
-                            
-                            size_t expanded(0);
-                            if(mergeGlissileJunctions)
+
+                            for (const auto &gr : link.second->grains())
                             {
-                                if(expanded==0)
+                                for (size_t s = 0; s < gr->slipSystems().size(); ++s)
                                 {
-                                    for (const auto &nodelink : link.second->source->outLoopLinks())
+                                    const auto &slipSystem(gr->slipSystems()[s]);
+                                    if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
                                     {
-                                        if (nodelink->pLink->loopLinks().size() == 1)
-                                        {
-                                            const auto &loop(nodelink->loop());
-                                            const auto expLoops(link.second->sink->loops());
-                                            if(loop->slipSystem() && expLoops.find(loop.get())==expLoops.end())
-                                            {
-                                                if ((loop->burgers() + link.second->burgers()).norm() < FLT_EPSILON
-                                                    && fabs(loop->rightHandedUnitNormal().dot(unitChord)) < FLT_EPSILON)
-                                                {
-                                                    expanded+=expDeq[std::make_pair(nodelink->pLink->source, nodelink->pLink->sink)].insert(link.second->sink).second;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                if(expanded==0)
-                                {
-                                    for (const auto &nodelink : link.second->source->inLoopLinks())
-                                    {
-                                        if (nodelink->pLink->loopLinks().size() == 1)
-                                        {
-                                            const auto &loop(nodelink->loop());
-                                            const auto expLoops(link.second->sink->loops());
-                                            if(loop->slipSystem() && expLoops.find(loop.get())==expLoops.end())
-                                            {
-                                                if ((loop->burgers() - link.second->burgers()).norm() < FLT_EPSILON
-                                                    && fabs(loop->rightHandedUnitNormal().dot(unitChord)) < FLT_EPSILON)
-                                                {
-                                                    expanded+=expDeq[std::make_pair(nodelink->pLink->source, nodelink->pLink->sink)].insert(link.second->sink).second;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                if(expanded==0)
-                                {
-                                    for (const auto &nodelink : link.second->sink->outLoopLinks())
-                                    {
-                                        if (nodelink->pLink->loopLinks().size() == 1)
-                                        {
-                                            const auto &loop(nodelink->loop());
-                                            const auto expLoops(link.second->source->loops());
-                                            if(loop->slipSystem() && expLoops.find(loop.get())==expLoops.end())
-                                            {
-                                                if ((loop->burgers() - link.second->burgers()).norm() < FLT_EPSILON
-                                                    && fabs(loop->rightHandedUnitNormal().dot(unitChord)) < FLT_EPSILON)
-                                                {
-                                                    expanded+=expDeq[std::make_pair(nodelink->pLink->source, nodelink->pLink->sink)].insert(link.second->source).second;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                if(expanded==0)
-                                {
-                                    for (const auto &nodelink : link.second->sink->inLoopLinks())
-                                    {
-                                        if (nodelink->pLink->loopLinks().size() == 1)
-                                        {
-                                            const auto &loop(nodelink->loop());
-                                            const auto expLoops(link.second->source->loops());
-                                            if(loop->slipSystem() && expLoops.find(loop.get())==expLoops.end())
-                                            {
-                                                if ((loop->burgers() + link.second->burgers()).norm() < FLT_EPSILON
-                                                    && fabs(loop->rightHandedUnitNormal().dot(unitChord)) < FLT_EPSILON)
-                                                {
-                                                    expanded+=expDeq[std::make_pair(nodelink->pLink->source, nodelink->pLink->sink)].insert(link.second->source).second;
-                                                }
-                                            }
-                                        }
+                                        VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
+                                        
+                                        glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
                                     }
                                 }
                             }
                             
-                            if(expanded==0)
-                            {// if an expansion is not possible, insert a triangular loop
-                                for (const auto &gr : link.second->grains())
-                                {
-                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
-                                    {
-                                        const auto &slipSystem(gr->slipSystems()[s]);
-                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON
-                                            && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                        {
-                                            VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
-                                            
-                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
-                                        }
-                                    }
-                                }
-                            }
+                            //                            std::set<const LoopType*> sourceLoops;
+//                            int inserted(0);
+//                            for (const auto &nodelink : link.second->source->outLoopLinks())
+//                            {
+//                                if (nodelink->pLink->loopLinks().size() == 1)
+//                                {
+//                                    const auto &loop(nodelink->loop());
+//                                    if(loop->slipSystem())
+//                                    {
+//                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+//                                            inserted++;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            VerboseJunctions(3,"source->outLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//
+//                            for (const auto &nodelink : link.second->source->inLoopLinks())
+//                            {
+//                                if (nodelink->pLink->loopLinks().size() == 1)
+//                                {
+//                                    const auto &loop(nodelink->loop());
+//                                    if (loop->slipSystem())
+//                                    {
+//                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
+//                                            inserted++;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                            VerboseJunctions(3,"source->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//                            assert(inserted <= 1);
+//
+//                            if (inserted == 0)
+//                            {
+//                                for (const auto &nodelink : link.second->sink->outLoopLinks())
+//                                {
+//                                    if (nodelink->pLink->loopLinks().size() == 1)
+//                                    {
+//                                        const auto &loop(nodelink->loop());
+//                                        if (loop->slipSystem())
+//                                        {
+//                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                            {
+//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+//                                                inserted++;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//
+//                                for (const auto &nodelink : link.second->sink->inLoopLinks())
+//                                {
+//                                    if (nodelink->pLink->loopLinks().size() == 1)
+//                                    {
+//                                        const auto &loop(nodelink->loop());
+//                                        if (loop->slipSystem())
+//                                        {
+//                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                            {
+//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
+//                                                inserted++;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
+//
+//                                assert(inserted <= 1);
+//                            }
+//
+//                            if (inserted == 0)
+//                            {
+//                                for (const auto &gr : link.second->grains())
+//                                {
+//                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
+//                                    {
+//                                        const auto &slipSystem(gr->slipSystems()[s]);
+//                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
+//                                        {
+//                                            VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
+//
+//                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
+//                                        }
+//                                    }
+//                                }
+//                            }
                         }
                     }
                 }
@@ -714,24 +667,20 @@ namespace model
             
             size_t formedJunctions = 0;
             
-            for (const auto& pair : expDeq)
+            for (const auto &tup : expDeq)
             {
-                const std::shared_ptr<NodeType>& source(pair.first.first);
-                const std::shared_ptr<NodeType>&   sink(pair.first.second);
-                const std::set<std::shared_ptr<NodeType>>& expNodes(pair.second);
-                //                VerboseJunctions(3,"link = "<<linkExpDeq.size()<<std::endl;);
-                if(expNodes.size()==1)
+                const std::shared_ptr<NodeType> &source(std::get<0>(tup));
+                const std::shared_ptr<NodeType> &sink(std::get<1>(tup));
+                const std::shared_ptr<NodeType> &exp(std::get<2>(tup));
+                const size_t &sourceID(source->sID);
+                const size_t &sinkID(sink->sID);
+                const auto isLink(DN.link(sourceID, sinkID));
+                
+                if (isLink.first)
                 {
-                    const std::shared_ptr<NodeType>& exp(*expNodes.begin());
-                    const size_t& sourceID(source->sID);
-                    const size_t& sinkID(sink->sID);
-                    const auto isLink(DN.link(sourceID, sinkID));
-                    if (isLink.first)
-                    {
-                        VerboseJunctions(3,"expanding junction "<<isLink.second->tag()<<" @node "<<exp->sID<<std::endl;);
-                        DN.expand(isLink.second, exp);
-                        formedJunctions++;
-                    }
+                    VerboseJunctions(3,"expanding junction "<<isLink.second->tag()<<" @node "<<exp->sID<<std::endl;);
+                    DN.expand(isLink.second, exp);
+                    formedJunctions++;
                 }
             }
             
@@ -768,23 +717,9 @@ namespace model
                     formedJunctions++;
                 }
             }
-            model::cout<< formedJunctions << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
+            model::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
         }
         
-    };
-    
-    // Declare Static Data
-    template <typename DislocationNetworkType>
-    double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
-
-
-    
-    
-}
-#endif
-
-
-
 //        /**********************************************************************/
 //        void glissileJunctions(const double& dx)
 //        {
@@ -841,7 +776,7 @@ namespace model
 ////                                {
 ////                                    const auto& loop(link->loop());
 ////                                    if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
-////                                       && fabs(loop->slipSystem()->unitNorm.dot(unitChord))<FLT_EPSILON)
+////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
 ////                                    {
 ////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,link.second->sink);
 ////                                        inserted++;
@@ -855,7 +790,7 @@ namespace model
 ////                                {
 ////                                    const auto& loop(link->loop());
 ////                                    if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-////                                       && fabs(loop->slipSystem()->unitNorm.dot(unitChord))<FLT_EPSILON)
+////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
 ////                                    {
 ////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,sink);
 ////                                        inserted++;
@@ -872,7 +807,7 @@ namespace model
 ////                                    {
 ////                                        const auto& loop(link->loop());
 ////                                        if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
-////                                           && fabs(loop->slipSystem()->unitNorm.dot(unitChord))<FLT_EPSILON)
+////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
 ////                                        {
 ////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
 ////                                            inserted++;
@@ -886,7 +821,7 @@ namespace model
 ////                                    {
 ////                                        const auto& loop(link->loop());
 ////                                        if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-////                                           && fabs(loop->slipSystem()->unitNorm.dot(unitChord))<FLT_EPSILON)
+////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
 ////                                        {
 ////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
 ////                                            inserted++;
@@ -1056,100 +991,45 @@ namespace model
 //            }
 //            model::cout<<"("<<formedJunctions<<" junctions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 //        }
-
-
-//                            std::set<const LoopType*> sourceLoops;
-//                            int inserted(0);
-//                            for (const auto &nodelink : link.second->source->outLoopLinks())
-//                            {
-//                                if (nodelink->pLink->loopLinks().size() == 1)
-//                                {
-//                                    const auto &loop(nodelink->loop());
-//                                    if(loop->slipSystem())
-//                                    {
-//                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->unitNorm.dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-//                                            inserted++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            VerboseJunctions(3,"source->outLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//
-//                            for (const auto &nodelink : link.second->source->inLoopLinks())
-//                            {
-//                                if (nodelink->pLink->loopLinks().size() == 1)
-//                                {
-//                                    const auto &loop(nodelink->loop());
-//                                    if (loop->slipSystem())
-//                                    {
-//                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->unitNorm.dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-//                                            inserted++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            VerboseJunctions(3,"source->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//                            assert(inserted <= 1);
-//
-//                            if (inserted == 0)
-//                            {
-//                                for (const auto &nodelink : link.second->sink->outLoopLinks())
-//                                {
-//                                    if (nodelink->pLink->loopLinks().size() == 1)
-//                                    {
-//                                        const auto &loop(nodelink->loop());
-//                                        if (loop->slipSystem())
-//                                        {
-//                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->unitNorm.dot(unitChord)) < FLT_EPSILON)
-//                                            {
-//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-//                                                inserted++;
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//
-//                                for (const auto &nodelink : link.second->sink->inLoopLinks())
-//                                {
-//                                    if (nodelink->pLink->loopLinks().size() == 1)
-//                                    {
-//                                        const auto &loop(nodelink->loop());
-//                                        if (loop->slipSystem())
-//                                        {
-//                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->unitNorm.dot(unitChord)) < FLT_EPSILON)
-//                                            {
-//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-//                                                inserted++;
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//                                assert(inserted <= 1);
-//                            }
-//
-//                            if (inserted == 0)
-//                            {
-//                                for (const auto &gr : link.second->grains())
-//                                {
-//                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
-//                                    {
-//                                        const auto &slipSystem(gr->slipSystems()[s]);
-//                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
-//
-//                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
-//                                        }
-//                                    }
-//                                }
-//                            }
+        
+        //! A reference to the DislocationNetwork
+        DislocationNetworkType& DN;
+        
+    public:
+        
+        
+        static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
+        const size_t maxJunctionIterations;
+        const int verboseJunctions;
+        const double infiniteLineLength;
+        
+        /**********************************************************************/
+        DislocationJunctionFormation(DislocationNetworkType& DN_in) :
+        /* init */ DN(DN_in)
+        /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
+        /* init */,verboseJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
+        /* init */,infiniteLineLength(10000.0)
+        {
+            
+        }
+        
+        /**********************************************************************/
+        void formJunctions(const double& dx)
+        {
+            size_t nContracted=1;
+            size_t iterations=0;
+            while(nContracted && iterations<maxJunctionIterations)
+            {
+                nContracted=junctionStep();
+                glissileJunctions(dx);
+                iterations++;
+            }
+        }
+        
+    };
+    
+    // Declare Static Data
+    template <typename DislocationNetworkType>
+    double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
+}
+#endif

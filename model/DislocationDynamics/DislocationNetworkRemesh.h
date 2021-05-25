@@ -82,7 +82,7 @@ namespace model
         void remeshByRemoval()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Remeshing network: removing... "<<std::flush;
+            model::cout<<"		Remeshing network: removing... "<<std::flush;
             
             std::deque<size_t> toBeRemoved;
             for(const auto& node : DN.nodes())
@@ -215,7 +215,7 @@ namespace model
         void remeshByExpansion()
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Remeshing network: expanding... "<<std::flush;
+            model::cout<<"		Remeshing network: expanding... "<<std::flush;
             
             //            model::cout<<"expanding..."<<std::flush;
             
@@ -394,7 +394,7 @@ namespace model
         /**********************************************************************/
         void contract0chordSegments()
         {
-            model::cout<<"Contracting zero-chord segments... "<<std::flush;
+            model::cout<<"		Contracting zero-chord segments... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
             std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
@@ -476,109 +476,15 @@ namespace model
 //                    remeshByContraction();
                     remeshByExpansion();
                     contract0chordSegments();
-                    cloneCornerNodes();
-//                    remove0AreaLoops();
                 }
             }
         }
         
-        void cloneCornerNodes()
-        {
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"Cloning corner nodes ... "<<std::flush;
-            
-            std::deque<std::tuple<size_t,size_t,VectorDimD>> cloneDeq;
-            
-            for(const auto& node : DN.nodes())
-            {
-                if(    node.second->isBoundaryNode()
-                   &&  node.second->loopLinks().size()==2)
-                {
-                    LinkType* bndLink(nullptr);
-                    LinkType* innerLink(nullptr);
-                    const auto glidePlane((*node.second->loopLinks().begin())->loop()->glidePlane);
-                    if(glidePlane)
-                    {
-                        if(   (*node.second->loopLinks(). begin())->pLink->isBoundarySegment()
-                           && !(*node.second->loopLinks().rbegin())->pLink->isBoundarySegment())
-                        {
-                            bndLink  =(*node.second->loopLinks(). begin())->pLink.get();
-                            innerLink=(*node.second->loopLinks().rbegin())->pLink.get();
-                        }
-                        else if(   !(*node.second->loopLinks(). begin())->pLink->isBoundarySegment()
-                                &&  (*node.second->loopLinks().rbegin())->pLink->isBoundarySegment())
-                        {
-                            bndLink  =(*node.second->loopLinks().rbegin())->pLink.get();
-                            innerLink=(*node.second->loopLinks(). begin())->pLink.get();
-                        }
-                        
-                        if(bndLink && innerLink)
-                        {
-                            for(const auto& face : glidePlane->grain.region.faces())
-                            {
-                                if(node.second->meshFaces().find(face.second.get())==node.second->meshFaces().end())
-                                {// face not found in current node confining faces
-                                    if(face.second->asPlane().contains(node.second->get_P()))
-                                    {// face contains position but it is currently not a confining face for the node
-                                        cloneDeq.emplace_back(bndLink->source->sID,bndLink->sink->sID,node.second->get_P());
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            
-            size_t cloned(0);
-            for(const auto& tup : cloneDeq)
-            {
-                const size_t i(std::get<0>(tup));
-                const size_t j(std::get<1>(tup));
-                const VectorDimD& P(std::get<2>(tup));
-                const IsConstNetworkLinkType Lij(DN.link(i,j));
-                if(Lij.first)
-                {
-                    DN.expand(i,j,P);
-                    cloned++;
-                }
-            }
-
-            model::cout<<cloned<<" cloned"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        }
         
-        /**********************************************************************/
-        void remove0AreaLoops()
-        {
-            const auto t0= std::chrono::system_clock::now();
-            model::cout<<"        Removing zero-area loops ... "<<std::flush;
-            std::set<size_t> loopIDs;
-            for(const auto& loop : DN.loops())
-            {
-                    if(loop.second->slippedArea()<FLT_EPSILON)
-                    {// loop has zero area
-                        bool allNodesConfined(true);
-                        for(const auto& loopLink : loop.second->links())
-                        {
-                            allNodesConfined*=loopLink.second->source()->hasGlidePlaneIntersections();
-                            if(!allNodesConfined)
-                            {
-                                break;
-                            }
-                        }
-                        if(allNodesConfined)
-                        {// all nodes are confined, so loop can not increase its area
-                            loopIDs.insert(loop.second->sID);
-                        }
-                    }
-            }
-            
-            for(const auto& loopID : loopIDs)
-            {
-                DN.deleteLoop(loopID);
-            }
-            model::cout<<loopIDs.size()<<" deleted"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        }
+        
+        
+        
+        
         
         /**********************************************************************/
         void loopInversion(const double& dt)

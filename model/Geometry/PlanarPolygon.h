@@ -24,12 +24,39 @@ namespace model
         
         using Point2d = std::array<double, 2>;
         
+        const Eigen::Matrix3d R;
+        const Eigen::Vector3d n;
+        
+        /**********************************************************************/
+        static Eigen::Matrix3d getR(const Eigen::Vector3d& x,
+                                    const Eigen::Vector3d& z)
+        {
+            const double xNorm(x.norm());
+            const double zNorm(z.norm());
+            assert(xNorm>FLT_EPSILON);
+            assert(zNorm>FLT_EPSILON);
+            assert(fabs(x.dot(z)<FLT_EPSILON*xNorm*zNorm));
+            Eigen::Matrix3d temp(Eigen::Matrix3d::Identity());
+            temp.col(2)=z/zNorm;
+            temp.col(0)=x/xNorm;
+            temp.col(1)=temp.col(2).cross(temp.col(0));
+            return temp;
+        }
+        
+        /**********************************************************************/
+        std::array<double, 2> projectRotate(const Eigen::Vector3d& v)
+        {
+            const Eigen::Vector3d vpr=R.transpose()*(v-v.dot(n)*n); // projected point
+            return std::array<double, 2>({vpr(0),vpr(1)});
+        }
+        
     public:
         
-        const Plane<3> plane;
         
-        PlanarPolygon(const Eigen::Vector3d& p,const Eigen::Vector3d& n) :
-        /* init */ plane(p,n)
+        PlanarPolygon(const Eigen::Vector3d& x,        // global coordinate of the x axis on the plane
+                      const Eigen::Vector3d& z) :      // global z coordinate
+        R(getR(x,z)),
+        n(R.col(2))
         {
             
         }
@@ -42,9 +69,7 @@ namespace model
             this->resize(1); // first vector is external polyline, further vectors define holes
             for(const auto& v3 : points)
             {
-                //this->operator[](0).push_back(projectRotate(v3));
-                const auto v2(plane.localPosition(v3));
-                this->operator[](0).push_back(Point2d{v2(0),v2(1)});
+                this->operator[](0).push_back(projectRotate(v3));
             }
         }
         
@@ -55,8 +80,7 @@ namespace model
             this->push_back(std::deque<std::array<double, 2>>()); // first vector is external polyline, further vectors define holes
             for(const auto& v3 : hole)
             {
-                const auto v2(plane.localPosition(v3));
-                this->rbegin()->push_back(Point2d{v2(0),v2(1)});
+                this->rbegin()->push_back(projectRotate(v3));
             }
         }
         
@@ -74,8 +98,31 @@ namespace model
             return temp;
         }
         
+//        bool isInside(const Eigen::Vector3d& P)
+//        {
+//            return isInside(projectRotate(P))
+//        }
+//
+//
+//
+//
+//
+//
+//        bool isInside(const std::array<double, 2>& P)
+//        {
+//
+//            std::array<double, 2> ca;
+//            Eigen::Map<Eigen::Vector2d> c(ca.data());
+//            for(const auto& point)
+//
+//
+//            return isInside(projectRotate(P))
+//        }
+        
+        
+        
         
     };
     
-}
+} /* namespace model */
 #endif
