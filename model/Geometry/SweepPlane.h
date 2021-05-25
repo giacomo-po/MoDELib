@@ -26,13 +26,13 @@ namespace model
      */
     template <typename LineType,int dim>
     struct SweepPlane :
-    /* base */ public std::map<double,std::pair<std::map<typename LineType::KeyType,const LineType*>,std::map<typename LineType::KeyType,const LineType*>>>,
+    /* base */ public std::map<float,std::pair<std::map<typename LineType::KeyType,const LineType*>,std::map<typename LineType::KeyType,const LineType*>>>,
     /* base */ public std::deque<std::pair<const LineType*,const LineType*>>
     {
         
 //        typedef std::set<const LineType*> EventMapType;
         typedef std::map<typename LineType::KeyType,const LineType*> EventMapType;
-        typedef std::map<double,std::pair<EventMapType,EventMapType>> EventContainerType;
+        typedef std::map<float,std::pair<EventMapType,EventMapType>> EventContainerType;
         typedef std::deque<std::pair<const LineType*,const LineType*>> IntersectionPairContainerType;
         /**********************************************************************/
         const EventContainerType& events() const

@@ -91,13 +91,16 @@ namespace model
         void removeLoopLink(LoopLinkType* const);
         void updateGeometry();
 
+        void updateConfinedGeometry();
+
         void set_P(const VectorDim&);
         void set_P(const VectorLowerDim&);
         std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
-        bool isRemovable(const double& Lmin, const double& relAreaTh);
+        std::pair<bool,size_t> isRemovable(const double& Lmin, const double& relAreaTh);
+        // std::pair<bool,std::set<size_t>> isRemovable(const double& Lmin, const double& relAreaTh);
         bool isMovableTo(const VectorDim&) const;
         bool isContractableTo(const LoopNodeType* const other) const;
-        
+        bool isGeometricallyRemovable(const double&, const double& );
         static void initFromFile(const std::string&);
 
     };

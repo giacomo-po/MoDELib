@@ -15,7 +15,7 @@
 #include <set>
 #include <memory>
 #include <iterator>
-
+#include <algorithm>
 #include <StaticID.h>
 #include <CRTP.h>
 //#include <LoopObserver.h>
@@ -194,6 +194,33 @@ namespace model
 
         
         /**********************************************************************/
+        //Giacomo Version
+        
+        // LoopLinkSequenceType linkSequence() const
+        // {
+        //     //RECODE THIS USING prev/next
+        //     //typename LoopLinkContainerType::const_iterator iter;
+        //     VerboseLoop(3,"Loop "<<tag()<<" loopLinks().size()= "<<loopLinks().size()<<std::endl);
+        //     LoopLinkSequenceType temp;
+        //     if(loopLinks().size())
+        //     {
+        //         const LoopLinkType* pL=*loopLinks().begin();
+        //         for(size_t k=0;k<loopLinks().size();++k)
+        //         {
+        //             if(pL)
+        //             {
+        //                 if(pL->next)
+        //                 {
+        //                     temp.push_back(pL);
+        //                     pL=pL->next;
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     VerboseLoop(3,"Loop "<<tag()<<" linkSequence.size()= "<<temp.size()<<std::endl);
+        //     return temp;
+        // }
+        
         LoopLinkSequenceType linkSequence() const
         {
             //RECODE THIS USING prev/next
@@ -202,7 +229,13 @@ namespace model
             LoopLinkSequenceType temp;
             if(loopLinks().size())
             {
-                const LoopLinkType* pL=*loopLinks().begin();
+                //Start at the link starting at the minimum Node
+                std::map<size_t,const LoopLinkType*> orderedNodeIDandLinks;
+                for (const auto& link : loopLinks())
+                {
+                    orderedNodeIDandLinks.emplace(link->source->sID,link);
+                }
+                const LoopLinkType* pL=orderedNodeIDandLinks.begin()->second;
                 for(size_t k=0;k<loopLinks().size();++k)
                 {
                     if(pL)
@@ -272,6 +305,8 @@ namespace model
             }
             return temp;
         }
+
+        
         
         /**********************************************************************/
         bool isLoop() const

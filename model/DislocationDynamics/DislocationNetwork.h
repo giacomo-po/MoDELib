@@ -50,7 +50,7 @@
 
 #include <DislocationNetworkRemesh.h>
 #include <DislocationJunctionFormation.h>
-//#include <DislocationCrossSlip.h>
+#include <DislocationCrossSlip.h>
 ////#include <Material.h>
 #include <UniqueOutputFile.h>
 #include <DislocationNetworkIO.h>
@@ -147,9 +147,9 @@ namespace model
         DislocationNodeContraction<LoopNetworkType> nodeContractor;
 //        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         //        MatrixDimD _plasticDistortionFromVelocities;
-        std::pair<double,MatrixDim> oldPlasticDistortionFromAreas;
-        MatrixDim _plasticDistortionRateFromVelocities;
-        MatrixDim _plasticDistortionRateFromAreas;
+        // std::pair<double,MatrixDim> oldPlasticDistortionFromAreas;
+        // MatrixDim _plasticDistortionRateFromVelocities;
+        // MatrixDim _plasticDistortionRateFromAreas;
         int ddSolverType;
         bool computeDDinteractions;
         int crossSlipModel;
@@ -188,11 +188,11 @@ namespace model
         
         void setConfiguration(const DDconfigIO<dim>&);
         void createEshelbyInclusions();
-        const MatrixDim& plasticDistortionRate() const;
+        MatrixDim plasticDistortionRate() const;
         MatrixDim plasticDistortion() const;
         MatrixDim plasticStrainRate() const;
         void updateGeometry();//
-        void updatePlasticDistortionRateFromAreas();
+        // void updatePlasticDistortionRateFromAreas();
         void dummyMove(const int&);
         DislocationNetworkIOType io();
         DislocationNetworkIOType io() const;

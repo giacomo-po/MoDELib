@@ -279,6 +279,34 @@ namespace model
             }
             
         }
+
+        /**********************************************************************/
+        VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P)
+        {/*!@param[in] P input positions
+          *\returns the position P snapped to the (intersection of) glide planes
+          */
+            if(_glidePlaneIntersections)
+            {
+                //Add here forsnapping to point
+                if ((_glidePlaneIntersections->P0-_glidePlaneIntersections->P1).norm()>FLT_EPSILON)
+                {
+                    return _glidePlaneIntersections->snapToInfiniteLine(P);
+                }
+                else
+                {
+                    //Snap to the point
+                    return 0.5*(_glidePlaneIntersections->P0+_glidePlaneIntersections->P1);
+                }
+            }
+            else
+            {
+                //                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
+                // std::cout<<" glidePlanes size "<<this->glidePlanes().size()<<std::endl;
+                assert(this->glidePlanes().size()==1);
+                return (*this->glidePlanes().begin())->snapToPlane(P);
+            }
+            
+        }
         
         /**********************************************************************/
         const std::unique_ptr<FiniteLineSegment<dim>>& glidePlaneIntersections() const
@@ -601,6 +629,12 @@ namespace model
                 
                 for(const auto& pos : posCointainer)
                 {
+                    if (!glidePlane->contains(pos))
+                    {
+                        std::cout<<"GlidePlane size is  "<<glidePlanes().size()<<std::endl;
+                        std::cout<<"pos is "<<pos.transpose()<<std::endl;
+                        std::cout<<"Position different is "<<(pos-(glidePlane->snapToPlane(pos))).squaredNorm()<<"for glide plane size is "<<glidePlanes().size()<<std::endl;
+                    }
                     assert(glidePlane->contains(pos) && "glidePlane MUST CONTAIN POSITION");
                 }
                 

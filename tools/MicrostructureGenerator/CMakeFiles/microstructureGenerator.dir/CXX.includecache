@@ -76,28 +76,6 @@ type_traits
 NumericPrecision.h
 -
 
-../../header_symlinks/ConfinedDislocationObject.h
-set
--
-map
--
-vector
--
-algorithm
--
-Eigen/Dense
--
-GlidePlane.h
--
-Grain.h
--
-PlanarMeshFace.h
--
-FiniteLineSegment.h
--
-LineLineIntersection.h
--
-
 ../../header_symlinks/ConvexHull.h
 algorithm
 -
@@ -125,9 +103,15 @@ DDbaseIO.h
 -
 GlidePlaneBoundaryIO.h
 -
-GlidePlaneModule.h
+GlidePlaneFactory.h
+-
+PeriodicGlidePlane.h
 -
 DislocationQuadraturePointIO.h
+-
+PeriodicLoopLinkIO.h
+-
+PeriodicLoopNodeIO.h
 -
 MeshNodeIO.h
 -
@@ -170,8 +154,6 @@ DislocationNodeIO.h
 DislocationSegmentIO.h
 -
 MPIcout.h
--
-TerminalColors.h
 -
 
 ../../header_symlinks/DSCL.h
@@ -230,8 +212,6 @@ tuple
 
 ../../header_symlinks/DislocationLoopLinkIO.h
 tuple
--
-TypeTraits.h
 -
 
 ../../header_symlinks/DislocationLoopNodeIO.h
@@ -851,8 +831,6 @@ DislocationInjector.h
 -
 MeshBoundarySegment.h
 -
-ConfinedDislocationObject.h
--
 GlidePlaneModule.h
 -
 
@@ -893,8 +871,6 @@ SharedPtrFactories.h
 ../../header_symlinks/PeriodicGlidePlane.hpp
 PeriodicGlidePlane.h
 -
-math.h
--
 
 ../../header_symlinks/PeriodicGlidePlaneFactory.h
 memory
@@ -932,6 +908,18 @@ cfloat
 Eigen/Dense
 -
 Eigen/SVD
+-
+
+../../header_symlinks/PeriodicLoopLinkIO.h
+tuple
+-
+iomanip
+-
+
+../../header_symlinks/PeriodicLoopNodeIO.h
+tuple
+-
+iomanip
 -
 
 ../../header_symlinks/PermutationWithoutRepetition.h
@@ -1383,12 +1371,10 @@ map
 -
 memory
 -
-assert.h
--
 CRTP.h
 -
 
-/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/microstructureGenerator.cpp
+/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/microstructureGenerator.cpp
 MicrostructureGenerator.h
 -
 

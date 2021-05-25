@@ -34,78 +34,152 @@ namespace model
         VerboseDislocationSegment(1,"Constructing DislocationSegment "<<this->tag()<<std::endl);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::updateSlipSystem()
-    {
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // void DislocationSegment<dim,corder,InterpolationType>::updateSlipSystem()
+    // {
+    //     std::set<std::shared_ptr<SlipSystem>> ssSet;
+    //     for(const auto& loopLink : this->loopLinks())
+    //     {
+    //         if(loopLink->loop->slipSystem())
+    //         {
+    //             ssSet.insert(loopLink->loop->slipSystem());
+    //         }
+    //     }
+        
+    //     if(ssSet.size()==1)
+    //     {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
+    //         _slipSystem=*ssSet.begin();
+    //     }
+    //     else
+    //     {
+    //         _slipSystem=nullptr;
+    //     }
+    //     if(_slipSystem)
+    //     {
+    //         VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
+    //         VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+    //     }
+    // }
 
-if(this->grains().size()==1)
-{
-    std::set<std::shared_ptr<SlipSystem>> ssSet;
-    
-    for(const auto& loopLink : this->loopLinks())
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // void DislocationSegment<dim, corder, InterpolationType>::updateSlipSystem()
+    // {
+    //     if (this->grains().size() == 0)
+    //     {
+    //          _slipSystem=nullptr;
+    //     }
+    //     else if (this->grains().size() == 1)
+    //     {
+    //         std::set<std::shared_ptr<SlipSystem>> ssSet;
+
+    //         for (const auto &loopLink : this->loopLinks())
+    //         {
+    //             if (loopLink->loop->slipSystem())
+    //             {
+    //                 ssSet.insert(loopLink->loop->slipSystem());
+    //             }
+    //         }
+
+    //         if (ssSet.size() == 1)
+    //         { // a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
+    //             _slipSystem = *ssSet.begin();
+    //         }
+    //         else if (ssSet.size() > 1)
+    //         {
+    //             const auto firstSlipSystem(*ssSet.begin());
+    //             //            const auto& firstN(firstSlipSystem.n);
+    //             std::shared_ptr<RationalLatticeDirection<dim>> s(new RationalLatticeDirection<dim> (firstSlipSystem->s * 0));
+    //             for (const auto &ss : ssSet)
+    //             {
+    //                 _slipSystem = nullptr;
+    //                 if (ss->n.cross(firstSlipSystem->n).squaredNorm() == 0)
+    //                 {
+    //                     if (ss->n.cartesian().dot(firstSlipSystem->n.cartesian()) > 0.0)
+    //                     { // aligned normals
+    //                         // s = s + ss->s;
+    //                         s.reset(new RationalLatticeDirection<dim>(*s + ss->s));
+    //                     }
+    //                     else
+    //                     { // opposite normals
+    //                         // s = s - ss->s;
+    //                         s.reset(new RationalLatticeDirection<dim>(*s - ss->s));
+
+    //                     }
+    //                 }
+    //                 else
+    //                 {
+    //                     s.reset(new RationalLatticeDirection<dim>(firstSlipSystem->s * 0));
+    //                     // s = firstSlipSystem->s * 0;
+    //                     break;
+    //                 }
+    //             }
+    //             for (const auto &ss : (*this->grains().begin())->slipSystems())
+    //             {
+    //                 if (ss->isSameAs(*s, firstSlipSystem->n))
+    //                 {
+    //                     _slipSystem = ss;
+    //                     break;
+    //                 }
+    //             }
+    //         }
+    //         else
+    //         { // ssSet.size()==0
+    //             _slipSystem = nullptr;
+    //         }
+    //     }
+    //     else
+    //     {
+    //         assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
+    //         _slipSystem = nullptr;
+    //     }
+
+    //     if (_slipSystem)
+    //     {
+    //         VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->s.cartesian().transpose() << std::endl;);
+    //         VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->unitNormal.transpose() << std::endl;);
+    //     }
+    // }
+       template <int dim, short unsigned int corder, typename InterpolationType>
+    void DislocationSegment<dim, corder, InterpolationType>::updateSlipSystem()
     {
-        if(loopLink->loop->slipSystem())
+        if (this->grains().size() == 0)
         {
-            ssSet.insert(loopLink->loop->slipSystem());
+             _slipSystem=nullptr;
         }
-    }
-    
-    if(ssSet.size()==1)
-    {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
-        _slipSystem=*ssSet.begin();
-    }
-    else if(ssSet.size()>1)
-    {
-        const auto  firstSlipSystem(*ssSet.begin());
-        //            const auto& firstN(firstSlipSystem.n);
-        RationalLatticeDirection<dim>  s(firstSlipSystem.s*0);
-        for(const auto& ss : ssSet)
+        else if (this->grains().size() == 1)
         {
-            _slipSystem=nullptr;
-            if(ss->n.cross(firstSlipSystem.n).squaredNorm()==0)
+            std::set<std::shared_ptr<SlipSystem>> ssSet;
+
+            for (const auto &loopLink : this->loopLinks())
             {
-                if(ss->n.dot(firstSlipSystem.n)>0)
-                {// aligned normals
-                    s=s+ss->s;
+                if (loopLink->loop->slipSystem())
+                {
+                    ssSet.insert(loopLink->loop->slipSystem());
                 }
-                else
-                {// opposite normals
-                    s=s-ss->s;
-                }
+            }
+
+            if (ssSet.size() == 1)
+            { // a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
+                _slipSystem = *ssSet.begin();
             }
             else
-            {
-                s=firstSlipSystem.s*0;
-                break;
+            { // ssSet.size()==0
+                _slipSystem = nullptr;
             }
         }
-        for(const auto& ss : *this->grains().begin()->slipSystems())
+        else
         {
-            if(ss->isSameAs(s,firstSlipSystem.n))
-            {
-                _slipSystem=ss;
-                break;
-            }
+            assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
+            _slipSystem = nullptr;
+        }
+
+        if (_slipSystem)
+        {
+            VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->s.cartesian().transpose() << std::endl;);
+            VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->unitNormal.transpose() << std::endl;);
         }
     }
-    else
-    {// ssSet.size()==0
-        _slipSystem=nullptr;
-    }
-}
-else
-{
-    assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
-    _slipSystem=nullptr;
-}
-        
-        if(_slipSystem)
-        {
-            VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
-            VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
-        }
-    }
-    
+
     /**********************************************************************/
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationSegment<dim,corder,InterpolationType>::addLoopLink(LoopLinkType* const pL)
@@ -137,6 +211,8 @@ else
         {
             this->confinedObject().addGlidePlane(pL->loop->glidePlane.get());
         }
+
+
         updateSlipSystem();
     }
     
@@ -163,6 +239,7 @@ else
         this->confinedObject().clear();
         for(const auto& loopLink : this->loopLinks())
         {
+            // std::cout<<"loopLink"<<loopLink->tag()<<" Adding glidePlane "<<std::endl;
             if(this->network().simulationParameters.isPeriodicSimulation())
             {
                 const auto periodicPlanePatch(loopLink->periodicPlanePatch());
@@ -373,9 +450,16 @@ else
                     localI++;
                 }
             }
+
         }
     }
     
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    void DislocationSegment<dim,corder,InterpolationType>::updateQuadraturePointsSeg()
+    {
+        this->updateQuadraturePoints(*this,quadPerLength,false);
+    }
+
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationSegment<dim,corder,InterpolationType>::assembleGlide()
     {

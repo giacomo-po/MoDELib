@@ -64,6 +64,7 @@ namespace model
 
         
         DislocationNode(LoopNetworkType* const,const VectorDim&,const VectorDim&,const double&);
+        ~DislocationNode();
         std::shared_ptr<DislocationNode> clone() const;
         const Simplex<dim,dim>* get_includingSimplex(const VectorDim&,const Simplex<dim,dim>* const) const;
         const Simplex<dim,dim>* includingSimplex() const;
@@ -74,15 +75,21 @@ namespace model
         bool isGrainBoundaryNode() const;
         void updateGeometry();
         bool set_P(const VectorDim&);
-        void trySet_P(const VectorDim&);
+        bool trySet_P(const VectorDim&);
         const VectorDim& get_V() const;
+        // const VectorDim& get_P() const;
         MeshLocation meshLocation() const;
         void set_V(const VectorDim& vNew);
         void projectVelocity();
-        bool isRemovable(const double& Lmin,const double& relAreaThIn);
+        // size_t uniqueLoopNodes() const;
+        void addLoopNode(LoopNodeType* const);
+        void removeLoopNode(LoopNodeType* const);
+        // bool isRemovable(const double& Lmin,const double& relAreaThIn);
         VectorDim invariantDirectionOfMotion() const;
         const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
         static void initFromFile(const std::string&);
+        // bool isZeroBurgersNode() const;
+
     };
     
 }

@@ -50,6 +50,7 @@ namespace model
                                       const std::shared_ptr<LoopNodeType>& Nj)
         {
             return KeyType{loop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
+            // return KeyType{loop->sID,Ni->sID,Nj->sID};
         }
         
         static int verboseLevel;

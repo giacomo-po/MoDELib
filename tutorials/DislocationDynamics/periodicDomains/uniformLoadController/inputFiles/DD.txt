@@ -4,12 +4,12 @@
 simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
-Nsteps=1000;		# total number of simulation steps
+Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
-externalLoadControllerName=None;
+externalLoadControllerName=UniformExternalLoadController;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
@@ -55,13 +55,12 @@ outputGlidePlanes=1;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortionRate=1;
-outputDislocationLength=1;
-outputQuadraturePoints=1;
+outputPlasticDistortionRate=0;
+outputDislocationLength=0;
+outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=1;
-computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -77,7 +76,7 @@ coreSize=2.0;
 remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
-relativeAreaThreshold=0.001;
+nodeRemoveAngleDeg=60;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -105,18 +104,13 @@ parametrizationExponent=0.5;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-#
-verboseDislocationNetwork=0;
-verboseLoopNetwork=0;
-verboseDislocationLoop=0;
-verboseDislocationLoopNode=0;
-verboseDislocationLoopLink=0;
-verboseDislocationNode=0;
-verboseDislocationSegment=0;
-
-verboseJunctions=1;
+verboseJunctions=0;
 verboseRemesh=0;
+verbosePlanarDislocationNode=0;
 verboseNodeContraction=0;
+verbosePlanarDislocationSegment=5;
+verbosePlanarDislocationLoop=5;
 verboseCrossSlip=0;
+verbosePeriodicDislocationBase=5;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;

@@ -198,6 +198,12 @@ namespace model
             if (pL->source->sID==this->sID)
             {// this vertex is the source of edge *pL, so sink of *pL is the neighbor
                 const NeighborType temp(pL->sink.get(),pL);
+                // std::cout<<" Addng to neighborhood "<<pL->tag()<<std::endl;
+                // std::cout<<" Current Neighborhood "<<std::endl;
+                // for (const auto& neigh : neighbors())
+                // {
+                //     std::cout<<std::get<0>(neigh.second)->tag()<<"=>"<<std::get<1>(neigh.second)->tag()<<std::endl;
+                // }
                 const bool success=neighbors().emplace(pL->sink->sID,temp).second;
                 assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
             }

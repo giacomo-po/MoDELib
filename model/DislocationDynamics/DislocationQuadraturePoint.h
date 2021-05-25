@@ -138,9 +138,10 @@ namespace model
                                            const double& dL
                                            )
         {
+            // std::cout<<"parentSegment "<<parentSegment.tag()<<" has slipSystem Compare to nullPtr"<<(parentSegment.slipSystem()==nullptr)<<std::endl;
+
             if(parentSegment.slipSystem())
             {
-                
                 VectorDim n(parentSegment.glidePlaneNormal()); // plane normal
                 VectorDim b(parentSegment.burgers()); // Burgers vector
                 VectorDim t(rl);            // tangent vector
@@ -180,7 +181,7 @@ namespace model
                     double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
                                                                              parentSegment.network().poly.T,
                                                                              dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
-                    
+                    // std::cout<<"v is "<<v<<std::endl;
                     if(v<0.0 && v>=-FLT_EPSILON)
                     {
                         v=0.0; // kill roundoff errors for small negative velocities
@@ -203,6 +204,8 @@ namespace model
                     
                     
                     vv= v * glideForce/glideForceNorm;
+                    // std::cout<<"vv is "<<vv.transpose()<<std::endl;
+
                 }
                 return vv;
                 
@@ -285,6 +288,16 @@ namespace model
            * u in [0,1] is the spline parametrization
            */
             return quadraturePoint(k).pkForce*quadraturePoint(k).j;
+        }
+        
+        /**********************************************************************/
+        //Added by Yash
+        MatrixDim stressKernel(const int& k) const
+        { /*!@param[in] k the current quadrature point
+           *\returns d_sigma/du=d_sigma/dL*dL/du at quadrature point k, where
+           * u in [0,1] is the spline parametrization
+           */
+            return quadraturePoint(k).stress*quadraturePoint(k).j;
         }
         
         /**********************************************************************/
@@ -386,7 +399,7 @@ namespace model
                                        const double& quadPerLength,
                                        const double& isClimbStep)
         {
-            updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
+            // updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             
             
             if(this->size())
@@ -588,6 +601,16 @@ namespace model
             VectorDim F(VectorDim::Zero());
             QuadratureDynamicType::integrate(this->quadraturePoints().size(),this,F,&DislocationQuadraturePointContainerType::pkKernel);
             return F;
+        }
+
+        /**********************************************************************/
+        //Added by Yash
+        MatrixDim stressIntegral() const
+        {/*!\returns The integral of the stress over the segment.
+          */
+            MatrixDim stressInt(MatrixDim::Zero());
+            QuadratureDynamicType::integrate(this->quadraturePoints().size(),this,stressInt,&DislocationQuadraturePointContainerType::stressKernel);
+            return stressInt;
         }
         
         //        /**********************************************************************/

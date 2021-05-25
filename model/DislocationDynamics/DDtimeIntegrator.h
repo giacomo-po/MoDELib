@@ -34,104 +34,131 @@ namespace model
         static constexpr auto tag="vMax integrator";
         static double dxMax;
         static double shearWaveSpeedFraction;
+        static int timeIntegrationMethod;
+        static double dt;
         
         
         /******************************************************************/
         static void initFromFile(const std::string& fileName)
         {
-            
             dxMax=TextFileParser(fileName).readScalar<double>("dxMax",true);
+            timeIntegrationMethod=TextFileParser(fileName).readScalar<int>("timeIntegrationMethod",true);
+            dt=TextFileParser(fileName).readScalar<double>("timeStep",true);
             assert(dxMax>0.0);
-            
+            if (timeIntegrationMethod==0)
+            {
+                assert(dt>0.0 && "Time step should be greater than zero for constant time stepping.");
+            }
         }
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
         static double getGlideTimeIncrement(const DislocationNetworkType& DN)
         {
-            //! Compute and store DislocaitonNode velocities
-//            DN.assembleAndSolve(runID,straightSegmentsDeq);
-            
-            /*! Computes the time step size \f$dt\f$ for the current simulation step,
-             *  based on maximum nodal velocity \f$v_{max}\f$.
-             *
-             *  The time step is calculated according to:
-             *	\f[
-             *  dt=
-             *  \begin{cases}
-             *		\frac{dx}{v_{max}} & v_{max} > fc_s\\
-             *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
-             *  \end{cases}
-             *	\f]
-             *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
-             */
-            
-            //			double vmax(0.0);
-//            int vMaxID=-1;
-            double vmax=0.0;
-//            int nVmean=0;
-//            double vmean=0.0;
-//            double dt_mean=0.0;
-            
-//            std::cout<<"computing vMax for nodes: ";
-            for (const auto& nodeIter : DN.networkNodes())
+            double dt_temp(0.0);
+            switch (timeIntegrationMethod)
             {
-                if(//   !nodeIter.second->isBoundaryNode()
-                   //&& !nodeIter.second->isConnectedToBoundaryNodes()
-                   //&&
-                   nodeIter.second.lock()->glidePlanes().size()<3
-//                   && !nodeIter.second->isOscillating()
-                   )
+                case 0: //Constant time step
                 {
-//                    std::cout<<nodeIter.second->sID<<" ";
-                    const double vNorm(nodeIter.second.lock()->get_V().norm());
-//                    vmean +=vNorm;
-//                    nVmean++;
-                    if (vNorm>vmax)
+                    dt_temp = dt;
+                    break;
+                }
+                    
+                case 1: //Adaptive time stepper
+                {
+                    //! Compute and store DislocaitonNode velocities
+                    //            DN.assembleAndSolve(runID,straightSegmentsDeq);
+
+                    /*! Computes the time step size \f$dt\f$ for the current simulation step,
+                *  based on maximum nodal velocity \f$v_{max}\f$.
+                *
+                *  The time step is calculated according to:
+                *	\f[
+                *  dt=
+                *  \begin{cases}
+                *		\frac{dx}{v_{max}} & v_{max} > fc_s\\
+                *      \frac{dx}{fc_s} & v_{max} \le fc_s\\
+                *  \end{cases}
+                *	\f]
+                *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
+                */
+
+                    //			double vmax(0.0);
+                    //            int vMaxID=-1;
+                    double vmax = 0.0;
+                    //            int nVmean=0;
+                    //            double vmean=0.0;
+                    //            double dt_mean=0.0;
+
+                    //            std::cout<<"computing vMax for nodes: ";
+                    for (const auto &nodeIter : DN.networkNodes())
                     {
-                        vmax=vNorm;
-//                        vMaxID=nodeIter.first;
+                        if ( //   !nodeIter.second->isBoundaryNode()
+                            //&& !nodeIter.second->isConnectedToBoundaryNodes()
+                            //&&
+                            nodeIter.second.lock()->glidePlanes().size() < 3
+                            //                   && !nodeIter.second->isOscillating()
+                        )
+                        {
+                            //                    std::cout<<nodeIter.second->sID<<" ";
+                            const double vNorm(nodeIter.second.lock()->get_V().norm());
+                            //                    vmean +=vNorm;
+                            //                    nVmean++;
+                            if (vNorm > vmax)
+                            {
+                                vmax = vNorm;
+                                //                        vMaxID=nodeIter.first;
+                            }
+                        }
                     }
+                    //            std::cout<<std::endl;
+                    //            vmean/=nVmean;
+
+                    //            double dt(dxMax/vmax);
+                    //            if(dt<dtMin)
+                    //            {
+                    //                return dtMin;
+                    //            }
+                    //            else if(dt>dtMax)
+                    //            {
+                    //                return dtMax;
+                    //            }
+                    //            else
+                    //            {
+                    //                return dt;
+                    //            }
+
+                    dt_temp = vmax > DN.poly.cs * shearWaveSpeedFraction ? dxMax / vmax : dxMax / (DN.poly.cs * shearWaveSpeedFraction);
+
+                    //            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
+                    //            {
+                    //                DN.set_dt(dxMax/vmax,vmax);
+                    //            }
+                    //            else
+                    //            {
+                    //                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
+                    //            }
+                    //
+                    //            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
+                    //            {
+                    //                dt_mean=dxMax/vmean;
+                    //            }
+                    //            else
+                    //            {
+                    //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
+                    //            }
+
+                    //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+                    break;
+                }
+
+                default:
+                {
+                    assert(0 && "Time stepper not implemented");
                 }
             }
-//            std::cout<<std::endl;
-//            vmean/=nVmean;
-            
-//            double dt(dxMax/vmax);
-//            if(dt<dtMin)
-//            {
-//                return dtMin;
-//            }
-//            else if(dt>dtMax)
-//            {
-//                return dtMax;
-//            }
-//            else
-//            {
-//                return dt;
-//            }
-            
-            return vmax > DN.poly.cs*shearWaveSpeedFraction? dxMax/vmax : dxMax/(DN.poly.cs*shearWaveSpeedFraction);
-            
-//            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
-//            {
-//                DN.set_dt(dxMax/vmax,vmax);
-//            }
-//            else
-//            {
-//                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
-//            }
-//            
-//            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
-//            {
-//                dt_mean=dxMax/vmean;
-//            }
-//            else
-//            {
-//                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
-//            }
-            
-//            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+            return dt_temp;
+
         }
         
         /**********************************************************************/
@@ -230,6 +257,8 @@ namespace model
 #ifndef _MODEL_GREATWHITE_
     double DDtimeIntegrator<0>::dxMax=10.0;
     double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
+    int DDtimeIntegrator<0>::timeIntegrationMethod=0;
+    double DDtimeIntegrator<0>::dt=1000.0;
 #endif
 
     //template <>

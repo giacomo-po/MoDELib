@@ -59,12 +59,135 @@ namespace model
         size_t k=0;
         for (auto& networkNode : DN.networkNodes())
         {
-//            networkNode->second.lock()->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // double cast to remove some numerical noise
+        //    networkNode.second.lock()->set_V(X.segment(NdofXnode*k,NdofXnode).template cast<float>().template cast<double>()); // double cast to remove some numerical noise
+            // std::cout<<"setting v for "<<networkNode.second.lock()->sID<<" "<<(X.segment(NdofXnode*k,NdofXnode)).transpose()<<std::endl;
             networkNode.second.lock()->set_V(X.segment(NdofXnode*k,NdofXnode)); // double cast to remove some numerical noise
             ++k;
         }
     }
 
+//     template <typename DislocationNetworkType>
+//     size_t DislocationGlideSolver<DislocationNetworkType>::assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType &zT) const
+//     {
+//         // std::map<const NetworkNodeType *const, std::set<std::tuple<const NetworkNodeType *const,const double, const NetworkNodeType *const,const double>>> networkNodeContainer;
+//         std::map<const NetworkNodeType *const, std::map<std::pair<const NetworkNodeType *const, const NetworkNodeType *const>, std::pair<const double, const double>>> networkNodeContainer;
+
+//         size_t constrainedI = 0;
+//         size_t unconstrainedNodes = 0;
+//         std::map<size_t, size_t> correctedJPosition;
+
+//         for (const auto &netNode : DN.networkNodes())
+//         {
+//             std::map<const LoopType *const, std::pair<std::pair<const LoopNodeType *const, const double>, std::pair<const LoopNodeType *const, const double>>> loopConnectivity;
+//             if (netNode.second.lock()->isBoundaryNode())
+//             {
+//                 for (const auto &loopNode : netNode.second.lock()->loopNodes())
+//                 {
+//                     if (loopNode->periodicPrev() && loopNode->periodicNext())
+//                     {
+//                         const auto periodicPrev(loopNode->periodicPrev());
+//                         const auto periodicNext(loopNode->periodicNext());
+//                         const double lij = (loopNode->get_P() - periodicPrev->get_P()).norm();
+//                         const double ljk = (loopNode->get_P() - periodicNext->get_P()).norm();
+
+//                         loopConnectivity.emplace(loopNode->loop().get(), std::make_pair(std::make_pair(periodicPrev, lij),
+//                                                                                         std::make_pair(periodicNext, ljk)));
+//                     }
+//                 }
+                
+//                 // std::cout<<"Current network node is "<<netNode.second.lock()->sID<<" [ "<<netNode.second.lock()->isBoundaryNode()<<" ]"<<std::endl;
+//                 // std::cout<<"Loop Connectivity size "<<loopConnectivity.size()<<std::endl;
+//                 assert((loopConnectivity.size() == 0 ||loopConnectivity.size() == 1|| loopConnectivity.size() == netNode.second.lock()->uniqueLoopNodes()) && "Junction Node at Boundary Not Defined Properly"); //Discuss this with Dr. Po
+// // loopConnectivity.size() == 1 for the case of self annihilation
+//                 if (loopConnectivity.size() == 0)
+//                 {
+//                     const size_t ntempsnID(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
+//                     correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
+//                 }
+//                 else
+//                 {
+//                     constrainedI++;
+//                     std::map<std::pair<const NetworkNodeType *const, const NetworkNodeType *const>, std::pair<const double, const double>> innerMap;
+
+//                     for (const auto &loopConn : loopConnectivity)
+//                     {
+//                         const auto nodeI(std::min(loopConn.second.first.first->networkNode->sID, loopConn.second.second.first->networkNode->sID) == loopConn.second.first.first->networkNode->sID ? std::make_pair(loopConn.second.first.first->networkNode.get(), loopConn.second.first.second) : std::make_pair(loopConn.second.second.first->networkNode.get(), loopConn.second.second.second));
+
+//                         const auto nodeJ(std::max(loopConn.second.first.first->networkNode->sID, loopConn.second.second.first->networkNode->sID) == loopConn.second.first.first->networkNode->sID ? std::make_pair(loopConn.second.first.first->networkNode.get(), loopConn.second.first.second) : std::make_pair(loopConn.second.second.first->networkNode.get(), loopConn.second.second.second));
+
+//                         assert(nodeI.first != nodeJ.first && "I and J network nodes cannot be same");
+//                         innerMap.emplace(std::make_pair(nodeI.first, nodeJ.first), std::make_pair(nodeI.second, nodeJ.second));
+//                     }
+//                     networkNodeContainer.emplace(netNode.second.lock().get(), innerMap);
+//                 }
+//             }
+//             else
+//             {
+//                 const size_t ntempsnID(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
+//                 correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
+//             }
+//         }
+
+//         for (const auto &netNode : DN.networkNodes())
+//         {
+//             const size_t ntempj(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
+//             if (netNode.second.lock()->isBoundaryNode())
+//             {
+//                 const auto netNodeIter(networkNodeContainer.find(netNode.second.lock().get()));
+//                 if (netNodeIter != networkNodeContainer.end())
+//                 {
+//                     //Constraints exist in the network node container
+//                     for (const auto &innerMapIter : netNodeIter->second)
+//                     {
+//                         const double lij(innerMapIter.second.first );
+//                         const double ljk(innerMapIter.second.second);
+//                         const double lijk(lij + ljk);
+//                         size_t ntempi(innerMapIter.first.first->networkID());  //Global position in the constraint matrix corresponding to the original link (i)
+//                         size_t ntempk(innerMapIter.first.second->networkID()); //Global position in the constraint matrix corresponding to the neighbor link (k)
+
+//                         assert(correctedJPosition.find(ntempi) != correctedJPosition.end());
+//                         assert(correctedJPosition.find(ntempk) != correctedJPosition.end());
+
+//                         const size_t correctedI(correctedJPosition.find(ntempi)->second);
+//                         const size_t correctedK(correctedJPosition.find(ntempk)->second);
+
+//                         for (size_t d = 0; d < dim; ++d)
+//                         {
+//                             // zT.emplace_back(dim*ntempj+d,dim*ntempi+d,ljk/lijk);
+
+//                             zT.emplace_back(dim * ntempj + d, dim * correctedI + d, ljk / lijk);
+//                             zT.emplace_back(dim * ntempj + d, dim * correctedK + d, lij / lijk);
+//                         }
+//                     }
+//                 }
+//                 else
+//                 {
+//                     assert(correctedJPosition.find(netNode.second.lock()->networkID()) != correctedJPosition.end());
+
+//                     const size_t correctedJ(correctedJPosition.find(netNode.second.lock()->networkID())->second);
+//                     for (size_t d = 0; d < dim; ++d)
+//                     {
+//                         zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+//                     }
+//                     unconstrainedNodes++;
+//                 }
+//             }
+//             else
+//             {
+//                 //Constraints do not exist in the network node container
+//                 assert(correctedJPosition.find(netNode.second.lock()->networkID()) != correctedJPosition.end());
+
+//                 const size_t correctedJ(correctedJPosition.find(netNode.second.lock()->networkID())->second);
+//                 for (size_t d = 0; d < dim; ++d)
+//                 {
+//                     zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+//                 }
+//                 unconstrainedNodes++;
+//             }
+//         }
+//         return unconstrainedNodes;
+//     }
+//Improved Implementation for the constrained nodes
     template <typename DislocationNetworkType>
     size_t DislocationGlideSolver<DislocationNetworkType>::assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType &zT) const
     {
@@ -77,8 +200,9 @@ namespace model
 
         for (const auto &netNode : DN.networkNodes())
         {
-            std::map<const LoopType *const, std::pair<std::pair<const LoopNodeType *const, const double>, std::pair<const LoopNodeType *const, const double>>> loopConnectivity;
-            if (netNode.second.lock()->isBoundaryNode())
+            std::set<std::pair<std::pair<const LoopNodeType *const, const double>, std::pair<const LoopNodeType *const, const double>>> loopConnectivity;
+
+            if (netNode.second.lock()->isBoundaryNode() )
             {
                 for (const auto &loopNode : netNode.second.lock()->loopNodes())
                 {
@@ -89,15 +213,18 @@ namespace model
                         const double lij = (loopNode->get_P() - periodicPrev->get_P()).norm();
                         const double ljk = (loopNode->get_P() - periodicNext->get_P()).norm();
 
-                        loopConnectivity.emplace(loopNode->loop().get(), std::make_pair(std::make_pair(periodicPrev, lij),
-                                                                                        std::make_pair(periodicNext, ljk)));
+                        loopConnectivity.emplace(std::make_pair(std::make_pair(periodicPrev, lij),
+                                                               std::make_pair(periodicNext, ljk)));
                     }
                 }
                 
-                assert(loopConnectivity.size() == 0 || loopConnectivity.size() == netNode.second.lock()->loopNodes().size() && "Junction Node at Boundary Not Defined Properly"); //Discuss this with Dr. Po
-
+                // std::cout<<"Current network node is "<<netNode.second.lock()->sID<<" [ "<<netNode.second.lock()->isBoundaryNode()<<" ]"<<std::endl;
+                // std::cout<<"Loop Connectivity size "<<loopConnectivity.size()<<std::endl;
+                assert((loopConnectivity.size() == 0 ||loopConnectivity.size() == 1|| loopConnectivity.size() == netNode.second.lock()->loopNodes().size()) && "Junction Node at Boundary Not Defined Properly"); //Discuss this with Dr. Po
+// loopConnectivity.size() == 1 for the case of self annihilation
                 if (loopConnectivity.size() == 0)
                 {
+                    // std::cout<<"Coming in for "<<netNode.second.lock()->tag()<<std::endl;
                     const size_t ntempsnID(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
                     correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
                 }
@@ -108,13 +235,31 @@ namespace model
 
                     for (const auto &loopConn : loopConnectivity)
                     {
-                        const auto nodeI(std::min(loopConn.second.first.first->networkNode->sID, loopConn.second.second.first->networkNode->sID) == loopConn.second.first.first->networkNode->sID ? std::make_pair(loopConn.second.first.first->networkNode.get(), loopConn.second.first.second) : std::make_pair(loopConn.second.second.first->networkNode.get(), loopConn.second.second.second));
+                        // std::cout<<"Temp network IDs"<< loopConn.first.first->networkNode->sID <<"=>"<<loopConn.second.first->networkNode->sID<<std::endl;
 
-                        const auto nodeJ(std::max(loopConn.second.first.first->networkNode->sID, loopConn.second.second.first->networkNode->sID) == loopConn.second.first.first->networkNode->sID ? std::make_pair(loopConn.second.first.first->networkNode.get(), loopConn.second.first.second) : std::make_pair(loopConn.second.second.first->networkNode.get(), loopConn.second.second.second));
+                        const auto nodeI(std::min(loopConn.first.first->networkNode->sID, loopConn.second.first->networkNode->sID) == loopConn.first.first->networkNode->sID ? 
+                        std::make_pair(loopConn.first.first->networkNode.get(), loopConn.first.second) : std::make_pair(loopConn.second.first->networkNode.get(), loopConn.second.second));
 
-                        assert(nodeI.first != nodeJ.first && "I and J network nodes cannot be same");
+                        const auto nodeJ(std::max(loopConn.first.first->networkNode->sID, loopConn.second.first->networkNode->sID) == loopConn.first.first->networkNode->sID ? 
+                        std::make_pair(loopConn.first.first->networkNode.get(), loopConn.first.second) : std::make_pair(loopConn.second.first->networkNode.get(), loopConn.second.second));
+
+                        // if (nodeI.first == nodeJ.first)
+                        // {
+                        //     std::cout<<"I and J network Node" <<nodeI.first->sID<<"--->"<<nodeJ.first->sID<<std::endl;
+                        // }
+                        // assert(nodeI.first != nodeJ.first && "I and J network nodes cannot be same"); //They can be same (PeriodicPrev and PeriodicNext can point to same node)
+                        
                         innerMap.emplace(std::make_pair(nodeI.first, nodeJ.first), std::make_pair(nodeI.second, nodeJ.second));
                     }
+                    if (innerMap.size()!=1)
+                    {
+                        std::cout<<" For node "<<netNode.second.lock()->tag()<<" inner map size is "<<innerMap.size()<<std::endl;
+                        for (const auto& inMap : innerMap)
+                        {
+                            std::cout<<inMap.first.first->tag()<<"=>"<<inMap.first.second->tag()<<std::endl;
+                        }
+                    }
+                    assert(innerMap.size()==1 && "Unique constraint cannot be assigned");
                     networkNodeContainer.emplace(netNode.second.lock().get(), innerMap);
                 }
             }
@@ -125,10 +270,11 @@ namespace model
             }
         }
 
+
         for (const auto &netNode : DN.networkNodes())
         {
             const size_t ntempj(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
-            if (netNode.second.lock()->isBoundaryNode())
+            if (netNode.second.lock()->isBoundaryNode()  )
             {
                 const auto netNodeIter(networkNodeContainer.find(netNode.second.lock().get()));
                 if (netNodeIter != networkNodeContainer.end())
@@ -164,7 +310,7 @@ namespace model
                     const size_t correctedJ(correctedJPosition.find(netNode.second.lock()->networkID())->second);
                     for (size_t d = 0; d < dim; ++d)
                     {
-                        zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+                        zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1.0);
                     }
                     unconstrainedNodes++;
                 }
@@ -177,11 +323,12 @@ namespace model
                 const size_t correctedJ(correctedJPosition.find(netNode.second.lock()->networkID())->second);
                 for (size_t d = 0; d < dim; ++d)
                 {
-                    zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1);
+                    zT.emplace_back(dim * ntempj + d, dim * correctedJ + d, 1.0);
                 }
                 unconstrainedNodes++;
             }
         }
+        assert((constrainedI-(DN.networkNodes().size()-unconstrainedNodes))==0);
         return unconstrainedNodes;
     }
 
@@ -201,6 +348,7 @@ namespace model
             if (DN.simulationParameters.isPeriodicSimulation())
             {
                 TripletContainerType zT;
+
                size_t nUnconstrained = assembleConstraintsforPeriodicSimulationsNULL(zT);
                 // size_t nUnconstrained=DN.networkNodes().size();
                 SparseMatrixType K(Ndof, Ndof);
@@ -253,6 +401,7 @@ namespace model
                     }
                 }
                 storeNodeSolution((Z * x).segment(0, Ndof));
+
             }
             else
             {

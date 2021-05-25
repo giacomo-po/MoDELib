@@ -135,9 +135,14 @@ namespace model
         /* init */,sink(nI->sID<nJ->sID? nJ : nI)
         {
             VerboseNetworkLink(1,"Constructing NetworkLink "<<tag()<<std::endl);
-            
-                        source->addToNeighborhood(this->p_derived());
-                        sink  ->addToNeighborhood(this->p_derived());
+
+            if (source==sink)
+            {
+                std::cout<<" Source and Sinks are equal for the node "<<source->sID<<std::endl;
+            }
+            assert(source!=sink && "Source and Sink cannot be same for a network link");
+            source->addToNeighborhood(this->p_derived());
+            sink->addToNeighborhood(this->p_derived());
 
             //            makeTopologyChange();
         }
@@ -147,9 +152,11 @@ namespace model
         {
             VerboseNetworkLink(1,"Destroying NetworkLink "<<tag()<<std::endl);
 
-            
-            source->removeFromNeighborhood(this->p_derived());
-            sink->removeFromNeighborhood(this->p_derived());
+            if (source!=sink)
+            {
+                source->removeFromNeighborhood(this->p_derived());
+                sink->removeFromNeighborhood(this->p_derived());
+            }
             
 //            this->psn->remove(this->p_derived());
             

@@ -24,7 +24,9 @@ namespace model
     /* init */,grain(glidePlane->grain)
     /* init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
     /* init */,nA(VectorDim::Zero())
+    /* init */,nAR(VectorDim::Zero())
     /* init */,_slippedArea(0.0)
+    /* init */,_slippedAreaRate(0.0)
     /* init */,_rightHandedUnitNormal(VectorDim::Zero())
     /* init */,_rightHandedNormal(grain)
     /* init */,_slipSystem(nullptr)
@@ -32,6 +34,35 @@ namespace model
     {
         VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->tag()<<std::endl;);
         assert(this->flow().dot(glidePlane->n)==0);
+    }
+
+        /**********************************************************************/
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    DislocationLoop<dim,corder,InterpolationType>::DislocationLoop(LoopNetworkType* const net,
+                          const VectorDim& B,
+                          const int& grainID,
+                          const int& _loopType) :
+    /* base init */ Loop<DislocationLoop>(net,net->poly.grain(grainID).rationalLatticeDirection(B))
+    /*      init */,glidePlane(nullptr)
+    /*      init */,periodicGlidePlane(nullptr)
+    /*      init */,grain(net->poly.grain(grainID))
+    /*      init */,loopType(_loopType)
+    /*      init */,nA(VectorDim::Zero())
+    /*      init */,nAR(VectorDim::Zero())
+    /*      init */,_slippedArea(0.0)
+    /*      init */,_slippedAreaRate(0.0)
+    /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+    /*      init */,_rightHandedNormal(grain)
+    /*      init */,_slipSystem(nullptr)
+    {
+        VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->sID<<" without plane."<<std::endl;);
+    }
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    DislocationLoop<dim,corder,InterpolationType>::~DislocationLoop()
+    {
+        VerboseDislocationLoop(1,"Destroying DislocationLoop "<<this->sID<<std::endl;);
+
     }
     
     template <int dim, short unsigned int corder, typename InterpolationType>
@@ -50,6 +81,12 @@ namespace model
     const double& DislocationLoop<dim,corder,InterpolationType>::slippedArea() const
     {
         return _slippedArea;
+    }
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    const double& DislocationLoop<dim,corder,InterpolationType>::slippedAreaRate() const
+    {
+        return _slippedAreaRate;
     }
     
     template <int dim, short unsigned int corder, typename InterpolationType>
@@ -225,6 +262,14 @@ namespace model
     {
         return -burgers()*nA.transpose()/this->network().mesh.volume();
     }
+
+    //Added by Yash
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    typename DislocationLoop<dim,corder,InterpolationType>::MatrixDim DislocationLoop<dim,corder,InterpolationType>::plasticDistortionRate() const
+    {
+        return -burgers()*nAR.transpose()/this->network().mesh.volume();
+    }
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     typename DislocationLoop<dim,corder,InterpolationType>::VectorDim DislocationLoop<dim,corder,InterpolationType>::burgers() const
@@ -286,6 +331,7 @@ namespace model
     {
         VerboseDislocationLoop(2,"DislocationLoop "<<this->sID<<" updateGeometry"<<std::endl;);
         nA.setZero();
+        nAR.setZero();
         if(glidePlane)
         {// remove numerical errors by projecting along glidePlane->unitNormal
             if(this->loopLinks().size())
@@ -293,10 +339,14 @@ namespace model
                 const VectorDim P0((*this->loopLinks().begin())->source->get_P());
                 for(const auto& loopLink : this->loopLinks())
                 {
+                    const VectorDim linkChord(loopLink->sink->get_P()-loopLink->source->get_P());
                     nA+= 0.5*(loopLink->source->get_P()-P0).cross(loopLink->sink->get_P()-loopLink->source->get_P());
+                    // nAR+=0.5*V0.cross(linkChord)+0.25*(loopLink->sink->networkNode->get_V()-loopLink->source->networkNode->get_V()).cross(linkChord);
+                    nAR+=0.5*(loopLink->source->networkNode->get_V()+loopLink->sink->networkNode->get_V()).cross(linkChord);
                 }
             }
             _slippedArea=nA.norm();
+            _slippedAreaRate=nA.dot(nAR)/_slippedArea;
             _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
             const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
             _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
@@ -324,6 +374,7 @@ namespace model
                     nA.setZero();
                 }
                 _slippedArea=nA.norm();
+                _slippedAreaRate=0.0; //Slipped area rate will be zero because it is sessile (Discuss this with Dr. Po)
                 _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
                 _rightHandedNormal= grain.reciprocalLatticeDirection(_rightHandedUnitNormal);
                 VerboseDislocationLoop(3,"non-glide _rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);

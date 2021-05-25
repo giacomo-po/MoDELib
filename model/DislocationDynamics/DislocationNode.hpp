@@ -35,6 +35,13 @@ namespace model
     /* init */,virtualNode(nullptr)
     /* init */,masterNode(nullptr)
     {
+        VerboseDislocationNode(1, "  Creating Network Node " << this->tag() <<" @ "<<this->get_P().transpose() << std::endl;);
+    }
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    DislocationNode<dim,corder,InterpolationType>::~DislocationNode()
+    {
+        VerboseDislocationNode(1, "  Destroying Network Node " << this->tag() << std::endl;);
 
     }
     
@@ -88,6 +95,39 @@ namespace model
             }
         }
         return temp.second;
+    }
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    void DislocationNode<dim,corder,InterpolationType>::addLoopNode(LoopNodeType* const pN)
+    {
+        NetworkNode<DislocationNode>::addLoopNode(pN);
+
+        //Check if the node is connected
+        if (pN->next.first && pN->prev.first)
+        {
+            if (pN->periodicPlanePatch())
+            {
+                this->addGlidePlane(pN->periodicPlanePatch()->glidePlane.get());
+            }
+        }
+
+    }
+
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    void DislocationNode<dim,corder,InterpolationType>::removeLoopNode(LoopNodeType* const pN)
+    {
+        NetworkNode<DislocationNode>::removeLoopNode(pN);
+        this->glidePlanes().clear();
+        for (const auto &loopN : this->loopNodes())
+        {
+            if (loopN->next.first && loopN->prev.first)
+            {
+                if (loopN->periodicPlanePatch())
+                {
+                    this->addGlidePlane(loopN->periodicPlanePatch()->glidePlane.get());
+                }
+            }
+        }
     }
     
     
@@ -143,9 +183,13 @@ namespace model
                     temp.push_back(face->asPlane().unitNormal);
                 }
             }
+
+            // std::cout<<this->sID<<" Temp size for gramSchmidt before"<<temp.size()<<std::endl;
             
             GramSchmidt::orthoNormalize(temp);
             
+            // std::cout<<this->sID<<" Temp size for gramSchmidt after"<<temp.size()<<std::endl;
+
             for(const auto& vec : temp)
             {
                 velocity-=velocity.dot(vec)*vec;
@@ -189,6 +233,16 @@ namespace model
             }
             velocity*=velocityReductionCoeff;
         }
+        // std::cout<<"Time integration methdo is "<<this->network().simulationParameters.timeIntegrationMethod<<std::endl;
+        // if (this->network().simulationParameters.timeIntegrationMethod==0)
+        // {
+        //     const double v_crit(0.1); //TODO : Read from the text file
+        //     if (velocity.norm()>v_crit)
+        //     {
+        //         const double alpha(0.1/velocity.norm());
+        //         velocity*=alpha;
+        //     }
+        // }
     }
     
 
@@ -212,29 +266,41 @@ namespace model
     }
 
     template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::trySet_P(const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& newP)
+    bool DislocationNode<dim,corder,InterpolationType>::trySet_P(const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& newP)
     {
-        if((this->get_P()-newP).norm()>FLT_EPSILON)
+        VerboseDislocationNode(1, " Try  Setting P for Network Node " << this->tag() << std::endl;);
+        const VectorDim snappedPosition(this->snapToGlidePlanesinPeriodic(newP));
+        if((this->get_P()-snappedPosition).norm()>FLT_EPSILON)
         {
-                        for(auto& loopNode : this->loopNodes())
-                        {
-                            loopNode->set_P(loopNode->periodicPlanePatch()? newP-loopNode->periodicPlanePatch()->shift : newP);
-                        }
+            for (auto &loopNode : this->loopNodes())
+            {
+                loopNode->set_P(loopNode->periodicPlanePatch() ? snappedPosition - loopNode->periodicPlanePatch()->shift : snappedPosition);
+            }
         }
+
+        return true;
     }
     
+    // template <int dim, short unsigned int corder, typename InterpolationType>
     template <int dim, short unsigned int corder, typename InterpolationType>
     bool DislocationNode<dim,corder,InterpolationType>::set_P(const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& newP)
     {
-        if((this->get_P()-newP).norm()>FLT_EPSILON)
+        // std::cout<<" Current position "<<this->get_P().transpose()<<std::endl;
+        // std::cout<<" New position "<<newP.transpose()<<std::endl;
+        VerboseDislocationNode(1, "  Setting P for Network Node " << this->tag() << std::endl;);
+
+        if((SplineNodeType::get_P()-newP).norm()>FLT_EPSILON)   //Check with the base classs
         {
             SplineNodeType::set_P(newP);
             this->updateConfinement(this->get_P());
             p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
+            
         }
         
         return (this->get_P()-newP).norm()<FLT_EPSILON;
     }
+
+
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& DislocationNode<dim,corder,InterpolationType>::get_V() const
@@ -242,6 +308,52 @@ namespace model
       */
         return velocity;
     }
+
+    // /**********************************************************************/
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // bool DislocationNode<dim,corder,InterpolationType>::isZeroBurgersNode() const
+    // {
+    //     VerboseDislocationNode(4,"DislocationNode "<<this->tag()<<" isZeroBurgersNode "<<std::flush;);
+    //     bool temp = true;
+    //     for (const auto &neighborIter : this->neighbors())
+    //     {
+    //         temp *= std::get<1>(neighborIter.second)->hasZeroBurgers();
+    //         if (!temp)
+    //         {
+    //             break;
+    //         }
+    //     }
+        
+    //     VerboseDislocationNode(4,temp<<std::endl;);
+
+    //     return temp;
+    // }
+
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& DislocationNode<dim,corder,InterpolationType>::get_P() const
+    // {/*! The nodal velocity vector
+    //   */
+    //     VerboseDislocationNode(2, "  Getting P for Network Node " << this->tag() << std::endl;);
+
+    //     const VectorDim netNodePosition(SplineNodeType::get_P());
+    //     // check the consistency between the loop Nodes and networkNodes
+    //     for (const auto& lNode : this->loopNodes())
+    //     {
+    //         if (!(this->network().simulationParameters.isPeriodicSimulation() && lNode->periodicPlanePatch()) && lNode->get_P().norm()>FLT_EPSILON)
+    //         {
+    //             const VectorDim patchShift(lNode->periodicPlanePatch() ? lNode->periodicPlanePatch()->shift : VectorDim::Zero());
+    //             const VectorDim lNodePos(lNode->get_P() + patchShift);
+    //             if ((lNodePos - netNodePosition).squaredNorm() > FLT_EPSILON)
+    //             {
+    //                 std::cout << " Mistmatch for networknode " << this->tag() << " at loop Node " << lNode->tag() << std::endl;
+    //                 std::cout << "netNodePosition => lNodePos " << netNodePosition.transpose() << "=>" << lNodePos.transpose() << std::endl;
+    //                 assert(false && " Position mismatch ");
+    //             }
+    //         }
+            
+    //     }
+    //     return (SplineNodeType::get_P());
+    // }
 
     template <int dim, short unsigned int corder, typename InterpolationType>
     const double& DislocationNode<dim,corder,InterpolationType>::velocityReduction() const
@@ -378,10 +490,41 @@ namespace model
 //        return false;
     }
     
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // bool DislocationNode<dim,corder,InterpolationType>::isBoundaryNode() const
+    // {
+    //     return this->isOnExternalBoundary();
+    // }
+
     template <int dim, short unsigned int corder, typename InterpolationType>
     bool DislocationNode<dim,corder,InterpolationType>::isBoundaryNode() const
     {
-        return this->isOnExternalBoundary();
+        if (this->network().simulationParameters.isPeriodicSimulation())
+        {
+            bool temp(this->loopNodes().size()>0?((*this->loopNodes().begin())->periodicPlaneEdge!=nullptr): false);
+            for (const auto& LN : this->loopNodes())
+            {
+                if (temp)
+                {
+                    if (LN->periodicPlaneEdge == nullptr)
+                    {
+                        assert(false && "Inconsistent definition of loopNodes");
+                    }
+                }
+                else
+                {
+                    if (LN->periodicPlaneEdge != nullptr)
+                    {
+                        assert(false && "Inconsistent definition of loopNodes");
+                    }
+                }
+            }
+            return temp;
+        }
+        else
+        {
+            return this->isOnExternalBoundary();
+        }
     }
     
     template <int dim, short unsigned int corder, typename InterpolationType>
@@ -389,24 +532,38 @@ namespace model
     {
         return this->isOnInternalBoundary();
     }
+// template <int dim, short unsigned int corder, typename InterpolationType>
+//     size_t DislocationNode<dim,corder,InterpolationType>::uniqueLoopNodes() const
+//     {
+//         std::map<const DislocationNode<dim,corder,InterpolationType>::LoopType*, const DislocationNode<dim,corder,InterpolationType>::LoopNodeType *> tempMap;
+
+//         for (const auto& loopNode : this->loopNodes())
+//         {
+//             tempMap.emplace(loopNode->loop().get(),loopNode);
+//         }
+
+//         return tempMap.size();
+
+//     }
+
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::isRemovable(const double& Lmin,const double& relAreaThIn)
-    {
-        const double relAreaTh(this->loopNodes().size()>1? FLT_EPSILON : relAreaThIn);
-        VerboseDislocationNode(2,"  Trying to remove DislocationNode "<<this->tag()<< ", relAreaThIn= "<<relAreaThIn<<std::endl;);
-        VerboseDislocationNode(2,"  Trying to remove DislocationNode "<<this->tag()<< ", relAreaTh= "<<relAreaTh<<std::endl;);
-        for(const auto& loopNode : this->loopNodes())
-        {
-            if(!loopNode->isRemovable(Lmin,relAreaTh))
-            {
-                VerboseDislocationNode(2,"  DislocationNode "<<this->tag()<< " NOT removable "<<std::endl;);
-                return false;
-            }
-        }
-        VerboseDislocationNode(2,"  DislocationNode "<<this->tag()<< " removable "<<std::endl;);
-        return true;
-    }
+    // template <int dim, short unsigned int corder, typename InterpolationType>
+    // bool DislocationNode<dim,corder,InterpolationType>::isRemovable(const double& Lmin,const double& relAreaThIn)
+    // {
+    //     const double relAreaTh(this->loopNodes().size()>1? FLT_EPSILON : relAreaThIn);
+    //     VerboseDislocationNode(2,"  Trying to remove DislocationNode "<<this->tag()<< ", relAreaThIn= "<<relAreaThIn<<std::endl;);
+    //     VerboseDislocationNode(2,"  Trying to remove DislocationNode "<<this->tag()<< ", relAreaTh= "<<relAreaTh<<std::endl;);
+    //     for(const auto& loopNode : this->loopNodes())
+    //     {
+    //         if(!loopNode->isRemovable(Lmin,relAreaTh))
+    //         {
+    //             VerboseDislocationNode(2,"  DislocationNode "<<this->tag()<< " NOT removable "<<std::endl;);
+    //             return false;
+    //         }
+    //     }
+    //     VerboseDislocationNode(2,"  DislocationNode "<<this->tag()<< " removable "<<std::endl;);
+    //     return true;
+    // }
 
     
     

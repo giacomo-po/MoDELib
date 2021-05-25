@@ -275,6 +275,11 @@ namespace model
 
             if(DN)
             {
+                // for (const auto& netNode : DN->networkNodes())
+                // {
+                //     std::cout<<std::scientific<<std::setprecision(7)<<"networkNode sID"<<netNode.second.lock()->sID<<"-->"<<netNode.second.lock()->get_P().transpose()<<
+                //     "-->"<<netNode.second.lock()->get_V().transpose()<<"-->"<<netNode.second.lock()->velocityReduction()<<std::endl;
+                // }
                 DN->updateGeometry();
                 updateLoadControllers(simulationParameters.runID, false);
 
@@ -282,13 +287,19 @@ namespace model
                 simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 // output
                 DN->io().output(simulationParameters.runID);
-                
+
+                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
                 // move
 //                DN->dummyMove(simulationParameters.runID);
                 DN->moveGlide(simulationParameters.dt);
+                crossSlip.execute();
+                // DN->io().output(simulationParameters.runID);
+
 
                 // manage discrete topological events
                 DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
+                // DN->io().output(simulationParameters.runID);
+
             }
             simulationParameters.totalTime+=simulationParameters.dt;
             ++simulationParameters.runID;

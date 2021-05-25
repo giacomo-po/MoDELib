@@ -229,6 +229,12 @@ namespace model
         }
         
         /**********************************************************************/
+        // void updateConfinedGeometry()
+        // {
+        //     //This will change the confinement for the loop node in the derived layer
+        //     //Added by Yash
+        // }
+        /**********************************************************************/
         std::string tag() const
         {/*!\returns the string "i" where i is this->sID
           */

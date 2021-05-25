@@ -16,15 +16,15 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/DDauxVtk.h
  ../../header_symlinks/DDbaseIO.h
  ../../header_symlinks/DDconfigIO.h
- ../../header_symlinks/DDconfigVtk.h
  ../../header_symlinks/DDinteractionStyle.h
  ../../header_symlinks/DDvtk.h
  ../../header_symlinks/DSCL.h
  ../../header_symlinks/DefectiveCrystalParameters.h
  ../../header_symlinks/DiophantineSolver.h
+ ../../header_symlinks/DislocatedMaterial.h
+ ../../header_symlinks/DislocatedMaterialBase.h
+ ../../header_symlinks/DislocationEdgeIO.h
  ../../header_symlinks/DislocationLoopIO.h
- ../../header_symlinks/DislocationLoopLinkIO.h
- ../../header_symlinks/DislocationLoopNodeIO.h
  ../../header_symlinks/DislocationMobilityBCC.h
  ../../header_symlinks/DislocationMobilityBase.h
  ../../header_symlinks/DislocationMobilityFCC.h
@@ -33,6 +33,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/DislocationMobilityHEXpyramidal.h
  ../../header_symlinks/DislocationNodeIO.h
  ../../header_symlinks/DislocationQuadraturePointIO.h
+ ../../header_symlinks/DislocationSegmentActor.h
  ../../header_symlinks/DislocationSegmentIO.h
  ../../header_symlinks/FCClattice.h
  ../../header_symlinks/FEMbaseEvaluation.h
@@ -42,7 +43,6 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/GlidePlaneBoundaryIO.h
  ../../header_symlinks/GlidePlaneFactory.h
  ../../header_symlinks/GlidePlaneKey.h
- ../../header_symlinks/GlidePlaneModule.h
  ../../header_symlinks/GmshReader.h
  ../../header_symlinks/Grain.h
  ../../header_symlinks/GrainBoundary.h
@@ -51,6 +51,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/HEXlattice.h
  ../../header_symlinks/IDreader.h
  ../../header_symlinks/InclusionActor.h
+ ../../header_symlinks/KeyConstructableSharedPtrFactory.h
  ../../header_symlinks/LLL.h
  ../../header_symlinks/Lattice.h
  ../../header_symlinks/LatticeDirection.h
@@ -73,10 +74,9 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/NonCopyable.h
  ../../header_symlinks/NumericPrecision.h
  ../../header_symlinks/PeriodicGlidePlane.h
- ../../header_symlinks/PeriodicGlidePlane.hpp
- ../../header_symlinks/PeriodicGlidePlaneFactory.h
- ../../header_symlinks/PeriodicGlidePlaneFactory.hpp
  ../../header_symlinks/PeriodicLatticeInterpolant.h
+ ../../header_symlinks/PeriodicLoopLinkIO.h
+ ../../header_symlinks/PeriodicLoopNodeIO.h
  ../../header_symlinks/PermutationWithoutRepetition.h
  ../../header_symlinks/PlanarMeshFace.h
  ../../header_symlinks/PlanarPolygon.h
@@ -85,8 +85,6 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/PlaneSegmentIntersection.h
  ../../header_symlinks/PlotActor.h
  ../../header_symlinks/Polycrystal.h
- ../../header_symlinks/PolycrystallineMaterial.h
- ../../header_symlinks/PolycrystallineMaterialBase.h
  ../../header_symlinks/RLLL.h
  ../../header_symlinks/Rational.h
  ../../header_symlinks/RationalLatticeDirection.h
@@ -94,7 +92,6 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/ReciprocalLatticeDirection.h
  ../../header_symlinks/ReciprocalLatticeVector.h
  ../../header_symlinks/SegmentSegmentDistance.h
- ../../header_symlinks/SharedPtrFactories.h
  ../../header_symlinks/Simplex.h
  ../../header_symlinks/SimplexBase.h
  ../../header_symlinks/SimplexChild.h
@@ -112,9 +109,8 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/TerminalColors.h
  ../../header_symlinks/TextFileParser.h
  ../../header_symlinks/TypeTraits.h
- ../../header_symlinks/WeakPtrFactories.h
  ../../header_symlinks/earcut.hpp
- /Users/giacomo/Documents/MoDELib2_Git/tools/DDvtk/DDvtk.cxx
+ /Users/giacomo/Documents/MoDELib/tools/DDvtk/DDvtk.cxx
  /opt/local/include/vtk-8.1/vtkABI.h
  /opt/local/include/vtk-8.1/vtkAOSDataArrayTemplate.h
  /opt/local/include/vtk-8.1/vtkAbstractArray.h

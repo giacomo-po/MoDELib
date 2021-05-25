@@ -70,6 +70,9 @@ namespace model
         static bool showNodes;
         static bool showSlippedArea;
         static float slippedAreaOpacity;
+        static bool showLoops;
+        static long int singleLoopID;
+
         
         vtkRenderer* const renderer;
         const SimplicialMesh<3>& mesh;
@@ -344,6 +347,7 @@ namespace model
             
 //            std::cout<<"Creating segments: "<<std::flush;
             std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> segments=this->segments();
+            std::map<std::pair<size_t,size_t>,std::set<size_t>> segmentToLoopMap=this->segmentloopMap();
 //            std::cout<<segments.size()<<std::endl;
             
             size_t ptID=0;
@@ -449,7 +453,18 @@ namespace model
                     Eigen::Matrix<int,3,1> colorVector=computeColor(burgers,chord,planeNormal);
                     
                     //                    unsigned char lineClr[3]={51,153,255};
-                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+                    int opacity(255);
+                    if (singleLoopID>-1)
+                    {
+                        const auto loopIter(segmentToLoopMap.find(segment.first));
+                        assert(loopIter!=segmentToLoopMap.end() && "Segment not present in the segment to loop map" );
+                        if (loopIter->second.find(singleLoopID)==loopIter->second.end())
+                        {
+                            opacity=50;
+                        }
+                    }
+
+                    unsigned char lineClr[4]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2),(unsigned char) opacity};
                     
                     if(segment.second.meshLocation!=0)
                     {// 0=MeshLocation::insideMesh
@@ -676,8 +691,8 @@ namespace model
             radii->SetName("TubeRadius");
             
             colors->SetName("Colors");
-            colors->SetNumberOfComponents(3);
-            colorsBnd->SetNumberOfComponents(3);
+            colors->SetNumberOfComponents(4);
+            colorsBnd->SetNumberOfComponents(4);
             nodeColors->SetNumberOfComponents(3);
             velocityVectors->SetNumberOfComponents(3);
             velocityVectors->SetName("nodeVelocity");
@@ -943,6 +958,15 @@ namespace model
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
             tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
+
+            if (showLoops)
+            {
+                loopActor->VisibilityOn();
+            }
+            else
+            {
+                loopActor->VisibilityOff();
+            }
             
             if(showBoundarySegments)
             {
@@ -1037,6 +1061,8 @@ namespace model
     bool DDconfigVtk::showNodes=false;
     bool DDconfigVtk::showSlippedArea=false;
     float DDconfigVtk::slippedAreaOpacity=0.1;
+    bool DDconfigVtk::showLoops=false;
+    long int DDconfigVtk::singleLoopID=-1;
 } // namespace model
 #endif
 

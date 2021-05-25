@@ -68,7 +68,10 @@ namespace model
     private:
         
         VectorDim nA;
+        VectorDim nAR;
         double _slippedArea;
+        double _slippedAreaRate;
+
         VectorDim _rightHandedUnitNormal;
         ReciprocalLatticeDirectionType _rightHandedNormal;
         std::shared_ptr<SlipSystem> _slipSystem;
@@ -79,8 +82,14 @@ namespace model
         DislocationLoop(LoopNetworkType* const,
                         const VectorDim&,
                         const std::shared_ptr<GlidePlaneType>& glidePlane_in);
+        DislocationLoop(LoopNetworkType *const ,
+                        const VectorDim &,
+                        const int &,
+                        const int &);
+        ~DislocationLoop();
         std::shared_ptr<LoopType> clone() const;
         const double& slippedArea() const;
+        const double& slippedAreaRate() const;
         const VectorDim& rightHandedUnitNormal() const;
         const ReciprocalLatticeDirectionType& rightHandedNormal() const;
         std::tuple<double,double,double> loopLength() const;
@@ -88,6 +97,7 @@ namespace model
         void updateSlipSystem();
         void updateGeometry();
         MatrixDim plasticDistortion() const;
+        MatrixDim plasticDistortionRate() const;
         VectorDim burgers() const;
         const std::shared_ptr<SlipSystem>&  slipSystem() const;
         bool isVirtualBoundaryLoop() const;

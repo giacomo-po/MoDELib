@@ -100,6 +100,7 @@ namespace model
         const VectorDim& burgers() const;
         const VectorDim& glidePlaneNormal() const;
         void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,Eigen::VectorXd& FQ) const;
+        void updateQuadraturePointsSeg();
 
     };
 //    {

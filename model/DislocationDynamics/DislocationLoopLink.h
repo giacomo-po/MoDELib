@@ -60,7 +60,7 @@ namespace model
         bool hasNetworkLink() const;
         std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
 
-        
+        const LoopLinkType * twinnedLink() const ;
         static void initFromFile(const std::string&);
         
     };

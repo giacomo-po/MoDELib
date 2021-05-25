@@ -24,6 +24,8 @@
 #include <../../../../src/DislocationLoopLink.cpp>
 #include <../../../../src/DislocationNode.cpp>
 #include <../../../../src/DislocationSegment.cpp>
+#include <../../../../src/PeriodicGlidePlaneFactory.cpp>
+#include <../../../../src/PeriodicGlidePlane.cpp>
 
 using namespace model;
 

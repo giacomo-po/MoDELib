@@ -34,7 +34,7 @@ namespace model
     /* init */,prev(nullptr)
     /* init */,twin(nullptr)
     {
-        //        std::cout<<"Creating PeriodicPlaneEdge "<<this->tag()<<std::endl;
+            //    std::cout<<"Creating PeriodicPlaneEdge "<<this->tag()<<std::endl;
         source->addLink(this);
         sink->addLink(this);
         if(twin)
@@ -293,7 +293,7 @@ namespace model
     /* init */,shift(shift_in)
     /* init */,glidePlane(patchBoundary->getGlidePlane(shift))
     {
-//                    std::cout<<cyanColor<<"Creating patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
+                //    std::cout<<cyanColor<<"Creating patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
         
         if(isRightHandedBoundary(glidePlane->meshIntersections,*patchBoundary->referencePlane))
         {
@@ -734,25 +734,57 @@ namespace model
         }
         //            }
     }
-    
+
+//Original Version    
+    // template<int dim>
+    // void PeriodicPatchBoundary<dim>::updateBoundaries()
+    // {
+    //             //    std::cout<<"Updating OuterBoundary"<<std::endl;
+    //     this->outerBoundaries().clear();
+    //     this->innerBoundaries().clear();
+    //     UntwinnedEdgeContainerType untwinnedCopy(this->untwinnedEdges());
+    //     while(untwinnedCopy.size())
+    //     {
+    //         for(const auto& edge : untwinnedCopy)
+    //         {
+    //             if(edge->source->outEdges().size()==1 && edge->source->inEdges().size()==1) //Discuss this with Dr. Po(Yash)
+    //             {// must start from node with only one edge in and one edge out
+    //                 createNewBoundary(edge,untwinnedCopy);
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //             //    std::cout<<"Updated OuterBoundary"<<std::endl;
+
+    // }
+
+    //Other version (for the case where "must start from node with only one edge in and one edge out" is not possible)
     template<int dim>
     void PeriodicPatchBoundary<dim>::updateBoundaries()
     {
-        //            std::cout<<"Updating OuterBoundary"<<std::endl;
+                //    std::cout<<"Updating OuterBoundary"<<std::endl;
         this->outerBoundaries().clear();
         this->innerBoundaries().clear();
         UntwinnedEdgeContainerType untwinnedCopy(this->untwinnedEdges());
         while(untwinnedCopy.size())
         {
+            size_t untwinnedSize(untwinnedCopy.size());
             for(const auto& edge : untwinnedCopy)
             {
-                if(edge->source->outEdges().size()==1 && edge->source->inEdges().size()==1)
+                if(edge->source->outEdges().size()==1 && edge->source->inEdges().size()==1) //Discuss this with Dr. Po(Yash)
                 {// must start from node with only one edge in and one edge out
                     createNewBoundary(edge,untwinnedCopy);
                     break;
                 }
             }
+            if (untwinnedCopy.size() && untwinnedCopy.size()==untwinnedSize) //No node exists with only one edge in and one edge out
+            {
+                createNewBoundary(*untwinnedCopy.begin(),untwinnedCopy);
+
+            }
         }
+                //    std::cout<<"Updated OuterBoundary"<<std::endl;
+
     }
 
         template<int dim>
@@ -896,30 +928,6 @@ namespace model
     }
 
     
-//    template<int dim>
-//    typename PeriodicGlidePlane<dim>::VectorDim PeriodicGlidePlane<dim>::getShift(const PeriodicPlaneEdge<dim>& edge) const
-//    {
-//
-//        VectorDim shift(VectorDim::Zero());
-//        for(const PlanarMeshFace<dim>* const face : edge.meshIntersection->faces)
-//        {
-//            const auto parallelFaceID(edge.patch->glidePlane->grain.region.parallelFaces().at(face->sID));
-//            const auto parallelFace(edge.patch->glidePlane->grain.region.faces().at(parallelFaceID));
-//            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
-//
-//        }
-//        return shift;
-//    }
-    
-//    template<int dim>
-//    void PeriodicGlidePlane<dim>::fillHoles()
-//    {
-//        while(this->innerBoundaries().size())
-//        {
-//            const PeriodicPlaneEdge<dim>* const holeEdge(*this->innerBoundaries().front().begin());
-//            getPatch(getShift(*holeEdge)+holeEdge->patch->shift);
-//        }
-//    }
     
 
     template<int dim>
@@ -935,311 +943,300 @@ namespace model
         return polygonPatchIntersection(lowerPolyPoints);
     }
 
-    
-    template<int dim>
+    //Working version (Problem with diagonal intersection will insert the shift in the node in the diagonally opposite end 
+    // Look at the implementation with comment // loop over crossed edges of current patch)
+    // template<int dim>
+    // template<typename T>
+    // std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints)
+    // {
+    //     std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> ppi;
+
+    //     if (polyPoints.size())
+    //     {
+    //         PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory, referencePlane);
+    //         auto lastPatch(patchBoundary.getPatch(findPatch(polyPoints[0].first, VectorDim::Zero())));
+    //         // const size_t loopID((*polyPoints.begin()).second->loop()->sID);
+    //         // const size_t runID((*polyPoints.begin()).second->network().simulationParameters.runID);
+
+    //         //                std::ofstream polyFile("poly.txt");
+    //         //                for(const auto& node : polyPoints)
+    //         //                {
+    //         //                    polyFile<<"    "<<node.transpose()<<std::endl;
+    //         //                }
+
+    //         //        int removeMe=0;
+
+    //         //        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
+
+    //         // Find other points
+    //         for (size_t k = 0; k < polyPoints.size(); ++k)
+    //         {
+    //             std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> currentPatches;
+    //             //            std::cout<<"k point ="<<k<<std::endl;
+    //             currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+    //             const auto startPoint(polyPoints[k]);
+    //             const auto endPoint(k == polyPoints.size() - 1 ? polyPoints[0] : polyPoints[k + 1]);
+    //             while (true)
+    //             {
+    //                 std::map<const PeriodicPlanePatch<dim> *, std::vector<std::pair<const VectorLowerDim, const PeriodicPlaneEdge<dim> *const>>> crossdEdges;
+
+    //                 for (const auto &bndEdge : patchBoundary.untwinnedEdges())
+    //                 { // loop over outer boundaries and holes
+    //                     SegmentSegmentDistance<dim - 1> ssd(startPoint.first, endPoint.first, *bndEdge->source, *bndEdge->sink);
+    //                     // std::cout << " Determining intersection between " << startPoint.second->tag() << " and " << endPoint.second->tag()<<" dMin "<<ssd.dMin <<" den is "<< std::flush;
+                        
+    //                     if (ssd.dMin < FLT_EPSILON)
+    //                     { // intersection with current boundary found
+    //                         // std::cout << std::setprecision(15) << " Intersection found " << ssd.t << " " << ssd.u << std::endl;
+    //                         crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+    //                     }
+    //                     //Changed to allow for the intersection of the near parallel segment with the boundary
+    //                     else
+    //                     {
+    //                         if (startPoint.second && endPoint.second)
+    //                         {
+    //                             // Check the alignment of the links with the bndEdge Source
+    //                             //                    	std::cout<<"Coming here to check for 3D intersection"<<std::endl;
+    //                             const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
+    //                             const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
+    //                             // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
+    //                             // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
+
+    //                             if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
+    //                             {
+    //                                 //Determine the patches of startPoint and endPoint
+    //                                 if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
+    //                                 {
+    //                                     //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
+    //                                     //This is only valid with the if for the alignment angle and the ssd.dMin
+    //                                     crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+                        
+    //                 }
+
+    //                 if (crossdEdges.size() == 0)
+    //                 { // No untwinned edges have been crossed, break and move to next pair of polyPoints
+    //                     ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+    //                     //                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+    //                     break;
+    //                 }
+    //                 else
+    //                 {
+    //                     for (const auto &pair : crossdEdges)
+    //                     { // loop over crossed patches
+    //                         VectorDim shift(pair.first->shift);
+    //                         //                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+
+    //                         for (const auto &edge : pair.second)
+    //                         { // loop over crossed edges
+    //                             ppi.emplace_back(edge.first, lastPatch->shift, edge.second->edgeID, nullptr);
+    //                             shift += edge.second->deltaShift;
+    //                         }
+    //                         lastPatch = patchBoundary.patches().getFromKey(shift);
+    //                         currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+
+    //                         for (const auto &edge : pair.second)
+    //                         { // loop over crossed edges of current patch
+    //                             assert(edge.second->twin);
+    //                             ppi.emplace_back(edge.first, lastPatch->shift, edge.second->twin->edgeID, nullptr);
+    //                         }
+    //                     }
+    //                     if (lastPatch->contains(endPoint.first))
+    //                     {
+    //                         ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+    //                         //                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             // if (true)
+    //             // {
+    //             //     std::ofstream edgesFile("Debug/edges_"+ std::to_string(runID) + "_" + std::to_string(loopID) + ".txt", std::ofstream::out | std::ofstream::app);
+    //             //     std::ofstream pointsFile("Debug/points_"+ std::to_string(runID) + "_" + std::to_string(loopID) + ".txt",std::ofstream::out | std::ofstream::app);
+
+    //             //     for (const auto &edge : lastPatch->edges())
+    //             //     {
+    //             //         edgesFile << edge->source->sID << " " << edge->sink->sID << " " << lastPatch->sID << std::endl;
+    //             //         pointsFile << "    " << edge->source->sID << " " << (*edge->source.get()).transpose() << std::endl;
+    //             //     }
+    //             //     edgesFile.close();
+    //             //     pointsFile.close();
+    //             // }
+    //         }
+
+    //         // if (true)
+    //         // {
+
+    //         //     std::ofstream polyFile("Debug/poly_"+std::to_string(runID) + "_" + std::to_string(loopID) + ".txt");
+    //         //     //                    std::ofstream poly3DFile("poly3D.txt");
+    //         //     for (const auto &tup : ppi)
+    //         //     {
+    //         //         //                        if(!node.second.expired())
+    //         //         //                        {
+    //         //         polyFile << "    " << std::get<0>(tup).transpose() << std::endl;
+    //         //         //                        }
+    //         //     }
+    //         //     polyFile.close();
+    //         // }
+    //     }
+
+
+    //     return ppi;
+    // }
+
+    //Function updated to account for the insertion of the nodes on the periodically opposite faces
+template<int dim>
     template<typename T>
     std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints)
     {
         std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> ppi;
 
-        PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory,referencePlane);
-        auto lastPatch(patchBoundary.getPatch(findPatch(polyPoints[0].first,VectorDim::Zero())));
-        
-        
-//                std::ofstream polyFile("poly.txt");
-//                for(const auto& node : polyPoints)
-//                {
-//                    polyFile<<"    "<<node.transpose()<<std::endl;
-//                }
-
-        
-//        int removeMe=0;
-        
-        //        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
-        
-        
-        // Find other points
-        for(size_t k=0;k<polyPoints.size();++k)
+        if (polyPoints.size())
         {
-            std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> currentPatches;
-//            std::cout<<"k point ="<<k<<std::endl;
-            currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-            const auto startPoint(polyPoints[k]);
-            const auto endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
-            while(true)
-            {
-                std::map<const PeriodicPlanePatch<dim>*,std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>>> crossdEdges;
-                
-                for(const auto& bndEdge : patchBoundary.untwinnedEdges())
-                {// loop over outer boundaries and holes
-                    SegmentSegmentDistance<dim-1> ssd(startPoint.first,endPoint.first,*bndEdge->source,*bndEdge->sink);
-                    if(ssd.dMin<FLT_EPSILON)
-                    {// intersection with current boundary found
-                        crossdEdges[bndEdge->patch].emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge);
-                    }
-                }
-                
-                if(crossdEdges.size()==0)
-                {// No untwinned edges have been crossed, break and move to next pair of polyPoints
-                    ppi.emplace_back(endPoint.first,lastPatch->shift,-1,endPoint.second);
-//                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
-                    break;
-                }
-                else
-                {
-                    for(const auto& pair : crossdEdges)
-                    {// loop over crossed patches
-                        VectorDim shift(pair.first->shift);
-//                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
-                        
-                        for(const auto& edge : pair.second)
-                        {// loop over crossed edges
-                            ppi.emplace_back(edge.first,lastPatch->shift,edge.second->edgeID,nullptr);
-                            shift+=edge.second->deltaShift;
-                        }
-                        lastPatch=patchBoundary.patches().getFromKey(shift);
-                        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+            PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory, referencePlane);
+            auto lastPatch(patchBoundary.getPatch(findPatch(polyPoints[0].first, VectorDim::Zero())));
+            // const size_t loopID((*polyPoints.begin()).second->loop()->sID);
+            // const size_t runID((*polyPoints.begin()).second->network().simulationParameters.runID);
 
-                        for(const auto& edge : pair.second)
-                        {// loop over crossed edges of current patch
-                            assert(edge.second->twin);
-                            ppi.emplace_back(edge.first,lastPatch->shift,edge.second->twin->edgeID,nullptr);
+            //                std::ofstream polyFile("poly.txt");
+            //                for(const auto& node : polyPoints)
+            //                {
+            //                    polyFile<<"    "<<node.transpose()<<std::endl;
+            //                }
+
+            //        int removeMe=0;
+
+            //        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
+
+            // Find other points
+            for (size_t k = 0; k < polyPoints.size(); ++k)
+            {
+                std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> currentPatches;
+                //            std::cout<<"k point ="<<k<<std::endl;
+                currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                const auto startPoint(polyPoints[k]);
+                const auto endPoint(k == polyPoints.size() - 1 ? polyPoints[0] : polyPoints[k + 1]);
+                while (true)
+                {
+                    std::map<const PeriodicPlanePatch<dim> *, std::vector<std::pair<const VectorLowerDim, const PeriodicPlaneEdge<dim> *const>>> crossdEdges;
+
+                    for (const auto &bndEdge : patchBoundary.untwinnedEdges())
+                    { // loop over outer boundaries and holes
+                        SegmentSegmentDistance<dim - 1> ssd(startPoint.first, endPoint.first, *bndEdge->source, *bndEdge->sink);
+                        // std::cout << " Determining intersection between " << startPoint.second->tag() << " and " << endPoint.second->tag()<<" dMin "<<ssd.dMin <<" den is "<< std::flush;
+                        
+                        if (ssd.dMin < FLT_EPSILON)
+                        { // intersection with current boundary found
+                            // std::cout << std::setprecision(15) << " Intersection found " << ssd.t << " " << ssd.u << std::endl;
+                            crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
                         }
+                        //Changed to allow for the intersection of the near parallel segment with the boundary
+                        else
+                        {
+                            if (startPoint.second && endPoint.second)
+                            {
+                                // Check the alignment of the links with the bndEdge Source
+                                //                    	std::cout<<"Coming here to check for 3D intersection"<<std::endl;
+                                const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
+                                const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
+                                // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
+                                // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
+
+                                if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
+                                {
+                                    //The value of 1000 is determined by trial and error
+                                    //Determine the patches of startPoint and endPoint
+                                    if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
+                                    {
+                                        //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
+                                        //This is only valid with the if for the alignment angle and the ssd.dMin
+                                        crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
-                    if(lastPatch->contains(endPoint.first))
-                    {
-                        ppi.emplace_back(endPoint.first,lastPatch->shift,-1,endPoint.second);
-//                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+
+                    if (crossdEdges.size() == 0)
+                    { // No untwinned edges have been crossed, break and move to next pair of polyPoints
+                        ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+                        //                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
                         break;
                     }
+                    else
+                    {
+                        for (const auto &pair : crossdEdges)
+                        { // loop over crossed patches
+                            //VectorDim shift(pair.first->shift);
+                            //                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+
+                            for (const auto &edge : pair.second)
+                            { // loop over crossed edges
+                                ppi.emplace_back(edge.first, pair.first->shift, edge.second->edgeID, nullptr);
+                              //  shift += edge.second->deltaShift;
+                                const VectorDim localShift(pair.first->shift+edge.second->deltaShift);    
+        //Insert patches corresponding to the individual intersections as well
+                                lastPatch = patchBoundary.patches().getFromKey(localShift);
+                                currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+
+                            }
+
+                            //Diagonally Opposite patch cannot be inserted (only perpendicular opposite patch is possible)
+                            // lastPatch = patchBoundary.patches().getFromKey(shift);
+                            // currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+
+                            for (const auto &edge : pair.second)
+                            { // loop over crossed edges of current patch
+                                assert(edge.second->twin);
+                                ppi.emplace_back(edge.first, edge.second->twin->patch->shift, edge.second->twin->edgeID, nullptr);
+                            }
+                        }
+                        if (lastPatch->contains(endPoint.first))
+                        {
+                            ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+                            //                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+                            break;
+                        }
+                    }
                 }
+                // if (true)
+                // {
+                //     std::ofstream edgesFile("Debug/edges_"+ std::to_string(runID) + "_" + std::to_string(loopID) + ".txt", std::ofstream::out | std::ofstream::app);
+                //     std::ofstream pointsFile("Debug/points_"+ std::to_string(runID) + "_" + std::to_string(loopID) + ".txt",std::ofstream::out | std::ofstream::app);
+
+                //     for (const auto &edge : lastPatch->edges())
+                //     {
+                //         edgesFile << edge->source->sID << " " << edge->sink->sID << " " << lastPatch->sID << std::endl;
+                //         pointsFile << "    " << edge->source->sID << " " << (*edge->source.get()).transpose() << std::endl;
+                //     }
+                //     edgesFile.close();
+                //     pointsFile.close();
+                // }
             }
+
+            // if (true)
+            // {
+
+            //     std::ofstream polyFile("Debug/poly_"+std::to_string(runID) + "_" + std::to_string(loopID) + ".txt");
+            //     //                    std::ofstream poly3DFile("poly3D.txt");
+            //     for (const auto &tup : ppi)
+            //     {
+            //         //                        if(!node.second.expired())
+            //         //                        {
+            //         polyFile << "    " << std::get<0>(tup).transpose() << std::endl;
+            //         //                        }
+            //     }
+            //     polyFile.close();
+            // }
         }
+
+
         return ppi;
     }
-//        {
-//        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,std::shared_ptr<PeriodicPlanePatch<dim>>,const PeriodicPlaneEdge<dim>* const>> ppi;
-//
-// //       getPatch(VectorDim::Zero());
-////        KeyConstructableSharedPtrFactory<PeriodicGlidePlane<dim>,PeriodicPlanePatch<dim>> patchFactory;
-//        std::map<VectorDim,std::shared_ptr<PeriodicPlanePatch<dim>>,CompareVectorsByComponent<double,dim,float>> usedPatches;
-//        std::shared_ptr<PeriodicPlanePatch<dim>> lastPatch=usedPatches.emplace(VectorDim::Zero(),new PeriodicPlanePatch<dim>(*this,VectorDim::Zero())).first->second;
-//
-//        VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
-//        for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
-//        {
-//            insideReferencePoint+=this->getLocalPosition(seg->P0,VectorDim::Zero());
-//        }
-//        insideReferencePoint/=this->referencePlane->meshIntersections.size();
-//        assert(lastPatch->contains(insideReferencePoint));
-////        assert(this->isInsideOuterBoundary(insideReferencePoint));
-//
-//        // Find initial point
-//        const VectorLowerDim P0(polyPoints[0]);
-//        while(!lastPatch->contains(P0))
-//        {
-//            std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
-//            for(const auto& bndEdge : this->untwinnedEdges())
-//            {// loop over outer boundaries and holes
-//                SegmentSegmentDistance<dim-1> ssd(P0,insideReferencePoint,*bndEdge->source,*bndEdge->sink);
-//                if(ssd.dMin<FLT_EPSILON)
-//                {// intersection with current boundary found
-////                    std::cout<<ssd.x0.transpose()<<std::endl;
-//                    crossdEdges.insert(bndEdge);
-//                }
-//            }
-//
-//            switch (crossdEdges.size())
-//            {
-//                case 1:
-//                {
-//                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
-//                    const VectorDim newShift(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
-//                    const auto shiftIter(usedPatches.find(newShift));
-//                    if(shiftIter==usedPatches.end())
-//                    {
-//                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
-//                    }
-//                    else
-//                    {
-//                        lastPatch=shiftIter->second;
-//                    }
-////                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,));
-//                    //getPatch(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
-//                    break;
-//                }
-//
-//                case 2:
-//                {
-//                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
-//                    assert((*crossdEdges.begin())->patch==(*crossdEdges.rbegin())->patch);
-//                    const VectorDim newShift(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
-//                    const auto shiftIter(usedPatches.find(newShift));
-//                    if(shiftIter==usedPatches.end())
-//                    {
-//                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
-//                    }
-//                    else
-//                    {
-//                        lastPatch=shiftIter->second;
-//                    }
-////
-////
-////                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift));
-////                    getPatch(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
-//                    break;
-//                }
-//
-//                default:
-//                {
-//                    std::cout<<"crossdEdges.size()="<<crossdEdges.size()<<std::endl;
-//                    assert(false && "1 or 2 edges must be crossed");
-//                    break;
-//                }
-//            }
-//
-////            std::cout<<std::endl;
-//
-//        }
-////        ppi.emplace_back(polyPoints[0],usedPatches.back(),nullptr);
-//
-//        std::ofstream polyFile("poly.txt");
-//        //                    std::ofstream poly3DFile("poly3D.txt");
-//
-////        polyFile<<insideReferencePoint.transpose()<<std::endl;
-//        for(const auto& node : polyPoints)
-//        {
-//            polyFile<<"    "<<node.transpose()<<std::endl;
-//            //                        poly3DFile<<node.transpose()<<std::endl;
-//        }
-//
-//
-//        int removeMe=0;
-//
-////        usedPatches.clear();
-////        usedPatches.emplace(lastPatch->shift,lastPatch);
-////        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
-//
-//
-//        // Find other points
-//        for(size_t k=0;k<polyPoints.size();++k)
-//        {
-//
-//    HERE CREATE A NEW PeriodicPatchBoundary to use to construct new patches
-//
-//
-//            std::cout<<"k point ="<<k<<std::endl;
-//            usedPatches.clear();
-//            usedPatches.emplace(lastPatch->shift,lastPatch);
-//            const VectorLowerDim startPoint(polyPoints[k]);
-//            const VectorLowerDim endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
-//            while(true)
-//            {
-//
-//                if(true)
-//                {
-//
-//
-//
-////                    std::ofstream pointsFile("points_"+std::to_string(removeMe)+".txt");
-////                    for(const auto& tup : ppi)
-////                    {
-//////                        if(!node.second.expired())
-//////                        {
-////                        pointsFile<<"    "<<std::get<0>(tup).transpose()<<std::endl;
-//////                        }
-////                    }
-////
-////                    std::ofstream edgesFile("edges_"+std::to_string(removeMe)+".txt");
-////                    for(const auto& patch : usedPatches)
-////                    {
-////                        for(const auto& edge : patch.second->edges())
-////                        {
-////                            edgesFile<<patch.second->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<std::endl;
-////                        }
-////                    }
-////
-////                    std::ofstream lastPatchFile("lastPatch_"+std::to_string(removeMe)+".txt");
-////                    for(const auto& edge : lastPatch->edges())
-////                    {
-////                        lastPatchFile<<lastPatch->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<std::endl;
-////                    }
-//
-////                    assert(this->isCompact() && "Plane not compact");
-//                }
-//
-//
-//                std::map<const PeriodicPlanePatch<dim>*,std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>>> crossdEdges;
-////                std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>> crossdEdges;
-//
-//                for(const auto& bndEdge : this->untwinnedEdges())
-////                for(const auto& bndEdge : lastPatch->edges())
-//                {// loop over outer boundaries and holes
-//                    SegmentSegmentDistance<dim-1> ssd(startPoint,endPoint,*bndEdge->source,*bndEdge->sink);
-//                    if(ssd.dMin<FLT_EPSILON)
-//                    {// intersection with current boundary found
-//                        crossdEdges[bndEdge->patch].emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge);
-////                        crossdEdges.emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge.get());
-//                    }
-//                }
-//
-//                if(crossdEdges.size()==0)
-//                {// No untwinned edges have been crossed, break and move to next pair of polyPoints
-//                    ppi.emplace_back(endPoint,lastPatch,nullptr);
-//                    printIntersections(ppi,currentPatches,lastPatch,removeMe);
-//                    break;
-//                }
-//                else
-//                {
-//                    for(const auto& pair : crossdEdges)
-//                    {// loop over crossed patches
-//                        VectorDim shift(pair.first->shift);
-//                    std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
-//
-//
-//                        for(const auto& edge : pair.second)
-//                        {// loop over crossed edges
-//                            ppi.emplace_back(edge.first,lastPatch,edge.second);
-//                            shift+=getShift(*edge.second);
-//                        }
-//
-//                        const auto shiftIter(usedPatches.find(shift));
-//                        if(shiftIter==usedPatches.end())
-//                        {
-//                            std::cout<<"new patch with shift="<<shift.transpose()<<std::endl;
-//                            lastPatch=usedPatches.emplace(shift,new PeriodicPlanePatch<dim>(*this,shift)).first->second;
-//                        }
-//                        else
-//                        {
-//                            lastPatch=shiftIter->second;
-//                        }
-////                        usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,shift));
-//
-//
-//                        for(const auto& edge : pair.second)
-//                        {// loop over crossed edges of current patch
-//                            assert(edge.second->twin);
-//                            ppi.emplace_back(edge.first,lastPatch,edge.second->twin);
-//                        }
-//                    }
-//                    if(lastPatch->contains(endPoint))
-//                    {
-//                                ppi.emplace_back(endPoint,lastPatch,nullptr);
-//                        printIntersections(ppi,currentPatches,lastPatch,removeMe);
-//                        break;
-//                    }
-////                    break;
-//                }
-//
-//
-//
-//
-//            }
-//        }
-//
-//
-//        return ppi;
-//    }
     
     template<typename T1,typename T2, typename T3,typename T4>
     void printIntersections(const T1& ppi,const T2& usedPatches,const T3& lastPatch,int& removeMe, const T4& untwinnedEdges)

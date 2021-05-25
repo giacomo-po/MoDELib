@@ -26,6 +26,7 @@
 //#include <PeriodicLoopIO.h>
 #include <MPIcout.h>
 #include <TerminalColors.h>
+#include <set>
 
 
 namespace model
@@ -233,26 +234,39 @@ namespace model
                     const auto& iter=insertPair.first;
                     const bool& success=insertPair.second;
                     
+                    // std::cout<<" Segment "<<sourceID<<"=>"<<sinkID;
+
                     if(success)
                     {
+                        // std::cout<<" Adding link "<<link.sourceID<<"=>"<<link.sinkID<<" with normal "<<loopIter->second->N.transpose()<<"and burgres "<<loopIter->second->B.transpose();
                         iter->second.n=loopIter->second->N;
+                        // std::cout<<" After adding Normal is "<<iter->second.n.transpose();
+
                     }
                     else
                     {
+                        // std::cout<<" Adding link "<<link.sourceID<<"=>"<<link.sinkID<<" with normal "<<loopIter->second->N.transpose()<<"and burgres "<<loopIter->second->B.transpose();
+
                         if(iter->second.n.cross(loopIter->second->N).norm()>FLT_EPSILON)
                         {
                             iter->second.n.setZero();
                         }
+
+                        // std::cout<<" After adding Normal is "<<iter->second.n.transpose();
+
                     }
                     
 //                    if(link.sourceID<link.sinkID)
                     if(loopSourceIter->second->networkNodeID<loopSinkIter->second->networkNodeID)
                     {
                         iter->second.b+=loopIter->second->B;
+                        // std::cout<<" Burgers vector "<<iter->second.b.transpose()<<std::endl;
                     }
                     else
                     {
                         iter->second.b-=loopIter->second->B;
+                        // std::cout<<" Burgers vector "<<iter->second.b.transpose()<<std::endl;
+
                     }
                     
                     if(iter->second.meshLocation==-1)
@@ -263,6 +277,39 @@ namespace model
                     {
                         assert(iter->second.meshLocation==link.meshLocation);
                     }
+                }
+            }
+            
+            return temp;
+        }
+
+        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
+        {
+            
+           std::map<std::pair<size_t,size_t>,std::set<size_t> >temp;
+            
+            for(const auto& link : loopLinks())
+            {
+                
+                
+                const auto loopIter=loopMap().find(link.loopID);
+                assert(loopIter!=loopMap().end());
+                
+                const auto loopSourceIter(loopNodeMap().find(link.sourceID));
+                assert(loopSourceIter!=loopNodeMap().end());
+
+                const auto loopSinkIter(loopNodeMap().find(link.sinkID));
+                assert(loopSinkIter!=loopNodeMap().end());
+
+                
+                if(link.hasNetworkLink)
+                {
+                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+                    const auto key=std::make_pair(sourceID,sinkID);
+
+                    temp[key].insert(link.loopID);
+                    
                 }
             }
             

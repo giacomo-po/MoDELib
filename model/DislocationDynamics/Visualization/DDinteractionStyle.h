@@ -618,6 +618,34 @@ namespace model
                 std::cout<<"    4 to show/hide mesh"<<std::endl;
 
             }
+            else if (key == "o")
+            {
+                if (selectedKey[0] == 'o')
+                {
+                    selectedKey = " ";
+                    if (ddConfig.get() != nullptr)
+                    {
+                        DDconfigVtk::showLoops = false;
+                        ddConfig->singleLoopID=-1;
+                        ddConfig->modify();
+                        this->Interactor->Render();
+                    }
+                }
+                else
+                {
+                    selectedKey = "o";
+                    std::cout << "selecting objects: Dislocation Loops" << std::endl;
+                    std::cout<<"    1 to show specific loop"<<std::endl;
+                    std::cout<<"    2 to show/hide periodic loops"<<std::endl;
+
+
+                    if (ddConfig.get() != nullptr)
+                    {
+                        ddConfig->modify();
+                        this->Interactor->Render();
+                    }
+                }
+            }
             else if(key == "q")
             {
                 if(selectedKey[0]=='q')
@@ -955,6 +983,26 @@ namespace model
                     SimplicialMeshActor::showMesh=!SimplicialMeshActor::showMesh;
                     std::cout<<"showMesh="<<SimplicialMeshActor::showMesh<<std::endl;
                     meshActor.modifyPts();
+                    this->Interactor->Render();
+                }
+                
+            }
+            else if (selectedKey[0]=='o')
+            {
+                
+                if(key == "1" && ddConfig.get()!=nullptr)
+                {
+                    std::cout << "Enter Loop ID " << std::flush;
+                    std::cin >> DDconfigVtk::singleLoopID;
+                    std::cout << std::endl;
+                    ddConfig->modify();
+                    this->Interactor->Render();
+                }
+                else if (key=="2" && ddConfig.get()!=nullptr)
+                {
+                    std::cout << "Showing all loops " << std::flush;
+                    DDconfigVtk::showLoops = true;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 

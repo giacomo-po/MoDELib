@@ -36,6 +36,8 @@ namespace model
 //        typedef std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t> CrossSlipTupleType;
 
 //        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
+       typedef Eigen::Matrix<double,3,1> VectorDim;
+       typedef Eigen::Matrix<double,3,3> MatrixDim;
         
         /**********************************************************************/
         template<typename LinkType,typename CrossSlipContainerType>
@@ -85,6 +87,10 @@ namespace model
                         }
                     }
                     break;
+                }
+                case 2:
+                {
+                    assert(0 && "Add the probabilistic model for cross-slip");
                 }
                     
                     

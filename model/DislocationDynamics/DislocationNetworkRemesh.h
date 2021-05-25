@@ -449,7 +449,9 @@ namespace model
         void remesh(const long int& runID);
         void remeshByRemoval();
         void remeshByExpansion();
-//        void contract0chordSegments();
+        void contractBoundaryNodes(); //This function contracts boundary nodes if they are at the same position and share atleast one same neightbors
+       void contract0chordSegments();
+       void remove0AreaLoopAcrossBnd();
         static double minMeshSize(const SimplicialMesh<dim>& mesh);
 //        bool isExpandable() const;
         

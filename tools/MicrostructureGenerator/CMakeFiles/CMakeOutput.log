@@ -10,42 +10,39 @@ The output was:
 
 Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "a.out"
 
-The CXX compiler identification is Clang, found in "/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/3.13.1/CompilerIdCXX/a.out"
+The CXX compiler identification is Clang, found in "/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/3.13.1/CompilerIdCXX/a.out"
 
 Determining if the CXX compiler works passed with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_04a68/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_04a68.dir/build.make CMakeFiles/cmTC_04a68.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_04a68.dir/testCXXCompiler.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_04a68.dir/testCXXCompiler.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
-Linking CXX executable cmTC_04a68
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_04a68.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_04a68.dir/testCXXCompiler.cxx.o  -o cmTC_04a68 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_b9d68/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_b9d68.dir/build.make CMakeFiles/cmTC_b9d68.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_b9d68.dir/testCXXCompiler.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_b9d68.dir/testCXXCompiler.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp/testCXXCompiler.cxx
+Linking CXX executable cmTC_b9d68
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b9d68.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_b9d68.dir/testCXXCompiler.cxx.o  -o cmTC_b9d68 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
 Detecting CXX compiler ABI info compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_3ffb3/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_3ffb3.dir/build.make CMakeFiles/cmTC_3ffb3.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.13/Modules/CMakeCXXCompilerABI.cpp
-Linking CXX executable cmTC_3ffb3
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3ffb3.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_3ffb3 
+Run Build Command:"/opt/local/bin/gmake" "cmTC_60d5c/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_60d5c.dir/build.make CMakeFiles/cmTC_60d5c.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.13/Modules/CMakeCXXCompilerABI.cpp
+Linking CXX executable cmTC_60d5c
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60d5c.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_60d5c 
 mpicxx for MPICH version 3.3
 clang version 8.0.0 (tags/RELEASE_800/final)
 Target: x86_64-apple-darwin18.2.0
 Thread model: posix
 InstalledDir: /opt/moose/llvm-8.0.0/bin
- "/opt/local/bin/ld" -demangle -lto_library /opt/moose/llvm-8.0.0/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.14.0 -o cmTC_3ffb3 -L/opt/moose/mpich-3.3/clang-8.0.0/lib -commons use_dylibs -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -lmpi -lpmpi -L/opt/moose/llvm-8.0.0/lib -lc++ -lSystem /opt/moose/llvm-8.0.0/lib/clang/8.0.0/lib/darwin/libclang_rt.osx.a
+ "/opt/local/bin/ld" -demangle -lto_library /opt/moose/llvm-8.0.0/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.14.0 -o cmTC_60d5c -L/opt/moose/mpich-3.3/clang-8.0.0/lib -commons use_dylibs -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -lmpi -lpmpi -L/opt/moose/llvm-8.0.0/lib -lc++ -lSystem /opt/moose/llvm-8.0.0/lib/clang/8.0.0/lib/darwin/libclang_rt.osx.a
 @(#)PROGRAM:ld  PROJECT:ld64-409.12
 BUILD 17:47:51 Sep 25 2018
 configured to support archs: armv6 armv7 armv7s arm64 i386 x86_64 x86_64h armv6m armv7k armv7m armv7em arm64e arm64_32
@@ -57,29 +54,27 @@ Library search paths:
 Framework search paths:
 	/Library/Frameworks/
 	/System/Library/Frameworks/
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
 Parsed CXX implicit link information from above output:
   link line regex: [^( *|.*[/\])(ld|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\]+-)?ld|collect2)[^/\]*( |$)]
-  ignore line: [Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp]
+  ignore line: [Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp]
   ignore line: []
-  ignore line: [Run Build Command:"/opt/local/bin/gmake" "cmTC_3ffb3/fast"]
-  ignore line: [gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp']
-  ignore line: [/opt/local/bin/gmake -f CMakeFiles/cmTC_3ffb3.dir/build.make CMakeFiles/cmTC_3ffb3.dir/build]
-  ignore line: [gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp']
-  ignore line: [Building CXX object CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o]
-  ignore line: [/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.13/Modules/CMakeCXXCompilerABI.cpp]
-  ignore line: [Linking CXX executable cmTC_3ffb3]
-  ignore line: [/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3ffb3.dir/link.txt --verbose=1]
-  ignore line: [/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_3ffb3 ]
+  ignore line: [Run Build Command:"/opt/local/bin/gmake" "cmTC_60d5c/fast"]
+  ignore line: [/opt/local/bin/gmake -f CMakeFiles/cmTC_60d5c.dir/build.make CMakeFiles/cmTC_60d5c.dir/build]
+  ignore line: [gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp']
+  ignore line: [Building CXX object CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o]
+  ignore line: [/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx     -o CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o -c /opt/local/share/cmake-3.13/Modules/CMakeCXXCompilerABI.cpp]
+  ignore line: [Linking CXX executable cmTC_60d5c]
+  ignore line: [/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_60d5c.dir/link.txt --verbose=1]
+  ignore line: [/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -v -Wl,-v CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o  -o cmTC_60d5c ]
   ignore line: [mpicxx for MPICH version 3.3]
   ignore line: [clang version 8.0.0 (tags/RELEASE_800/final)]
   ignore line: [Target: x86_64-apple-darwin18.2.0]
   ignore line: [Thread model: posix]
   ignore line: [InstalledDir: /opt/moose/llvm-8.0.0/bin]
-  link line: [ "/opt/local/bin/ld" -demangle -lto_library /opt/moose/llvm-8.0.0/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.14.0 -o cmTC_3ffb3 -L/opt/moose/mpich-3.3/clang-8.0.0/lib -commons use_dylibs -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -lmpi -lpmpi -L/opt/moose/llvm-8.0.0/lib -lc++ -lSystem /opt/moose/llvm-8.0.0/lib/clang/8.0.0/lib/darwin/libclang_rt.osx.a]
+  link line: [ "/opt/local/bin/ld" -demangle -lto_library /opt/moose/llvm-8.0.0/lib/libLTO.dylib -dynamic -arch x86_64 -macosx_version_min 10.14.0 -o cmTC_60d5c -L/opt/moose/mpich-3.3/clang-8.0.0/lib -commons use_dylibs -search_paths_first -headerpad_max_install_names -v CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o -lmpicxx -lmpi -lpmpi -L/opt/moose/llvm-8.0.0/lib -lc++ -lSystem /opt/moose/llvm-8.0.0/lib/clang/8.0.0/lib/darwin/libclang_rt.osx.a]
     arg [/opt/local/bin/ld] ==> ignore
     arg [-demangle] ==> ignore
     arg [-lto_library] ==> ignore, skip following value
@@ -90,14 +85,14 @@ Parsed CXX implicit link information from above output:
     arg [-macosx_version_min] ==> ignore
     arg [10.14.0] ==> ignore
     arg [-o] ==> ignore
-    arg [cmTC_3ffb3] ==> ignore
+    arg [cmTC_60d5c] ==> ignore
     arg [-L/opt/moose/mpich-3.3/clang-8.0.0/lib] ==> dir [/opt/moose/mpich-3.3/clang-8.0.0/lib]
     arg [-commons] ==> ignore
     arg [use_dylibs] ==> ignore
     arg [-search_paths_first] ==> ignore
     arg [-headerpad_max_install_names] ==> ignore
     arg [-v] ==> ignore
-    arg [CMakeFiles/cmTC_3ffb3.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
+    arg [CMakeFiles/cmTC_60d5c.dir/CMakeCXXCompilerABI.cpp.o] ==> ignore
     arg [-lmpicxx] ==> lib [mpicxx]
     arg [-lmpi] ==> lib [mpi]
     arg [-lpmpi] ==> lib [pmpi]
@@ -125,19 +120,17 @@ Parsed CXX implicit link information from above output:
 
 
 Detecting CXX [-std=c++2a] compiler features compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_b20e1/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_b20e1.dir/build.make CMakeFiles/cmTC_b20e1.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_b20e1.dir/feature_tests.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++2a -o CMakeFiles/cmTC_b20e1.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
-Linking CXX executable cmTC_b20e1
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b20e1.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_b20e1.dir/feature_tests.cxx.o  -o cmTC_b20e1 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_43e2c/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_43e2c.dir/build.make CMakeFiles/cmTC_43e2c.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_43e2c.dir/feature_tests.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++2a -o CMakeFiles/cmTC_43e2c.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_43e2c
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_43e2c.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_43e2c.dir/feature_tests.cxx.o  -o cmTC_43e2c 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
     Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
@@ -200,19 +193,17 @@ gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/Microst
 
 
 Detecting CXX [-std=c++17] compiler features compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_916d9/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_916d9.dir/build.make CMakeFiles/cmTC_916d9.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_916d9.dir/feature_tests.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++17 -o CMakeFiles/cmTC_916d9.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
-Linking CXX executable cmTC_916d9
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_916d9.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_916d9.dir/feature_tests.cxx.o  -o cmTC_916d9 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_a36f7/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_a36f7.dir/build.make CMakeFiles/cmTC_a36f7.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_a36f7.dir/feature_tests.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++17 -o CMakeFiles/cmTC_a36f7.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_a36f7
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a36f7.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_a36f7.dir/feature_tests.cxx.o  -o cmTC_a36f7 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
     Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
@@ -275,19 +266,17 @@ gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/Microst
 
 
 Detecting CXX [-std=c++14] compiler features compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_366c3/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_366c3.dir/build.make CMakeFiles/cmTC_366c3.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_366c3.dir/feature_tests.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++14 -o CMakeFiles/cmTC_366c3.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
-Linking CXX executable cmTC_366c3
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_366c3.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_366c3.dir/feature_tests.cxx.o  -o cmTC_366c3 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_6d528/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_6d528.dir/build.make CMakeFiles/cmTC_6d528.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_6d528.dir/feature_tests.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++14 -o CMakeFiles/cmTC_6d528.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_6d528
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_6d528.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_6d528.dir/feature_tests.cxx.o  -o cmTC_6d528 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
     Feature record: CXX_FEATURE:1cxx_aggregate_default_initializers
@@ -350,19 +339,17 @@ gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/Microst
 
 
 Detecting CXX [-std=c++11] compiler features compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_d2e52/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_d2e52.dir/build.make CMakeFiles/cmTC_d2e52.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_d2e52.dir/feature_tests.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++11 -o CMakeFiles/cmTC_d2e52.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
-Linking CXX executable cmTC_d2e52
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_d2e52.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_d2e52.dir/feature_tests.cxx.o  -o cmTC_d2e52 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_eb3e7/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_eb3e7.dir/build.make CMakeFiles/cmTC_eb3e7.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_eb3e7.dir/feature_tests.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++11 -o CMakeFiles/cmTC_eb3e7.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_eb3e7
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_eb3e7.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_eb3e7.dir/feature_tests.cxx.o  -o cmTC_eb3e7 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
     Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers
@@ -425,19 +412,17 @@ gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/Microst
 
 
 Detecting CXX [-std=c++98] compiler features compiled with the following output:
-Change Dir: /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
+Change Dir: /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp
 
-Run Build Command:"/opt/local/bin/gmake" "cmTC_48f89/fast"
-gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-/opt/local/bin/gmake -f CMakeFiles/cmTC_48f89.dir/build.make CMakeFiles/cmTC_48f89.dir/build
-gmake[2]: Entering directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-Building CXX object CMakeFiles/cmTC_48f89.dir/feature_tests.cxx.o
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++98 -o CMakeFiles/cmTC_48f89.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
-Linking CXX executable cmTC_48f89
-/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_48f89.dir/link.txt --verbose=1
-/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_48f89.dir/feature_tests.cxx.o  -o cmTC_48f89 
-gmake[2]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
-gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Run Build Command:"/opt/local/bin/gmake" "cmTC_2c9d6/fast"
+/opt/local/bin/gmake -f CMakeFiles/cmTC_2c9d6.dir/build.make CMakeFiles/cmTC_2c9d6.dir/build
+gmake[1]: Entering directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
+Building CXX object CMakeFiles/cmTC_2c9d6.dir/feature_tests.cxx.o
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -std=c++98 -o CMakeFiles/cmTC_2c9d6.dir/feature_tests.cxx.o -c /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/feature_tests.cxx
+Linking CXX executable cmTC_2c9d6
+/opt/local/bin/cmake -E cmake_link_script CMakeFiles/cmTC_2c9d6.dir/link.txt --verbose=1
+/opt/moose/mpich-3.3/clang-8.0.0/bin/mpicxx    -Wl,-search_paths_first -Wl,-headerpad_max_install_names   CMakeFiles/cmTC_2c9d6.dir/feature_tests.cxx.o  -o cmTC_2c9d6 
+gmake[1]: Leaving directory '/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles/CMakeTmp'
 
 
     Feature record: CXX_FEATURE:0cxx_aggregate_default_initializers

@@ -72,8 +72,32 @@ namespace model
             }
             
         }
+
         
-        
+        VectorDim snapToInfiniteLine(const VectorDim& x) const
+        {/*!\param[in] x point to be snapped to the FiniteLineSegment
+          * \returns the closest point to x on the FiniteLineSegment
+          *
+          * miminime distance to the line:
+          * u=argMin{ (P0+u*(P1-P0)-x)^2 }
+          * (P0+u*(P1-P0)-x)*(P1-P0)=0
+          * u=(x-P0)*(P1-P0)/(P1-P0)^2
+          */
+            
+            const VectorDim chord(P1-P0);
+            const double chordNorm2(chord.squaredNorm());
+            if(chordNorm2>FLT_EPSILON)
+            {
+                const double u=(x-P0).dot(chord)/chordNorm2;
+                return P0 + u * chord;
+            }
+            else
+            {
+                assert(false && "Not possible to snap for an infinite line");
+                return 0.5*(P0+P1);
+            }
+            
+        }
 
         
 
