@@ -118,7 +118,8 @@ namespace model
         static double C2;        // 1.0/(4.0*M_PI*C1)
         static double C3;        // 1.0-2.0*nu;
         static double C4;        // 0.5*C2;
-        
+        static double Nu;        // 0.5*C2;
+
         /**********************************************************************/
         PolycrystallineMaterial(const std::string& fileName) :
         /* init */ PolycrystallineMaterialBase(fileName)
@@ -134,7 +135,7 @@ namespace model
             C2=1.0/(4.0*M_PI*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
-
+            Nu=nu;
             
         }
         
@@ -151,6 +152,10 @@ namespace model
     
     template<int dim>
     double PolycrystallineMaterial<dim,Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::Nu=0.34;  // 1/(4*pi*(1-nu))
+
     
 }
 #endif

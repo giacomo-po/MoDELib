@@ -10,6 +10,7 @@ CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../head
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/CSL.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/CTM.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/CompareVectorsByComponent.h
+CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/ConfinedDislocationObject.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/ConvexHull.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/DDauxIO.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/DDbaseIO.h
@@ -74,8 +75,6 @@ CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../head
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PeriodicGlidePlaneFactory.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PeriodicGlidePlaneFactory.hpp
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PeriodicLatticeInterpolant.h
-CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PeriodicLoopLinkIO.h
-CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PeriodicLoopNodeIO.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PermutationWithoutRepetition.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/PlanarMeshFace.h
 CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o: ../../header_symlinks/Plane.h

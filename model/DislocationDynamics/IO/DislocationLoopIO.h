@@ -39,7 +39,7 @@ namespace model
         /* init */ sID(dL.sID)
         /* init */,B(dL.flow().cartesian())
         /* init */,N(dL.glidePlane? (dL.slippedArea()>FLT_EPSILON? dL.rightHandedUnitNormal() : dL.glidePlane->unitNormal) : VectorDim::Zero())
-        /* init */,P(dL.glidePlane? dL.glidePlane->P : dL.links().begin()->second->source()->get_P() )
+        /* init */,P(dL.glidePlane? dL.glidePlane->P : (*dL.loopLinks().begin())->source->get_P() )
         /* init */,grainID(dL.grain.grainID)
         /* init */,loopType(dL.loopType)
 //        /* init */,periodicLoopID(dL.periodicLoop? dL.periodicLoop->sID : -1)

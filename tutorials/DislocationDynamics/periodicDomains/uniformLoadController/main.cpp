@@ -26,7 +26,13 @@ int main (int argc, char* argv[])
 //    DislocationNetwork<3,0,Hermite> DN(argc,argv);
     DefectiveCrystal<3,0,Hermite> DC(argc,argv);
     
+//    for(int k=0;k<TextFileParser("inputFiles/DD.txt").readScalar<int>("Nsteps",false);++k)
+//    {
+//        DC.DN->dummyMove(k);
+//    }
+    
     // Run time steps
+//    assert(0 && "ENABLE RUN STEPS in main.cpp");
     DC.runGlideSteps();
     
     return 0;

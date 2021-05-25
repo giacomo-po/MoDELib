@@ -15,6 +15,7 @@
 #include <Eigen/Dense>
 #include <SegmentSegmentDistance.h>
 #include <SweepPlane.h>
+#include <TypeTraits.h>
 
 #include <DislocationNetworkRemesh.h>
 #include <MPIcout.h>
@@ -34,23 +35,23 @@ namespace model
     template <typename DislocationNetworkType>
     class DislocationJunctionFormation
     {
-        static constexpr int dim=DislocationNetworkType::dim;
-        typedef typename DislocationNetworkType::LinkType LinkType;
-        typedef typename DislocationNetworkType::NodeType NodeType;
+        static constexpr int dim=TypeTraits<DislocationNetworkType>::dim;
+        typedef typename DislocationNetworkType::NetworkLinkType NetworkLinkType;
+        typedef typename DislocationNetworkType::NetworkNodeType NetworkNodeType;
         typedef typename DislocationNetworkType::LoopType LoopType;
-        typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkLinkType;
-        typedef typename DislocationNetworkType::IsNodeType IsNodeType;
+//        typedef typename DislocationNetworkType::IsNetworkEdgeType IsNetworkNetworkLinkType;
+//        typedef typename DislocationNetworkType::IsNetworkNodeType IsNetworkNodeType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef typename DislocationNetworkType::NetworkLinkContainerType NetworkLinkContainerType;
-        typedef std::pair<size_t,size_t> EdgeIDType;
+        typedef typename NetworkLinkType::KeyType KeyType;
         
-        typedef std::tuple<EdgeIDType,EdgeIDType,SegmentSegmentDistance<dim>> IntersectionType;
+        typedef std::tuple<KeyType,KeyType,SegmentSegmentDistance<dim>> IntersectionType;
         typedef std::deque<IntersectionType> IntersectionTypeContainerType;
         
         /**********************************************************************/
         void insertIntersection(std::deque<IntersectionTypeContainerType>& intersectionContainer,
-                                const LinkType* const linkA,
-                                const LinkType* const linkB,
+                                const NetworkLinkType* const linkA,
+                                const NetworkLinkType* const linkB,
                                 const SegmentSegmentDistance<dim>& ssd,
                                 const double& currentcCollisionTOL,
                                 const bool& bndJunction,const bool& gbndJunction)
@@ -76,6 +77,7 @@ namespace model
                     
                     if(LA>FLT_EPSILON && LB>FLT_EPSILON)
                     {
+
                         StressStraight<dim> stressA(ssd.x0-infiniteLineLength/LA*chordA,
                                                     ssd.x0+infiniteLineLength/LA*chordA,
                                                     linkA->burgers());
@@ -84,31 +86,92 @@ namespace model
                                                     ssd.x1+infiniteLineLength/LB*chordB,
                                                     linkB->burgers());
                         
-                        const VectorDim forceOnA=(stressB.stress(ssd.x0)*linkA->burgers()).cross(chordA);
-                        const VectorDim forceOnB=(stressA.stress(ssd.x1)*linkB->burgers()).cross(chordB);
-                        
-                        if(forceOnA.dot(ssd.x1-ssd.x0)>0.0 && forceOnB.dot(ssd.x1-ssd.x0)<0.0)
+                        if(ssd.dMin>FLT_EPSILON)
                         {
-                            VerboseJunctions(3,"attractive pair"<<std::endl;);
-                            isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
+                            VerboseJunctions(3,"Non-intersecting pair"<<std::endl;);
+                            const VectorDim forceOnA=(stressB.stress(ssd.x0)*linkA->burgers()).cross(chordA);
+                            const VectorDim forceOnB=(stressA.stress(ssd.x1)*linkB->burgers()).cross(chordB);
+                            const VectorDim dxShift(ssd.x1-ssd.x0);
+                            if(forceOnA.dot(dxShift)>FLT_EPSILON && forceOnB.dot(dxShift)<-FLT_EPSILON)
+                            {
+                                VerboseJunctions(3,"attractive pair 1"<<std::endl;);
+                                isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
+                            }
+                            else
+                            {
+                                VerboseJunctions(3,"non-attractive pair"<<std::endl;);
+                                
+                            }
                         }
                         else
                         {
-                            VerboseJunctions(3,"non-attractive pair"<<std::endl;);
+                            VerboseJunctions(3,"Intersecting pair"<<std::endl;);
                             
+                            const VectorDim dXA(linkA->source->get_V()+linkA->sink->get_V());
+                            const double dXAnorm(dXA.norm());
+                            const VectorDim dXB(linkB->source->get_V()+linkB->sink->get_V());
+                            const double dXBnorm(dXB.norm());
+
+                            if(dXAnorm>FLT_EPSILON && dXBnorm>FLT_EPSILON)
+                            {
+                                const VectorDim x0Shift(ssd.x0-dXA/dXAnorm);
+                                const VectorDim x1Shift(ssd.x1-dXB/dXBnorm);
+                                const VectorDim forceOnA=(stressB.stress(x0Shift)*linkA->burgers()).cross(chordA);
+                                const VectorDim forceOnB=(stressA.stress(x1Shift)*linkB->burgers()).cross(chordB);
+                                const VectorDim dxShift(x1Shift-x0Shift);
+                                if(forceOnA.dot(dxShift)>FLT_EPSILON && forceOnB.dot(dxShift)<-FLT_EPSILON)
+                                {
+                                    VerboseJunctions(3,"attractive pair 2"<<std::endl;);
+                                    isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
+                                }
+                            }
+                            else if(dXAnorm>FLT_EPSILON && dXBnorm<=FLT_EPSILON)
+                            {
+                                const VectorDim x0Shift(ssd.x0-dXA/dXAnorm);
+                                const VectorDim forceOnA=(stressB.stress(x0Shift)*linkA->burgers()).cross(chordA);
+                                const VectorDim forceOnB=(stressA.stress(ssd.x1)*linkB->burgers()).cross(chordB);
+                                const VectorDim dxShift(ssd.x1-x0Shift);
+                                if(forceOnA.dot(dxShift)>FLT_EPSILON && forceOnB.dot(dxShift)<-FLT_EPSILON)
+                                {
+                                    VerboseJunctions(3,"attractive pair 3"<<std::endl;);
+                                    isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
+                                }
+                            }
+                            else if(dXAnorm<=FLT_EPSILON && dXBnorm>FLT_EPSILON)
+                            {
+                                const VectorDim x1Shift(ssd.x1-dXB/dXBnorm);
+                                const VectorDim forceOnA=(stressB.stress(ssd.x0)*linkA->burgers()).cross(chordA);
+                                const VectorDim forceOnB=(stressA.stress(x1Shift)*linkB->burgers()).cross(chordB);
+                                const VectorDim dxShift(x1Shift-ssd.x0);
+                                if(forceOnA.dot(dxShift)>FLT_EPSILON && forceOnB.dot(dxShift)<-FLT_EPSILON)
+                                {
+                                    VerboseJunctions(3,"attractive pair 4"<<std::endl;);
+                                    isValidJunction=true; // for non-parallel lines this neglects the energy of rotation
+                                }
+                            }
+                            else
+                            {// cannot determine separate points
+                                VerboseJunctions(3,"cannot determine seprate points"<<std::endl;);
+
+                            }
+                            
+
                         }
+                        
+                        
+                        
                     }
                 }
                 
                 if(isValidJunction)
                 {
 #ifdef _OPENMP
-                    intersectionContainer[omp_get_thread_num()].emplace_back(linkA->nodeIDPair,
-                                                                             linkB->nodeIDPair,
+                    intersectionContainer[omp_get_thread_num()].emplace_back(linkA->key,
+                                                                             linkB->key,
                                                                              ssd);
 #else
-                    intersectionContainer[0].emplace_back(linkA->nodeIDPair,
-                                                          linkB->nodeIDPair,
+                    intersectionContainer[0].emplace_back(linkA->key,
+                                                          linkB->key,
                                                           ssd);
 #endif
                 }
@@ -131,23 +194,25 @@ namespace model
             model::cout<<"		Finding collisions "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
-            SweepPlane<LinkType,dim> swp;
-            for(const auto& link : DN.links())
+            SweepPlane<NetworkLinkType,dim> swp;
+            for(const auto& link : DN.networkLinks())
             {
-                if(   (!link.second->hasZeroBurgers() && !link.second->isVirtualBoundarySegment())
+                const auto sharedLink(link.second.lock());
+                
+                if(   (!sharedLink->hasZeroBurgers() && !sharedLink->isVirtualBoundarySegment())
                    //                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
-                   || link.second->isBoundarySegment() )
+                   || sharedLink->isBoundarySegment() )
                     
                 {
                     //                    swp.addSegment(link.second->source->get_P()(0),link.second->source->get_P()(1),*link.second);
-                    swp.addSegment(link.second->source->get_P()(0),link.second->sink->get_P()(0),*link.second);
+                    swp.addSegment(sharedLink->source->get_P()(0),sharedLink->sink->get_P()(0),*sharedLink);
                 }
             }
             swp.computeIntersectionPairs();
             model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
             
             
-            std::deque<std::pair<const LinkType*,const LinkType*>> reducedIntersectionPairs;
+            std::deque<std::pair<const NetworkLinkType*,const NetworkLinkType*>> reducedIntersectionPairs;
             for(size_t k=0;k<swp.potentialIntersectionPairs().size();++k)
             {
                 const auto& linkA(swp.potentialIntersectionPair(k).first);
@@ -269,10 +334,10 @@ namespace model
                 
                 if(intersectionIsSourceSource)
                 {
-                    if(!linkA->source->isSimple())
-                    {// non-simple common node, increase tolerance
-                        currentcCollisionTOL=0.5*collisionTol;
-                    }
+//                    if(!linkA->source->isSimple())
+//                    {// non-simple common node, increase tolerance
+//                        currentcCollisionTOL=0.5*collisionTol;
+//                    }
                     
                     // intersect sink of A with link B
                     SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
@@ -293,10 +358,10 @@ namespace model
                 }
                 else if(intersectionIsSourceSink)
                 {
-                    if(!linkA->source->isSimple())
-                    {// non-simple common node, increase tolerance
-                        currentcCollisionTOL=0.5*collisionTol;
-                    }
+//                    if(!linkA->source->isSimple())
+//                    {// non-simple common node, increase tolerance
+//                        currentcCollisionTOL=0.5*collisionTol;
+//                    }
                     
                     // intersect sink of A with link B
                     SegmentSegmentDistance<dim> ssdA(linkA->sink->get_P(), // fake degenerete segment at sink of A
@@ -318,10 +383,10 @@ namespace model
                 }
                 else if(intersectionIsSinkSource)
                 {
-                    if(!linkA->sink->isSimple())
-                    {// non-simple common node, increase tolerance
-                        currentcCollisionTOL=0.5*collisionTol;
-                    }
+//                    if(!linkA->sink->isSimple())
+//                    {// non-simple common node, increase tolerance
+//                        currentcCollisionTOL=0.5*collisionTol;
+//                    }
                     
                     // intersect source of A with link B
                     SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
@@ -343,10 +408,10 @@ namespace model
                 else if(intersectionIsSinkSink)
                 {
                     
-                    if(!linkA->sink->isSimple())
-                    {// non-simple common node, increase tolerance
-                        currentcCollisionTOL=0.5*collisionTol;
-                    }
+//                    if(!linkA->sink->isSimple())
+//                    {// non-simple common node, increase tolerance
+//                        currentcCollisionTOL=0.5*collisionTol;
+//                    }
                     
                     // intersect source of A with link B
                     SegmentSegmentDistance<dim> ssdA(linkA->source->get_P(), // fake degenerete segment at source of A
@@ -391,27 +456,29 @@ namespace model
         }
         
         /**********************************************************************/
-        std::pair<std::shared_ptr<NodeType>,bool> junctionNode(const double& t,
+        std::pair<std::shared_ptr<NetworkNodeType>,bool> junctionNode(const double& t,
                                                                const VectorDim& x,
-                                                               const IsNetworkLinkType& L,
-                                                               const EdgeIDType& key)
+                                                                const std::shared_ptr<NetworkLinkType>& L,
+                                                               const KeyType& key)
         {
             VerboseJunctions(4,"JunctionNode for segment: "<<key.first<<"->"<<key.second<<" @ "<<t<<std::endl;);
-            
-            auto  Nclose= t <0.5? L.second->source : L.second->sink;
-            auto  Nfar  = t>=0.5? L.second->source : L.second->sink;
+
+            auto  Nclose= t <0.5? L->source : L->sink;
+            auto  Nfar  = t>=0.5? L->source : L->sink;
             VerboseJunctions(4,"Nclose="<<Nclose->sID<<std::endl;);
             VerboseJunctions(4,"Nfar="<<Nfar->sID<<std::endl;);
-            if(t>FLT_EPSILON && t<1.0-FLT_EPSILON)
-            {// intersection point is not an end node
+//            if(t>FLT_EPSILON && t<1.0-FLT_EPSILON && !Nclose->isBoundaryNode() && !Nfar->isBoundaryNode())
+//            {// intersection point is not an end node
                 if((Nclose->get_P()-x).norm()>DN.networkRemesher.Lmin)
-                {
+                {// far enough from Nclose
                     VerboseJunctions(4,"JunctionNode case a"<<std::endl;);
-                    return std::make_pair(DN.expand(key.first,key.second,t),true);
+                    const auto newNetNode(DN.networkNodes().create(x,L->source->get_V()*(1.0-t)+L->sink->get_V()*t,L->source->velocityReduction()*(1.0-t)+L->sink->velocityReduction()*t));
+                    DN.expandNetworkLink(L,newNetNode);
+                    return std::make_pair(newNetNode,true);
                 }
                 else
-                {
-                    if(Nclose->isMovableTo(x))
+                {// close to from Nclose
+                    if(Nclose->isMovableTo(x) && !Nclose->isBoundaryNode())
                     {
                         VerboseJunctions(4,"JunctionNode case b"<<std::endl;);
                         return std::make_pair(Nclose,false);
@@ -421,11 +488,13 @@ namespace model
                         if((Nfar->get_P()-x).norm()>DN.networkRemesher.Lmin)
                         {
                             VerboseJunctions(4,"JunctionNode case c"<<std::endl;);
-                            return std::make_pair(DN.expand(key.first,key.second,t),true);
+                            const auto newNetNode(DN.networkNodes().create(x,L->source->get_V()*(1.0-t)+L->sink->get_V()*t,L->source->velocityReduction()*(1.0-t)+L->sink->velocityReduction()*t));
+                            DN.expandNetworkLink(L,newNetNode);
+                            return std::make_pair(newNetNode,true);
                         }
                         else
                         {
-                            if(Nfar->isMovableTo(x))
+                            if(Nfar->isMovableTo(x) && !Nfar->isBoundaryNode())
                             {
                                 VerboseJunctions(4,"JunctionNode case d"<<std::endl;);
                                 return std::make_pair(Nfar,false);
@@ -433,85 +502,72 @@ namespace model
                             else
                             {
                                 VerboseJunctions(4,"JunctionNode case e"<<std::endl;);
-                                return std::make_pair(DN.expand(key.first,key.second,t),true);
+                                const auto newNetNode(DN.networkNodes().create(x,L->source->get_V()*(1.0-t)+L->sink->get_V()*t,L->source->velocityReduction()*(1.0-t)+L->sink->velocityReduction()*t));
+                                DN.expandNetworkLink(L,newNetNode);
+                                return std::make_pair(newNetNode,true);
                             }
                         }
                     }
                 }
-            }
-            else
-            {
-                VerboseJunctions(4,"JunctionNode case f"<<std::endl;);
-                return std::make_pair(Nclose,false);
-            }
         }
         
         /**********************************************************************/
-        size_t junctionStep()
+        size_t contractJunctions(const std::deque<IntersectionTypeContainerType>& intersectionContainer)
         {
-            
-#ifdef _OPENMP
-            const size_t nThreads = omp_get_max_threads();
-#else
-            const size_t nThreads = 1;
-#endif
-            
-            std::deque<IntersectionTypeContainerType> intersectionContainer;
-            intersectionContainer.resize(nThreads);
-            findIntersections(intersectionContainer,nThreads);
-            
+
+
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Forming Junctions: "<<std::flush;
-            
+            model::cout<<"        Forming Junctions: "<<std::flush;
+
             size_t nContracted=0;
             for (const auto& intersectionByThreadContainer : intersectionContainer)
             {
                 for (const auto& intersection : intersectionByThreadContainer)
                 {
-                    const EdgeIDType& key1(std::get<0>(intersection));
-                    const EdgeIDType& key2(std::get<1>(intersection));
+                    const KeyType& key1(std::get<0>(intersection));
+                    const KeyType& key2(std::get<1>(intersection));
                     const SegmentSegmentDistance<dim>& ssd(std::get<2>(intersection));
                     const double& t(ssd.t);
                     const double& u(ssd.u);
-                    
-                    const IsNetworkLinkType L1(DN.link(key1.first,key1.second));
-                    const IsNetworkLinkType L2(DN.link(key2.first,key2.second));
-                    
-                    if(L1.first && L2.first) // Links exist
+
+                    const auto L1(DN.networkLinks().get(key1));
+                    const auto L2(DN.networkLinks().get(key2));
+
+                    if(L1 && L2) // Links exist
                     {
-                        
-                        
-                        
-                        
+
+
+
+
                         VerboseJunctions(1,"forming junction "<<key1.first<<"->"<<key1.second<<", "
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
                                          /*                   */ <<"dMin="<<ssd.dMin<<", "
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "<<std::flush);
-                        std::pair<std::shared_ptr<NodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
-                        std::pair<std::shared_ptr<NodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
-                        
+                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
+                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
+
                         VerboseJunctions(1,"contracting "<<Ni.first->sID<<" "<<Nj.first->sID<<std::endl;);
-                        
+
                         if(Ni.first->sID!=Nj.first->sID)
                         {
                             const bool success=DN.contract(Ni.first,Nj.first);
-                            nContracted+=success;
-                            if(!success)
-                            {
-                                if(Ni.second)
-                                {
-                                    DN.remove(Ni.first->sID);
-                                }
-                                if(Nj.second)
-                                {
-                                    DN.remove(Nj.first->sID);
-                                }
-                            }
-                            else
-                            {// first contraction happended. We want to generate a finite-length junction
-                                
-                                
-                            }
+//                            nContracted+=success;
+//                            if(!success)
+//                            {
+//                                if(Ni.second)
+//                                {
+//                                    DN.remove(Ni.first->sID);
+//                                }
+//                                if(Nj.second)
+//                                {
+//                                    DN.remove(Nj.first->sID);
+//                                }
+//                            }
+//                            else
+//                            {// first contraction happended. We want to generate a finite-length junction
+//
+//
+//                            }
                         }
                     }
                 }
@@ -520,477 +576,110 @@ namespace model
             return nContracted;
         }
         
-        /**********************************************************************/
-        void glissileJunctions(const double &dx)
-        {
-            const auto t0 = std::chrono::system_clock::now();
-            model::cout << "        Forming Glissile Junctions: " << std::flush;
-            
-            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, size_t, size_t>> glissDeq;
-            
-            std::deque<std::tuple<std::shared_ptr<NodeType>, std::shared_ptr<NodeType>, std::shared_ptr<NodeType>>> expDeq;
-            
-            for (const auto &link : DN.links())
-            {
-                
-                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
-                {
-                    const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
-                    const double chordNorm(chord.norm());
-                    
-                    
-                    if (fabs(link.second->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
-                        && chordNorm > dx)
-                    {
-                        
-                        const VectorDim unitChord(chord / chordNorm);
-                        
-                        
-                        if (!link.second->isGrainBoundarySegment() && !link.second->isBoundarySegment())
-                        {
-                            
-                            VerboseJunctions(2,"glissele junction, segment "<<link.second->tag()<<std::endl;);
-
-                            for (const auto &gr : link.second->grains())
-                            {
-                                for (size_t s = 0; s < gr->slipSystems().size(); ++s)
-                                {
-                                    const auto &slipSystem(gr->slipSystems()[s]);
-                                    if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-                                    {
-                                        VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
-                                        
-                                        glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
-                                    }
-                                }
-                            }
-                            
-                            //                            std::set<const LoopType*> sourceLoops;
-//                            int inserted(0);
-//                            for (const auto &nodelink : link.second->source->outLoopLinks())
-//                            {
-//                                if (nodelink->pLink->loopLinks().size() == 1)
-//                                {
-//                                    const auto &loop(nodelink->loop());
-//                                    if(loop->slipSystem())
-//                                    {
-//                                        if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-//                                            inserted++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            VerboseJunctions(3,"source->outLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//
-//                            for (const auto &nodelink : link.second->source->inLoopLinks())
-//                            {
-//                                if (nodelink->pLink->loopLinks().size() == 1)
-//                                {
-//                                    const auto &loop(nodelink->loop());
-//                                    if (loop->slipSystem())
-//                                    {
-//                                        if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->sink);
-//                                            inserted++;
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                            VerboseJunctions(3,"source->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//                            assert(inserted <= 1);
-//
-//                            if (inserted == 0)
-//                            {
-//                                for (const auto &nodelink : link.second->sink->outLoopLinks())
-//                                {
-//                                    if (nodelink->pLink->loopLinks().size() == 1)
-//                                    {
-//                                        const auto &loop(nodelink->loop());
-//                                        if (loop->slipSystem())
-//                                        {
-//                                            if ((loop->slipSystem()->s.cartesian() + link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                            {
-//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-//                                                inserted++;
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//
-//                                for (const auto &nodelink : link.second->sink->inLoopLinks())
-//                                {
-//                                    if (nodelink->pLink->loopLinks().size() == 1)
-//                                    {
-//                                        const auto &loop(nodelink->loop());
-//                                        if (loop->slipSystem())
-//                                        {
-//                                            if ((loop->slipSystem()->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                            {
-//                                                expDeq.emplace_back(nodelink->pLink->source, nodelink->pLink->sink, link.second->source);
-//                                                inserted++;
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                VerboseJunctions(3,"sink->inLoopLinks(), inserted= "<<inserted<<std::endl;);
-//
-//                                assert(inserted <= 1);
-//                            }
-//
-//                            if (inserted == 0)
-//                            {
-//                                for (const auto &gr : link.second->grains())
-//                                {
-//                                    for (size_t s = 0; s < gr->slipSystems().size(); ++s)
-//                                    {
-//                                        const auto &slipSystem(gr->slipSystems()[s]);
-//                                        if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
-//                                        {
-//                                            VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
-//
-//                                            glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
-//                                        }
-//                                    }
-//                                }
-//                            }
-                        }
-                    }
-                }
-            }
-            
-            size_t formedJunctions = 0;
-            
-            for (const auto &tup : expDeq)
-            {
-                const std::shared_ptr<NodeType> &source(std::get<0>(tup));
-                const std::shared_ptr<NodeType> &sink(std::get<1>(tup));
-                const std::shared_ptr<NodeType> &exp(std::get<2>(tup));
-                const size_t &sourceID(source->sID);
-                const size_t &sinkID(sink->sID);
-                const auto isLink(DN.link(sourceID, sinkID));
-                
-                if (isLink.first)
-                {
-                    VerboseJunctions(3,"expanding junction "<<isLink.second->tag()<<" @node "<<exp->sID<<std::endl;);
-                    DN.expand(isLink.second, exp);
-                    formedJunctions++;
-                }
-            }
-            
-            for (const auto &tup : glissDeq)
-            {
-                const std::shared_ptr<NodeType> &source(std::get<0>(tup));
-                const std::shared_ptr<NodeType> &sink(std::get<1>(tup));
-                const size_t &sourceID(source->sID);
-                const size_t &sinkID(sink->sID);
-                const size_t &grainID(std::get<2>(tup));
-                const size_t &slipID(std::get<3>(tup));
-                
-                const auto isLink(DN.link(sourceID, sinkID));
-                if (isLink.first)
-                {
-                    
-                    const VectorDim newNodeP(0.5 * (isLink.second->source->get_P() + isLink.second->sink->get_P()));
-                    const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
-                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).slipSystems()[slipID]->n);
-                    const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
-                    
-                    std::shared_ptr<NodeType> newNode(new NodeType(&DN, glidePlane->snapToPlane(newNodeP), VectorDim::Zero(), 1.0));
-                    
-                    std::vector<std::shared_ptr<NodeType>> loopNodes;
-                    
-                    loopNodes.push_back(sink);   // insert in reverse order, sink first, source second
-                    loopNodes.push_back(source); // insert in reverse order, sink first, source second
-                    loopNodes.push_back(newNode);
-                    
-                    DN.insertLoop(loopNodes,
-                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-                                  glidePlane);
-                    
-                    formedJunctions++;
-                }
-            }
-            model::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
-        }
-        
 //        /**********************************************************************/
-//        void glissileJunctions(const double& dx)
+//        void glissileJunctions(const double &dx)
 //        {
-//            const auto t0= std::chrono::system_clock::now();
-//            model::cout<<"        Forming Glissile Junctions: "<<std::flush;
+//            const auto t0 = std::chrono::system_clock::now();
+//            model::cout << "        Forming Glissile Junctions: " << std::flush;
 //
-//            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,size_t,size_t>> glissDeq;
+//            std::deque<std::tuple<std::shared_ptr<NetworkNodeType>, std::shared_ptr<NetworkNodeType>, size_t, size_t>> glissDeq;
 //
-//            std::deque<std::tuple<std::shared_ptr<NodeType>,std::shared_ptr<NodeType>,std::shared_ptr<NodeType>>> expDeq;
+//            std::deque<std::tuple<std::shared_ptr<NetworkNodeType>, std::shared_ptr<NetworkNodeType>, std::shared_ptr<NetworkNodeType>>> expDeq;
 //
-//
-//            for(const auto& link : DN.links())
+//            for (const auto &link : DN.links())
 //            {
 //
-//                if(   link.second->isSessile()
-//                   && link.second->loopLinks().size()>1      // a junction
-//                   )
+//                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
 //                {
-//                    const VectorDim chord(link.second->sink->get_P()-link.second->source->get_P());
+//                    const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
 //                    const double chordNorm(chord.norm());
 //
 //
-//                    if(   fabs(link.second->burgers().norm()-1.0)<FLT_EPSILON // a non-zero link with minimum Burgers
-//                       && chordNorm>dx)
+//                    if (fabs(link.second->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
+//                        && chordNorm > dx)
 //                    {
 //
-//                        const VectorDim unitChord(chord/chordNorm);
+//                        const VectorDim unitChord(chord / chordNorm);
 //
 //
-//                        //                        //std::cout<<"link "<<link.second->source->sID<<"->"<<link.second->sink->sID<<std::endl;
-//                        //                        //std::cout<<"burgers="<<link.second->burgers().transpose()<<std::endl;
-//                        //                        //std::cout<<"chord="<<unitChord.transpose()<<std::endl;
-//                        //
-//                        //                        for(const auto& loopLink : link.second->loopLinks())
-//                        //                        {
-//                        //                            //std::cout<<"loopLink "<<loopLink->source()->sID<<"->"<<loopLink->sink()->sID<<", flow="<<loopLink->flow().cartesian().transpose()<<std::endl;
-//                        //
-//                        //                        }
-//
-//
-//
-//                        if(   !link.second->isGrainBoundarySegment()
-//                           && !link.second->isBoundarySegment() )
+//                        if (!link.second->isGrainBoundarySegment() && !link.second->isBoundarySegment())
 //                        {
 //
+//                            VerboseJunctions(2,"glissele junction, segment "<<link.second->tag()<<std::endl;);
 //
-//                            //                            std::set<const LoopType*> sourceLoops;
-//
-//                            int inserted(0);
-//
-////                            for(const auto& link : link.second->source->outLoopLinks())
-////                            {
-////                                if(link->pLink->loopLinks().size()==1)
-////                                {
-////                                    const auto& loop(link->loop());
-////                                    if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
-////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-////                                    {
-////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,link.second->sink);
-////                                        inserted++;
-////                                    }
-////                                }
-////                            }
-////
-////                            for(const auto& link : source->inLoopLinks())
-////                            {
-////                                if(link->pLink->loopLinks().size()==1)
-////                                {
-////                                    const auto& loop(link->loop());
-////                                    if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-////                                       && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-////                                    {
-////                                        expDeq.emplace_back(link->pLink->source,link->pLink->sink,sink);
-////                                        inserted++;
-////                                    }
-////                                }
-////                            }
-////                            assert(inserted<1);
-////
-////                            if(inserted==0)
-////                            {
-////                                for(const auto& link : sink->outLoopLinks())
-////                                {
-////                                    if(link->pLink->loopLinks().size()==1)
-////                                    {
-////                                        const auto& loop(link->loop());
-////                                        if(  (loop->slipSystem()->s.cartesian()+link.second->burgers()).norm()<FLT_EPSILON
-////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-////                                        {
-////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
-////                                            inserted++;
-////                                        }
-////                                    }
-////                                }
-////
-////                                for(const auto& link : sink->inLoopLinks())
-////                                {
-////                                    if(link->pLink->loopLinks().size()==1)
-////                                    {
-////                                        const auto& loop(link->loop());
-////                                        if(  (loop->slipSystem()->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-////                                           && fabs(loop->slipSystem()->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-////                                        {
-////                                            expDeq.emplace_back(link->pLink->source,link->pLink->sink,source);
-////                                            inserted++;
-////                                        }
-////                                    }
-////                                }
-////                                assert(inserted<1);
-////                            }
-//
-//                            if(inserted==0)
+//                            for (const auto &gr : link.second->grains())
 //                            {
-//                                for(const auto& gr : link.second->grains())
+//                                for (size_t s = 0; s < gr->slipSystems().size(); ++s)
 //                                {
-//                                    for(size_t s=0;s<gr->slipSystems().size();++s)
+//                                    const auto &slipSystem(gr->slipSystems()[s]);
+//                                    if ((slipSystem->s.cartesian() - link.second->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
 //                                    {
-//                                        const auto& slipSystem(gr->slipSystems()[s]);
-//                                        if(  (slipSystem->s.cartesian()-link.second->burgers()).norm()<FLT_EPSILON
-//                                           && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-//                                        {
-//                                            glissDeq.emplace_back(link.second->source,link.second->sink,gr->grainID,s);
-//                                        }
+//                                        VerboseJunctions(3,"glissDeq, emplacing"<<std::endl;);
+//
+//                                        glissDeq.emplace_back(link.second->source, link.second->sink, gr->grainID, s);
 //                                    }
 //                                }
 //                            }
-//
 //                        }
 //                    }
 //                }
 //            }
 //
-//            size_t formedJunctions=0;
+//            size_t formedJunctions = 0;
 //
-//
-//            for(const auto& tup : expDeq)
+//            for (const auto &tup : expDeq)
 //            {
-//                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
-//                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
-//                const std::shared_ptr<NodeType>& exp(std::get<2>(tup));
-//                const size_t& sourceID(source->sID);
-//                const size_t& sinkID(sink->sID);
-//                const auto isLink(DN.link(sourceID,sinkID));
+//                const std::shared_ptr<NetworkNodeType> &source(std::get<0>(tup));
+//                const std::shared_ptr<NetworkNodeType> &sink(std::get<1>(tup));
+//                const std::shared_ptr<NetworkNodeType> &exp(std::get<2>(tup));
+//                const size_t &sourceID(source->sID);
+//                const size_t &sinkID(sink->sID);
+//                const auto isLink(DN.link(sourceID, sinkID));
 //
-//
-//                if(isLink.first)
+//                if (isLink.first)
 //                {
-//                    DN.expand(isLink.second,exp);
+//                    VerboseJunctions(3,"expanding junction "<<isLink.second->tag()<<" @node "<<exp->sID<<std::endl;);
+//                    DN.expand(isLink.second, exp);
+//                    formedJunctions++;
 //                }
 //            }
 //
-//
-//            for(const auto& tup : glissDeq)
+//            for (const auto &tup : glissDeq)
 //            {
-//                const std::shared_ptr<NodeType>& source(std::get<0>(tup));
-//                const std::shared_ptr<NodeType>& sink(std::get<1>(tup));
-//                const size_t& sourceID(source->sID);
-//                const size_t& sinkID(sink->sID);
-//                const size_t& grainID(std::get<2>(tup));
-//                const size_t& slipID(std::get<3>(tup));
+//                const std::shared_ptr<NetworkNodeType> &source(std::get<0>(tup));
+//                const std::shared_ptr<NetworkNodeType> &sink(std::get<1>(tup));
+//                const size_t &sourceID(source->sID);
+//                const size_t &sinkID(sink->sID);
+//                const size_t &grainID(std::get<2>(tup));
+//                const size_t &slipID(std::get<3>(tup));
 //
-//                const auto isLink(DN.link(sourceID,sinkID));
-//                if(isLink.first)
+//                const auto isLink(DN.link(sourceID, sinkID));
+//                if (isLink.first)
 //                {
 //
-//                    const VectorDim newNodeP(0.5*(isLink.second->source->get_P()+isLink.second->sink->get_P()));
+//                    const VectorDim newNodeP(0.5 * (isLink.second->source->get_P() + isLink.second->sink->get_P()));
 //                    const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
-//                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex,DN.poly.grain(grainID).slipSystems()[slipID]->n);
+//                    const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).slipSystems()[slipID]->n);
 //                    const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
 //
-//                    std::shared_ptr<NodeType> newNode(new NodeType(&DN,glidePlane->snapToPlane(newNodeP),VectorDim::Zero(),1.0));
+//                    std::shared_ptr<NetworkNodeType> newNode(new NetworkNodeType(&DN, glidePlane->snapToPlane(newNodeP), VectorDim::Zero(), 1.0));
 //
-//                    std::vector<std::shared_ptr<NodeType>> loopNodes;
+//                    std::vector<std::shared_ptr<NetworkNodeType>> loopNodes;
 //
-//                    loopNodes.push_back(sink);      // insert in reverse order, sink first, source second
-//                    loopNodes.push_back(source);    // insert in reverse order, sink first, source second
+//                    loopNodes.push_back(sink);   // insert in reverse order, sink first, source second
+//                    loopNodes.push_back(source); // insert in reverse order, sink first, source second
 //                    loopNodes.push_back(newNode);
 //
 //                    DN.insertLoop(loopNodes,
 //                                  DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
 //                                  glidePlane);
 //
-//                    //                    std::set<const LoopType*> sourceLoops;
-//                    //                    for(const auto& loop : source->loops())
-//                    //                    {
-//                    //                        if(loop->slipSystem())
-//                    //                        {
-//                    //                            if(  (loop->slipSystem()->s.cartesian()-DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian()).norm()<FLT_EPSILON
-//                    //                               && fabs(slipSystem->n.cartesian().normalized().dot(unitChord))<FLT_EPSILON)
-//                    //                            if(loop->slipSystem()==DN.poly.grain(grainID).slipSystems()[slipID])
-//                    //                            {
-//                    //                                sourceLoops.insert(loop);
-//                    //                            }
-//                    //                        }
-//                    //                    }
-//                    //
-//                    //                    std::set<const LoopType*> sinkLoops;
-//                    //                    for(const auto& loop : sink->loops())
-//                    //                    {
-//                    //                        if(loop->slipSystem())
-//                    //                        {
-//                    //                            if(loop->slipSystem()==DN.poly.grain(grainID).slipSystems()[slipID])
-//                    //                            {
-//                    //                                sinkLoops.insert(loop);
-//                    //                            }
-//                    //                        }
-//                    //                    }
-//                    //
-//                    //                    if(sourceLoops.size()==1 && sinkLoops.size()==1)
-//                    //                    {
-//                    //                        DN.insertLoop(loopNodes,
-//                    //                                      DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                    //                                      glidePlane);
-//                    //                    }
-//                    //                    else if(sourceLoops.size()==1 && sinkLoops.size()!=1)
-//                    //                    {// source meets expand condition
-//                    //                        const auto linksSet(source->linksByLoopID()[(*sourceLoops.begin())->sID]);
-//                    //                        if(   (*linksSet. begin())->pLink->loopLinks().size()==1
-//                    //                           && (*linksSet.rbegin())->pLink->loopLinks().size()!=1)
-//                    //                        {
-//                    //                            DN.expand((*linksSet. begin())->pLink.get(),sink);
-//                    //                        }
-//                    //                        else if(   (*linksSet. begin())->pLink->loopLinks().size()!=1
-//                    //                                && (*linksSet.rbegin())->pLink->loopLinks().size()==1)
-//                    //                        {
-//                    //                            DN.expand((*linksSet.rbegin())->pLink.get(),sink);
-//                    //                        }
-//                    //                        else
-//                    //                        {
-//                    //                            DN.insertLoop(loopNodes,
-//                    //                                          DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                    //                                          glidePlane);
-//                    //                        }
-//                    //                    }
-//                    //                    else if(sourceLoops.size()!=1 && sinkLoops.size()==1)
-//                    //                    {
-//                    //                        const auto linksSet(sink->linksByLoopID()[(*sinkLoops.begin())->sID]);
-//                    //                        if(   (*linksSet. begin())->pLink->loopLinks().size()==1
-//                    //                           && (*linksSet.rbegin())->pLink->loopLinks().size()!=1)
-//                    //                        {
-//                    //                            DN.expand((*linksSet. begin())->pLink.get(),source);
-//                    //                        }
-//                    //                        else if(   (*linksSet. begin())->pLink->loopLinks().size()!=1
-//                    //                                && (*linksSet.rbegin())->pLink->loopLinks().size()==1)
-//                    //                        {
-//                    //                            DN.expand((*linksSet.rbegin())->pLink.get(),source);
-//                    //                        }
-//                    //                        else
-//                    //                        {
-//                    //                            DN.insertLoop(loopNodes,
-//                    //                                          DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                    //                                          glidePlane);
-//                    //                        }
-//                    //                    }
-//                    //                    else
-//                    //                    {
-//                    //                        DN.insertLoop(loopNodes,
-//                    //                                      DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
-//                    //                                      glidePlane);
-//                    //                    }
-//
-//
-//
 //                    formedJunctions++;
 //                }
-//
-//
-//
 //            }
-//            model::cout<<"("<<formedJunctions<<" junctions)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            model::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
 //        }
+        
         
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
@@ -1016,12 +705,24 @@ namespace model
         /**********************************************************************/
         void formJunctions(const double& dx)
         {
+#ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+#else
+            const size_t nThreads = 1;
+#endif
+            
+
+            
             size_t nContracted=1;
             size_t iterations=0;
             while(nContracted && iterations<maxJunctionIterations)
             {
-                nContracted=junctionStep();
-                glissileJunctions(dx);
+                std::deque<IntersectionTypeContainerType> intersectionContainer;
+                intersectionContainer.resize(nThreads);
+                findIntersections(intersectionContainer,nThreads);
+
+                nContracted=contractJunctions(intersectionContainer);
+//                glissileJunctions(dx);
                 iterations++;
             }
         }

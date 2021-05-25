@@ -16,6 +16,8 @@
 
 #include <TypeTraits.h>
 #include <LoopNode.h>
+#include <GlidePlaneModule.h>
+#include <SplineNode.h>
 
 #ifndef NDEBUG
 #define VerboseDislocationLoopNode(N,x) if(verboseDislocationLoopNode>=N){std::cout<<x;}
@@ -28,13 +30,16 @@ namespace model
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     class DislocationLoopNode : public LoopNode<DislocationLoopNode<dim,corder,InterpolationType>>
+    /*                       */,public SplineNode<DislocationLoopNode<dim,corder,InterpolationType>,dim,corder,InterpolationType>
     {
         
         
+        std::shared_ptr<PeriodicPlanePatch<dim>> _periodicPlanePatch;
         
         public:
         
-        typedef TypeTraits<DislocationLoop<dim,corder,InterpolationType>> TraitsType;
+        typedef DislocationLoopNode<dim,corder,InterpolationType> DislocationLoopNodeType;
+        typedef TypeTraits<DislocationLoopNodeType> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
@@ -42,17 +47,56 @@ namespace model
         typedef typename TraitsType::NetworkNodeType NetworkNodeType;
         typedef typename TraitsType::NetworkLinkType NetworkLinkType;
         typedef typename TraitsType::FlowType FlowType;
-        
-        
-        static int verboseDislocationLoopNode;
+        typedef typename TraitsType::VectorDim VectorDim;
+        typedef typename TraitsType::VectorLowerDim VectorLowerDim;
+        typedef SplineNode<DislocationLoopNode<dim,corder,InterpolationType>,dim,corder,InterpolationType> SplineNodeType;
 
         
+        static int verboseDislocationLoopNode;
+        const std::shared_ptr<PeriodicPlaneEdge<dim>> periodicPlaneEdge;
+        
+//        DislocationLoopNode(LoopNetworkType* const,
+//                      const std::shared_ptr<LoopType>&,
+//                      const std::shared_ptr<NetworkNodeType>&,
+//                      const VectorDim&,
+//                      const VectorDim&,
+//                      const size_t&);
+
         DislocationLoopNode(LoopNetworkType* const,
-                      const std::shared_ptr<LoopType>&,
-                      const std::shared_ptr<NetworkNodeType>&);
+                            const std::shared_ptr<LoopType>&,
+                            const std::shared_ptr<NetworkNodeType>&,
+                            const VectorDim&,
+                            const std::shared_ptr<PeriodicPlanePatch<dim>>&,
+                            const std::shared_ptr<PeriodicPlaneEdge<dim>>&);
+
+        DislocationLoopNode(LoopNetworkType* const,
+                            const std::shared_ptr<LoopType>&,
+                            const std::shared_ptr<NetworkNodeType>&,
+                            const LoopLinkType* const);
+
+        
         
         std::shared_ptr<DislocationLoopNode> clone(const std::shared_ptr<LoopType>&,
                                              const std::shared_ptr<NetworkNodeType>&) const;
+        
+        const DislocationLoopNodeType* periodicPrev() const;
+        const DislocationLoopNodeType* periodicNext() const;
+
+
+        std::vector<DislocationLoopNodeType*> boundaryPrev() const;
+        std::vector<DislocationLoopNodeType*> boundaryNext() const;
+
+        
+        void addLoopLink(LoopLinkType* const);
+        void removeLoopLink(LoopLinkType* const);
+        void updateGeometry();
+
+        void set_P(const VectorDim&);
+        void set_P(const VectorLowerDim&);
+        std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
+        bool isRemovable(const double& Lmin, const double& relAreaTh);
+        bool isMovableTo(const VectorDim&) const;
+        bool isContractableTo(const LoopNodeType* const other) const;
         
         static void initFromFile(const std::string&);
 

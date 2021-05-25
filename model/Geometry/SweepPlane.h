@@ -26,12 +26,13 @@ namespace model
      */
     template <typename LineType,int dim>
     struct SweepPlane :
-    /* base */ public std::map<double,std::pair<std::set<const LineType*>,std::set<const LineType*>>>,
+    /* base */ public std::map<double,std::pair<std::map<typename LineType::KeyType,const LineType*>,std::map<typename LineType::KeyType,const LineType*>>>,
     /* base */ public std::deque<std::pair<const LineType*,const LineType*>>
     {
         
-        typedef std::set<const LineType*> EventSetType;
-        typedef std::map<double,std::pair<EventSetType,EventSetType>> EventContainerType;
+//        typedef std::set<const LineType*> EventMapType;
+        typedef std::map<typename LineType::KeyType,const LineType*> EventMapType;
+        typedef std::map<double,std::pair<EventMapType,EventMapType>> EventContainerType;
         typedef std::deque<std::pair<const LineType*,const LineType*>> IntersectionPairContainerType;
         /**********************************************************************/
         const EventContainerType& events() const
@@ -59,15 +60,15 @@ namespace model
         void addSegment(const double& xStart,const double& xEnd,const LineType& line)
         {
             
-            const bool success1=events()[std::min(xStart,xEnd)].first.insert(&line).second;     // line starts at xStart
-            const bool success2=events()[std::max(xStart,xEnd)].second.insert(&line).second;    // line ends at xEnd
+            const bool success1=events()[std::min(xStart,xEnd)].first.emplace(line.key,&line).second;     // line starts at xStart
+            const bool success2=events()[std::max(xStart,xEnd)].second.emplace(line.key,&line).second;    // line ends at xEnd
             assert(success1==success2);
         }
         
         /**********************************************************************/
         void computeIntersectionPairs()
         {
-            std::set<const LineType*> activeSegments;
+            std::map<typename LineType::KeyType,const LineType*> activeSegments;
             
             for(const auto& event : events())
             {
@@ -76,19 +77,19 @@ namespace model
                 {
                     for(const auto& activeSegment : activeSegments)
                     {
-                        if(activeSegment!=startingSegment)
+                        if(activeSegment.second!=startingSegment.second)
                         {
-                            IntersectionPairContainerType::emplace_back(activeSegment,startingSegment);
+                            IntersectionPairContainerType::emplace_back(activeSegment.second,startingSegment.second);
                         }
                         
                     }
-                    const bool success=activeSegments.insert(startingSegment).second;
+                    const bool success=activeSegments.emplace(startingSegment.first,startingSegment.second).second;
                     assert(success);
                 }
                 
                 for(const auto& endingSegment : event.second.second)
                 {
-                    const size_t nErased=activeSegments.erase(endingSegment);
+                    const size_t nErased=activeSegments.erase(endingSegment.first);
                     assert(nErased==1);
                 }
             }

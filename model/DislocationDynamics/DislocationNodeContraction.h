@@ -19,6 +19,7 @@
 #include <ConfinedDislocationObject.h>
 #include <Grain.h>
 #include <FiniteLineSegment.h>
+#include <PlaneLineIntersection.h>
 
 #ifndef NDEBUG
 #define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}
@@ -32,8 +33,8 @@ namespace model
     class DislocationNodeContraction
     {
         
-        static constexpr int dim=DislocationNetworkType::dim;
-        typedef typename DislocationNetworkType::NodeType NodeType;
+        static constexpr int dim=TypeTraits<DislocationNetworkType>::dim;
+        typedef typename TypeTraits<DislocationNetworkType>::NetworkNodeType NetworkNodeType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         DislocationNetworkType& DN;
@@ -51,8 +52,8 @@ namespace model
         }
         
         /**********************************************************************/
-        bool contractSecondAndVirtual(std::shared_ptr<NodeType> nA,
-                                      std::shared_ptr<NodeType> nB)
+        bool contractSecondAndVirtual(std::shared_ptr<NetworkNodeType> nA,
+                                      std::shared_ptr<NetworkNodeType> nB)
         {
             switch (DN.simulationParameters.simulationType)
             {
@@ -61,7 +62,7 @@ namespace model
                     if(nB->virtualBoundaryNode())
                     {
                         assert(nA->virtualBoundaryNode());
-                        DN.contractSecond(nA->virtualBoundaryNode(),nB->virtualBoundaryNode());
+                        DN.contractNetworkNodes(nA->virtualBoundaryNode(),nB->virtualBoundaryNode());
                     }
                     break;
                 }
@@ -72,20 +73,20 @@ namespace model
 //                    break;
 //                }
             }
-            return DN.contractSecond(nA,nB);
+            return DN.contractNetworkNodes(nA,nB);
         }
         
         /**********************************************************************/
-        bool contractYoungest(std::shared_ptr<NodeType> nA,
-                              std::shared_ptr<NodeType> nB)
+        bool contractYoungest(std::shared_ptr<NetworkNodeType> nA,
+                              std::shared_ptr<NetworkNodeType> nB)
         {
             return nA->sID<nB->sID? contractSecondAndVirtual(nA,nB) : contractSecondAndVirtual(nB,nA);
             
         }
         
         /**********************************************************************/
-        bool contractToPosition(std::shared_ptr<NodeType> nA,
-                                std::shared_ptr<NodeType> nB,
+        bool contractToPosition(std::shared_ptr<NetworkNodeType> nA,
+                                std::shared_ptr<NetworkNodeType> nB,
                                 const VectorDim& X,
                                 const double& maxRange)
         {
@@ -109,8 +110,8 @@ namespace model
         }
         
         /**********************************************************************/
-        bool contract(std::shared_ptr<NodeType> nA,
-                      std::shared_ptr<NodeType> nB)
+        bool contract(std::shared_ptr<NetworkNodeType> nA,
+                      std::shared_ptr<NetworkNodeType> nB)
         {
             
             VerboseNodeContraction(1,"DislocationNodeContraction::contract "<<nA->sID<<" "<<nB->sID<<std::endl;);

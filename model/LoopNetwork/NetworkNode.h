@@ -20,8 +20,12 @@
 #include <CRTP.h>
 #include <NetworkBase.h>
 
-#define VerboseNetworkNode(N,x) if(verboseLevel>=N){model::cout<<redColor<<x<<defaultColor;}
 
+#ifndef NDEBUG
+#define VerboseNetworkNode(N,x) if(verboseLevel>=N){model::cout<<redColor<<x<<defaultColor;}
+#else
+#define VerboseNetworkNode(N,x)
+#endif
 
 namespace model
 {
@@ -30,7 +34,7 @@ namespace model
     template<typename Derived>
     class NetworkNode : public StaticID<Derived>
     /*            */,public CRTP<Derived>
-    /*            */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,size_t>
+    /*            */,public NetworkBase<Derived,size_t>
     /*            */,public std::set<typename TypeTraits<Derived>::LoopNodeType*>
     /*            */,private std::map<size_t,std::tuple<Derived* const ,typename TypeTraits<Derived>::NetworkLinkType* const>>
     {
@@ -42,7 +46,7 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
         typedef std::set<LoopNodeType*> LoopNodeContainerType;
-        typedef NetworkBase<LoopNetworkType,size_t> NetworkBaseType;
+        typedef NetworkBase<Derived,size_t> NetworkBaseType;
         typedef std::tuple<Derived* const ,NetworkLinkType* const>                NeighborType;
         typedef std::map<size_t,NeighborType>                            NeighborContainerType;
 
@@ -99,7 +103,7 @@ namespace model
     
         /**********************************************************************/
         NetworkNode(LoopNetworkType* const loopNetwork_in) :
-        /* init */ NetworkBaseType(loopNetwork_in,this->sID)
+        /* init */ NetworkBaseType(loopNetwork_in,&loopNetwork_in->networkNodes(),this->sID)
 //        /* init list */,psn(network().commonNetworkComponent? network().commonNetworkComponent : std::shared_ptr<NetworkComponentType>(new NetworkComponentType(this->p_derived())))
         {
             VerboseNetworkNode(1,"Constructing NetworkNode "<<tag()<<std::endl);
@@ -119,6 +123,11 @@ namespace model
 //            this->psn->remove(this->p_derived());
             
         }
+        
+//        size_t networkID() const
+//        {
+//            return std::distance(this->network().networkNodes().begin(),this->network().networkNodes().find(this->key));
+//        }
         
         const LoopNodeContainerType& loopNodes() const
         {

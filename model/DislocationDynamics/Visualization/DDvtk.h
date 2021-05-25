@@ -48,10 +48,10 @@
 
 
 
-#include <SimplicialMeshActor.h>
-#include <DislocationSegmentActor.h>
-//#include <DislocationActors.h>
-#include <PlotActor.h>
+//#include <SimplicialMeshActor.h>
+//#include <DislocationSegmentActor.h>
+////#include <DislocationActors.h>
+//#include <PlotActor.h>
 #include <DDinteractionStyle.h>
 
 //#include <EigenDataReader.h>

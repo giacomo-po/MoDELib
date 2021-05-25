@@ -104,8 +104,8 @@ namespace model
         {/*!\returns The matrix of Hermite dofs of this spline segment.
           *  [P0x P0y P0z;P1x P1y P1z]
           */
-            return (MatrixNcoeffDim()<< link.source->get_P().transpose(),
-                    /*            */	link.  sink->get_P().transpose()).finished();
+            return (MatrixNcoeffDim()<< link.sourceP.transpose(),
+                    /*            */	link.  sinkP.transpose()).finished();
         }
         
         /**********************************************************************/
@@ -122,24 +122,24 @@ namespace model
             return VectorDim::Zero();
         }
         
-        /**********************************************************************/
-        template<typename LinkType>
-        static H2PmapType hermite2posMap(const LinkType& link) // move to CatmullRom?
-        {
-            
-            //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
-            
-            //            std::map<size_t,VectorDim> posMap;
-            //            std::map<size_t,std::pair<double,double>> temp;
-            
-            H2PmapType temp;
-            temp.emplace(link.source->snID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),link.source->get_P()));
-            temp.emplace(link.  sink->snID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),link.  sink->get_P()));
-            
-            
-            
-            return temp;
-        }
+//        /**********************************************************************/
+//        template<typename LinkType>
+//        static H2PmapType hermite2posMap(const LinkType& link) // move to CatmullRom?
+//        {
+//
+//            //            std::cout<<link.source->sID<<"->"<<link.sink->sID<<std::endl;
+//
+//            //            std::map<size_t,VectorDim> posMap;
+//            //            std::map<size_t,std::pair<double,double>> temp;
+//
+//            H2PmapType temp;
+//            temp.emplace(link.source->snID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),link.sourceP));
+//            temp.emplace(link.  sink->snID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),link.  sinkP));
+//
+//
+//
+//            return temp;
+//        }
         
            /**********************************************************************/
             template<typename LinkType>

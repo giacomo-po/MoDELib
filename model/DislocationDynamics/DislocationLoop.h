@@ -14,6 +14,7 @@
 
 #include <TypeTraits.h>
 #include <Loop.h>
+#include <GlidePlaneModule.h>
 //#include <LatticeVector.h>
 //#include <LatticePlaneBase.h>
 //#include <LatticePlane.h>
@@ -38,6 +39,8 @@ namespace model
     class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
     {
 
+        
+        
     public:
         
         typedef TypeTraits<DislocationLoop<_dim,corder,InterpolationType>> TraitsType;
@@ -48,18 +51,53 @@ namespace model
         typedef typename TraitsType::NetworkNodeType NetworkNodeType;
         typedef typename TraitsType::NetworkLinkType NetworkLinkType;
         typedef typename TraitsType::FlowType FlowType;
-        
+        typedef typename TraitsType::VectorDim VectorDim;
+        typedef typename TraitsType::MatrixDim MatrixDim;
+        typedef typename TraitsType::GrainType GrainType;
+        typedef typename TraitsType::GlidePlaneType GlidePlaneType;
+        typedef typename TraitsType::PeriodicGlidePlaneType PeriodicGlidePlaneType;
+        typedef typename TraitsType::ReciprocalLatticeDirectionType ReciprocalLatticeDirectionType;
         static int verboseDislocationLoop;
 
+        const std::shared_ptr<GlidePlaneType> glidePlane;
+        const std::shared_ptr<PeriodicGlidePlaneType> periodicGlidePlane;
+        const GrainType& grain;
+        const int loopType;
+
+        
+    private:
+        
+        VectorDim nA;
+        double _slippedArea;
+        VectorDim _rightHandedUnitNormal;
+        ReciprocalLatticeDirectionType _rightHandedNormal;
+        std::shared_ptr<SlipSystem> _slipSystem;
+
+        
+    public:
         
         DislocationLoop(LoopNetworkType* const,
-                        const FlowType&);
-        
+                        const VectorDim&,
+                        const std::shared_ptr<GlidePlaneType>& glidePlane_in);
         std::shared_ptr<LoopType> clone() const;
+        const double& slippedArea() const;
+        const VectorDim& rightHandedUnitNormal() const;
+        const ReciprocalLatticeDirectionType& rightHandedNormal() const;
+        std::tuple<double,double,double> loopLength() const;
+        std::shared_ptr<SlipSystem> searchSlipSystem() const;
+        void updateSlipSystem();
+        void updateGeometry();
+        MatrixDim plasticDistortion() const;
+        VectorDim burgers() const;
+        const std::shared_ptr<SlipSystem>&  slipSystem() const;
+        bool isVirtualBoundaryLoop() const;
+        double solidAngle(const VectorDim& x) const;
         
         static void initFromFile(const std::string&);
+        static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);
+        template <typename T> static int sgn(const T& val);
         
-//        typedef DislocationLoop<_dim,corder,InterpolationType> LoopType;
+        //        typedef DislocationLoop<_dim,corder,InterpolationType> LoopType;
 
 //
 //        constexpr static int dim=_dim;
@@ -135,39 +173,13 @@ namespace model
 ////        {
 ////        }
 //
-////        /**********************************************************************/
-////        void updateGeometry()
-////        {
-////            BaseLoopType::updateGeometry();
-////            updateSlipSystem();
-////        }
+
+        /******************************************************************/
+
+
+        /**********************************************************************/
 //
-//        /**********************************************************************/
-//        std::tuple<double,double,double> loopLength() const
-//        {
-//            double freeLength=0.0;
-//            double boundaryLength=0.0;
-//            double junctionLength=0.0;
-//            for(const auto& link : this->links())
-//            {
-//                if(link.second->pLink->isBoundarySegment())
-//                {
-//                    boundaryLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                }
-//                else
-//                {
-//                    if(link.second->pLink->loopLinks().size()==1)
-//                    {
-//                        freeLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                    }
-//                    else
-//                    {
-//                        junctionLength+=(link.second->sink()->get_P()-link.second->source()->get_P()).norm();
-//                    }
-//                }
-//            }
-//            return std::make_tuple(freeLength,junctionLength,boundaryLength);
-//        }
+        /**********************************************************************/
 //
 //
 //        /**********************************************************************/

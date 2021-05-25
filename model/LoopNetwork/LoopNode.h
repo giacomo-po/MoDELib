@@ -24,8 +24,12 @@
 #include <NetworkBase.h>
 
 
-#define VerboseLoopNode(N,x) if(verboseLevel>=N){model::cout<<greenColor<<x<<defaultColor;}
 
+#ifndef NDEBUG
+#define VerboseLoopNode(N,x) if(verboseLevel>=N){model::cout<<greenColor<<x<<defaultColor;}
+#else
+#define VerboseLoopNode(N,x)
+#endif
 
 namespace model
 {
@@ -33,7 +37,7 @@ namespace model
     template<typename Derived>
     class LoopNode : public StaticID<Derived>
     /*            */,public CRTP<Derived>
-    /*            */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,size_t>
+    /*            */,public NetworkBase<Derived,size_t>
     {
         
     public:
@@ -43,7 +47,7 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::NetworkNodeType NetworkNodeType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NetworkBase<LoopNetworkType,size_t> NetworkBaseType;
+        typedef NetworkBase<Derived,size_t> NetworkBaseType;
 
         
     private:
@@ -69,7 +73,7 @@ namespace model
         LoopNode(LoopNetworkType* const loopNetwork_in,
                  const std::shared_ptr<LoopType>& loop_in,
                  const std::shared_ptr<NetworkNodeType>& networkNode_in) :
-        /* init */ NetworkBaseType(loopNetwork_in,this->sID)
+        /* init */ NetworkBaseType(loopNetwork_in,&loopNetwork_in->loopNodes(),this->sID)
         /* init */,_loop(loop_in)
         /* init */,networkNode(networkNode_in)
         /* init */,prev(nullptr,nullptr)
@@ -92,6 +96,11 @@ namespace model
             
             networkNode->removeLoopNode(this->p_derived());
         }
+        
+//        size_t networkID() const
+//        {
+//            return std::distance(this->network().loopNodes().begin(),this->network().loopNodes().find(this->key));
+//        }
         
         /**********************************************************************/
         void resetLoop(const std::shared_ptr<LoopType>& newLoop)

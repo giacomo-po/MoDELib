@@ -12,7 +12,7 @@
 
 #include <PeriodicGlidePlane.h>
 
-
+#include <math.h>
 
 
 namespace model
@@ -22,11 +22,14 @@ namespace model
     PeriodicPlaneEdge<dim>::PeriodicPlaneEdge(const PeriodicPlanePatch<dim>* const patch_in,
                                               const std::shared_ptr<PeriodicPlaneNode<dim>>& source_in,
                                               const std::shared_ptr<PeriodicPlaneNode<dim>>& sink_in,
-                                              const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection_in) :
+                                              const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection_in,
+                                              const short int& edgeID_in) :
     /* init */ patch(patch_in)
     /* init */,source(source_in)
     /* init */,sink(sink_in)
     /* init */,meshIntersection(meshIntersection_in)
+    /* init */,edgeID(edgeID_in)
+    /* init */,deltaShift(getDeltaShift(patch,meshIntersection))
     /* init */,next(nullptr)
     /* init */,prev(nullptr)
     /* init */,twin(nullptr)
@@ -36,11 +39,11 @@ namespace model
         sink->addLink(this);
         if(twin)
         {
-            patch->periodicPlane->removeUntwinnedEdge(twin);
+            patch->patchBoundary->removeUntwinnedEdge(twin);
         }
         else
         {
-            patch->periodicPlane->addUntwinnedEdge(this);
+            patch->patchBoundary->addUntwinnedEdge(this);
         }
     }
     
@@ -62,25 +65,40 @@ namespace model
         if(twin)
         {
             twin->twin=nullptr;
-            patch->periodicPlane->addUntwinnedEdge(twin);
+            patch->patchBoundary->addUntwinnedEdge(twin);
         }
         else
         {
-            patch->periodicPlane->removeUntwinnedEdge(this);
+            patch->patchBoundary->removeUntwinnedEdge(this);
         }
+    }
+    
+    template<int dim>
+    typename PeriodicPlaneEdge<dim>::VectorDim PeriodicPlaneEdge<dim>::getDeltaShift(const PeriodicPlanePatch<dim>* const patch,const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection)
+    {
+        
+        VectorDim shift(VectorDim::Zero());
+        for(const PlanarMeshFace<dim>* const face : meshIntersection->faces)
+        {
+            const auto parallelFaceID(patch->glidePlane->grain.region.parallelFaces().at(face->sID));
+            const auto parallelFace(patch->glidePlane->grain.region.faces().at(parallelFaceID));
+            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
+            
+        }
+        return shift;
     }
     
     template<int dim>
     std::string PeriodicPlaneEdge<dim>::tag() const
     {/*!\returns the string "i->j" where i is source()->sID and j=sink()->sID
       */
-        return std::to_string(source->sID) + " " + std::to_string(sink->sID)+" "+std::to_string(patch->sID);
+        return std::to_string(source->sID) + " " + std::to_string(sink->sID)+" "+std::to_string(patch->sID)+" ("+std::to_string(edgeID)+")";
     }
     
     
     /**********************************************************************/
     template<int dim>
-    PeriodicPlaneNode<dim>::PeriodicPlaneNode(const VectorLowerDim& pos) :
+    PeriodicPlaneNode<dim>::PeriodicPlaneNode(PeriodicPatchBoundary<dim>* const,const VectorLowerDim& pos) :
     /* init*/ VectorLowerDim(pos)
     {
         
@@ -269,15 +287,15 @@ namespace model
     
     /**********************************************************************/
     template<int dim>
-    PeriodicPlanePatch<dim>::PeriodicPlanePatch(PeriodicGlidePlane<dim>& periodicPlane_in,
+    PeriodicPlanePatch<dim>::PeriodicPlanePatch(PeriodicPatchBoundary<dim>* const periodicPatchBoundary_in,
                        const VectorDim& shift_in) :
-    /* init */ periodicPlane(&periodicPlane_in)
+    /* init */ patchBoundary(periodicPatchBoundary_in)
     /* init */,shift(shift_in)
-    /* init */,glidePlane(periodicPlane->getGlidePlane(shift))
+    /* init */,glidePlane(patchBoundary->getGlidePlane(shift))
     {
-        //            std::cout<<cyanColor<<"Creating patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
+//                    std::cout<<cyanColor<<"Creating patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
         
-        if(isRightHandedBoundary(glidePlane->meshIntersections,*periodicPlane->referencePlane))
+        if(isRightHandedBoundary(glidePlane->meshIntersections,*patchBoundary->referencePlane))
         {
             addMeshIntersections(glidePlane->meshIntersections);
         }
@@ -291,16 +309,16 @@ namespace model
             addMeshIntersections(flippedTemp);
         }
         
-        periodicPlane->updateBoundaries();
+        patchBoundary->updateBoundaries();
         
     }
     
     template<int dim>
     PeriodicPlanePatch<dim>::~PeriodicPlanePatch()
     {
-        //            std::cout<<cyanColor<<"Destroying patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
+//                    std::cout<<cyanColor<<"Destroying patch "<<this->sID<<" with shift="<<std::setprecision(15)<<std::scientific<<shift.transpose()<<defaultColor<<std::endl;
         this->clear(); // call before updateBoundaries
-        periodicPlane->updateBoundaries();
+        patchBoundary->updateBoundaries();
     }
     
     template<int dim>
@@ -325,12 +343,49 @@ namespace model
     template<int dim>
     void PeriodicPlanePatch<dim>::addMeshIntersections(const BoundingMeshSegments<dim>& bms)
     {
+        
+        std::vector<std::tuple<std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<MeshBoundarySegment<dim>>,double>> tempEdges;
         for(size_t k=0;k<bms.size();++k)
         {// compute 2d points on PeriodicPlane, and coneect them
-            std::shared_ptr<PeriodicPlaneNode<dim>> source(periodicPlane->getSharedNode(bms[k]->P0,shift));
-            std::shared_ptr<PeriodicPlaneNode<dim>>   sink(periodicPlane->getSharedNode(bms[k]->P1,shift));
-            this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k]));
+            std::shared_ptr<PeriodicPlaneNode<dim>> source(patchBoundary->getSharedNode(bms[k]->P0,shift));
+            std::shared_ptr<PeriodicPlaneNode<dim>>   sink(patchBoundary->getSharedNode(bms[k]->P1,shift));
+            tempEdges.emplace_back(source,sink,bms[k],0.0);
         }
+        
+        VectorLowerDim C(VectorLowerDim::Zero());
+        for(const auto& tup : tempEdges)
+        {
+            C+=*std::get<0>(tup);
+        }
+        C/=tempEdges.size(); // position of center of patch
+        
+        std::pair<double,size_t> minAngle(M_PI,tempEdges.size());
+        for(size_t k=0;k<tempEdges.size();++k)
+        {
+            const auto x(*std::get<0>(tempEdges[k])-C);
+            const double angle(std::fabs(atan2(x(1),x(0))));
+            if(angle<minAngle.first)
+            {
+                minAngle.first=angle;
+                minAngle.second=k;
+            }
+            std::get<3>(tempEdges[k])=angle;
+        }
+        
+        // store edges starting from source of minimum angle
+        for(size_t s=0;s<tempEdges.size();++s)
+        {
+            const short int k((minAngle.second+s)%tempEdges.size());
+            this->emplace_back(new PeriodicPlaneEdge<dim>(this,std::get<0>(tempEdges[k]),std::get<1>(tempEdges[k]),std::get<2>(tempEdges[k]),s));
+        }
+        
+//
+//        for(size_t k=0;k<bms.size();++k)
+//        {// compute 2d points on PeriodicPlane, and coneect them
+//            std::shared_ptr<PeriodicPlaneNode<dim>> source(periodicPlane->getSharedNode(bms[k]->P0,shift));
+//            std::shared_ptr<PeriodicPlaneNode<dim>>   sink(periodicPlane->getSharedNode(bms[k]->P1,shift));
+//            this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k]));
+//        }
     }
     
     template<int dim>
@@ -358,68 +413,67 @@ namespace model
         return c;
     }
     
-    /**********************************************************************/
-    template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::MatrixDim PeriodicGlidePlaneBase<dim>::getL2G(VectorDim z)
-    {
-        //            const double xNorm(x.norm());
-        const double zNorm(z.norm());
-        assert(zNorm>FLT_EPSILON);
-        z/=zNorm;
-        
-        VectorDim x(VectorDim::UnitX().cross(z));
-        double xNorm(x.norm());
-        if(xNorm>FLT_EPSILON)
-        {
-            x=x/xNorm;
-        }
-        else
-        {
-            x=VectorDim::UnitY().cross(z);
-            xNorm=x.norm();
-            if(xNorm>FLT_EPSILON)
-            {
-                x=x/xNorm;
-            }
-            else
-            {
-                x=VectorDim::UnitZ().cross(z);
-                xNorm=x.norm();
-                if(xNorm>FLT_EPSILON)
-                {
-                    x=x/xNorm;
-                }
-                else
-                {
-                    assert(false && "CANNOT FIND VECTOR ORTHOGONAL TO z");
-                }
-            }
-        }
-        
-        assert(std::fabs(x.norm()-1.0)<FLT_EPSILON);
-        assert(std::fabs(z.norm()-1.0)<FLT_EPSILON);
-        assert(fabs(x.dot(z)<FLT_EPSILON));
-        MatrixDim temp(Eigen::Matrix3d::Identity());
-        temp.col(2)=z;
-        temp.col(0)=x;
-        temp.col(1)=temp.col(2).cross(temp.col(0));
-        return temp;
-    }
+//    /**********************************************************************/
+//    template<int dim>
+//    typename PeriodicPatchBoundary<dim>::MatrixDim PeriodicPatchBoundary<dim>::getL2G(VectorDim z)
+//    {
+//        //            const double xNorm(x.norm());
+//        const double zNorm(z.norm());
+//        assert(zNorm>FLT_EPSILON);
+//        z/=zNorm;
+//
+//        VectorDim x(VectorDim::UnitX().cross(z));
+//        double xNorm(x.norm());
+//        if(xNorm>FLT_EPSILON)
+//        {
+//            x=x/xNorm;
+//        }
+//        else
+//        {
+//            x=VectorDim::UnitY().cross(z);
+//            xNorm=x.norm();
+//            if(xNorm>FLT_EPSILON)
+//            {
+//                x=x/xNorm;
+//            }
+//            else
+//            {
+//                x=VectorDim::UnitZ().cross(z);
+//                xNorm=x.norm();
+//                if(xNorm>FLT_EPSILON)
+//                {
+//                    x=x/xNorm;
+//                }
+//                else
+//                {
+//                    assert(false && "CANNOT FIND VECTOR ORTHOGONAL TO z");
+//                }
+//            }
+//        }
+//
+//        assert(std::fabs(x.norm()-1.0)<FLT_EPSILON);
+//        assert(std::fabs(z.norm()-1.0)<FLT_EPSILON);
+//        assert(fabs(x.dot(z)<FLT_EPSILON));
+//        MatrixDim temp(Eigen::Matrix3d::Identity());
+//        temp.col(2)=z;
+//        temp.col(0)=x;
+//        temp.col(1)=temp.col(2).cross(temp.col(0));
+//        return temp;
+//    }
     
     template<int dim>
-    PeriodicGlidePlaneBase<dim>::PeriodicGlidePlaneBase(GlidePlaneFactory<dim>& glidePlaneFactory_in,
-                           const GlidePlaneKey<dim>& referencePlaneKey) :
+    PeriodicPatchBoundary<dim>::PeriodicPatchBoundary(GlidePlaneFactory<dim>& glidePlaneFactory_in, const std::shared_ptr<GlidePlane<dim>>& referencePlane_in) :
     /* init */ glidePlaneFactory(glidePlaneFactory_in)
-    /* init */,referencePlane(glidePlaneFactory.get(referencePlaneKey))
-    /* init */,L2G(getL2G(referencePlane->unitNormal))
+    /* init */,referencePlane(referencePlane_in)
+//    /* init */,L2G(getL2G(referencePlane->unitNormal))
     {
         
         assert(referencePlane->meshIntersections.size()>=3);
     }
     
-    //        ~PeriodicGlidePlaneBase()
+    //        ~PeriodicPatchBoundary()
     //        {
-    //            std::cout<<"DESTROYING PeriodicGlidePlaneBase"<<std::endl;
+    //            std::cout<<"DESTROYING PeriodicPatchBoundary"<<std::endl;
     //        }
     
     
@@ -427,81 +481,71 @@ namespace model
     
     
     
-    template<int dim>
-    GlidePlaneKey<dim> PeriodicGlidePlaneBase<dim>::getGlidePlaneKey(const VectorDim& shift)
-    {
-        return GlidePlaneKey<dim>(referencePlane->P+shift,referencePlane->n);
-    }
+
     
     template<int dim>
-    std::shared_ptr<GlidePlane<dim>> PeriodicGlidePlaneBase<dim>::getGlidePlane(const VectorDim& shift)
-    {
-        return glidePlaneFactory.get(getGlidePlaneKey(shift));
-    }
-    
-    template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::BoundariesContainerType& PeriodicGlidePlaneBase<dim>::outerBoundaries()
+    typename PeriodicPatchBoundary<dim>::BoundariesContainerType& PeriodicPatchBoundary<dim>::outerBoundaries()
     {
         return _outerBoundaries;
     }
     
     template<int dim>
-    const typename PeriodicGlidePlaneBase<dim>::BoundariesContainerType& PeriodicGlidePlaneBase<dim>::outerBoundaries() const
+    const typename PeriodicPatchBoundary<dim>::BoundariesContainerType& PeriodicPatchBoundary<dim>::outerBoundaries() const
     {
         return _outerBoundaries;
     }
     
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::BoundariesContainerType& PeriodicGlidePlaneBase<dim>::innerBoundaries()
+    typename PeriodicPatchBoundary<dim>::BoundariesContainerType& PeriodicPatchBoundary<dim>::innerBoundaries()
     {
         return _innerBoundaries;
     }
     
     template<int dim>
-    const typename PeriodicGlidePlaneBase<dim>::BoundariesContainerType& PeriodicGlidePlaneBase<dim>::innerBoundaries() const
+    const typename PeriodicPatchBoundary<dim>::BoundariesContainerType& PeriodicPatchBoundary<dim>::innerBoundaries() const
     {
         return _innerBoundaries;
     }
     
     template<int dim>
-    const typename PeriodicGlidePlaneBase<dim>::UntwinnedEdgeContainerType& PeriodicGlidePlaneBase<dim>::untwinnedEdges() const
+    const typename PeriodicPatchBoundary<dim>::UntwinnedEdgeContainerType& PeriodicPatchBoundary<dim>::untwinnedEdges() const
     {
         return *this;
     }
     
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::UntwinnedEdgeContainerType& PeriodicGlidePlaneBase<dim>::untwinnedEdges()
+    typename PeriodicPatchBoundary<dim>::UntwinnedEdgeContainerType& PeriodicPatchBoundary<dim>::untwinnedEdges()
     {
         return *this;
     }
     
     template<int dim>
-    void PeriodicGlidePlaneBase<dim>::addUntwinnedEdge(const PeriodicPlaneEdge<dim>* link)
+    void PeriodicPatchBoundary<dim>::addUntwinnedEdge(const PeriodicPlaneEdge<dim>* link)
     {
         untwinnedEdges().insert(link);
     }
     
     template<int dim>
-    void PeriodicGlidePlaneBase<dim>::removeUntwinnedEdge(const PeriodicPlaneEdge<dim>* link)
+    void PeriodicPatchBoundary<dim>::removeUntwinnedEdge(const PeriodicPlaneEdge<dim>* link)
     {
         const size_t erased(untwinnedEdges().erase(link));
         assert(erased==1 && "COULD NOT ERASE LINK FROM BOUNDARYLINKS");
     }
     
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::NodeCointainerType& PeriodicGlidePlaneBase<dim>::nodes()
+    typename PeriodicPatchBoundary<dim>::NodeCointainerType& PeriodicPatchBoundary<dim>::nodes()
     {
         return *this;
     }
     
     template<int dim>
-    const typename PeriodicGlidePlaneBase<dim>::NodeCointainerType& PeriodicGlidePlaneBase<dim>::nodes() const
+    const typename PeriodicPatchBoundary<dim>::NodeCointainerType& PeriodicPatchBoundary<dim>::nodes() const
     {
         return *this;
     }
     
     template<int dim>
-    int PeriodicGlidePlaneBase<dim>::isInsideOuterBoundary(const VectorLowerDim& test)
+    int PeriodicPatchBoundary<dim>::isInsideOuterBoundary(const VectorLowerDim& test)
     {
         if(isCompact())
         {
@@ -527,13 +571,13 @@ namespace model
     }
     
     template<int dim>
-    bool PeriodicGlidePlaneBase<dim>::isCompact() const
+    bool PeriodicPatchBoundary<dim>::isCompact() const
     {
         return outerBoundaries().size()==1 && innerBoundaries().size()==0;
     }
     
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::VectorDim PeriodicGlidePlaneBase<dim>::rightHandedNormal(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
+    typename PeriodicPatchBoundary<dim>::VectorDim PeriodicPatchBoundary<dim>::rightHandedNormal(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
     {// TO DO: THIS SHOULD USE THE 2D POINTS
         if(bnd.size()>=3)
         {
@@ -555,97 +599,79 @@ namespace model
     }
     
     template<int dim>
-    double PeriodicGlidePlaneBase<dim>::rightHandedArea(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
+    double PeriodicPatchBoundary<dim>::rightHandedArea(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
     {
         return rightHandedNormal(bnd).dot(referencePlane->unitNormal);
     }
     
     template<int dim>
-    bool PeriodicGlidePlaneBase<dim>::isRightHandedBoundary(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
+    bool PeriodicPatchBoundary<dim>::isRightHandedBoundary(const std::vector<const PeriodicPlaneEdge<dim>*>& bnd)
     {
         return rightHandedArea(bnd)>=0.0;
     }
     
+//    template<int dim>
+//    typename PeriodicPatchBoundary<dim>::VectorLowerDim PeriodicPatchBoundary<dim>::getLocalPosition(const VectorDim& point,const VectorDim& shift) const
+//    {
+//        const VectorDim pointLocal(L2G.transpose()*(point-shift-referencePlane->P));
+//        if(fabs(pointLocal(2))>FLT_EPSILON)
+//        {
+//            std::cout<<"point"<<point.transpose()<<std::endl;
+//            std::cout<<"shift"<<shift.transpose()<<std::endl;
+//            std::cout<<"referencePlane->P"<<referencePlane->P.transpose()<<std::endl;
+//            std::cout<<"L2G=\n"<<L2G<<std::endl;
+//            std::cout<<"pointLocal"<<pointLocal.transpose()<<std::endl;
+//            assert(false && "local point has non-zero z-coordinate");
+//        }
+//        return pointLocal.template segment<2>(0);
+//    }
+//
+//    template<int dim>
+//    typename PeriodicPatchBoundary<dim>::VectorDim PeriodicPatchBoundary<dim>::getGlobalPosition(const VectorLowerDim& point) const
+//    {// terurns the position on the plane in global goordinates
+//        return L2G.template block<dim,dim-1>(0,0)*point+referencePlane->P;
+//    }
+    
+//    template<int dim>
+//    std::shared_ptr<PeriodicPlaneNode<dim> > PeriodicPatchBoundary<dim>::getSharedNode(const VectorDim& pointDim,const VectorDim& shift)
+//    {
+//        const VectorLowerDim point(referencePlane->localPosition(pointDim-shift));
+//        const auto iter(nodes().find(point));
+//        if(iter==nodes().end())
+//        {// point does not exist
+//            //                std::shared_ptr<PeriodicPlaneNode<dim>> newNode(new PeriodicPlaneNode<dim>(point));
+//            //                nodes().emplace(point,newNode.get());
+//            return nodes().emplace(point,std::shared_ptr<PeriodicPlaneNode<dim> >(new PeriodicPlaneNode<dim>(point))).first->second.lock();
+//            //                return newNode;
+//        }
+//        else
+//        {// point exists
+//            if(iter->second.expired())
+//            {// node deleted elsewhere
+//                nodes().erase(iter);
+//                return nodes().emplace(point,std::shared_ptr<PeriodicPlaneNode<dim> >(new PeriodicPlaneNode<dim>(point))).first->second.lock();
+//            }
+//            else
+//            {
+//                return iter->second.lock();
+//            }
+//        }
+//    }
+    
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::VectorLowerDim PeriodicGlidePlaneBase<dim>::getLocalPosition(const VectorDim& point,const VectorDim& shift) const
+    std::shared_ptr<PeriodicPlaneNode<dim> > PeriodicPatchBoundary<dim>::getSharedNode(const VectorDim& pointDim,const VectorDim& shift)
     {
-        const VectorDim pointLocal(L2G.transpose()*(point-shift-referencePlane->P));
-        if(fabs(pointLocal(2))>FLT_EPSILON)
-        {
-            std::cout<<"point"<<point.transpose()<<std::endl;
-            std::cout<<"shift"<<shift.transpose()<<std::endl;
-            std::cout<<"referencePlane->P"<<referencePlane->P.transpose()<<std::endl;
-            std::cout<<"L2G=\n"<<L2G<<std::endl;
-            std::cout<<"pointLocal"<<pointLocal.transpose()<<std::endl;
-            assert(false && "local point has non-zero z-coordinate");
-        }
-        return pointLocal.template segment<2>(0);
+//        const VectorLowerDim point(referencePlane->localPosition(pointDim-shift));
+        return nodes().getFromKey(referencePlane->localPosition(pointDim-shift));
     }
     
     template<int dim>
-    typename PeriodicGlidePlaneBase<dim>::VectorDim PeriodicGlidePlaneBase<dim>::getGlobalPosition(const VectorLowerDim& point) const
-    {// terurns the position on the plane in global goordinates
-        return L2G.template block<dim,dim-1>(0,0)*point+referencePlane->P;
-    }
-    
-    template<int dim>
-    std::shared_ptr<PeriodicPlaneNode<dim> > PeriodicGlidePlaneBase<dim>::getSharedNode(const VectorDim& pointDim,const VectorDim& shift)
+    void PeriodicPatchBoundary<dim>::createNewBoundary(const PeriodicPlaneEdge<dim>* currentEdge,UntwinnedEdgeContainerType& untwinnedCopy)
     {
-        const VectorLowerDim point(getLocalPosition(pointDim,shift));
-        const auto iter(nodes().find(point));
-        if(iter==nodes().end())
-        {// point does not exist
-            //                std::shared_ptr<PeriodicPlaneNode<dim>> newNode(new PeriodicPlaneNode<dim>(point));
-            //                nodes().emplace(point,newNode.get());
-            return nodes().emplace(point,std::shared_ptr<PeriodicPlaneNode<dim> >(new PeriodicPlaneNode<dim>(point))).first->second.lock();
-            //                return newNode;
-        }
-        else
-        {// point exists
-            if(iter->second.expired())
-            {// node deleted elsewhere
-                nodes().erase(iter);
-                return nodes().emplace(point,std::shared_ptr<PeriodicPlaneNode<dim> >(new PeriodicPlaneNode<dim>(point))).first->second.lock();
-            }
-            else
-            {
-                return iter->second.lock();
-            }
-        }
-    }
-
-
-    /**********************************************************************/
-    template<int dim>
-    PeriodicGlidePlane<dim>::PeriodicGlidePlane(PeriodicGlidePlaneFactoryType& pgpf,
-                       const GlidePlaneKeyType& key_in) :
-    /* init */ PeriodicGlidePlaneBase<dim>(pgpf.glidePlaneFactory,key_in)
-    /* init */,periodicGlidePlaneFactory(pgpf)
-    {
-        
-    }
-    
-    template<int dim>
-    const typename PeriodicGlidePlane<dim>::PatchContainerType& PeriodicGlidePlane<dim>::patches() const
-    {
-        return *this;
-    }
-    
-    template<int dim>
-    typename PeriodicGlidePlane<dim>::PatchContainerType& PeriodicGlidePlane<dim>::patches()
-    {
-        return *this;
-    }
-    
-    template<int dim>
-    void PeriodicGlidePlane<dim>::createNewBoundary(const PeriodicPlaneEdge<dim>* currentEdge,UntwinnedEdgeContainerType& untwinnedCopy)
-    {
-        //            std::cout<<"createNewBoundary"<<std::endl;
         BoundaryContainerType temp;
         temp.reserve(untwinnedCopy.size());
         while(true)
         {
-            //                std::cout<<"currentEdge "<<currentEdge->tag()<<std::endl;
             temp.push_back(currentEdge);
             const size_t erased(untwinnedCopy.erase(currentEdge));
             if(erased!=1)
@@ -670,14 +696,14 @@ namespace model
                 }
                 
                 
-                std::ofstream edgesFile("edges.txt");
-                for(const auto& patch : patches())
-                {
-                    for(const auto& edge : patch.second->edges())
-                    {
-                        edgesFile<<edge->tag()<<std::endl;
-                    }
-                }
+                //                std::ofstream edgesFile("edges.txt");
+                //                for(const auto& patch : patches())
+                //                {
+                //                    for(const auto& edge : patch.second->edges())
+                //                    {
+                //                        edgesFile<<edge->tag()<<std::endl;
+                //                    }
+                //                }
                 
                 
                 assert(erased==1 && "could not find link in untwinnedEdges 2");
@@ -710,7 +736,7 @@ namespace model
     }
     
     template<int dim>
-    void PeriodicGlidePlane<dim>::updateBoundaries()
+    void PeriodicPatchBoundary<dim>::updateBoundaries()
     {
         //            std::cout<<"Updating OuterBoundary"<<std::endl;
         this->outerBoundaries().clear();
@@ -728,219 +754,717 @@ namespace model
             }
         }
     }
+
+        template<int dim>
+        std::shared_ptr<PeriodicPlanePatch<dim>> PeriodicPatchBoundary<dim>::getPatch(const VectorDim& shift)
+        {
+            return patches().getFromKey(shift);
+        }
+    
+        template<int dim>
+        const typename PeriodicPatchBoundary<dim>::PatchContainerType& PeriodicPatchBoundary<dim>::patches() const
+        {
+            return *this;
+        }
+    
+        template<int dim>
+        typename PeriodicPatchBoundary<dim>::PatchContainerType& PeriodicPatchBoundary<dim>::patches()
+        {
+            return *this;
+        }
     
     template<int dim>
-    typename PeriodicGlidePlane<dim>::VectorDim PeriodicGlidePlane<dim>::getShift(const PeriodicPlaneEdge<dim>& edge) const
+    GlidePlaneKey<dim> PeriodicPatchBoundary<dim>::getGlidePlaneKey(const VectorDim& shift)
+    {
+        return GlidePlaneKey<dim>(referencePlane->P+shift,referencePlane->n);
+    }
+    
+    template<int dim>
+    std::shared_ptr<GlidePlane<dim>> PeriodicPatchBoundary<dim>::getGlidePlane(const VectorDim& shift)
+    {
+        return glidePlaneFactory.getFromKey(getGlidePlaneKey(shift));
+    }
+
+    
+   
+    
+    /**********************************************************************/
+    template<int dim>
+    PeriodicGlidePlane<dim>::PeriodicGlidePlane(PeriodicGlidePlaneFactoryType* const pgpf,
+                       const KeyType& key_in) :
+    /* init */ PeriodicPatchBoundary<dim>(pgpf->glidePlaneFactory,pgpf->glidePlaneFactory.getFromKey(key_in))
+//    /* init */ PeriodicPatchBoundary<dim>(pgpf->glidePlaneFactory.getFromKey(key_in))
+    /* init */,glidePlaneFactory(pgpf->glidePlaneFactory)
+    /* init */,periodicGlidePlaneFactory(*pgpf)
+    /* init */,referencePlane(pgpf->glidePlaneFactory.getFromKey(key_in))
     {
         
-        VectorDim shift(VectorDim::Zero());
-        for(const PlanarMeshFace<dim>* const face : edge.meshIntersection->faces)
-        {
-            const auto parallelFaceID(edge.patch->glidePlane->grain.region.parallelFaces().at(face->sID));
-            const auto parallelFace(edge.patch->glidePlane->grain.region.faces().at(parallelFaceID));
-            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
-            
-        }
-        return shift;
     }
     
+
     template<int dim>
-    void PeriodicGlidePlane<dim>::fillHoles()
-    {
-        while(this->innerBoundaries().size())
-        {
-            const PeriodicPlaneEdge<dim>* const holeEdge(*this->innerBoundaries().front().begin());
-            getPatch(getShift(*holeEdge)+holeEdge->patch->shift);
-        }
-    }
-    
-    template<int dim>
-    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints,const VectorDim& shift)
-    {
-        std::vector<VectorLowerDim> lowerPolyPoints;
-        for(const auto& point : polyPoints)
-        {
-            assert(this->referencePlane->contains(point-shift) && "reference plane does not cointain point");
-            lowerPolyPoints.push_back(this->getLocalPosition(point,shift));
-        }
-        addPatchesContainingPolygon(lowerPolyPoints);
-    }
-    
-    template<int dim>
-    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints)
-    {
-        std::vector<VectorLowerDim> lowerPolyPoints;
-        for(const auto& point : polyPoints)
-        {
-            assert(this->referencePlane->contains(point) && "reference plane does not cointain point");
-            lowerPolyPoints.push_back(this->getLocalPosition(point,VectorDim::Zero()));
-        }
-        addPatchesContainingPolygon(lowerPolyPoints);
-    }
-    
-    template<int dim>
-    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorLowerDim>& polyPoints)
+    typename PeriodicGlidePlane<dim>::VectorDim PeriodicGlidePlane<dim>::findPatch(const typename PeriodicGlidePlane<dim>::VectorLowerDim& P0,const VectorDim& guessShift)
     {
         
-        if(polyPoints.size()>=3)
+        PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory,referencePlane);
+        std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> currentPatches; // keep patches alive during search
+        
+        
+        // Set up a starting point
+        std::shared_ptr<PeriodicPlanePatch<dim>> lastPatch(patchBoundary.getPatch(guessShift));
+        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+        const std::shared_ptr<GlidePlane<dim>>& centralPlane(lastPatch->glidePlane);
+        VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
+        for(const auto& seg : centralPlane->meshIntersections) // problem is here for referencePlane not cutting mesh
         {
-            
-            //                std::set<long int> pointsHeights;
-            //                for(const auto& point : polyPoints)
-            //                {
-            //                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point));
-            //                    assert(heightPair.first && "Point not on a lattice plane");
-            //                    pointsHeights.insert(heightPair.second);
-            //                }
-            //                assert(pointsHeights.size()==1 && "polyPoints on different planes");
-            ////                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
-            //                const GlidePlaneKey<dim> pointsPlaneKey(polyPoints[0],this->referencePlane->n);
-            
-            //                const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
-            //                const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
-            getPatch(VectorDim::Zero());
-            
-            VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
-            for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
-            {
-                insideReferencePoint+=this->getLocalPosition(seg->P0,VectorDim::Zero());
+            insideReferencePoint+=referencePlane->localPosition(seg->P0-lastPatch->shift);
+        }
+        insideReferencePoint/=centralPlane->meshIntersections.size();
+        assert(lastPatch->contains(insideReferencePoint));
+        
+        // Find initial point
+        //        const VectorLowerDim P0(polyPoints[0]);
+        while(!lastPatch->contains(P0))
+        {
+            std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
+            for(const auto& bndEdge : patchBoundary.untwinnedEdges())
+            {// loop over outer boundaries and holes
+                SegmentSegmentDistance<dim-1> ssd(P0,insideReferencePoint,*bndEdge->source,*bndEdge->sink);
+                if(ssd.dMin<FLT_EPSILON)
+                {// intersection with current boundary found
+                    //                    std::cout<<ssd.x0.transpose()<<std::endl;
+                    crossdEdges.insert(bndEdge);
+                }
             }
-            insideReferencePoint/=this->referencePlane->meshIntersections.size();
-            assert(this->isInsideOuterBoundary(insideReferencePoint));
             
-            
-            //                std::deque<std::shared_ptr<PeriodicPlanePatch<dim>>> tempPatches;
-            
-            const VectorLowerDim P0(polyPoints[0]);
-            
-            while(!this->isInsideOuterBoundary(P0))
+            switch (crossdEdges.size())
             {
-                std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
-                for(const auto& bndEdge : this->untwinnedEdges())
+                case 1:
+                {
+                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
+                    const VectorDim newShift((*crossdEdges.begin())->deltaShift+(*crossdEdges.begin())->patch->shift);
+                    //                    const auto shiftIter(usedPatches.find(newShift));
+                    lastPatch=patchBoundary.getPatch(newShift);
+                    currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                    //                    if(shiftIter==usedPatches.end())
+                    //                    {
+                    //                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        lastPatch=shiftIter->second;
+                    //                    }
+                    //                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,));
+                    //getPatch(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
+                    break;
+                }
+                    
+                case 2:
+                {
+                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
+                    assert((*crossdEdges.begin())->patch==(*crossdEdges.rbegin())->patch);
+                    const VectorDim newShift((*crossdEdges.begin())->deltaShift+(*crossdEdges.rbegin())->deltaShift+(*crossdEdges.begin())->patch->shift);
+                    lastPatch=patchBoundary.getPatch(newShift);
+                    currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                    //                    const auto shiftIter(usedPatches.find(newShift));
+                    //                    if(shiftIter==usedPatches.end())
+                    //                    {
+                    //                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
+                    //                    }
+                    //                    else
+                    //                    {
+                    //                        lastPatch=shiftIter->second;
+                    //                    }
+                    //
+                    //
+                    //                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift));
+                    //                    getPatch(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
+                    break;
+                }
+                    
+                default:
+                {
+                    std::cout<<"untwinnedEdges().size()="<<patchBoundary.untwinnedEdges().size()<<std::endl;
+                    std::cout<<"crossdEdges.size()="<<crossdEdges.size()<<std::endl;
+                    assert(false && "1 or 2 edges must be crossed");
+                    break;
+                }
+            }
+        }
+        assert(lastPatch->contains(P0));
+        return lastPatch->shift;
+    }
+
+    
+//    template<int dim>
+//    typename PeriodicGlidePlane<dim>::VectorDim PeriodicGlidePlane<dim>::getShift(const PeriodicPlaneEdge<dim>& edge) const
+//    {
+//
+//        VectorDim shift(VectorDim::Zero());
+//        for(const PlanarMeshFace<dim>* const face : edge.meshIntersection->faces)
+//        {
+//            const auto parallelFaceID(edge.patch->glidePlane->grain.region.parallelFaces().at(face->sID));
+//            const auto parallelFace(edge.patch->glidePlane->grain.region.faces().at(parallelFaceID));
+//            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
+//
+//        }
+//        return shift;
+//    }
+    
+//    template<int dim>
+//    void PeriodicGlidePlane<dim>::fillHoles()
+//    {
+//        while(this->innerBoundaries().size())
+//        {
+//            const PeriodicPlaneEdge<dim>* const holeEdge(*this->innerBoundaries().front().begin());
+//            getPatch(getShift(*holeEdge)+holeEdge->patch->shift);
+//        }
+//    }
+    
+
+    template<int dim>
+    template<typename T>
+    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints)
+    {
+        std::vector<std::pair<VectorLowerDim,const T* const>> lowerPolyPoints;
+        for(const auto& point : polyPoints)
+        {
+            assert(this->referencePlane->contains(point.first) && "reference plane does not cointain point");
+            lowerPolyPoints.push_back(std::make_pair(referencePlane->localPosition(point.first-VectorDim::Zero()),point.second));
+        }
+        return polygonPatchIntersection(lowerPolyPoints);
+    }
+
+    
+    template<int dim>
+    template<typename T>
+    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints)
+    {
+        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> ppi;
+
+        PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory,referencePlane);
+        auto lastPatch(patchBoundary.getPatch(findPatch(polyPoints[0].first,VectorDim::Zero())));
+        
+        
+//                std::ofstream polyFile("poly.txt");
+//                for(const auto& node : polyPoints)
+//                {
+//                    polyFile<<"    "<<node.transpose()<<std::endl;
+//                }
+
+        
+//        int removeMe=0;
+        
+        //        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
+        
+        
+        // Find other points
+        for(size_t k=0;k<polyPoints.size();++k)
+        {
+            std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> currentPatches;
+//            std::cout<<"k point ="<<k<<std::endl;
+            currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+            const auto startPoint(polyPoints[k]);
+            const auto endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
+            while(true)
+            {
+                std::map<const PeriodicPlanePatch<dim>*,std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>>> crossdEdges;
+                
+                for(const auto& bndEdge : patchBoundary.untwinnedEdges())
                 {// loop over outer boundaries and holes
-                    SegmentSegmentDistance<dim-1> ssd(P0,insideReferencePoint,*bndEdge->source,*bndEdge->sink);
+                    SegmentSegmentDistance<dim-1> ssd(startPoint.first,endPoint.first,*bndEdge->source,*bndEdge->sink);
                     if(ssd.dMin<FLT_EPSILON)
                     {// intersection with current boundary found
-                        crossdEdges.insert(bndEdge);
+                        crossdEdges[bndEdge->patch].emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge);
                     }
                 }
                 
-                switch (crossdEdges.size())
-                {
-                    case 1:
-                    {
-                        getPatch(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
-                        break;
-                    }
-                        
-                    case 2:
-                    {
-                        assert((*crossdEdges.begin())->patch==(*crossdEdges.rbegin())->patch);
-                        getPatch(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
-                        break;
-                    }
-                        
-                    default:
-                    {
-                        std::cout<<"crossdEdges.size()="<<crossdEdges.size()<<std::endl;
-                        assert(false && "1 or 2 edges must be crossed");
-                        break;
-                    }
+                if(crossdEdges.size()==0)
+                {// No untwinned edges have been crossed, break and move to next pair of polyPoints
+                    ppi.emplace_back(endPoint.first,lastPatch->shift,-1,endPoint.second);
+//                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+                    break;
                 }
-                
-                assert(this->outerBoundaries().size()==1 && "THERE MUST BE ONLY ONE OUTER BOUNDARY");
-            }
-            
-            // erase patches needed to find P0
-            std::list<VectorDim> eraseKeys;
-            for(const auto& patch : patches())
-            {
-                if(!patch.second->contains(P0))
+                else
                 {
-                    eraseKeys.push_back(patch.first);
-                }
-            }
-            for(const auto& key : eraseKeys)
-            {
-                patches().erase(key);
-            }
-            
-            for(size_t k=0;k<polyPoints.size();++k)
-            {
-                const VectorLowerDim startPoint(polyPoints[k]);
-                const VectorLowerDim endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
-                while(true)
-                {
-                    //                        std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
-                    std::map<const PeriodicPlanePatch<dim>*,std::set<const PeriodicPlaneEdge<dim>*>> crossdEdges;
-                    for(const auto& bndEdge : this->untwinnedEdges())
-                    {// loop over outer boundaries and holes
-                        SegmentSegmentDistance<dim-1> ssd(startPoint,endPoint,*bndEdge->source,*bndEdge->sink);
-                        if(ssd.dMin<FLT_EPSILON)
-                        {// intersection with current boundary found
-                            crossdEdges[bndEdge->patch].insert(bndEdge);
+                    for(const auto& pair : crossdEdges)
+                    {// loop over crossed patches
+                        VectorDim shift(pair.first->shift);
+//                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+                        
+                        for(const auto& edge : pair.second)
+                        {// loop over crossed edges
+                            ppi.emplace_back(edge.first,lastPatch->shift,edge.second->edgeID,nullptr);
+                            shift+=edge.second->deltaShift;
+                        }
+                        lastPatch=patchBoundary.patches().getFromKey(shift);
+                        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+
+                        for(const auto& edge : pair.second)
+                        {// loop over crossed edges of current patch
+                            assert(edge.second->twin);
+                            ppi.emplace_back(edge.first,lastPatch->shift,edge.second->twin->edgeID,nullptr);
                         }
                     }
-                    
-                    if(crossdEdges.size()==0)
-                    {// No untwinned edges have been crossed, break and move to next pair of polyPoints
+                    if(lastPatch->contains(endPoint.first))
+                    {
+                        ppi.emplace_back(endPoint.first,lastPatch->shift,-1,endPoint.second);
+//                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
                         break;
                     }
-                    else
-                    {
-                        for(const auto& pair : crossdEdges)
-                        {
-                            VectorDim shift(pair.first->shift);
-                            for(const auto& edge : pair.second)
-                            {
-                                shift+=getShift(*edge);
-                            }
-                            getPatch(shift); // this will change untwinnedEdges. Remain in while loop
-                            
-                        }
-                    }
-                    assert(this->outerBoundaries().size()==1 && "THERE MUST BE ONLY ONE OUTER BOUNDARY");
                 }
-            }
-            
-            fillHoles();
-            
-            if(true)
-            {
-                
-                
-                std::ofstream polyFile("poly.txt");
-                //                    std::ofstream poly3DFile("poly3D.txt");
-                
-                polyFile<<insideReferencePoint.transpose()<<std::endl;
-                for(const auto& node : polyPoints)
-                {
-                    polyFile<<"    "<<node.transpose()<<std::endl;
-                    //                        poly3DFile<<node.transpose()<<std::endl;
-                }
-                
-                std::ofstream pointsFile("points.txt");
-                for(const auto& node : this->nodes())
-                {
-                    if(!node.second.expired())
-                    {
-                        pointsFile<<"    "<<node.second.lock()->sID<<" "<<node.first.transpose()<<std::endl;
-                    }
-                }
-                
-                std::ofstream edgesFile("edges.txt");
-                for(const auto& patch : patches())
-                {
-                    for(const auto& edge : patch.second->edges())
-                    {
-                        edgesFile<<edge->tag()<<std::endl;
-                    }
-                }
-                assert(this->isCompact() && "Plane not compact");
             }
         }
+        return ppi;
+    }
+//        {
+//        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,std::shared_ptr<PeriodicPlanePatch<dim>>,const PeriodicPlaneEdge<dim>* const>> ppi;
+//
+// //       getPatch(VectorDim::Zero());
+////        KeyConstructableSharedPtrFactory<PeriodicGlidePlane<dim>,PeriodicPlanePatch<dim>> patchFactory;
+//        std::map<VectorDim,std::shared_ptr<PeriodicPlanePatch<dim>>,CompareVectorsByComponent<double,dim,float>> usedPatches;
+//        std::shared_ptr<PeriodicPlanePatch<dim>> lastPatch=usedPatches.emplace(VectorDim::Zero(),new PeriodicPlanePatch<dim>(*this,VectorDim::Zero())).first->second;
+//
+//        VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
+//        for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
+//        {
+//            insideReferencePoint+=this->getLocalPosition(seg->P0,VectorDim::Zero());
+//        }
+//        insideReferencePoint/=this->referencePlane->meshIntersections.size();
+//        assert(lastPatch->contains(insideReferencePoint));
+////        assert(this->isInsideOuterBoundary(insideReferencePoint));
+//
+//        // Find initial point
+//        const VectorLowerDim P0(polyPoints[0]);
+//        while(!lastPatch->contains(P0))
+//        {
+//            std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
+//            for(const auto& bndEdge : this->untwinnedEdges())
+//            {// loop over outer boundaries and holes
+//                SegmentSegmentDistance<dim-1> ssd(P0,insideReferencePoint,*bndEdge->source,*bndEdge->sink);
+//                if(ssd.dMin<FLT_EPSILON)
+//                {// intersection with current boundary found
+////                    std::cout<<ssd.x0.transpose()<<std::endl;
+//                    crossdEdges.insert(bndEdge);
+//                }
+//            }
+//
+//            switch (crossdEdges.size())
+//            {
+//                case 1:
+//                {
+//                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
+//                    const VectorDim newShift(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
+//                    const auto shiftIter(usedPatches.find(newShift));
+//                    if(shiftIter==usedPatches.end())
+//                    {
+//                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
+//                    }
+//                    else
+//                    {
+//                        lastPatch=shiftIter->second;
+//                    }
+////                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,));
+//                    //getPatch(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
+//                    break;
+//                }
+//
+//                case 2:
+//                {
+//                    assert(lastPatch.get()==(*crossdEdges.begin())->patch);
+//                    assert((*crossdEdges.begin())->patch==(*crossdEdges.rbegin())->patch);
+//                    const VectorDim newShift(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
+//                    const auto shiftIter(usedPatches.find(newShift));
+//                    if(shiftIter==usedPatches.end())
+//                    {
+//                        lastPatch=usedPatches.emplace(newShift,new PeriodicPlanePatch<dim>(*this,newShift)).first->second;
+//                    }
+//                    else
+//                    {
+//                        lastPatch=shiftIter->second;
+//                    }
+////
+////
+////                    usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift));
+////                    getPatch(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
+//                    break;
+//                }
+//
+//                default:
+//                {
+//                    std::cout<<"crossdEdges.size()="<<crossdEdges.size()<<std::endl;
+//                    assert(false && "1 or 2 edges must be crossed");
+//                    break;
+//                }
+//            }
+//
+////            std::cout<<std::endl;
+//
+//        }
+////        ppi.emplace_back(polyPoints[0],usedPatches.back(),nullptr);
+//
+//        std::ofstream polyFile("poly.txt");
+//        //                    std::ofstream poly3DFile("poly3D.txt");
+//
+////        polyFile<<insideReferencePoint.transpose()<<std::endl;
+//        for(const auto& node : polyPoints)
+//        {
+//            polyFile<<"    "<<node.transpose()<<std::endl;
+//            //                        poly3DFile<<node.transpose()<<std::endl;
+//        }
+//
+//
+//        int removeMe=0;
+//
+////        usedPatches.clear();
+////        usedPatches.emplace(lastPatch->shift,lastPatch);
+////        ppi.emplace_back(polyPoints[0],lastPatch,nullptr);
+//
+//
+//        // Find other points
+//        for(size_t k=0;k<polyPoints.size();++k)
+//        {
+//
+//    HERE CREATE A NEW PeriodicPatchBoundary to use to construct new patches
+//
+//
+//            std::cout<<"k point ="<<k<<std::endl;
+//            usedPatches.clear();
+//            usedPatches.emplace(lastPatch->shift,lastPatch);
+//            const VectorLowerDim startPoint(polyPoints[k]);
+//            const VectorLowerDim endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
+//            while(true)
+//            {
+//
+//                if(true)
+//                {
+//
+//
+//
+////                    std::ofstream pointsFile("points_"+std::to_string(removeMe)+".txt");
+////                    for(const auto& tup : ppi)
+////                    {
+//////                        if(!node.second.expired())
+//////                        {
+////                        pointsFile<<"    "<<std::get<0>(tup).transpose()<<std::endl;
+//////                        }
+////                    }
+////
+////                    std::ofstream edgesFile("edges_"+std::to_string(removeMe)+".txt");
+////                    for(const auto& patch : usedPatches)
+////                    {
+////                        for(const auto& edge : patch.second->edges())
+////                        {
+////                            edgesFile<<patch.second->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<std::endl;
+////                        }
+////                    }
+////
+////                    std::ofstream lastPatchFile("lastPatch_"+std::to_string(removeMe)+".txt");
+////                    for(const auto& edge : lastPatch->edges())
+////                    {
+////                        lastPatchFile<<lastPatch->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<std::endl;
+////                    }
+//
+////                    assert(this->isCompact() && "Plane not compact");
+//                }
+//
+//
+//                std::map<const PeriodicPlanePatch<dim>*,std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>>> crossdEdges;
+////                std::vector<std::pair<const VectorLowerDim,const PeriodicPlaneEdge<dim>* const>> crossdEdges;
+//
+//                for(const auto& bndEdge : this->untwinnedEdges())
+////                for(const auto& bndEdge : lastPatch->edges())
+//                {// loop over outer boundaries and holes
+//                    SegmentSegmentDistance<dim-1> ssd(startPoint,endPoint,*bndEdge->source,*bndEdge->sink);
+//                    if(ssd.dMin<FLT_EPSILON)
+//                    {// intersection with current boundary found
+//                        crossdEdges[bndEdge->patch].emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge);
+////                        crossdEdges.emplace_back(0.5*(ssd.x0+ssd.x1),bndEdge.get());
+//                    }
+//                }
+//
+//                if(crossdEdges.size()==0)
+//                {// No untwinned edges have been crossed, break and move to next pair of polyPoints
+//                    ppi.emplace_back(endPoint,lastPatch,nullptr);
+//                    printIntersections(ppi,currentPatches,lastPatch,removeMe);
+//                    break;
+//                }
+//                else
+//                {
+//                    for(const auto& pair : crossdEdges)
+//                    {// loop over crossed patches
+//                        VectorDim shift(pair.first->shift);
+//                    std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+//
+//
+//                        for(const auto& edge : pair.second)
+//                        {// loop over crossed edges
+//                            ppi.emplace_back(edge.first,lastPatch,edge.second);
+//                            shift+=getShift(*edge.second);
+//                        }
+//
+//                        const auto shiftIter(usedPatches.find(shift));
+//                        if(shiftIter==usedPatches.end())
+//                        {
+//                            std::cout<<"new patch with shift="<<shift.transpose()<<std::endl;
+//                            lastPatch=usedPatches.emplace(shift,new PeriodicPlanePatch<dim>(*this,shift)).first->second;
+//                        }
+//                        else
+//                        {
+//                            lastPatch=shiftIter->second;
+//                        }
+////                        usedPatches.emplace(new PeriodicPlanePatch<dim>(*this,shift));
+//
+//
+//                        for(const auto& edge : pair.second)
+//                        {// loop over crossed edges of current patch
+//                            assert(edge.second->twin);
+//                            ppi.emplace_back(edge.first,lastPatch,edge.second->twin);
+//                        }
+//                    }
+//                    if(lastPatch->contains(endPoint))
+//                    {
+//                                ppi.emplace_back(endPoint,lastPatch,nullptr);
+//                        printIntersections(ppi,currentPatches,lastPatch,removeMe);
+//                        break;
+//                    }
+////                    break;
+//                }
+//
+//
+//
+//
+//            }
+//        }
+//
+//
+//        return ppi;
+//    }
+    
+    template<typename T1,typename T2, typename T3,typename T4>
+    void printIntersections(const T1& ppi,const T2& usedPatches,const T3& lastPatch,int& removeMe, const T4& untwinnedEdges)
+    {
+        std::ofstream pointsFile("points_"+std::to_string(removeMe)+".txt");
+        for(const auto& tup : ppi)
+        {
+            //                        if(!node.second.expired())
+            //                        {
+            pointsFile<<"    "<<std::get<0>(tup).transpose()<<std::endl;
+            //                        }
+        }
+        
+        std::ofstream edgesFile("edges_"+std::to_string(removeMe)+".txt");
+        for(const auto& patch : usedPatches)
+        {
+            for(const auto& edge : patch->edges())
+            {
+                if(untwinnedEdges.find(edge.get())!=untwinnedEdges.end())
+                {
+                    edgesFile<<patch->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<" 1"<<std::endl;
+                }
+                else
+                {
+                    edgesFile<<patch->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<" 0"<<std::endl;
+                }
+                    
+            }
+        }
+        
+        std::ofstream lastPatchFile("lastPatch_"+std::to_string(removeMe)+".txt");
+        for(const auto& edge : lastPatch->edges())
+        {
+            lastPatchFile<<lastPatch->sID<<" "<<edge->source->transpose()<<" "<<edge->sink->transpose()<<std::endl;
+        }
+        removeMe++;
     }
     
+//    template<int dim>
+//    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorLowerDim>& polyPoints)
+//    {
+//
+//        if(polyPoints.size()>=3)
+//        {
+//
+//            //                std::set<long int> pointsHeights;
+//            //                for(const auto& point : polyPoints)
+//            //                {
+//            //                    const auto heightPair(LatticePlane::computeHeight(this->referencePlane->n,point));
+//            //                    assert(heightPair.first && "Point not on a lattice plane");
+//            //                    pointsHeights.insert(heightPair.second);
+//            //                }
+//            //                assert(pointsHeights.size()==1 && "polyPoints on different planes");
+//            ////                const GlidePlaneKey<dim> pointsPlaneKey(this->referencePlane->grain.grainID,polyPoints[0],this->referencePlane->n);
+//            //                const GlidePlaneKey<dim> pointsPlaneKey(polyPoints[0],this->referencePlane->n);
+//
+//            //                const auto pointsPlane(this->glidePlaneFactory.get(pointsPlaneKey));
+//            //                const VectorDim pointsShift(pointsPlane->P-this->referencePlane->P);
+//            getPatch(VectorDim::Zero());
+//
+//            VectorLowerDim insideReferencePoint(VectorLowerDim::Zero());
+//            for(const auto& seg : this->referencePlane->meshIntersections) // problem is here for referencePlane not cutting mesh
+//            {
+//                insideReferencePoint+=this->getLocalPosition(seg->P0,VectorDim::Zero());
+//            }
+//            insideReferencePoint/=this->referencePlane->meshIntersections.size();
+//            assert(this->isInsideOuterBoundary(insideReferencePoint));
+//
+//
+//            //                std::deque<std::shared_ptr<PeriodicPlanePatch<dim>>> tempPatches;
+//
+//            const VectorLowerDim P0(polyPoints[0]);
+//
+//            while(!this->isInsideOuterBoundary(P0))
+//            {
+//                std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
+//                for(const auto& bndEdge : this->untwinnedEdges())
+//                {// loop over outer boundaries and holes
+//                    SegmentSegmentDistance<dim-1> ssd(P0,insideReferencePoint,*bndEdge->source,*bndEdge->sink);
+//                    if(ssd.dMin<FLT_EPSILON)
+//                    {// intersection with current boundary found
+//                        crossdEdges.insert(bndEdge);
+//                    }
+//                }
+//
+//                switch (crossdEdges.size())
+//                {
+//                    case 1:
+//                    {
+//                        getPatch(getShift(**crossdEdges.begin())+(*crossdEdges.begin())->patch->shift);
+//                        break;
+//                    }
+//
+//                    case 2:
+//                    {
+//                        assert((*crossdEdges.begin())->patch==(*crossdEdges.rbegin())->patch);
+//                        getPatch(getShift(**crossdEdges.begin())+getShift(**crossdEdges.rbegin())+(*crossdEdges.begin())->patch->shift);
+//                        break;
+//                    }
+//
+//                    default:
+//                    {
+//                        std::cout<<"crossdEdges.size()="<<crossdEdges.size()<<std::endl;
+//                        assert(false && "1 or 2 edges must be crossed");
+//                        break;
+//                    }
+//                }
+//
+//                assert(this->outerBoundaries().size()==1 && "THERE MUST BE ONLY ONE OUTER BOUNDARY");
+//            }
+//
+//            // erase patches needed to find P0
+//            std::list<VectorDim> eraseKeys;
+//            for(const auto& patch : patches())
+//            {
+//                if(!patch.second->contains(P0))
+//                {
+//                    eraseKeys.push_back(patch.first);
+//                }
+//            }
+//            for(const auto& key : eraseKeys)
+//            {
+//                patches().erase(key);
+//            }
+//
+//            for(size_t k=0;k<polyPoints.size();++k)
+//            {
+//                const VectorLowerDim startPoint(polyPoints[k]);
+//                const VectorLowerDim endPoint(k==polyPoints.size()-1? polyPoints[0] : polyPoints[k+1]);
+//                while(true)
+//                {
+//                    //                        std::set<const PeriodicPlaneEdge<dim>*> crossdEdges;
+//                    std::map<const PeriodicPlanePatch<dim>*,std::set<const PeriodicPlaneEdge<dim>*>> crossdEdges;
+//                    for(const auto& bndEdge : this->untwinnedEdges())
+//                    {// loop over outer boundaries and holes
+//                        SegmentSegmentDistance<dim-1> ssd(startPoint,endPoint,*bndEdge->source,*bndEdge->sink);
+//                        if(ssd.dMin<FLT_EPSILON)
+//                        {// intersection with current boundary found
+//                            crossdEdges[bndEdge->patch].insert(bndEdge);
+//                        }
+//                    }
+//
+//                    if(crossdEdges.size()==0)
+//                    {// No untwinned edges have been crossed, break and move to next pair of polyPoints
+//                        break;
+//                    }
+//                    else
+//                    {
+//                        for(const auto& pair : crossdEdges)
+//                        {
+//                            VectorDim shift(pair.first->shift);
+//                            for(const auto& edge : pair.second)
+//                            {
+//                                shift+=getShift(*edge);
+//                            }
+//                            getPatch(shift); // this will change untwinnedEdges. Remain in while loop
+//
+//                        }
+//                    }
+//                    assert(this->outerBoundaries().size()==1 && "THERE MUST BE ONLY ONE OUTER BOUNDARY");
+//                }
+//            }
+//
+//            fillHoles();
+//
+//            if(true)
+//            {
+//
+//
+//                std::ofstream polyFile("poly.txt");
+//                //                    std::ofstream poly3DFile("poly3D.txt");
+//
+//                polyFile<<insideReferencePoint.transpose()<<std::endl;
+//                for(const auto& node : polyPoints)
+//                {
+//                    polyFile<<"    "<<node.transpose()<<std::endl;
+//                    //                        poly3DFile<<node.transpose()<<std::endl;
+//                }
+//
+//                std::ofstream pointsFile("points.txt");
+//                for(const auto& node : this->nodes())
+//                {
+//                    if(!node.second.expired())
+//                    {
+//                        pointsFile<<"    "<<node.second.lock()->sID<<" "<<node.first.transpose()<<std::endl;
+//                    }
+//                }
+//
+//                std::ofstream edgesFile("edges.txt");
+//                for(const auto& patch : patches())
+//                {
+//                    for(const auto& edge : patch.second->edges())
+//                    {
+//                        edgesFile<<edge->tag()<<std::endl;
+//                    }
+//                }
+//                assert(this->isCompact() && "Plane not compact");
+//            }
+//        }
+//    }
+//
+//
+//    template<int dim>
+//    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints,const VectorDim& shift)
+//    {
+//        std::vector<VectorLowerDim> lowerPolyPoints;
+//        for(const auto& point : polyPoints)
+//        {
+//            assert(this->referencePlane->contains(point-shift) && "reference plane does not cointain point");
+//            lowerPolyPoints.push_back(this->getLocalPosition(point,shift));
+//        }
+//        addPatchesContainingPolygon(lowerPolyPoints);
+//    }
+//
+//    template<int dim>
+//    void PeriodicGlidePlane<dim>::addPatchesContainingPolygon(const std::vector<VectorDim>& polyPoints)
+//    {
+//        std::vector<VectorLowerDim> lowerPolyPoints;
+//        for(const auto& point : polyPoints)
+//        {
+//            assert(this->referencePlane->contains(point) && "reference plane does not cointain point");
+//            lowerPolyPoints.push_back(this->getLocalPosition(point,VectorDim::Zero()));
+//        }
+//        addPatchesContainingPolygon(lowerPolyPoints);
+//    }
     
     template<int dim>
     void PeriodicGlidePlane<dim>::print()
@@ -954,24 +1478,27 @@ namespace model
             }
         }
         
-        std::cout<<"PeriodiPlane patches:"<<std::endl;
-        for(const auto& patch : patches())
-        {
-            std::cout<<"Patch "<<patch.shift.transpose()<<std::endl;
-            for(const auto& edge : patch.second.edges())
-            {
-                std::cout<<edge->source->sID<<"->"<<edge->sink->sID<<std::endl;
-            }
-        }
+//        std::cout<<"PeriodiPlane patches:"<<std::endl;
+//        for(const auto& patch : patches())
+//        {
+//            std::cout<<"Patch "<<patch.shift.transpose()<<std::endl;
+//            for(const auto& edge : patch.second.edges())
+//            {
+//                std::cout<<edge->source->sID<<"->"<<edge->sink->sID<<std::endl;
+//            }
+//        }
         
         
     }
     
-    template<int dim>
-    std::shared_ptr<PeriodicPlanePatch<dim>> PeriodicGlidePlane<dim>::getPatch(const VectorDim& shift)
-    {
-        return patches().get(shift);
-    }
+
+
+    
+//    template<int dim>
+//    std::shared_ptr<PeriodicPlanePatch<dim>> PeriodicGlidePlane<dim>::getPatch(const VectorDim& shift)
+//    {
+//        return patches().get(shift);
+//    }
     
     template<int dim>
     typename PeriodicGlidePlane<dim>::VectorDim PeriodicGlidePlane<dim>::getGlidePlaneShiftfromReferencePlane(const GlidePlane<dim> *gp) const
@@ -984,6 +1511,18 @@ namespace model
         //            return shift;
         return periodicGlidePlaneFactory.B*sol.template cast<double>();
     }
+    
+//    template<int dim>
+//    GlidePlaneKey<dim> PeriodicGlidePlane<dim>::getGlidePlaneKey(const VectorDim& shift)
+//    {
+//        return GlidePlaneKey<dim>(referencePlane->P+shift,referencePlane->n);
+//    }
+//
+//    template<int dim>
+//    std::shared_ptr<GlidePlane<dim>> PeriodicGlidePlane<dim>::getGlidePlane(const VectorDim& shift)
+//    {
+//        return glidePlaneFactory.getFromKey(getGlidePlaneKey(shift));
+//    }
     
     /**********************************************************************/
     template<int dim>

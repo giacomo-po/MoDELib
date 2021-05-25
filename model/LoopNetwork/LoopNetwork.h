@@ -53,7 +53,11 @@ class NetworkLink;
 #include <EqualIteratorRange.h>
 //#include <KeyConstructableSharedPtrFactory.h>
 
+#ifndef NDEBUG
 #define VerboseLoopNetwork(N,x) if(verboseLevel>=N){model::cout<<x;}
+#else
+#define VerboseLoopNetwork(N,x)
+#endif
 
 namespace model
 {
@@ -79,7 +83,8 @@ namespace model
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::LoopType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::LoopNodeType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkNodeType>
-    /*               */,public KeyConstructableWeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkLinkType>
+    /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkLinkType>
+//    /*               */,public KeyConstructableWeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkLinkType>
     {
         
     public:
@@ -94,7 +99,8 @@ namespace model
         typedef std::map<typename LoopLinkType::KeyType,LoopLinkType> LoopLinkContainerType;
         typedef WeakPtrFactory<Derived,LoopNodeType> LoopNodeContainerType;
         typedef WeakPtrFactory<Derived,NetworkNodeType> NetworkNodeContainerType;
-        typedef KeyConstructableWeakPtrFactory<Derived,NetworkLinkType> NetworkLinkContainerType;
+//        typedef KeyConstructableWeakPtrFactory<Derived,NetworkLinkType> NetworkLinkContainerType;
+        typedef WeakPtrFactory<Derived,NetworkLinkType> NetworkLinkContainerType;
         typedef typename LoopNodeContainerType::SharedPtrType SharedLoopNodePtrType;
         typedef typename NetworkNodeContainerType::SharedPtrType SharedNetworkNodePtrType;
 
@@ -293,7 +299,7 @@ namespace model
             const auto loopLinks(Lij->loopLinks()); // copy loop links
             for(const auto& loopLink : loopLinks)
             {
-                expandLoopLink(*loopLink,loopNodes().create(loopLink->loop,networkNode));
+                expandLoopLink(*loopLink,loopNodes().create(loopLink->loop,networkNode,loopLink));
             }
             return networkNode;
         }
@@ -312,6 +318,37 @@ namespace model
         }
 
         /**********************************************************************/
+        void removeNetworkNode(const size_t& nodeID)
+        {
+            if(networkNodes().find(nodeID)!=networkNodes().end())
+            {
+                removeNetworkNode(networkNodes().get(nodeID));
+            }
+        }
+        
+        void removeNetworkNode(const SharedNetworkNodePtrType& node)
+        {
+            std::set<typename LoopNodeType::KeyType> loopNodesSet;
+            for(const auto& loopNode : node->loopNodes())
+            {
+                loopNodesSet.insert(loopNode->key);
+            }
+            
+            for(const auto& key : loopNodesSet)
+            {
+                removeLoopNode(key);
+            }
+        }
+        
+        /**********************************************************************/
+        void removeLoopNode(const size_t& nodeID)
+        {
+            if(loopNodes().find(nodeID)!=loopNodes().end())
+            {
+                removeLoopNode(loopNodes().get(nodeID));
+            }
+        }
+        
         void removeLoopNode(const SharedLoopNodePtrType& node)
         {
             if(node)
@@ -418,10 +455,10 @@ namespace model
         {
             for(const auto& loop : loops())
             {
-                if(!loop.second.expired())
-                {
+//                if(!loop.second.expired())
+//                {
                     loop.second.lock()->printLoop();
-                }
+//                }
             }
         }
         
@@ -431,10 +468,10 @@ namespace model
             std::cout<<"Printing LoopNodes "<<loopNodes().size()<<std::endl;
             for(const auto& node : loopNodes())
             {
-                if(!node.second.expired())
-                {
+//                if(!node.second.expired())
+//                {
                     std::cout<<node.second.lock()->tag()<<std::endl;
-                }
+//                }
             }
         }
         
@@ -444,10 +481,10 @@ namespace model
             std::cout<<"Printing NetworkNodes "<<networkNodes().size()<<std::endl;
             for(const auto& node : networkNodes())
             {
-                if(!node.second.expired())
-                {
+//                if(!node.second.expired())
+//                {
                     std::cout<<node.second.lock()->tag()<<std::endl;
-                }
+//                }
             }
         }
 

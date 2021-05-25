@@ -31,7 +31,7 @@ namespace model
         typedef DislocationStress<_dim> DislocationStressType;
         typedef FieldBase<double,_dim,_dim> FieldBaseType;
         typedef typename FieldBaseType::MatrixType MatrixType;
-        typedef DislocatedMaterial<dim,Isotropic> MaterialType;
+        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
 
         
 #if _MODEL_NON_SINGULAR_DD_ == 0 // Note that if _MODEL_NON_SINGULAR_DD_ is not #defined, the preprocessor treats it as having the value 0.

@@ -59,10 +59,10 @@ RM = /opt/local/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator
+CMAKE_SOURCE_DIR = /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator
+CMAKE_BINARY_DIR = /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator
 
 #=============================================================================
 # Target rules for target CMakeFiles/microstructureGenerator.dir
@@ -71,7 +71,7 @@ CMAKE_BINARY_DIR = /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerat
 CMakeFiles/microstructureGenerator.dir/all:
 	$(MAKE) -f CMakeFiles/microstructureGenerator.dir/build.make CMakeFiles/microstructureGenerator.dir/depend
 	$(MAKE) -f CMakeFiles/microstructureGenerator.dir/build.make CMakeFiles/microstructureGenerator.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles --progress-num=1,2 "Built target microstructureGenerator"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles --progress-num=1,2 "Built target microstructureGenerator"
 .PHONY : CMakeFiles/microstructureGenerator.dir/all
 
 # Include target in all.
@@ -81,9 +81,9 @@ all: CMakeFiles/microstructureGenerator.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/microstructureGenerator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles 2
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/microstructureGenerator.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/CMakeFiles 0
 .PHONY : CMakeFiles/microstructureGenerator.dir/rule
 
 # Convenience name for target.

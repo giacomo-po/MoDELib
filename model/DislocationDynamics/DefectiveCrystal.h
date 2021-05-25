@@ -19,11 +19,11 @@
 //#endif
 //#include ExternalLoadControllerFile
 
+#include <DDtimeIntegrator.h>
 #include <DefectiveCrystalParameters.h>
-#include <DislocationNetwork.h>
+#include <DislocationDynamicsModule.h>
 #include <CrackSystem.h>
 #include <UniformExternalLoadController.h>
-
 
 namespace model
 {
@@ -257,62 +257,55 @@ namespace model
         //            }
         //        }
         
-//        /**********************************************************************/
-//        void singleGlideStep()
-//        {
-//            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
-//            /*                    */<< ", time="<<simulationParameters.totalTime;
-//            if(DN)
-//            {
-//                model::cout<< ": nodes="<<DN->nodes().size()
-//                /*                    */<< ", segments="<<DN->links().size()
-//                /*                    */<< ", loopSegments="<<DN->loopLinks().size()
-//                /*                    */<< ", loops="<<DN->loops().size()
+        /**********************************************************************/
+        void singleGlideStep()
+        {
+            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
+            /*                    */<< ", time="<<simulationParameters.totalTime;
+            if(DN)
+            {
+                model::cout<< ": networkNodes="<<DN->networkNodes().size()
+                /*                    */<< ", networkSegments="<<DN->networkLinks().size()
+                /*                    */<< ", loopNodes="<<DN->loopNodes().size()
+                /*                    */<< ", loopSegments="<<DN->loopLinks().size()
+                /*                    */<< ", loops="<<DN->loops().size();
 //                /*                    */<< ", components="<<DN->components().size();
-//            }
-//            model::cout<< defaultColor<<std::endl;
-//
-//            if(DN)
-//            {
-//                DN->updateGeometry();
-//                updateLoadControllers(simulationParameters.runID, false);
-//
-//                DN->assembleAndSolveGlide(simulationParameters.runID);
-//                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
-//                // output
-//                DN->io().output(simulationParameters.runID);
-//
-//
-//                //                for(const auto& loop : DN->loops())
-//                //                {
-//                //                    if(loop.second->loopType==DislocationLoopIO<dim>::GLISSILELOOP)
-//                //                    {
-//                //                        PlanarDislocationSuperLoop<typename DislocationNetworkType::LoopType> superLoop(*loop.second);
-//                //                    }
-//                //                }
-//
-//                // move
-//                DN->moveGlide(simulationParameters.dt);
-//
-//                // menage discrete topological events
-//                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
-//            }
-//            simulationParameters.totalTime+=simulationParameters.dt;
-//            ++simulationParameters.runID;
-//        }
+            }
+            model::cout<< defaultColor<<std::endl;
+
+            if(DN)
+            {
+                DN->updateGeometry();
+                updateLoadControllers(simulationParameters.runID, false);
+
+                DN->assembleAndSolveGlide(simulationParameters.runID);
+                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
+                // output
+                DN->io().output(simulationParameters.runID);
+                
+                // move
+//                DN->dummyMove(simulationParameters.runID);
+                DN->moveGlide(simulationParameters.dt);
+
+                // manage discrete topological events
+                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
+            }
+            simulationParameters.totalTime+=simulationParameters.dt;
+            ++simulationParameters.runID;
+        }
 //
 //        /**********************************************************************/
-//        void runGlideSteps()
-//        {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
-//          */
-//            const auto t0= std::chrono::system_clock::now();
-//            while (simulationParameters.runID<simulationParameters.Nsteps)
-//            {
-//                model::cout<<std::endl; // leave a blank line
-//                singleGlideStep();
-//            }
-//            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
-//        }
+        void runGlideSteps()
+        {/*! Runs a number of simulation time steps defined by simulationParameters.Nsteps
+          */
+            const auto t0= std::chrono::system_clock::now();
+            while (simulationParameters.runID<simulationParameters.Nsteps)
+            {
+                model::cout<<std::endl; // leave a blank line
+                singleGlideStep();
+            }
+            model::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
+        }
 //
 //        /**********************************************************************/
 //#ifdef _MODEL_GREATWHITE_

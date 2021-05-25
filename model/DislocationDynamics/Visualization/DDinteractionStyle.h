@@ -25,7 +25,7 @@
 #include <vtkRendererCollection.h>
 #include <vtkObjectFactory.h>
 
-#include <DislocationSegmentActor.h>
+#include <DDconfigVtk.h>
 //#include <PKActor.h>
 //#include <GlidePlaneActor.h>
 #include <InclusionActor.h>
@@ -34,6 +34,7 @@
 #include <TextFileParser.h>
 #include <PlotActor.h>
 #include <DDauxVtk.h>
+#include <SimplicialMeshActor.h>
 
 
 namespace model
@@ -49,7 +50,7 @@ namespace model
     //    public vtkInteractorStyleMultiTouchCamera
     {
         
-        std::unique_ptr<DislocationSegmentActor> ddSegments;
+        std::unique_ptr<DDconfigVtk> ddConfig;
 //        std::unique_ptr<PKActor> ddPK;
 //        std::unique_ptr<GlidePlaneActor> ddAux;
         std::unique_ptr<DDauxVtk> ddAux;
@@ -204,7 +205,7 @@ namespace model
                 // Update ddActors
                 ddAux.reset(new DDauxVtk(frameID,ddRenderer));
                 meshActor.update(*ddAux/*,lastFrameID,degPerStep,spinAxis*/);
-                ddSegments.reset(new DislocationSegmentActor(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
+                ddConfig.reset(new DDconfigVtk(frameID/*,lastFrameID,degPerStep,spinAxis*/,ddRenderer,meshActor.mesh));
 //                ddPK.reset(new PKActor(frameID,ddRenderer));
                 inclusions.reset(new InclusionActor(0,ddRenderer));
                 plot.reset(new PlotActor(plotRenderer,xCol,yCol,currentFrameID,FlabelsMap));
@@ -323,7 +324,7 @@ namespace model
         }
         
         /**********************************************************************/
-        virtual void OnRightButtonDown()
+        virtual void OnRightButtonDown() override
         {
             
             double viewUp[3];
@@ -361,7 +362,7 @@ namespace model
         }
         
         /*************************************************************************/
-        virtual void OnLeftButtonDown()
+        virtual void OnLeftButtonDown() override
         {
 //            autoSpin=false;
             
@@ -394,14 +395,14 @@ namespace model
         }
         
         /*************************************************************************/
-        virtual void OnChar()
+        virtual void OnChar() override
         {/*! Overrides vtkInteractorStyleTrackballCamera::OnChar()
           * to avoid exiting the program on pressing "e"
           */
         }
         
         /*************************************************************************/
-        virtual void OnKeyPress()
+        virtual void OnKeyPress() override
         {
             // Get the keypress
             vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -560,7 +561,7 @@ namespace model
                     {
                         ddAux->showGlidePlanes=false;
                         ddAux->showPeriodicGlidePlanes=false;
-                        ddAux->showPeriodicLoops=false;
+//                        ddAux->showPeriodicLoops=false;
                         ddAux->modify();
                         this->Interactor->Render();
                         std::cout<<"showGlidePlanes="<<ddAux->showGlidePlanes<<std::endl;
@@ -572,7 +573,7 @@ namespace model
                     selectedKey="g";
                     std::cout<<"selecting objects: glide planes"<<std::endl;
                     std::cout<<"    1 to show periodic glide planes"<<std::endl;
-                    std::cout<<"    2 to show periodic loops"<<std::endl;
+//                    std::cout<<"    2 to show periodic loops"<<std::endl;
                     std::cout<<"    +/- to increase opacity"<<std::endl;
                     if(ddAux!=nullptr)
                     {
@@ -752,10 +753,10 @@ namespace model
                 if(selectedKey[0]=='t')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showSlippedArea=false;
-                        ddSegments->modify();
+                        DDconfigVtk::showSlippedArea=false;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                 }
@@ -765,10 +766,10 @@ namespace model
                     std::cout<<"selecting objects: Slipped Areas"<<std::endl;
                     std::cout<<"    +/- to increase/decrease opacity"<<std::endl;
                     
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showSlippedArea=true;
-                        ddSegments->modify();
+                        DDconfigVtk::showSlippedArea=true;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                     
@@ -779,10 +780,10 @@ namespace model
                 if(selectedKey[0]=='v')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showNodes=false;
-                        ddSegments->modify();
+                        DDconfigVtk::showNodes=false;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                 }
@@ -793,10 +794,10 @@ namespace model
                     std::cout<<"      1 to show/hide node IDs"<<std::endl;
                     std::cout<<"      2 to show/hide a specific node ID"<<std::endl;
                     
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showNodes=true;
-                        ddSegments->modify();
+                        DDconfigVtk::showNodes=true;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                     
@@ -807,10 +808,10 @@ namespace model
                 if(selectedKey[0]=='w')
                 {
                     selectedKey=" ";
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showVelocities=false;
-                        ddSegments->modify();
+                        DDconfigVtk::showVelocities=false;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                 }
@@ -820,10 +821,10 @@ namespace model
                     std::cout<<"selecting objects: nodal velocities"<<std::endl;
                     std::cout<<"    +/- to increase vector size"<<std::endl;
                     
-                    if(ddSegments.get()!=nullptr)
+                    if(ddConfig.get()!=nullptr)
                     {
-                        DislocationSegmentActor::showVelocities=true;
-                        ddSegments->modify();
+                        DDconfigVtk::showVelocities=true;
+                        ddConfig->modify();
                         this->Interactor->Render();
                     }
                     
@@ -836,78 +837,78 @@ namespace model
                 
                 if(key == "equal")
                 {
-                    DislocationSegmentActor::tubeRadius*=2.0;
-                    ddSegments->modify();
-                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    DDconfigVtk::tubeRadius*=2.0;
+                    ddConfig->modify();
+                    std::cout<<"tube radius="<<DDconfigVtk::tubeRadius<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "minus")
                 {
-                    DislocationSegmentActor::tubeRadius*=0.5;
-                    ddSegments->modify();
-                    std::cout<<"tube radius="<<DislocationSegmentActor::tubeRadius<<std::endl;
+                    DDconfigVtk::tubeRadius*=0.5;
+                    ddConfig->modify();
+                    std::cout<<"tube radius="<<DDconfigVtk::tubeRadius<<std::endl;
                     this->Interactor->Render();
                 }
                 if(key == "0")
                 {
-                    DislocationSegmentActor::showZeroBuergers=!DislocationSegmentActor::showZeroBuergers;
-                    ddSegments->modify();
+                    DDconfigVtk::showZeroBuergers=!DDconfigVtk::showZeroBuergers;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 if(key == "1")
                 {
-                    DislocationSegmentActor::showBoundarySegments=!DislocationSegmentActor::showBoundarySegments;
-                    ddSegments->modify();
+                    DDconfigVtk::showBoundarySegments=!DDconfigVtk::showBoundarySegments;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 if(key == "2")
                 {
-                    DislocationSegmentActor::scaleRadiusByBurgers=!DislocationSegmentActor::scaleRadiusByBurgers;
-                    std::cout<<"scaleRadiusByBurgers="<<DislocationSegmentActor::scaleRadiusByBurgers<<std::endl;
-                    ddSegments->modify();
+                    DDconfigVtk::scaleRadiusByBurgers=!DDconfigVtk::scaleRadiusByBurgers;
+                    std::cout<<"scaleRadiusByBurgers="<<DDconfigVtk::scaleRadiusByBurgers<<std::endl;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 if(key == "3")
                 {
-                    DislocationSegmentActor::blackGrainBoundarySegments=!DislocationSegmentActor::blackGrainBoundarySegments;
-                    std::cout<<"blackGrainBoundarySegments="<<DislocationSegmentActor::blackGrainBoundarySegments<<std::endl;
-                    ddSegments->modify();
+                    DDconfigVtk::blackGrainBoundarySegments=!DDconfigVtk::blackGrainBoundarySegments;
+                    std::cout<<"blackGrainBoundarySegments="<<DDconfigVtk::blackGrainBoundarySegments<<std::endl;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 if(key == "4")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorBurgers;
+                    DDconfigVtk::clr=DDconfigVtk::colorBurgers;
                     std::cout<<"DislocationSegment color scheme = Burgers. Reload frame to update colors."<<std::endl;
-//                    ddSegments->modify();
+//                    ddConfig->modify();
 //                    this->Interactor->Render();
                 }
                 if(key == "5")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorSessile;
+                    DDconfigVtk::clr=DDconfigVtk::colorSessile;
                     std::cout<<"DislocationSegment color scheme = Glissile/Sessile. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig->modify();
                     //                    this->Interactor->Render();
                 }
                 if(key == "6")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorEdgeScrew;
+                    DDconfigVtk::clr=DDconfigVtk::colorEdgeScrew;
                     std::cout<<"DislocationSegment color scheme = screw/edge. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig->modify();
                     //                    this->Interactor->Render();
                 }
                 if(key == "7")
                 {
-                    DislocationSegmentActor::clr=DislocationSegmentActor::colorNormal;
+                    DDconfigVtk::clr=DDconfigVtk::colorNormal;
                     std::cout<<"DislocationSegment color scheme = planeNormal. Reload frame to update colors."<<std::endl;
-                    //                    ddSegments->modify();
+                    //                    ddConfig->modify();
                     //                    this->Interactor->Render();
                 }
 //                if(key == "8")
 //                {
-//                    DislocationSegmentActor::showGlidePlanes=!DislocationSegmentActor::showGlidePlanes;
-//                    std::cout<<"show GlidePlanes="<<DislocationSegmentActor::showGlidePlanes<<std::endl;
-//                    ddSegments->modify();
-//                    //                    ddSegments->modify();
+//                    DDconfigVtk::showGlidePlanes=!DDconfigVtk::showGlidePlanes;
+//                    std::cout<<"show GlidePlanes="<<DDconfigVtk::showGlidePlanes<<std::endl;
+//                    ddConfig->modify();
+//                    //                    ddConfig->modify();
 //                    //                    this->Interactor->Render();
 //                }
                 
@@ -1060,38 +1061,38 @@ namespace model
             {
                 if(key == "1")
                 {
-                    DislocationSegmentActor::showNodeIDs=!DislocationSegmentActor::showNodeIDs;
-                    ddSegments->modify();
+                    DDconfigVtk::showNodeIDs=!DDconfigVtk::showNodeIDs;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 
                 if(key == "2")
                 {
-                    DislocationSegmentActor::showSingleNode=!DislocationSegmentActor::showSingleNode;
-                    if(DislocationSegmentActor::showSingleNode)
+                    DDconfigVtk::showSingleNode=!DDconfigVtk::showSingleNode;
+                    if(DDconfigVtk::showSingleNode)
                     {
                         std::cout << "Enter node ID "<<std::flush;
-                        std::cin >> DislocationSegmentActor::singleNodeID;
+                        std::cin >> DDconfigVtk::singleNodeID;
                         std::cout <<std::endl;
                     }
-                    ddSegments->modify();
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
             }
             else if(selectedKey[0]=='w')
             {
-                if(key == "equal" && ddSegments.get()!=nullptr)
+                if(key == "equal" && ddConfig.get()!=nullptr)
                 {
-                    DislocationSegmentActor::velocityFactor*=2.0;
-                    ddSegments->modify();
-                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    DDconfigVtk::velocityFactor*=2.0;
+                    ddConfig->modify();
+                    std::cout<<"velocity scaling="<<DDconfigVtk::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
-                if(key == "minus" && ddSegments.get()!=nullptr)
+                if(key == "minus" && ddConfig.get()!=nullptr)
                 {
-                    DislocationSegmentActor::velocityFactor*=0.5;
-                    ddSegments->modify();
-                    std::cout<<"velocity scaling="<<DislocationSegmentActor::velocityFactor<<std::endl;
+                    DDconfigVtk::velocityFactor*=0.5;
+                    ddConfig->modify();
+                    std::cout<<"velocity scaling="<<DDconfigVtk::velocityFactor<<std::endl;
                     this->Interactor->Render();
                 }
                 
@@ -1119,26 +1120,26 @@ namespace model
                     this->Interactor->Render();
                     std::cout<<"showPeriodicGlidePlanes="<<ddAux->showPeriodicGlidePlanes<<std::endl;
                 }
-                if(key == "2" && ddAux!=nullptr)
-                {
-                    ddAux->showPeriodicLoops=!ddAux->showPeriodicLoops;
-                    ddAux->modify();
-                    this->Interactor->Render();
-                    std::cout<<"showPeriodicLoops="<<ddAux->showPeriodicLoops<<std::endl;
-                }
+//                if(key == "2" && ddAux!=nullptr)
+//                {
+//                    ddAux->showPeriodicLoops=!ddAux->showPeriodicLoops;
+//                    ddAux->modify();
+//                    this->Interactor->Render();
+//                    std::cout<<"showPeriodicLoops="<<ddAux->showPeriodicLoops<<std::endl;
+//                }
             }
             else if(selectedKey[0]=='t')
             {
-                if(key == "equal" && ddSegments.get()!=nullptr)
+                if(key == "equal" && ddConfig.get()!=nullptr)
                 {
-                    DislocationSegmentActor::slippedAreaOpacity*=1.25;
-                    ddSegments->modify();
+                    DDconfigVtk::slippedAreaOpacity*=1.25;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
-                if(key == "minus" && ddSegments.get()!=nullptr)
+                if(key == "minus" && ddConfig.get()!=nullptr)
                 {
-                    DislocationSegmentActor::slippedAreaOpacity/=1.25;
-                    ddSegments->modify();
+                    DDconfigVtk::slippedAreaOpacity/=1.25;
+                    ddConfig->modify();
                     this->Interactor->Render();
                 }
                 

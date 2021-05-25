@@ -131,7 +131,7 @@ namespace model
                              const Plane<dim>& plane)
         {
             //std::cout<<"I'm here A"<<std::endl;
-            const MatrixDim R(plane.localRotationMatrix());
+//            const MatrixDim R(plane.localRotationMatrix());
             
             for(const auto& face : mesh.region(rID)->faces())
             {
@@ -225,8 +225,11 @@ namespace model
             for(const auto& pt : *this)
             {
                 
-                VectorDim x(R*(0.5*(pt->P0+pt->P1)-plane.P));
+//                VectorDim x(R*(0.5*(pt->P0+pt->P1)-plane.P));
+//                finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
+                const auto x(plane.localPosition(0.5*(pt->P0+pt->P1)));
                 finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
+
                 // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
             }
 

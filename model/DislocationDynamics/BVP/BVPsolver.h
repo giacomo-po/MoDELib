@@ -481,7 +481,7 @@ namespace model
             auto eb_list = ndA.template integrationList<FEMfaceEvaluation<ElementType,dim,dim>>(); // TO DO: make this a member data to be able to output
             
             const auto t0= std::chrono::system_clock::now();
-            if(DN.corder==0)
+            if(TypeTraits<DislocationNetworkType>::corder==0)
             {
                 //            REIMPLEMENT DD TRACTION
                 //                assert(0 && "REIMPLEMENT DD TRACTION");

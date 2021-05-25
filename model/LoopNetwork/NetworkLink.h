@@ -16,15 +16,19 @@
 //#include <NetworkLinkObserver.h>
 //#include <NetworkComponent.h>
 
-#define VerboseNetworkLink(N,x) if(verboseLevel>=N){model::cout<<magentaColor<<x<<defaultColor;}
 
+#ifndef NDEBUG
+#define VerboseNetworkLink(N,x) if(verboseLevel>=N){model::cout<<magentaColor<<x<<defaultColor;}
+#else
+#define VerboseNetworkLink(N,x)
+#endif
 
 namespace model
 {
     template<typename Derived>
     class NetworkLink : public StaticID<Derived>
     /*               */,public CRTP<Derived>
-    /*               */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,std::pair<size_t,size_t>>
+    /*               */,public NetworkBase<Derived,std::pair<size_t,size_t>>
     /*               */,private std::set<typename TypeTraits<Derived>::LoopLinkType*>
     {
         
@@ -35,7 +39,7 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NetworkBase<LoopNetworkType,std::pair<size_t,size_t>> NetworkBaseType;
+        typedef NetworkBase<Derived,std::pair<size_t,size_t>> NetworkBaseType;
 
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         
@@ -126,7 +130,7 @@ namespace model
         NetworkLink(LoopNetworkType* const loopNetwork,
                     const std::shared_ptr<NetworkNodeType>& nI,
                     const std::shared_ptr<NetworkNodeType>& nJ) :
-        /* init */ NetworkBaseType(loopNetwork,getKey(nI,nJ))
+        /* init */ NetworkBaseType(loopNetwork,&loopNetwork->networkLinks(),getKey(nI,nJ))
         /* init */,source(nI->sID<nJ->sID? nI : nJ)
         /* init */,sink(nI->sID<nJ->sID? nJ : nI)
         {
@@ -166,7 +170,7 @@ namespace model
         /**********************************************************************/
         static typename NetworkBaseType::KeyType getKey(const LoopLinkType* const pL)
         {
-            return getKey(pL->source,pL->sink);
+            return getKey(pL->source->networkNode,pL->sink->networkNode);
         }
 
         /**********************************************************************/

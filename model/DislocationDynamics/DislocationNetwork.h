@@ -48,12 +48,12 @@
 #include <DislocationSegment.h>
 #include <Hermite.h>
 
-//#include <DislocationNetworkRemesh.h>
-//#include <DislocationJunctionFormation.h>
+#include <DislocationNetworkRemesh.h>
+#include <DislocationJunctionFormation.h>
 //#include <DislocationCrossSlip.h>
 ////#include <Material.h>
 #include <UniqueOutputFile.h>
-//#include <DislocationNetworkIO.h>
+#include <DislocationNetworkIO.h>
 //#include <DislocationParticle.h>
 #include <DislocationStress.h>
 ////#include <ParticleSystem.h>
@@ -69,10 +69,12 @@
 #include <Polycrystal.h>
 #include <BVPsolver.h>
 #include <ExternalLoadControllerBase.h>
-#include <GlidePlane.h>
+#include <GlidePlaneModule.h>
 
-//#include <DislocationNodeContraction.h>
+#include <DislocationNodeContraction.h>
 #include <EshelbyInclusion.h>
+#include <DDconfigIO.h>
+#include <DislocationGlideSolver.h>
 //#include <TextFileParser.h>
 ////#include <DisplacementPoint.h>
 
@@ -89,15 +91,19 @@
 //#include <MooseSolution.h>
 //#endif
 
+#ifndef NDEBUG
+#define VerboseDislocationNetwork(N,x) if(verboseDislocationNetwork>=N){std::cout<<x;}
+#else
+#define VerboseDislocationNetwork(N,x)
+#endif
+
 namespace model
 {
     
     
     
     template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork :
-    //public PeriodicLoopObserver<PeriodicDislocationLoop<DislocationNetwork<_dim,_corder,InterpolationType>>>
-    /*                      */ public LoopNetwork<DislocationNetwork<dim,corder,InterpolationType> >
+    class DislocationNetwork :public LoopNetwork<DislocationNetwork<dim,corder,InterpolationType> >
     //    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
     /*                      */,public std::map<size_t,EshelbyInclusion<dim>>
     {
@@ -113,124 +119,35 @@ namespace model
         typedef typename TraitsType::NetworkLinkType NetworkLinkType;
         typedef typename TraitsType::FlowType FlowType;
         typedef typename TraitsType::VectorDim VectorDim;
+        typedef typename TraitsType::VectorLowerDim VectorLowerDim;
         typedef typename TraitsType::MatrixDim MatrixDim;
-
+        typedef DislocationNetworkIO<LoopNetworkType> DislocationNetworkIOType;
         typedef std::map<size_t,EshelbyInclusion<dim>> EshelbyInclusionContainerType;
+        typedef BVPsolver<dim,2> BvpSolverType;
+        typedef typename BvpSolverType::FiniteElementType FiniteElementType;
+        typedef typename FiniteElementType::ElementType ElementType;
 
-//
-//    public:
-//
-//
-//        static constexpr int dim=_dim; // make dim available outside class
-//        static constexpr int corder=_corder; // make dim available outside class
-//        typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
-//        typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
-//        typedef DislocationNode<dim,corder,InterpolationType> NodeType;
-//        typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
-//        typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
-//        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
-//        typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
-//        typedef Eigen::Matrix<double,dim,1>        VectorDim;
-//        typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
-//        //        typedef DislocationParticle<_dim> DislocationParticleType;
-//        //        typedef typename DislocationParticleType::StressField StressField;
-//        //        typedef typename DislocationParticleType::DisplacementField DisplacementField;
-//        //        typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
-//        //        typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
-//        //        typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
-//        typedef BVPsolver<dim,2> BvpSolverType;
-//        typedef typename BvpSolverType::FiniteElementType FiniteElementType;
-//        typedef typename FiniteElementType::ElementType ElementType;
-//        typedef typename LoopNetworkType::IsNodeType IsNodeType;
-//        typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
-//        typedef Polycrystal<dim> PolycrystalType;
-//        //        typedef ExternalLoadControllerBase<dim> ExternalLoadControllerType;
-//        typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
-//        typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
-//        typedef PeriodicDislocationLoop<DislocationNetworkType> PeriodicDislocationLoopType;
-//
-//#ifdef DislocationNucleationFile
-//#include DislocationNucleationFile
-//#endif
-//
-//#ifdef _MODEL_GREATWHITE_
-//#include <DislocationNetworkGreatWhite.h>
-//#endif
-//
-//    private:
-//
-//
-//        /**********************************************************************/
-//        void updateVirtualBoundaryLoops()
-//        {
-//
-//
-//            if(   simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM
-//               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
-//            {
-//                //                    if(useVirtualExternalLoops)
-//                //                    {
-//
-//                const auto t0= std::chrono::system_clock::now();
-//                model::cout<<"        Updating virtual boundary loops "<<std::flush;
-//
-//
-//                // First clean up outdated boundary loops
-//                std::set<size_t> removeLoops;
-//                for(const auto& loop : this->loops())
-//                {
-//                    if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
-//                    {// clean up left over loops from topological operations
-//                        removeLoops.insert(loop.second->sID);
-//                    }
-//                }
-//
-//                for(const size_t& loopID : removeLoops)
-//                {// Remove the virtual loops with ID in removeLoops
-//                    this->deleteLoop(loopID);
-//                }
-//
-//
-//
-//                // Now reconstruct virtual boundary loops
-//                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
-//                for(const auto& link : this->links())
-//                {
-//                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
-//                    {
-//                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
-//                                                       link.second->burgers(),
-//                                                       (*link.second->grains().begin())->grainID,
-//                                                       DislocationLoopIO<dim>::VIRTUALLOOP);
-//                    }
-//                }
-//
-//                for(const auto& tup : virtualLoopVector)
-//                {// Insert the new virtual loops
-//                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
-//                }
-//                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//            }
-//        }
-//
-//
-//
+        
+        static int verboseDislocationNetwork;
+
+
     public:
 
         const DefectiveCrystalParameters& simulationParameters;
         const SimplicialMesh<dim>& mesh;
         const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim> glidePlaneFactory;
+        std::shared_ptr<PeriodicGlidePlaneFactory<dim>> periodicGlidePlaneFactory;
 //        const std::unique_ptr<PeriodicDislocationLoopFactory<DislocationNetworkType>> periodicDislocationLoopFactory;
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
         const std::vector<VectorDim>& periodicShifts;
-//        DislocationNetworkRemesh<DislocationNetworkType> networkRemesher;
-//        DislocationJunctionFormation<DislocationNetworkType> junctionsMaker;
-//        DislocationNodeContraction<DislocationNetworkType> nodeContractor;
+        DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
+        DislocationJunctionFormation<LoopNetworkType> junctionsMaker;
+        DislocationNodeContraction<LoopNetworkType> nodeContractor;
 //        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         //        MatrixDimD _plasticDistortionFromVelocities;
-        std::pair<double,MatrixDim> _plasticDistortionFromAreas;
+        std::pair<double,MatrixDim> oldPlasticDistortionFromAreas;
         MatrixDim _plasticDistortionRateFromVelocities;
         MatrixDim _plasticDistortionRateFromAreas;
         int ddSolverType;
@@ -250,12 +167,14 @@ namespace model
         bool outputLinkingNumbers;
         bool outputLoopLength;
         bool outputSegmentPairDistances;
-        bool outputPeriodicConfiguration;
+        const bool computeElasticEnergyPerLength;
+//        bool outputPeriodicConfiguration;
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
         double surfaceAttractionDistance;
         //        bool computePlasticDistortionRateFromVelocities;
         std::string folderSuffix;
+        std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
 
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[],
@@ -267,16 +186,129 @@ namespace model
                            const std::vector<VectorDim>& _periodicShifts,
                            long int& runID);
         
+        void setConfiguration(const DDconfigIO<dim>&);
         void createEshelbyInclusions();
-        
-        /**********************************************************************/
         const MatrixDim& plasticDistortionRate() const;
-        
-        /**********************************************************************/
         MatrixDim plasticDistortion() const;
-                
-        /**********************************************************************/
         MatrixDim plasticStrainRate() const;
+        void updateGeometry();//
+        void updatePlasticDistortionRateFromAreas();
+        void dummyMove(const int&);
+        DislocationNetworkIOType io();
+        DislocationNetworkIOType io() const;
+        std::tuple<double,double,double,double> networkLength() const;
+        const EshelbyInclusionContainerType& eshelbyInclusions() const;
+        EshelbyInclusionContainerType& eshelbyInclusions();
+        VectorDim displacement(const VectorDim& x) const;
+        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const;
+        MatrixDim stress(const VectorDim& x) const;
+        void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
+        void assembleAndSolveGlide(const long int& runID);
+        void moveGlide(const double & dt_in);
+        void singleGlideStepDiscreteEvents(const long int& runID);
+        void updateBoundaryNodes();
+        bool contract(std::shared_ptr<NetworkNodeType> nA,std::shared_ptr<NetworkNodeType> nB);
+
+        
+        //
+        //    public:
+        //
+        //
+        //        static constexpr int dim=_dim; // make dim available outside class
+        //        static constexpr int corder=_corder; // make dim available outside class
+        //        typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
+        //        typedef LoopNetwork<DislocationNetworkType> LoopNetworkType;
+        //        typedef DislocationNode<dim,corder,InterpolationType> NodeType;
+        //        typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
+        //        typedef DislocationNetworkComponent<NodeType,LinkType> DislocationNetworkComponentType;
+        //        typedef NetworkComponent<NodeType,LinkType> NetworkComponentType;
+        //        typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
+        //        typedef Eigen::Matrix<double,dim,1>        VectorDim;
+        //        typedef typename TypeTraits<DislocationNetworkType>::LoopType LoopType;
+        //        //        typedef DislocationParticle<_dim> DislocationParticleType;
+        //        //        typedef typename DislocationParticleType::StressField StressField;
+        //        //        typedef typename DislocationParticleType::DisplacementField DisplacementField;
+        //        //        typedef ParticleSystem<DislocationParticleType> ParticleSystemType;
+        //        //        typedef typename ParticleSystemType::SpatialCellType SpatialCellType;
+        //        //        typedef SpatialCellObserver<DislocationParticleType,_dim> SpatialCellObserverType;
+        //        typedef BVPsolver<dim,2> BvpSolverType;
+        //        typedef typename BvpSolverType::FiniteElementType FiniteElementType;
+        //        typedef typename FiniteElementType::ElementType ElementType;
+        //        typedef typename LoopNetworkType::IsNodeType IsNodeType;
+        //        typedef DislocationNetworkIO<DislocationNetworkType> DislocationNetworkIOType;
+        //        typedef Polycrystal<dim> PolycrystalType;
+        //        //        typedef ExternalLoadControllerBase<dim> ExternalLoadControllerType;
+        //        typedef NetworkLinkObserver<LinkType> NetworkLinkObserverType;
+        //        typedef typename NetworkLinkObserverType::LinkContainerType NetworkLinkContainerType;
+        //        typedef PeriodicDislocationLoop<DislocationNetworkType> PeriodicDislocationLoopType;
+        //
+        //#ifdef DislocationNucleationFile
+        //#include DislocationNucleationFile
+        //#endif
+        //
+        //#ifdef _MODEL_GREATWHITE_
+        //#include <DislocationNetworkGreatWhite.h>
+        //#endif
+        //
+        //    private:
+        //
+        //
+        //        /**********************************************************************/
+        //        void updateVirtualBoundaryLoops()
+        //        {
+        //
+        //
+        //            if(   simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM
+        //               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
+        //            {
+        //                //                    if(useVirtualExternalLoops)
+        //                //                    {
+        //
+        //                const auto t0= std::chrono::system_clock::now();
+        //                model::cout<<"        Updating virtual boundary loops "<<std::flush;
+        //
+        //
+        //                // First clean up outdated boundary loops
+        //                std::set<size_t> removeLoops;
+        //                for(const auto& loop : this->loops())
+        //                {
+        //                    if((loop.second->isVirtualBoundaryLoop() && loop.second->links().size()!=4) || loop.second->isPureVirtualBoundaryLoop())
+        //                    {// clean up left over loops from topological operations
+        //                        removeLoops.insert(loop.second->sID);
+        //                    }
+        //                }
+        //
+        //                for(const size_t& loopID : removeLoops)
+        //                {// Remove the virtual loops with ID in removeLoops
+        //                    this->deleteLoop(loopID);
+        //                }
+        //
+        //
+        //
+        //                // Now reconstruct virtual boundary loops
+        //                std::vector<std::tuple<std::vector<std::shared_ptr<NodeType>>,VectorDim,size_t,int>> virtualLoopVector;
+        //                for(const auto& link : this->links())
+        //                {
+        //                    if(link.second->isBoundarySegment() && !link.second->hasZeroBurgers())
+        //                    {
+        //                        virtualLoopVector.emplace_back(std::vector<std::shared_ptr<NodeType>>{link.second->sink,link.second->source,link.second->source->virtualBoundaryNode(),link.second->sink->virtualBoundaryNode()},
+        //                                                       link.second->burgers(),
+        //                                                       (*link.second->grains().begin())->grainID,
+        //                                                       DislocationLoopIO<dim>::VIRTUALLOOP);
+        //                    }
+        //                }
+        //
+        //                for(const auto& tup : virtualLoopVector)
+        //                {// Insert the new virtual loops
+        //                    this->insertLoop(std::get<0>(tup),std::get<1>(tup),std::get<2>(tup),std::get<3>(tup));
+        //                }
+        //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        //            }
+        //        }
+        //
+        //
+        //
+        
 //
 //        /**********************************************************************/
 //        void setConfiguration(const DDconfigIO<dim>& evl)
@@ -488,16 +520,7 @@ namespace model
 //            return LoopNetworkType::remove(nodeID);
 //        }
 //
-//        /**********************************************************************/
-//        void updateGeometry()
-//        {
-//            for(auto& loop : this->loops())
-//            {// copmute slipped areas and right-handed normal // TODO: PARALLELIZE THIS LOOP
-//                loop.second->updateGeometry();
-//            }
-//            updatePlasticDistortionRateFromAreas();
-//        }
-//
+        /**********************************************************************/
 //        /**********************************************************************/
 //        void removeZeroAreaLoops()
 //        {
@@ -644,8 +667,7 @@ namespace model
 //        //        }
 //
         /**********************************************************************/
-        const EshelbyInclusionContainerType& eshelbyInclusions() const;
-        EshelbyInclusionContainerType& eshelbyInclusions();
+
 //
 //
 //        /**********************************************************************/
@@ -655,234 +677,8 @@ namespace model
 //            return nodeContractor.contract(nA,nB);
 //        }
 //
-//        /**********************************************************************/
-//        void assembleAndSolveGlide(const long int& runID)
-//        {/*! Performs the following operatons:
-//          */
-//#ifdef _OPENMP
-//            const size_t nThreads = omp_get_max_threads();
-//#else
-//            const size_t nThreads = 1;
-//#endif
-//
-//            //! -1 Compute the interaction StressField between dislocation particles
-//
-//
-//            if(corder==0)
-//            {// For straight segments use analytical expression of stress field
-//                //                const auto t0= std::chrono::system_clock::now();
-//                //                model::cout<<"        Collecting StressStraight objects: "<<std::flush;
-//                //
-//                //                size_t currentSize=0;
-//                //                if(computeDDinteractions)
-//                //                {
-//                //                    for(const auto& link : this->networkLinks())
-//                //                    {
-//                //                        link.second->addToStressStraight(straightSegmentsDeq);
-//                //                    }
-//                //
-//                //                    currentSize=straightSegmentsDeq.size();
-//                //
-//                //                    const VectorDim meshSize(this->mesh.xMax()-this->mesh.xMin());
-//                //
-//                //                    for(int i=-dislocationImages_x;i<=dislocationImages_x;++i)
-//                //                    {
-//                //                        for(int j=-dislocationImages_y;j<=dislocationImages_y;++j)
-//                //                        {
-//                //                            for(int k=-dislocationImages_z;k<=dislocationImages_z;++k)
-//                //                            {
-//                //
-//                //                                const Eigen::Matrix<int,3,1> cellID((Eigen::Matrix<int,3,1>()<<i,j,k).finished());
-//                //
-//                //                                if( cellID.squaredNorm()!=0) //skip current cell
-//                //                                {
-//                //                                    for (size_t c=0;c<currentSize;++c)
-//                //                                    {
-//                //                                        const VectorDim P0=straightSegmentsDeq[c].P0+(meshSize.array()*cellID.cast<double>().array()).matrix();
-//                //                                        const VectorDim P1=straightSegmentsDeq[c].P1+(meshSize.array()*cellID.cast<double>().array()).matrix();
-//                //
-//                //                                        straightSegmentsDeq.emplace_back(P0,P1,straightSegmentsDeq[c].b);
-//                //                                    }
-//                //                                }
-//                //                            }
-//                //                        }
-//                //                    }
-//                //
-//                //
-//                //                }
-//                //                model::cout<< straightSegmentsDeq.size()<<" straight segments ("<<currentSize<<"+"<<straightSegmentsDeq.size()-currentSize<<" images)"<<std::flush;
-//                //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//                //
-//                const auto t1= std::chrono::system_clock::now();
-//                model::cout<<"        Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
-//#ifdef _OPENMP
-//                //                const size_t nThreads = omp_get_max_threads();
-//                EqualIteratorRange<typename NetworkLinkContainerType::iterator> eir(this->links().begin(),this->links().end(),nThreads);
-//                //                SOMETHING WRONG HERE? CPU USE SAYS 100% ONLY?
-//
-//#pragma omp parallel for
-//                for(size_t thread=0;thread<eir.size();thread++)
-//                {
-//                    for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
-//                    {
-//                        linkIter->second->assembleGlide();
-//                    }
-//                }
-//#else
-//                for (auto& linkIter : this->links())
-//                {
-//                    linkIter.second->assembleGlide();
-//                }
-//#endif
-//                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-//
-//
-//
-//
-//
-//
-//                //#ifdef _OPENMP
-//                //#pragma omp parallel for
-//                //#endif
-//                //                for (unsigned int k=0; k<this->particleSystem().size();++k)
-//                //                {
-//                //                    if(this->particleSystem()[k].template fieldPointBase<StressField>().enabled)
-//                //                    {
-//                //                        this->particleSystem()[k].template fieldPointBase<StressField>() += StressField::addSourceContribution(this->particleSystem()[k],straightSegmentsDeq);
-//                //                    }
-//                //                }
-//                //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//            }
-//            else
-//            {// For curved segments use quandrature integration of stress field
-//                //                assert(0 && "RE-ENABLE THIS. New Material class is incompatible with old implmentation using static objects");
-//
-//                assert(0 && "ALL THIS MUST BE RE-IMPLEMENTED FOR CURVED SEGMENTS");
-//
-//                //
-//                //                const auto t0= std::chrono::system_clock::now();
-//                //
-//                //                if(computeDDinteractions)
-//                //                {
-//                //
-//                //                    if(dislocationImages_x!=0 || dislocationImages_y!=0 || dislocationImages_z!=0)
-//                //                    {
-//                //                        assert(0 && "FINISH HERE");
-//                //                    }
-//                //
-//                //                    model::cout<<"        Computing numerical stress field at quadrature points ("<<nThreads<<" threads)..."<<std::flush;
-//                //                    if (use_extraStraightSegments)
-//                //                    {
-//                //                        this->template computeNeighborField<StressField>(ssdeq);
-//                //                    }
-//                //                    else
-//                //                    {
-//                //                        this->template computeNeighborField<StressField>();
-//                //                    }
-//                //                    model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-//                //                }
-//                //
-//                //                //! -2 Loop over DislocationSegments and assemble stiffness matrix and force vector
-//                //                const auto t1= std::chrono::system_clock::now();
-//                //                model::cout<<"        Computing segment stiffness matrices and force vectors ("<<nThreads<<" threads)..."<<std::flush;
-//                //                typedef void (LinkType::*LinkMemberFunctionPointerType)(void); // define type of Link member function
-//                //                assert(0 && "THIS CASE MUST BE REWORKED, since LinkType::assemble DOES NOT EXIST ANYMORE");
-//                //                //LinkMemberFunctionPointerType Lmfp(&LinkType::assemble); // Lmfp is a member function pointer to Link::assemble
-//                //                //this->parallelExecute(Lmfp);
-//                //                model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
-//                //
-//
-//            }
-//
-//            //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
-//            const auto t2= std::chrono::system_clock::now();
-//            model::cout<<"        Assembling NetworkComponents and solving "<<std::flush;
-//
-//
-//
-//            switch (ddSolverType)
-//            {
-//                case 1: // iterative solver
-//                {
-//                    model::cout<<"(MINRES "<<nThreads<<" threads)..."<<std::flush;
-//#ifdef _OPENMP // MINRES is not multi-threaded. So parallelize loop over NetworkComponents.
-//#pragma omp parallel for
-//                    for (unsigned int k=0;k<this->components().size();++k)
-//                    {
-//                        auto snIter(this->components().begin());
-//                        std::advance(snIter,k);
-//                        DislocationNetworkComponentType(*snIter->second).iterativeSolve();
-//                    }
-//#else
-//                    for (const auto& networkComponent : this->components())
-//                    {
-//                        DislocationNetworkComponentType(*networkComponent.second).iterativeSolve();
-//                    }
-//#endif
-//                    break;
-//                }
-//
-//                case 2: // direct solver
-//                {
-//#ifdef _MODEL_PARDISO_SOLVER_
-//                    model::cout<<"(PardisoLDLT "<<nThreads<<" threads)..."<<std::flush;
-//                    for (const auto& networkComponent : this->components())
-//                    {
-//                        DislocationNetworkComponentType(*networkComponent.second).directSolve();
-//                    }
-//#else
-//                    model::cout<<"(SimplicialLDLT "<<nThreads<<" threads)..."<<std::flush;
-//#ifdef _OPENMP // SimplicialLDLT is not multi-threaded. So parallelize loop over NetworkComponents.
-//#pragma omp parallel for
-//                    for (unsigned int k=0;k<this->components().size();++k)
-//                    {
-//                        auto snIter(this->components().begin());
-//                        std::advance(snIter,k);
-//                        DislocationNetworkComponentType(*snIter->second).directSolve();
-//                    }
-//#else
-//                    for (const auto& networkComponent : this->components())
-//                    {
-//                        DislocationNetworkComponentType(*networkComponent.second).directSolve();
-//                    }
-//#endif
-//#endif
-//                    break;
-//                }
-//
-//                default: // lumped solver
-//                {
-//                    model::cout<<"(lumpedSolver "<<nThreads<<" threads)..."<<std::flush;
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//                    for (unsigned int k=0;k<this->components().size();++k)
-//                    {
-//                        auto snIter(this->components().begin());
-//                        std::advance(snIter,k);
-//                        DislocationNetworkComponentType(*snIter->second).lumpedSolve(runID);
-//                    }
-//#else
-//                    for (const auto& networkComponent : this->components())
-//                    {
-//                        DislocationNetworkComponentType(*networkComponent.second).lumpedSolve(runID);
-//                    }
-//#endif
-//                    break;
-//                }
-//            }
-//
-//            //            if(DislocationNetworkComponentType::use_directSolver)
-//            //            {
-//            //
-//            //
-//            //            }
-//            //            else // iterative solver
-//            //            {
-//            //
-//            //            }
-//
-//            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t2)).count()<<" sec]."<<defaultColor<<std::endl;
-//        }
+        /**********************************************************************/
+
 //
 //
 //
@@ -1003,107 +799,10 @@ namespace model
 //            return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
 //        }
 //
-//        /**********************************************************************/
-//        MatrixDimD stress(const VectorDim& x) const
-//        {/*!\param[in] P position vector
-//          * \returns The stress field generated by the DislocationNetwork at P
-//          *
-//          * Note:
-//          */
-//            MatrixDimD temp(MatrixDimD::Zero());
-//            for(const auto& link : this->links())
-//            {// sum stress field per segment
-//                if(   !link.second->hasZeroBurgers()
-//                   && !(link.second->isBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-//                   //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
-//                   )
-//                {
-//                    for(const auto& shift : periodicShifts)
-//                    {
-//                        temp+=link.second->straight.stress(x+shift);
-//                    }
-//                }
-//            }
-//            return temp;
-//        }
 //
-//        /**********************************************************************/
-//        void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const
-//        {
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-//            for(size_t k=0;k<fieldPoints.size();++k)
-//            {
-//                fieldPoints[k]=stress(fieldPoints[k].P);
-//            }
-//        }
 //
-//        /**********************************************************************/
-//        VectorDim displacement(const VectorDim& x) const
-//        {/*!\param[in] P position vector
-//          * \returns The stress field generated by the DislocationNetwork at P
-//          *
-//          * Note:
-//          */
-//
-//            VectorDim temp(VectorDim::Zero());
-//
-//            for(const auto& loop : this->loops())
-//            {// sum solid angle of each loop
-//                for(const auto& shift : periodicShifts)
-//                {
-//                    temp-=loop.second->solidAngle(x+shift)/4.0/M_PI*loop.second->burgers();
-//                }
-//                //                if(!(loop.second->isVirtualBoundaryLoop() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES))
-//                //                {
-//                //                    for(const auto& shift : periodicShifts)
-//                //                    {
-//                //                        temp-=loop.second->solidAngle(x+shift)/4.0/M_PI*loop.second->burgers();
-//                //                    }
-//                //                }
-//            }
-//
-//            for(const auto& link : this->links())
-//            {// sum line-integral part of displacement field per segment
-//                if(   !link.second->hasZeroBurgers()
-//                   //                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM)
-//                   //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
-//                   )
-//                {
-//                    for(const auto& shift : periodicShifts)
-//                    {
-//                        temp+=link.second->straight.displacement(x+shift);
-//                    }
-//                }
-//            }
-//
-//            return temp;
-//        }
-//
-//        /**********************************************************************/
-//        void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
-//        {
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-//            for(size_t k=0;k<fieldPoints.size();++k)
-//            {
-//                fieldPoints[k]=displacement(fieldPoints[k].P);
-//            }
-//        }
-//
-//        /**********************************************************************/
-//        DislocationNetworkIOType io()
-//        {
-//            return DislocationNetworkIOType(*this,folderSuffix);
-//        }
-//
-//        /**********************************************************************/
-//        DislocationNetworkIOType io() const
-//        {
-//            return DislocationNetworkIOType(*this,folderSuffix);
-//        }
+        /**********************************************************************/
+
         
     };
     

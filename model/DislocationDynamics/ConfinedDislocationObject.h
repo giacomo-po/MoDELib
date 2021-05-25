@@ -123,7 +123,7 @@ namespace model
         /* init */,_isOnInternalBoundary(false)
         /* init */,_outNormal(VectorDim::Zero())
         {
-            updateGeometry(temp);
+            updateConfinement(temp);
         }
         
         /**********************************************************************/
@@ -134,7 +134,7 @@ namespace model
         /* init */,_isOnInternalBoundary(false)
         /* init */,_outNormal(VectorDim::Zero())
         {
-            updateGeometry(P0);
+            updateConfinement(P0);
         }
         
         /**********************************************************************/
@@ -145,7 +145,7 @@ namespace model
         /* init */,_isOnInternalBoundary(false)
         /* init */,_outNormal(VectorDim::Zero())
         {
-            updateGeometry(P0,P1);
+            updateConfinement(P0,P1);
         }
         
         
@@ -312,7 +312,7 @@ namespace model
         }
         
         /**********************************************************************/
-        void updateGeometry(const VectorDim& P0)
+        void updateConfinement(const VectorDim& P0)
         {
             posCointainer.clear();
             posCointainer.push_back(P0);
@@ -320,11 +320,17 @@ namespace model
         }
         
         /**********************************************************************/
-        void updateGeometry(const VectorDim& P0,const VectorDim& P1)
+        void updateConfinement(const VectorDim& P0,const VectorDim& P1)
         {
             posCointainer.clear();
             posCointainer.push_back(P0);
             posCointainer.push_back(P1);
+            updateConfinement();
+        }
+        
+        void updateConfinement(const PositionCointainerType& temp)
+        {
+            posCointainer=temp;
             updateConfinement();
         }
         

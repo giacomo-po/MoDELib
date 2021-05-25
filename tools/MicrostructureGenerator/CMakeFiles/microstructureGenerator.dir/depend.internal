@@ -11,6 +11,7 @@ CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o
  ../../header_symlinks/CSL.h
  ../../header_symlinks/CTM.h
  ../../header_symlinks/CompareVectorsByComponent.h
+ ../../header_symlinks/ConfinedDislocationObject.h
  ../../header_symlinks/ConvexHull.h
  ../../header_symlinks/DDauxIO.h
  ../../header_symlinks/DDbaseIO.h
@@ -75,8 +76,6 @@ CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o
  ../../header_symlinks/PeriodicGlidePlaneFactory.h
  ../../header_symlinks/PeriodicGlidePlaneFactory.hpp
  ../../header_symlinks/PeriodicLatticeInterpolant.h
- ../../header_symlinks/PeriodicLoopLinkIO.h
- ../../header_symlinks/PeriodicLoopNodeIO.h
  ../../header_symlinks/PermutationWithoutRepetition.h
  ../../header_symlinks/PlanarMeshFace.h
  ../../header_symlinks/Plane.h
@@ -110,7 +109,7 @@ CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o
  ../../header_symlinks/TextFileParser.h
  ../../header_symlinks/TypeTraits.h
  ../../header_symlinks/WeakPtrFactories.h
- /Users/giacomo/Documents/MoDELib2/tools/MicrostructureGenerator/microstructureGenerator.cpp
+ /Users/giacomo/Documents/MoDELib2_Git/tools/MicrostructureGenerator/microstructureGenerator.cpp
  /usr/local/include/Eigen/Cholesky
  /usr/local/include/Eigen/Core
  /usr/local/include/Eigen/Dense

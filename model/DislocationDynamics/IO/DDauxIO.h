@@ -15,11 +15,10 @@
 #include <cfloat>      // std::ifstream
 #include <DDbaseIO.h>
 #include <GlidePlaneBoundaryIO.h>
-#include <GlidePlaneFactory.h>
-#include <PeriodicGlidePlane.h>
+#include <GlidePlaneModule.h>
 #include <DislocationQuadraturePointIO.h>
-#include <PeriodicLoopLinkIO.h>
-#include <PeriodicLoopNodeIO.h>
+//#include <PeriodicLoopLinkIO.h>
+//#include <PeriodicLoopNodeIO.h>
 #include <MeshNodeIO.h>
 #include <DefectiveCrystalParameters.h>
 
@@ -33,8 +32,8 @@ namespace model
     /*            */,private std::vector<GlidePlaneBoundaryIO<dim>>
     /*            */,private std::vector<PeriodicPlanePatchIO<dim>>
     /*            */,private std::vector<DislocationQuadraturePointIO<dim>>
-    /*            */,private std::vector<PeriodicLoopNodeIO<dim>>
-    /*            */,private std::vector<PeriodicLoopLinkIO<dim>>
+//    /*            */,private std::vector<PeriodicLoopNodeIO<dim>>
+//    /*            */,private std::vector<PeriodicLoopLinkIO<dim>>
     {
         
         /**********************************************************************/
@@ -79,9 +78,9 @@ namespace model
             
             if (DN.outputQuadraturePoints)
             {
-                for (const auto& link : DN.links())
+                for (const auto& link : DN.networkLinks())
                 {
-                    for(const auto& qPoint : link.second->quadraturePoints())
+                    for(const auto& qPoint : link.second.lock()->quadraturePoints())
                     {
                         quadraturePoints().push_back(qPoint);
                     }
@@ -93,32 +92,32 @@ namespace model
                 setGlidePlaneBoundaries(DN.glidePlaneFactory);
             }
             
-            if(DN.outputPeriodicConfiguration && DN.periodicDislocationLoopFactory)
-            {
-                for(const auto& pair : *DN.periodicDislocationLoopFactory)
-                {// output periodic glide planes too
-                    
-                    if(!pair.second.expired())
-                    {
-                        const auto periodicLoop(pair.second.lock());
-                        addPeriodicGlidePlane(*periodicLoop->periodicGlidePlane);
-                        
-                        for(const auto& node : periodicLoop->sharedNodes())
-                        {
-                            if(!node.second.expired())
-                            {
-                                periodicLoopNodes().emplace_back(*node.second.lock());
-                            }
-                        }
-                        
-                        for(const auto& link : periodicLoop->loopLinks())
-                        {
-                            periodicLoopLinks().emplace_back(link.second);
-                        }
-                        
-                    }
-                }
-            }
+//            if(DN.outputPeriodicConfiguration && DN.periodicDislocationLoopFactory)
+//            {
+//                for(const auto& pair : *DN.periodicDislocationLoopFactory)
+//                {// output periodic glide planes too
+//
+//                    if(!pair.second.expired())
+//                    {
+//                        const auto periodicLoop(pair.second.lock());
+//                        addPeriodicGlidePlane(*periodicLoop->periodicGlidePlane);
+//
+//                        for(const auto& node : periodicLoop->sharedNodes())
+//                        {
+//                            if(!node.second.expired())
+//                            {
+//                                periodicLoopNodes().emplace_back(*node.second.lock());
+//                            }
+//                        }
+//
+//                        for(const auto& link : periodicLoop->loopLinks())
+//                        {
+//                            periodicLoopLinks().emplace_back(link.second);
+//                        }
+//
+//                    }
+//                }
+//            }
             
         }
         
@@ -198,27 +197,27 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        const std::vector<PeriodicLoopNodeIO<dim>>& periodicLoopNodes() const
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const std::vector<PeriodicLoopNodeIO<dim>>& periodicLoopNodes() const
+//        {
+//            return *this;
+//        }
+//
+//        std::vector<PeriodicLoopNodeIO<dim>>& periodicLoopNodes()
+//        {
+//            return *this;
+//        }
         
-        std::vector<PeriodicLoopNodeIO<dim>>& periodicLoopNodes()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const std::vector<PeriodicLoopLinkIO<dim>>& periodicLoopLinks() const
-        {
-            return *this;
-        }
-        
-        std::vector<PeriodicLoopLinkIO<dim>>& periodicLoopLinks()
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const std::vector<PeriodicLoopLinkIO<dim>>& periodicLoopLinks() const
+//        {
+//            return *this;
+//        }
+//
+//        std::vector<PeriodicLoopLinkIO<dim>>& periodicLoopLinks()
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         void write(const size_t& runID,const bool& outputBinary)
@@ -247,8 +246,8 @@ namespace model
                 file<<quadraturePoints().size()<<"\n";
                 file<<glidePlanesBoundaries().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
-                file<<periodicLoopNodes().size()<<"\n";
-                file<<periodicLoopLinks().size()<<"\n";
+//                file<<periodicLoopNodes().size()<<"\n";
+//                file<<periodicLoopLinks().size()<<"\n";
 
                 // Write body
                 for(const auto& mPoint : meshNodes())
@@ -267,14 +266,14 @@ namespace model
                 {
                     file<<patch<<"\n";
                 }
-                for(const auto& periodicNode : periodicLoopNodes())
-                {
-                    file<<periodicNode<<"\n";
-                }
-                for(const auto& periodicLink : periodicLoopLinks())
-                {
-                    file<<periodicLink<<"\n";
-                }
+//                for(const auto& periodicNode : periodicLoopNodes())
+//                {
+//                    file<<periodicNode<<"\n";
+//                }
+//                for(const auto& periodicLink : periodicLoopLinks())
+//                {
+//                    file<<periodicLink<<"\n";
+//                }
 
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -300,8 +299,8 @@ namespace model
                 binWrite(file,quadraturePoints().size());
                 binWrite(file,glidePlanesBoundaries().size());
                 binWrite(file,periodicGlidePlanePatches().size());
-                binWrite(file,periodicLoopNodes().size());
-                binWrite(file,periodicLoopLinks().size());
+//                binWrite(file,periodicLoopNodes().size());
+//                binWrite(file,periodicLoopLinks().size());
 
                 // Write body
                 for(const auto& mPoint : meshNodes())
@@ -320,14 +319,14 @@ namespace model
                 {
                     binWrite(file,patch);
                 }
-                for(const auto& node : periodicLoopNodes())
-                {
-                    binWrite(file,node);
-                }
-                for(const auto& link : periodicLoopLinks())
-                {
-                    binWrite(file,link);
-                }
+//                for(const auto& node : periodicLoopNodes())
+//                {
+//                    binWrite(file,node);
+//                }
+//                for(const auto& link : periodicLoopLinks())
+//                {
+//                    binWrite(file,link);
+//                }
                 
                 file.close();
                 std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -360,10 +359,10 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeGP), 1*sizeof(sizeGP));
                 size_t sizePPP;
                 infile.read (reinterpret_cast<char*>(&sizePPP), 1*sizeof(sizePPP));
-                size_t sizePLN;
-                infile.read (reinterpret_cast<char*>(&sizePLN), 1*sizeof(sizePLN));
-                size_t sizePLL;
-                infile.read (reinterpret_cast<char*>(&sizePLL), 1*sizeof(sizePLL));
+//                size_t sizePLN;
+//                infile.read (reinterpret_cast<char*>(&sizePLN), 1*sizeof(sizePLN));
+//                size_t sizePLL;
+//                infile.read (reinterpret_cast<char*>(&sizePLL), 1*sizeof(sizePLL));
 
                 // Read body
                 meshNodes().resize(sizeMP);
@@ -374,10 +373,10 @@ namespace model
                 infile.read (reinterpret_cast<char*>(glidePlanesBoundaries().data()),glidePlanesBoundaries().size()*sizeof(GlidePlaneBoundaryIO<dim>));
                 periodicGlidePlanePatches().resize(sizePPP);
                 infile.read (reinterpret_cast<char*>(periodicGlidePlanePatches().data()),periodicGlidePlanePatches().size()*sizeof(PeriodicPlanePatchIO<dim>));
-                periodicLoopNodes().resize(sizePLN);
-                infile.read (reinterpret_cast<char*>(periodicLoopNodes().data()),periodicLoopNodes().size()*sizeof(PeriodicLoopNodeIO<dim>));
-                periodicLoopLinks().resize(sizePLL);
-                infile.read (reinterpret_cast<char*>(periodicLoopLinks().data()),periodicLoopLinks().size()*sizeof(PeriodicLoopLinkIO<dim>));
+//                periodicLoopNodes().resize(sizePLN);
+//                infile.read (reinterpret_cast<char*>(periodicLoopNodes().data()),periodicLoopNodes().size()*sizeof(PeriodicLoopNodeIO<dim>));
+//                periodicLoopLinks().resize(sizePLL);
+//                infile.read (reinterpret_cast<char*>(periodicLoopLinks().data()),periodicLoopLinks().size()*sizeof(PeriodicLoopLinkIO<dim>));
 
                 infile.close();
                 printLog(t0);
@@ -429,17 +428,17 @@ namespace model
                 ss >> sizePPP;
                 ss.clear();
                 
-                size_t sizePLN;
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizePLN;
-                ss.clear();
-                
-                size_t sizePLL;
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizePLL;
-                ss.clear();
+//                size_t sizePLN;
+//                std::getline(infile, line);
+//                ss<<line;
+//                ss >> sizePLN;
+//                ss.clear();
+//
+//                size_t sizePLL;
+//                std::getline(infile, line);
+//                ss<<line;
+//                ss >> sizePLL;
+//                ss.clear();
 
                 meshNodes().clear();
                 meshNodes().reserve(sizeMP);
@@ -481,25 +480,25 @@ namespace model
                     ss.clear();
                 }
                 
-                periodicLoopNodes().clear();
-                periodicLoopNodes().reserve(sizePLN);
-                for(size_t k=0;k<sizePLN;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    periodicLoopNodes().emplace_back(ss);
-                    ss.clear();
-                }
-                
-                periodicLoopLinks().clear();
-                periodicLoopLinks().reserve(sizePLL);
-                for(size_t k=0;k<sizePLL;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    periodicLoopLinks().emplace_back(ss);
-                    ss.clear();
-                }
+//                periodicLoopNodes().clear();
+//                periodicLoopNodes().reserve(sizePLN);
+//                for(size_t k=0;k<sizePLN;++k)
+//                {
+//                    std::getline(infile, line);
+//                    ss<<line;
+//                    periodicLoopNodes().emplace_back(ss);
+//                    ss.clear();
+//                }
+//
+//                periodicLoopLinks().clear();
+//                periodicLoopLinks().reserve(sizePLL);
+//                for(size_t k=0;k<sizePLL;++k)
+//                {
+//                    std::getline(infile, line);
+//                    ss<<line;
+//                    periodicLoopLinks().emplace_back(ss);
+//                    ss.clear();
+//                }
 
                 
                 infile.close();
@@ -520,8 +519,8 @@ namespace model
             model::cout<<"  "<<glidePlanesBoundaries().size()<<" glidePlanesBoundaries "<<std::endl;
             model::cout<<"  "<<periodicGlidePlanePatches().size()<<" periodicPlanePatches"<<std::endl;
             model::cout<<"  "<<quadraturePoints().size()<<" quadraturePoints"<<std::endl;
-            model::cout<<"  "<<periodicLoopNodes().size()<<" periodicLoopNodes"<<std::endl;
-            model::cout<<"  "<<periodicLoopLinks().size()<<" periodicLoopLinks"<<std::endl;
+//            model::cout<<"  "<<periodicLoopNodes().size()<<" periodicLoopNodes"<<std::endl;
+//            model::cout<<"  "<<periodicLoopLinks().size()<<" periodicLoopLinks"<<std::endl;
 
         }
 

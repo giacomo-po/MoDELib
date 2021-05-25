@@ -19,37 +19,42 @@
 #include <NetworkBase.h>
 #include <NetworkLink.h>
 
+#ifndef NDEBUG
 #define VerboseLoopLink(N,x) if(verboseLevel>=N){model::cout<<blueColor<<x<<defaultColor;}
+#else
+#define VerboseLoopLink(N,x)
+#endif
 
 namespace model
 {
     template<typename Derived>
     class LoopLink : public  CRTP<Derived>
-    /*            */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,std::array<size_t,3>>
+//    /*            */,public NetworkBase<Derived,std::array<size_t,3>>
 
     {
         
+    public:
+
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NetworkBase<LoopNetworkType,std::array<size_t,3>> NetworkBaseType;
+//        typedef NetworkBase<Derived,std::array<size_t,3>> NetworkBaseType;
         typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
         typedef typename TypeTraits<Derived>::LoopType LoopType;
         typedef typename TypeTraits<Derived>::NetworkLinkType NetworkLinkType;
         typedef typename TypeTraits<Derived>::FlowType FlowType;
+        typedef std::array<size_t,3> KeyType;
         
         
-        
-    public:
         /**********************************************************************/
-        static typename NetworkBaseType::KeyType loopLinkKey(const std::shared_ptr<LoopType>& loop,
+        static KeyType loopLinkKey(const std::shared_ptr<LoopType>& loop,
                                       const std::shared_ptr<LoopNodeType>& Ni,
                                       const std::shared_ptr<LoopNodeType>& Nj)
         {
-            return typename NetworkBaseType::KeyType{loop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
+            return KeyType{loop->sID,std::min(Ni->sID,Nj->sID),std::max(Ni->sID,Nj->sID)};
         }
         
         static int verboseLevel;
         
-        
+        const KeyType key;
         const std::shared_ptr<LoopNodeType> source;
         const std::shared_ptr<LoopNodeType> sink;
         const std::shared_ptr<LoopType> loop; // THIS SHOULD BE CONST, THAT WAY WE COULD USE A MAP WITH 3 IDs TO STORE LOOPLINKS
@@ -71,7 +76,8 @@ namespace model
         LoopLink(const std::shared_ptr<LoopNodeType>& so,
                  const std::shared_ptr<LoopNodeType>& si,
                  const std::shared_ptr<LoopType>& pL) :
-        /* init */ NetworkBaseType(pL->p_network(),loopLinkKey(pL,so,si))
+        /* init */ key(loopLinkKey(pL,so,si))
+//        /* init */ NetworkBaseType(pL->p_network(),&pL->p_network()->loopLinks(),loopLinkKey(pL,so,si))
         /* init */,source(so)
         /* init */,sink(si)
         /* init */,loop(pL)
@@ -109,7 +115,15 @@ namespace model
         
         std::shared_ptr<NetworkLinkType> getNetworkLink()
         {
-            return this->derived().hasNetworkLink()? this->network().networkLinks().get(source->networkNode,sink->networkNode) : nullptr;
+            if(this->derived().hasNetworkLink())
+            {
+                auto netLink(loop->network().networkLinks().get(NetworkLinkType::getKey(source->networkNode,sink->networkNode)));
+                return netLink? netLink : loop->network().networkLinks().create(source->networkNode,sink->networkNode);
+            }
+            else
+            {
+                return nullptr;
+            }
         }
         
         void resetNetworkLink()

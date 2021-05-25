@@ -10,6 +10,7 @@
 #define model_DislocationLoopLinkIO_h_
 
 #include <tuple>
+#include <TypeTraits.h>
 
 namespace model
 {
@@ -22,18 +23,19 @@ namespace model
         size_t loopID;          // sID
         size_t sourceID;          // sID
         size_t sinkID;          // sID
+        bool hasNetworkLink;
         int  meshLocation;    // mesh location
         
         /**********************************************************************/
         template<typename LoopLinkType>
         DislocationLoopLinkIO(const LoopLinkType& ll) :
-        /* init */ loopID(ll.loop()->sID),
-        /* init */ sourceID(ll.source()->sID),
-        /* init */ sinkID(ll.sink()->sID),
-        /* init */ meshLocation(ll.pLink->meshLocation())
+        /* init */ loopID(ll.loop->sID),
+        /* init */ sourceID(ll.source->sID),
+        /* init */ sinkID(ll.sink->sID),
+        /* init */ hasNetworkLink(ll.hasNetworkLink()),
+        /* init */ meshLocation(ll.networkLink()? ll.networkLink()->meshLocation() : TypeTraits<LoopLinkType>::onMeshBoundary)
         {
          
-//            assert(0 && "FINISH HERE, THIS MUST BE COMPATIBLE WITH ID READER");
             
         }
         
@@ -41,10 +43,12 @@ namespace model
         DislocationLoopLinkIO(const size_t& loopID_in,          // sID
                           const size_t& sourceID_in,          // position
                           const size_t& sinkID_in,          // velocity
+                              const bool& hasNetworkLink_in,
                           const int& meshLocation_in) :
         /* init */ loopID(loopID_in),
         /* init */ sourceID(sourceID_in),
         /* init */ sinkID(sinkID_in),
+        /* init */ hasNetworkLink(hasNetworkLink_in),
         /* init */ meshLocation(meshLocation_in)
         {
             
@@ -57,6 +61,7 @@ namespace model
         /* init */ loopID(0),
         /* init */ sourceID(0),
         /* init */ sinkID(0),
+        /* init */ hasNetworkLink(true),
         /* init */ meshLocation(0)
         {
             
@@ -68,11 +73,13 @@ namespace model
         /* init */ loopID(0),
         /* init */ sourceID(0),
         /* init */ sinkID(0),
+        /* init */ hasNetworkLink(true),
         /* init */ meshLocation(0)
         {
             ss>>loopID;
             ss>>sourceID;
             ss>>sinkID;
+            ss>>hasNetworkLink;
             ss>>meshLocation;
         }
 
@@ -84,6 +91,7 @@ namespace model
             os  << ds.loopID<<"\t"
             /**/<< ds.sourceID<<"\t"
             /**/<< ds.sinkID<<"\t"
+            /**/<< ds.hasNetworkLink<<"\t"
             /**/<< ds.meshLocation;
             return os;
         }

@@ -23,20 +23,24 @@ namespace model
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
-        
-        size_t sID;          // sID
+
         size_t loopID;
+        size_t sID;          // sID
         VectorDim P;          // position
         size_t networkNodeID;          // sID
+        VectorDim periodicShift;
+        short int edgeID;          // sID
 
         
         /**********************************************************************/
         template<typename DislocationLoopNodeType>
         DislocationLoopNodeIO(const DislocationLoopNodeType& dn) :
-        /* init */ sID(dn.sID),
-        /* init */ loopID(dn.loop()? dn.loop()->sID : std::numeric_limits<size_t>::max),
-        /* init */ P(dn.get_P()),
-        /* init */ networkNodeID(dn.networkNode? dn.networkNode->sID : std::numeric_limits<size_t>::max)
+        /* init */ loopID(dn.loop()->sID)
+        /* init */,sID(dn.sID)
+        /* init */,P(dn.get_P())
+        /* init */,networkNodeID(dn.networkNode->sID)
+        /* init */,periodicShift(dn.periodicPlanePatch()? dn.periodicPlanePatch()->shift : VectorDim::Zero())
+        /* init */,edgeID(dn.periodicPlaneEdge? dn.periodicPlaneEdge->edgeID : -1)
         {
          
             
@@ -46,37 +50,50 @@ namespace model
         DislocationLoopNodeIO(const size_t& sID_in,          // sID
                                 const size_t& loopID_in,
                           const VectorDim& P_in,          // position
-                          const size_t& nnID) :
-        /* init */ sID(sID_in),
+                          const size_t& nnID,
+                            const VectorDim& shift,
+                              const short int& edgeID_in) :
         /* init */ loopID(loopID_in),
+        /* init */ sID(sID_in),
         /* init */ P(P_in),
-        /* init */ networkNodeID(nnID)
+        /* init */ networkNodeID(nnID),
+        /* init */ periodicShift(shift),
+        /* init */ edgeID(edgeID_in)
         {// Constructor for MicrostructureGenerator
         }
         
         /**********************************************************************/
         DislocationLoopNodeIO() :
-        /* init */ sID(0),
         /* init */ loopID(0),
+        /* init */ sID(0),
         /* init */ P(VectorDim::Zero()),
-        /* init */ networkNodeID(0)
+        /* init */ networkNodeID(0),
+        /* init */ periodicShift(VectorDim::Zero()),
+        /* init */ edgeID(-1)
         {
         }
 
         /**********************************************************************/
         DislocationLoopNodeIO(std::stringstream& ss) :
-        /* init */ sID(0),
         /* init */ loopID(0),
+        /* init */ sID(0),
         /* init */ P(VectorDim::Zero()),
-        /* init */ networkNodeID(0)
+        /* init */ networkNodeID(0),
+        /* init */ periodicShift(VectorDim::Zero()),
+        /* init */ edgeID(-1)
         {
-            ss>>sID;
             ss>>loopID;
+            ss>>sID;
             for(int d=0;d<dim;++d)
             {
                 ss>>P(d);
             }
             ss>>networkNodeID;
+            for(int d=0;d<dim;++d)
+            {
+                ss>>periodicShift(d);
+            }
+            ss>>edgeID;
         }
 
         
@@ -84,10 +101,12 @@ namespace model
         template <class T>
         friend T& operator << (T& os, const DislocationLoopNodeIO<dim>& ds)
         {
-            os  << ds.sID<<"\t"
-            /**/<< ds.loopID<<"\t"
+            os  << ds.loopID<<"\t"
+            /**/<< ds.sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
-            /**/<< ds.networkNodeID;
+            /**/<< ds.networkNodeID<<"\t"
+            /**/<< std::setprecision(15)<<std::scientific<<ds.periodicShift.transpose()<<"\t"
+            /**/<< ds.edgeID;
             return os;
         }
         

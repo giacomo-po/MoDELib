@@ -15,48 +15,66 @@
 namespace model
 {
     
-    template<typename NetworkType,typename _KeyType>
+    template<typename Derived,typename _KeyType>
     class NetworkBase
     {
 
-        NetworkType* const _network;
-
+        typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
+        typedef std::map<_KeyType,const std::weak_ptr<Derived>> WeakPtrContainerType;
+        LoopNetworkType* const _network;
+        WeakPtrContainerType* const weakPtrContainer;
         
     public:
         
         typedef _KeyType KeyType;
         
         const KeyType key;
-        NetworkBase(const NetworkBase<NetworkType,KeyType>& ) =delete;
-        NetworkBase& operator=(const NetworkBase<NetworkType,KeyType>& other) =delete;
+        NetworkBase(const NetworkBase<LoopNetworkType,KeyType>& ) =delete;
+        NetworkBase& operator=(const NetworkBase<LoopNetworkType,KeyType>& other) =delete;
 
         
         /**********************************************************************/
-        NetworkBase(NetworkType* const metwork_in,const KeyType& key_in) :
+        NetworkBase(LoopNetworkType* const metwork_in,
+                    WeakPtrContainerType* const wpc,
+                    const KeyType& key_in) :
         /* init */ _network(metwork_in)
+        /* init */,weakPtrContainer(wpc)
         /* init */,key(key_in)
         {
         }
         
+        /**********************************************************************/
+        ~NetworkBase()
+        {
+            size_t erased(weakPtrContainer->erase(key));
+            assert(erased==1 && "Could not erase key");
+        }
+        
         
         /**********************************************************************/
-        const NetworkType& network() const
+        const LoopNetworkType& network() const
         {
             return *_network;
         }
         
-        NetworkType& network()
+        LoopNetworkType& network()
         {
             return *_network;
         }
         
         /**********************************************************************/
-        NetworkType* p_network() const
+        LoopNetworkType* p_network() const
         {
             return _network;
         }
         
-//        NetworkType* const p_network() const
+        size_t networkID() const
+        {
+            return std::distance(weakPtrContainer->begin(),weakPtrContainer->find(key));
+        }
+
+        
+//        LoopNetworkType* const p_network() const
 //        {
 //            return _network;
 //        }

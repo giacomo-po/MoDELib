@@ -18,6 +18,7 @@
 #include <QuadPowDynamic.h>
 #include <LatticeMath.h>
 #include <SplineBase.h>
+#include <GlidePlaneModule.h>
 
 namespace model
 {
@@ -58,10 +59,21 @@ namespace model
         typedef DislocationLoopLink  <dim,corder,InterpolationType> LoopLinkType;
         typedef DislocationNode      <dim,corder,InterpolationType> NetworkNodeType;
         typedef DislocationSegment   <dim,corder,InterpolationType>	NetworkLinkType;
-        typedef RationalLatticeDirection<3>                         FlowType;
+        
+        
+        typedef LatticeVector<dim> LatticeVectorType;
+        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
+        typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
+        typedef RationalLatticeDirection<dim> RationalLatticeDirectionType;
+        
+        typedef RationalLatticeDirectionType                         FlowType;
 //        typedef double                         FlowType;
         typedef Eigen::Matrix<double,dim,1>                         VectorDim;
+        typedef Eigen::Matrix<double,dim-1,1>                         VectorLowerDim;
         typedef Eigen::Matrix<double,dim,dim>                       MatrixDim;
+        typedef Grain<dim>                       GrainType;
+        typedef GlidePlane<dim>                       GlidePlaneType;
+        typedef PeriodicGlidePlane<dim>                       PeriodicGlidePlaneType;
 
 //        static constexpr FlowType zeroFlow=FlowType::Zero();
 //        typedef QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;

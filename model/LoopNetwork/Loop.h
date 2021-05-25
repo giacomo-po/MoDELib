@@ -21,8 +21,11 @@
 //#include <LoopObserver.h>
 #include <NetworkBase.h>
 
+#ifndef NDEBUG
 #define VerboseLoop(N,x) if(verboseLevel>=N){model::cout<<cyanColor<<x<<defaultColor;}
-
+#else
+#define VerboseLoop(N,x)
+#endif
 
 namespace model
 {
@@ -31,7 +34,7 @@ namespace model
     template<typename Derived>
     class Loop : public CRTP<Derived>
     /*        */,public StaticID<Derived>
-    /*        */,public NetworkBase<typename TypeTraits<Derived>::LoopNetworkType,size_t>
+    /*        */,public NetworkBase<Derived,size_t>
     /*        */,private std::set<typename TypeTraits<Derived>::LoopLinkType*>
     {
         
@@ -39,7 +42,7 @@ namespace model
 
         
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
-        typedef NetworkBase<LoopNetworkType,size_t> NetworkBaseType;
+        typedef NetworkBase<Derived,size_t> NetworkBaseType;
         typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
 //        typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
@@ -65,8 +68,8 @@ namespace model
         /**********************************************************************/
         Loop(LoopNetworkType* const loopNetwork_in,
              const FlowType& f) :
-        /* init */ NetworkBaseType(loopNetwork_in,this->sID),
-        /* init */ _flow(f)
+        /* init */ NetworkBaseType(loopNetwork_in,&loopNetwork_in->loops(),this->sID)
+        /* init */,_flow(f)
 //        /* init */ loopNetwork(*_loopNetwork)
         {
             VerboseLoop(1,"Creating Loop "<<tag()<<std::endl);
@@ -104,7 +107,7 @@ namespace model
             VerboseLoop(1,"Destroying Loop "<<tag()<<std::endl);
 
             
-            assert(links().size()==0 && "DESTROYING NON-EMPTY LOOP.");
+            assert(loopLinks().size()==0 && "DESTROYING NON-EMPTY LOOP.");
             
 //            _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
@@ -157,13 +160,13 @@ namespace model
         }
         
         /**********************************************************************/
-        LoopLinkContainerType& links()
+        LoopLinkContainerType& loopLinks()
         {
             return *this;
         }
         
         /**********************************************************************/
-        const LoopLinkContainerType& links() const
+        const LoopLinkContainerType& loopLinks() const
         {
             return *this;
         }
@@ -172,7 +175,7 @@ namespace model
         void addLoopLink(LoopLinkType* const pL)
         {
             VerboseLoop(2,"Loop "<<tag()<<" addLoopLink "<<pL->tag()<<std::endl);
-            const bool success=links().insert(pL).second;
+            const bool success=loopLinks().insert(pL).second;
             if(!success)
             {
                 std::cout<<"DislocationLoop "<<this->sID<<" cannot add LoopLink "<<pL->tag()<<std::endl;
@@ -185,7 +188,7 @@ namespace model
         void removeLoopLink(LoopLinkType* const pL)
         {
             VerboseLoop(2,"Loop "<<tag()<<" removeLoopLink "<<pL->tag()<<std::endl);
-            const size_t erased=links().erase(pL);
+            const size_t erased=loopLinks().erase(pL);
             assert(erased==1 && "Could not erase from linkMap");
         }
 
@@ -195,12 +198,12 @@ namespace model
         {
             //RECODE THIS USING prev/next
             //typename LoopLinkContainerType::const_iterator iter;
-            VerboseLoop(3,"Loop "<<tag()<<" links().size()= "<<links().size()<<std::endl);
+            VerboseLoop(3,"Loop "<<tag()<<" loopLinks().size()= "<<loopLinks().size()<<std::endl);
             LoopLinkSequenceType temp;
-            if(links().size())
+            if(loopLinks().size())
             {
-                const LoopLinkType* pL=*links().begin();
-                for(size_t k=0;k<links().size();++k)
+                const LoopLinkType* pL=*loopLinks().begin();
+                for(size_t k=0;k<loopLinks().size();++k)
                 {
                     if(pL)
                     {
@@ -259,7 +262,7 @@ namespace model
         {
             
             std::pair<bool,LoopLinkType*> temp=std::make_pair(false,static_cast<LoopLinkType*>(nullptr));
-            for(const auto& link : links())
+            for(const auto& link : loopLinks())
             {
                 if(link->source==Ni)
                 {

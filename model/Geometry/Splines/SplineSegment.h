@@ -71,9 +71,8 @@ namespace model
     /************************************************************************/
     /* SplineSegment, general case **************************************/
     /************************************************************************/
-    template <typename Derived, short unsigned int _dim,short unsigned int corder>
-    class SplineSegment : public NetworkLink<Derived>,
-    /*                 */ public ParametricCurve<Derived,_dim>
+    template <short unsigned int _dim,short unsigned int corder>
+    class SplineSegment : public ParametricCurve<SplineSegment<_dim,corder>,_dim>
     {
         
         static_assert(_dim>=1 && _dim <=3,"DIMENSION MUST BE 1, 2 or 3."); // requires c++11
@@ -99,15 +98,16 @@ namespace model
         typedef Eigen::Matrix<double, dim, Ndof> MatrixDimNdof;
         typedef Eigen::Matrix<double,Ncoeff,1>     VectorNcoeff;
         typedef Eigen::Matrix<double,Ndof,Ndof>	MatrixNdof;
-        typedef typename NetworkLink<Derived>::NodeType NodeType;
-        typedef typename NetworkLink<Derived>::LinkType LinkType;
-//        typedef typename NetworkLink<Derived>::FlowType FlowType;
         typedef SplineSegmentBase<dim,corder> SplineSegmentBaseType;
-        typedef ParametricCurve<Derived,dim> ParametricCurveType;
+        typedef ParametricCurve<SplineSegment<_dim,corder>,dim> ParametricCurveType;
         
+        
+        
+        const VectorDim& sourceP;
+        const VectorDim& sinkP;
         
     private:
-        
+
         VectorDim _chord;
         double _chordLength2;
         double _chordLength;
@@ -121,10 +121,11 @@ namespace model
         
         
         /**********************************************************************/
-        SplineSegment(const std::shared_ptr<NodeType>& nI,
-                      const std::shared_ptr<NodeType>& nJ) :
-        /* init */ NetworkLink<Derived>(nI,nJ)
-        /* init */,_chord(this->sink->get_P()-this->source->get_P())
+        SplineSegment(const VectorDim& sourceP_in,
+                      const VectorDim& sinkP_in) :
+        /* init */ sourceP(sourceP_in)
+        /* init */,sinkP(sinkP_in)
+        /* init */,_chord(sinkP-sourceP)
         /* init */,_chordLength2(_chord.squaredNorm())
         /* init */,_chordLength(sqrt(_chordLength2))
         /* init */,_unitDirection(_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero())
@@ -136,7 +137,7 @@ namespace model
         /**********************************************************************/
         void updateGeometry()
         {
-            _chord=this->sink->get_P()-this->source->get_P();
+            _chord=sinkP-sourceP;
             _chordLength2=_chord.squaredNorm();
             _chordLength=sqrt(_chordLength2);
             _unitDirection=_chordLength>FLT_EPSILON? (_chord/_chordLength).eval() : VectorDim::Zero();
@@ -330,8 +331,8 @@ namespace model
             }
             
             // check distance to limits of interval
-            rootMap.insert(std::make_pair((this->source->get_P()-P0).norm(), std::make_pair(0.0,this->source->get_P()) ));
-            rootMap.insert(std::make_pair((this->  sink->get_P()-P0).norm(), std::make_pair(1.0,this->  sink->get_P()) ));
+            rootMap.insert(std::make_pair((sourceP-P0).norm(), std::make_pair(0.0,sourceP)));
+            rootMap.insert(std::make_pair((sinkP-P0).norm(), std::make_pair(1.0,sinkP)));
             
             return *rootMap.begin();
             
@@ -341,8 +342,8 @@ namespace model
     
     
     //static data
-    template <typename Derived, short unsigned int dim,short unsigned int corder>
-    double SplineSegment<Derived,dim,corder>::alpha=0.5;
+    template <short unsigned int dim,short unsigned int corder>
+    double SplineSegment<dim,corder>::alpha=0.5;
     
 }
 #endif

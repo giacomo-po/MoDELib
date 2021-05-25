@@ -12,7 +12,7 @@
 #include <chrono>
 
 #include <Eigen/Dense>
-
+#include <TextFileParser.h>
 
 namespace model
 {
@@ -74,17 +74,17 @@ namespace model
 //            double dt_mean=0.0;
             
 //            std::cout<<"computing vMax for nodes: ";
-            for (const auto& nodeIter : DN.nodes())
+            for (const auto& nodeIter : DN.networkNodes())
             {
                 if(//   !nodeIter.second->isBoundaryNode()
                    //&& !nodeIter.second->isConnectedToBoundaryNodes()
                    //&&
-                   nodeIter.second->glidePlanes().size()<3
+                   nodeIter.second.lock()->glidePlanes().size()<3
 //                   && !nodeIter.second->isOscillating()
                    )
                 {
 //                    std::cout<<nodeIter.second->sID<<" ";
-                    const double vNorm(nodeIter.second->get_V().norm());
+                    const double vNorm(nodeIter.second.lock()->get_V().norm());
 //                    vmean +=vNorm;
 //                    nVmean++;
                     if (vNorm>vmax)
@@ -163,17 +163,17 @@ namespace model
             //            double dt_mean=0.0;
             
             //            std::cout<<"computing vMax for nodes: ";
-            for (const auto& nodeIter : DN.nodes())
+            for (const auto& nodeIter : DN.networkNodes())
             {
                 if(//   !nodeIter.second->isBoundaryNode()
                    //&& !nodeIter.second->isConnectedToBoundaryNodes()
                    //&&
-                   nodeIter.second->glidePlanes().size()<3
+                   nodeIter.second.lock()->glidePlanes().size()<3
                    //                   && !nodeIter.second->isOscillating()
                    )
                 {
                     //                    std::cout<<nodeIter.second->sID<<" ";
-                    const double vNorm(nodeIter.second->get_V().norm());
+                    const double vNorm(nodeIter.second.lock()->get_V().norm());
                     //                    vmean +=vNorm;
                     //                    nVmean++;
                     if (vNorm>vmax)

@@ -25,6 +25,7 @@
 #include <DislocationSegmentIO.h>
 //#include <PeriodicLoopIO.h>
 #include <MPIcout.h>
+#include <TerminalColors.h>
 
 
 namespace model
@@ -37,6 +38,7 @@ namespace model
     /*              */,private std::vector<DislocationLoopIO<dim> >
     /*              */,private std::vector<DislocationLoopNodeIO<dim> >
     /*              */,private std::vector<DislocationLoopLinkIO<dim> >
+    /*              */,private std::map<size_t,const DislocationLoopNodeIO<dim>* const>
     /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
     /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
     {
@@ -46,6 +48,13 @@ namespace model
         /**********************************************************************/
         void make_maps()
         {
+            
+            // node map
+            for(const auto& loopNode : loopNodes())
+            {
+                loopNodeMap().emplace(loopNode.sID,&loopNode);
+            }
+            
             // node map
             for(const auto& node : nodes())
             {
@@ -70,32 +79,45 @@ namespace model
         }
         
         /**********************************************************************/
-        template<typename DislocationNodeType>
-        DDconfigIO(const DislocationNodeType& dn,
+        template<typename DislocationNetworkType>
+        DDconfigIO(const DislocationNetworkType& dn,
                    const std::string& suffix="") :
         /* init */ DDbaseIO("evl","evl",suffix)
         {
             
-            // Write Nodes
-            for(const auto& node : dn.nodes())
-            {
-                nodes().emplace_back(*node.second);
-            }
             
             // Write Loops
             for(const auto& loop : dn.loops())
             {
-                loops().emplace_back(*loop.second);
+                loops().emplace_back(*loop.second.lock());
             }
             
-            // Write Edges
+
+            // Write LoopNodes
+            for(const auto& node : dn.loopNodes())
+            {
+                loopNodes().emplace_back(*node.second.lock());
+            }
+            
+
+            
+            // Write LoopLinks
             for(const auto& link : dn.loopLinks())
             {
                 loopLinks().emplace_back(link.second);
             }
             
+
             
+            // Write NetworkNodes
+            for(const auto& node : dn.networkNodes())
+            {
+                nodes().emplace_back(*node.second.lock());
+            }
             
+
+            
+ 
         }
         
         /**********************************************************************/
@@ -127,6 +149,17 @@ namespace model
         }
         
         std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap() const
+        {
+            return *this;
+        }
+        
+        std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap()
         {
             return *this;
         }
@@ -179,44 +212,58 @@ namespace model
                 const auto loopIter=loopMap().find(link.loopID);
                 assert(loopIter!=loopMap().end());
                 
-                const size_t sourceID(std::min(link.sourceID,link.sinkID));
-                const size_t sinkID(std::max(link.sourceID,link.sinkID));
-                const auto key=std::make_pair(sourceID,sinkID);
+                const auto loopSourceIter(loopNodeMap().find(link.sourceID));
+                assert(loopSourceIter!=loopNodeMap().end());
+
+                const auto loopSinkIter(loopNodeMap().find(link.sinkID));
+                assert(loopSinkIter!=loopNodeMap().end());
+
+//                const bool arePeriodicBoundaryNodes((loopSourceIter->second->P-loopSinkIter->second->P).norm()<FLT_EPSILON
+//                                                    && loopSourceIter->second->edgeID>=0
+//                                                    &&   loopSinkIter->second->edgeID>=0
+//                                                    && loopSourceIter->second->loopID==loopSinkIter->second->loopID);
                 
-                const auto insertPair=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID)));
-                const auto& iter=insertPair.first;
-                const bool& success=insertPair.second;
-                
-                if(success)
+                if(link.hasNetworkLink)
                 {
-                    iter->second.n=loopIter->second->N;
-                }
-                else
-                {
-                    if(iter->second.n.cross(loopIter->second->N).norm()>FLT_EPSILON)
+                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+                    const auto key=std::make_pair(sourceID,sinkID);
+                    
+                    const auto insertPair=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID)));
+                    const auto& iter=insertPair.first;
+                    const bool& success=insertPair.second;
+                    
+                    if(success)
                     {
-                        iter->second.n.setZero();
+                        iter->second.n=loopIter->second->N;
+                    }
+                    else
+                    {
+                        if(iter->second.n.cross(loopIter->second->N).norm()>FLT_EPSILON)
+                        {
+                            iter->second.n.setZero();
+                        }
+                    }
+                    
+//                    if(link.sourceID<link.sinkID)
+                    if(loopSourceIter->second->networkNodeID<loopSinkIter->second->networkNodeID)
+                    {
+                        iter->second.b+=loopIter->second->B;
+                    }
+                    else
+                    {
+                        iter->second.b-=loopIter->second->B;
+                    }
+                    
+                    if(iter->second.meshLocation==-1)
+                    {
+                        iter->second.meshLocation=link.meshLocation;
+                    }
+                    else
+                    {
+                        assert(iter->second.meshLocation==link.meshLocation);
                     }
                 }
-                
-                if(link.sourceID<link.sinkID)
-                {
-                    iter->second.b+=loopIter->second->B;
-                }
-                else
-                {
-                    iter->second.b-=loopIter->second->B;
-                }
-                
-                if(iter->second.meshLocation==-1)
-                {
-                    iter->second.meshLocation=link.meshLocation;
-                }
-                else
-                {
-                    assert(iter->second.meshLocation==link.meshLocation);
-                }
-                
             }
             
             return temp;
@@ -451,7 +498,8 @@ namespace model
                 model::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
                 model::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
                 model::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-                model::cout<<"  "<<loopLinks().size()<<" links "<<std::endl;
+                model::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
+                model::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
             }
             else
             {

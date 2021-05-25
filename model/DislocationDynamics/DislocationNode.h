@@ -17,6 +17,8 @@
 
 #include <TypeTraits.h>
 #include <NetworkNode.h>
+#include <SplineNode.h>
+#include <ConfinedDislocationObject.h>
 
 #ifndef NDEBUG
 #define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){std::cout<<x;}
@@ -29,6 +31,8 @@ namespace model
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     class DislocationNode : public NetworkNode<DislocationNode<dim,corder,InterpolationType>>
+    /*                   */,public SplineNode<DislocationNode<dim,corder,InterpolationType>,dim,corder,InterpolationType>
+    /*                   */,public ConfinedDislocationObject<dim>
     {
         
         public:
@@ -41,114 +45,45 @@ namespace model
         typedef typename TraitsType::NetworkNodeType NetworkNodeType;
         typedef typename TraitsType::NetworkLinkType NetworkLinkType;
         typedef typename TraitsType::FlowType FlowType;
-        
+        typedef typename TraitsType::VectorDim VectorDim;
+        typedef SplineNode<DislocationNode<dim,corder,InterpolationType>,dim,corder,InterpolationType> SplineNodeType;
+        typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
+        typedef typename TypeTraits<NetworkNodeType>::MeshLocation MeshLocation;
+        typedef std::vector<VectorDim> VectorOfNormalsType;
+
         static bool use_velocityFilter;
         static double velocityReductionFactor;
         static int verboseDislocationNode;
 
+        const Simplex<dim,dim>* p_Simplex;
+        VectorDim velocity;
+        VectorDim vOld;         //! The previous velocity vector of *this PlanarDislocationNode
+        double velocityReductionCoeff;
+        std::shared_ptr<NetworkNodeType> virtualNode;
+        NetworkNodeType* const masterNode;
+
         
-        DislocationNode(LoopNetworkType* const);
-        
+        DislocationNode(LoopNetworkType* const,const VectorDim&,const VectorDim&,const double&);
         std::shared_ptr<DislocationNode> clone() const;
-        
+        const Simplex<dim,dim>* get_includingSimplex(const VectorDim&,const Simplex<dim,dim>* const) const;
+        const Simplex<dim,dim>* includingSimplex() const;
+        bool isMovableTo(const VectorDim&) const;
+        const double& velocityReduction() const;
+        bool isVirtualBoundaryNode() const __attribute__ ((deprecated));
+        bool isBoundaryNode() const;
+        bool isGrainBoundaryNode() const;
+        void updateGeometry();
+        bool set_P(const VectorDim&);
+        void trySet_P(const VectorDim&);
+        const VectorDim& get_V() const;
+        MeshLocation meshLocation() const;
+        void set_V(const VectorDim& vNew);
+        void projectVelocity();
+        bool isRemovable(const double& Lmin,const double& relAreaThIn);
+        VectorDim invariantDirectionOfMotion() const;
+        const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
         static void initFromFile(const std::string&);
-
-        
     };
-//    {
-//
-//
-//    public:
-//
-//
-//        typedef DislocationNode<dim,corder,InterpolationType> NodeType;
-//        typedef DislocationSegment<dim,corder,InterpolationType> LinkType;
-//        typedef PlanarDislocationNode<NodeType,InterpolationType> NodeBaseType;
-//        typedef typename TypeTraits<NodeType>::LoopType LoopType;
-//        typedef typename TypeTraits<NodeType>::LoopNetworkType LoopNetworkType;
-//        typedef Eigen::Matrix<double,dim,1> VectorDim;
-//        constexpr static int NdofXnode=NodeBaseType::NdofXnode;
-//        typedef Eigen::Matrix<double,NdofXnode,1> VectorDofType;
-//
-//
-//    private:
-//        double _climbVelocityScalar;
-//        VectorDim _climbVelocity;
-//
-//    public:
-//
-//#ifdef _MODEL_GREATWHITE_
-//#include <DislocationNodeGreatWhite.h>
-//#endif
-//
-//        /**********************************************************************/
-//        DislocationNode(LoopNetworkType* const ln,
-//                        const VectorDim& Pin,
-//                        const VectorDofType& Vin,
-//                        const double& vrc) :
-//        /* base constructor */ NodeBaseType(ln,Pin,Vin,vrc)
-//        /* init */,_climbVelocityScalar(0.0)
-//        /* init */,_climbVelocity(VectorDim::UnitZ())
-//        {/*! Constructor from DOF
-//          */
-//        }
-//
-//        /**********************************************************************/
-//        DislocationNode(const LinkType& pL,
-//                        const double& u) :
-//        /* base constructor */ NodeBaseType(pL,u)
-//        /* init */,_climbVelocityScalar(0.5*(pL.source->climbVelocityScalar()+pL.sink->climbVelocityScalar()))
-//        /* init */,_climbVelocity(0.5*(pL.source->climbVelocity()+pL.sink->climbVelocity()))
-//        {/*! Constructor from ExpandingEdge and DOF
-//          */
-//        }
-//
-//        /**********************************************************************/
-//        DislocationNode(LoopNetworkType* const ln,
-//                        const VectorDim& Pin,
-//                        NodeType* const master) :
-//        /* base constructor */ NodeBaseType(ln,Pin,master)
-//        /* init */,_climbVelocityScalar(0.0)
-//        /* init */,_climbVelocity(VectorDim::Zero())
-//        {/*! Constructor from DOF
-//          */
-//        }
-//
-//        /**********************************************************************/
-//        DislocationNode(LoopNetworkType* const ln,
-//                              NodeType* const master,
-////                              const LinkType* masterSegment
-//                        const std::set<const PlanarMeshFace<dim>*>& confiningFaces) :
-//        /* base */ NodeBaseType(ln,master,confiningFaces)
-//        /* init */,_climbVelocityScalar(0.0)
-//        /* init */,_climbVelocity(VectorDim::Zero())
-//        {/*! Constructor from DOF
-//          */
-//        }
-//
-//        /**********************************************************************/
-//        const double& climbVelocityScalar() const
-//        {
-//            return _climbVelocityScalar;
-//        }
-//
-//        /**********************************************************************/
-//        const VectorDim& climbVelocity() const
-//        {
-//            return _climbVelocity;
-//        }
-//
-//        /**********************************************************************/
-//        template <class T>
-//        friend T& operator << (T& os, const NodeType& ds)
-//        {
-//            os<< DislocationNodeIO<dim>(ds);
-//            return os;
-//        }
-//
-//    };
-    
-
     
 }
 #endif

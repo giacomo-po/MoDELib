@@ -37,13 +37,13 @@ namespace model
         //                        const double& sinBeta2,
         //                        const double& a0)
         //        {
-        //            
+        //
         //            const double num=t1*t2+a0*a0*cosBeta;
         //            const double den=a0*sqrt(t1*t1+t2*t2-2.0*t1*t2*cosBeta+a0*a0*sinBeta2);
         //            //            return -atan2(den+tol,num)/(4.0*M_PI);
         //            //            return fabs(den)>tol? -atan2(den,num)/(4.0*M_PI) : -atan2(0.0,num)/(4.0*M_PI);
         //            return fabs(den)>tol? -atan2(den,num)/(4.0*M_PI) : 0.0;
-        //            
+        //
         //        }
         
         /**********************************************************************/
@@ -78,10 +78,10 @@ namespace model
                                     const VectorDim& R3,
                                     const VectorDim& R4)
         {
-            //            const VectorDim& R1(link1.source()->get_P());
-            //            const VectorDim& R2(link1.  sink()->get_P());
-            //            const VectorDim& R3(link2.source()->get_P());
-            //            const VectorDim& R4(link2.  sink()->get_P());
+            //            const VectorDim& R1(link1.source->get_P());
+            //            const VectorDim& R2(link1.  sink->get_P());
+            //            const VectorDim& R3(link2.source->get_P());
+            //            const VectorDim& R4(link2.  sink->get_P());
             
             const VectorDim R13(R3-R1);
             const VectorDim R12(R2-R1);
@@ -182,7 +182,7 @@ namespace model
         const DislocationNetworkType& DN;
         
         static constexpr double tol=FLT_EPSILON;
-        static constexpr int dim=DislocationNetworkType::dim;
+        static constexpr int dim=TypeTraits<DislocationNetworkType>::dim;
         
         
         
@@ -191,13 +191,13 @@ namespace model
                                     const LoopLink& link2)
         {
             
-            const VectorDim& R1(link1.source()->get_P());
-            const VectorDim& R2(link1.  sink()->get_P());
-            const VectorDim& R3(link2.source()->get_P());
-            const VectorDim& R4(link2.  sink()->get_P());
+            const VectorDim& R1(link1.source->get_P());
+            const VectorDim& R2(link1.  sink->get_P());
+            const VectorDim& R3(link2.source->get_P());
+            const VectorDim& R4(link2.  sink->get_P());
             
-            if(   (link1.source()->sID==link2.source()->sID && link1.sink()->sID==link2.sink()->sID)
-               || (link1.source()->sID==link2.sink()->sID && link1.sink()->sID==link2.source()->sID))
+            if(   (link1.source->sID==link2.source->sID && link1.sink->sID==link2.sink->sID)
+               || (link1.source->sID==link2.sink->sID && link1.sink->sID==link2.source->sID))
             {
                 return 0.0;
             }
@@ -217,10 +217,10 @@ namespace model
         //                                      const VectorDim& R3,
         //                                      const VectorDim& R4)
         //        {
-        ////            const VectorDim& R1(link1.source()->get_P());
-        ////            const VectorDim& R2(link1.  sink()->get_P());
-        ////            const VectorDim& R3(link2.source()->get_P());
-        ////            const VectorDim& R4(link2.  sink()->get_P());
+        ////            const VectorDim& R1(link1.source->get_P());
+        ////            const VectorDim& R2(link1.  sink->get_P());
+        ////            const VectorDim& R3(link2.source->get_P());
+        ////            const VectorDim& R4(link2.  sink->get_P());
         //
         //            const VectorDim R13(R3-R1);
         //            const VectorDim R12(R2-R1);
@@ -229,7 +229,7 @@ namespace model
         //            const double R13norm(R13.norm());
         //            const double R12norm(R12.norm());
         //            const double R34norm(R34.norm());
-        //            
+        //
         //            if(R13norm>tol && R12norm>tol && R34norm>tol)
         //            {
         //                const double prod(R34.cross(R12).dot(R13)/R13norm/R12norm/R34norm);
@@ -238,20 +238,20 @@ namespace model
         //                    const VectorDim R14(R4-R1);
         //                    const VectorDim R24(R4-R2);
         //                    const VectorDim R23(R3-R2);
-        //                    
+        //
         //                    const VectorDim n1(unitCross(R13,R14));
         //                    const VectorDim n2(unitCross(R14,R24));
         //                    const VectorDim n3(unitCross(R24,R23));
         //                    const VectorDim n4(unitCross(R23,R13));
-        //                    
-        //                    
+        //
+        //
         //                    const double Os= myAsin(n1.dot(n2))
         //                    /*            */+myAsin(n2.dot(n3))
         //                    /*            */+myAsin(n3.dot(n4))
         //                    /*            */+myAsin(n4.dot(n1));
-        //                    
+        //
         //                    return Os/(4.0*M_PI)*prod/fabs(prod);
-        //                    
+        //
         //                }
         //                else
         //                {
@@ -268,23 +268,23 @@ namespace model
         //        static double segmentPairLN_b(const LoopLink& link1,
         //                                      const LoopLink& link2)
         //        {
-        //            const VectorDim R1(link1.source()->get_P());
-        //            const VectorDim R2(link2.source()->get_P());
-        //            
-        //            const VectorDim S1(link1.sink()->get_P()-link1.source()->get_P());
-        //            const VectorDim S2(link2.sink()->get_P()-link2.source()->get_P());
+        //            const VectorDim R1(link1.source->get_P());
+        //            const VectorDim R2(link2.source->get_P());
+        //
+        //            const VectorDim S1(link1.sink->get_P()-link1.source->get_P());
+        //            const VectorDim S2(link2.sink->get_P()-link2.source->get_P());
         //            const double s1(S1.norm());
         //            const double s2(S2.norm());
         //            const VectorDim e1(S1.normalized());
         //            const VectorDim e2(S2.normalized());
         //            const VectorDim R12(R2-R1);
-        //            
+        //
         //            const double cosBeta(e1.dot(e2));
         //            const double sinBeta2(1.0-cosBeta*cosBeta);
         //            const double a1=R12.dot(e2*cosBeta-e1)/(sinBeta2+tol);
         //            const double a2=R12.dot(e2-e1*cosBeta)/(sinBeta2+tol);
         //            const double a0=R12.dot(e1.cross(e2))/(sinBeta2+tol);
-        //            
+        //
         ////            //                    std::cout<<"R1="<<std::setprecision(15)<<std::scientific<<R1.transpose()<<std::endl;
         ////            //                    std::cout<<"R2="<<std::setprecision(15)<<std::scientific<<R2.transpose()<<std::endl;
         ////            //                    std::cout<<"S1="<<std::setprecision(15)<<std::scientific<<S1.transpose()<<std::endl;
@@ -298,7 +298,7 @@ namespace model
         ////            /*             */ -F(a1   ,a2+s2,cosBeta,sinBeta2,a0)
         ////            /*             */ +F(a1   ,a2   ,cosBeta,sinBeta2,a0);
         ////            std::cout<<"tamp="<<std::setprecision(15)<<std::scientific<<temp<<std::endl;
-        //            
+        //
         //            return F(a1+s1,a2+s2,cosBeta,sinBeta2,a0)
         //            /* */ -F(a1+s1,a2   ,cosBeta,sinBeta2,a0)
         //            /* */ -F(a1   ,a2+s2,cosBeta,sinBeta2,a0)
@@ -314,19 +314,19 @@ namespace model
             
             bool loopsTouch=false;
             
-            for(const auto& link1 : loop1.links())
+            for(const auto& link1 : loop1.loopLinks())
             {
-                for(const auto& link2 : loop2.links())
+                for(const auto& link2 : loop2.loopLinks())
                 {
-                    if(SegmentSegmentDistance<DislocationNetworkType::dim>(link1.second->source()->get_P(),
-                                                                           link1.second->sink()->get_P(),
-                                                                           link2.second->source()->get_P(),
-                                                                           link2.second->sink()->get_P()).dMin<FLT_EPSILON)
+                    if(SegmentSegmentDistance<dim>(link1->source->get_P(),
+                                                   link1->sink->get_P(),
+                                                   link2->source->get_P(),
+                                                   link2->sink->get_P()).dMin<FLT_EPSILON)
                     {
                         loopsTouch=true;
                     }
                     
-                    Ln +=  segmentPairLN(*link1.second,*link2.second);
+                    Ln +=  segmentPairLN(*link1,*link2);
                     
                 }
             }
@@ -356,11 +356,11 @@ namespace model
                 {
                     if(loopIter1!=loopIter2)
                     {
-                        const std::pair<double,bool> Ln(linkingNumber(*loopIter1->second,*loopIter2->second));
+                        const std::pair<double,bool> Ln(linkingNumber(*loopIter1->second.lock(),*loopIter2->second.lock()));
                         
                         os  <<loopIter1->first<<" "<<loopIter2->first;
                         os  <<" "<<Ln.second<<" "<<Ln.first;
-                        os  <<" "<<loopIter1->second->burgers().dot(loopIter2->second->burgers());
+                        os  <<" "<<loopIter1->second.lock()->burgers().dot(loopIter2->second.lock()->burgers());
                         //                        os  <<" "<<loopIter1->second->burgers().transpose();
                         //                        os  <<" "<<loopIter2->second->burgers().transpose();
                         os  <<"\n";

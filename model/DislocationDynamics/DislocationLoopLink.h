@@ -35,13 +35,13 @@
 
 namespace model
 {
-    template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoopLink : public LoopLink<DislocationLoopLink<_dim,corder,InterpolationType>>
+    template <int dim, short unsigned int corder, typename InterpolationType>
+    class DislocationLoopLink : public LoopLink<DislocationLoopLink<dim,corder,InterpolationType>>
     {
 
     public:
         
-        typedef TypeTraits<DislocationLoopLink<_dim,corder,InterpolationType>> TraitsType;
+        typedef TypeTraits<DislocationLoopLink<dim,corder,InterpolationType>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
@@ -58,6 +58,8 @@ namespace model
                       const std::shared_ptr<LoopType>&);
         
         bool hasNetworkLink() const;
+        std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
+
         
         static void initFromFile(const std::string&);
         

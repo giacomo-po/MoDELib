@@ -13,13 +13,27 @@
 #ifndef model_DislocationSegment_h_
 #define model_DislocationSegment_h_
 
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
 #include <TypeTraits.h>
 #include <NetworkLink.h>
+#include <SplineSegment.h>
+#include <ConfinedDislocationObject.h>
+#include <DislocationQuadraturePoint.h>
+
+#ifndef NDEBUG
+#define VerboseDislocationSegment(N,x) if(verboseDislocationSegment>=N){model::cout<<x;}
+#else
+#define VerboseDislocationSegment(N,x)
+#endif
 
 namespace model
 {
     template <int dim, short unsigned int corder, typename InterpolationType>
     class DislocationSegment : public NetworkLink<DislocationSegment<dim,corder,InterpolationType>>
+    /*                      */,public SplineSegment<dim,corder>
+    /*                      */,public ConfinedDislocationObject<dim>
+    /*                      */,public DislocationQuadraturePointContainer<dim,corder>
     {
         
     public:
@@ -34,7 +48,28 @@ namespace model
         typedef typename TraitsType::FlowType FlowType;
         typedef typename TraitsType::VectorDim VectorDim;
         typedef typename TraitsType::MatrixDim MatrixDim;
+        typedef typename TraitsType::MeshLocation MeshLocation;
+        typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
+        typedef SplineSegment<dim,corder> SplineSegmentType;
+        typedef typename SplineSegmentType::VectorNdof VectorNdof;
+        typedef typename SplineSegmentType::MatrixNdof MatrixNdof;
+        typedef typename SplineSegmentType::VectorNcoeff VectorNcoeff;
+        static constexpr int Ndof  = SplineSegmentType::Ndof;        // number of Hermite dofs
+        static constexpr int Ncoeff  = SplineSegmentType::Ncoeff;        // number of Hermite dofs
 
+        std::map<size_t,
+        /*    */ std::pair<VectorNcoeff,VectorDim>,
+        /*    */ std::less<size_t>
+        /*    */ > h2posMap;
+        Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
+        MatrixNdof Kqq; //! Segment Stiffness Matrix
+        VectorNdof Fq; //! Segment Nodal Force Vector
+        VectorDim Burgers; //! The Burgers vector
+        double BurgersNorm;
+        StraightDislocationSegment<dim> straight;
+        std::shared_ptr<SlipSystem> _slipSystem;
+
+        
         static const MatrixDim I;
         static const VectorDim zeroVector;
         static double quadPerLength;
@@ -47,7 +82,24 @@ namespace model
                          const std::shared_ptr<NetworkNodeType>&
                          );
         
+        void addLoopLink(LoopLinkType* const pL);
+        void removeLoopLink(LoopLinkType* const pL);
+        void updateSlipSystem();
         static void initFromFile(const std::string&);
+
+        MeshLocation meshLocation() const;
+        bool isBoundarySegment() const;
+        bool isGrainBoundarySegment() const;
+        void updateGeometry();
+        const std::shared_ptr<SlipSystem>& slipSystem() const;
+        bool hasZeroBurgers() const;
+        bool isVirtualBoundarySegment() const;
+        bool isGlissile() const;        
+        bool isSessile() const;
+        void assembleGlide();
+        const VectorDim& burgers() const;
+        const VectorDim& glidePlaneNormal() const;
+        void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,Eigen::VectorXd& FQ) const;
 
     };
 //    {

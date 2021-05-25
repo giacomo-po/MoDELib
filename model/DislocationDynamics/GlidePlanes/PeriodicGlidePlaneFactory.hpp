@@ -36,7 +36,8 @@ namespace model
     template<int dim>
     typename PeriodicGlidePlaneFactory<dim>::PeriodicGlidePlaneSharedPtrType  PeriodicGlidePlaneFactory<dim>::get(const GlidePlaneKeyType& temp)
     {
-        return BaseType::get(periodicPlaneKey(temp));
+//        return BaseType::get(periodicPlaneKey(temp)); // unique key for plane family (reference plane)
+        return BaseType::getFromKey(temp);
     }
     
     template<int dim>
@@ -62,7 +63,7 @@ namespace model
         int col = 0;
         for (const auto &pair : meshRegion.parallelFaces())
         {
-            model::cout << "Checking if parallel faces " << pair.first << "<->" << pair.second << " are commensurate" << std::endl;
+//            model::cout << "Checking if parallel faces " << pair.first << "<->" << pair.second << " are commensurate" << std::endl;
             const PlanarMeshFace<dim> &face1(*meshRegion.faces().at(pair.first));
             const PlanarMeshFace<dim> &face2(*meshRegion.faces().at(pair.second));
             const VectorDim cc(face1.center() - face2.center());
