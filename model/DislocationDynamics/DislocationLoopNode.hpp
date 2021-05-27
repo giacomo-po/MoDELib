@@ -349,7 +349,7 @@ namespace model
                 VerboseDislocationLoopNode(4,"old patch= "<<oldPatch->shift.transpose()<<std::endl;);
                 VerboseDislocationLoopNode(4,"new patch= "<<_periodicPlanePatch->shift.transpose()<<std::endl;);
                 if(oldPatch!=_periodicPlanePatch)
-                {
+                {// network node is crossing a boundary
                     this->networkNode->confinedObject().clear();
                     for(auto& neighbor : this->networkNode->neighbors())
                     {

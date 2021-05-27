@@ -16,15 +16,15 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/DDauxVtk.h
  ../../header_symlinks/DDbaseIO.h
  ../../header_symlinks/DDconfigIO.h
+ ../../header_symlinks/DDconfigVtk.h
  ../../header_symlinks/DDinteractionStyle.h
  ../../header_symlinks/DDvtk.h
  ../../header_symlinks/DSCL.h
  ../../header_symlinks/DefectiveCrystalParameters.h
  ../../header_symlinks/DiophantineSolver.h
- ../../header_symlinks/DislocatedMaterial.h
- ../../header_symlinks/DislocatedMaterialBase.h
- ../../header_symlinks/DislocationEdgeIO.h
  ../../header_symlinks/DislocationLoopIO.h
+ ../../header_symlinks/DislocationLoopLinkIO.h
+ ../../header_symlinks/DislocationLoopNodeIO.h
  ../../header_symlinks/DislocationMobilityBCC.h
  ../../header_symlinks/DislocationMobilityBase.h
  ../../header_symlinks/DislocationMobilityFCC.h
@@ -33,7 +33,6 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/DislocationMobilityHEXpyramidal.h
  ../../header_symlinks/DislocationNodeIO.h
  ../../header_symlinks/DislocationQuadraturePointIO.h
- ../../header_symlinks/DislocationSegmentActor.h
  ../../header_symlinks/DislocationSegmentIO.h
  ../../header_symlinks/FCClattice.h
  ../../header_symlinks/FEMbaseEvaluation.h
@@ -43,6 +42,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/GlidePlaneBoundaryIO.h
  ../../header_symlinks/GlidePlaneFactory.h
  ../../header_symlinks/GlidePlaneKey.h
+ ../../header_symlinks/GlidePlaneModule.h
  ../../header_symlinks/GmshReader.h
  ../../header_symlinks/Grain.h
  ../../header_symlinks/GrainBoundary.h
@@ -51,7 +51,6 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/HEXlattice.h
  ../../header_symlinks/IDreader.h
  ../../header_symlinks/InclusionActor.h
- ../../header_symlinks/KeyConstructableSharedPtrFactory.h
  ../../header_symlinks/LLL.h
  ../../header_symlinks/Lattice.h
  ../../header_symlinks/LatticeDirection.h
@@ -74,9 +73,10 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/NonCopyable.h
  ../../header_symlinks/NumericPrecision.h
  ../../header_symlinks/PeriodicGlidePlane.h
+ ../../header_symlinks/PeriodicGlidePlane.hpp
+ ../../header_symlinks/PeriodicGlidePlaneFactory.h
+ ../../header_symlinks/PeriodicGlidePlaneFactory.hpp
  ../../header_symlinks/PeriodicLatticeInterpolant.h
- ../../header_symlinks/PeriodicLoopLinkIO.h
- ../../header_symlinks/PeriodicLoopNodeIO.h
  ../../header_symlinks/PermutationWithoutRepetition.h
  ../../header_symlinks/PlanarMeshFace.h
  ../../header_symlinks/PlanarPolygon.h
@@ -85,6 +85,8 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/PlaneSegmentIntersection.h
  ../../header_symlinks/PlotActor.h
  ../../header_symlinks/Polycrystal.h
+ ../../header_symlinks/PolycrystallineMaterial.h
+ ../../header_symlinks/PolycrystallineMaterialBase.h
  ../../header_symlinks/RLLL.h
  ../../header_symlinks/Rational.h
  ../../header_symlinks/RationalLatticeDirection.h
@@ -92,6 +94,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/ReciprocalLatticeDirection.h
  ../../header_symlinks/ReciprocalLatticeVector.h
  ../../header_symlinks/SegmentSegmentDistance.h
+ ../../header_symlinks/SharedPtrFactories.h
  ../../header_symlinks/Simplex.h
  ../../header_symlinks/SimplexBase.h
  ../../header_symlinks/SimplexChild.h
@@ -109,8 +112,9 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  ../../header_symlinks/TerminalColors.h
  ../../header_symlinks/TextFileParser.h
  ../../header_symlinks/TypeTraits.h
+ ../../header_symlinks/WeakPtrFactories.h
  ../../header_symlinks/earcut.hpp
- /Users/giacomo/Documents/MoDELib/tools/DDvtk/DDvtk.cxx
+ /Users/giacomo/Documents/MODELIB2/tools/DDvtk/DDvtk.cxx
  /opt/local/include/vtk-8.1/vtkABI.h
  /opt/local/include/vtk-8.1/vtkAOSDataArrayTemplate.h
  /opt/local/include/vtk-8.1/vtkAbstractArray.h
@@ -300,6 +304,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Cholesky/LDLT.h
  /usr/local/include/Eigen/src/Cholesky/LLT.h
  /usr/local/include/Eigen/src/Cholesky/LLT_LAPACKE.h
+ /usr/local/include/Eigen/src/Core/ArithmeticSequence.h
  /usr/local/include/Eigen/src/Core/Array.h
  /usr/local/include/Eigen/src/Core/ArrayBase.h
  /usr/local/include/Eigen/src/Core/ArrayWrapper.h
@@ -331,6 +336,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/GenericPacketMath.h
  /usr/local/include/Eigen/src/Core/GlobalFunctions.h
  /usr/local/include/Eigen/src/Core/IO.h
+ /usr/local/include/Eigen/src/Core/IndexedView.h
  /usr/local/include/Eigen/src/Core/Inverse.h
  /usr/local/include/Eigen/src/Core/Map.h
  /usr/local/include/Eigen/src/Core/MapBase.h
@@ -341,6 +347,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/NestByValue.h
  /usr/local/include/Eigen/src/Core/NoAlias.h
  /usr/local/include/Eigen/src/Core/NumTraits.h
+ /usr/local/include/Eigen/src/Core/PartialReduxEvaluator.h
  /usr/local/include/Eigen/src/Core/PermutationMatrix.h
  /usr/local/include/Eigen/src/Core/PlainObjectBase.h
  /usr/local/include/Eigen/src/Core/Product.h
@@ -349,6 +356,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/Redux.h
  /usr/local/include/Eigen/src/Core/Ref.h
  /usr/local/include/Eigen/src/Core/Replicate.h
+ /usr/local/include/Eigen/src/Core/Reshaped.h
  /usr/local/include/Eigen/src/Core/ReturnByValue.h
  /usr/local/include/Eigen/src/Core/Reverse.h
  /usr/local/include/Eigen/src/Core/Select.h
@@ -358,6 +366,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/SolveTriangular.h
  /usr/local/include/Eigen/src/Core/SolverBase.h
  /usr/local/include/Eigen/src/Core/StableNorm.h
+ /usr/local/include/Eigen/src/Core/StlIterators.h
  /usr/local/include/Eigen/src/Core/Stride.h
  /usr/local/include/Eigen/src/Core/Swap.h
  /usr/local/include/Eigen/src/Core/Transpose.h
@@ -370,26 +379,48 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/arch/AVX/MathFunctions.h
  /usr/local/include/Eigen/src/Core/arch/AVX/PacketMath.h
  /usr/local/include/Eigen/src/Core/arch/AVX/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/AVX512/Complex.h
  /usr/local/include/Eigen/src/Core/arch/AVX512/MathFunctions.h
  /usr/local/include/Eigen/src/Core/arch/AVX512/PacketMath.h
+ /usr/local/include/Eigen/src/Core/arch/AVX512/TypeCasting.h
  /usr/local/include/Eigen/src/Core/arch/AltiVec/Complex.h
  /usr/local/include/Eigen/src/Core/arch/AltiVec/MathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/AltiVec/MatrixProduct.h
+ /usr/local/include/Eigen/src/Core/arch/AltiVec/MatrixProductCommon.h
+ /usr/local/include/Eigen/src/Core/arch/AltiVec/MatrixProductMMA.h
  /usr/local/include/Eigen/src/Core/arch/AltiVec/PacketMath.h
  /usr/local/include/Eigen/src/Core/arch/CUDA/Complex.h
- /usr/local/include/Eigen/src/Core/arch/CUDA/Half.h
- /usr/local/include/Eigen/src/Core/arch/CUDA/MathFunctions.h
- /usr/local/include/Eigen/src/Core/arch/CUDA/PacketMath.h
- /usr/local/include/Eigen/src/Core/arch/CUDA/PacketMathHalf.h
- /usr/local/include/Eigen/src/Core/arch/CUDA/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/Default/BFloat16.h
  /usr/local/include/Eigen/src/Core/arch/Default/ConjHelper.h
+ /usr/local/include/Eigen/src/Core/arch/Default/GenericPacketMathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/Default/GenericPacketMathFunctionsFwd.h
+ /usr/local/include/Eigen/src/Core/arch/Default/Half.h
  /usr/local/include/Eigen/src/Core/arch/Default/Settings.h
+ /usr/local/include/Eigen/src/Core/arch/Default/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/GPU/MathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/GPU/PacketMath.h
+ /usr/local/include/Eigen/src/Core/arch/GPU/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/HIP/hcc/math_constants.h
+ /usr/local/include/Eigen/src/Core/arch/MSA/Complex.h
+ /usr/local/include/Eigen/src/Core/arch/MSA/MathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/MSA/PacketMath.h
  /usr/local/include/Eigen/src/Core/arch/NEON/Complex.h
+ /usr/local/include/Eigen/src/Core/arch/NEON/GeneralBlockPanelKernel.h
  /usr/local/include/Eigen/src/Core/arch/NEON/MathFunctions.h
  /usr/local/include/Eigen/src/Core/arch/NEON/PacketMath.h
+ /usr/local/include/Eigen/src/Core/arch/NEON/TypeCasting.h
  /usr/local/include/Eigen/src/Core/arch/SSE/Complex.h
  /usr/local/include/Eigen/src/Core/arch/SSE/MathFunctions.h
  /usr/local/include/Eigen/src/Core/arch/SSE/PacketMath.h
  /usr/local/include/Eigen/src/Core/arch/SSE/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/SVE/MathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/SVE/PacketMath.h
+ /usr/local/include/Eigen/src/Core/arch/SVE/TypeCasting.h
+ /usr/local/include/Eigen/src/Core/arch/SYCL/InteropHeaders.h
+ /usr/local/include/Eigen/src/Core/arch/SYCL/MathFunctions.h
+ /usr/local/include/Eigen/src/Core/arch/SYCL/PacketMath.h
+ /usr/local/include/Eigen/src/Core/arch/SYCL/SyclMemoryModel.h
+ /usr/local/include/Eigen/src/Core/arch/SYCL/TypeCasting.h
  /usr/local/include/Eigen/src/Core/arch/ZVector/Complex.h
  /usr/local/include/Eigen/src/Core/arch/ZVector/MathFunctions.h
  /usr/local/include/Eigen/src/Core/arch/ZVector/PacketMath.h
@@ -421,15 +452,20 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Core/products/TriangularSolverMatrix_BLAS.h
  /usr/local/include/Eigen/src/Core/products/TriangularSolverVector.h
  /usr/local/include/Eigen/src/Core/util/BlasUtil.h
+ /usr/local/include/Eigen/src/Core/util/ConfigureVectorization.h
  /usr/local/include/Eigen/src/Core/util/Constants.h
  /usr/local/include/Eigen/src/Core/util/DisableStupidWarnings.h
  /usr/local/include/Eigen/src/Core/util/ForwardDeclarations.h
+ /usr/local/include/Eigen/src/Core/util/IndexedViewHelper.h
+ /usr/local/include/Eigen/src/Core/util/IntegralConstant.h
  /usr/local/include/Eigen/src/Core/util/MKL_support.h
  /usr/local/include/Eigen/src/Core/util/Macros.h
  /usr/local/include/Eigen/src/Core/util/Memory.h
  /usr/local/include/Eigen/src/Core/util/Meta.h
  /usr/local/include/Eigen/src/Core/util/ReenableStupidWarnings.h
+ /usr/local/include/Eigen/src/Core/util/ReshapedHelper.h
  /usr/local/include/Eigen/src/Core/util/StaticAssert.h
+ /usr/local/include/Eigen/src/Core/util/SymbolicIndex.h
  /usr/local/include/Eigen/src/Core/util/XprHelper.h
  /usr/local/include/Eigen/src/Eigenvalues/./ComplexSchur.h
  /usr/local/include/Eigen/src/Eigenvalues/./HessenbergDecomposition.h
@@ -464,7 +500,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/Geometry/Transform.h
  /usr/local/include/Eigen/src/Geometry/Translation.h
  /usr/local/include/Eigen/src/Geometry/Umeyama.h
- /usr/local/include/Eigen/src/Geometry/arch/Geometry_SSE.h
+ /usr/local/include/Eigen/src/Geometry/arch/Geometry_SIMD.h
  /usr/local/include/Eigen/src/Householder/BlockHouseholder.h
  /usr/local/include/Eigen/src/Householder/Householder.h
  /usr/local/include/Eigen/src/Householder/HouseholderSequence.h
@@ -474,7 +510,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/LU/InverseImpl.h
  /usr/local/include/Eigen/src/LU/PartialPivLU.h
  /usr/local/include/Eigen/src/LU/PartialPivLU_LAPACKE.h
- /usr/local/include/Eigen/src/LU/arch/Inverse_SSE.h
+ /usr/local/include/Eigen/src/LU/arch/InverseSize4.h
  /usr/local/include/Eigen/src/QR/ColPivHouseholderQR.h
  /usr/local/include/Eigen/src/QR/ColPivHouseholderQR_LAPACKE.h
  /usr/local/include/Eigen/src/QR/CompleteOrthogonalDecomposition.h
@@ -497,5 +533,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o
  /usr/local/include/Eigen/src/plugins/BlockMethods.h
  /usr/local/include/Eigen/src/plugins/CommonCwiseBinaryOps.h
  /usr/local/include/Eigen/src/plugins/CommonCwiseUnaryOps.h
+ /usr/local/include/Eigen/src/plugins/IndexedViewMethods.h
  /usr/local/include/Eigen/src/plugins/MatrixCwiseBinaryOps.h
  /usr/local/include/Eigen/src/plugins/MatrixCwiseUnaryOps.h
+ /usr/local/include/Eigen/src/plugins/ReshapedMethods.h

@@ -871,15 +871,6 @@ namespace model
             const auto t1= std::chrono::system_clock::now();
             model::cout<<"        Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
 #ifdef _OPENMP
-//             EqualIteratorRange<typename LoopNetworkType::NetworkLinkContainerType::iterator> eir(this->networkLinks().begin(),this->networkLinks().end(),nThreads);
-// #pragma omp parallel for
-//             for(size_t thread=0;thread<eir.size();thread++)
-//             {
-//                 for (auto& linkIter=eir[thread].first;linkIter!=eir[thread].second;linkIter++)
-//                 {
-//                     linkIter->second.lock()->assembleGlide();
-//                 }
-//             }
             for (const auto& links : this->networkLinks())
             {
                 links.second.lock()->updateQuadraturePointsSeg();
@@ -935,11 +926,11 @@ namespace model
                     for (const auto &loopLink : loop->linkSequence())
                     {
                         if (!loopLink->source->periodicPlaneEdge)
-                        {
+                        {// internal nodes
                             loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()), loopLink->source.get());
                         }
                         else
-                        {
+                        {// nodes on edges
                             bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(), loopLink->source->periodicNext(), loopLink->source->periodicPlaneEdge.get()), loopLink->source.get());
                         }
                     }
@@ -1019,13 +1010,13 @@ namespace model
 
                                     const auto networkNodeIter(newNetworkNodesMap.find(key));
                                     if (networkNodeIter != newNetworkNodesMap.end())
-                                    {
+                                    {// key found
                                                                 //    std::cout<<"using networkNode "<<networkNodeIter->second->tag()<<std::endl;
                                         const auto newLoopNode(this->loopNodes().create(loop, networkNodeIter->second, loopNodePos, periodicPatch, periodicPatchEdge));
                                         currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
                                     }
                                     else
-                                    {
+                                    {// key not found
                                         const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
                                         //                            std::cout<<"emplacing "<<currentNetworkLink->tag()<<"@"<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<", newNetNode="<<newNetNode->tag()<<std::endl;
                                         newNetworkNodesMap.emplace(key, newNetNode);
@@ -1131,21 +1122,21 @@ namespace model
                 // std::cout<<std::setprecision(15)<<" Old Position "<<node.second.lock()->get_P().transpose()<<std::endl;
                 // std::cout<<std::setprecision(15)<<" New Position "<<(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in).transpose()<<std::endl;
                 // std::cout<<"Checking if the loop contains the position "<<std::endl;
-                for (const auto& loopN : node.second.lock()->loopNodes())
-                {
-                    const VectorDim patchShift(loopN->periodicPlanePatch()? loopN->periodicPlanePatch()->shift : VectorDim::Zero());
-                    const VectorDim oldPosition(loopN->get_P());
-                    const VectorDim oldPositionN(node.second.lock()->get_P()-patchShift);
-                    const VectorDim newPosition(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in-patchShift);
-
-                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position OLD Position"<<loopN->loop()->glidePlane->contains(oldPosition)<<std::endl;
-                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position New Position"<<loopN->loop()->glidePlane->contains(newPosition)<<std::endl;
-                }
+//                for (const auto& loopN : node.second.lock()->loopNodes())
+//                {
+//                    const VectorDim patchShift(loopN->periodicPlanePatch()? loopN->periodicPlanePatch()->shift : VectorDim::Zero());
+//                    const VectorDim oldPosition(loopN->get_P());
+//                    const VectorDim oldPositionN(node.second.lock()->get_P()-patchShift);
+//                    const VectorDim newPosition(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in-patchShift);
+//
+//                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position OLD Position"<<loopN->loop()->glidePlane->contains(oldPosition)<<std::endl;
+//                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position New Position"<<loopN->loop()->glidePlane->contains(newPosition)<<std::endl;
+//                }
                 node.second.lock()->trySet_P(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in);
             }
                 std::cout<<"Updating Boundary Nodes "<<std::endl;
             updateBoundaryNodes();
-                            std::cout<<"Updating Boundary Nodes FINISHED "<<std::endl;
+               std::cout<<"Updating Boundary Nodes FINISHED "<<std::endl;
 
             
         }

@@ -46,10 +46,11 @@ nonPlanarLoopSides=10;
 
 #######################################
 # Periodic loops
-targetPeriodicLoopDensity=1e11;
-periodicLoopRadiusMean=1e-06;
+targetPeriodicLoopDensity=5e13;
+periodicLoopRadiusMean=3e-07;
 periodicLoopRadiusStd=0;     
 periodicLoopSides=20;
+statisticalHomogeneous=0;
 
 #######################################
 # Irradiation loops

@@ -42,6 +42,16 @@
 namespace model
 {
 
+    
+    struct PolyPoint
+    {
+      
+        PeriodicPlanePatch<3>* periodicPlanePatch() const
+        {
+            return nullptr;
+        }
+        
+    };
 
     class MicrostructureGenerator
     {
@@ -1199,10 +1209,12 @@ namespace model
                         std::normal_distribution<double> sizeDistribution(periodicLoopRadiusMean / poly.b_SI, periodicLoopRadiusStd / poly.b_SI);
                         const double radius(sizeDistribution(generator));
 
-                        std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp;
+                        std::vector<PolyPoint> dummyPolyPoints;
+                        std::vector<std::pair<VectorDimD, const PolyPoint *const>> loopNodePosTemp;
                         for (int k = 0; k < periodicLoopSides; ++k)
                         {
-                            loopNodePosTemp.push_back(std::make_pair(P0 + Eigen::AngleAxisd(k * 2.0 * M_PI / periodicLoopSides, slipSystem.unitNormal) * slipSystem.s.cartesian().normalized() * radius, nullptr));
+                            dummyPolyPoints.push_back(PolyPoint());
+                            loopNodePosTemp.push_back(std::make_pair(P0 + Eigen::AngleAxisd(k * 2.0 * M_PI / periodicLoopSides, slipSystem.unitNormal) * slipSystem.s.cartesian().normalized() * radius, &dummyPolyPoints.back()));
                         }
 
                         PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
@@ -1237,299 +1249,299 @@ namespace model
             }
         }
 
-        /**********************************************************************/
-        void addStatisticallyHomegeneousPlanarDipolarLoops()
-        {
+//        /**********************************************************************/
+//        void addStatisticallyHomegeneousPlanarDipolarLoops()
+//        {
+//
+//            const size_t statisticalHomogeneous = TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<size_t>("statisticalHomogeneous", true);
+//            if (targetPlanarDipolarLoopDensity > 0.0)
+//            {
+//                std::cout << magentaBoldColor << "Generating planar dipolar loops" << defaultColor << std::endl;
+//                assert(poly.grains().size() == 1 && "Planar Dipolar Loops only supported in single crystals.");
+//                double density = 0.0;
+//                size_t periodicNodeID(0);
+//                //                size_t periodicLoopID(0);
+//                while (density < targetPlanarDipolarLoopDensity)
+//                {
+//                    std::vector<std::pair<LatticeVector<dim>, int>> rps;
+//                    std::vector<LatticeVector<dim>> L0s;
+//                    rps.emplace_back(randomPointInMesh());
+//                    L0s.emplace_back(rps.begin()->first);
+//                    rps.emplace_back(randomPointInMesh());
+//                    L0s.emplace_back(rps.rbegin()->first);
+//
+//                    const int grainID = rps.begin()->second;
+//                    std::uniform_int_distribution<> distribution(0, poly.grain(grainID).slipSystems().size() - 1);
+//                    const int rSS = distribution(generator); // a random SlipSystem
+//                    const auto &slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+//                    const VectorDimD b(slipSystem.s.cartesian());
+//                    std::vector<VectorDimD> bs;
+//                    bs.push_back(b);
+//                    bs.push_back(-b);
+//                    size_t numLoopinOne = (statisticalHomogeneous ? 2 : 1);
+//
+//                    std::normal_distribution<double> sizeDistribution(planarDipolarLoopMean / poly.b_SI, planarDipolarLoopStd / poly.b_SI);
+//                    std::normal_distribution<double> aspectRatioDistribution(planarDipolarLoopAspectRatioMean, planarDipolarLoopAspectRatioStd);
+//
+//                    const double edgeLength(sizeDistribution(generator));
+//                    const double screwLength(aspectRatioDistribution(generator)*edgeLength);
+//
+//                    for (size_t i = 0; i < numLoopinOne; i++)
+//                    {
+//                        const VectorDimD P0(L0s[i].cartesian());
+//                        const VectorDimD screwDir(bs[i].normalized());
+//                        const VectorDimD edgeDir((bs[i].cross(slipSystem.unitNormal)).normalized());
+//                        std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp;
+//
+//                        //Populate the loop nodes
+//                        VectorDimD prevNodePos(P0);
+//                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
+//                        prevNodePos=prevNodePos+edgeDir*edgeLength;
+//                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
+//                        prevNodePos=prevNodePos+screwDir*screwLength;
+//                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
+//                        prevNodePos=prevNodePos-edgeDir*edgeLength;
+//                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
+//                        prevNodePos=prevNodePos-screwDir*screwLength;
+//                        assert((prevNodePos-P0).squaredNorm()<FLT_EPSILON && "First and last patch must match for the planar dislocation loop");
+//                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
+//
+//
+//                        PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
+//                        GlidePlaneKey<3> glidePlaneKey(P0, slipSystem.n);
+//                        std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(pgpf.get(glidePlaneKey));
+//
+//                        const auto ppi(periodicGlidePlane->polygonPatchIntersection(loopNodePosTemp));
+//
+//                        std::vector<VectorDimD> loopNodePos;
+//                        std::vector<VectorDimD> networkNodePos;
+//                        std::vector<VectorDimD> loopNodeShifts;
+//                        std::vector<short int> edgeIDs;
+//
+//                        for (const auto &tup : ppi)
+//                        {
+//                            const VectorDimD gblP(periodicGlidePlane->referencePlane->globalPosition(std::get<0>(tup)));
+//                            loopNodePos.push_back(gblP);
+//                            networkNodePos.push_back(gblP + std::get<1>(tup));
+//                            loopNodeShifts.push_back(std::get<1>(tup));
+//                            edgeIDs.push_back(std::get<2>(tup));
+//                        }
+//
+//                        //
+//                        if (addSingleLoop(false, networkNodePos, loopNodePos, bs[i], slipSystem.unitNormal, P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
+//                        {
+//                            density += 2.0*(edgeLength+screwLength) / mesh.volume() / std::pow(poly.b_SI, 2);
+//                            std::cout << "planar dipolar loop density=" << density << std::endl;
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-            const size_t statisticalHomogeneous = TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<size_t>("statisticalHomogeneous", true);
-            if (targetPlanarDipolarLoopDensity > 0.0)
-            {
-                std::cout << magentaBoldColor << "Generating planar dipolar loops" << defaultColor << std::endl;
-                assert(poly.grains().size() == 1 && "Planar Dipolar Loops only supported in single crystals.");
-                double density = 0.0;
-                size_t periodicNodeID(0);
-                //                size_t periodicLoopID(0);
-                while (density < targetPlanarDipolarLoopDensity)
-                {
-                    std::vector<std::pair<LatticeVector<dim>, int>> rps;
-                    std::vector<LatticeVector<dim>> L0s;
-                    rps.emplace_back(randomPointInMesh());
-                    L0s.emplace_back(rps.begin()->first);
-                    rps.emplace_back(randomPointInMesh());
-                    L0s.emplace_back(rps.rbegin()->first);
-
-                    const int grainID = rps.begin()->second;
-                    std::uniform_int_distribution<> distribution(0, poly.grain(grainID).slipSystems().size() - 1);
-                    const int rSS = distribution(generator); // a random SlipSystem
-                    const auto &slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
-                    const VectorDimD b(slipSystem.s.cartesian());
-                    std::vector<VectorDimD> bs;
-                    bs.push_back(b);
-                    bs.push_back(-b);
-                    size_t numLoopinOne = (statisticalHomogeneous ? 2 : 1);
-
-                    std::normal_distribution<double> sizeDistribution(planarDipolarLoopMean / poly.b_SI, planarDipolarLoopStd / poly.b_SI);
-                    std::normal_distribution<double> aspectRatioDistribution(planarDipolarLoopAspectRatioMean, planarDipolarLoopAspectRatioStd);
-
-                    const double edgeLength(sizeDistribution(generator));
-                    const double screwLength(aspectRatioDistribution(generator)*edgeLength);
-
-                    for (size_t i = 0; i < numLoopinOne; i++)
-                    {
-                        const VectorDimD P0(L0s[i].cartesian());
-                        const VectorDimD screwDir(bs[i].normalized());
-                        const VectorDimD edgeDir((bs[i].cross(slipSystem.unitNormal)).normalized());
-                        std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp;
-
-                        //Populate the loop nodes
-                        VectorDimD prevNodePos(P0);
-                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
-                        prevNodePos=prevNodePos+edgeDir*edgeLength;
-                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
-                        prevNodePos=prevNodePos+screwDir*screwLength;
-                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
-                        prevNodePos=prevNodePos-edgeDir*edgeLength;
-                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
-                        prevNodePos=prevNodePos-screwDir*screwLength;
-                        assert((prevNodePos-P0).squaredNorm()<FLT_EPSILON && "First and last patch must match for the planar dislocation loop");
-                        loopNodePosTemp.push_back(std::make_pair(prevNodePos , nullptr));
-
-
-                        PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
-                        GlidePlaneKey<3> glidePlaneKey(P0, slipSystem.n);
-                        std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(pgpf.get(glidePlaneKey));
-
-                        const auto ppi(periodicGlidePlane->polygonPatchIntersection(loopNodePosTemp));
-
-                        std::vector<VectorDimD> loopNodePos;
-                        std::vector<VectorDimD> networkNodePos;
-                        std::vector<VectorDimD> loopNodeShifts;
-                        std::vector<short int> edgeIDs;
-
-                        for (const auto &tup : ppi)
-                        {
-                            const VectorDimD gblP(periodicGlidePlane->referencePlane->globalPosition(std::get<0>(tup)));
-                            loopNodePos.push_back(gblP);
-                            networkNodePos.push_back(gblP + std::get<1>(tup));
-                            loopNodeShifts.push_back(std::get<1>(tup));
-                            edgeIDs.push_back(std::get<2>(tup));
-                        }
-
-                        //
-                        if (addSingleLoop(false, networkNodePos, loopNodePos, bs[i], slipSystem.unitNormal, P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
-                        {
-                            density += 2.0*(edgeLength+screwLength) / mesh.volume() / std::pow(poly.b_SI, 2);
-                            std::cout << "planar dipolar loop density=" << density << std::endl;
-                        }
-                    }
-                }
-            }
-        }
-
-        /**********************************************************************/
-        void addPeriodicJunctionLoops()
-        {
-
-            
-            if(targetJunctionLoops>0)
-            {
-                std::cout<<magentaBoldColor<<"Generating Junction loops with size "<<targetJunctionLoopsSize<<defaultColor<<std::endl;
-                assert(poly.grains().size()==1 && "JunctionLoops only supported in single crystals.");
-                int numLoop=0;
-                while(numLoop<targetJunctionLoops)
-                {
-                    const std::pair<LatticeVector<dim>,int> rp1=randomPointInMesh();
-                    const LatticeVector<dim> L01=rp1.first;
-                    const VectorDimD P01(L01.cartesian());
-                    const int grainID1=rp1.second;
-                    const std::pair<LatticeVector<dim>,int> rp2=randomPointInMesh();
-                    const LatticeVector<dim> L02=rp2.first;
-                    const VectorDimD P02(L02.cartesian());
-                    const int grainID2=rp2.second;
-
-                    PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
-                   assert(grainID1==grainID2);
-                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID1).slipSystems().size()-1);
-                    const int rSS1=distribution(generator); // a random SlipSystem
-                    const auto& slipSystem1(*poly.grain(grainID1).slipSystems()[rSS1]);
-                    const VectorDimD b1(slipSystem1.s.cartesian());
-                    GlidePlaneKey<3> glidePlaneKey1(P01, slipSystem1.n);
-                    std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane1(pgpf.get(glidePlaneKey1));
-
-                    const int rSS2=distribution(generator); // a random SlipSystem
-
-                    const auto& slipSystem2(*poly.grain(grainID2).slipSystems()[rSS2]);
-                    const VectorDimD b2(slipSystem2.s.cartesian());
-                    GlidePlaneKey<3> glidePlaneKey2(P01, slipSystem2.n);
-                    std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane2(pgpf.get(glidePlaneKey2));
-                    
-                    std::vector<VectorDimD> tempPos;
-                    ConfinedDislocationObject<dim> cdi(tempPos);
-                    cdi.addGlidePlane(periodicGlidePlane1->referencePlane.get());
-                    cdi.addGlidePlane(periodicGlidePlane2->referencePlane.get());
-
-                    // PlanePlaneIntersection<3> ppi(periodicGlidePlane1->referencePlane->P, periodicGlidePlane1->referencePlane->unitNormal, periodicGlidePlane2->referencePlane->P, periodicGlidePlane2->referencePlane->unitNormal);
-                    if (cdi.glidePlaneIntersections())
-                    {
-                        //Get two points along the line
-                        // const VectorDimD fPoint1(std::get<1>(ppi.sol)+0.25*(std::get<2>(ppi.sol)-std::get<1>(ppi.sol)));
-                        // const VectorDimD fPoint2(std::get<1>(ppi.sol)+0.75*(std::get<2>(ppi.sol)-std::get<1>(ppi.sol)));
-                        const VectorDimD fPoint1(cdi.glidePlaneIntersections()->P0 +0.3*(cdi.glidePlaneIntersections()->P1-cdi.glidePlaneIntersections()->P0));
-                        const VectorDimD fPoint2(cdi.glidePlaneIntersections()->P0 +0.6*(cdi.glidePlaneIntersections()->P1-cdi.glidePlaneIntersections()->P0));
-                        const VectorDimD dir1((fPoint2-fPoint1).normalized().cross(slipSystem1.n.cartesian().normalized()));
-                        const VectorDimD dir2((fPoint2-fPoint1).normalized().cross(slipSystem2.n.cartesian().normalized()));
-
-                        std::cout<<"Peirodic1 contains "<<(periodicGlidePlane1->referencePlane->contains(cdi.glidePlaneIntersections()->P0))<<std::endl;
-                        std::cout<<"Peirodic1 contains fpoint1 "<<(periodicGlidePlane1->referencePlane->contains(fPoint1))<<std::endl;
-                        std::cout<<" Dir1 "<<dir1.transpose()<<std::endl;
-                        std::cout<<" Dir2 "<<dir2.transpose()<<std::endl;
-
-
-                        std::vector<VectorDimD> endPointsLine;
-                        endPointsLine.push_back(fPoint1);
-                        endPointsLine.push_back(fPoint2);
-                        if (allPointsInGrain(endPointsLine,grainID1))
-                        {
-                            // const VectorDimD midPoint=0.5*(fPoint1+fPoint2);
-                            // const double length1=sqrt(std::pow(radius,2)-std::pow((fPoint1-midPoint).norm(),2));
-                            // const VectorDimD center1=midPoint-length1*b1.normalized();
-                            // const double angle1fp1=acos(length1/radius);
-                            const VectorDimD fPoint1P1=fPoint1-targetJunctionLoopsSize/poly.b_SI*dir1;
-                            const VectorDimD fPoint2P1=fPoint2-targetJunctionLoopsSize/poly.b_SI*dir1;
-
-                            std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp;
-                            std::vector<VectorDimD> loopNodePosOnlyTemp;
-                            loopNodePosOnlyTemp.push_back(fPoint1);
-                            loopNodePosTemp.push_back(std::make_pair(fPoint1, nullptr));
-                            loopNodePosOnlyTemp.push_back(fPoint2);
-                            loopNodePosTemp.push_back(std::make_pair(fPoint2, nullptr));
-                            loopNodePosOnlyTemp.push_back(fPoint2P1);
-                            loopNodePosTemp.push_back(std::make_pair(fPoint2P1, nullptr));
-                            loopNodePosOnlyTemp.push_back(fPoint1P1);
-                            loopNodePosTemp.push_back(std::make_pair(fPoint1P1, nullptr));
-                            
-                            //For the second loop
-                            const VectorDimD fPoint1P2 = fPoint1 - targetJunctionLoopsSize/poly.b_SI * dir2;
-                            const VectorDimD fPoint2P2 = fPoint2 - targetJunctionLoopsSize/poly.b_SI * dir2;
-                            std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp2;
-                            std::vector<VectorDimD> loopNodePosOnlyTemp2;
-                            
-                            loopNodePosOnlyTemp2.push_back(fPoint2);
-                            loopNodePosTemp2.push_back(std::make_pair(fPoint2, nullptr));
-
-                            loopNodePosOnlyTemp2.push_back(fPoint1);
-                            loopNodePosTemp2.push_back(std::make_pair(fPoint1, nullptr));
-
-                            loopNodePosOnlyTemp2.push_back(fPoint1P2);
-                            loopNodePosTemp2.push_back(std::make_pair(fPoint1P2, nullptr));
-
-                            loopNodePosOnlyTemp2.push_back(fPoint2P2);
-                            loopNodePosTemp2.push_back(std::make_pair(fPoint2P2, nullptr));
-
-                            
-
-                            // for (int k = 0; k < periodicLoopSides; ++k)
-                            // {
-                            //     const VectorDimD posi(center1 + Eigen::AngleAxisd(k * angle1fp1 - angle1fp1, slipSystem1.unitNormal) * slipSystem1.s.cartesian().normalized() * radius);
-                            //     loopNodePosOnlyTemp.push_back(posi);
-
-                            //     loopNodePosTemp.push_back(std::make_pair(posi, nullptr));
-                            // }
-                            
-                            if (allPointsInGrain(loopNodePosOnlyTemp, grainID1) && allPointsInGrain(loopNodePosOnlyTemp2, grainID2))
-                            {
-                                const auto ppi2(periodicGlidePlane1->polygonPatchIntersection(loopNodePosTemp));
-                                std::vector<VectorDimD> loopNodePos;
-                                std::vector<VectorDimD> networkNodePos;
-                                std::vector<VectorDimD> loopNodeShifts;
-                                std::vector<short int> edgeIDs;
-
-                                for (const auto &tup : ppi2)
-                                {
-                                    const VectorDimD gblP(periodicGlidePlane1->referencePlane->globalPosition(std::get<0>(tup)));
-                                    loopNodePos.push_back(gblP);
-                                    networkNodePos.push_back(gblP + std::get<1>(tup));
-                                    loopNodeShifts.push_back(std::get<1>(tup));
-                                    edgeIDs.push_back(std::get<2>(tup));
-                                }
-
-                                if (addSingleLoop(false, networkNodePos, loopNodePos, b1, slipSystem1.unitNormal, fPoint2P1, grainID1, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
-                                {
-                                    numLoop++;
-                                    std::cout << "# JunctionLoops =" << numLoop << std::endl;
-                                }
-//For the second loop
-                                const auto ppi(periodicGlidePlane2->polygonPatchIntersection(loopNodePosTemp2));
-                                std::vector<VectorDimD> loopNodePos2;
-                                std::vector<VectorDimD> networkNodePos2;
-                                std::vector<VectorDimD> loopNodeShifts2;
-                                std::vector<short int> edgeIDs2;
-
-                                for (const auto &tup : ppi)
-                                {
-                                    const VectorDimD gblP(periodicGlidePlane2->referencePlane->globalPosition(std::get<0>(tup)));
-                                    loopNodePos2.push_back(gblP);
-                                    networkNodePos2.push_back(gblP + std::get<1>(tup));
-                                    loopNodeShifts2.push_back(std::get<1>(tup));
-                                    edgeIDs2.push_back(std::get<2>(tup));
-                                }
-
-                                if (addSingleLoopwithJunction(false, networkNodePos2, loopNodePos2, b2, slipSystem2.unitNormal, fPoint2P2, grainID2, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts2, edgeIDs2))
-                                {
-                                    numLoop++;
-                                    std::cout << "# JunctionLoops =" << numLoop << std::endl;
-                                }
-                            }
-                        
-                        }
-
-
-
-                    }
-//                     std::vector<std::pair<VectorDimD,const VectorDimD* const>> loopNodePosTemp;
-//                     for(int k=0;k<periodicLoopSides;++k)
-//                     {
-//                         loopNodePosTemp.push_back(std::make_pair(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius,nullptr));
-//                     }
-                    
-                    
-                    
-//                     const auto ppi(periodicGlidePlane->polygonPatchIntersection(loopNodePosTemp));
-                    
-
-                    
-                    
-//                     std::vector<VectorDimD> loopNodePos;
-//                     std::vector<VectorDimD> networkNodePos;
-//                     std::vector<VectorDimD> loopNodeShifts;
-//                     std::vector<short int> edgeIDs;
-                    
-//                     for(const auto& tup : ppi)
-//                     {
-//                         const VectorDimD gblP(periodicGlidePlane->referencePlane->globalPosition(std::get<0>(tup)));
-//                         loopNodePos.push_back(gblP);
-//                         networkNodePos.push_back(gblP+std::get<1>(tup));
-//                         loopNodeShifts.push_back(std::get<1>(tup));
-//                         edgeIDs.push_back(std::get<2>(tup));
-//                     }
-                    
-// //
-// //
-// //                    for(int k=0;k<periodicLoopSides;++k)
-// //                    {
-// //                        loopNodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius);
-// //                        networkNodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*0.1*radius);
-// //                    }
-// //
-//                     if(addSingleLoop(false,networkNodePos,loopNodePos, b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,loopNodeShifts,edgeIDs))
-//                     {
-//                         density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
-//                         std::cout<<"periodicLoop density="<<density<<std::endl;
-//                     }
-                }
-            }
-            
-        }
+//        /**********************************************************************/
+//        void addPeriodicJunctionLoops()
+//        {
+//
+//
+//            if(targetJunctionLoops>0)
+//            {
+//                std::cout<<magentaBoldColor<<"Generating Junction loops with size "<<targetJunctionLoopsSize<<defaultColor<<std::endl;
+//                assert(poly.grains().size()==1 && "JunctionLoops only supported in single crystals.");
+//                int numLoop=0;
+//                while(numLoop<targetJunctionLoops)
+//                {
+//                    const std::pair<LatticeVector<dim>,int> rp1=randomPointInMesh();
+//                    const LatticeVector<dim> L01=rp1.first;
+//                    const VectorDimD P01(L01.cartesian());
+//                    const int grainID1=rp1.second;
+//                    const std::pair<LatticeVector<dim>,int> rp2=randomPointInMesh();
+//                    const LatticeVector<dim> L02=rp2.first;
+//                    const VectorDimD P02(L02.cartesian());
+//                    const int grainID2=rp2.second;
+//
+//                    PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
+//                   assert(grainID1==grainID2);
+//                    std::uniform_int_distribution<> distribution(0,poly.grain(grainID1).slipSystems().size()-1);
+//                    const int rSS1=distribution(generator); // a random SlipSystem
+//                    const auto& slipSystem1(*poly.grain(grainID1).slipSystems()[rSS1]);
+//                    const VectorDimD b1(slipSystem1.s.cartesian());
+//                    GlidePlaneKey<3> glidePlaneKey1(P01, slipSystem1.n);
+//                    std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane1(pgpf.get(glidePlaneKey1));
+//
+//                    const int rSS2=distribution(generator); // a random SlipSystem
+//
+//                    const auto& slipSystem2(*poly.grain(grainID2).slipSystems()[rSS2]);
+//                    const VectorDimD b2(slipSystem2.s.cartesian());
+//                    GlidePlaneKey<3> glidePlaneKey2(P01, slipSystem2.n);
+//                    std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane2(pgpf.get(glidePlaneKey2));
+//
+//                    std::vector<VectorDimD> tempPos;
+//                    ConfinedDislocationObject<dim> cdi(tempPos);
+//                    cdi.addGlidePlane(periodicGlidePlane1->referencePlane.get());
+//                    cdi.addGlidePlane(periodicGlidePlane2->referencePlane.get());
+//
+//                    // PlanePlaneIntersection<3> ppi(periodicGlidePlane1->referencePlane->P, periodicGlidePlane1->referencePlane->unitNormal, periodicGlidePlane2->referencePlane->P, periodicGlidePlane2->referencePlane->unitNormal);
+//                    if (cdi.glidePlaneIntersections())
+//                    {
+//                        //Get two points along the line
+//                        // const VectorDimD fPoint1(std::get<1>(ppi.sol)+0.25*(std::get<2>(ppi.sol)-std::get<1>(ppi.sol)));
+//                        // const VectorDimD fPoint2(std::get<1>(ppi.sol)+0.75*(std::get<2>(ppi.sol)-std::get<1>(ppi.sol)));
+//                        const VectorDimD fPoint1(cdi.glidePlaneIntersections()->P0 +0.3*(cdi.glidePlaneIntersections()->P1-cdi.glidePlaneIntersections()->P0));
+//                        const VectorDimD fPoint2(cdi.glidePlaneIntersections()->P0 +0.6*(cdi.glidePlaneIntersections()->P1-cdi.glidePlaneIntersections()->P0));
+//                        const VectorDimD dir1((fPoint2-fPoint1).normalized().cross(slipSystem1.n.cartesian().normalized()));
+//                        const VectorDimD dir2((fPoint2-fPoint1).normalized().cross(slipSystem2.n.cartesian().normalized()));
+//
+//                        std::cout<<"Peirodic1 contains "<<(periodicGlidePlane1->referencePlane->contains(cdi.glidePlaneIntersections()->P0))<<std::endl;
+//                        std::cout<<"Peirodic1 contains fpoint1 "<<(periodicGlidePlane1->referencePlane->contains(fPoint1))<<std::endl;
+//                        std::cout<<" Dir1 "<<dir1.transpose()<<std::endl;
+//                        std::cout<<" Dir2 "<<dir2.transpose()<<std::endl;
+//
+//
+//                        std::vector<VectorDimD> endPointsLine;
+//                        endPointsLine.push_back(fPoint1);
+//                        endPointsLine.push_back(fPoint2);
+//                        if (allPointsInGrain(endPointsLine,grainID1))
+//                        {
+//                            // const VectorDimD midPoint=0.5*(fPoint1+fPoint2);
+//                            // const double length1=sqrt(std::pow(radius,2)-std::pow((fPoint1-midPoint).norm(),2));
+//                            // const VectorDimD center1=midPoint-length1*b1.normalized();
+//                            // const double angle1fp1=acos(length1/radius);
+//                            const VectorDimD fPoint1P1=fPoint1-targetJunctionLoopsSize/poly.b_SI*dir1;
+//                            const VectorDimD fPoint2P1=fPoint2-targetJunctionLoopsSize/poly.b_SI*dir1;
+//
+//                            std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp;
+//                            std::vector<VectorDimD> loopNodePosOnlyTemp;
+//                            loopNodePosOnlyTemp.push_back(fPoint1);
+//                            loopNodePosTemp.push_back(std::make_pair(fPoint1, nullptr));
+//                            loopNodePosOnlyTemp.push_back(fPoint2);
+//                            loopNodePosTemp.push_back(std::make_pair(fPoint2, nullptr));
+//                            loopNodePosOnlyTemp.push_back(fPoint2P1);
+//                            loopNodePosTemp.push_back(std::make_pair(fPoint2P1, nullptr));
+//                            loopNodePosOnlyTemp.push_back(fPoint1P1);
+//                            loopNodePosTemp.push_back(std::make_pair(fPoint1P1, nullptr));
+//
+//                            //For the second loop
+//                            const VectorDimD fPoint1P2 = fPoint1 - targetJunctionLoopsSize/poly.b_SI * dir2;
+//                            const VectorDimD fPoint2P2 = fPoint2 - targetJunctionLoopsSize/poly.b_SI * dir2;
+//                            std::vector<std::pair<VectorDimD, const VectorDimD *const>> loopNodePosTemp2;
+//                            std::vector<VectorDimD> loopNodePosOnlyTemp2;
+//
+//                            loopNodePosOnlyTemp2.push_back(fPoint2);
+//                            loopNodePosTemp2.push_back(std::make_pair(fPoint2, nullptr));
+//
+//                            loopNodePosOnlyTemp2.push_back(fPoint1);
+//                            loopNodePosTemp2.push_back(std::make_pair(fPoint1, nullptr));
+//
+//                            loopNodePosOnlyTemp2.push_back(fPoint1P2);
+//                            loopNodePosTemp2.push_back(std::make_pair(fPoint1P2, nullptr));
+//
+//                            loopNodePosOnlyTemp2.push_back(fPoint2P2);
+//                            loopNodePosTemp2.push_back(std::make_pair(fPoint2P2, nullptr));
+//
+//
+//
+//                            // for (int k = 0; k < periodicLoopSides; ++k)
+//                            // {
+//                            //     const VectorDimD posi(center1 + Eigen::AngleAxisd(k * angle1fp1 - angle1fp1, slipSystem1.unitNormal) * slipSystem1.s.cartesian().normalized() * radius);
+//                            //     loopNodePosOnlyTemp.push_back(posi);
+//
+//                            //     loopNodePosTemp.push_back(std::make_pair(posi, nullptr));
+//                            // }
+//
+//                            if (allPointsInGrain(loopNodePosOnlyTemp, grainID1) && allPointsInGrain(loopNodePosOnlyTemp2, grainID2))
+//                            {
+//                                const auto ppi2(periodicGlidePlane1->polygonPatchIntersection(loopNodePosTemp));
+//                                std::vector<VectorDimD> loopNodePos;
+//                                std::vector<VectorDimD> networkNodePos;
+//                                std::vector<VectorDimD> loopNodeShifts;
+//                                std::vector<short int> edgeIDs;
+//
+//                                for (const auto &tup : ppi2)
+//                                {
+//                                    const VectorDimD gblP(periodicGlidePlane1->referencePlane->globalPosition(std::get<0>(tup)));
+//                                    loopNodePos.push_back(gblP);
+//                                    networkNodePos.push_back(gblP + std::get<1>(tup));
+//                                    loopNodeShifts.push_back(std::get<1>(tup));
+//                                    edgeIDs.push_back(std::get<2>(tup));
+//                                }
+//
+//                                if (addSingleLoop(false, networkNodePos, loopNodePos, b1, slipSystem1.unitNormal, fPoint2P1, grainID1, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
+//                                {
+//                                    numLoop++;
+//                                    std::cout << "# JunctionLoops =" << numLoop << std::endl;
+//                                }
+////For the second loop
+//                                const auto ppi(periodicGlidePlane2->polygonPatchIntersection(loopNodePosTemp2));
+//                                std::vector<VectorDimD> loopNodePos2;
+//                                std::vector<VectorDimD> networkNodePos2;
+//                                std::vector<VectorDimD> loopNodeShifts2;
+//                                std::vector<short int> edgeIDs2;
+//
+//                                for (const auto &tup : ppi)
+//                                {
+//                                    const VectorDimD gblP(periodicGlidePlane2->referencePlane->globalPosition(std::get<0>(tup)));
+//                                    loopNodePos2.push_back(gblP);
+//                                    networkNodePos2.push_back(gblP + std::get<1>(tup));
+//                                    loopNodeShifts2.push_back(std::get<1>(tup));
+//                                    edgeIDs2.push_back(std::get<2>(tup));
+//                                }
+//
+//                                if (addSingleLoopwithJunction(false, networkNodePos2, loopNodePos2, b2, slipSystem2.unitNormal, fPoint2P2, grainID2, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts2, edgeIDs2))
+//                                {
+//                                    numLoop++;
+//                                    std::cout << "# JunctionLoops =" << numLoop << std::endl;
+//                                }
+//                            }
+//
+//                        }
+//
+//
+//
+//                    }
+////                     std::vector<std::pair<VectorDimD,const VectorDimD* const>> loopNodePosTemp;
+////                     for(int k=0;k<periodicLoopSides;++k)
+////                     {
+////                         loopNodePosTemp.push_back(std::make_pair(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius,nullptr));
+////                     }
+//
+//
+//
+////                     const auto ppi(periodicGlidePlane->polygonPatchIntersection(loopNodePosTemp));
+//
+//
+//
+//
+////                     std::vector<VectorDimD> loopNodePos;
+////                     std::vector<VectorDimD> networkNodePos;
+////                     std::vector<VectorDimD> loopNodeShifts;
+////                     std::vector<short int> edgeIDs;
+//
+////                     for(const auto& tup : ppi)
+////                     {
+////                         const VectorDimD gblP(periodicGlidePlane->referencePlane->globalPosition(std::get<0>(tup)));
+////                         loopNodePos.push_back(gblP);
+////                         networkNodePos.push_back(gblP+std::get<1>(tup));
+////                         loopNodeShifts.push_back(std::get<1>(tup));
+////                         edgeIDs.push_back(std::get<2>(tup));
+////                     }
+//
+//// //
+//// //
+//// //                    for(int k=0;k<periodicLoopSides;++k)
+//// //                    {
+//// //                        loopNodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*radius);
+//// //                        networkNodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/periodicLoopSides, slipSystem.unitNormal)*slipSystem.s.cartesian().normalized()*0.1*radius);
+//// //                    }
+//// //
+////                     if(addSingleLoop(false,networkNodePos,loopNodePos, b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,loopNodeShifts,edgeIDs))
+////                     {
+////                         density += 2.0*radius*sin(M_PI/periodicLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
+////                         std::cout<<"periodicLoop density="<<density<<std::endl;
+////                     }
+//                }
+//            }
+//
+//        }
         
         /**********************************************************************/
         void addFrankLoops()
@@ -1736,16 +1748,16 @@ namespace model
         const double periodicLoopSides;
         
 
-        // Junction  Loops
-        const size_t targetJunctionLoops;
-        const double targetJunctionLoopsSize;
+//        // Junction  Loops
+//        const size_t targetJunctionLoops;
+//        const double targetJunctionLoopsSize;
 
-        // PlanarDipolar  Loops
-        const double targetPlanarDipolarLoopDensity;
-        const double planarDipolarLoopMean;
-        const double planarDipolarLoopStd;
-        const double planarDipolarLoopAspectRatioMean;
-        const double planarDipolarLoopAspectRatioStd;
+//        // PlanarDipolar  Loops
+//        const double targetPlanarDipolarLoopDensity;
+//        const double planarDipolarLoopMean;
+//        const double planarDipolarLoopStd;
+//        const double planarDipolarLoopAspectRatioMean;
+//        const double planarDipolarLoopAspectRatioStd;
 
         // Irradiation Loops
         const double targetIrradiationLoopDensity;
@@ -1830,15 +1842,15 @@ namespace model
         /* init*/,periodicLoopRadiusMean(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("periodicLoopRadiusMean",true) : 0.0)
         /* init*/,periodicLoopRadiusStd(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("periodicLoopRadiusStd",true) : 0.0)
         /* init*/,periodicLoopSides(targetPeriodicLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("periodicLoopSides",true) : 0.0)
-        /* JunctionLoops */
-        /* init*/,targetJunctionLoops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<size_t>("targetJunctionLoops",true))
-        /* init*/,targetJunctionLoopsSize(targetJunctionLoops>0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetJunctionLoopsSize",true) : 0.0)
-        /* Planar Dipolar Loops */
-        /* init*/,targetPlanarDipolarLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetPlanarDipolarLoopDensity",true))
-        /* init*/,planarDipolarLoopMean(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopMean",true) : 0.0)
-        /* init*/,planarDipolarLoopStd(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopStd",true) : 0.0)
-        /* init*/,planarDipolarLoopAspectRatioMean(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopAspectRatioMean",true) : 0.0)
-        /* init*/,planarDipolarLoopAspectRatioStd(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopAspectRatioStd",true) : 0.0)
+//        /* JunctionLoops */
+//        /* init*/,targetJunctionLoops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<size_t>("targetJunctionLoops",true))
+//        /* init*/,targetJunctionLoopsSize(targetJunctionLoops>0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetJunctionLoopsSize",true) : 0.0)
+//        /* Planar Dipolar Loops */
+//        /* init*/,targetPlanarDipolarLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetPlanarDipolarLoopDensity",true))
+//        /* init*/,planarDipolarLoopMean(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopMean",true) : 0.0)
+//        /* init*/,planarDipolarLoopStd(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopStd",true) : 0.0)
+//        /* init*/,planarDipolarLoopAspectRatioMean(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopAspectRatioMean",true) : 0.0)
+//        /* init*/,planarDipolarLoopAspectRatioStd(targetPlanarDipolarLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("planarDipolarLoopAspectRatioStd",true) : 0.0)
 
         /* Irradiation Loops */
         /* init*/,targetIrradiationLoopDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetIrradiationLoopDensity",true))
@@ -1880,8 +1892,8 @@ namespace model
             addNonPlanarLoops();
             // addPeriodicLoops();
             addStatisticallyHomegeneousPeriodicLoops();
-            addStatisticallyHomegeneousPlanarDipolarLoops();
-            addPeriodicJunctionLoops();
+//            addStatisticallyHomegeneousPlanarDipolarLoops();
+//            addPeriodicJunctionLoops();
             addIrradiationLoops();
             addStackingFaultTetrahedra();
             addEshelbyInclusions();

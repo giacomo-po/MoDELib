@@ -138,7 +138,7 @@ generatorOBJS = microstructureGenerator
 
 $(generatorOBJS):
 	@echo making microstructureGenerator
-	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerators/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++17 -Wall $(IDIR)
+	$(CC) $(MODEL_INCLUDE)/tools/MicrostructureGenerator/microstructureGenerator.cpp -o microstructureGenerator -O3 -std=c++17 -Wall $(IDIR)
 
 
 ##########################################################

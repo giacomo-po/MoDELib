@@ -32,8 +32,9 @@ quadPerLength=0.1;
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
-timeIntegrationMethod=0;
+timeIntegrationMethod=1; # 0=fixed time step, 1=adaptive time step
 dxMax=10;
+timeStep=100;
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
@@ -61,6 +62,7 @@ outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=1;
+computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
@@ -76,7 +78,7 @@ coreSize=2.0;
 remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
-nodeRemoveAngleDeg=60;
+relativeAreaThreshold=0.001;
 
 ######################################
 # DISLOCATION JUNCTIONS
@@ -104,13 +106,16 @@ parametrizationExponent=0.5;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
+verboseLoopNetwork=0;
+verboseDislocationNetwork=0;
+verboseDislocationLoop=0;
+verboseDislocationLoopNode=0;
+verboseDislocationLoopLink=0;
+verboseDislocationNode=0;
+verboseDislocationSegment=0;
 verboseJunctions=0;
 verboseRemesh=0;
-verbosePlanarDislocationNode=0;
 verboseNodeContraction=0;
-verbosePlanarDislocationSegment=5;
-verbosePlanarDislocationLoop=5;
 verboseCrossSlip=0;
-verbosePeriodicDislocationBase=5;
 outputSegmentPairDistances=0;
 outputDislocationStiffnessAndForce=0;
