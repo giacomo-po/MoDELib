@@ -138,21 +138,21 @@ namespace model
                         }
                     }
                 }
-                else
-                {
-                    const auto pPrev(loopNode.second.lock()->periodicPrev());
-                    const auto pNext(loopNode.second.lock()->periodicNext());
-                    if (pPrev && pNext)
-                    {
-                        if (pPrev->networkNode==loopNode.second.lock()->networkNode && pNext->networkNode==loopNode.second.lock()->networkNode)
-                        {
-                            DN.removeLoopNode(loopNode.second.lock()->sID);
-                            removedLoopNodes.insert(loopNode.second.lock().get());
-                            Nremoved++;
-                            
-                        }
-                    }
-                }
+//                else
+//                {
+//                    const auto pPrev(loopNode.second.lock()->periodicPrev());
+//                    const auto pNext(loopNode.second.lock()->periodicNext());
+//                    if (pPrev && pNext)
+//                    {
+//                        if (pPrev->networkNode==loopNode.second.lock()->networkNode && pNext->networkNode==loopNode.second.lock()->networkNode)
+//                        {
+//                            DN.removeLoopNode(loopNode.second.lock()->sID);
+//                            removedLoopNodes.insert(loopNode.second.lock().get());
+//                            Nremoved++;
+//                            
+//                        }
+//                    }
+//                }
                 
             }
         }

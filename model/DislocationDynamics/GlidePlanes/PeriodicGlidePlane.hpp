@@ -301,6 +301,7 @@ namespace model
         }
         else
         {
+            assert(false && "not a right-handed boundary");
             BoundingMeshSegments<dim> flippedTemp;
             for (auto it = glidePlane->meshIntersections.rbegin(); it != glidePlane->meshIntersections.rend(); ++it)
             {

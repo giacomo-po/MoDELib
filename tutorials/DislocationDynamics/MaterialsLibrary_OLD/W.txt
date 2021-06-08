@@ -1,0 +1,32 @@
+materialName=W;
+crystalStructure=BCC;
+b_SI=0.2722e-9;	# [m] 		Burgers vector magnitude 
+mu0_SI=161.0e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
+mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
+nu=0.28;		# [-]		Poisson's ratio
+rho_SI=19250.0;	# [kg/m^3]	mass density
+T=300;			# [K]		temperature
+Tm=3695.0;		# [K]		melting temperature
+
+# Mobility parameters (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
+B0e_SI=4.26e-04;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations
+B1e_SI=0.87e-06;	# [Pa*s/K]	temperature-dependent drag coefficient for edge  dislocations
+B0s_SI=9.8e-4;		# [Pa*s]	temperature-independent drag coefficient for screw  dislocations
+B1s_SI=0.0;			# [Pa*s/K]	temperature-dependent drag coefficient for screw  dislocations
+Bk_SI=8.3e-05;		# [Pa*s]	drag coefficient for kinks
+dH0_eV=1.63;		# [eV]		enthalpy barrier for kink nucleation
+p=0.86;				# [-]		mobility exponent
+q=1.69;				# [-]		mobility exponent
+Tf=0.8;				# [-]		athermal transition temperature in fraction of Tm 
+tauC_SI=2.03e9;		# [Pa]		Peierls stress
+a0=1.50;			# [-]		non-Schmid coefficient
+a1=1.15;			# [-]		non-Schmid coefficient
+a2=2.32;			# [-]		non-Schmid coefficient
+a3=4.29;			# [-]		non-Schmid coefficient
+
+# Vacancy diffusion
+Ufv_eV=0;	# [eV]	Vacancy formation energy
+DVv=0;	# [-]	Relative vacancy relaxation volume
+Udv_eV=0; 	# [eV]	Vacancy migration energy
+D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
+

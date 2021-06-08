@@ -65,6 +65,12 @@ namespace model
 #ifndef _MODEL_GREATWHITE_
     std::vector<std::default_random_engine> StochasticForceGenerator::generators;
     std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
+#else
+#ifdef _MODEL_GREATWHITE_standalone
+    std::vector<std::default_random_engine> StochasticForceGenerator::generators;
+    std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
+#endif
+
 #endif
     
     /**************************************************************************/

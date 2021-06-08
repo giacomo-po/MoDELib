@@ -788,14 +788,17 @@ namespace model
 
             const auto pPrev(periodicPrev());
             const auto pNext(periodicNext());
+            VerboseDislocationLoopNode(2, " pPrev= " <<pPrev->tag()<< std::endl;);
+            VerboseDislocationLoopNode(2, " pNext= " <<pNext->tag()<< std::endl;);
+
             // if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax)
             // {
             if (pPrev && pNext)
             {
                 if (this->networkNode->loopNodes().size() == 1)
-                {
-                    if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax &&
-                        isGeometricallyRemovable(Lmin, relAreaTh))
+                {// associated networkNode has only this loopNode
+                    if (   (pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax // new chord must not trigger expand
+                        && isGeometricallyRemovable(Lmin, relAreaTh))
                     {
                         return std::make_pair(true,this->sID);
                     }
@@ -804,21 +807,27 @@ namespace model
                         return std::make_pair(false,0);
                     }
                 }
-                else if (this->networkNode->loopNodes().size() >= 2)
-                {
-                    const auto prevTwin(this->prev.second->twinnedLink());
-                    const auto nextTwin(this->next.second->twinnedLink());
+                else if (this->networkNode->loopNodes().size() == 2)
+                {// associated networkNode has multiple loopNodes
+                    const auto prevTwin(this->prev.second->twinnedLink()); // the other link forming a zero-Burgers vector with prev link
+                    const auto nextTwin(this->next.second->twinnedLink()); // the other link forming a zero-Burgers vector with next link
 
                     if (prevTwin && nextTwin)
                     {
 
                         if (prevTwin->loop == nextTwin->loop && (prevTwin->periodicPlanePatch() == nextTwin->periodicPlanePatch()))
                        {
+                           VerboseDislocationLoopNode(2, " prevTwin= " <<prevTwin->tag()<< std::endl;);
+                           VerboseDislocationLoopNode(2, " nextTwin= " <<nextTwin->tag()<< std::endl;);
+                           VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " isRemovable, case of multiple loopNodes" << std::endl;);
                             //Check based on neighbors of the networkNode
                             //Here the other node will be inserted
-                            size_t prevtwinID((prevTwin->source->networkNode==this->networkNode)? prevTwin->source->sID : prevTwin->sink->sID);
-                            size_t nexttwinID((nextTwin->source->networkNode==this->networkNode)? nextTwin->source->sID : nextTwin->sink->sID);
-                            // if (prevtwinID!=nexttwinID)
+                            const size_t prevtwinID((prevTwin->source->networkNode==this->networkNode)? prevTwin->source->sID : prevTwin->sink->sID);
+                            const size_t nexttwinID((nextTwin->source->networkNode==this->networkNode)? nextTwin->source->sID : nextTwin->sink->sID);
+                           VerboseDislocationLoopNode(2, " prevtwinID= " <<prevtwinID<< std::endl;);
+                           VerboseDislocationLoopNode(2, " nexttwinID= " <<nexttwinID<< std::endl;);
+
+                           // if (prevtwinID!=nexttwinID)
                             // {
                             //     // prevTwin->loop->printLoop();
                             //     std::cout<<"Prev twin->tag() "<<prevTwin->tag()<<std::endl;

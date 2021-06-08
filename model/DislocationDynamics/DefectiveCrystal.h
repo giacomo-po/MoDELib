@@ -151,7 +151,7 @@ namespace model
         /**********************************************************************/
         DefectiveCrystal(int& argc, char* argv[]) :
         /* init */ simulationParameters(argc,argv)
-        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
+        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose())
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
         /* init */,poly("./inputFiles/polycrystal.txt",mesh)
         /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)

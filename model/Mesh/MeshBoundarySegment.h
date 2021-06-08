@@ -119,10 +119,116 @@ namespace model
             }
         }
         
+        void computeFaceIntersections(const SimplicialMesh<dim>& mesh,
+                                      const Plane<dim>& plane,
+                          const std::shared_ptr<PlanarMeshFace<dim>>& face)
+        {
+            PlanePlaneIntersection<dim> ppi(plane,face->asPlane());
+            
+            if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+            {// plane and mesh-face are incident
+                
+                UniquePointContainer roots;
+                for(size_t k=0;k<face->convexHull().size();++k)
+                {
+                    
+                    // Pick face boundary segment
+                    const size_t k1(k==face->convexHull().size()-1? 0 : k+1);
+                    const VectorDim& P0(face->convexHull()[k]->P0);
+                    const VectorDim& P1(face->convexHull()[k1]->P0);
+                    const double segLength((P1-P0).norm());
+                    const VectorDim D0((P1-P0)/segLength);
+                    // Compute intersection between boundary segment and line of intersection of the two planes
+                    LineLineIntersection<dim> lli(P0,D0,ppi.P,ppi.d);
+                    if(lli.type==LineLineIntersection<dim>::INCIDENT)
+                    {
+                        const double u0((lli.x0-P0).dot(D0));
+                        if(u0>0.0-FLT_EPSILON && u0<segLength+FLT_EPSILON)
+                        {// intersection within segment
+                            roots.insert(lli.x0);
+                        }
+                    }
+                    else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
+                    {// a coincident line was found, which means that the glide planes intersec on a boundary face
+                        roots.insert(P0);
+                        roots.insert(P1);
+                    }
+                }
+                
+                switch (roots.size())
+                {
+                    case 0:
+                    {// no intersaction between plane and face
+                        break;
+                    }
+                        
+                    case 1:
+                    {// single-point intersection, not a valid boundary segment, so don't consider it
+                        break;
+                    }
+                        
+                    case 2:
+                    {// an intersection segment
+                        const VectorDim& P0(*roots.begin());
+                        const VectorDim& P1(*roots.rbegin());
+                        emplace_unique(P0,P1,face.get());
+                        break;
+                    }
+                        
+                    default:
+                    {
+                        std::cout<<"FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE"<<std::endl;
+                        std::cout<<"plane.P="<<std::setprecision(15)<<std::scientific<<plane.P.transpose()<<std::endl;
+                        std::cout<<"plane.unitNormal="<<std::setprecision(15)<<std::scientific<<plane.unitNormal.transpose()<<std::endl;
+                        std::cout<<"IN INTERSECTING PLANE AND FACE"<<std::endl;
+                        std::cout<<face->sID<<", n="<<std::setprecision(15)<<std::scientific<<face->outNormal()<<std::endl;
+                        std::cout<<"ROOTS ARE"<<std::endl;
+                        for(const auto& root : roots)
+                        {
+                            std::cout<<std::setprecision(15)<<std::scientific<<root.transpose()<<std::endl;
+                        }
+                        assert(false && "FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE");
+                        break;
+                    }
+                }
+                
+            }
+            else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
+            {
+                for(size_t k=0;k<face->convexHull().size();++k)
+                {
+                    //std::cout<<"I'm here A8"<<std::endl;
+                    
+                    const size_t k1(k==face->convexHull().size()-1? 0 : k+1);
+                    const VectorDim& P0(face->convexHull()[k]->P0);
+                    const VectorDim& P1(face->convexHull()[k1]->P0);
+                    emplace_unique(P0,P1,face.get());
+                }
+            }
+        }
+        
         /**********************************************************************/
         BoundingMeshSegments()
         {
             
+        }
+        
+        
+        
+        /**********************************************************************/
+        BoundingMeshSegments(const SimplicialMesh<dim>& mesh,
+                             const Plane<dim>& plane)
+        {
+            for(const auto& region : mesh.regions())
+            {
+                for(const auto& face : region.second->faces())
+                {
+                    if(face.second->isExternal())
+                    {
+                        computeFaceIntersections(mesh,plane,face.second);
+                    }
+                }
+            }
         }
         
         /**********************************************************************/
@@ -135,88 +241,90 @@ namespace model
             
             for(const auto& face : mesh.region(rID)->faces())
             {
-                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
-
-                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
-                {// plane and mesh-face are incident
-                    
-                    UniquePointContainer roots;
-                    for(size_t k=0;k<face.second->convexHull().size();++k)
-                    {
-
-                        // Pick face boundary segment
-                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
-                        const VectorDim& P0(face.second->convexHull()[k]->P0);
-                        const VectorDim& P1(face.second->convexHull()[k1]->P0);
-                        const double segLength((P1-P0).norm());
-                        const VectorDim D0((P1-P0)/segLength);
-                        // Compute intersection between boundary segment and line of intersection of the two planes
-                        LineLineIntersection<dim> lli(P0,D0,ppi.P,ppi.d);
-                        if(lli.type==LineLineIntersection<dim>::INCIDENT)
-                        {
-                            const double u0((lli.x0-P0).dot(D0));
-                            if(u0>0.0-FLT_EPSILON && u0<segLength+FLT_EPSILON)
-                            {// intersection within segment
-                                roots.insert(lli.x0);
-                            }
-                        }
-                        else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
-                        {// a coincident line was found, which means that the glide planes intersec on a boundary face
-                            roots.insert(P0);
-                            roots.insert(P1);
-                        }
-                    }
-
-                    switch (roots.size())
-                    {
-                        case 0:
-                        {// no intersaction between plane and face
-                            break;
-                        }
-                            
-                        case 1:
-                        {// single-point intersection, not a valid boundary segment, so don't consider it
-                            break;
-                        }
-                            
-                        case 2:
-                        {// an intersection segment
-                            const VectorDim& P0(*roots.begin());
-                            const VectorDim& P1(*roots.rbegin());
-                            emplace_unique(P0,P1,face.second.get());
-                            break;
-                        }
-                            
-                        default:
-                        {
-                            std::cout<<"FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE"<<std::endl;
-                            std::cout<<"plane.P="<<std::setprecision(15)<<std::scientific<<plane.P.transpose()<<std::endl;
-                            std::cout<<"plane.unitNormal="<<std::setprecision(15)<<std::scientific<<plane.unitNormal.transpose()<<std::endl;
-                            std::cout<<"IN INTERSECTING PLANE AND FACE"<<std::endl;
-                            std::cout<<face.second->sID<<", n="<<std::setprecision(15)<<std::scientific<<face.second->outNormal()<<std::endl;
-                            std::cout<<"ROOTS ARE"<<std::endl;
-                            for(const auto& root : roots)
-                            {
-                                std::cout<<std::setprecision(15)<<std::scientific<<root.transpose()<<std::endl;
-                            }
-                            assert(false && "FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE");
-                            break;
-                        }
-                    }
-
-                }
-                else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
-                {
-                    for(size_t k=0;k<face.second->convexHull().size();++k)
-                    {
-                        //std::cout<<"I'm here A8"<<std::endl;
-
-                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
-                        const VectorDim& P0(face.second->convexHull()[k]->P0);
-                        const VectorDim& P1(face.second->convexHull()[k1]->P0);
-                        emplace_unique(P0,P1,face.second.get());
-                    }
-                }
+                computeFaceIntersections(mesh,plane,face.second);
+                
+//                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
+//
+//                if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
+//                {// plane and mesh-face are incident
+//
+//                    UniquePointContainer roots;
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//
+//                        // Pick face boundary segment
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        const VectorDim& P0(face.second->convexHull()[k]->P0);
+//                        const VectorDim& P1(face.second->convexHull()[k1]->P0);
+//                        const double segLength((P1-P0).norm());
+//                        const VectorDim D0((P1-P0)/segLength);
+//                        // Compute intersection between boundary segment and line of intersection of the two planes
+//                        LineLineIntersection<dim> lli(P0,D0,ppi.P,ppi.d);
+//                        if(lli.type==LineLineIntersection<dim>::INCIDENT)
+//                        {
+//                            const double u0((lli.x0-P0).dot(D0));
+//                            if(u0>0.0-FLT_EPSILON && u0<segLength+FLT_EPSILON)
+//                            {// intersection within segment
+//                                roots.insert(lli.x0);
+//                            }
+//                        }
+//                        else if(lli.type==LineLineIntersection<dim>::COINCIDENT)
+//                        {// a coincident line was found, which means that the glide planes intersec on a boundary face
+//                            roots.insert(P0);
+//                            roots.insert(P1);
+//                        }
+//                    }
+//
+//                    switch (roots.size())
+//                    {
+//                        case 0:
+//                        {// no intersaction between plane and face
+//                            break;
+//                        }
+//
+//                        case 1:
+//                        {// single-point intersection, not a valid boundary segment, so don't consider it
+//                            break;
+//                        }
+//
+//                        case 2:
+//                        {// an intersection segment
+//                            const VectorDim& P0(*roots.begin());
+//                            const VectorDim& P1(*roots.rbegin());
+//                            emplace_unique(P0,P1,face.second.get());
+//                            break;
+//                        }
+//
+//                        default:
+//                        {
+//                            std::cout<<"FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE"<<std::endl;
+//                            std::cout<<"plane.P="<<std::setprecision(15)<<std::scientific<<plane.P.transpose()<<std::endl;
+//                            std::cout<<"plane.unitNormal="<<std::setprecision(15)<<std::scientific<<plane.unitNormal.transpose()<<std::endl;
+//                            std::cout<<"IN INTERSECTING PLANE AND FACE"<<std::endl;
+//                            std::cout<<face.second->sID<<", n="<<std::setprecision(15)<<std::scientific<<face.second->outNormal()<<std::endl;
+//                            std::cout<<"ROOTS ARE"<<std::endl;
+//                            for(const auto& root : roots)
+//                            {
+//                                std::cout<<std::setprecision(15)<<std::scientific<<root.transpose()<<std::endl;
+//                            }
+//                            assert(false && "FAILED TO FIND A BOUNDARY PERIMETER FOR PLANE");
+//                            break;
+//                        }
+//                    }
+//
+//                }
+//                else if (ppi.type==PlanePlaneIntersection<dim>::COINCIDENT)
+//                {
+//                    for(size_t k=0;k<face.second->convexHull().size();++k)
+//                    {
+//                        //std::cout<<"I'm here A8"<<std::endl;
+//
+//                        const size_t k1(k==face.second->convexHull().size()-1? 0 : k+1);
+//                        const VectorDim& P0(face.second->convexHull()[k]->P0);
+//                        const VectorDim& P1(face.second->convexHull()[k1]->P0);
+//                        emplace_unique(P0,P1,face.second.get());
+//                    }
+//                }
             }
             
             // Now sort segments
@@ -224,12 +332,9 @@ namespace model
             //std::cout<<"unsorted hull"<<std::endl;
             for(const auto& pt : *this)
             {
-                
-//                VectorDim x(R*(0.5*(pt->P0+pt->P1)-plane.P));
-//                finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
                 const auto x(plane.localPosition(0.5*(pt->P0+pt->P1)));
+//                VectorDim x(R*(0.5*(pt->P0+pt->P1)-plane.P));
                 finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
-
                 // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
             }
 
@@ -353,6 +458,11 @@ namespace model
         {
             return *this;
         }
+        
+
+        
+        
+
         
         /**********************************************************************/
         template <class T>

@@ -19,6 +19,7 @@
 #include <SimplexReader.h>
 #include <SimplexObserver.h>
 #include <SimplexBase.h>
+#include <SimplexParent.h>
 #include <SimplexChild.h>
 #include <MeshRegion.h>
 //#include <VertexReader.h>
@@ -52,7 +53,6 @@ namespace model
         /* init list */ SimplexBase<dim,order>(m,vIN),
         //        /* init list */ P0(get_P0())
         /* init list */ P0(m->simplexReader().get_P0(this->xID))
-//        /* init list */ P0(SimplexReader<dim>::get_P0(this->xID))
         {/*!@param[in] vIN the (possibly unsorted) ID of this Simplex
           *
           * Constructur performs the following operations:
@@ -85,9 +85,10 @@ namespace model
     /**************************************************************************/
     template<short int dim, short int order>
     class Simplex :
-    /* inheritance */ public SimplexBase<dim,order>,
-    /* inheritance */ public SimplexTraits<dim,order>::BaseArrayType,
-    /* inheritance */ public SimplexChild <dim,order>
+//    /* inheritance */ public SimplexTraits<dim,order>::BaseArrayType
+    /* inheritance */ public SimplexParent<dim,order>
+    /* inheritance */,public SimplexBase<dim,order>
+    /* inheritance */,public SimplexChild <dim,order>
     {
         
         typedef typename SimplexTraits<dim,order>::BaseArrayType BaseArrayType;
@@ -108,8 +109,9 @@ namespace model
         /**********************************************************************/
         Simplex(SimplicialMesh<dim>* const m,
                 const SimplexIDType& vIN) :
-        /* init list */ SimplexBase<dim,order>(m,vIN),
-        /* init list */ BaseArrayType(this->observer().faces(m,vIN))
+//        /* init list */ BaseArrayType(this->observer().faces(m,vIN))
+        /* init */ SimplexParent<dim,order>(m,vIN)
+        /* init */,SimplexBase<dim,order>(m,vIN)
         //        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix())) // THIS GIVES SEGMENTATION FAULT, WHY?
         {/*!@param[in] vIN the (possibly unsorted) ID of this
           *
@@ -280,19 +282,20 @@ namespace model
     /**************************************************************************/
     template<short int dim>
     class Simplex<dim,dim> :
-    /* inheritance */ public SimplexBase<dim,dim>,
-    /* inheritance */ public SimplexTraits<dim,dim>::BaseArrayType
+//    /* inheritance */ public SimplexTraits<dim,dim>::BaseArrayType
+    /* inheritance */ public SimplexParent<dim,dim>
+    /* inheritance */,public SimplexBase<dim,dim>
     {
         
         typedef typename SimplexTraits<dim,dim>::BaseArrayType BaseArrayType;
         
-        /**********************************************************************/
-        Eigen::Matrix<double,dim+1,dim+1> get_b2p() const
-        {
-            Eigen::Matrix<double,dim+1,dim+1> temp(Eigen::Matrix<double,dim+1,dim+1>::Ones());
-            temp.template block<dim,dim+1>(0,0)=this->vertexPositionMatrix();
-            return temp;
-        }
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim+1,dim+1> get_b2p() const
+//        {
+//            Eigen::Matrix<double,dim+1,dim+1> temp(Eigen::Matrix<double,dim+1,dim+1>::Ones());
+//            temp.template block<dim,dim+1>(0,0)=this->vertexPositionMatrix();
+//            return temp;
+//        }
         
         /**********************************************************************/
         const Eigen::Matrix<double,dim,dim+1> get_nda() const
@@ -327,8 +330,8 @@ namespace model
         //! Shared pointer to MeshRegioin containing *this
         const std::shared_ptr<MeshRegionType> region;
         
-        //! The barycentric-coordinate to position transformation matrix
-        const Eigen::Matrix<double,dim+1,dim+1> b2p;
+//        //! The barycentric-coordinate to position transformation matrix
+//        const Eigen::Matrix<double,dim+1,dim+1> b2p;
         
         //! The position to barycentric-coordinate transformation matrix
         const Eigen::Matrix<double,dim+1,dim+1> p2b;
@@ -341,13 +344,14 @@ namespace model
         /**********************************************************************/
         Simplex(SimplicialMesh<dim>* const m,
                 const SimplexIDType& vIN, const int regionID=0) :
-        /* init base */ SimplexBase<dim,order>(m,vIN),
-        /* init base */ BaseArrayType(this->observer().faces(m,vIN)),
-        /* init list */ region(m->getSharedRegion(regionID)),
-        /* init base */ b2p(get_b2p()),
-        /* init list */ p2b(b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity())),
-        /* init list */ nda(get_nda()),
-        /* init */ vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix()))
+//        /* init */ BaseArrayType(this->observer().faces(m,vIN))
+        /* init */ SimplexParent<dim,order>(m,vIN)
+        /* init */,SimplexBase<dim,order>(m,vIN)
+        /* init */,region(m->getSharedRegion(regionID))
+//        /* init base */ b2p(get_b2p()),
+        /* init */,p2b(this->b2p.fullPivLu().solve(Eigen::Matrix<double,dim+1,dim+1>::Identity()))
+        /* init */,nda(get_nda())
+        /* init */,vol0(SimplexVolume<dim,order>::volume(this->vertexPositionMatrix()))
         {/*!
           */
             
@@ -459,11 +463,11 @@ namespace model
             return p2b*(Eigen::Matrix<double,dim+1,1>()<<P,1.0).finished();
         }
         
-        /**********************************************************************/
-        Eigen::Matrix<double,dim,1> bary2pos(const Eigen::Matrix<double,dim+1,1>& bary) const
-        {
-            return (b2p*bary).template segment<dim>(0);
-        }
+//        /**********************************************************************/
+//        Eigen::Matrix<double,dim,1> bary2pos(const Eigen::Matrix<double,dim+1,1>& bary) const
+//        {
+//            return (b2p*bary).template segment<dim>(0);
+//        }
         
         /**********************************************************************/
         void convexDelaunaynSearch(const bool& searchAllRegions,
@@ -482,7 +486,7 @@ namespace model
 #ifdef _MODEL_BENCH_BARYSEARCH_
                 std::cout<<"Searching "<<this->xID<<std::endl;
                 std::cout<<"bary= "<<pos2bary(P)<<std::endl;
-                searchFile<<bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
+                searchFile<<this->bary2pos(Eigen::Matrix<double,dim+1,1>::Ones()/(dim+1)).transpose()<<" "
                 /*      */<<this->xID<<"\n";
 #endif
                 

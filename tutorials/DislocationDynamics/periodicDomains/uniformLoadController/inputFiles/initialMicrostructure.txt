@@ -47,7 +47,7 @@ nonPlanarLoopSides=10;
 #######################################
 # Periodic loops
 targetPeriodicLoopDensity=5e13;
-periodicLoopRadiusMean=3e-07;
+periodicLoopRadiusMean=2e-07;
 periodicLoopRadiusStd=0;     
 periodicLoopSides=20;
 statisticalHomogeneous=0;

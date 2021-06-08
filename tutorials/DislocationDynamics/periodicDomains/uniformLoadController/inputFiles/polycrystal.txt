@@ -1,6 +1,13 @@
-materialFile=../../MaterialsLibrary/Cu.txt;
-meshFile=../../MeshLibrary/fcc_commensurate_prism.msh;
+materialFile=../../MaterialsLibrary/Zr.txt;
+meshFile=../../MeshLibrary/hexMesh.msh;
 
 C2G1=1 0 0
      0 1 0
      0 0 1;
+
+# Mesh transformation for each node x in the mesh
+# x'=A*(x-x0);
+A=0.051122130770411 0 0
+  0 0.088542588985302 0
+  0 0 0.083479422322398;  # affine transformation x'=A*(x-x0)
+x0=0 0 0; # shift in transformation x'=A*(x-x0)

@@ -639,6 +639,7 @@ namespace model
             }
             else
             {
+//                return std::make_pair(Nclose, false);
                 if (!Nclose->isBoundaryNode())
                 {
                     VerboseJunctions(4, "JunctionNode case f" << std::endl;);

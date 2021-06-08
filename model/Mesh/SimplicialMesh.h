@@ -62,12 +62,16 @@ namespace model
             
             const auto t0= std::chrono::system_clock::now();
             
-            model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::flush;
+//            model::cout<<greenBoldColor<<"Creating mesh"<<defaultColor<<std::flush;
+            size_t eleConter=0;
             for (const auto& eIter : this->simplexReader().elements())
             {
                 insertSimplex(eIter.second.first,eIter.second.second);
+                eleConter++;
+                model::cout<<greenBoldColor<<"\r Creating mesh "<<eleConter*100/this->simplexReader().elements().size()<<"%"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::flush;
             }
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            model::cout<<defaultColor<<std::endl;
+//            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             this->info(); // print mesh info
             
@@ -95,8 +99,8 @@ namespace model
             {
                 model::cout<<"Mesh is empty."<<std::endl;
             }
-            model::cout<<"  xMin="<<_xMin.transpose()<<std::endl;
-            model::cout<<"  xMax="<<_xMax.transpose()<<std::endl;
+            model::cout<<"  xMin="<< std::setprecision(15)<<std::scientific<<_xMin.transpose()<<std::endl;
+            model::cout<<"  xMax="<< std::setprecision(15)<<std::scientific<<_xMax.transpose()<<std::endl;
             
             
             // Populate MeshRegionBoundaryContainerType
@@ -209,21 +213,21 @@ namespace model
         }
         
         /**********************************************************************/
-        SimplicialMesh(const std::string& meshFileName) :
+        SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0) :
         /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
         /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
         /* init */,vol0(0.0)
         {
-            this->read(meshFileName);
+            this->read(meshFileName,A,x0);
             createMesh();
             this->simplexReader().clear();
         }
         
         /**********************************************************************/
-        void readMesh(const std::string& meshFileName)
+        void readMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0)
         {
             simplices().clear();
-            this->read(meshFileName);
+            this->read(meshFileName,A,x0);
             createMesh();
             this->simplexReader().clear();
         }

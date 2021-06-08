@@ -116,6 +116,7 @@ namespace model
         clippedPolyData(vtkSmartPointer<vtkPolyData>::New()),
         clipMapper(vtkSmartPointer<vtkDataSetMapper>::New()),
         clipActor(vtkSmartPointer<vtkActor>::New()),
+        /* init */ mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose()),
         /* init */ dispFileIsGood(false)
         {
             
@@ -128,7 +129,7 @@ namespace model
         /**************************************************************************/
         void init(vtkRenderer* renderer)
         {
-            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
+//            mesh.readMesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true));
             
             polydata->Allocate();
 
