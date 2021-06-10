@@ -283,16 +283,19 @@ namespace model
                 DN->updateGeometry();
                 updateLoadControllers(simulationParameters.runID, false);
 
-                DN->assembleAndSolveGlide(simulationParameters.runID);
+                DN->assembleAndSolveGlide();
                 simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 // output
                 DN->io().output(simulationParameters.runID);
 
-                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
+//                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
                 // move
 //                DN->dummyMove(simulationParameters.runID);
+                DN->crossSlipMaker.findCrossSlipSegments();
                 DN->moveGlide(simulationParameters.dt);
-                crossSlip.execute();
+//                crossSlip.execute();
+                DN->crossSlipMaker.execute();
+
                 // DN->io().output(simulationParameters.runID);
 
 

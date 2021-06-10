@@ -144,6 +144,7 @@ namespace model
         const std::vector<VectorDim>& periodicShifts;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
         DislocationJunctionFormation<LoopNetworkType> junctionsMaker;
+        DislocationCrossSlip<LoopNetworkType> crossSlipMaker;
         DislocationNodeContraction<LoopNetworkType> nodeContractor;
 //        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         //        MatrixDimD _plasticDistortionFromVelocities;
@@ -203,7 +204,7 @@ namespace model
         void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const;
         MatrixDim stress(const VectorDim& x) const;
         void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
-        void assembleAndSolveGlide(const long int& runID);
+        void assembleAndSolveGlide();
         void moveGlide(const double & dt_in);
         void singleGlideStepDiscreteEvents(const long int& runID);
         void updateBoundaryNodes();

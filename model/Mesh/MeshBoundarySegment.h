@@ -119,8 +119,7 @@ namespace model
             }
         }
         
-        void computeFaceIntersections(const SimplicialMesh<dim>& mesh,
-                                      const Plane<dim>& plane,
+        void computeFaceIntersections(const Plane<dim>& plane,
                           const std::shared_ptr<PlanarMeshFace<dim>>& face)
         {
             PlanePlaneIntersection<dim> ppi(plane,face->asPlane());
@@ -225,7 +224,7 @@ namespace model
                 {
                     if(face.second->isExternal())
                     {
-                        computeFaceIntersections(mesh,plane,face.second);
+                        computeFaceIntersections(plane,face.second);
                     }
                 }
             }
@@ -241,7 +240,7 @@ namespace model
             
             for(const auto& face : mesh.region(rID)->faces())
             {
-                computeFaceIntersections(mesh,plane,face.second);
+                computeFaceIntersections(plane,face.second);
                 
 //                PlanePlaneIntersection<dim> ppi(plane,face.second->asPlane());
 //

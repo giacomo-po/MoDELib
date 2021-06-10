@@ -55,17 +55,45 @@ namespace model
         
         //! A reference to the DislocationNetwork
         DislocationNetworkType& DN;
+        CrossSlipContainerType crossSlipDeq;
         
+    public:
         
-
+        const int verboseCrossSlip;
+        const double crossSlipDeg;
         
         /**********************************************************************/
-        CrossSlipContainerType findCrossSlipSegments(const PolycrystallineMaterial<dim,Isotropic>& material,
-                                                     const int& crossSlipModel) const
+        DislocationCrossSlip(DislocationNetworkType& DN_in) :
+        /* init */ DN(DN_in)
+        /* init */,verboseCrossSlip(TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
+        /* init */,crossSlipDeg(TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
         {
+            assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+
+//            if(DN.crossSlipModel)
+//            {
+//                const auto t0= std::chrono::system_clock::now();
+//                model::cout<<"Finding CrossSlip segments: "<<std::flush;
+//                crossSlipDeq=findCrossSlipSegments(DN.poly,DN.crossSlipModel);
+//                VerboseCrossSlip(1,crossSlipDeq.size()<<" found"<<std::endl;);
+//                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//            }
             
+        }
+        
+        /**********************************************************************/
+        void findCrossSlipSegments()
+        {
+
+            if(DN.crossSlipModel)
+            {
+                model::cout<<"Finding CrossSlip segments... "<<std::flush;
+                const auto t0= std::chrono::system_clock::now();
+
+             crossSlipDeq.clear();
             const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
-            CrossSlipContainerType crossSlipDeq;
+//            CrossSlipContainerType crossSlipDeq;
+
             
             for(const auto& linkIter : DN.networkLinks())
             {
@@ -82,48 +110,46 @@ namespace model
                    && link->chord().norm()>2.0*DN.networkRemesher.Lmin
                    )
                 {
-//                    const auto& grain(**link.second->grains().begin());
+                    //                    const auto& grain(**link.second->grains().begin());
                     
                     
-                    if(material.crystalStructure=="BCC")
+                    if(DN.poly.crystalStructure=="BCC")
                     {
-                       CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
+                        CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,DN.crossSlipModel);
                     }
-                    else if(material.crystalStructure=="FCC")
+                    else if(DN.poly.crystalStructure=="FCC")
                     {
-                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
+                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,DN.crossSlipModel);
                     }
                     else
                     {
-                        std::cout<<"Unknown cross-slip model for crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
+                        std::cout<<"Unknown cross-slip model for crystal structure '"<<DN.poly.crystalStructure<<"'. Exiting."<<std::endl;
                         exit(EXIT_FAILURE);
                     }
                     
                 }
             }
+                model::cout<<crossSlipDeq.size()<<" found "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
             
-            return crossSlipDeq;
+//            return crossSlipDeq;
         }
         
-    public:
-        
-        static int verboseCrossSlip;
-        static double crossSlipDeg;
-        CrossSlipContainerType crossSlipDeq;
-        
-        /******************************************************************/
-        static void initFromFile(const std::string& fileName)
-        {
-            crossSlipDeg=TextFileParser(fileName).readScalar<double>("crossSlipDeg",true);
-            assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-            verboseCrossSlip=TextFileParser(fileName).readScalar<int>("verboseCrossSlip",true);            
-        }
+//        /******************************************************************/
+//        static void initFromFile(const std::string& fileName)
+//        {
+//            crossSlipDeg=TextFileParser(fileName).readScalar<double>("crossSlipDeg",true);
+//            assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
+//            verboseCrossSlip=TextFileParser(fileName).readScalar<int>("verboseCrossSlip",true);
+//        }
         
         /**********************************************************************/
         void execute()
         {
+            if(DN.crossSlipModel)
+            {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"        Executing cross slip "<<std::flush;
+            model::cout<<"Executing cross slip "<<std::flush;
             size_t executed(0);
             for(const auto& tup : crossSlipDeq)
             {
@@ -289,33 +315,19 @@ namespace model
                     }
                 }
             }
-            std::cout<<executed<<" executed"<<std::endl;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-
+            model::cout<<executed<<" executed"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            }
         }
         
-        /**********************************************************************/
-        DislocationCrossSlip(DislocationNetworkType& DN_in) :
-        /* init list */ DN(DN_in)
-        {
-            if(DN.crossSlipModel)
-            {
-                const auto t0= std::chrono::system_clock::now();
-                model::cout<<"		Finding CrossSlip segments: "<<std::flush;
-                crossSlipDeq=findCrossSlipSegments(DN.poly,DN.crossSlipModel);
-                VerboseCrossSlip(1,crossSlipDeq.size()<<" found"<<std::endl;);
-                model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-            }
-            
-        }
+
         
     };
     
-    template <typename DislocationNetworkType>
-    int DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip=0;
-    
-    template <typename DislocationNetworkType>
-    double DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg=2.0;
+//    template <typename DislocationNetworkType>
+//    int DislocationCrossSlip<DislocationNetworkType>::verboseCrossSlip=0;
+//
+//    template <typename DislocationNetworkType>
+//    double DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg=2.0;
     
 }
 #endif

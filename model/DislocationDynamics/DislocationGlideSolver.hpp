@@ -28,9 +28,9 @@ namespace model
     }
     
     template <typename DislocationNetworkType>
-    void DislocationGlideSolver<DislocationNetworkType>::solve(const size_t& runID)
+    void DislocationGlideSolver<DislocationNetworkType>::solve()
     {
-        lumpedSolve(runID);
+        lumpedSolve();
     }
     
     
@@ -333,13 +333,13 @@ namespace model
     }
 
     template <typename DislocationNetworkType>
-    void DislocationGlideSolver<DislocationNetworkType>::lumpedSolve(const size_t& runID)
+    void DislocationGlideSolver<DislocationNetworkType>::lumpedSolve()
     {
 //        if (NC.nodeOrder() > 0)
 //        {
 //
         const auto t0= std::chrono::system_clock::now();
-        model::cout<<"        Assemble and solve (lumped) "<<std::flush;
+        model::cout<<"Assemblinig and solving glide velocities (lumped) "<<std::flush;
         TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
         Eigen::VectorXd Fq;        // the vector of nodal forces
         const size_t Ndof = assembleNCtriplets(kqqT, Fq);

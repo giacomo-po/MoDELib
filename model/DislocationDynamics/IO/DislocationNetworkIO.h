@@ -111,9 +111,7 @@ namespace model
         void outputFiles(const size_t& runID) const
         {/*! Outputs DislocationNetwork data to the following files (x is the runID):
           */
-            model::cout<<"		";
             configIO().write(runID,DN.outputBinary);
-            model::cout<<"        ";
             auxIO().write(runID,DN.outputBinary);
 
             if(DN.outputElasticEnergy)
@@ -232,7 +230,7 @@ namespace model
             
             // Output to F file
             UniqueOutputFile<'F'> f_file;
-            model::cout<<" F/F_0.txt"<<std::flush;
+            model::cout<<"Writing F/F_0.txt"<<std::flush;
             
 //            std::ofstream F_labels ("F/F_labels.txt", std::ios::out | std::ios::app);
             std::ofstream F_labels;

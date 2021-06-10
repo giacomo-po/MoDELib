@@ -395,9 +395,7 @@ namespace model
 #else
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& parentSegment,
-                                       const double& quadPerLength,
-                                       const double& isClimbStep)
+        void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             // updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             

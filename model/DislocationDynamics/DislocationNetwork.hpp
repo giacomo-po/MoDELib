@@ -36,9 +36,10 @@ namespace model
     /* init */,bvpSolver(_bvpSolver)
     /* init */,externalLoadController(_externalLoadController)
     /* init */,periodicShifts(_periodicShifts)
-        /* init */,networkRemesher(*this)
-        /* init */,junctionsMaker(*this)
-        /* init */,nodeContractor(*this)
+    /* init */,networkRemesher(*this)
+    /* init */,junctionsMaker(*this)
+    /* init */,crossSlipMaker(*this)
+    /* init */,nodeContractor(*this)
     //    /* init */,gbTransmission(*this)
     //        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
     ///* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
@@ -90,9 +91,9 @@ namespace model
         //        PeriodicDislocationBase::initFromFile("inputFiles/DD.txt");
         //        DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
         DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
-               DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
-        DislocationCrossSlip<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
-        DislocationJunctionFormation<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
+        DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
+//        DislocationCrossSlip<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
+//        DislocationJunctionFormation<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
         int stochasticForceSeed=TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true);
         if(stochasticForceSeed<0)
         {
@@ -121,7 +122,7 @@ namespace model
     // void DislocationNetwork<dim,corder,InterpolationType>::setConfiguration(const DDconfigIO<dim>& evl)
     // {
     //     this->loopLinks().clear(); // erase base network to clear current config
-        
+    
     //     // Create Loops
     //     std::deque<std::shared_ptr<LoopType>> tempLoops; // keep loops alive during setConfiguration
     //     size_t loopNumber=1;
@@ -136,7 +137,7 @@ namespace model
     //         assert(this->loops().get(loopIDinFile)->sID==loopIDinFile);
     //         loopNumber++;
     //     }
-        
+    
     //     // Create NetworkNodes
     //     std::deque<std::shared_ptr<NetworkNodeType>> tempNetNodes; // keep loops alive during setConfiguration
     //     size_t netNodeNumber=1;
@@ -149,7 +150,7 @@ namespace model
     //         assert(this->networkNodes().get(nodeIDinFile)->sID==nodeIDinFile);
     //         netNodeNumber++;
     //     }
-        
+    
     //     // Create LoopNodes
     //     std::deque<std::shared_ptr<LoopNodeType>> tempLoopNodes; // keep loops alive during setConfiguration
     //     size_t loopNodeNumber=1;
@@ -177,7 +178,7 @@ namespace model
     //         assert(this->loopNodes().get(nodeIDinFile)->sID==nodeIDinFile);
     //         loopNodeNumber++;
     //     }
-        
+    
     //     // Insert Loops
     //     std::map<size_t,std::map<size_t,size_t>> loopMap;
     //     for(const auto& looplink : evl.loopLinks())
@@ -185,10 +186,10 @@ namespace model
     //         loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
     //     }
     //     assert(loopMap.size()==evl.loops().size());
-        
+    
     //     for(const auto& loop : evl.loops())
     //     {// for each loop in the DDconfigIO<dim> object
-            
+    
     //         const auto loopFound=loopMap.find(loop.sID); // there must be an entry with key loopID in loopMap
     //         assert(loopFound!=loopMap.end());
     //         std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
@@ -209,8 +210,8 @@ namespace model
     //     }
     //     updateGeometry();
     // }
-
-//New Version
+    
+    //New Version
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationNetwork<dim,corder,InterpolationType>::setConfiguration(const DDconfigIO<dim>& evl)
     {
@@ -225,7 +226,7 @@ namespace model
             model::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
-
+            
             
             switch (loop.loopType)
             {
@@ -270,14 +271,14 @@ namespace model
         {
             model::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
             // std::cout<<"Printing stuff for loopNodes "<<std::endl;
-
+            
             // std::cout << node.loopID << std::endl;
             // std::cout << node.sID << std::endl;
             // std::cout << std::setprecision(15) << std::scientific << node.P.transpose() << std::endl;
             // std::cout << node.networkNodeID << std::endl;
             // std::cout << std::setprecision(15) << std::scientific << node.periodicShift.transpose() << std::endl;
             // std::cout << node.edgeID << std::endl;
-
+            
             const size_t nodeIDinFile(node.sID);
             LoopNodeType::set_count(nodeIDinFile);
             const auto loop(this->loops().get(node.loopID));
@@ -444,7 +445,7 @@ namespace model
         }
         return temp;
     }
-
+    
     template <int dim, short unsigned int corder, typename InterpolationType>
     typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim DislocationNetwork<dim,corder,InterpolationType>::plasticDistortionRate() const
     {
@@ -455,7 +456,7 @@ namespace model
         }
         return temp;
     }
-
+    
     // template <int dim, short unsigned int corder, typename InterpolationType>
     // const typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim& DislocationNetwork<dim,corder,InterpolationType>::plasticDistortionRate() const
     // {
@@ -515,15 +516,15 @@ namespace model
         }
         return std::make_tuple(bulkGlissileLength,bulkSessileLength,boundaryLength,grainBoundaryLength);
     }
-
+    
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     bool DislocationNetwork<dim,corder,InterpolationType>::contract(std::shared_ptr<NetworkNodeType> nA,
-                  std::shared_ptr<NetworkNodeType> nB)
+                                                                    std::shared_ptr<NetworkNodeType> nB)
     {
         return nodeContractor.contract(nA,nB);
     }
-
+    
     
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationNetwork<dim,corder,InterpolationType>::dummyMove(const int& runID)
@@ -563,32 +564,32 @@ namespace model
         const double dt=10;
         for(auto& node : this->networkNodes())
         {// Expansion
-
+            
             VectorDim v(VectorDim::Zero());
             for(const auto& loopNode : node.second.lock()->loopNodes())
             {
                 auto loopIter(loopCenters.find(loopNode->loop()->sID));
                 v+=(loopNode->get_P()-loopIter->second.first).normalized()/node.second.lock()->loopNodes().size();
             }
-
+            
             if(node.second.lock()->loopNodes().size()>1)
             {
                 const auto dir((node.second.lock()->glidePlaneIntersections()->P1-node.second.lock()->glidePlaneIntersections()->P0).normalized());
                 v=v.dot(dir)*dir;
             }
-
+            
             node.second.lock()->trySet_P(node.second.lock()->get_P()+v*dt);
-
+            
         }
         
-//        const auto loop0(this->loops().begin());
-//        const auto loop1(this->loops().rbegin());
-//
-//                const auto v=loop0->second.lock()->glidePlane->unitNormal.cross(loop1->second.lock()->glidePlane->unitNormal).normalized();
-//                for(auto& node : this->networkNodes())
-//                {// translation
-//                    node.second.lock()->trySet_P(node.second.lock()->get_P()+v*dt);
-//                }
+        //        const auto loop0(this->loops().begin());
+        //        const auto loop1(this->loops().rbegin());
+        //
+        //                const auto v=loop0->second.lock()->glidePlane->unitNormal.cross(loop1->second.lock()->glidePlane->unitNormal).normalized();
+        //                for(auto& node : this->networkNodes())
+        //                {// translation
+        //                    node.second.lock()->trySet_P(node.second.lock()->get_P()+v*dt);
+        //                }
         
         
         
@@ -751,13 +752,13 @@ namespace model
         
         danglingBoundaryLoopNodes.clear();
         
-//        std::cout<<"Ouputing"<<std::endl;
-//        DDconfigIO<dim> configIO(*this);
-//        configIO.writeTxt(runID);
+        //        std::cout<<"Ouputing"<<std::endl;
+        //        DDconfigIO<dim> configIO(*this);
+        //        configIO.writeTxt(runID);
         
     }
     
-
+    
     template <int dim, short unsigned int corder, typename InterpolationType>
     typename DislocationNetwork<dim,corder,InterpolationType>::VectorDim DislocationNetwork<dim,corder,InterpolationType>::displacement(const VectorDim& x) const
     {/*!\param[in] P position vector
@@ -852,9 +853,10 @@ namespace model
             fieldPoints[k]=stress(fieldPoints[k].P);
         }
     }
-
+    
+    /**********************************************************************/
     template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::assembleAndSolveGlide(const long int& runID)
+    void DislocationNetwork<dim,corder,InterpolationType>::assembleAndSolveGlide()
     {/*! Performs the following operatons:
       */
 #ifdef _OPENMP
@@ -869,7 +871,7 @@ namespace model
         if(corder==0)
         {// For straight segments use analytical expression of stress field
             const auto t1= std::chrono::system_clock::now();
-            model::cout<<"        Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
+            model::cout<<"Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
 #ifdef _OPENMP
             for (const auto& links : this->networkLinks())
             {
@@ -896,143 +898,148 @@ namespace model
         }
         
         //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
-        model::cout<<"        Assembling and solving "<<std::flush;
-        DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
+        DislocationGlideSolver<LoopNetworkType>(*this).solve();
     }
-
+    
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationNetwork<dim,corder,InterpolationType>::updateBoundaryNodes()
     {
 
+
         if (danglingBoundaryLoopNodes.size())
         {
-            std::cout << "Removing bnd Nodes" << std::endl;
+            std::cout <<"Removing boundary nodes..." << std::flush;
+            const auto t0= std::chrono::system_clock::now();
             for (const auto &node : danglingBoundaryLoopNodes)
             {
                 this->removeLoopNode(node->sID);
             }
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
-            std::cout<<"Inserting new boundary nodes"<<std::endl;
-            std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
-            for (const auto &weakLoop : this->loops())
+        
+        std::cout<<"Inserting new boundary nodes"<<std::flush;
+        const auto t1= std::chrono::system_clock::now();
+        std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
+        for (const auto &weakLoop : this->loops())
+        {
+            const auto loop(weakLoop.second.lock());
+            if (loop->periodicGlidePlane)
             {
-                const auto loop(weakLoop.second.lock());
-                if (loop->periodicGlidePlane)
+                VerboseDislocationNetwork(1, " DisloationNetwork::DislocationLoop "<<loop->sID<<" Updating boundary nodes " << std::endl;);
+                
+                std::vector<std::pair<VectorLowerDim, const LoopNodeType *const>> loopNodesPos;
+                std::map<std::tuple<const LoopNodeType *, const LoopNodeType *, const PeriodicPlaneEdge<dim> *>, const LoopNodeType *> bndNodesMap;
+                for (const auto &loopLink : loop->linkSequence())
                 {
-                    VerboseDislocationNetwork(1, " DisloationNetwork::DislocationLoop "<<loop->sID<<" Updating boundary nodes " << std::endl;);
-
-                    std::vector<std::pair<VectorLowerDim, const LoopNodeType *const>> loopNodesPos;
-                    std::map<std::tuple<const LoopNodeType *, const LoopNodeType *, const PeriodicPlaneEdge<dim> *>, const LoopNodeType *> bndNodesMap;
-                    for (const auto &loopLink : loop->linkSequence())
+                    if (!loopLink->source->periodicPlaneEdge)
+                    {// internal nodes
+                        loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()), loopLink->source.get());
+                    }
+                    else
+                    {// nodes on edges
+                        bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(), loopLink->source->periodicNext(), loopLink->source->periodicPlaneEdge.get()), loopLink->source.get());
+                    }
+                }
+                
+                
+                if (loopNodesPos.size())
+                {
+                    const auto polyInt(loop->periodicGlidePlane->polygonPatchIntersection(loopNodesPos)); // 2dPos,shift,edgeID,LoopNodeType*
+                    std::map<const LoopNodeType *, size_t> polyIntMap;
+                    for (size_t p = 0; p < polyInt.size(); ++p)
                     {
-                        if (!loopLink->source->periodicPlaneEdge)
-                        {// internal nodes
-                            loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()), loopLink->source.get());
-                        }
-                        else
-                        {// nodes on edges
-                            bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(), loopLink->source->periodicNext(), loopLink->source->periodicPlaneEdge.get()), loopLink->source.get());
+                        if (std::get<3>(polyInt[p]))
+                        {
+                            polyIntMap.emplace(std::get<3>(polyInt[p]), p);
                         }
                     }
-
-
-                    if (loopNodesPos.size())
+                    
+                    for (size_t k = 0; k < loopNodesPos.size(); ++k)
                     {
-                        const auto polyInt(loop->periodicGlidePlane->polygonPatchIntersection(loopNodesPos)); // 2dPos,shift,edgeID,LoopNodeType*
-                        std::map<const LoopNodeType *, size_t> polyIntMap;
-                        for (size_t p = 0; p < polyInt.size(); ++p)
+                        const auto periodicPrev(loopNodesPos[k].second);
+                        const auto periodicPrevNetwork(periodicPrev->networkNode.get());
+                        const auto polyIter(polyIntMap.find(periodicPrev));
+                        assert(polyIter != polyIntMap.end());
+                        const size_t p(polyIter->second);
+                        
+                        const size_t k1(k < loopNodesPos.size() - 1 ? k + 1 : 0);
+                        const auto periodicNext(loopNodesPos[k1].second);
+                        const auto periodicNextNetwork(periodicNext->networkNode.get());
+                        const auto polyIter1(polyIntMap.find(periodicNext));
+                        assert(polyIter1 != polyIntMap.end());
+                        const size_t p1(polyIter1->second);
+                        
+                        const auto periodicNetworkSource(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicPrevNetwork : periodicNextNetwork);
+                        const auto periodicNetworkSink(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicNextNetwork : periodicPrevNetwork);
+                        
+                        // std::cout<<"periodicPrev->periodicNext"<<periodicPrev->tag()<<"==>"<<periodicNext->tag()<<std::endl;
+                        
+                        const LoopNodeType *currentSource(periodicPrev);
+                        size_t p2 = (p + 1) % polyInt.size();
+                        while (p2 < p1)
                         {
-                            if (std::get<3>(polyInt[p]))
-                            {
-                                polyIntMap.emplace(std::get<3>(polyInt[p]), p);
+                            const auto periodicPatch(loop->periodicGlidePlane->getPatch(std::get<1>(polyInt[p2])));
+                            const auto periodicPatchEdge(periodicPatch->edges()[std::get<2>(polyInt[p2])]);
+                            const auto bndIter(bndNodesMap.find(std::make_tuple(periodicPrev, periodicNext, periodicPatchEdge.get())));
+                            
+                            if (bndIter != bndNodesMap.end())
+                            { // exising bnd node found
+                                // std::cout<<" Using boundary node "<<bndIter->second->tag()<<std::endl;
+                                currentSource = bndIter->second;
                             }
-                        }
-
-                        for (size_t k = 0; k < loopNodesPos.size(); ++k)
-                        {
-                            const auto periodicPrev(loopNodesPos[k].second);
-                            const auto periodicPrevNetwork(periodicPrev->networkNode.get());
-                            const auto polyIter(polyIntMap.find(periodicPrev));
-                            assert(polyIter != polyIntMap.end());
-                            const size_t p(polyIter->second);
-
-                            const size_t k1(k < loopNodesPos.size() - 1 ? k + 1 : 0);
-                            const auto periodicNext(loopNodesPos[k1].second);
-                            const auto periodicNextNetwork(periodicNext->networkNode.get());
-                            const auto polyIter1(polyIntMap.find(periodicNext));
-                            assert(polyIter1 != polyIntMap.end());
-                            const size_t p1(polyIter1->second);
-
-                            const auto periodicNetworkSource(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicPrevNetwork : periodicNextNetwork);
-                            const auto periodicNetworkSink(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicNextNetwork : periodicPrevNetwork);
-
-                            // std::cout<<"periodicPrev->periodicNext"<<periodicPrev->tag()<<"==>"<<periodicNext->tag()<<std::endl;
-
-                            const LoopNodeType *currentSource(periodicPrev);
-                            size_t p2 = (p + 1) % polyInt.size();
-                            while (p2 < p1)
+                            else
                             {
-                                const auto periodicPatch(loop->periodicGlidePlane->getPatch(std::get<1>(polyInt[p2])));
-                                const auto periodicPatchEdge(periodicPatch->edges()[std::get<2>(polyInt[p2])]);
-                                const auto bndIter(bndNodesMap.find(std::make_tuple(periodicPrev, periodicNext, periodicPatchEdge.get())));
-
-                                if (bndIter != bndNodesMap.end())
-                                { // exising bnd node found
-                                    // std::cout<<" Using boundary node "<<bndIter->second->tag()<<std::endl;
-                                    currentSource = bndIter->second;
+                                const VectorDim loopNodePos(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
+                                const VectorDim networkNodePos(loopNodePos + std::get<1>(polyInt[p2]));
+                                const auto currentLoopLink(currentSource->next.second);
+                                const auto currentNetworkLink(currentLoopLink->networkLink());
+                                
+                                std::tuple<const NetworkNodeType *, const NetworkNodeType *, std::set<const PlanarMeshFace<dim> *>, float> key(std::tuple<const NetworkNodeType *const, const NetworkNodeType *const, std::set<const PlanarMeshFace<dim> *>, float>(nullptr, nullptr, std::set<const PlanarMeshFace<dim> *>(), -1.0));
+                                if (periodicPrevNetwork == periodicNetworkSource)
+                                {
+                                    const auto chord(periodicNext->get_P() - periodicPrev->get_P());
+                                    const auto chordNorm2(chord.squaredNorm());
+                                    const float u((loopNodePos - periodicPrev->get_P()).dot(chord) / chordNorm2);
+                                    key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
+                                }
+                                else if (periodicNextNetwork == periodicNetworkSource)
+                                {
+                                    const auto chord(periodicPrev->get_P() - periodicNext->get_P());
+                                    const auto chordNorm2(chord.squaredNorm());
+                                    const float u((loopNodePos - periodicNext->get_P()).dot(chord) / chordNorm2);
+                                    key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
                                 }
                                 else
                                 {
-                                    const VectorDim loopNodePos(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
-                                    const VectorDim networkNodePos(loopNodePos + std::get<1>(polyInt[p2]));
-                                    const auto currentLoopLink(currentSource->next.second);
-                                    const auto currentNetworkLink(currentLoopLink->networkLink());
-
-                                    std::tuple<const NetworkNodeType *, const NetworkNodeType *, std::set<const PlanarMeshFace<dim> *>, float> key(std::tuple<const NetworkNodeType *const, const NetworkNodeType *const, std::set<const PlanarMeshFace<dim> *>, float>(nullptr, nullptr, std::set<const PlanarMeshFace<dim> *>(), -1.0));
-                                    if (periodicPrevNetwork == periodicNetworkSource)
-                                    {
-                                        const auto chord(periodicNext->get_P() - periodicPrev->get_P());
-                                        const auto chordNorm2(chord.squaredNorm());
-                                        const float u((loopNodePos - periodicPrev->get_P()).dot(chord) / chordNorm2);
-                                        key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
-                                    }
-                                    else if (periodicNextNetwork == periodicNetworkSource)
-                                    {
-                                        const auto chord(periodicPrev->get_P() - periodicNext->get_P());
-                                        const auto chordNorm2(chord.squaredNorm());
-                                        const float u((loopNodePos - periodicNext->get_P()).dot(chord) / chordNorm2);
-                                        key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
-                                    }
-                                    else
-                                    {
-                                        assert(false && "periodicNetworkSource must be periodicPrevNetwork or periodicNextNetwork");
-                                    }
-
-                                    const auto networkNodeIter(newNetworkNodesMap.find(key));
-                                    if (networkNodeIter != newNetworkNodesMap.end())
-                                    {// key found
-                                                                //    std::cout<<"using networkNode "<<networkNodeIter->second->tag()<<std::endl;
-                                        const auto newLoopNode(this->loopNodes().create(loop, networkNodeIter->second, loopNodePos, periodicPatch, periodicPatchEdge));
-                                        currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
-                                    }
-                                    else
-                                    {// key not found
-                                        const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
-                                        //                            std::cout<<"emplacing "<<currentNetworkLink->tag()<<"@"<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<", newNetNode="<<newNetNode->tag()<<std::endl;
-                                        newNetworkNodesMap.emplace(key, newNetNode);
-                                        const auto newLoopNode(this->loopNodes().create(loop, newNetNode, loopNodePos, periodicPatch, periodicPatchEdge));
-                                        currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
-                                    }
+                                    assert(false && "periodicNetworkSource must be periodicPrevNetwork or periodicNextNetwork");
                                 }
-                                p2 = (p2 + 1) % polyInt.size();
+                                
+                                const auto networkNodeIter(newNetworkNodesMap.find(key));
+                                if (networkNodeIter != newNetworkNodesMap.end())
+                                {// key found
+                                    //    std::cout<<"using networkNode "<<networkNodeIter->second->tag()<<std::endl;
+                                    const auto newLoopNode(this->loopNodes().create(loop, networkNodeIter->second, loopNodePos, periodicPatch, periodicPatchEdge));
+                                    currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
+                                }
+                                else
+                                {// key not found
+                                    const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
+                                    //                            std::cout<<"emplacing "<<currentNetworkLink->tag()<<"@"<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<", newNetNode="<<newNetNode->tag()<<std::endl;
+                                    newNetworkNodesMap.emplace(key, newNetNode);
+                                    const auto newLoopNode(this->loopNodes().create(loop, newNetNode, loopNodePos, periodicPatch, periodicPatchEdge));
+                                    currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
+                                }
                             }
+                            p2 = (p2 + 1) % polyInt.size();
                         }
                     }
-
                 }
+                
             }
+        }
+        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
 
-            danglingBoundaryLoopNodes.clear();
+        danglingBoundaryLoopNodes.clear();
         
     }
     
@@ -1041,16 +1048,17 @@ namespace model
     {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
       */
         
-        model::cout<<"        Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::endl; 
-
+        const auto t0= std::chrono::system_clock::now();
+        model::cout<<"Moving DislocationNodes by glide (dt="<<dt_in<< ")... "<<std::flush;
+        
         if(simulationParameters.isPeriodicSimulation())
         {
             
-
+            
             danglingBoundaryLoopNodes.clear();
-
+            
             // std::cout<<"Printing network connectivity info network Nodes "<<std::endl;
-
+            
             // for (const auto& node : this->networkNodes())
             // {
             //     std::cout<<"Node ID "<<node.second.lock()->tag()<<"=>"<<node.second.lock()->glidePlanes().size()<<" neighbors size "
@@ -1083,16 +1091,16 @@ namespace model
             //         <<" glidePlane size "<<std::get<1>(neigh.second)->glidePlanes().size()<<std::endl;
             //     }
             // }
-
+            
             // std::cout<<"Printing GlidePlane Size for the network Nodes "<<std::endl;
-
+            
             // for (const auto& node : this->networkNodes())
             // {
             //     std::cout<<"Node ID"<<node.second.lock()->tag()<<"=>"<<node.second.lock()->glidePlanes().size()<<std::endl;
             // }
             
             // std::cout<<"Printing Slip Systems of the network Links "<<std::endl;
-
+            
             // for (const auto& link : this->networkLinks())
             // {
             //     std::cout<<" Link "<<link.second.lock()->tag()<<" [ "<<link.second.lock()->loopLinks().size()<<" ] "<<" has slipSystem Compare to nullPtr "<<(link.second.lock()->slipSystem()==nullptr)<<std::endl;
@@ -1110,11 +1118,11 @@ namespace model
             //             }
             //         }
             //     }
-
+            
             // }
-
-
-
+            
+            
+            
             for(auto& node : this->networkNodes())
             {// Expansion
                 // std::cout<<"Trying set p for "<<node.second.lock()->sID<<" LoopNdoe size ==>"<<node.second.lock()->loopNodes().size()<<" GlidePlane size ==>"
@@ -1122,22 +1130,22 @@ namespace model
                 // std::cout<<std::setprecision(15)<<" Old Position "<<node.second.lock()->get_P().transpose()<<std::endl;
                 // std::cout<<std::setprecision(15)<<" New Position "<<(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in).transpose()<<std::endl;
                 // std::cout<<"Checking if the loop contains the position "<<std::endl;
-//                for (const auto& loopN : node.second.lock()->loopNodes())
-//                {
-//                    const VectorDim patchShift(loopN->periodicPlanePatch()? loopN->periodicPlanePatch()->shift : VectorDim::Zero());
-//                    const VectorDim oldPosition(loopN->get_P());
-//                    const VectorDim oldPositionN(node.second.lock()->get_P()-patchShift);
-//                    const VectorDim newPosition(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in-patchShift);
-//
-//                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position OLD Position"<<loopN->loop()->glidePlane->contains(oldPosition)<<std::endl;
-//                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position New Position"<<loopN->loop()->glidePlane->contains(newPosition)<<std::endl;
-//                }
+                //                for (const auto& loopN : node.second.lock()->loopNodes())
+                //                {
+                //                    const VectorDim patchShift(loopN->periodicPlanePatch()? loopN->periodicPlanePatch()->shift : VectorDim::Zero());
+                //                    const VectorDim oldPosition(loopN->get_P());
+                //                    const VectorDim oldPositionN(node.second.lock()->get_P()-patchShift);
+                //                    const VectorDim newPosition(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in-patchShift);
+                //
+                //                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position OLD Position"<<loopN->loop()->glidePlane->contains(oldPosition)<<std::endl;
+                //                    // std::cout<<" Loop "<<loopN->loop()->sID<<" contains position New Position"<<loopN->loop()->glidePlane->contains(newPosition)<<std::endl;
+                //                }
                 node.second.lock()->trySet_P(node.second.lock()->get_P()+node.second.lock()->get_V()*dt_in);
             }
-                std::cout<<"Updating Boundary Nodes "<<std::endl;
-            updateBoundaryNodes();
-               std::cout<<"Updating Boundary Nodes FINISHED "<<std::endl;
+            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
 
+            updateBoundaryNodes();
+            
             
         }
         else
@@ -1146,15 +1154,15 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             for (auto& nodeIter : this->networkNodes())
             {
-//                nodeIter.second.lock()->moveGlide(dt_in);
+                //                nodeIter.second.lock()->moveGlide(dt_in);
                 nodeIter.second.lock()->set_P(nodeIter.second.lock()->get_P()+nodeIter.second.lock()->get_V()*dt_in);
             }
             model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
-
+        
         
     }
-
+    
     /**********************************************************************/
     template <int dim, short unsigned int corder, typename InterpolationType>
     void DislocationNetwork<dim,corder,InterpolationType>::singleGlideStepDiscreteEvents(const long int& runID)
@@ -1171,37 +1179,37 @@ namespace model
         //            computeNodaVelocities(runID);
         
         //! 10- Cross Slip (needs upated PK force)
-//        DislocationCrossSlip<DislocationNetworkType> crossSlip(*this);
-//        crossSlip.execute();
-//
-//
-//        //                        gbTransmission.transmit();
-//        //gbTransmission.directTransmit();
-//        //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
-//        //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
-//
-//
-//        //! 12- Form Junctions
+        //        DislocationCrossSlip<DislocationNetworkType> crossSlip(*this);
+        //        crossSlip.execute();
+        //
+        //
+        //        //                        gbTransmission.transmit();
+        //        //gbTransmission.directTransmit();
+        //        //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
+        //        //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
+        //
+        //
+        //        //! 12- Form Junctions
         // junctionsMaker.formJunctions(DDtimeIntegrator<0>::dxMax);  //Length of the junction is changed
         junctionsMaker.formJunctions(networkRemesher.Lmin);
         // io().output(simulationParameters.runID);
-//
-//        //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-//        //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-//
-//
-//
-//        //! 13- Node redistribution
+        //
+        //        //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
+        //        //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
+        //
+        //
+        //
+        //        //! 13- Node redistribution
         networkRemesher.remesh(runID);
-//
-//        updateVirtualBoundaryLoops();
+        //
+        //        updateVirtualBoundaryLoops();
         
     }
-
-
+    
+    
     template <int dim, short unsigned int corder, typename InterpolationType>
     int DislocationNetwork<dim,corder,InterpolationType>::verboseDislocationNetwork=0;
-
+    
     
 }
 #endif

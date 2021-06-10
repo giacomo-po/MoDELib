@@ -46,14 +46,16 @@ namespace model
         constexpr static int NdofXnode=NetworkNodeType::NdofXnode;
         static constexpr int dim=TypeTraits<DislocationNetworkType>::dim;
 
+
+        void lumpedSolve();
         
         DislocationNetworkType& DN;
         
         public:
         
         DislocationGlideSolver(DislocationNetworkType& );
-        void solve(const size_t& runID);
-        void lumpedSolve(const size_t& runID);
+        void solve();
+
         size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq);
         void storeNodeSolution(const Eigen::VectorXd& X);
         size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const;

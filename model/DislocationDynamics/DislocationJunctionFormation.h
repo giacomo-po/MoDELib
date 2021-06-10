@@ -285,7 +285,7 @@ namespace model
           */
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Finding collisions "<<std::flush;
+            model::cout<<"Finding dislocation collisions... "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
             SweepPlane<NetworkLinkType,dim> swp;
@@ -303,7 +303,7 @@ namespace model
                 }
             }
             swp.computeIntersectionPairs();
-            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
+            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs,"<<defaultColor<<std::flush;
             
             
             std::deque<std::pair<const NetworkLinkType*,const NetworkLinkType*>> reducedIntersectionPairs;
@@ -337,10 +337,10 @@ namespace model
             }
             
             
-            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            model::cout<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             const auto t1= std::chrono::system_clock::now();
-            model::cout<<"        Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
+            model::cout<<"Selecting physical junctions ("<<nThreads<<" threads)..."<<std::flush;
             
             //! 2- loop over all links and determine their intersections
 // #ifdef _OPENMP
@@ -555,8 +555,8 @@ namespace model
             {
                 nIntersections+=intersectionByThreadContainer.size();
             }
-            model::cout<<nIntersections<<" physical junctions "<<std::flush;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+//            model::cout<<nIntersections<<" physical junctions "<<std::flush;
+            model::cout<<" ("<<nIntersections<<")"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
         
@@ -1837,7 +1837,7 @@ namespace model
     public:
         
         
-        static double collisionTol;     //! The tolerance (in units of distance) used for collision detection
+        const double collisionTol;     //! The tolerance (in units of distance) used for collision detection
         const size_t maxJunctionIterations;
         const int verboseJunctions;
         const double infiniteLineLength;
@@ -1845,6 +1845,7 @@ namespace model
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
+        /* init */,collisionTol(TextFileParser("inputFiles/DD.txt").readScalar<double>("collisionTol",true))
         /* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
         /* init */,verboseJunctions(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
         /* init */,infiniteLineLength(10000.0)
@@ -1852,10 +1853,10 @@ namespace model
             
         }
 
-        static void initFromFile(const std::string& fileName)
-        {
-            collisionTol=TextFileParser(fileName).readScalar<double>("collisionTol",true);
-        }
+//        static void initFromFile(const std::string& fileName)
+//        {
+//            collisionTol=TextFileParser(fileName).readScalar<double>("collisionTol",true);
+//        }
         
         /**********************************************************************/
         void formJunctions(const double& dx)
@@ -1885,8 +1886,8 @@ namespace model
         
     };
     
-    // Declare Static Data
-    template <typename DislocationNetworkType>
-    double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
+//    // Declare Static Data
+//    template <typename DislocationNetworkType>
+//    double DislocationJunctionFormation<DislocationNetworkType>::collisionTol=10.0;
 }
 #endif

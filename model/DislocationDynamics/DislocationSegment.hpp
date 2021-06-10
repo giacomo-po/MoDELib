@@ -464,7 +464,7 @@ namespace model
     void DislocationSegment<dim,corder,InterpolationType>::assembleGlide()
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", assembleGlide"<<std::endl;);
-        this->updateForcesAndVelocities(*this,quadPerLength,false);
+        this->updateForcesAndVelocities(*this);
         Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
         Kqq=this->nodalVelocityMatrix(*this);
         h2posMap.clear();
