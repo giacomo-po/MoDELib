@@ -35,13 +35,13 @@
 
 namespace model
 {
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoopLink : public LoopLink<DislocationLoopLink<dim,corder,InterpolationType>>
+    template <int dim, short unsigned int corder>
+    class DislocationLoopLink : public LoopLink<DislocationLoopLink<dim,corder>>
     {
 
     public:
         
-        typedef TypeTraits<DislocationLoopLink<dim,corder,InterpolationType>> TraitsType;
+        typedef TypeTraits<DislocationLoopLink<dim,corder>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;

@@ -35,15 +35,15 @@
 
 namespace model
 {
-    template <int _dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoop : public Loop<DislocationLoop<_dim,corder,InterpolationType>>
+    template <int _dim, short unsigned int corder>
+    class DislocationLoop : public Loop<DislocationLoop<_dim,corder>>
     {
 
         
         
     public:
         
-        typedef TypeTraits<DislocationLoop<_dim,corder,InterpolationType>> TraitsType;
+        typedef TypeTraits<DislocationLoop<_dim,corder>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
@@ -107,7 +107,7 @@ namespace model
         static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);
         template <typename T> static int sgn(const T& val);
         
-        //        typedef DislocationLoop<_dim,corder,InterpolationType> LoopType;
+        //        typedef DislocationLoop<_dim,corder> LoopType;
 
 //
 //        constexpr static int dim=_dim;
@@ -131,7 +131,7 @@ namespace model
 //
 //    public:
 //
-//        typedef DislocationLoop<dim,corder,InterpolationType> DislocationLoopType;
+//        typedef DislocationLoop<dim,corder> DislocationLoopType;
 //        typedef PlanarDislocationLoop<DislocationLoopType> BaseLoopType;
 //        typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
 //        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;

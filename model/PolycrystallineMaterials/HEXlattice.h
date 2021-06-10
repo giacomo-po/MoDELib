@@ -185,6 +185,7 @@ namespace model
                     std::vector<Eigen::Matrix<double,2,1>> mirSymmPrism;
                     mirSymmPrism.push_back((Eigen::Matrix<double,2,1>()<<1.0,0.0).finished()); // symm with respect to local y-axis
                     mirSymmPrism.push_back((Eigen::Matrix<double,2,1>()<<0.0,1.0).finished()); // symm with respect to local x-axis
+                    
                     std::shared_ptr<GammaSurface> gammaSurface1(new GammaSurface(LatticePlaneBase(a1,c),waveVectorsPrism,fPrism,rotSymmPrism,mirSymmPrism));
                     temp.emplace_back(new SlipSystem(a1,c, RationalLatticeDirection<3>(Rational(1,2),a1*(+1)),prismaticMobility,gammaSurface1));
                     temp.emplace_back(new SlipSystem(a1,c, RationalLatticeDirection<3>(Rational(1,2),a1*(-1)),prismaticMobility,gammaSurface1));

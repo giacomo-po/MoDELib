@@ -14,8 +14,8 @@
 
 namespace model
 {
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoop<dim,corder,InterpolationType>::DislocationLoop(LoopNetworkType* const net,
+    template <int dim, short unsigned int corder>
+    DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
                                      const VectorDim& B,
                                      const std::shared_ptr<GlidePlaneType>& glidePlane_in) :
     /* init */ Loop<DislocationLoop>(net,glidePlane_in->grain.rationalLatticeDirection(B))
@@ -37,8 +37,8 @@ namespace model
     }
 
         /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoop<dim,corder,InterpolationType>::DislocationLoop(LoopNetworkType* const net,
+    template <int dim, short unsigned int corder>
+    DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
                           const VectorDim& B,
                           const int& grainID,
                           const int& _loopType) :
@@ -58,57 +58,57 @@ namespace model
         VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->sID<<" without plane."<<std::endl;);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoop<dim,corder,InterpolationType>::~DislocationLoop()
+    template <int dim, short unsigned int corder>
+    DislocationLoop<dim,corder>::~DislocationLoop()
     {
         VerboseDislocationLoop(1,"Destroying DislocationLoop "<<this->sID<<std::endl;);
 
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder,InterpolationType>>::LoopType> DislocationLoop<dim,corder,InterpolationType>::clone() const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder>>::LoopType> DislocationLoop<dim,corder>::clone() const
     {
-        return std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder,InterpolationType>>::LoopType>(new DislocationLoop(this->p_network(),burgers(),glidePlane));
+        return std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder>>::LoopType>(new DislocationLoop(this->p_network(),burgers(),glidePlane));
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoop<dim,corder,InterpolationType>::initFromFile(const std::string& fileName)
+    template <int dim, short unsigned int corder>
+    void DislocationLoop<dim,corder>::initFromFile(const std::string& fileName)
     {
         verboseDislocationLoop=TextFileParser(fileName).readScalar<int>("verboseDislocationLoop",true);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const double& DislocationLoop<dim,corder,InterpolationType>::slippedArea() const
+    template <int dim, short unsigned int corder>
+    const double& DislocationLoop<dim,corder>::slippedArea() const
     {
         return _slippedArea;
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const double& DislocationLoop<dim,corder,InterpolationType>::slippedAreaRate() const
+    template <int dim, short unsigned int corder>
+    const double& DislocationLoop<dim,corder>::slippedAreaRate() const
     {
         return _slippedAreaRate;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationLoop<dim,corder,InterpolationType>::VectorDim& DislocationLoop<dim,corder,InterpolationType>::rightHandedUnitNormal() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationLoop<dim,corder>::VectorDim& DislocationLoop<dim,corder>::rightHandedUnitNormal() const
     {
         return _rightHandedUnitNormal;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationLoop<dim,corder,InterpolationType>::ReciprocalLatticeDirectionType& DislocationLoop<dim,corder,InterpolationType>::rightHandedNormal() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationLoop<dim,corder>::ReciprocalLatticeDirectionType& DislocationLoop<dim,corder>::rightHandedNormal() const
     {
         return _rightHandedNormal;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationLoop<dim,corder,InterpolationType>::isVirtualBoundaryLoop() const
+    template <int dim, short unsigned int corder>
+    bool DislocationLoop<dim,corder>::isVirtualBoundaryLoop() const
     {
         return loopType==DislocationLoopIO<dim>::VIRTUALLOOP;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    double DislocationLoop<dim,corder,InterpolationType>::planarSolidAngle(const VectorDim& x,
+    template <int dim, short unsigned int corder>
+    double DislocationLoop<dim,corder>::planarSolidAngle(const VectorDim& x,
                                    const VectorDim& planePoint,
                                    const VectorDim& rhN,
                                    const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments)
@@ -151,15 +151,15 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder>
     template <typename T>
-    int DislocationLoop<dim,corder,InterpolationType>::sgn(const T& val)
+    int DislocationLoop<dim,corder>::sgn(const T& val)
     {
         return (val > T(0)) - (val < T(0));
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    double DislocationLoop<dim,corder,InterpolationType>::solidAngle(const VectorDim& x) const
+    template <int dim, short unsigned int corder>
+    double DislocationLoop<dim,corder>::solidAngle(const VectorDim& x) const
     {
         double temp(0.0);
         if(glidePlane)
@@ -214,8 +214,8 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::tuple<double,double,double> DislocationLoop<dim,corder,InterpolationType>::loopLength() const
+    template <int dim, short unsigned int corder>
+    std::tuple<double,double,double> DislocationLoop<dim,corder>::loopLength() const
     {
         double freeLength=0.0;
         double boundaryLength=0.0;
@@ -244,8 +244,8 @@ namespace model
         return std::make_tuple(freeLength,junctionLength,boundaryLength);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<SlipSystem> DislocationLoop<dim,corder,InterpolationType>::searchSlipSystem() const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<SlipSystem> DislocationLoop<dim,corder>::searchSlipSystem() const
     {
         for(const auto& ss : grain.slipSystems())
         {
@@ -257,28 +257,28 @@ namespace model
         return std::shared_ptr<SlipSystem>(nullptr);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationLoop<dim,corder,InterpolationType>::MatrixDim DislocationLoop<dim,corder,InterpolationType>::plasticDistortion() const
+    template <int dim, short unsigned int corder>
+    typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::plasticDistortion() const
     {
         return -burgers()*nA.transpose()/this->network().mesh.volume();
     }
 
     //Added by Yash
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationLoop<dim,corder,InterpolationType>::MatrixDim DislocationLoop<dim,corder,InterpolationType>::plasticDistortionRate() const
+    template <int dim, short unsigned int corder>
+    typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::plasticDistortionRate() const
     {
         return -burgers()*nAR.transpose()/this->network().mesh.volume();
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationLoop<dim,corder,InterpolationType>::VectorDim DislocationLoop<dim,corder,InterpolationType>::burgers() const
+    template <int dim, short unsigned int corder>
+    typename DislocationLoop<dim,corder>::VectorDim DislocationLoop<dim,corder>::burgers() const
     {
         return this->flow().cartesian();
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoop<dim,corder,InterpolationType>::updateSlipSystem()
+    template <int dim, short unsigned int corder>
+    void DislocationLoop<dim,corder>::updateSlipSystem()
     {
         const SlipSystem* const oldSlipSystem(_slipSystem.get());
         if(glidePlane)
@@ -320,14 +320,14 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const std::shared_ptr<SlipSystem>&  DislocationLoop<dim,corder,InterpolationType>::slipSystem() const
+    template <int dim, short unsigned int corder>
+    const std::shared_ptr<SlipSystem>&  DislocationLoop<dim,corder>::slipSystem() const
     {
         return _slipSystem;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoop<dim,corder,InterpolationType>::updateGeometry()
+    template <int dim, short unsigned int corder>
+    void DislocationLoop<dim,corder>::updateGeometry()
     {
         VerboseDislocationLoop(2,"DislocationLoop "<<this->sID<<" updateGeometry"<<std::endl;);
         nA.setZero();
@@ -383,8 +383,8 @@ namespace model
         updateSlipSystem();
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationLoop<dim,corder,InterpolationType>::verboseDislocationLoop=0;
+    template <int dim, short unsigned int corder>
+    int DislocationLoop<dim,corder>::verboseDislocationLoop=0;
     
 }
 #endif

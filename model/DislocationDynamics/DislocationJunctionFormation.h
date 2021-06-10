@@ -924,7 +924,7 @@ namespace model
             model::cout<<" ("<<nContracted<<" contracted)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
 
-            std::cout << "Updating Boundary Nodes after junction contraction" << std::endl;
+//            std::cout << "Updating Boundary Nodes after junction contraction" << std::endl;
             if (DN.danglingBoundaryLoopNodes.size())
             {
                 DN.updateBoundaryNodes();

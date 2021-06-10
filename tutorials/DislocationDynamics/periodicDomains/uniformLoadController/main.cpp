@@ -24,7 +24,7 @@ int main (int argc, char* argv[])
 {
     // Create the DislocationNetwork object
 //    DislocationNetwork<3,0,Hermite> DN(argc,argv);
-    DefectiveCrystal<3,0,Hermite> DC(argc,argv);
+    DefectiveCrystal<3,0> DC(argc,argv);
     
     // Run time steps
     DC.runGlideSteps();

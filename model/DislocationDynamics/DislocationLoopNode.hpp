@@ -20,10 +20,10 @@
 namespace model
 {
     
-//    template <int dim, short unsigned int corder, typename InterpolationType>
-//    DislocationLoopNode<dim,corder,InterpolationType>::DislocationLoopNode(typename DislocationLoopNode<dim,corder,InterpolationType>::LoopNetworkType* const net,
-//                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::LoopType>& loop,
-//                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::NetworkNodeType>& networkNode,
+//    template <int dim, short unsigned int corder>
+//    DislocationLoopNode<dim,corder>::DislocationLoopNode(typename DislocationLoopNode<dim,corder>::LoopNetworkType* const net,
+//                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& loop,
+//                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& networkNode,
 //                                                                           const size_t& edgeID) :
 //    /* init */ LoopNode<DislocationLoopNode>(net,loop,networkNode)
 //    /* init */,_periodicPlanePatch(loop->periodicGlidePlane? loop->periodicGlidePlane->getPatch(this->get_P()) : nullptr)
@@ -32,10 +32,10 @@ namespace model
 //
 //    }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoopNode<dim,corder,InterpolationType>::DislocationLoopNode(typename DislocationLoopNode<dim,corder,InterpolationType>::LoopNetworkType* const net,
-                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::LoopType>& loop,
-                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::NetworkNodeType>& networkNode,
+    template <int dim, short unsigned int corder>
+    DislocationLoopNode<dim,corder>::DislocationLoopNode(typename DislocationLoopNode<dim,corder>::LoopNetworkType* const net,
+                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& loop,
+                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& networkNode,
                                                                            const VectorDim& P,
                                                                            const std::shared_ptr<PeriodicPlanePatch<dim>>& patch_in,
                                                                            const std::shared_ptr<PeriodicPlaneEdge<dim>>& edge_in) :
@@ -48,10 +48,10 @@ namespace model
         
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoopNode<dim,corder,InterpolationType>::DislocationLoopNode(typename DislocationLoopNode<dim,corder,InterpolationType>::LoopNetworkType* const net,
-                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::LoopType>& loop,
-                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::NetworkNodeType>& networkNode,
+    template <int dim, short unsigned int corder>
+    DislocationLoopNode<dim,corder>::DislocationLoopNode(typename DislocationLoopNode<dim,corder>::LoopNetworkType* const net,
+                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& loop,
+                                                                           const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& networkNode,
                                                                            const LoopLinkType* const loopLink) :
     /* init */ LoopNode<DislocationLoopNode>(net,loop,networkNode)
     /* init */,SplineNodeType(loopLink->periodicPlanePatch()? networkNode->get_P()-loopLink->periodicPlanePatch()->shift : networkNode->get_P())
@@ -62,28 +62,28 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationLoopNode<dim,corder,InterpolationType>::isContractableTo(const LoopNodeType* const other) const
+    template <int dim, short unsigned int corder>
+    bool DislocationLoopNode<dim,corder>::isContractableTo(const LoopNodeType* const other) const
     {
         return LoopNode<LoopNodeType>::isContractableTo(other) && _periodicPlanePatch==other->periodicPlanePatch();
     }
 
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<DislocationLoopNode<dim,corder,InterpolationType>> DislocationLoopNode<dim,corder,InterpolationType>::clone(const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::LoopType>& otherLoop,
-                                                                                                                                const std::shared_ptr<typename DislocationLoopNode<dim,corder,InterpolationType>::NetworkNodeType>& otherNetworkNode) const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<DislocationLoopNode<dim,corder>> DislocationLoopNode<dim,corder>::clone(const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& otherLoop,
+                                                                                                                                const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& otherNetworkNode) const
     {
-        return std::shared_ptr<DislocationLoopNode<dim,corder,InterpolationType>>(new DislocationLoopNode(this->p_network(),otherLoop,otherNetworkNode,this->get_P(),_periodicPlanePatch,periodicPlaneEdge));
+        return std::shared_ptr<DislocationLoopNode<dim,corder>>(new DislocationLoopNode(this->p_network(),otherLoop,otherNetworkNode,this->get_P(),_periodicPlanePatch,periodicPlaneEdge));
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::initFromFile(const std::string& fileName)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::initFromFile(const std::string& fileName)
     {
         verboseDislocationLoopNode=TextFileParser(fileName).readScalar<int>("verboseDislocationLoopNode",true);
     }
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // const DislocationLoopNode<dim, corder, InterpolationType> *DislocationLoopNode<dim, corder, InterpolationType>::periodicPrev() const
+    // template <int dim, short unsigned int corder>
+    // const DislocationLoopNode<dim, corder> *DislocationLoopNode<dim, corder>::periodicPrev() const
     // {
     //     auto currentPrev(this->prev.first);
     //     while (currentPrev->periodicPlaneEdge)
@@ -93,8 +93,8 @@ namespace model
     //     return currentPrev;
     // }
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // const DislocationLoopNode<dim, corder, InterpolationType> *DislocationLoopNode<dim, corder, InterpolationType>::periodicNext() const
+    // template <int dim, short unsigned int corder>
+    // const DislocationLoopNode<dim, corder> *DislocationLoopNode<dim, corder>::periodicNext() const
     // {
     //     auto currentNext(this->next.first);
     //     while (currentNext->periodicPlaneEdge)
@@ -104,8 +104,8 @@ namespace model
     //     return currentNext;
     // }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const DislocationLoopNode<dim,corder,InterpolationType>* DislocationLoopNode<dim,corder,InterpolationType>::periodicPrev() const
+    template <int dim, short unsigned int corder>
+    const DislocationLoopNode<dim,corder>* DislocationLoopNode<dim,corder>::periodicPrev() const
     {
         if (this->prev.first)
         {
@@ -124,8 +124,8 @@ namespace model
 
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const DislocationLoopNode<dim,corder,InterpolationType>* DislocationLoopNode<dim,corder,InterpolationType>::periodicNext() const
+    template <int dim, short unsigned int corder>
+    const DislocationLoopNode<dim,corder>* DislocationLoopNode<dim,corder>::periodicNext() const
     {
         auto currentNext(this->next.first);
         if (currentNext)
@@ -145,11 +145,11 @@ namespace model
 
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::vector<DislocationLoopNode<dim,corder,InterpolationType>*> DislocationLoopNode<dim,corder,InterpolationType>::boundaryPrev() const
+    template <int dim, short unsigned int corder>
+    std::vector<DislocationLoopNode<dim,corder>*> DislocationLoopNode<dim,corder>::boundaryPrev() const
     {
         assert(!this->periodicPlaneEdge);
-        std::vector<DislocationLoopNode<dim,corder,InterpolationType>*> temp;
+        std::vector<DislocationLoopNode<dim,corder>*> temp;
         if (this->prev.first)
         {
             auto currentPrev(this->prev.first);
@@ -162,11 +162,11 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::vector<DislocationLoopNode<dim,corder,InterpolationType>*> DislocationLoopNode<dim,corder,InterpolationType>::boundaryNext() const
+    template <int dim, short unsigned int corder>
+    std::vector<DislocationLoopNode<dim,corder>*> DislocationLoopNode<dim,corder>::boundaryNext() const
     {
                 assert(!this->periodicPlaneEdge);
-        std::vector<DislocationLoopNode<dim,corder,InterpolationType>*> temp;
+        std::vector<DislocationLoopNode<dim,corder>*> temp;
         if (this->next.first)
         {
             auto currentNext(this->next.first);
@@ -181,8 +181,8 @@ namespace model
     }
 
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::addLoopLink(LoopLinkType* const pL)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::addLoopLink(LoopLinkType* const pL)
     {/*@param[in] pL LoopLink pointer
       *
       * This functin overrides LoopNode::addLoopLink
@@ -204,8 +204,8 @@ namespace model
     
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::removeLoopLink(LoopLinkType* const pL)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::removeLoopLink(LoopLinkType* const pL)
     {/*@param[in] pL LoopLink pointer
       * This functin overrides LoopNode::removeLoopLink
       */
@@ -293,8 +293,8 @@ namespace model
 //        VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" finished removeLoopLink "<<pL->tag()<<std::endl;);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::set_P(const typename DislocationLoopNode<dim,corder,InterpolationType>::VectorLowerDim& newP)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::set_P(const typename DislocationLoopNode<dim,corder>::VectorLowerDim& newP)
     {
         VerboseDislocationLoopNode(2,"DislocationLoopNode "<<this->tag()<<" set_P (lowerDim)"<<std::endl;);
         assert(periodicPlaneEdge);
@@ -305,8 +305,8 @@ namespace model
 
 //Yash's Version temporary
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationLoopNode<dim,corder,InterpolationType>::set_P(const typename DislocationLoopNode<dim,corder,InterpolationType>::VectorLowerDim& newP)
+    // template <int dim, short unsigned int corder>
+    // void DislocationLoopNode<dim,corder>::set_P(const typename DislocationLoopNode<dim,corder>::VectorLowerDim& newP)
     // {
     //     VerboseDislocationLoopNode(2,"DislocationLoopNode "<<this->tag()<<" set_P (lowerDim)"<<std::endl;);
     //     assert(periodicPlaneEdge);
@@ -319,8 +319,8 @@ namespace model
     // }
 
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::set_P(const typename DislocationLoopNode<dim,corder,InterpolationType>::VectorDim& newP)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::set_P(const typename DislocationLoopNode<dim,corder>::VectorDim& newP)
     {
         VerboseDislocationLoopNode(2,"DislocationLoopNode "<<this->tag()<<" set_P "<<std::endl;);
 
@@ -508,14 +508,14 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<PeriodicPlanePatch<dim>> DislocationLoopNode<dim,corder,InterpolationType>::periodicPlanePatch() const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<PeriodicPlanePatch<dim>> DislocationLoopNode<dim,corder>::periodicPlanePatch() const
     {
         return _periodicPlanePatch;
     }
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationLoopNode<dim,corder,InterpolationType>::updateConfinedGeometry()
+    // template <int dim, short unsigned int corder>
+    // void DislocationLoopNode<dim,corder>::updateConfinedGeometry()
     // {
     //     //This will update the confinement of the loop nodes
     //     // for (const auto &loopNode : this->networkNode->loopNodes())
@@ -531,14 +531,14 @@ namespace model
     //     }
     // }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopNode<dim,corder,InterpolationType>::updateGeometry()
+    template <int dim, short unsigned int corder>
+    void DislocationLoopNode<dim,corder>::updateGeometry()
     {
 
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationLoopNode<dim,corder,InterpolationType>::isGeometricallyRemovable(const double &Lmin,const double& relAreaTh)
+    template <int dim, short unsigned int corder>
+    bool DislocationLoopNode<dim,corder>::isGeometricallyRemovable(const double &Lmin,const double& relAreaTh)
     {
         const auto pPrev(periodicPrev());
         const auto pNext(periodicNext());
@@ -583,8 +583,8 @@ namespace model
     
 //Updated Version for allowing for the removal of twinned loopNode only (This version has worked very well (Reached 1% strain with both FR source and circular loops))
 //Boundary node accumulation for annihilation at the boundary    
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // std::pair<bool,size_t> DislocationLoopNode<dim, corder, InterpolationType>::isRemovable(const double &Lmin, const double &relAreaTh)
+    // template <int dim, short unsigned int corder>
+    // std::pair<bool,size_t> DislocationLoopNode<dim, corder>::isRemovable(const double &Lmin, const double &relAreaTh)
     // {
     //     //The pair will be populated as follows:
     //     //If the node is removable and it does not have a twin the pair will contain the same node
@@ -740,8 +740,8 @@ namespace model
     // }
 
     //Version which can classiy the boundary nodes as well...
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::pair<bool,size_t> DislocationLoopNode<dim, corder, InterpolationType>::isRemovable(const double &Lmin, const double &relAreaTh)
+    template <int dim, short unsigned int corder>
+    std::pair<bool,size_t> DislocationLoopNode<dim, corder>::isRemovable(const double &Lmin, const double &relAreaTh)
     {
         //The pair will be populated as follows:
         //If the node is removable and it does not have a twin the pair will contain the same node
@@ -920,8 +920,8 @@ namespace model
         }
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationLoopNode<dim,corder,InterpolationType>::isMovableTo(const VectorDim& X) const
+    template <int dim, short unsigned int corder>
+    bool DislocationLoopNode<dim,corder>::isMovableTo(const VectorDim& X) const
     {
         VerboseDislocationLoopNode(4,"checking if DislocationLoopNode "<<this->sID<< " isMovable:"<<std::endl;);
 
@@ -997,7 +997,7 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationLoopNode<dim,corder,InterpolationType>::verboseDislocationLoopNode=0;
+    template <int dim, short unsigned int corder>
+    int DislocationLoopNode<dim,corder>::verboseDislocationLoopNode=0;
 }
 #endif

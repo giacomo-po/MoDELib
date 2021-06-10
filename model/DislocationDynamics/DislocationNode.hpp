@@ -20,8 +20,8 @@
 namespace model
 {
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationNode<dim,corder,InterpolationType>::DislocationNode(LoopNetworkType* const net,
+    template <int dim, short unsigned int corder>
+    DislocationNode<dim,corder>::DislocationNode(LoopNetworkType* const net,
                                                                    const VectorDim& P,
                                                                    const VectorDim& V,
                                                                    const double& vrc) :
@@ -38,21 +38,21 @@ namespace model
         VerboseDislocationNode(1, "  Creating Network Node " << this->tag() <<" @ "<<this->get_P().transpose() << std::endl;);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationNode<dim,corder,InterpolationType>::~DislocationNode()
+    template <int dim, short unsigned int corder>
+    DislocationNode<dim,corder>::~DislocationNode()
     {
         VerboseDislocationNode(1, "  Destroying Network Node " << this->tag() << std::endl;);
 
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<DislocationNode<dim,corder,InterpolationType>> DislocationNode<dim,corder,InterpolationType>::clone() const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<DislocationNode<dim,corder>> DislocationNode<dim,corder>::clone() const
     {
-        return std::shared_ptr<DislocationNode<dim,corder,InterpolationType>>(new DislocationNode(this->p_network(),this->get_P(),get_V(),velocityReduction()));
+        return std::shared_ptr<DislocationNode<dim,corder>>(new DislocationNode(this->p_network(),this->get_P(),get_V(),velocityReduction()));
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const Simplex<dim,dim>* DislocationNode<dim,corder,InterpolationType>::get_includingSimplex(const VectorDim& X,const Simplex<dim,dim>* const guess) const
+    template <int dim, short unsigned int corder>
+    const Simplex<dim,dim>* DislocationNode<dim,corder>::get_includingSimplex(const VectorDim& X,const Simplex<dim,dim>* const guess) const
     {
         std::pair<bool,const Simplex<dim,dim>*> temp(false,NULL);
         if (guess==NULL)
@@ -97,8 +97,8 @@ namespace model
         return temp.second;
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::addLoopNode(LoopNodeType* const pN)
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::addLoopNode(LoopNodeType* const pN)
     {
         NetworkNode<DislocationNode>::addLoopNode(pN);
 
@@ -113,8 +113,8 @@ namespace model
 
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::removeLoopNode(LoopNodeType* const pN)
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::removeLoopNode(LoopNodeType* const pN)
     {
         NetworkNode<DislocationNode>::removeLoopNode(pN);
         this->glidePlanes().clear();
@@ -131,8 +131,8 @@ namespace model
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::projectVelocity()
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::projectVelocity()
     {
         
         VectorOfNormalsType temp;
@@ -198,8 +198,8 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::set_V(const VectorDim& vNew)
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::set_V(const VectorDim& vNew)
     {
         vOld=velocity; // store current value of velocity before updating
         
@@ -247,8 +247,8 @@ namespace model
     
 
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::initFromFile(const std::string& fileName)
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::initFromFile(const std::string& fileName)
     {
         use_velocityFilter=TextFileParser(fileName).readScalar<double>("use_velocityFilter",true);
         velocityReductionFactor=TextFileParser(fileName).readScalar<double>("velocityReductionFactor",true);
@@ -256,8 +256,8 @@ namespace model
         verboseDislocationNode=TextFileParser(fileName).readScalar<int>("verboseDislocationNode",true);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNode<dim,corder,InterpolationType>::updateGeometry()
+    template <int dim, short unsigned int corder>
+    void DislocationNode<dim,corder>::updateGeometry()
     {
         for(const auto& neighboor : this->neighbors())
         {
@@ -265,8 +265,8 @@ namespace model
         }
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::trySet_P(const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& newP)
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::trySet_P(const typename DislocationNode<dim,corder>::VectorDim& newP)
     {
         VerboseDislocationNode(1, " Try  Setting P for Network Node " << this->tag() << std::endl;);
         const VectorDim snappedPosition(this->snapToGlidePlanesinPeriodic(newP));
@@ -281,9 +281,9 @@ namespace model
         return true;
     }
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::set_P(const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& newP)
+    // template <int dim, short unsigned int corder>
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::set_P(const typename DislocationNode<dim,corder>::VectorDim& newP)
     {
         // std::cout<<" Current position "<<this->get_P().transpose()<<std::endl;
         // std::cout<<" New position "<<newP.transpose()<<std::endl;
@@ -302,16 +302,16 @@ namespace model
 
 
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& DislocationNode<dim,corder,InterpolationType>::get_V() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationNode<dim,corder>::VectorDim& DislocationNode<dim,corder>::get_V() const
     {/*! The nodal velocity vector
       */
         return velocity;
     }
 
     // /**********************************************************************/
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // bool DislocationNode<dim,corder,InterpolationType>::isZeroBurgersNode() const
+    // template <int dim, short unsigned int corder>
+    // bool DislocationNode<dim,corder>::isZeroBurgersNode() const
     // {
     //     VerboseDislocationNode(4,"DislocationNode "<<this->tag()<<" isZeroBurgersNode "<<std::flush;);
     //     bool temp = true;
@@ -329,8 +329,8 @@ namespace model
     //     return temp;
     // }
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // const typename DislocationNode<dim,corder,InterpolationType>::VectorDim& DislocationNode<dim,corder,InterpolationType>::get_P() const
+    // template <int dim, short unsigned int corder>
+    // const typename DislocationNode<dim,corder>::VectorDim& DislocationNode<dim,corder>::get_P() const
     // {/*! The nodal velocity vector
     //   */
     //     VerboseDislocationNode(2, "  Getting P for Network Node " << this->tag() << std::endl;);
@@ -355,14 +355,14 @@ namespace model
     //     return (SplineNodeType::get_P());
     // }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const double& DislocationNode<dim,corder,InterpolationType>::velocityReduction() const
+    template <int dim, short unsigned int corder>
+    const double& DislocationNode<dim,corder>::velocityReduction() const
     {
         return velocityReductionCoeff;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNode<dim,corder,InterpolationType>::MeshLocation DislocationNode<dim,corder,InterpolationType>::meshLocation() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNode<dim,corder>::MeshLocation DislocationNode<dim,corder>::meshLocation() const
     {/*!\returns the position of *this relative to the bonudary:
       * 1 = inside mesh
       * 2 = on mesh boundary
@@ -390,14 +390,14 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const std::shared_ptr<typename DislocationNode<dim,corder,InterpolationType>::NetworkNodeType>& DislocationNode<dim,corder,InterpolationType>::virtualBoundaryNode() const
+    template <int dim, short unsigned int corder>
+    const std::shared_ptr<typename DislocationNode<dim,corder>::NetworkNodeType>& DislocationNode<dim,corder>::virtualBoundaryNode() const
     {
         return virtualNode;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNode<dim,corder,InterpolationType>::VectorDim DislocationNode<dim,corder,InterpolationType>::invariantDirectionOfMotion() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNode<dim,corder>::VectorDim DislocationNode<dim,corder>::invariantDirectionOfMotion() const
     {/*!\returns the direction of alignment if all links connected to this node are geometrically aligned.
       * Otherwise it returns the zero vector.
       */
@@ -412,8 +412,8 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::isMovableTo(const VectorDim& X) const
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::isMovableTo(const VectorDim& X) const
     {
         for(const auto& loopNode : this->loopNodes())
         {
@@ -476,28 +476,28 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const Simplex<dim,dim>* DislocationNode<dim,corder,InterpolationType>::includingSimplex() const
+    template <int dim, short unsigned int corder>
+    const Simplex<dim,dim>* DislocationNode<dim,corder>::includingSimplex() const
     {/*!\returns A pointer to the const Simplex imcluding *this PlanarDislocationNode
       */
         return p_Simplex;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::isVirtualBoundaryNode() const
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::isVirtualBoundaryNode() const
     {
         return masterNode && this->meshFaces().size()==0;
 //        return false;
     }
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // bool DislocationNode<dim,corder,InterpolationType>::isBoundaryNode() const
+    // template <int dim, short unsigned int corder>
+    // bool DislocationNode<dim,corder>::isBoundaryNode() const
     // {
     //     return this->isOnExternalBoundary();
     // }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::isBoundaryNode() const
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::isBoundaryNode() const
     {
         if (this->network().simulationParameters.isPeriodicSimulation())
         {
@@ -527,15 +527,15 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::isGrainBoundaryNode() const
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::isGrainBoundaryNode() const
     {
         return this->isOnInternalBoundary();
     }
-// template <int dim, short unsigned int corder, typename InterpolationType>
-//     size_t DislocationNode<dim,corder,InterpolationType>::uniqueLoopNodes() const
+// template <int dim, short unsigned int corder>
+//     size_t DislocationNode<dim,corder>::uniqueLoopNodes() const
 //     {
-//         std::map<const DislocationNode<dim,corder,InterpolationType>::LoopType*, const DislocationNode<dim,corder,InterpolationType>::LoopNodeType *> tempMap;
+//         std::map<const DislocationNode<dim,corder>::LoopType*, const DislocationNode<dim,corder>::LoopNodeType *> tempMap;
 
 //         for (const auto& loopNode : this->loopNodes())
 //         {
@@ -547,8 +547,8 @@ namespace model
 //     }
 
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // bool DislocationNode<dim,corder,InterpolationType>::isRemovable(const double& Lmin,const double& relAreaThIn)
+    // template <int dim, short unsigned int corder>
+    // bool DislocationNode<dim,corder>::isRemovable(const double& Lmin,const double& relAreaThIn)
     // {
     //     const double relAreaTh(this->loopNodes().size()>1? FLT_EPSILON : relAreaThIn);
     //     VerboseDislocationNode(2,"  Trying to remove DislocationNode "<<this->tag()<< ", relAreaThIn= "<<relAreaThIn<<std::endl;);
@@ -567,14 +567,14 @@ namespace model
 
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationNode<dim,corder,InterpolationType>::verboseDislocationNode=0;
+    template <int dim, short unsigned int corder>
+    int DislocationNode<dim,corder>::verboseDislocationNode=0;
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNode<dim,corder,InterpolationType>::use_velocityFilter=true;
+    template <int dim, short unsigned int corder>
+    bool DislocationNode<dim,corder>::use_velocityFilter=true;
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    double DislocationNode<dim,corder,InterpolationType>::velocityReductionFactor=0.75;
+    template <int dim, short unsigned int corder>
+    double DislocationNode<dim,corder>::velocityReductionFactor=0.75;
     
 }
 #endif

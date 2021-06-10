@@ -15,8 +15,8 @@
 namespace model
 {
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationLoopLink<dim,corder,InterpolationType>::DislocationLoopLink(const std::shared_ptr<LoopNodeType>& so,
+    template <int dim, short unsigned int corder>
+    DislocationLoopLink<dim,corder>::DislocationLoopLink(const std::shared_ptr<LoopNodeType>& so,
                                              const std::shared_ptr<LoopNodeType>& si,
                                              const std::shared_ptr<LoopType>& pL) :
     /* init */ LoopLink<LoopLinkType>(so,si,pL)
@@ -25,8 +25,8 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationLoopLink<dim,corder,InterpolationType>::hasNetworkLink() const
+    template <int dim, short unsigned int corder>
+    bool DislocationLoopLink<dim,corder>::hasNetworkLink() const
     {
         // return !((this->source->get_P()-this->sink->get_P()).squaredNorm()<FLT_EPSILON 
         // /*    */ && this->source->periodicPlaneEdge
@@ -65,8 +65,8 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::shared_ptr<PeriodicPlanePatch<dim>> DislocationLoopLink<dim,corder,InterpolationType>::periodicPlanePatch() const
+    template <int dim, short unsigned int corder>
+    std::shared_ptr<PeriodicPlanePatch<dim>> DislocationLoopLink<dim,corder>::periodicPlanePatch() const
     {
         
         return (this->source->periodicPlanePatch()==this->sink->periodicPlanePatch())? this->source->periodicPlanePatch() : std::shared_ptr<PeriodicPlanePatch<dim>>(nullptr);
@@ -74,14 +74,14 @@ namespace model
     }
 
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationLoopLink<dim,corder,InterpolationType>::initFromFile(const std::string& fileName)
+    template <int dim, short unsigned int corder>
+    void DislocationLoopLink<dim,corder>::initFromFile(const std::string& fileName)
     {
         verboseDislocationLoopLink=TextFileParser(fileName).readScalar<int>("verboseDislocationLoopLink",true);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationLoopLink<dim,corder,InterpolationType>::LoopLinkType * DislocationLoopLink<dim,corder,InterpolationType>::twinnedLink() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationLoopLink<dim,corder>::LoopLinkType * DislocationLoopLink<dim,corder>::twinnedLink() const
     {
         if (hasNetworkLink())
         {
@@ -110,8 +110,8 @@ namespace model
         
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationLoopLink<dim,corder,InterpolationType>::verboseDislocationLoopLink=0;
+    template <int dim, short unsigned int corder>
+    int DislocationLoopLink<dim,corder>::verboseDislocationLoopLink=0;
 
     
     

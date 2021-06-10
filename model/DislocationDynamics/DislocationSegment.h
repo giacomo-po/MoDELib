@@ -29,8 +29,8 @@
 
 namespace model
 {
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationSegment : public NetworkLink<DislocationSegment<dim,corder,InterpolationType>>
+    template <int dim, short unsigned int corder>
+    class DislocationSegment : public NetworkLink<DislocationSegment<dim,corder>>
     /*                      */,public SplineSegment<dim,corder>
     /*                      */,public ConfinedDislocationObject<dim>
     /*                      */,public DislocationQuadraturePointContainer<dim,corder>
@@ -38,7 +38,7 @@ namespace model
         
     public:
         
-        typedef TypeTraits<DislocationSegment<dim,corder,InterpolationType>> TraitsType;
+        typedef TypeTraits<DislocationSegment<dim,corder>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
@@ -104,8 +104,8 @@ namespace model
 
     };
 //    {
-//        typedef typename TypeTraits<DislocationSegment<dim,corder,InterpolationType>>::NodeType NodeType;
-//        typedef PlanarDislocationSegment<DislocationSegment<dim,corder,InterpolationType>> PlanarDislocationSegmentType;
+//        typedef typename TypeTraits<DislocationSegment<dim,corder>>::NodeType NodeType;
+//        typedef PlanarDislocationSegment<DislocationSegment<dim,corder>> PlanarDislocationSegmentType;
 //        static constexpr int Ncoeff=PlanarDislocationSegmentType::Ncoeff;
 //        static constexpr int pOrder=PlanarDislocationSegmentType::pOrder;
 //        typedef typename PlanarDislocationSegmentType::VectorDim VectorDim;

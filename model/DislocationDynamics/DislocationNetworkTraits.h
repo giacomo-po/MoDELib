@@ -27,38 +27,38 @@ namespace model
     
 	/************************************************************/	
 	/*	Class Predeclarations ***********************************/
-	template <int dim, short unsigned int corder, typename InterpolationType>
+	template <int dim, short unsigned int corder>
 	class DislocationNetwork;
 		
-    template <int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder>
     class DislocationLoop;
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder>
     class DislocationLoopNode;
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
+    template <int dim, short unsigned int corder>
     class DislocationLoopLink;
 
-	template <int dim, short unsigned int corder, typename InterpolationType>
+	template <int dim, short unsigned int corder>
 	class DislocationNode;
 		
-	template <int dim, short unsigned int corder, typename InterpolationType>
+	template <int dim, short unsigned int corder>
 	struct DislocationSegment;
     
 	
 	/********************************************************************/	
 	/*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
-	template <int _dim, short unsigned int _corder, typename InterpolationType>
+	template <int _dim, short unsigned int _corder>
 	struct DislocationNetworkTraitsBase
     {
         static constexpr int dim=_dim;
         static constexpr int corder=_corder;
-        typedef DislocationNetwork   <dim,corder,InterpolationType>	LoopNetworkType;
-        typedef DislocationLoop      <dim,corder,InterpolationType> LoopType;
-        typedef DislocationLoopNode  <dim,corder,InterpolationType>	LoopNodeType;
-        typedef DislocationLoopLink  <dim,corder,InterpolationType> LoopLinkType;
-        typedef DislocationNode      <dim,corder,InterpolationType> NetworkNodeType;
-        typedef DislocationSegment   <dim,corder,InterpolationType>	NetworkLinkType;
+        typedef DislocationNetwork   <dim,corder>	LoopNetworkType;
+        typedef DislocationLoop      <dim,corder> LoopType;
+        typedef DislocationLoopNode  <dim,corder>	LoopNodeType;
+        typedef DislocationLoopLink  <dim,corder> LoopLinkType;
+        typedef DislocationNode      <dim,corder> NetworkNodeType;
+        typedef DislocationSegment   <dim,corder>	NetworkLinkType;
         
         
         typedef LatticeVector<dim> LatticeVectorType;
@@ -84,29 +84,29 @@ namespace model
     
     };
 
-	template <int dim, short unsigned int corder, typename InterpolationType>
-	struct TypeTraits<DislocationNetwork<dim,corder,InterpolationType> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+	template <int dim, short unsigned int corder>
+	struct TypeTraits<DislocationNetwork<dim,corder> > :
+	public DislocationNetworkTraitsBase <dim,corder>{};
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    struct TypeTraits<DislocationLoop<dim,corder,InterpolationType> > :
-    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    template <int dim, short unsigned int corder>
+    struct TypeTraits<DislocationLoop<dim,corder> > :
+    public DislocationNetworkTraitsBase <dim,corder>{};
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    struct TypeTraits<DislocationLoopNode<dim,corder,InterpolationType> > :
-    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    template <int dim, short unsigned int corder>
+    struct TypeTraits<DislocationLoopNode<dim,corder> > :
+    public DislocationNetworkTraitsBase <dim,corder>{};
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    struct TypeTraits<DislocationLoopLink<dim,corder,InterpolationType> > :
-    public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    template <int dim, short unsigned int corder>
+    struct TypeTraits<DislocationLoopLink<dim,corder> > :
+    public DislocationNetworkTraitsBase <dim,corder>{};
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-	struct TypeTraits<DislocationNode<dim,corder,InterpolationType> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    template <int dim, short unsigned int corder>
+	struct TypeTraits<DislocationNode<dim,corder> > :
+	public DislocationNetworkTraitsBase <dim,corder>{};
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-	struct TypeTraits<DislocationSegment<dim,corder,InterpolationType> > :
-	public DislocationNetworkTraitsBase <dim,corder,InterpolationType>{};
+    template <int dim, short unsigned int corder>
+	struct TypeTraits<DislocationSegment<dim,corder> > :
+	public DislocationNetworkTraitsBase <dim,corder>{};
     
     
 //    template<>

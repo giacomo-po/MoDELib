@@ -28,14 +28,14 @@
 namespace model
 {
     
-    template <int _dim, short unsigned int corder, typename InterpolationType>
+    template <int _dim, short unsigned int corder>
     class DefectiveCrystal
     {
         
     public:
         static constexpr int dim=_dim; // make dim available outside class
-        typedef DefectiveCrystal<dim,corder,InterpolationType> DefectiveCrystalType;
-        typedef DislocationNetwork<dim,corder,InterpolationType> DislocationNetworkType;
+        typedef DefectiveCrystal<dim,corder> DefectiveCrystalType;
+        typedef DislocationNetwork<dim,corder> DislocationNetworkType;
         typedef CrackSystem<dim> CrackSystemType;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;

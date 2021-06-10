@@ -28,9 +28,9 @@
 namespace model
 {
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationLoopNode : public LoopNode<DislocationLoopNode<dim,corder,InterpolationType>>
-    /*                       */,public SplineNode<DislocationLoopNode<dim,corder,InterpolationType>,dim,corder,InterpolationType>
+    template <int dim, short unsigned int corder>
+    class DislocationLoopNode : public LoopNode<DislocationLoopNode<dim,corder>>
+    /*                       */,public SplineNode<DislocationLoopNode<dim,corder>,dim,corder,Hermite>
     {
         
         
@@ -38,7 +38,7 @@ namespace model
         
         public:
         
-        typedef DislocationLoopNode<dim,corder,InterpolationType> DislocationLoopNodeType;
+        typedef DislocationLoopNode<dim,corder> DislocationLoopNodeType;
         typedef TypeTraits<DislocationLoopNodeType> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
@@ -49,7 +49,7 @@ namespace model
         typedef typename TraitsType::FlowType FlowType;
         typedef typename TraitsType::VectorDim VectorDim;
         typedef typename TraitsType::VectorLowerDim VectorLowerDim;
-        typedef SplineNode<DislocationLoopNode<dim,corder,InterpolationType>,dim,corder,InterpolationType> SplineNodeType;
+        typedef SplineNode<DislocationLoopNode<dim,corder>,dim,corder,Hermite> SplineNodeType;
 
         
         static int verboseDislocationLoopNode;

@@ -17,8 +17,8 @@ namespace model
 {
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationNetwork<dim,corder,InterpolationType>::DislocationNetwork(int& argc, char* argv[],
+    template <int dim, short unsigned int corder>
+    DislocationNetwork<dim,corder>::DislocationNetwork(int& argc, char* argv[],
                                                                          const DefectiveCrystalParameters& _simulationParameters,
                                                                          const SimplicialMesh<dim>& _mesh,
                                                                          const Polycrystal<dim>& _poly,
@@ -118,8 +118,8 @@ namespace model
     
     /**********************************************************************/
     //Giacomo Version
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationNetwork<dim,corder,InterpolationType>::setConfiguration(const DDconfigIO<dim>& evl)
+    // template <int dim, short unsigned int corder>
+    // void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl)
     // {
     //     this->loopLinks().clear(); // erase base network to clear current config
     
@@ -212,8 +212,8 @@ namespace model
     // }
     
     //New Version
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::setConfiguration(const DDconfigIO<dim>& evl)
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl)
     {
         this->loopLinks().clear(); // erase base network to clear current config
         
@@ -338,22 +338,22 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationNetwork<dim,corder,InterpolationType>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder,InterpolationType>::eshelbyInclusions() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationNetwork<dim,corder>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder>::eshelbyInclusions() const
     {
         return *this;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder,InterpolationType>::eshelbyInclusions()
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::EshelbyInclusionContainerType& DislocationNetwork<dim,corder>::eshelbyInclusions()
     {
         return *this;
     }
     
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::createEshelbyInclusions()
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::createEshelbyInclusions()
     {
         for(const auto& grain : poly.grains())
         {
@@ -394,8 +394,8 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::updateGeometry()
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::updateGeometry()
     {
         VerboseDislocationNetwork(2,"DislocationNetwork::updateGeometry"<<std::endl;);
         for(auto& loop : this->loops())
@@ -406,8 +406,8 @@ namespace model
         VerboseDislocationNetwork(3,"DislocationNetwork::updateGeometry DONE"<<std::endl;);
     }
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationNetwork<dim,corder,InterpolationType>::updatePlasticDistortionRateFromAreas()
+    // template <int dim, short unsigned int corder>
+    // void DislocationNetwork<dim,corder>::updatePlasticDistortionRateFromAreas()
     // {
     //     VerboseDislocationNetwork(2,"DislocationNetwork::updatePlasticDistortionRateFromAreas"<<std::endl;);
     //     const double dt(simulationParameters.totalTime-oldPlasticDistortionFromAreas.first);
@@ -423,20 +423,20 @@ namespace model
     //     VerboseDislocationNetwork(3,"DislocationNetwork::updatePlasticDistortionRateFromAreas DONE"<<std::endl;);
     // }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::DislocationNetworkIOType DislocationNetwork<dim,corder,InterpolationType>::io()
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::DislocationNetworkIOType DislocationNetwork<dim,corder>::io()
     {
         return DislocationNetworkIOType(*this,folderSuffix);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::DislocationNetworkIOType DislocationNetwork<dim,corder,InterpolationType>::io() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::DislocationNetworkIOType DislocationNetwork<dim,corder>::io() const
     {
         return DislocationNetworkIOType(*this,folderSuffix);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim DislocationNetwork<dim,corder,InterpolationType>::plasticDistortion() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticDistortion() const
     {
         MatrixDim temp(MatrixDim::Zero());
         for(const auto& loop : this->loops())
@@ -446,8 +446,8 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim DislocationNetwork<dim,corder,InterpolationType>::plasticDistortionRate() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticDistortionRate() const
     {
         MatrixDim temp(MatrixDim::Zero());
         for(const auto& loop : this->loops())
@@ -457,21 +457,21 @@ namespace model
         return temp;
     }
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // const typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim& DislocationNetwork<dim,corder,InterpolationType>::plasticDistortionRate() const
+    // template <int dim, short unsigned int corder>
+    // const typename DislocationNetwork<dim,corder>::MatrixDim& DislocationNetwork<dim,corder>::plasticDistortionRate() const
     // {
     //     return  _plasticDistortionRateFromAreas;
     // }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim DislocationNetwork<dim,corder,InterpolationType>::plasticStrainRate() const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticStrainRate() const
     {/*!\returns the plastic strain rate tensor generated during the last time step.
       */
         return (plasticDistortionRate()+plasticDistortionRate().transpose())*0.5;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    std::tuple<double,double,double,double> DislocationNetwork<dim,corder,InterpolationType>::networkLength() const
+    template <int dim, short unsigned int corder>
+    std::tuple<double,double,double,double> DislocationNetwork<dim,corder>::networkLength() const
     {/*!\returns the total line length of the DislocationNetwork. The return
       * value is a tuple, where the first value is the length of bulk glissile
       * dislocations, the second value is the length of bulk sessile
@@ -518,16 +518,16 @@ namespace model
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationNetwork<dim,corder,InterpolationType>::contract(std::shared_ptr<NetworkNodeType> nA,
+    template <int dim, short unsigned int corder>
+    bool DislocationNetwork<dim,corder>::contract(std::shared_ptr<NetworkNodeType> nA,
                                                                     std::shared_ptr<NetworkNodeType> nB)
     {
         return nodeContractor.contract(nA,nB);
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::dummyMove(const int& runID)
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::dummyMove(const int& runID)
     {/*!\returns the plastic strain rate tensor generated during the last time step.
       */
         std::cout<<"Dummy move: runID="<<runID<<std::endl;
@@ -759,8 +759,8 @@ namespace model
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::VectorDim DislocationNetwork<dim,corder,InterpolationType>::displacement(const VectorDim& x) const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::VectorDim DislocationNetwork<dim,corder>::displacement(const VectorDim& x) const
     {/*!\param[in] P position vector
       * \returns The stress field generated by the DislocationNetwork at P
       *
@@ -804,8 +804,8 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const
     {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -817,8 +817,8 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationNetwork<dim,corder,InterpolationType>::MatrixDim DislocationNetwork<dim,corder,InterpolationType>::stress(const VectorDim& x) const
+    template <int dim, short unsigned int corder>
+    typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::stress(const VectorDim& x) const
     {/*!\param[in] P position vector
       * \returns The stress field generated by the DislocationNetwork at P
       *
@@ -842,8 +842,8 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const
     {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -855,8 +855,8 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::assembleAndSolveGlide()
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::assembleAndSolveGlide()
     {/*! Performs the following operatons:
       */
 #ifdef _OPENMP
@@ -901,24 +901,21 @@ namespace model
         DislocationGlideSolver<LoopNetworkType>(*this).solve();
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::updateBoundaryNodes()
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::updateBoundaryNodes()
     {
+        std::cout <<"Updating boundary nodes..." << std::flush;
+        const auto t0= std::chrono::system_clock::now();
 
 
         if (danglingBoundaryLoopNodes.size())
         {
-            std::cout <<"Removing boundary nodes..." << std::flush;
-            const auto t0= std::chrono::system_clock::now();
             for (const auto &node : danglingBoundaryLoopNodes)
             {
                 this->removeLoopNode(node->sID);
             }
-            model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
         }
         
-        std::cout<<"Inserting new boundary nodes"<<std::flush;
-        const auto t1= std::chrono::system_clock::now();
         std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
         for (const auto &weakLoop : this->loops())
         {
@@ -1037,14 +1034,14 @@ namespace model
                 
             }
         }
-        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]."<<defaultColor<<std::endl;
+        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
         danglingBoundaryLoopNodes.clear();
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::moveGlide(const double & dt_in)
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::moveGlide(const double & dt_in)
     {/*! Moves all nodes in the DislocationNetwork using the stored velocity and current dt
       */
         
@@ -1164,8 +1161,8 @@ namespace model
     }
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationNetwork<dim,corder,InterpolationType>::singleGlideStepDiscreteEvents(const long int& runID)
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::singleGlideStepDiscreteEvents(const long int& runID)
     {
         
         //#ifdef DislocationNucleationFile
@@ -1207,8 +1204,8 @@ namespace model
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationNetwork<dim,corder,InterpolationType>::verboseDislocationNetwork=0;
+    template <int dim, short unsigned int corder>
+    int DislocationNetwork<dim,corder>::verboseDislocationNetwork=0;
     
     
 }

@@ -19,8 +19,8 @@
 
 namespace model
 {
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    DislocationSegment<dim,corder,InterpolationType>::DislocationSegment(LoopNetworkType* const net,
+    template <int dim, short unsigned int corder>
+    DislocationSegment<dim,corder>::DislocationSegment(LoopNetworkType* const net,
                                                                          const std::shared_ptr<NetworkNodeType>& nI,
                                                                          const std::shared_ptr<NetworkNodeType>& nJ) :
     /* init */ NetworkLink<DislocationSegment>(net,nI,nJ)
@@ -34,8 +34,8 @@ namespace model
         VerboseDislocationSegment(1,"Constructing DislocationSegment "<<this->tag()<<std::endl);
     }
     
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationSegment<dim,corder,InterpolationType>::updateSlipSystem()
+    // template <int dim, short unsigned int corder>
+    // void DislocationSegment<dim,corder>::updateSlipSystem()
     // {
     //     std::set<std::shared_ptr<SlipSystem>> ssSet;
     //     for(const auto& loopLink : this->loopLinks())
@@ -61,8 +61,8 @@ namespace model
     //     }
     // }
 
-    // template <int dim, short unsigned int corder, typename InterpolationType>
-    // void DislocationSegment<dim, corder, InterpolationType>::updateSlipSystem()
+    // template <int dim, short unsigned int corder>
+    // void DislocationSegment<dim, corder>::updateSlipSystem()
     // {
     //     if (this->grains().size() == 0)
     //     {
@@ -139,8 +139,8 @@ namespace model
     //         VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->unitNormal.transpose() << std::endl;);
     //     }
     // }
-       template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim, corder, InterpolationType>::updateSlipSystem()
+       template <int dim, short unsigned int corder>
+    void DislocationSegment<dim, corder>::updateSlipSystem()
     {
         if (this->grains().size() == 0)
         {
@@ -181,8 +181,8 @@ namespace model
     }
 
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::addLoopLink(LoopLinkType* const pL)
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::addLoopLink(LoopLinkType* const pL)
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", adding LoopLink "<<pL->tag()<<std::endl;);
         NetworkLink<DislocationSegment>::addLoopLink(pL); // forward to base class
@@ -219,8 +219,8 @@ namespace model
     
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::removeLoopLink(LoopLinkType* const pL)
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::removeLoopLink(LoopLinkType* const pL)
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", removing LoopLink "<<pL->tag()<<std::endl;);
         NetworkLink<DislocationSegment>::removeLoopLink(pL);  // forward to base class
@@ -258,8 +258,8 @@ namespace model
         
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::updateGeometry()
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::updateGeometry()
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", updateGeometry "<<std::endl;);
         //        if(this->network().simulationParameters.isPeriodicSimulation())
@@ -296,8 +296,8 @@ namespace model
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", updateGeometry DONE"<<std::endl;);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::isGlissile() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isGlissile() const
     {/*\returns true if ALL the following conditions are met
       * - the segment is confined by only one plane
       * - all loops containing this segment are glissile
@@ -314,15 +314,15 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::isSessile() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isSessile() const
     {
         return !isVirtualBoundarySegment() && !isGlissile();
     }
     
     /******************************************************************/
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::initFromFile(const std::string& fileName)
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::initFromFile(const std::string& fileName)
     {
         //        LinkType::alpha=TextFileParser(fileName).readScalar<double>("parametrizationExponent",true);
         //        assert((LinkType::alpha)>=0.0 && "parametrizationExponent MUST BE >= 0.0");
@@ -333,8 +333,8 @@ namespace model
         verboseDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationSegment",true);
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    typename DislocationSegment<dim,corder,InterpolationType>::MeshLocation DislocationSegment<dim,corder,InterpolationType>::meshLocation() const
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim,corder>::MeshLocation DislocationSegment<dim,corder>::meshLocation() const
     {/*!\returns the position of *this relative to the bonudary:
       * 1 = inside mesh
       * 2 = on mesh boundary
@@ -357,8 +357,8 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::isVirtualBoundarySegment() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isVirtualBoundarySegment() const
     {//!\returns true if all loops of this segment are virtualBoundaryLoops
         bool temp(true);
         for(const auto& loopLink : this->loopLinks())
@@ -372,40 +372,40 @@ namespace model
         return temp;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::hasZeroBurgers() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::hasZeroBurgers() const
     {
         return BurgersNorm<FLT_EPSILON;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const std::shared_ptr<SlipSystem>&  DislocationSegment<dim,corder,InterpolationType>::slipSystem() const
+    template <int dim, short unsigned int corder>
+    const std::shared_ptr<SlipSystem>&  DislocationSegment<dim,corder>::slipSystem() const
     {
         return _slipSystem;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::isBoundarySegment() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isBoundarySegment() const
     {/*!\returns true if both nodes are boundary nodes, and the midpoint is
       * on the boundary.
       */
         return this->isOnExternalBoundary();
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    bool DislocationSegment<dim,corder,InterpolationType>::isGrainBoundarySegment() const
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isGrainBoundarySegment() const
     {
         return this->isOnInternalBoundary();
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationSegment<dim,corder,InterpolationType>::VectorDim& DislocationSegment<dim,corder,InterpolationType>::burgers() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationSegment<dim,corder>::VectorDim& DislocationSegment<dim,corder>::burgers() const
     {
         return Burgers;
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,
                              Eigen::VectorXd& FQ) const
     {/*!\param[in] kqqT the stiffness matrix of the network component
       * \param[in] FQ the force vector of the network component
@@ -454,14 +454,14 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::updateQuadraturePointsSeg()
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::updateQuadraturePointsSeg()
     {
         this->updateQuadraturePoints(*this,quadPerLength,false);
     }
 
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    void DislocationSegment<dim,corder,InterpolationType>::assembleGlide()
+    template <int dim, short unsigned int corder>
+    void DislocationSegment<dim,corder>::assembleGlide()
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", assembleGlide"<<std::endl;);
         this->updateForcesAndVelocities(*this);
@@ -496,27 +496,27 @@ namespace model
         }
     }
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationSegment<dim,corder,InterpolationType>::VectorDim& DislocationSegment<dim,corder,InterpolationType>::glidePlaneNormal() const
+    template <int dim, short unsigned int corder>
+    const typename DislocationSegment<dim,corder>::VectorDim& DislocationSegment<dim,corder>::glidePlaneNormal() const
     {
         return this->glidePlanes().size()==1? (*this->glidePlanes().begin())->unitNormal : zeroVector;
     }
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationSegment<dim,corder,InterpolationType>::MatrixDim DislocationSegment<dim,corder,InterpolationType>::I=DislocationSegment<dim,corder,InterpolationType>::MatrixDim::Identity();
+    template <int dim, short unsigned int corder>
+    const typename DislocationSegment<dim,corder>::MatrixDim DislocationSegment<dim,corder>::I=DislocationSegment<dim,corder>::MatrixDim::Identity();
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    const typename DislocationSegment<dim,corder,InterpolationType>::VectorDim DislocationSegment<dim,corder,InterpolationType>::zeroVector=DislocationSegment<dim,corder,InterpolationType>::VectorDim::Zero();
+    template <int dim, short unsigned int corder>
+    const typename DislocationSegment<dim,corder>::VectorDim DislocationSegment<dim,corder>::zeroVector=DislocationSegment<dim,corder>::VectorDim::Zero();
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    double DislocationSegment<dim,corder,InterpolationType>::quadPerLength=0.2;
+    template <int dim, short unsigned int corder>
+    double DislocationSegment<dim,corder>::quadPerLength=0.2;
     
-    //    template <int dim, short unsigned int corder, typename InterpolationType>
+    //    template <int dim, short unsigned int corder>
     //    bool DislocationSegment<Derived>::assembleWithTangentProjection=false;
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    int DislocationSegment<dim,corder,InterpolationType>::verboseDislocationSegment=0;
+    template <int dim, short unsigned int corder>
+    int DislocationSegment<dim,corder>::verboseDislocationSegment=0;
     
 }
 #endif

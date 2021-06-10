@@ -102,15 +102,15 @@ namespace model
     
     
     
-    template <int dim, short unsigned int corder, typename InterpolationType>
-    class DislocationNetwork :public LoopNetwork<DislocationNetwork<dim,corder,InterpolationType> >
+    template <int dim, short unsigned int corder>
+    class DislocationNetwork :public LoopNetwork<DislocationNetwork<dim,corder> >
     //    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
     /*                      */,public std::map<size_t,EshelbyInclusion<dim>>
     {
         
     public:
         
-        typedef TypeTraits<DislocationNetwork<dim,corder,InterpolationType>> TraitsType;
+        typedef TypeTraits<DislocationNetwork<dim,corder>> TraitsType;
         typedef typename TraitsType::LoopNetworkType LoopNetworkType;
         typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
