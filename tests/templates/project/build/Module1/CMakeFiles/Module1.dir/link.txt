@@ -1,0 +1,2 @@
+/opt/local/bin/ar qc libModule1.a  CMakeFiles/Module1.dir/MyClassTemplate.cpp.o
+/opt/local/bin/ranlib libModule1.a

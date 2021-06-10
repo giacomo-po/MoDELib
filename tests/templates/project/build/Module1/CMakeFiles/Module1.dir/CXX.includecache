@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/giacomo/Documents/MODELIB2/tests/templates/include/Module1/MyClassTemplate.h
+
+/Users/giacomo/Documents/MODELIB2/tests/templates/src/Module1/MyClassTemplate.cpp
+MyClassTemplate.h
+-
+iostream
+-
+

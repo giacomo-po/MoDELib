@@ -1,0 +1,6 @@
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/CMakeFiles/rebuild_cache.dir
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/CMakeFiles/edit_cache.dir
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/CMakeFiles/test.dir
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/Module1/CMakeFiles/rebuild_cache.dir
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/Module1/CMakeFiles/edit_cache.dir
+/Users/giacomo/Documents/MODELIB2/tests/templates/project/build/Module1/CMakeFiles/Module1.dir

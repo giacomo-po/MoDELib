@@ -344,49 +344,50 @@ namespace model
     template<int dim>
     void PeriodicPlanePatch<dim>::addMeshIntersections(const BoundingMeshSegments<dim>& bms)
     {
+//
+//        std::vector<std::tuple<std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<MeshBoundarySegment<dim>>,double>> tempEdges;
+//        for(size_t k=0;k<bms.size();++k)
+//        {// compute 2d points on PeriodicPlane, and coneect them
+//            std::shared_ptr<PeriodicPlaneNode<dim>> source(patchBoundary->getSharedNode(bms[k]->P0,shift));
+//            std::shared_ptr<PeriodicPlaneNode<dim>>   sink(patchBoundary->getSharedNode(bms[k]->P1,shift));
+//            tempEdges.emplace_back(source,sink,bms[k],0.0);
+//        }
+//
+//        VectorLowerDim C(VectorLowerDim::Zero());
+//        for(const auto& tup : tempEdges)
+//        {
+//            C+=*std::get<0>(tup);
+//        }
+//        C/=tempEdges.size(); // position of center of patch
+//
+//        std::pair<double,size_t> minAngle(M_PI,tempEdges.size());
+//        for(size_t k=0;k<tempEdges.size();++k)
+//        {
+//            const auto x(*std::get<0>(tempEdges[k])-C);
+//            const double angle(std::fabs(atan2(x(1),x(0))));
+//            if(angle<minAngle.first)
+//            {
+//                minAngle.first=angle;
+//                minAngle.second=k;
+//            }
+//            std::get<3>(tempEdges[k])=angle;
+//        }
+//
+//        // store edges starting from source of minimum angle
+//        for(size_t s=0;s<tempEdges.size();++s)
+//        {
+//            const short int k((minAngle.second+s)%tempEdges.size());
+//            this->emplace_back(new PeriodicPlaneEdge<dim>(this,std::get<0>(tempEdges[k]),std::get<1>(tempEdges[k]),std::get<2>(tempEdges[k]),s));
+//        }
         
-        std::vector<std::tuple<std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<PeriodicPlaneNode<dim>>,std::shared_ptr<MeshBoundarySegment<dim>>,double>> tempEdges;
+//
         for(size_t k=0;k<bms.size();++k)
         {// compute 2d points on PeriodicPlane, and coneect them
             std::shared_ptr<PeriodicPlaneNode<dim>> source(patchBoundary->getSharedNode(bms[k]->P0,shift));
             std::shared_ptr<PeriodicPlaneNode<dim>>   sink(patchBoundary->getSharedNode(bms[k]->P1,shift));
-            tempEdges.emplace_back(source,sink,bms[k],0.0);
+            //this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k]));
+            this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k],k));
         }
-        
-        VectorLowerDim C(VectorLowerDim::Zero());
-        for(const auto& tup : tempEdges)
-        {
-            C+=*std::get<0>(tup);
-        }
-        C/=tempEdges.size(); // position of center of patch
-        
-        std::pair<double,size_t> minAngle(M_PI,tempEdges.size());
-        for(size_t k=0;k<tempEdges.size();++k)
-        {
-            const auto x(*std::get<0>(tempEdges[k])-C);
-            const double angle(std::fabs(atan2(x(1),x(0))));
-            if(angle<minAngle.first)
-            {
-                minAngle.first=angle;
-                minAngle.second=k;
-            }
-            std::get<3>(tempEdges[k])=angle;
-        }
-        
-        // store edges starting from source of minimum angle
-        for(size_t s=0;s<tempEdges.size();++s)
-        {
-            const short int k((minAngle.second+s)%tempEdges.size());
-            this->emplace_back(new PeriodicPlaneEdge<dim>(this,std::get<0>(tempEdges[k]),std::get<1>(tempEdges[k]),std::get<2>(tempEdges[k]),s));
-        }
-        
-//
-//        for(size_t k=0;k<bms.size();++k)
-//        {// compute 2d points on PeriodicPlane, and coneect them
-//            std::shared_ptr<PeriodicPlaneNode<dim>> source(periodicPlane->getSharedNode(bms[k]->P0,shift));
-//            std::shared_ptr<PeriodicPlaneNode<dim>>   sink(periodicPlane->getSharedNode(bms[k]->P1,shift));
-//            this->emplace_back(new PeriodicPlaneEdge<dim>(this,source,sink,bms[k]));
-//        }
     }
     
     template<int dim>
