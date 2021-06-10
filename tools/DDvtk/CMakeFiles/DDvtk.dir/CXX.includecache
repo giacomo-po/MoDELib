@@ -135,7 +135,7 @@ SmithDecomposition.h
 -
 Lattice.h
 -
-RationalMatrix.h
+LatticeTransitionMatrix.h
 -
 LLL.h
 -
@@ -413,7 +413,7 @@ SmithDecomposition.h
 -
 Lattice.h
 -
-RationalMatrix.h
+LatticeTransitionMatrix.h
 -
 LLL.h
 -
@@ -1444,6 +1444,18 @@ LatticeVector.h
 LatticeDirection.h
 -
 ReciprocalLatticeDirection.h
+-
+
+../../header_symlinks/LatticeTransitionMatrix.h
+cfloat
+-
+Eigen/Dense
+-
+SmithDecomposition.h
+-
+Lattice.h
+-
+RationalMatrix.h
 -
 
 ../../header_symlinks/LatticeVector.h

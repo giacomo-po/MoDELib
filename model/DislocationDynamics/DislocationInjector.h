@@ -409,7 +409,7 @@ namespace model
                 std::vector<std::shared_ptr<NodeType>> loopNodes;
                 for(const auto& pos : clippedCircle)
                 {
-                    loopNodes.emplace_back(new NodeType(&DN,glidePlane->globalPosition(pos),VectorDim::Zero(),1.0));
+                    loopNodes.emplace_back(new NodeType(&DN,glidePlane->globalPosition(pos),VectorDim::Zero(),VectorDim::Zero(),1.0));
                 }
                 if(glidePlane->unitNormal.dot(slipSystem->unitNormal)>0.0)
                 {
@@ -462,7 +462,7 @@ namespace model
                 std::vector<std::shared_ptr<NodeType>> loopNodes;
                 for(const auto& pos : nodePos)
                 {
-                    loopNodes.emplace_back(new NodeType(&DN,pos,VectorDim::Zero(),1.0));
+                    loopNodes.emplace_back(new NodeType(&DN,pos,VectorDim::Zero(),VectorDim::Zero(),1.0));
                 }
                 GlidePlaneKey<dim> loopPlaneKey(nodePos[0],slipSystem->n);
                 DN.insertLoop(loopNodes,slipSystem->s.cartesian(),DN.glidePlaneFactory.get(loopPlaneKey));

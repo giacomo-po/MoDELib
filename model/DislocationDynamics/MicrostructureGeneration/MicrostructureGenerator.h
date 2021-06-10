@@ -120,6 +120,83 @@ namespace model
         }
         
         /**********************************************************************/
+        void addJoggedDislocations()
+        {
+            if(targetJoggedtDislocationDensity>0.0)
+            {
+                if(poly.crystalStructure=="HEX")
+                {
+                    
+                    const double jogLengthM(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogLength_M",true) );
+                    const double jogLengthS(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogLength_S",true) );
+
+                    const double jogHeigthM(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeigth_M",true) );
+                    const double jogHeigthS(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeigth_S",true) );
+
+                    
+                    std::lognormal_distribution<double> jogLengthDistribution(jogLengthM,jogLengthS);
+                    std::lognormal_distribution<double> jogHeigthDistribution(jogHeigthM,jogHeigthS);
+
+                    
+                    std::cout<<magentaBoldColor<<"Generating jogged dislocations"<<defaultColor<<std::endl;
+                    double density=0.0;
+                    while(density<targetJoggedtDislocationDensity)
+                    {
+                        const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                        const int& grainID=rp.second;   // random grain ID
+                        std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
+                        const int rSS=distribution(generator); // a random SlipSystem ID
+                        const SlipSystem& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+                        
+                        if(fabs(slipSystem.n.planeSpacing()-sqrt(3.0)/2.0)<FLT_EPSILON)
+                        {// prismatic planes
+                            const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
+                            const VectorDimD P0(L0.cartesian());   // cartesian position of L0
+                            const VectorDimD b=slipSystem.s.cartesian();    // Burgers vector
+                            const VectorDimD n=slipSystem.unitNormal; // slip plane normal
+                            std::uniform_real_distribution<> dis(0.0, 2.0*M_PI);
+                            //                    const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
+                            const double theta(0.0); // screw dislocations
+                            const VectorDimD d=Eigen::AngleAxisd(theta, n)*b.normalized();
+                            
+                            MeshPlane<dim> plane(mesh,grainID,P0,n);
+                            std::vector<VectorDimD> nodePos(DislocationInjectorBase<dim>::straightLineBoundaryClosure(P0,d,plane,mesh));
+                            
+                            const auto FS(nodePos.front()-nodePos.back()); // vector goinf from end of loop to start
+                            const double lineLength(FS.norm());
+                            const double jogLength_SI(jogLengthDistribution(generator));
+                            const double jogLength(jogLength_SI/poly.b_SI);
+
+                            const auto midpoint(0.5*(nodePos.front()+nodePos.back())); // vector going from end of loop to start
+                            const VectorDimD jogPt0(midpoint-0.5*jogLength/lineLength*FS);
+                            const VectorDimD jogPt1(midpoint+0.5*jogLength/lineLength*FS);
+                            nodePos.push_back(jogPt0);
+                            nodePos.push_back(jogPt1);
+
+//                            std::cout<<"jogLength="<<jogLength<<std::endl;
+//                            std::cout<<"lineLength="<<lineLength<<std::endl;
+
+                            if(lineLength>jogLength)
+                            {
+                                if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP))
+                                {
+                                    density += (lineLength-jogLength)/mesh.volume()/std::pow(poly.b_SI,2);
+                                    std::cout<<"density="<<density<<std::endl;
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    std::cout<<magentaBoldColor<<"JoggedDislocations implemented on HEX only"<<defaultColor<<std::endl;
+                }
+
+            }
+        }
+        
+        
+        /**********************************************************************/
         void addStraightDislocations()
         {
             if(targetStraightDislocationDensity>0.0)
@@ -1035,6 +1112,8 @@ namespace model
         const double targetStraightDislocationDensity;
         const double fractionSessileStraightDislocationDensity;
         
+        const double targetJoggedtDislocationDensity;
+        
         // Frank-Read sources
         const double targetFrankReadDislocationDensity;
         const double FrankReadSizeMean;
@@ -1134,6 +1213,8 @@ namespace model
         /* Straight Dislocations */
         /* init*/,targetStraightDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetStraightDislocationDensity",true))
         /* init*/,fractionSessileStraightDislocationDensity(targetStraightDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fractionSessileStraightDislocationDensity",true) : 0.0)
+        /* Jogged Dislocations */
+        /* init*/,targetJoggedtDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetJoggedtDislocationDensity",true))
         /* Frank-Read sources */
         /* init*/,targetFrankReadDislocationDensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetFrankReadDislocationDensity",true))
         /* init*/,FrankReadSizeMean(targetFrankReadDislocationDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("FrankReadSizeMean",true) : 0.0)
@@ -1203,6 +1284,7 @@ namespace model
             std::cout<<greenBoldColor<<"Generating initial microstructure"<<defaultColor<<std::endl;
             // Call individual generators
             addStraightDislocations();
+            addJoggedDislocations();
             addFrankReadSources();
             addSingleArmDislocations();
             addPrismaticLoops();

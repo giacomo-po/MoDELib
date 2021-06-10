@@ -589,15 +589,16 @@ namespace model
                 //                if (link.second->isSessile() && link.second->loopLinks().size() > 1) // a junction
                 if (link.second->loopLinks().size() > 1) // a junction
                 {
-                    const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
-                    const double chordNorm(chord.norm());
+//                    const VectorDim chord(link.second->sink->get_P() - link.second->source->get_P());
+//                    const double chordNorm(chord.norm());
                     
                     
                     if (fabs(link.second->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
-                        && chordNorm > dx)
+//                        && chordNorm > dx
+                        )
                     {
                         
-                        const VectorDim unitChord(chord / chordNorm);
+                        const VectorDim& unitChord(link.second->unitDirection());
                         
                         
                         if (!link.second->isGrainBoundarySegment() && !link.second->isBoundarySegment())
@@ -690,7 +691,7 @@ namespace model
                                 }
                             }
                             
-                            if(expanded==0)
+                            if(expanded==0 && link.second->chordLength() > dx)
                             {// if an expansion is not possible, insert a triangular loop
                                 for (const auto &gr : link.second->grains())
                                 {
@@ -753,7 +754,7 @@ namespace model
                     const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).slipSystems()[slipID]->n);
                     const auto glidePlane(DN.glidePlaneFactory.get(glissilePlaneKey));
                     
-                    std::shared_ptr<NodeType> newNode(new NodeType(&DN, glidePlane->snapToPlane(newNodeP), VectorDim::Zero(), 1.0));
+                    std::shared_ptr<NodeType> newNode(new NodeType(&DN, glidePlane->snapToPlane(newNodeP), VectorDim::Zero(),VectorDim::Zero(), 1.0));
                     
                     std::vector<std::shared_ptr<NodeType>> loopNodes;
                     

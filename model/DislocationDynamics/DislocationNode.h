@@ -52,8 +52,9 @@ namespace model
         DislocationNode(LoopNetworkType* const ln,
                         const VectorDim& Pin,
                         const VectorDofType& Vin,
+                        const VectorDofType& VinOld,
                         const double& vrc) :
-        /* base constructor */ NodeBaseType(ln,Pin,Vin,vrc)
+        /* base constructor */ NodeBaseType(ln,Pin,Vin,VinOld,vrc)
         /* init */,_climbVelocityScalar(0.0)
         /* init */,_climbVelocity(VectorDim::UnitZ())
         {/*! Constructor from DOF

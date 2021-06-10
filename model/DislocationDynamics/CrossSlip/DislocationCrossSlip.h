@@ -185,7 +185,7 @@ namespace model
                             // Construct and insert new loop in conjugate plane
                             const VectorDim newNodeP(0.5*(isSource.second->get_P()+isSink.second->get_P()));
                             //                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
-                            std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),1.0));
+                            std::shared_ptr<NodeType> newNode(new NodeType(&DN,newNodeP,VectorDim::Zero(),VectorDim::Zero(),1.0));
                             
                             //                                std::vector<size_t> nodeIDs;
                             std::vector<std::shared_ptr<NodeType>> loopNodes;

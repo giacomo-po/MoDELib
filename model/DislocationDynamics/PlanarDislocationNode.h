@@ -241,12 +241,13 @@ namespace model
         PlanarDislocationNode(LoopNetworkType* const ln,
                               const VectorDim& Pin,
                               const VectorDofType& Vin,
+                              const VectorDofType& VinOld,
                               const double& vrc) :
         /* base */ NodeBaseType(ln,Pin)
         /* base */,ConfinedDislocationObjectType(this->network().mesh)
         /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
         /* init */,velocity(Vin)
-        /* init */,vOld(velocity)
+        /* init */,vOld(VinOld)
         /* init */,velocityReductionCoeff(vrc)
         /* init */,masterNode(nullptr)
         {/*! Constructor from DOF
@@ -306,13 +307,6 @@ namespace model
         ~PlanarDislocationNode()
         {
             VerbosePlanarDislocationNode(1,"Destroying PlanarDislocationNode "<<this->sID<<" ("<<this<<")"<<std::endl;);
-//            for(auto& pair1 : periodicNodeMap)
-//            {
-//                for(auto& pair2 : pair1.second)
-//                {
-//                    pair2.second->removeNode(this->p_derived());
-//                }
-//            }
         }
         
         
@@ -386,8 +380,6 @@ namespace model
             NodeBaseType::addLoopLink(pL); // forward to base class
             this->addGlidePlane(pL->loop()->glidePlane.get());
             this->confinedObject().updateGeometry();
-
-//            updatePeriodicNodes(pL);
         }
         
         
@@ -1015,11 +1007,12 @@ namespace model
         }
         
         /**********************************************************************/
-        void setToBoundary(const VectorDim& X)
+        void setToBoundary(const VectorDim& newP)
         {
+            const VectorDim X(snapToBoundingBox(newP));
             VerbosePlanarDislocationNode(5,"PlanarDislocationNode "<<this->sID<<" setToBoundary @"<< X.transpose()<<std::endl;);
-//            NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
-            NodeBaseType::set_P((X/positionRoundFactor).array().round().matrix()*positionRoundFactor); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
+            NodeBaseType::set_P(X); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
+//            NodeBaseType::set_P((X/positionRoundFactor).array().round().matrix()*positionRoundFactor); // in turn this calls PlanarDislocationSegment::updateGeometry, so the boundaryNormal must be computed before this line
             this->confinedObject().updateGeometry();
             VerbosePlanarDislocationNode(5,"containingSegments "<< this->boundingBoxSegments().containingSegments(this->get_P()).size()<<std::endl;);
             p_Simplex=get_includingSimplex(this->get_P(),p_Simplex);
@@ -1034,7 +1027,9 @@ namespace model
         {
             // may have to skip everything if newP is get_P
             
-            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<", set_P to "<<newP.transpose()<<std::endl;);
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;);
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. newP="<< std::setprecision(15)<<std::scientific<<newP.transpose()<<std::endl;);
+
             // make sure that node is on glide planes
             //            bool glidePlanesContained=true;
             //            for(const auto& gp : glidePlanes())
@@ -1058,60 +1053,59 @@ namespace model
             // {// non-periodic simulation
                 if(this->isOnBoundary() || this->boundingBoxSegments().contains(newP))
                 {// node was on bounding box, it must remain on bounding box
-                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case A "<<std::endl;);
-                    VerbosePlanarDislocationNode(3,"newP="<< newP.transpose()<<std::endl;);
-                    const VectorDim X(snapToBoundingBox(newP));
-                    VerbosePlanarDislocationNode(3,"X="<< X.transpose()<<std::endl;);
-                    setToBoundary(X);
-                    VerbosePlanarDislocationNode(3,"get_P="<< this->get_P().transpose()<<std::endl;);
+                    VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P, case A "<<std::endl;);
+                    setToBoundary(newP);
                 }
                 else
                 {// internal node
                     std::pair<bool,const Simplex<dim,dim>*> temp(this->network().mesh.searchRegionWithGuess(newP,p_Simplex));
                     if(temp.first)
                     {// internal node, and newP is inside current grain
-                        if(   (isConnectedToBoundaryNodes() || isConnectedToGrainBoundaryNodes())
-                           && this->boundingBoxSegments().size()==2
-                           && this->glidePlaneIntersections())
-                        {// force special case to boundary to get rid of small debris
-                            if((newP-this->glidePlaneIntersections()->P0).norm()<this->network().surfaceAttractionDistance)
-                            {
-                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case B "<<std::endl;);
-                                setToBoundary(this->glidePlaneIntersections()->P0);
-                            }
-                            else if((newP-this->glidePlaneIntersections()->P1).norm()<this->network().surfaceAttractionDistance)
-                            {
-                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case C "<<std::endl;);
-                                setToBoundary(this->glidePlaneIntersections()->P1);
-                            }
-                            else
-                            {
-                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case D "<<std::endl;);
-//                                NodeBaseType::set_P(newP);
-                                NodeBaseType::set_P((newP/positionRoundFactor).array().round().matrix()*positionRoundFactor);
-                                this->confinedObject().updateGeometry();
-                            }
-                        }
-                        else
-                        {
-                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case E "<<std::endl;);
-//                            NodeBaseType::set_P(newP);
-                            NodeBaseType::set_P((newP/positionRoundFactor).array().round().matrix()*positionRoundFactor);
+//                        if(   (isConnectedToBoundaryNodes() || isConnectedToGrainBoundaryNodes())
+//                           && this->boundingBoxSegments().size()==2
+//                           && this->glidePlaneIntersections())
+//                        {// force special case to boundary to get rid of small debris
+//                            if((newP-this->glidePlaneIntersections()->P0).norm()<this->network().surfaceAttractionDistance)
+//                            {
+//                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case B "<<std::endl;);
+//                                setToBoundary(this->glidePlaneIntersections()->P0);
+//                            }
+//                            else if((newP-this->glidePlaneIntersections()->P1).norm()<this->network().surfaceAttractionDistance)
+//                            {
+//                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case C "<<std::endl;);
+//                                setToBoundary(this->glidePlaneIntersections()->P1);
+//                            }
+//                            else
+//                            {
+//                                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case D "<<std::endl;);
+////                                NodeBaseType::set_P(newP);
+//                                NodeBaseType::set_P((newP/positionRoundFactor).array().round().matrix()*positionRoundFactor);
+//                                this->confinedObject().updateGeometry();
+//                            }
+//                        }
+//                        else
+//                        {
+                            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P, case B "<<std::endl;);
+                            NodeBaseType::set_P(newP);
+//                            NodeBaseType::set_P((newP/positionRoundFactor).array().round().matrix()*positionRoundFactor);
                             this->confinedObject().updateGeometry();
-                        }
+                        p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
+
+//                        }
                     }
                     else
                     {// internal node, and newP is outside current grain
-                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< this->get_P().transpose()<<"set_P, case F "<<std::endl;);
-                        const VectorDim X(snapToBoundingBox(newP));
-                        setToBoundary(X);
+//                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P. current P="<< std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<"set_P, case F "<<std::endl;);
+//                        const VectorDim X(snapToBoundingBox(newP));
+                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"::set_P, case C "<<std::endl;);
+                        setToBoundary(newP);
                     }
                 }
             // }
             
             
             
-            p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
+//            p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
             
 //            updateImageNodes();
             resetVirtualBoundaryNode();
@@ -1128,39 +1122,11 @@ namespace model
 
             VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" this->isOnBoundary()="<<this->isOnBoundary()<<std::endl;);
             const double posDelta((this->get_P()-newP).norm());
-            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" posDelta="<<posDelta<<std::endl;);
-            
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" posDelta="<<std::setprecision(15)<<std::scientific<<posDelta<<std::endl;);
+            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" final P="<<std::setprecision(15)<<std::scientific<<this->get_P().transpose()<<std::endl;);
+
             return posDelta<FLT_EPSILON;
         }
-        
-//        void updatePeriodicLoopLinks()
-//        {
-//            for(const auto& loopLink : this->loopLinks())
-//            {
-//                auto periodicLoop(loopLink->loop()->periodicLoop);
-//                if(periodicLoop)
-//                {
-//                    auto periodicLoopLinkIter(periodicLoop->loopLinks().find(loopLink));
-//                    assert(periodicLoopLinkIter!=periodicLoop->loopLinks().end() && "LoopLink not found in PeriodicLoop");
-//                    periodicLoopLinkIter->second.updateSourceSink();
-//
-//                    //                    auto& periodicLoopLink(periodicLoopLinkIter->second);
-//                    //
-//                    //                    if(loopLink->source().get()==this)
-//                    //                    {// this node is the source of loopLink
-//                    //                        periodicLoopLinkIter->second.updateSource();
-//                    //                    }
-//                    //                    else if(loopLink->sink().get()==this)
-//                    //                    {
-//                    //                        periodicLoopLinkIter->second.updateSink();
-//                    //                    }
-//                    //                    else
-//                    //                    {
-//                    //                        assert(false && "Node must be source or sink");
-//                    //                    }
-//                }
-//            }
-//        }
         
         /**********************************************************************/
         bool isMovableTo(const VectorDim& X) const
@@ -1345,6 +1311,7 @@ namespace model
             if(dt>0.0)
             {
                 velocity=(this->get_P()-P_old)/dt;
+                velocity=(velocity/velocityRoundFactor).array().round().matrix()*velocityRoundFactor; // keep only 10 digits in velocity to kill numerical noise
             }
         }
         
@@ -1374,665 +1341,3 @@ namespace model
     
 }
 #endif
-
-
-//
-//        /**********************************************************************/
-//        PlanarDislocationNode(LoopNetworkType* const ln,
-//                              NodeType* const master,
-//                              //                              const LinkType* const masterSegment
-//                              const std::set<const PlanarMeshFace<dim>*>& confiningFaces
-//                              ) :
-//        /* base */ NodeBaseType(ln,imagePosition(master,confiningFaces))
-//        /* base */,ConfinedDislocationObjectType(this->get_P())
-//        //        /* init */,p_Simplex(this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC? get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL) : NULL)
-//        /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
-//        /* init */,velocity(VectorDim::Zero())
-//        /* init */,vOld(velocity)
-//        /* init */,velocityReductionCoeff(1.0)
-//        /* init */,masterNode(master)
-//        //        /* init */,imageFaceContainer(masterSegment->meshFaces())
-//        //        /* init */,isVirtualBoundaryNode(true)
-//        {/*! Constructor from DOF
-//          */
-//            VerbosePlanarDislocationNode(1,"Creating ImagePlanarDislocationNode "<<this->sID<<" (of master "<<masterNode->sID<<")"<<std::endl;);
-//
-//            //            assert(this->network().mesh.regions().size()==1);
-//            //            const auto& region(*this->network().mesh.regions().begin()->second);
-//
-//            for(const auto& face : confiningFaces)
-//            {// Insert the image faces of masterSegment as confining faces of this
-//                //                const PlanarMeshFace<dim>& currentFace(**imageFaceContainer.begin());
-//                //                const PlanarMeshFace<dim>& imageFace(*);
-//                this->meshFaces().insert(face);
-//            }
-//            this->updateConfinement();
-//            resetVirtualBoundaryNode();
-//        }
-
-
-//        bool isImageNode() const
-//        {
-//            return masterNode && this->meshFaces().size()>0;
-//        }
-
-
-//        static VectorDim imagePosition(const NodeType* const master,
-//                                       const std::set<const PlanarMeshFace<dim>*>& imageFaces)
-//        {
-//
-//            switch(imageFaces.size())
-//            {
-//
-//                case 1:
-//                {
-//                    return (*imageFaces.begin())->asPlane().snapToPlane(master->get_P());
-//                    break;
-//                }
-//
-//                case 2:
-//                {
-//                    assert(false && "FINISH HERE, SNAP TO INTERSECTION LINE");
-//                    return VectorDim::Zero();
-//                    break;
-//                }
-//
-//                default:
-//                {
-//                    std::cout<<"imageFaces.size()="<<imageFaces.size()<<std::endl;
-//                    assert(false && "meshFaces must be 1 or 2");
-//                    return VectorDim::Zero();
-//                    break;
-//                }
-//
-//
-//            }
-//        }
-
-
-
-//        /**********************************************************************/
-//        std::set<const PlanarMeshFace<dim>*> imageMeshFaces(const std::set<size_t>& mirroringFaceIDs) const
-//        {
-//            assert(this->network().mesh.regions().size()==1);
-//            const auto& region(*this->network().mesh.regions().begin()->second);
-//
-//            std::set<const PlanarMeshFace<dim>*> originalFaces;
-//            for(const auto& val : mirroringFaceIDs)
-//            {
-//                const auto& originalFace(region.faces().at(val).get());
-//                assert(this->meshFaces().find(originalFace)!=this->meshFaces().end()); // original face MUST be a confining face for this node. We can insert new face if contains node
-//                originalFaces.insert(originalFace);
-//            }
-//
-//            std::set<const PlanarMeshFace<dim>*> temp;
-//            for(const auto& face : this->meshFaces())
-//            {
-//                if(originalFaces.find(face)!=originalFaces.end())
-//                {
-//                    temp.insert(region.faces().at(region.parallelFaces().at(face->sID)).get());
-//                }
-//                else
-//                {
-//                    temp.insert(face);
-//                }
-//            }
-//            return temp;
-//        }
-
-
-
-//        /**********************************************************************/
-//        std::set<size_t> imageFaceIDs(const std::set<size_t>& mirroringFaceIDs) const
-//        {
-//            assert(this->network().mesh.regions().size()==1);
-//            const auto& region(*this->network().mesh.regions().begin()->second);
-//            std::set<size_t> temp;
-//            for(const auto& face : this->meshFaces())
-//            {
-//                if(mirroringFaceIDs.find(face->sID)!=faceIDs.end())
-//                {
-//                    temp.insert(region.parallelFaces().at(face->sID));
-//                }
-//                else
-//                {
-//                    temp.insert(face->sID);
-//                }
-//            }
-//            return temp;
-//        }
-//
-//        /**********************************************************************/
-//        std::set<size_t> imageFaces(const std::set<size_t>& mirroringFaceIDs) const
-//        {
-//            assert(this->network().mesh.regions().size()==1);
-//            const auto& region(*this->network().mesh.regions().begin()->second);
-//            std::set<size_t> temp;
-//            for(const auto& face : this->meshFaces())
-//            {
-//                if(mirroringFaceIDs.find(face->sID)!=faceIDs.end())
-//                {
-//                    temp.insert(region.parallelFaces().at(face->sID));
-//                }
-//                else
-//                {
-//                    temp.insert(face->sID);
-//                }
-//            }
-//            return temp;
-//        }
-
-//        /**********************************************************************/
-//        std::pair<bool,std::shared_ptr<NodeType>> image(const LinkType& link)
-//        {
-//            return image(imageFaceIDs(link));
-//        }
-
-//        /**********************************************************************/
-//        std::shared_ptr<NodeType> sharedImage(const std::set<size_t>& mirroringFaceIDs)
-//        {
-//            //std::pair<bool,std::shared_ptr<NodeType>> temp(std::make_pair(false,std::shared_ptr<NodeType>(nullptr)));
-//            NodeType* const master(masterNode? masterNode : this->p_derived());
-//
-//            std::cout<<"this->sID="<<this->sID<<std::endl;
-//            std::cout<<"master->sID="<<master->sID<<std::endl;
-//
-//            const std::set<size_t> imgFaceIDs(imageMeshFaceIDs(mirroringFaceIDs));
-//
-//            std::cout<<"master imageSharedNodeContainer:"<<std::endl;
-//            for(const auto& pair : master->imageSharedNodeContainer)
-//            {
-//                for(const auto& intKey : pair.first)
-//                {
-//                    std::cout<<intKey<<" "<<std::flush;
-//                }
-//                std::cout<<"is node "<<pair.second->sID<<std::endl;
-//            }
-//
-////            const auto imgFaceIDs(imageFaceIDs(link));
-//
-//            std::cout<<"requested original faces are "<<std::flush;
-//            for(const auto& intKey : mirroringFaceIDs)
-//            {
-//                std::cout<<intKey<<" "<<std::flush;
-//            }
-//            std::cout<<std::endl;
-//
-//            std::cout<<"requested image key is "<<std::flush;
-//            for(const auto& intKey : imgFaceIDs)
-//            {
-//                std::cout<<intKey<<" "<<std::flush;
-//            }
-//            std::cout<<std::endl;
-//
-//
-//            std::set<size_t> masterFaceIDs;
-//            for(const auto& face : master->meshFaces())
-//            {
-//                masterFaceIDs.insert(face->sID);
-//            }
-//
-//            assert(master->imageSharedNodeContainer.size()<=std::pow(2,masterFaceIDs.size())-1);
-//            for(const auto& pair : master->imageSharedNodeContainer)
-//            {
-//                assert(masterFaceIDs.size()==pair.first.size());
-//            }
-//
-//            const auto imageIter(master->imageSharedNodeContainer.find(imgFaceIDs));
-//            if(imageIter==master->imageSharedNodeContainer.end())
-//            {// image not existing
-//                std::cout<<"case a"<<std::endl;
-//
-//
-//                if(masterFaceIDs==imgFaceIDs)
-//                {// image is master itself
-//                    std::cout<<"case a1, master itself"<<std::endl;
-//                    const auto isSharedNode(this->network().sharedNode(master->sID));
-//                    assert(isSharedNode.first && "MASTER SHARED PTR NOT FOUND");
-//                    return isSharedNode.second;
-//                }
-//                else
-//                {// new image is needed
-//                    std::cout<<"case a2, new image"<<std::endl;
-//                    const auto confiningFaces(imageMeshFaces(mirroringFaceIDs));
-//                    const auto newSharedNodePair(master->imageSharedNodeContainer.emplace(imgFaceIDs,new NodeType(&this->network(),master,confiningFaces)));
-//                    assert(newSharedNodePair.second && "COULD NOT INSERT NEW NODE IMAGE IN MASTER.imageSharedNodeContainer");
-//                    return newSharedNodePair.first->second;
-//                }
-//            }
-//            else
-//            {// image exists
-//                std::cout<<"case b, existing image"<<std::endl;
-//                std::cout<<". imageIter->second->sID="<<imageIter->second->sID<<std::endl;
-//                return imageIter->second;
-//            }
-//        }
-
-//        /**********************************************************************/
-//        void updateImageNodes()
-//        {
-//
-//            if(   this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
-//               || this->network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
-//            {
-//                if(isBoundaryNode() && !masterNode)
-//                {
-//                    VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" updateImageNodes: "<<std::endl;);
-//
-//                    //                    assert(this->bndNormal().squaredNorm()>FLT_EPSILON && "BOUNDARY NODE MUST HAVE NON-ZERO NORMAL");
-//
-//
-//                    //                    for(auto& pair : this->neighbors())
-//                    //                    {
-//                    //                        const LinkType& link(*std::get<1>(pair.second));
-//                    //                        NodeType& otherNode(*std::get<0>(pair.second));
-//                    //
-//                    //                        if(link.isBoundarySegment())
-//                    //                        {
-//                    //                            std::set<size_t> key;
-//                    //                            for(const auto& face : link.meshFaces())
-//                    //                            {
-//                    //                                key.insert(face->sID);
-//                    //                            }
-//                    //
-//                    //                            const auto iter(imageNodeContainer.find(key));
-//                    //                            if(iter==imageNodeContainer.end())
-//                    //                            {
-//                    //                                const auto iterPair(imageNodeContainer.emplace(key,new NodeType(&this->network(),this->p_derived(),&link)));
-//                    //                                iterPair.first->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //                            else
-//                    //                            {
-//                    //                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->imageFaceContainer));
-//                    //                                static_cast<NodeBaseType*>(iter->second.get())->set_P(imageP);
-//                    //                                iter->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //
-//                    //                            const auto iterOther(otherNode.imageNodeContainer.find(key));
-//                    //                            if(iterOther==otherNode.imageNodeContainer.end())
-//                    //                            {
-//                    //                                const auto iterPair(otherNode.imageNodeContainer.emplace(key,new NodeType(&this->network(),&otherNode,&link)));
-//                    //                                iterPair.first->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //                            else
-//                    //                            {
-//                    //                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->imageFaceContainer));
-//                    //                                static_cast<NodeBaseType*>(iterOther->second.get())->set_P(imageP);
-//                    //                                iterOther->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //
-//                    //                        }
-//                    //                    }
-//
-//                    //                    for(auto& pair : this->neighbors())
-//                    //                    {
-//                    //                        const LinkType& link(*std::get<1>(pair.second));
-//                    //                        NodeType& otherNode(*std::get<0>(pair.second));
-//                    //
-//                    //                        if(link.isBoundarySegment())
-//                    //                        {
-//                    //
-//                    //                            const auto realKey(link.faceIDs());
-//                    //                            const auto imageKey(link.imageFaceIDs());
-//                    //
-//                    //
-//                    //                            const auto iter(imageNodeContainer.find(imageKey));
-//                    //                            const auto iterOther(otherNode.imageNodeContainer.find(imageKey));
-//                    //
-//                    //
-//                    //
-//                    //                            if(iter==imageNodeContainer.end())
-//                    //                            {
-//                    //                                const auto iterPair(imageSharedNodeContainer.emplace(imageKey,new NodeType(&this->network(),this->p_derived(),&link)));
-//                    //                                imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
-//                    //                                imageNodeContainer.emplace(realKey,this->p_derived());
-//                    //                                iterPair.first->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //                            else
-//                    //                            {
-//                    //                                const VectorDim imageP(imagePosition(iter->second->masterNode,iter->second->meshFaces()));
-//                    //                                static_cast<NodeBaseType*>(iter->second)->set_P(imageP);
-//                    //                                iter->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //
-//                    //                            if(iterOther==otherNode.imageNodeContainer.end())
-//                    //                            {
-//                    //                                const auto iterPair(otherNode.imageSharedNodeContainer.emplace(imageKey,new NodeType(&otherNode.network(),&otherNode,&link)));
-//                    //                                otherNode.imageNodeContainer.emplace(imageKey,iterPair.first->second.get());
-//                    //                                otherNode.imageNodeContainer.emplace(realKey,&otherNode);
-//                    //                                iterPair.first->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //                            else
-//                    //                            {
-//                    //                                const VectorDim imageP(imagePosition(iterOther->second->masterNode,iterOther->second->meshFaces()));
-//                    //                                static_cast<NodeBaseType*>(iterOther->second)->set_P(imageP);
-//                    //                                iterOther->second->resetVirtualBoundaryNode();
-//                    //                            }
-//                    //
-//                    //                        }
-//                    //                    }
-//
-//                    for(const auto& pair : imageSharedNodeContainer)
-//                    {
-//                        VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" updating image "<<pair.second->sID<<std::endl;);
-//                        const VectorDim imageP(imagePosition(this->p_derived(),pair.second->meshFaces()));
-//                        static_cast<NodeBaseType*>(pair.second.get())->set_P(imageP);
-//                        static_cast<ConfinedDislocationObjectType*>(pair.second.get())->updateGeometry(imageP); // update confinement of image
-//                        pair.second->resetVirtualBoundaryNode();
-//                    }
-//
-//                }
-//            }
-//        }
-
-//        /*************************************************/
-//        const VectorDim& get_P() const
-//        {
-//            if(this->network.simulationsParameters.isPeriodicSimulation())
-//            {// periodic simulation
-//                for(auto& pair1 : periodicNodeMap)
-//                {
-//                    for(auto& pair2 : pair1.second)
-//                    {
-//                        assert((NodeBaseType::get_P(newP)-pair1.first->periodicGlidePlane->getGlobalPosition(pair2.second)-pair2.first).squaredNorm()<FLT_EPSILON && "RVE and periodic positions mismatch");
-//                    }
-//                }
-//            }
-//            return NodeBaseType::get_P();
-//        }
-
-//        /**********************************************************************/
-//        bool set_P_WO_Confinement(const VectorDim& newP)
-//        {
-//            VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<"["<<this->isBoundaryNode()<<"]"<<"::set_P. current P="<< this->get_P().transpose()<<", set_P to "<<newP.transpose()<<std::endl;);
-//            if (this->network().simulationParameters.isPeriodicSimulation())
-//            { // periodic simulation
-//                NodeBaseType::set_P(newP);
-//                for (const auto &loopLink : this->loopLinks())
-//                {
-//                    updatePeriodicNodes(loopLink);
-//                }
-//            }
-//
-//            return ((this->get_P()-newP).squaredNorm()<FLT_EPSILON);
-//        }
-
-
-//       typedef std::map<Eigen::Matrix<double, dim, 1>, std::shared_ptr<PeriodicDislocationNodeType>, CompareVectorsByComponent<double,dim,float>> ShiftNodeMapType;
-
-// typedef std::map<const PeriodicDislocationLoopType*,SharedPeriodicNodeVectorType> SharedPeriodicNodeVectorType;
-
-//        std::map<const PeriodicDislocationLoopType*,ShiftNodeMapType> periodicNodeMap;
-
-//        std::map<std::set<size_t>,std::shared_ptr<NodeType>> imageSharedNodeContainer;
-//        std::shared_ptr<PeriodicDislocationNodeType> getSharedPeriodicNode(const PeriodicDislocationLoopType& PeriodicDislocationLoopObj,const VectorDim& shift)
-//        {
-//            //This function does not have the capability to create new 3D nodes
-//            std::cout<<this->sID<<" getting shared Periodic Node"<<std::endl;
-//            const auto periodicLoopSharedObject(periodicNodeMap.find(&PeriodicDislocationLoopObj));
-//            assert(periodicLoopSharedObject!=periodicNodeMap.end());
-//            bool periodicNodeFound(false);
-//            std::cout << "periodicNodeMap size is " << periodicNodeMap.size() << std::endl;
-//            std::cout << "sharedNode size is " << periodicLoopSharedObject->second.size() << std::endl;
-//            for (const auto pNodes : periodicLoopSharedObject->second)
-//            {
-//                std::cout<<"Inquiring for "<<pNodes.second->sID<<"at position "<<pNodes.second->get_P().transpose()<<std::endl;
-//                std::cout<<"stored position is "<<this->sID<<"at position "<<PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift).transpose()<<std::endl;
-//
-//                // if ((pNodes->get_P()-PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift)).squaredNorm()<FLT_EPSILON)
-//                if ((pNodes.first-shift).squaredNorm()<FLT_EPSILON)
-//                {
-//                    assert((pNodes.second->get_P()-PeriodicDislocationLoopObj.periodicGlidePlane->getLocalPosition(this->get_P(),shift)).squaredNorm()<FLT_EPSILON);
-//                    periodicNodeFound=true;
-//                    std::cout<<redColor<<"returning "<<pNodes.second->sID<<defaultColor<<std::endl;
-//                    return pNodes.second;
-//                }
-//            }
-//            if (!periodicNodeFound)
-//            {
-//                assert(0 && "No PeriodicNodeFound");
-//            }
-//            return nullptr;
-//        }
-
-
-// void updatePeriodicNodes(LoopLinkType* const pL)
-// {
-//     VerbosePlanarDislocationNode(2,"PlanarDislocationNode "<<this->sID<<" creating PeriodicDislocationNodes from "<<pL->tag()<<std::endl;);
-//     const auto periodicLoop(pL->loop()->periodicLoop.get());
-//     if(periodicLoop)
-//     {
-//         const auto periodicLoopIter(periodicNodeMap.find(periodicLoop));
-//         if (periodicLoopIter != periodicNodeMap.end())
-//         { // periodicLoop found
-//             for (auto &sharedNode : periodicLoopIter->second)
-//             {
-//                 sharedNode->addNode(this->p_derived(), pL->loop()->periodicShift);
-//             }
-//         }
-//         else
-//         {// periodicLoop not found
-//             const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
-//             sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
-//             const auto pair(periodicNodeMap.emplace(periodicLoop,SharedPeriodicNodeVectorType{sharedNode}));
-//             assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
-//         }
-//     }
-// }
-//        void updatePeriodicNodes(LoopLinkType *const pL)
-//        {
-//            VerbosePlanarDislocationNode(2, "PlanarDislocationNode " << this->sID << " creating PeriodicDislocationNodes from " << pL->tag() << std::endl;);
-//            const auto periodicLoop(pL->loop()->periodicLoop.get());
-//            if (periodicLoop)
-//            {
-//                const auto periodicLoopIter(periodicNodeMap.find(periodicLoop));
-//                if (periodicLoopIter != periodicNodeMap.end())
-//                { // periodicLoop found
-//                    const auto shiftIter(periodicLoopIter->second.find(pL->loop()->periodicShift));
-//                    if (shiftIter != periodicLoopIter->second.end())
-//                    { // shift found
-//                        shiftIter->second->addNode(this->p_derived(), pL->loop()->periodicShift);
-//                        const auto currentP(periodicLoop->periodicGlidePlane->getLocalPosition(this->get_P(), pL->loop()->periodicShift));
-//                        assert((shiftIter->second->get_P() - currentP).squaredNorm() < FLT_EPSILON && "Periodic position mismatch");
-//                    }
-//                    else
-//                    {
-//                        // shift not found
-//                        // std::shared_ptr<PeriodicDislocationNodeType>(new PeriodicDislocationNodeType(*periodicLoop,this->derived(),pL->loop()->periodicShift))
-//                        const auto sharedNode(periodicLoop->getSharedNode(this->get_P(), pL->loop()->periodicShift));
-//                        sharedNode->addNode(this->p_derived(), pL->loop()->periodicShift);
-//                        const auto pair(periodicLoopIter->second.emplace(pL->loop()->periodicShift, sharedNode));
-//                        assert(pair.second && "UNABLE TO INSERT periodicNode IN innerMap");
-//                    }
-//                    // for (auto &sharedNode : periodicLoopIter->second)
-//                    // {
-//                    //     sharedNode.second->addNode(this->p_derived(), pL->loop()->periodicShift);
-//                    // }
-//                }
-//                else
-//                { // periodicLoop not found
-//                    const auto sharedNode(periodicLoop->getSharedNode(this->get_P(), pL->loop()->periodicShift));
-//                    sharedNode->addNode (this->p_derived(),pL->loop()->periodicShift);
-//                    const ShiftNodeMapType temp{{pL->loop()->periodicShift, sharedNode}};
-//                    const auto pair(periodicNodeMap.emplace(periodicLoop, temp));
-//                    assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
-//                    // const auto sharedNode(periodicLoop->getSharedNode(this->get_P(),pL->loop()->periodicShift));
-//                    // sharedNode->addNode(this->p_derived(),pL->loop()->periodicShift);
-//                    // const auto pair(periodicNodeMap.emplace(periodicLoop,SharedPeriodicNodeVectorType{sharedNode}));
-//                    // assert(pair.second && "UNABLE TO INSERT MAP IN periodicNodeMap");
-//                }
-//            }
-//        }
-
-
-/**********************************************************************/
-//Adde by Yash
-//Improved version from the previous one
-//        typedef std::tuple<NodeType *,NodeType *,NodeType *,double, double> PeriodicConnectivityType;
-//        PeriodicConnectivityType getNodesMapforPeriodicAssembly()
-//        {
-//            //Tuple nodes are i,j, and k
-//            //lij,ljk are the lengths
-//            PeriodicConnectivityType periodicnodeMap;
-//
-//            if (this->network().simulationParameters.isPeriodicSimulation())
-//            {
-//                if (this->isBoundaryNode())
-//                {
-//                    for (const auto &loopLink : this->loopLinks())
-//                    {
-//                        if (!loopLink->pLink->isBoundarySegment())
-//                        {
-//                            if (loopLink->source()->sID == this->sID)
-//                            {
-//                                const auto nodeJ=loopLink->source().get();
-//                                double lij=0;
-//                                double ljk=0;
-//                                auto periodicLoopLink(loopLink->loop()->periodicLoop->loopLinks().find(loopLink));
-//                                auto periodicLoopLinkij(periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID));
-//                                assert(periodicLoopLink->first==loopLink);
-//                                auto periodicLoopLinkjk(periodicLoopLink->first);
-//                                while(true)
-//                                {
-//                                    if (periodicLoopLinkij)
-//                                    {
-//                                        assert(periodicLoopLinkij->sink()->isBoundaryNode());
-//                                        assert(periodicLoopLinkjk->source()->isBoundaryNode());
-//
-//                                        lij=((periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm());
-//                                        ljk=((periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm());
-//
-//                                        if (periodicLoopLinkij->source()->isBoundaryNode() || periodicLoopLinkjk->sink()->isBoundaryNode())
-//                                        {
-//                                            if (periodicLoopLinkij->source()->isBoundaryNode())
-//                                            {
-//                                                periodicLoopLink=periodicLoopLinkij->loop()->periodicLoop->loopLinks().find(periodicLoopLinkij->loop()->linkStartingAt(periodicLoopLinkij->source()->sID).second);
-//                                                periodicLoopLinkij=periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-//                                                if (periodicLoopLinkij)
-//                                                {
-//                                                    assert(periodicLoopLinkij->sink()->isBoundaryNode());
-//                                                    lij += (periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm();
-//                                                }
-//                                                else
-//                                                {
-//                                                    break;
-//                                                }
-//
-//                                            }
-//                                            if (periodicLoopLinkjk->sink()->isBoundaryNode())
-//                                            {
-//                                                periodicLoopLink = periodicLoopLinkjk->loop()->periodicLoop->loopLinks().find(periodicLoopLinkjk->loop()->linkStartingAt(periodicLoopLinkjk->source()->sID).second);
-//                                                periodicLoopLinkjk = periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-//                                                if (periodicLoopLinkjk)
-//                                                {
-//                                                    assert(periodicLoopLinkjk->source()->isBoundaryNode());
-//                                                    ljk += (periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm();
-//                                                }
-//                                                else
-//                                                {
-//                                                    break;
-//                                                }
-//
-//                                            }
-//
-//                                        }
-//                                        else
-//                                        {
-//                                            break;
-//                                        }
-//                                    }
-//                                    else
-//                                    {
-//                                        break;
-//                                    }
-//
-//                                }
-//                                if (periodicLoopLinkij && periodicLoopLinkjk)
-//                                {
-//                                    periodicnodeMap=std::make_tuple(periodicLoopLinkij->source().get(),nodeJ,periodicLoopLinkjk->sink().get(),lij,ljk);
-//                                }
-//
-//                            }
-//                            else
-//                            {
-//                                const auto nodeJ = loopLink->sink().get();
-//                                double lij=0;
-//                                double ljk=0;
-//                                auto periodicLoopLink(loopLink->loop()->periodicLoop->loopLinks().find(loopLink));
-//                                auto periodicLoopLinkij(periodicLoopLink->first);
-//                                assert(periodicLoopLink->first==loopLink);
-//                                auto periodicLoopLinkjk(periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID));
-//                                while (true)
-//                                {
-//                                    if (periodicLoopLinkjk)
-//                                    {
-//
-//                                        assert(periodicLoopLinkij->sink()->isBoundaryNode());
-//                                        assert(periodicLoopLinkjk->source()->isBoundaryNode());
-//
-//                                        lij=((periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm());
-//                                        ljk=((periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm());
-//
-//                                        if (periodicLoopLinkij->source()->isBoundaryNode() || periodicLoopLinkjk->sink()->isBoundaryNode())
-//                                        {
-//                                            if (periodicLoopLinkij->source()->isBoundaryNode())
-//                                            {
-//                                                periodicLoopLink = periodicLoopLinkij->loop()->periodicLoop->loopLinks().find(periodicLoopLinkij->loop()->linkStartingAt(periodicLoopLinkij->source()->sID).second);
-//                                                periodicLoopLinkij = periodicLoopLink->second.source->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-//                                                if (periodicLoopLinkij)
-//                                                {
-//                                                    assert(periodicLoopLinkij->sink()->isBoundaryNode());
-//                                                    lij += (periodicLoopLinkij->source()->get_P() - periodicLoopLinkij->sink()->get_P()).norm();
-//                                                }
-//                                                else
-//                                                {
-//                                                    break;
-//                                                }
-//                                            }
-//                                            if (periodicLoopLinkjk->sink()->isBoundaryNode())
-//                                            {
-//                                                periodicLoopLink = periodicLoopLinkjk->loop()->periodicLoop->loopLinks().find(periodicLoopLinkjk->loop()->linkStartingAt(periodicLoopLinkjk->source()->sID).second);
-//                                                periodicLoopLinkjk = periodicLoopLink->second.sink->getNeighborLinkinDifferentLoop(periodicLoopLink->second, loopLink->loop()->sID);
-//                                                if (periodicLoopLinkjk)
-//                                                {
-//                                                    assert(periodicLoopLinkjk->source()->isBoundaryNode());
-//                                                    ljk += (periodicLoopLinkjk->source()->get_P() - periodicLoopLinkjk->sink()->get_P()).norm();
-//                                                }
-//                                                else
-//                                                {
-//                                                    break;
-//                                                }
-//                                            }
-//                                        }
-//                                        else
-//                                        {
-//                                            break;
-//                                        }
-//
-//                                    }
-//                                    else
-//                                    {
-//                                        break;
-//                                    }
-//                                }
-//                                if (periodicLoopLinkij && periodicLoopLinkjk)
-//                                {
-//                                    periodicnodeMap=std::make_tuple(periodicLoopLinkij->source().get(),nodeJ, periodicLoopLinkjk->sink().get(), lij, ljk);
-//                                }
-//                            }
-//                        }
-//                    }
-//                    return periodicnodeMap;
-//                }
-//                else
-//                {
-//                    assert(0 && "Improper Call for Internal Nodes....");
-//                    return periodicnodeMap;
-//                }
-//            }
-//            else
-//            {
-//                assert(0 && "Improper Call for non periodic Simulations....");
-//                return periodicnodeMap;
-//            }
-//        }

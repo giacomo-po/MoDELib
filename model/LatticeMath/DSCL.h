@@ -11,10 +11,9 @@
 
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-//#include <RoundEigen.h>
 #include <SmithDecomposition.h>
 #include <Lattice.h>
-#include <RationalMatrix.h>
+#include <LatticeTransitionMatrix.h>
 #include <LLL.h>
 #include <RLLL.h>
 
@@ -27,76 +26,29 @@ namespace model
      * [1] Coincidence Lattices and Associated Shear Transformations
      */
     template <int dim>
-    class DSCL : public Lattice<dim>
+    class DSCL : public LatticeTransitionMatrix<dim>
+    /*       */ ,public Lattice<dim>
     {
         static_assert(dim>0,"dim must be > 0.");
-        //        static constexpr double roundTol=FLT_EPSILON;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef Lattice<dim> LatticeType;
         typedef long long int IntValueType;
         typedef Eigen::Matrix<IntValueType,dim,dim> MatrixInt;
-
-        
-        IntValueType _sigma;
         
         /**********************************************************************/
-        static IntValueType gcd(const IntValueType& a,const IntValueType& b)
+        static MatrixDimD getLatticeBasis(const LatticeTransitionMatrix<dim>& rm,
+                                          const LatticeType& A,
+                                          const LatticeType& B,
+                                          const bool& useRLLL)
         {
-            return b>0? gcd(b, a % b) : a;
-        }
-
-    public:
-        
-        const LatticeType& A;
-        const LatticeType& B;
-        
-        /**********************************************************************/
-        DSCL(const LatticeType& A_in,
-            const LatticeType& B_in,
-             const bool& useRLLL=true) :
-        /* init */ _sigma(1),
-        /* init */ A(A_in),
-        /* init */ B(B_in)
-        {
-            update(useRLLL);
-        }
-
-        /**********************************************************************/
-        void update(const bool& useRLLL)
-        {/*!Suppose that lattice B is obtained from A through a rotaion R,
-          * that is B=R*A. Then R=B*inv(A)=B.covBasis()*A.contraBasis().transpose()
-          */
-            const MatrixDimD R(B.covBasis()*A.contraBasis().transpose());
-            
-            // Check that R is a proper rotation
-            const MatrixDimD RRT=R*R.transpose();
-            const double RRTmInorm=(RRT-Eigen::Matrix<double,dim,dim>::Identity()).norm()/Eigen::Matrix<double,dim,dim>::Identity().norm();
-            if(RRTmInorm>FLT_EPSILON)
-            {
-                std::cout<<"R="<<std::endl<<R<<std::endl;
-                std::cout<<"R*R^T="<<std::endl<<RRT<<std::endl;
-                std::cout<<"norm(R*R^T-I)/norm(I)="<<RRTmInorm<<", tol="<<FLT_EPSILON<<std::endl;
-                assert(0 && "R IS NOT ORTHOGONAL.");
-            }
-            // make sure that C2G is proper
-            assert(std::fabs(R.determinant()-1.0) < FLT_EPSILON && "R IS NOT PROPER.");
-
-            
-            // Compute the transition matrix T=inv(A)*B
-            const MatrixDimD T=A.contraBasis().transpose()*B.covBasis();
-            
-            // For the two lattices to have coincident sites, R must be a rational matrix
-            // Compute the integer matrix P and the integer sigma such that T=P/sigma
-            RationalMatrix<dim> rm(T);
-            const MatrixInt& P=rm.integerMatrix;
-            _sigma=rm.den;
-            
+            // The transition matrix is T=P/sigma, where P=rm.integerMatrix is
+            // an integer matrix and sigma=rm.sigma is an integer
             // The integer matrix P can be decomposed as P=X*D*Y using the Smith decomposition.
             // X and Y are unimodular, and D is diagonal with D(k,k) dividing D(k+1,k+1)
-            // The decopmosition also computes the matices U and V such that D=U*P*V
-            SmithDecomposition<dim> sd(P);
+            // The decomposition also computes the matices U and V such that D=U*P*V
+            SmithDecomposition<dim> sd(rm.integerMatrix);
             
             // From T=inv(A)*B=P/sigma=X*D*Y/sigma=X*D*inv(V)/sigma, we have
             // B1*(sigma*I)=A1*D
@@ -122,30 +74,53 @@ namespace model
             for(int i=0;i<dim;++i)
             {
                 const IntValueType& dii=sd.matrixD()(i,i);
-                M(i,i)=dii/gcd(_sigma,dii);
-                N(i,i)=_sigma/gcd(_sigma,dii);
+                M(i,i)=dii/rm.gcd(rm.sigma,dii);
+                N(i,i)=rm.sigma/rm.gcd(rm.sigma,dii);
             }
             
-            const MatrixDimD D1=A.covBasis()*sd.matrixX().template cast<double>()*N.template cast<double>().inverse();
-            const MatrixDimD D2=B.covBasis()*sd.matrixV().template cast<double>()*M.template cast<double>().inverse();
-            
+            const MatrixDimD D1=A.latticeBasis*sd.matrixX().template cast<double>()*N.template cast<double>().inverse();
+            const MatrixDimD D2=B.latticeBasis*sd.matrixV().template cast<double>()*M.template cast<double>().inverse();
             assert((D1-D2).norm()<FLT_EPSILON && "DSCL calculation failed.");
             
             if(useRLLL)
             {
-                this->setLatticeBasis(RLLL(0.5*(D1+D2),0.75).reducedBasis());
+                return RLLL(0.5*(D1+D2),0.75).reducedBasis();
             }
             else
             {
-                this->setLatticeBasis(0.5*(D1+D2));
+                return 0.5*(D1+D2);
             }
         }
         
+    public:
+        
+//        const LatticeType& A;
+//        const LatticeType& B;
+        
         /**********************************************************************/
-        const IntValueType& sigma() const
+        DSCL(const LatticeType& A_in,
+             const LatticeType& B_in,
+             const bool& useRLLL=true) :
+        /* init */ LatticeTransitionMatrix<dim>(A_in,B_in)
+        /* init */,Lattice<dim>(getLatticeBasis(*this,A_in,B_in,useRLLL),MatrixDimD::Identity())
+//        /* init */,A(A_in)
+//        /* init */,B(B_in)
         {
-            return _sigma;
+            //            update(useRLLL);
+            
+            if(true)
+            {//verify that A and B are multiples of DSCL
+                
+                const MatrixDimD tempA(this->reciprocalBasis.transpose()*A_in.latticeBasis);
+                assert((tempA-tempA.array().round().matrix()).norm()<FLT_EPSILON && "A is not a multiple of DSCL");
+                
+                const MatrixDimD tempB(this->reciprocalBasis.transpose()*B_in.latticeBasis);
+                assert((tempB-tempB.array().round().matrix()).norm()<FLT_EPSILON && "B is not a multiple of DSCL");
+            }
+            
         }
+        
+        
     };
     
     
@@ -153,3 +128,18 @@ namespace model
 #endif
 
 
+
+
+//        /**********************************************************************/
+//        const IntValueType& sigma() const
+//        {
+//            return _sigma;
+//        }
+
+//        IntValueType _sigma;
+
+//        /**********************************************************************/
+//        static IntValueType gcd(const IntValueType& a,const IntValueType& b)
+//        {
+//            return b>0? gcd(b, a % b) : a;
+//        }

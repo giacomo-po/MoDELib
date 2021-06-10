@@ -26,6 +26,7 @@ namespace model
         int qID;
         VectorDim r;                          // position
         double j;                             // jacobian dl/du
+        double dL;
         VectorDim rl;                         // unit tangent dr/dl
         
         MatrixDim stress;
@@ -41,6 +42,7 @@ namespace model
         /* init */,qID(0)
         /* init */,r(VectorDim::Zero())
         /* init */,j(0.0)
+        /* init */,dL(0.0)
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
@@ -58,6 +60,7 @@ namespace model
         /* init */,qID(qPoint.qID)
         /* init */,r(qPoint.r)
         /* init */,j(qPoint.j)
+        /* init */,dL(qPoint.dL)
         /* init */,rl(qPoint.rl)
         /* init */,stress(qPoint.stress)
         /* init */,pkForce(qPoint.pkForce)
@@ -75,6 +78,7 @@ namespace model
         /* init */,qID(0)
         /* init */,r(VectorDim::Zero())
         /* init */,j(0.0)
+        /* init */,dL(0.0)
         /* init */,rl(VectorDim::Zero())
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
@@ -91,6 +95,7 @@ namespace model
                 ss>>r(d);
             }
             ss>>j;
+            ss>>dL;
             for(int d=0;d<dim;++d)
             {
                 ss>>rl(d);
@@ -127,6 +132,7 @@ namespace model
             /**/<< ds.qID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.r.transpose()<<"\t"
             /**/<< ds.j<<"\t"
+            /**/<< ds.dL<<"\t"
             /**/<< ds.rl.transpose()<<"\t";
             for(int d=0;d<dim;++d)
             {

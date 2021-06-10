@@ -298,7 +298,6 @@ namespace model
             }
             else
             {
-                //                VerbosePlanarDislocationNode(3,"PlanarDislocationNode "<<this->sID<<" snapToGlidePlanes, case 0"<<std::endl;);
                 assert(this->glidePlanes().size()==1);
                 return (*this->glidePlanes().begin())->snapToPlane(P);
             }

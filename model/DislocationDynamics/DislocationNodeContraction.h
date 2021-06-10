@@ -97,6 +97,9 @@ namespace model
                 VerboseNodeContraction(2,"contractToPosition"<<std::endl;);
                 VerboseNodeContraction(2,"movedA="<<movedA<<std::endl;);
                 VerboseNodeContraction(2,"movedB="<<movedB<<std::endl;);
+                VerboseNodeContraction(2,"X="<<X.transpose()<<std::endl;);
+                VerboseNodeContraction(2,"nA->get_P()="<<nA->get_P().transpose()<<std::endl;);
+                VerboseNodeContraction(2,"nB->get_P()="<<nB->get_P().transpose()<<std::endl;);
                 assert(movedA && movedB && "COULD NOT MOVE NODES");
             }
             

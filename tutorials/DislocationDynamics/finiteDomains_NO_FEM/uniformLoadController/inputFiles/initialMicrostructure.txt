@@ -4,8 +4,16 @@ enforceMonotonicHelicity=0;
 
 #######################################
 # Straight dislocations from boundary to boundary
-targetStraightDislocationDensity=1e14;
+targetStraightDislocationDensity=5e13;
 fractionSessileStraightDislocationDensity=0.0;
+
+#######################################
+# Jogged dislocations
+targetJoggedtDislocationDensity=1e13;
+jogLength_M=-15.2196;
+jogLength_S=0.35353;
+jogHeigth_M=-17.3789;
+jogHeigth_S=0.3170;
 
 #######################################
 # Frank-Read sources

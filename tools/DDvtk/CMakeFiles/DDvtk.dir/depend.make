@@ -100,6 +100,7 @@ CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticeLine.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticeMath.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticePlane.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticePlaneBase.h
+CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticeTransitionMatrix.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LatticeVector.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LineLineIntersection.h
 CMakeFiles/DDvtk.dir/DDvtk.cxx.o: ../../header_symlinks/LinearForm.h

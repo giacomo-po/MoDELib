@@ -368,7 +368,6 @@ namespace model
             MPI_Barrier(MPI_COMM_WORLD);
 #endif
             // Initializing configuration
-//            this->io().output(simulationParameters.runID);
             moveGlide(0.0);    // initial configuration
         }
         
@@ -389,7 +388,7 @@ namespace model
                     const size_t nodeID(StaticID<NodeType>::nextID());
                     const auto inserted(tempNodes.emplace(std::piecewise_construct,
                                                           std::make_tuple(nodeID),
-                                                          std::make_tuple(new NodeType(this,node.P,node.V,node.velocityReduction))));
+                                                          std::make_tuple(new NodeType(this,node.P,node.V,node.vOld,node.velocityReduction))));
                     assert(inserted.second && "COULD NOT INSERT NETWORK VERTEX IN VERTEX CONTAINER.");
                     assert(inserted.first->first == nodeID && "KEY != nodeID");
                     assert(inserted.first->second->sID == nodeID && "sID != nodeID");

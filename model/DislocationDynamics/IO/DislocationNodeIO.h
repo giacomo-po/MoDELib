@@ -26,6 +26,7 @@ namespace model
         size_t sID;          // sID
         VectorDim P;          // position
         VectorDim V;          // velocity
+        VectorDim vOld;          // velocity
         double velocityReduction;             // velocity reduction factor
         size_t snID;          // component ID
         int  meshLocation;    // mesh location
@@ -38,6 +39,7 @@ namespace model
         /* init */ sID(dn.sID),
         /* init */ P(dn.get_P()),
         /* init */ V(dn.get_V()),
+        /* init */ vOld(dn.vOld),
         /* init */ velocityReduction(dn.velocityReduction()),
         /* init */ snID(dn.pSN()->sID),
         /* init */ meshLocation(dn.meshLocation()),
@@ -57,6 +59,7 @@ namespace model
         /* init */ sID(sID_in),
         /* init */ P(P_in),
         /* init */ V(V_in),
+        /* init */ vOld(V_in),
         /* init */ velocityReduction(velocityReduction_in),
         /* init */ snID(snID_in),
         /* init */ meshLocation(meshLocation_in),
@@ -69,6 +72,7 @@ namespace model
         /* init */ sID(0),
         /* init */ P(VectorDim::Zero()),
         /* init */ V(VectorDim::Zero()),
+        /* init */ vOld(VectorDim::Zero()),
         /* init */ velocityReduction(1.0),
         /* init */ snID(0),
         /* init */ meshLocation(0),
@@ -81,6 +85,7 @@ namespace model
         /* init */ sID(0),
         /* init */ P(VectorDim::Zero()),
         /* init */ V(VectorDim::Zero()),
+        /* init */ vOld(VectorDim::Zero()),
         /* init */ velocityReduction(1.0),
         /* init */ snID(0),
         /* init */ meshLocation(0),
@@ -94,6 +99,10 @@ namespace model
             for(int d=0;d<dim;++d)
             {
                 ss>>V(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
+                ss>>vOld(d);
             }
             ss>>velocityReduction;
             ss>>snID;
@@ -109,6 +118,7 @@ namespace model
             os  << ds.sID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
             /**/<< ds.V.transpose()<<"\t"
+            /**/<< ds.vOld.transpose()<<"\t"
             /**/<< ds.velocityReduction<<"\t"
             /**/<< ds.snID<<"\t"
             /**/<< ds.meshLocation<<"\t"
