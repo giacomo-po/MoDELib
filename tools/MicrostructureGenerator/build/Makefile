@@ -123,6 +123,32 @@ microstructureGenerator/fast:
 	$(MAKE) -f CMakeFiles/microstructureGenerator.dir/build.make CMakeFiles/microstructureGenerator.dir/build
 .PHONY : microstructureGenerator/fast
 
+#=============================================================================
+# Target rules for targets named MoDELibMesh
+
+# Build rule for target.
+MoDELibMesh: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 MoDELibMesh
+.PHONY : MoDELibMesh
+
+# fast build rule for target.
+MoDELibMesh/fast:
+	$(MAKE) -f Mesh/CMakeFiles/MoDELibMesh.dir/build.make Mesh/CMakeFiles/MoDELibMesh.dir/build
+.PHONY : MoDELibMesh/fast
+
+#=============================================================================
+# Target rules for targets named MoDELibLattices
+
+# Build rule for target.
+MoDELibLattices: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 MoDELibLattices
+.PHONY : MoDELibLattices
+
+# fast build rule for target.
+MoDELibLattices/fast:
+	$(MAKE) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/build
+.PHONY : MoDELibLattices/fast
+
 microstructureGenerator.o: microstructureGenerator.cpp.o
 
 .PHONY : microstructureGenerator.o
@@ -159,6 +185,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... microstructureGenerator"
+	@echo "... MoDELibMesh"
+	@echo "... MoDELibLattices"
 	@echo "... microstructureGenerator.o"
 	@echo "... microstructureGenerator.i"
 	@echo "... microstructureGenerator.s"

@@ -7,6 +7,8 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 # The top level Makefile was generated from the following files:
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
+  "/Users/giacomo/Documents/MODELIB2/src/Lattices/CMakeLists.txt"
+  "/Users/giacomo/Documents/MODELIB2/src/Mesh/CMakeLists.txt"
   "../CMakeLists.txt"
   "CMakeFiles/3.13.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.13.1/CMakeSystem.cmake"
@@ -89,9 +91,13 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/3.13.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.13.1/CMakeCXXCompiler.cmake"
   "CMakeFiles/CMakeDirectoryInformation.cmake"
+  "Mesh/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "Lattices/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "CMakeFiles/microstructureGenerator.dir/DependInfo.cmake"
+  "Mesh/CMakeFiles/MoDELibMesh.dir/DependInfo.cmake"
+  "Lattices/CMakeFiles/MoDELibLattices.dir/DependInfo.cmake"
   )

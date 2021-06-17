@@ -1,3 +1,9 @@
 /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles/rebuild_cache.dir
 /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles/edit_cache.dir
 /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles/microstructureGenerator.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Mesh/CMakeFiles/rebuild_cache.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Mesh/CMakeFiles/edit_cache.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Mesh/CMakeFiles/MoDELibMesh.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Lattices/CMakeFiles/rebuild_cache.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Lattices/CMakeFiles/edit_cache.dir
+/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/Lattices/CMakeFiles/MoDELibLattices.dir

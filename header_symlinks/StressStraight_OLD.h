@@ -1,1 +1,0 @@
-/Users/giacomo/Documents/MODELIB2/tutorials/DislocationDynamics/periodicDomains/uniformLoadController/../../../../model/DislocationDynamics/ElasticFields/StressStraight_OLD.h

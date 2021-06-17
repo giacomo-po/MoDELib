@@ -79,6 +79,8 @@ microstructureGenerator_EXTERNAL_OBJECTS =
 
 microstructureGenerator: CMakeFiles/microstructureGenerator.dir/microstructureGenerator.cpp.o
 microstructureGenerator: CMakeFiles/microstructureGenerator.dir/build.make
+microstructureGenerator: Mesh/libMoDELibMesh.a
+microstructureGenerator: Lattices/libMoDELibLattices.a
 microstructureGenerator: CMakeFiles/microstructureGenerator.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable microstructureGenerator"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/microstructureGenerator.dir/link.txt --verbose=$(VERBOSE)

@@ -68,10 +68,11 @@ CMAKE_BINARY_DIR = /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerat
 # Target rules for target CMakeFiles/microstructureGenerator.dir
 
 # All Build rule for target.
-CMakeFiles/microstructureGenerator.dir/all:
+CMakeFiles/microstructureGenerator.dir/all: Mesh/CMakeFiles/MoDELibMesh.dir/all
+CMakeFiles/microstructureGenerator.dir/all: Lattices/CMakeFiles/MoDELibLattices.dir/all
 	$(MAKE) -f CMakeFiles/microstructureGenerator.dir/build.make CMakeFiles/microstructureGenerator.dir/depend
 	$(MAKE) -f CMakeFiles/microstructureGenerator.dir/build.make CMakeFiles/microstructureGenerator.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles --progress-num=1,2 "Built target microstructureGenerator"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles --progress-num=5,6 "Built target microstructureGenerator"
 .PHONY : CMakeFiles/microstructureGenerator.dir/all
 
 # Include target in all.
@@ -81,7 +82,7 @@ all: CMakeFiles/microstructureGenerator.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/microstructureGenerator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/microstructureGenerator.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 0
 .PHONY : CMakeFiles/microstructureGenerator.dir/rule
@@ -98,6 +99,116 @@ CMakeFiles/microstructureGenerator.dir/clean:
 
 # clean rule for target.
 clean: CMakeFiles/microstructureGenerator.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory Mesh
+
+# Convenience name for "all" pass in the directory.
+Mesh/all: Mesh/CMakeFiles/MoDELibMesh.dir/all
+
+.PHONY : Mesh/all
+
+# Convenience name for "clean" pass in the directory.
+Mesh/clean: Mesh/CMakeFiles/MoDELibMesh.dir/clean
+
+.PHONY : Mesh/clean
+
+# Convenience name for "preinstall" pass in the directory.
+Mesh/preinstall:
+
+.PHONY : Mesh/preinstall
+
+#=============================================================================
+# Target rules for target Mesh/CMakeFiles/MoDELibMesh.dir
+
+# All Build rule for target.
+Mesh/CMakeFiles/MoDELibMesh.dir/all:
+	$(MAKE) -f Mesh/CMakeFiles/MoDELibMesh.dir/build.make Mesh/CMakeFiles/MoDELibMesh.dir/depend
+	$(MAKE) -f Mesh/CMakeFiles/MoDELibMesh.dir/build.make Mesh/CMakeFiles/MoDELibMesh.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles --progress-num=3,4 "Built target MoDELibMesh"
+.PHONY : Mesh/CMakeFiles/MoDELibMesh.dir/all
+
+# Include target in all.
+all: Mesh/CMakeFiles/MoDELibMesh.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+Mesh/CMakeFiles/MoDELibMesh.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 Mesh/CMakeFiles/MoDELibMesh.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 0
+.PHONY : Mesh/CMakeFiles/MoDELibMesh.dir/rule
+
+# Convenience name for target.
+MoDELibMesh: Mesh/CMakeFiles/MoDELibMesh.dir/rule
+
+.PHONY : MoDELibMesh
+
+# clean rule for target.
+Mesh/CMakeFiles/MoDELibMesh.dir/clean:
+	$(MAKE) -f Mesh/CMakeFiles/MoDELibMesh.dir/build.make Mesh/CMakeFiles/MoDELibMesh.dir/clean
+.PHONY : Mesh/CMakeFiles/MoDELibMesh.dir/clean
+
+# clean rule for target.
+clean: Mesh/CMakeFiles/MoDELibMesh.dir/clean
+
+.PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory Lattices
+
+# Convenience name for "all" pass in the directory.
+Lattices/all: Lattices/CMakeFiles/MoDELibLattices.dir/all
+
+.PHONY : Lattices/all
+
+# Convenience name for "clean" pass in the directory.
+Lattices/clean: Lattices/CMakeFiles/MoDELibLattices.dir/clean
+
+.PHONY : Lattices/clean
+
+# Convenience name for "preinstall" pass in the directory.
+Lattices/preinstall:
+
+.PHONY : Lattices/preinstall
+
+#=============================================================================
+# Target rules for target Lattices/CMakeFiles/MoDELibLattices.dir
+
+# All Build rule for target.
+Lattices/CMakeFiles/MoDELibLattices.dir/all:
+	$(MAKE) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/depend
+	$(MAKE) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles --progress-num=1,2 "Built target MoDELibLattices"
+.PHONY : Lattices/CMakeFiles/MoDELibLattices.dir/all
+
+# Include target in all.
+all: Lattices/CMakeFiles/MoDELibLattices.dir/all
+
+.PHONY : all
+
+# Build rule for subdir invocation for target.
+Lattices/CMakeFiles/MoDELibLattices.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 2
+	$(MAKE) -f CMakeFiles/Makefile2 Lattices/CMakeFiles/MoDELibLattices.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/giacomo/Documents/MODELIB2/tools/MicrostructureGenerator/build/CMakeFiles 0
+.PHONY : Lattices/CMakeFiles/MoDELibLattices.dir/rule
+
+# Convenience name for target.
+MoDELibLattices: Lattices/CMakeFiles/MoDELibLattices.dir/rule
+
+.PHONY : MoDELibLattices
+
+# clean rule for target.
+Lattices/CMakeFiles/MoDELibLattices.dir/clean:
+	$(MAKE) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/clean
+.PHONY : Lattices/CMakeFiles/MoDELibLattices.dir/clean
+
+# clean rule for target.
+clean: Lattices/CMakeFiles/MoDELibLattices.dir/clean
 
 .PHONY : clean
 
