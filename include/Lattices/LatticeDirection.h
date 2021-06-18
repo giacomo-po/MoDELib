@@ -17,9 +17,7 @@
 namespace model
 {
     template <int dim>
-    struct LatticeDirection :
-//    /* inherits */ public LatticeGCD<dim>,
-    /* inherits */ public LatticeVector<dim>
+    struct LatticeDirection : public LatticeVector<dim>
     {
         typedef LatticeGCD<dim> LatticeGCDType;
 //        typedef LatticeBase<dim> LatticeBaseType;

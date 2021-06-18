@@ -38,8 +38,8 @@ namespace model
 
 #include <Lattice.h>
 #include <LatticeVector.h>
-#include <ReciprocalLatticeVector.h>
 #include <LatticeDirection.h>
+#include <ReciprocalLatticeVector.h>
 #include <ReciprocalLatticeDirection.h>
 
 #include <LatticePlaneBase.h>

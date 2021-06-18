@@ -9,35 +9,22 @@
 #ifndef model_Lattice_cpp_
 #define model_Lattice_cpp_
 
-#include <iomanip> // FLT_EPSILON
+#include <iomanip>
 #include <cfloat> // FLT_EPSILON
 #include <Eigen/Dense>
-#include <StaticID.h>
-//#include <RoundEigen.h>
-//#include <LatticeBase.h>
-//#include <ReciprocalLatticeVector.h>
-#include <LatticeVector.h>
-#include <ReciprocalLatticeVector.h>
-#include <LatticeDirection.h>
-#include <ReciprocalLatticeDirection.h>
-#include <BestRationalApproximation.h>
 
-#include <RationalLatticeDirection.h>
-#include <Lattice.h>
+#include <LatticeMath.h>
 
 namespace model
 {
-    
-    
-    
     /**********************************************************************/
     template <int dim>
-    static MatrixDimD Lattice<dim>::getLatticeBasis(const MatrixDimD& A,const MatrixDimD& Q)
+    typename Lattice<dim>::MatrixDimD Lattice<dim>::getLatticeBasis(const typename Lattice<dim>::MatrixDimD& A,const typename Lattice<dim>::MatrixDimD& Q)
     {
         
         // Check that Q is orthogonal
-        const MatrixDimD QQT(Q*Q.transpose());
-        if((QQT-MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
+        const typename Lattice<dim>::MatrixDimD QQT(Q*Q.transpose());
+        if((QQT-typename Lattice<dim>::MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
         {
             std::cout<<"Q=\n"<<Q<<std::endl;
             std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
@@ -51,16 +38,11 @@ namespace model
         assert(std::fabs(A.determinant())>FLT_EPSILON && "A matrix is singular");
         
         return Q*A;
-        //            const MatrixDimD QA(Q*A);
-        //            return std::make_tuple(QA,QA.inverse().transpose(),Q);
     }
-    
-    
-    
     
     /**********************************************************************/
     template <int dim>
-    Lattice<dim>::Lattice(const MatrixDimD& A,const MatrixDimD& Q) :
+    Lattice<dim>::Lattice(const typename Lattice<dim>::MatrixDimD& A,const typename Lattice<dim>::MatrixDimD& Q) :
     //        /* init */ latticeBases(getLatticeBases(A,Q))
     /* init */ latticeBasis(getLatticeBasis(A,Q))
     /* init */,reciprocalBasis(latticeBasis.inverse().transpose())
@@ -69,10 +51,9 @@ namespace model
         
     }
     
-    
     /**********************************************************************/
     template <int dim>
-    static Eigen::Matrix<long int,dim,1> Lattice<dim>::rationalApproximation(VectorDimD nd)
+    Eigen::Matrix<long int,dim,1> Lattice<dim>::rationalApproximation(VectorDimD nd)
     {
         Eigen::Array<long int,dim,1> nums=Eigen::Matrix<long int,dim,1>::Zero();
         
@@ -107,19 +88,19 @@ namespace model
     
     /**********************************************************************/
     template <int dim>
-    LatticeVectorType Lattice<dim>::snapToLattice(const VectorDimD& d) const
+    typename Lattice<dim>:: LatticeVectorType Lattice<dim>::snapToLattice(const VectorDimD& d) const
     {
         VectorDimD nd(reciprocalBasis.transpose()*d);
-        return LatticeVectorType(nd.array().round().matrix().template cast<long int>(),*this);
+        return typename Lattice<dim>:: LatticeVectorType(nd.array().round().matrix().template cast<long int>(),*this);
     }
     
     /**********************************************************************/
     template <int dim>
-    LatticeDirectionType Lattice<dim>::latticeDirection(const VectorDimD& d) const
+    typename Lattice<dim>:: LatticeDirectionType Lattice<dim>::latticeDirection(const VectorDimD& d) const
     {
         
         const VectorDimD nd(reciprocalBasis.transpose()*d);
-        const LatticeVectorType temp(rationalApproximation(nd),*this);
+        const typename Lattice<dim>:: LatticeVectorType temp(rationalApproximation(nd),*this);
         
         const double crossNorm(temp.cartesian().normalized().cross(d.normalized()).norm());
         if(crossNorm>FLT_EPSILON)
@@ -130,16 +111,16 @@ namespace model
             assert(0 && "LATTICE DIRECTION NOT FOUND");
         }
         
-        return LatticeDirectionType(temp);
+        return typename Lattice<dim>:: LatticeDirectionType(temp);
     }
     
     /**********************************************************************/
     template <int dim>
-    ReciprocalLatticeDirectionType Lattice<dim>::reciprocalLatticeDirection(const VectorDimD& d) const
+    typename Lattice<dim>::ReciprocalLatticeDirectionType Lattice<dim>::reciprocalLatticeDirection(const VectorDimD& d) const
     {
         
         const VectorDimD nd(latticeBasis.transpose()*d);
-        const ReciprocalLatticeVectorType temp(rationalApproximation(nd),*this);
+        const typename Lattice<dim>::ReciprocalLatticeVectorType temp(rationalApproximation(nd),*this);
         
         const double crossNorm(temp.cartesian().normalized().cross(d.normalized()).norm());
         if(crossNorm>FLT_EPSILON)
@@ -150,26 +131,26 @@ namespace model
             assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
         }
         
-        return ReciprocalLatticeDirectionType(temp);
+        return typename Lattice<dim>::ReciprocalLatticeDirectionType(temp);
     }
     
     /**********************************************************************/
     template <int dim>
-    RationalLatticeDirectionType Lattice<dim>::rationalLatticeDirection(const VectorDimD& d,
-                                                                        const typename BestRationalApproximation::LongIntType& maxDen=1000) const
+    typename Lattice<dim>::RationalLatticeDirectionType Lattice<dim>::rationalLatticeDirection(const VectorDimD& d,
+                                                                        const typename BestRationalApproximation::LongIntType& maxDen) const
     {
         
-        const LatticeDirectionType ld(latticeDirection(d));
+        const typename Lattice<dim>:: LatticeDirectionType ld(latticeDirection(d));
         const BestRationalApproximation bra(d.norm()/ld.cartesian().norm(),maxDen);
         Rational rat(bra.num,bra.den);
-        RationalLatticeDirectionType rld(rat,ld);
+        typename Lattice<dim>:: RationalLatticeDirectionType rld(rat,ld);
         if((rld.cartesian()-d).squaredNorm()>FLT_EPSILON)
         {
             std::cout<<"input vector="<<d.transpose()<<std::endl;
             std::cout<<"lattice direction="<<ld.cartesian().transpose()<<std::endl;
             std::cout<<"rational="<<rat<<std::endl;
             std::cout<<"d.norm()/ld.cartesian().norm()="<<d.norm()/ld.norm()<<std::endl;
-            assert(0 && "RationalLatticeDirectionType NOT FOUND");
+            assert(0 && "typename Lattice<dim>:: RationalLatticeDirectionType NOT FOUND");
         }
         return rld;
         
@@ -177,20 +158,16 @@ namespace model
     
     /**********************************************************************/
     template <int dim>
-    LatticeVectorType Lattice<dim>::latticeVector(const VectorDimD& p) const
+    typename Lattice<dim>:: LatticeVectorType Lattice<dim>::latticeVector(const VectorDimD& p) const
     {
-        return LatticeVectorType(p,*this);
+        return typename Lattice<dim>:: LatticeVectorType(p,*this);
     }
     
     /**********************************************************************/
     template <int dim>
-    ReciprocalLatticeVectorType Lattice<dim>::reciprocalLatticeVector(const VectorDimD& p) const
+    typename Lattice<dim>::ReciprocalLatticeVectorType Lattice<dim>::reciprocalLatticeVector(const VectorDimD& p) const
     {
-        return ReciprocalLatticeVectorType(p,*this);
+        return typename Lattice<dim>::ReciprocalLatticeVectorType(p,*this);
     }
-    
-    
-    
-    
 }
 #endif
