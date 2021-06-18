@@ -24,7 +24,7 @@ namespace model
         
         // Check that Q is orthogonal
         const typename Lattice<dim>::MatrixDimD QQT(Q*Q.transpose());
-        if((QQT-typename Lattice<dim>::MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
+        if((QQT- Lattice<dim>::MatrixDimD::Identity()).norm()>2.0*DBL_EPSILON*dim*dim)
         {
             std::cout<<"Q=\n"<<Q<<std::endl;
             std::cout<<"Q*Q^T=\n"<<QQT<<std::endl;
@@ -169,5 +169,8 @@ namespace model
     {
         return typename Lattice<dim>::ReciprocalLatticeVectorType(p,*this);
     }
+    
+    template class Lattice<3>;
+
 }
 #endif

@@ -248,6 +248,14 @@
 /*                                                                           */
 /*****************************************************************************/
 
+#ifdef SINGLE
+#define REAL float
+#else /* not SINGLE */
+#define REAL double
+#endif /* not SINGLE */
+//# define TRILIBRARY // use Triangle as a library
+# define ANSI_DECLARATORS // use ANSI_DECLARATORS
+
 struct triangulateio {
   REAL *pointlist;                                               /* In / out */
   REAL *pointattributelist;                                      /* In / out */

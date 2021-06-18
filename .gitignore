@@ -19,8 +19,6 @@ mesh.node
 # Files ending in ~
 [.]*\.[.]*~
 
-# use glob syntax.
-syntax: glob
 
 #CMake files
 cmake_install.cmake
@@ -28,13 +26,9 @@ CMakeCache.txt
 CMakeFiles
  
 # Executable
-DDcode
-DDserial
-DDparallel
 DDomp
 DDmpi
 #DDviewer
-tetgen
 DDvtk
 microstructureGenerator
 
@@ -62,7 +56,7 @@ Thumbs.db
 Desktop.ini
  
 # builds
- 
+*.cpp.o 
 *.exe
 *.ex_
  

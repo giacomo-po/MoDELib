@@ -210,14 +210,14 @@
 
 /* #define SINGLE */
 
-#ifdef SINGLE
-#define REAL float
-#else /* not SINGLE */
-#define REAL double
-#endif /* not SINGLE */
+//#ifdef SINGLE
+//#define REAL float
+//#else /* not SINGLE */
+//#define REAL double
+//#endif /* not SINGLE */
 
 # define TRILIBRARY // use Triangle as a library
-# define ANSI_DECLARATORS // use ANSI_DECLARATORS
+//# define ANSI_DECLARATORS // use ANSI_DECLARATORS
 
 /* If yours is not a Unix system, define the NO_TIMER compiler switch to     */
 /*   remove the Unix-specific timing code.                                   */

@@ -1,2 +1,0 @@
-/opt/local/bin/ar qc libMoDELibMesh.a  CMakeFiles/MoDELibMesh.dir/SimplicialMesh.cpp.o
-/opt/local/bin/ranlib libMoDELibMesh.a

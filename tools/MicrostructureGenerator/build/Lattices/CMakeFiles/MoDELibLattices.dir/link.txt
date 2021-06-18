@@ -1,2 +1,0 @@
-/opt/local/bin/ar qc libMoDELibLattices.a  CMakeFiles/MoDELibLattices.dir/Lattice.cpp.o
-/opt/local/bin/ranlib libMoDELibLattices.a

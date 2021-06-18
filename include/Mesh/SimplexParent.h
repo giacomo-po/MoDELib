@@ -22,6 +22,9 @@ namespace model
        
         typedef typename SimplexTraits<dim,order>::SimplexIDType SimplexIDType;
         typedef typename SimplexTraits<dim,order>::BaseArrayType BaseArrayType;
+        typedef Simplex<dim,order-1> ChildSimplexType;
+        typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
+        static constexpr int nFaces=SimplexTraits<dim,order>::nFaces;
 
         
         //! The barycentric-coordinate to position transformation matrix
@@ -68,6 +71,48 @@ namespace model
         {
             return bary2pos(Eigen::Matrix<double,SimplexTraits<dim,order>::nVertices,1>::Ones()/SimplexTraits<dim,order>::nVertices);
         }
+        
+        /**********************************************************************/
+        BaseArrayType& children()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const BaseArrayType& children() const
+        {
+            return *this;
+        }
+
+        
+        /**********************************************************************/
+        ChildSimplexType& child(const int& n)
+        {
+            return *(children()[n].get());
+        }
+        
+        /**********************************************************************/
+        const ChildSimplexType& child(const int& n) const
+        {
+            return *(children()[n].get());
+        }
+        
+        /**********************************************************************/
+        const std::shared_ptr<ChildSimplexType>& child(const ChildIDType& xID) const
+        {
+            size_t n=nFaces;
+            for (size_t k=0;k<nFaces;++k)
+            {
+                if(this->operator[](k)->xID==xID)
+                {
+                    n=k;
+                    break;
+                }
+            }
+            assert(n!=nFaces && "CHILD NOT FOUND");
+            return this->operator[](n);
+        }
+        
         
         
     };

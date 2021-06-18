@@ -75,10 +75,9 @@ namespace model
         static_assert(order>0,"order must be >= 0");
         static_assert(order<=dim,"order must be <= dim");
         
-        
-        enum {nVertices=SimplexTraits<dim,order-1>::nVertices+1};
-        enum {nEdges=SimplexTraits<dim,order-1>::nEdges+SimplexTraits<dim,order-1>::nVertices};
-        enum {nFaces=nVertices};
+        static constexpr int nVertices=SimplexTraits<dim,order-1>::nVertices+1;
+        static constexpr int nEdges=SimplexTraits<dim,order-1>::nEdges+SimplexTraits<dim,order-1>::nVertices;
+        static constexpr int nFaces=nVertices;
         
         typedef Simplex<dim,order>   SimplexType;
         typedef Simplex<dim,order+1> ParentSimplexType;
@@ -87,11 +86,6 @@ namespace model
 
         typedef typename SimplexID<nVertices>::ScalarIDType ScalarIDType;
         typedef SimplexID<nVertices> SimplexIDType;
-
-//        typedef size_t ScalarIDType;
-////        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
-//        typedef std::array<ScalarIDType,nVertices> SimplexIDType;
-
         
         /**********************************************************************/
         static SimplexIDType sortID(const SimplexIDType& vIN)
@@ -102,15 +96,6 @@ namespace model
                 const bool couldInsert(set.insert(vIN(k)).second);
                 assert(couldInsert && "VERTEX IDs ARE NOT UNIQUE.");
             }
-            
-//            SimplexIDType temp;
-//            int k(0);
-//            for (const size_t& m : set)
-//            {
-//                temp[k]=m;
-//                ++k;
-//            }
-//            return temp;
             return SimplexIDType(set);
         }
         
@@ -122,21 +107,14 @@ namespace model
           * \returns the ID of the child Simplex which is the j-th face of xID
           */
             assert(j<nVertices && "REQUESTING NON-EXISTING FACE");
-            
-            
             std::set<size_t> set;
-//            typename SimplexTraits<dim,order-1>::SimplexIDType temp;
-//            size_t m(0);
             for (size_t k=0;k<nVertices;++k)
             {
                 if(k!=j)
                 {
                     set.insert(xID[k]);
-//                    temp[m]=xID[k];
-//                    ++m;
                 }
             }
-//            return temp;
             return typename SimplexTraits<dim,order-1>::SimplexIDType(set);
         }
         
@@ -146,7 +124,6 @@ namespace model
             std::array<std::shared_ptr<typename SimplexTraits<dim,order-1>::SimplexIDType>,nFaces> temp;
             for (size_t j=0;j<nFaces;++j)
             {
-//                temp[j]=faceID(xID,j);
                 temp[j].reset(new typename SimplexTraits<dim,order-1>::SimplexIDType(faceID(xID,j)));
             }
             return temp;
@@ -185,10 +162,6 @@ namespace model
         
         typedef Simplex<dim,order>   SimplexType;
         typedef Simplex<dim,order+1> ParentSimplexType;
-
-//        typedef size_t ScalarIDType;
-//
-//        typedef Eigen::Matrix<ScalarIDType,1,nVertices> SimplexIDType;
         typedef typename SimplexID<nVertices>::ScalarIDType ScalarIDType;
         typedef SimplexID<nVertices> SimplexIDType;
 
