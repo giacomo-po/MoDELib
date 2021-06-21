@@ -130,16 +130,18 @@ namespace model
                     const double jogLengthM(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogLength_M",true) );
                     const double jogLengthS(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogLength_S",true) );
 
-                    const double jogHeigthM(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeigth_M",true) );
-                    const double jogHeigthS(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeigth_S",true) );
+                    const double jogHeightM(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeight_M",true) );
+                    const double jogHeightS(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogHeight_S",true) );
 
+                    const double fractionSessile(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("jogFractionSessile",true));
                     
                     std::lognormal_distribution<double> jogLengthDistribution(jogLengthM,jogLengthS);
-                    std::lognormal_distribution<double> jogHeigthDistribution(jogHeigthM,jogHeigthS);
+                    std::lognormal_distribution<double> jogHeightDistribution(jogHeightM,jogHeightS);
 
                     
                     std::cout<<magentaBoldColor<<"Generating jogged dislocations"<<defaultColor<<std::endl;
                     double density=0.0;
+                    double sessileDensity(0.0);
                     while(density<targetJoggedtDislocationDensity)
                     {
                         const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
@@ -172,16 +174,63 @@ namespace model
                             const VectorDimD jogPt1(midpoint+0.5*jogLength/lineLength*FS);
                             nodePos.push_back(jogPt0);
                             nodePos.push_back(jogPt1);
-
-//                            std::cout<<"jogLength="<<jogLength<<std::endl;
-//                            std::cout<<"lineLength="<<lineLength<<std::endl;
+                            
+                            const double jogHeight_SI(jogHeightDistribution(generator));
+                            const double jogHeight(std::round(jogHeight_SI/poly.b_SI/slipSystem.n.planeSpacing())*slipSystem.n.planeSpacing());
 
                             if(lineLength>jogLength)
                             {
-                                if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP))
+                                std::vector<VectorDimD> jogPos;
+//                                jogPos.push_back(jogPt1);
+//                                jogPos.push_back(jogPt0);
+                                jogPos.push_back(jogPt0+jogHeight*n);
+                                jogPos.push_back(jogPt1+jogHeight*n);
+                                
+                                if(allPointsInGrain(nodePos,grainID) && allPointsInGrain(jogPos,grainID))
                                 {
-                                    density += (lineLength-jogLength)/mesh.volume()/std::pow(poly.b_SI,2);
-                                    std::cout<<"density="<<density<<std::endl;
+                                 
+                                    if(addSingleLoop(false,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP))
+                                    {
+                                        configIO.nodes().emplace_back(nodeID+0,jogPt1+jogHeight*n,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                        configIO.nodes().emplace_back(nodeID+1,jogPt0+jogHeight*n,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                        configIO.nodes().emplace_back(nodeID+2,0.5*(jogPt0+jogPt1)+jogHeight*n,Eigen::Matrix<double,1,3>::Zero(),1.0,snID,0);
+                                        
+                                        configIO.links().emplace_back(loopID+0,nodeID-1,nodeID-2,0);
+                                        configIO.links().emplace_back(loopID+0,nodeID-2,nodeID+1,0);
+                                        configIO.links().emplace_back(loopID+0,nodeID+1,nodeID+0,0);
+                                        configIO.links().emplace_back(loopID+0,nodeID+0,nodeID-1,0);
+                                        
+                                        configIO.links().emplace_back(loopID+1,nodeID+0,nodeID+1,0);
+                                        configIO.links().emplace_back(loopID+1,nodeID+2,nodeID+0,0);
+                                        configIO.links().emplace_back(loopID+1,nodeID+1,nodeID+2,0);
+
+                                        
+
+                                        
+                                        if(sessileDensity>fractionSessile*density)
+                                        {
+                                            configIO.loops().emplace_back(loopID, b,slipSystem.unitNormal.cross(b).normalized(),jogPt0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                            density += (lineLength-jogLength)/mesh.volume()/std::pow(poly.b_SI,2);
+                                            std::cout<<"density="<<density<<std::endl;
+                                        }
+                                        else
+                                        {
+                                            configIO.loops().emplace_back(loopID, b,slipSystem.unitNormal.cross(b).normalized(),jogPt0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                            density += (lineLength-jogLength)/mesh.volume()/std::pow(poly.b_SI,2);
+                                            sessileDensity += (lineLength-jogLength)/mesh.volume()/std::pow(poly.b_SI,2);
+                                            std::cout<<"density="<<density<<std::endl;
+                                            std::cout<<"sessileDensity="<<sessileDensity<<std::endl;
+                                        }
+                                        
+                                        configIO.loops().emplace_back(loopID+1, b,slipSystem.unitNormal,jogPt0+jogHeight*n,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+
+                                        
+                                        nodeID+=3;
+                                        loopID+=2;
+
+                                        
+                                        
+                                    }
                                 }
                             }
                         }
@@ -1024,9 +1073,9 @@ namespace model
                             assert(inclusionsDiameterLognormalDistribution_A[f]>0.0);
                             
                             const VectorDimD currentPattern(inclusionsPatterns.row(f)/poly.b_SI); // normalize to length units
-                            const double patternHeigth(currentPattern.norm());
-                            const bool applyPattern(patternHeigth>0.0);
-                            const VectorDimD patternDir(applyPattern? (currentPattern/patternHeigth).eval() : VectorDimD::Zero());
+                            const double patternHeight(currentPattern.norm());
+                            const bool applyPattern(patternHeight>0.0);
+                            const VectorDimD patternDir(applyPattern? (currentPattern/patternHeight).eval() : VectorDimD::Zero());
                             
                             double numberDensity=0.0;
                             
@@ -1044,8 +1093,8 @@ namespace model
                                 {
                                     const VectorDimD globalVector(poly.grain(grainID).C2G*currentPattern);
                                     const VectorDimD globalDir(poly.grain(grainID).C2G*patternDir);
-                                    const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
-                                    const VectorDimD O(pointHeigth*globalVector);
+                                    const long long pointHeight=std::round(P.dot(globalDir)/patternHeight);
+                                    const VectorDimD O(pointHeight*globalVector);
                                     P-=(P-O).dot(globalDir)*globalDir;
                                 }
                                 
