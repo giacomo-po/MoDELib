@@ -21,7 +21,7 @@
 #include <TerminalColors.h>
 
 #include <Simplex.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 
 namespace model
 {

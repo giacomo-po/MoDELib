@@ -16,7 +16,7 @@
 #include <Quadrature.h>
 #include <QuadratureDynamic.h>
 #include <QuadPowDynamic.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 #include <SplineBase.h>
 #include <GlidePlaneModule.h>
 

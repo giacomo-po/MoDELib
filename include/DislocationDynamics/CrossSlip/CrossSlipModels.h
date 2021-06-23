@@ -14,7 +14,7 @@
 #include <map>
 #include <tuple>
 #include <Eigen/Dense>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 #include <BCClattice.h>
 #include <FCClattice.h>
 #include <Grain.h>

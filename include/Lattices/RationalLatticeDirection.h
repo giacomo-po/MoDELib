@@ -36,101 +36,48 @@ namespace model
     public:
         
         /**********************************************************************/
-        RationalLatticeDirection(const Rational& _rat, const LatticeDirection<dim>& _dir) :
-        /* init */ rat(_rat)
-        /* init */,dir(_dir)
-        {
-        }
+        RationalLatticeDirection(const Rational& _rat, const LatticeDirection<dim>& _dir) ;
         
         /**********************************************************************/
-        RationalLatticeDirection(const Rational& _rat, const LatticeVector<dim>& v) :
-        /* init */ RationalLatticeDirection(_rat,LatticeDirection<dim>(v))
-        {
-        }
+        RationalLatticeDirection(const Rational& _rat, const LatticeVector<dim>& v) ;
         
         /**********************************************************************/
-        RationalLatticeDirection(const LatticeVector<dim>& v) :
-        /* init */ rat(Rational(LatticeGCD<dim>::gcd(v),1))
-        /* init */,dir(v)
-        {
-        }
+        RationalLatticeDirection(const LatticeVector<dim>& v) ;
         
         /**********************************************************************/
-        RationalLatticeDirection(const RationalLatticeDirection& other) = default;
-        RationalLatticeDirection(RationalLatticeDirection&& other) =default;
+        RationalLatticeDirection(const RationalLatticeDirection<dim>& other) = default;
+        RationalLatticeDirection(RationalLatticeDirection<dim>&& other) =default;
         
-        VectorDimD cartesian() const
-        {
-            return dir.cartesian()*rat.asDouble();
-        }
+        VectorDimD cartesian() const;
         
         /**********************************************************************/
-        Rational dot(const ReciprocalLatticeVector<dim>& other) const
-        {
-            return rat*dir.dot(other);
-        }
+        Rational dot(const ReciprocalLatticeVector<dim>& other) const;
         
         /**********************************************************************/
-        RationalLatticeDirection operator*(const long int& scalar) const
-        {
-            return RationalLatticeDirection(rat*scalar,dir);
-        }
+        RationalLatticeDirection<dim> operator*(const long int& scalar) const;
         
         /**********************************************************************/
-        RationalLatticeDirection operator/(const long int& scalar) const
-        {
-            return RationalLatticeDirection(rat/scalar,dir);
-        }
+        RationalLatticeDirection<dim> operator/(const long int& scalar) const;
         
         /**********************************************************************/
-        RationalLatticeDirection operator+(const RationalLatticeDirection& other) const
-        {
-            assert(&dir.lattice==&other.dir.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
-            const VectorDimI temp(rat.n*other.rat.d*dir+other.rat.n*rat.d*other.dir);
-            const long int gcd(LatticeGCD<dim>::gcd(temp));
-            const LatticeVector<dim> v(temp/gcd,dir.lattice);
-            return RationalLatticeDirection(Rational(gcd,rat.d*other.rat.d),LatticeDirection<dim>(v));
-        }
+        RationalLatticeDirection<dim> operator+(const RationalLatticeDirection<dim>& other) const;
 
         /**********************************************************************/
-        RationalLatticeDirection operator-(const RationalLatticeDirection& other) const
-        {
-            assert(&dir.lattice==&other.dir.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
-            const VectorDimI temp(rat.n*other.rat.d*dir-other.rat.n*rat.d*other.dir);
-            const long int gcd(LatticeGCD<dim>::gcd(temp));
-            const LatticeVector<dim> v(temp/gcd,dir.lattice);
-            return RationalLatticeDirection(Rational(gcd,rat.d*other.rat.d),LatticeDirection<dim>(v));
-        }
+        RationalLatticeDirection<dim> operator-(const RationalLatticeDirection<dim>& other) const;
         
         /**********************************************************************/
-        RationalLatticeDirection operator+(const LatticeVector<dim>& other) const
-        {
-            assert(&dir.lattice==&other.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
-            const long int gcd(LatticeGCD<dim>::gcd(other));
-            return this->operator+(RationalLatticeDirection(Rational(gcd,1),LatticeDirection<dim>(other)));
-        }
+        RationalLatticeDirection<dim> operator+(const LatticeVector<dim>& other) const;
         
         /**********************************************************************/
-        RationalLatticeDirection operator-(const LatticeVector<dim>& other) const
-        {
-            assert(&dir.lattice==&other.lattice && "ReciprocalLatticeVectorType belong to different Lattices.");
-            const long int gcd(LatticeGCD<dim>::gcd(other));
-            return this->operator-(RationalLatticeDirection(Rational(gcd,1),LatticeDirection<dim>(other)));
-        }
+        RationalLatticeDirection<dim> operator-(const LatticeVector<dim>& other) const;
         
         /**********************************************************************/
-        double squaredNorm() const
-        {
-            return dir.squaredNorm()*std::pow(rat.asDouble(),2);
-        }
+        double squaredNorm() const;
         
     };
     
     template<int dim>
-    RationalLatticeDirection<dim> operator*(const long int& scalar, const RationalLatticeDirection<dim>& L)
-    {
-        return L*scalar;
-    }
+    RationalLatticeDirection<dim> operator*(const long int& scalar, const RationalLatticeDirection<dim>& L);
     
 } // end namespace
 #endif

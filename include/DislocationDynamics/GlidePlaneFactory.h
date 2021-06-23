@@ -20,7 +20,7 @@
 
 #include <SimplicialMesh.h>
 #include <CompareVectorsByComponent.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 #include <ReciprocalLatticeDirection.h>
 #include <PlanePlaneIntersection.h>
 #include <MeshPlane.h>

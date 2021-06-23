@@ -39,7 +39,7 @@ namespace model
     /**************************************************************************/
     template<int _dim>
     class SimplicialMesh : public SimplexObserver<_dim>                                // make sure this is destroyed after map of Simplex<_dim,_dim>
-    /*                  */,public MeshRegionObserver<MeshRegion<Simplex<_dim,_dim>>>   // make sure this is destroyed after map of Simplex<_dim,_dim>
+    /*                  */,public MeshRegionObserver<MeshRegion<_dim>>   // make sure this is destroyed after map of Simplex<_dim,_dim>
     /*                  */,public SimplexReader<_dim>
     /*                  */,public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>>
@@ -64,7 +64,7 @@ namespace model
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
         /*            */ const Simplex<dim,dim>>  SimplexMapType;
         typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;
-        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;

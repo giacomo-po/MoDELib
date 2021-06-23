@@ -21,24 +21,13 @@ namespace model
 
         
         /**********************************************************************/
-        static long int gcd(const long int& a,const long int& b)
-        {
-            const long int absA(abs(a));
-            const long int absB(abs(b));
-            return absB>0? gcd(absB, absA % absB) : (absA>0? absA : 1);
-        }
+        static long int gcd(const long int& a,const long int& b);
         
         /**********************************************************************/
-        static long int gcd(const long int& a,const long int& b,const long int& c)
-        {
-            return gcd(a,gcd(b,c));
-        }
+        static long int gcd(const long int& a,const long int& b,const long int& c);
         
         /**********************************************************************/
-        static long int gcd(const VectorDimI& v)
-        {
-            return gcd(v(0),v(1),v(2));
-        }
+        static long int gcd(const VectorDimI& v);
     };
     
 } // end namespace

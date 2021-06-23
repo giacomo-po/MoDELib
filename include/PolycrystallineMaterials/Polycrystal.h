@@ -48,7 +48,7 @@ namespace model
     {
         typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         typedef SimplicialMesh<dim> SimplicialMeshType;
-        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef LatticeVector<dim> LatticeVectorType;
         typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;

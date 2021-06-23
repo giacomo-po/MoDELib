@@ -96,13 +96,13 @@ namespace model
     public:
         
         const MatrixInt& integerMatrix;
-        const IntValueType& den;
+        const IntValueType& sigma;
         
         /**********************************************************************/
         RationalMatrix(const MatrixDimD& R) :
         /* init */ returnPair(compute(R)),
         /* init */ integerMatrix(returnPair.first),
-        /* init */ den(returnPair.second)
+        /* init */ sigma(returnPair.second)
         {
             
         }

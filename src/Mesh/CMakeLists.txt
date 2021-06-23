@@ -6,6 +6,7 @@ add_library(MoDELibMesh
 		PlanarMeshFace.cpp
 		MeshBoundarySegment.cpp
 		Simplex.cpp
+		MeshRegion.cpp
 		triangle.cpp
 		SimplicialMesh.cpp
 		TriangularMesh.cpp

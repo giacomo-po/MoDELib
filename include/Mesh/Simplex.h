@@ -50,6 +50,7 @@ namespace model
         Simplex(SimplicialMesh<dim>* const m,
                 const SimplexIDType& vIN);
         ~Simplex();
+        std::set<const Simplex<dim,0>*> boundaryNeighbors() const;
         Eigen::Matrix<double,dim,1> outNormal() const;
         Eigen::Matrix<double,dim,1> outNormal(const size_t& rID) const;
     };
@@ -121,7 +122,7 @@ namespace model
         typedef Simplex<dim,order-1> ChildSimplexType;
         typedef typename SimplexTraits<dim,order-1>::SimplexIDType ChildIDType;
         
-        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
         //! Shared pointer to MeshRegioin containing *this

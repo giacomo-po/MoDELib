@@ -29,7 +29,7 @@ namespace model
     template <int dim>
     struct MeshPlane;
     
-    template<typename _SimplexType>
+    template<int dim>
     struct MeshRegion;
     
     template<typename _SimplexType>

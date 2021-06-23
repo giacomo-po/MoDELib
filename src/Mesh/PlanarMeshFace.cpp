@@ -164,7 +164,8 @@ namespace model
         return Plane<dim>(center(),n);
     }
     
-    
+//    template class PlanarMeshFace<1>;
+//    template class PlanarMeshFace<2>;
     template class PlanarMeshFace<3>;
 
 }

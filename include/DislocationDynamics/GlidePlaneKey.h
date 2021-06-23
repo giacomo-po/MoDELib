@@ -12,7 +12,7 @@
 
 #include <array>
 #include <Eigen/Dense>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 
 
 namespace model

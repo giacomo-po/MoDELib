@@ -22,7 +22,7 @@
 #include <BCClattice.h>
 #include <FCClattice.h>
 #include <HEXlattice.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 #include <SlipSystem.h>
 #include <TextFileParser.h>
 

@@ -14,7 +14,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 #include <SlipSystem.h>
 #include <PolycrystallineMaterialBase.h>
 #include <DislocationMobilityFCC.h>

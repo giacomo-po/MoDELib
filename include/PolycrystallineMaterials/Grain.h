@@ -15,7 +15,7 @@
 #include <SimplicialMesh.h>
 #include <MeshRegionObserver.h>
 #include <MeshRegion.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 //#include <PeriodicElement.h>
 #include <PolycrystallineMaterial.h>
 #include <SlipSystem.h>
@@ -36,7 +36,7 @@ namespace model
         
         typedef Lattice<dim> LatticeType;
         typedef SingleCrystal<dim> SingleCrystalType;
-        typedef MeshRegion<Simplex<dim,dim> > MeshRegionType;
+        typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
         

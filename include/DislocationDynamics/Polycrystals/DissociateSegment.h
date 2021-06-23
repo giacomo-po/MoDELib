@@ -25,7 +25,7 @@
 #include <GrainBoundary.h>
 #include <Grain.h>
 #include <Material.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 
 
 namespace model

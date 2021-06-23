@@ -18,8 +18,8 @@
 #include <SequentialOutputFile.h>
 #include <TerminalColors.h>
 
-#include <LatticeMath.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
+#include <LatticeModule.h>
 //#include <BoundaryDisplacementPoint.h>
 //#include <DislocationNodeIO.h>
 //#include <DDtimeIntegrator.h>

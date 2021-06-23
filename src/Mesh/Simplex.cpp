@@ -50,6 +50,13 @@ namespace model
     
     /**********************************************************************/
     template<short int dim>
+    std::set<const Simplex<dim,0>*> Simplex<dim,0>::boundaryNeighbors() const // boundary spouse
+    {
+        return std::set<const Simplex<dim,0>*>();
+    }
+    
+    /**********************************************************************/
+    template<short int dim>
     Eigen::Matrix<double,dim,1> Simplex<dim,0>::outNormal() const
     {
         return BoundarySimplex<dim,dim-order>::outNormal(*this);
@@ -490,12 +497,12 @@ namespace model
         return temp;
     }
     
-    template class Simplex<1,0>;
-    template class Simplex<1,1>;
-
-    template class Simplex<2,0>;
-    template class Simplex<2,1>;
-    template class Simplex<2,2>;
+//    template class Simplex<1,0>;
+//    template class Simplex<1,1>;
+//
+//    template class Simplex<2,0>;
+//    template class Simplex<2,1>;
+//    template class Simplex<2,2>;
     
     template class Simplex<3,0>;
     template class Simplex<3,1>;

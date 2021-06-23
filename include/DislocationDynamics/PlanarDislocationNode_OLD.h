@@ -23,7 +23,7 @@
 #include <SplineNode.h>
 #include <GramSchmidt.h>
 #include <Simplex.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 //#include <SimplexBndNormal.h>
 #include <Grain.h>
 #include <GlidePlane.h>

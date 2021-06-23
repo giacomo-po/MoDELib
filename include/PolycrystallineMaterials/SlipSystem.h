@@ -12,7 +12,7 @@
 
 #include <memory>
 #include <assert.h>
-#include <LatticeMath.h>
+#include <LatticeModule.h>
 //#include <LatticePlaneBase.h>
 //#include <LatticeVector.h>
 //#include <RationalLatticeDirection.h>

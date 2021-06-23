@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 PROJECT(microstructureGenerator CXX)
 set(CMAKE_CXX_STANDARD 17)
@@ -27,9 +27,6 @@ target_link_libraries(microstructureGenerator MoDELibMesh)
 include_directories(${MoDELibRootDir}/include/Lattices/)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
 target_link_libraries(microstructureGenerator MoDELibLattices)
-
-
-
 
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
 #add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DislocationDynamics)
