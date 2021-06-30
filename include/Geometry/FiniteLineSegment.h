@@ -30,111 +30,35 @@ namespace model
         
         /**********************************************************************/
         FiniteLineSegment(const VectorDim& p0,
-                    const VectorDim& p1) :
-        /* init */ P0(p0),
-        /* init */ P1(p1)
-        {
-            
-        }
+                          const VectorDim& p1);
         
         /**********************************************************************/
-        VectorDim snap(const VectorDim& x) const
-        {/*!\param[in] x point to be snapped to the FiniteLineSegment
-          * \returns the closest point to x on the FiniteLineSegment
-          *
-          * miminime distance to the line:
-          * u=argMin{ (P0+u*(P1-P0)-x)^2 }
-          * (P0+u*(P1-P0)-x)*(P1-P0)=0
-          * u=(x-P0)*(P1-P0)/(P1-P0)^2
-          */
-            
-            const VectorDim chord(P1-P0);
-            const double chordNorm2(chord.squaredNorm());
-            if(chordNorm2>FLT_EPSILON)
-            {
-                const double u=(x-P0).dot(chord)/chordNorm2;
-                if(u<0.0)
-                {
-                    return P0;
-                }
-                else if(u>1.0)
-                {
-                    return P1;
-                }
-                else
-                {
-                    return P0+u*chord;
-                }
-            }
-            else
-            {
-                return 0.5*(P0+P1);
-            }
-            
-        }
+        VectorDim snap(const VectorDim& x) const;
 
-        
-        VectorDim snapToInfiniteLine(const VectorDim& x) const
-        {/*!\param[in] x point to be snapped to the FiniteLineSegment
-          * \returns the closest point to x on the FiniteLineSegment
-          *
-          * miminime distance to the line:
-          * u=argMin{ (P0+u*(P1-P0)-x)^2 }
-          * (P0+u*(P1-P0)-x)*(P1-P0)=0
-          * u=(x-P0)*(P1-P0)/(P1-P0)^2
-          */
-            
-            const VectorDim chord(P1-P0);
-            const double chordNorm2(chord.squaredNorm());
-            if(chordNorm2>FLT_EPSILON)
-            {
-                const double u=(x-P0).dot(chord)/chordNorm2;
-                return P0 + u * chord;
-            }
-            else
-            {
-                assert(false && "Not possible to snap for an infinite line");
-                return 0.5*(P0+P1);
-            }
-            
-        }
+        /**********************************************************************/
+        VectorDim snapToInfiniteLine(const VectorDim& x) const;
 
         
 
         
         /**********************************************************************/
         SegmentSegmentDistance<dim> distanceTo(const FiniteLineSegment<dim>& other,
-                                               const double& degeneracyValue=0.0) const
-        {
-            return SegmentSegmentDistance<dim>(P0,P1,other.P0,other.P1,degeneracyValue);
-        }
+                                               const double& degeneracyValue=0.0) const;
         
         /**********************************************************************/
-        double distanceTo(const VectorDim& x) const
-        {
-            return (x-snap(x)).norm();
-        }
+        double distanceTo(const VectorDim& x) const;
         
         /**********************************************************************/
-        bool contains(const VectorDim& x) const
-        {
-            return distanceTo(x)<FLT_EPSILON;
-        }
+        bool contains(const VectorDim& x) const;
         
-        double length() const
-        {
-            return (P1-P0).norm();
-        }
+        /**********************************************************************/
+        double length() const;
         
-        bool hasZeroLength() const
-        {
-            return length()<FLT_EPSILON;
-        }
+        /**********************************************************************/
+        bool hasZeroLength() const;
         
-        VectorDim center() const
-        {
-            return 0.5*(P0+P1);
-        }
+        /**********************************************************************/
+        VectorDim center() const;
         
     };
     

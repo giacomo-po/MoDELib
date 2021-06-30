@@ -14,5 +14,10 @@ add_library(MoDELibLattices
 		LLL.cpp
 		PeriodicLatticeInterpolant.cpp
 		RationalLatticeDirection.cpp
+		RationalMatrix.cpp
+		RationalOrthogonalApproximation.cpp
+		ReciprocalLatticeDirection.cpp
+		ReciprocalLatticeVector.cpp
+		RLLL.cpp
 			)
 

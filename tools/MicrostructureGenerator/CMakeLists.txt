@@ -16,9 +16,12 @@ include_directories(/usr/local/include)
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
-include_directories(${MoDELibRootDir}/include/Geometry/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/FEM/)
+
+include_directories(${MoDELibRootDir}/include/Geometry/)
+add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
+target_link_libraries(microstructureGenerator MoDELibGeometry)
 
 include_directories(${MoDELibRootDir}/include/Mesh/)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)

@@ -16,6 +16,7 @@
 #include <Eigen/Dense>
 //#include <RoundEigen.h>
 #include <BestRationalApproximation.h>
+#include <iostream>
 
 namespace model
 {
@@ -32,64 +33,13 @@ namespace model
         static constexpr int64_t maxDen=100000;
         
         /**********************************************************************/
-        static IntValueType gcd(const IntValueType& a,const IntValueType& b)
-        {
-            return b>0? gcd(b, a % b) : a;
-        }
+        static IntValueType gcd(const IntValueType& a,const IntValueType& b);
         
         /**********************************************************************/
-        static IntValueType lcm(const IntValueType& a,const IntValueType& b)
-        {
-            return a*b/gcd(a,b);
-        }
+        static IntValueType lcm(const IntValueType& a,const IntValueType& b);
         
         /**********************************************************************/
-        static std::pair<MatrixInt,IntValueType> compute(const MatrixDimD& R)
-        {
-                        
-            // Find the BestRationalApproximation of each entry
-            MatrixDimI nums(MatrixDimI::Zero());
-            MatrixDimI dens(MatrixDimI::Ones());
-            
-            IntValueType sigma=1;
-            for(int i=0;i<dim;++i)
-            {
-                for(int j=0;j<dim;++j)
-                {
-                    BestRationalApproximation bra(R(i,j),maxDen);
-                    nums(i,j)=bra.num;
-                    dens(i,j)=bra.den;
-                    sigma=lcm(sigma,bra.den);
-                }
-            }
-            
-            MatrixInt im(MatrixInt::Zero());
-            for(int i=0;i<dim;++i)
-            {
-                for(int j=0;j<dim;++j)
-                {
-                    im(i,j)=nums(i,j)*sigma/dens(i,j);
-                }
-            }
-            
-            const double error=(im.template cast<double>()/sigma-R).norm()/(dim*dim);
-            if(error>100.0*DBL_EPSILON)
-            {
-                std::cout<<"error="<<error<<std::endl;
-                std::cout<<"maxDen="<<maxDen<<std::endl;
-                std::cout<<"im=\n"<<std::setprecision(15)<<std::scientific<<im.template cast<double>()/sigma<<std::endl;
-                std::cout<<"= 1/"<<sigma<<"*\n"<<std::setprecision(15)<<std::scientific<<im<<std::endl;
-                std::cout<<"R=\n"<<std::setprecision(15)<<std::scientific<<R<<std::endl;
-                assert(false && "Rational Matrix failed, check maxDen.");
-            }
-            
-
-            
-            return std::make_pair(im,sigma);
-        }
-        
-//        IntValueType _sigma;
-//        MatrixInt im;
+        static std::pair<MatrixInt,IntValueType> compute(const MatrixDimD& R);
         
         const std::pair<MatrixInt,IntValueType> returnPair;
         
@@ -99,26 +49,7 @@ namespace model
         const IntValueType& sigma;
         
         /**********************************************************************/
-        RationalMatrix(const MatrixDimD& R) :
-        /* init */ returnPair(compute(R)),
-        /* init */ integerMatrix(returnPair.first),
-        /* init */ sigma(returnPair.second)
-        {
-            
-        }
-        
-//        /**********************************************************************/
-//        const IntValueType& sigma() const
-//        {
-//            return _sigma;
-//        }
-//        
-//        /**********************************************************************/
-//        const MatrixInt& integerMatrix() const
-//        {
-//            return im;
-//        }
-//        
+        RationalMatrix(const MatrixDimD& R) ;
     };
     
     

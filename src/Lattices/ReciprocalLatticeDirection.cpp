@@ -6,47 +6,30 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_ReciprocalLatticeDirection_h_
-#define model_ReciprocalLatticeDirection_h_
+#ifndef model_ReciprocalLatticeDirection_cpp_
+#define model_ReciprocalLatticeDirection_cpp_
 
 //#include <LatticeBase.h>
-#include <LatticeVector.h>
-#include <ReciprocalLatticeVector.h>
-#include <LatticeGCD.h>
+#include <LatticeModule.h>
 
 namespace model
 {
-    template <int dim>
-    struct ReciprocalLatticeDirection :
-    /* inherits */ public ReciprocalLatticeVector<dim>
-    {
-        typedef LatticeGCD<dim> LatticeGCDType;
-        typedef LatticeVector<dim> LatticeVectorType;
-        typedef ReciprocalLatticeVector<dim> ReciprocalLatticeVectorType;
-        typedef Eigen::Matrix<double,dim,1> VectorDimD;
-        /**********************************************************************/
-        ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
-        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
-        {
-        }
+/**********************************************************************/
+template <int dim>
+ReciprocalLatticeDirection<dim>::ReciprocalLatticeDirection(const ReciprocalLatticeVectorType& v) :
+                /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),v.lattice)
+                {
+                }
+
+
+/**********************************************************************/
+template <int dim>
+ReciprocalLatticeDirection<dim>::ReciprocalLatticeDirection(const LatticeVectorType& v1,const LatticeVectorType& v2) :
+                /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(v1.cross(v2)))
+                {
+                //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
+                }
         
-        /**********************************************************************/
-        template<typename Derived>
-        ReciprocalLatticeDirection(const Eigen::MatrixBase<Derived>& v,
-                                   const Lattice<dim>& lat) :
-        /* base init */ ReciprocalLatticeVectorType(((v.squaredNorm()==0)? v : (v/LatticeGCD<dim>::gcd(v)).eval()),lat)
-        {
-            //            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
-        }
-        
-        /**********************************************************************/
-        ReciprocalLatticeDirection(const LatticeVectorType& v1,const LatticeVectorType& v2) :
-        /* delegating */ ReciprocalLatticeDirection(ReciprocalLatticeVectorType(v1.cross(v2)))
-        {
-//            assert(this->squaredNorm() && "ReciprocalLatticeDirection has Zero Norm");
-        }
-        
-    };
-    
+template struct ReciprocalLatticeDirection<3>;
 } // end namespace
 #endif
