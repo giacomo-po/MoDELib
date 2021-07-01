@@ -26,11 +26,11 @@ CMakeCache.txt
 CMakeFiles
  
 # Executable
-DDomp
-DDmpi
+#DDomp
+#DDmpi
 #DDviewer
-DDvtk
-microstructureGenerator
+#DDvtk
+#microstructureGenerator
 
 # Folders
 docs/HTML
