@@ -11,7 +11,7 @@
 
 #include <tuple>
 #include <FieldBase.h>
-#include <FieldPoint.h>
+//#include <FieldPoint.h>
 #include <DislocationStressBase.h>
 
 namespace model

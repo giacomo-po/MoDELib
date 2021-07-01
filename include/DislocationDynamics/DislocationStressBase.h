@@ -12,7 +12,7 @@
 
 #include <tuple>
 #include <FieldBase.h>
-#include <FieldPoint.h>
+//#include <FieldPoint.h>
 //#include <StressStraight.h>
 #include <StressStraight.h>
 
@@ -29,7 +29,7 @@ namespace model
      */
     template<short unsigned int _dim>
     struct DislocationStressBase
-    /* inheritance */ : public FieldBase<double,_dim,_dim>
+//    /* inheritance */ : public FieldBase<double,_dim,_dim>
     {
         
         constexpr static int dim=_dim;

@@ -20,8 +20,8 @@
 #include <PlanePlaneIntersection.h>
 
 
-#include <EqualIteratorRange.h>
-#include <N2IteratorRange.h>
+//#include <EqualIteratorRange.h>
+//#include <N2IteratorRange.h>
 #include <BCClattice.h>
 #include <FCClattice.h>
 

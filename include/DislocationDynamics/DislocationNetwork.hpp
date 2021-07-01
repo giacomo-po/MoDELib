@@ -872,11 +872,11 @@ namespace model
         {// For straight segments use analytical expression of stress field
             const auto t1= std::chrono::system_clock::now();
             std::cout<<"Computing analytical stress field at quadrature points ("<<nThreads<<" threads) "<<std::flush;
-#ifdef _OPENMP
             for (const auto& links : this->networkLinks())
             {
                 links.second.lock()->updateQuadraturePointsSeg();
             }
+#ifdef _OPENMP
 #pragma omp parallel for
             for (size_t k = 0; k < this->networkLinks().size(); ++k)
             {

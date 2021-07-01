@@ -58,9 +58,9 @@ namespace model
         const std::shared_ptr<GlidePlaneType> glidePlane;
         const Grain<dim>& grain;
         const int loopType;
-        const VectorDim periodicShift;
         const std::shared_ptr<PeriodicDislocationLoopType> periodicLoop;
 
+        const VectorDim periodicShift;
         static int verbosePlanarDislocationLoop;
 
         
@@ -98,6 +98,40 @@ namespace model
             }
         }
         
+        VectorDim getPeriodicShift() const
+        {
+            if (this->network().simulationParameters.isPeriodicSimulation())
+            {
+                if (glidePlane)
+                {
+                    //glidePlane is the glide plane from which the shift is needed to be determined
+                    const long int t(glidePlane->key.planeIndex() - periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex());
+                    std::cout<<"GlidePlane Index "<<glidePlane->key.planeIndex()<<std::endl;
+                    std::cout<<"Reference GlidePlane Index "<<periodicLoop->periodicGlidePlane->referencePlane->key.planeIndex()<<std::endl;
+
+                    const Eigen::Matrix<long int, dim, 1> alphas(glidePlane->key.reciprocalDirectionComponents().transpose() * periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.N);
+                    //Need to solve for alphas*k=t using diophantine equation
+                    Eigen::Matrix<long int, dim, 1> sol(Eigen::Matrix<long int, dim, 1>::Zero());
+                    DiophantineSolver::solveDiophantine3vars(alphas, t, sol);
+                    std::cout<<"Alphas is "<<alphas.transpose()<<std::endl;
+                    std::cout<<"t is "<<t<<std::endl;
+                    std::cout<<"sol is "<<sol.transpose()<<std::endl;
+
+                    VectorDim shift(periodicLoop->periodicGlidePlane->periodicGlidePlaneFactory.latticeBasis * sol.template cast<double>());
+                    std::cout<<"Shift in getPeriodicShift is "<<shift.transpose()<<std::endl;
+                    return shift;
+                }
+                else
+                {
+                    return VectorDim::Zero();
+                }
+            }
+            else
+            {
+                return VectorDim::Zero();
+            }
+        }
+
     public:
         
         
@@ -172,8 +206,9 @@ namespace model
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,periodicLoop(getPeriodicLoop())
+        // /*      init */,periodicShift(VectorDim::Zero())
+        /*      init */,periodicShift(getPeriodicShift())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -197,8 +232,8 @@ namespace model
         /*      init */,glidePlane(glidePlane_in)
         /*      init */,grain(glidePlane->grain)
         /*      init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
-        /*      init */,periodicShift(shift_in)
         /*      init */,periodicLoop(getPeriodicLoop())
+        /*      init */,periodicShift(shift_in)
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -222,8 +257,8 @@ namespace model
         /*      init */,glidePlane(nullptr)
         /*      init */,grain(dn->poly.grain(grainID))
         /*      init */,loopType(_loopType)
-        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,periodicLoop(nullptr)
+        /*      init */,periodicShift(VectorDim::Zero())
         /*      init */,nA(VectorDim::Zero())
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -239,8 +274,8 @@ namespace model
         /*      init */,glidePlane(other.glidePlane)
         /*      init */,grain(other.grain)
         /*      init */,loopType(other.loopType)
-        /*      init */,periodicShift(other.periodicShift)
         /*      init */,periodicLoop(getPeriodicLoop())
+        /*      init */,periodicShift(other.periodicShift)
         /*      init */,nA(other.nA)
         /*      init */,_slippedArea(0.0)
         /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
@@ -457,6 +492,13 @@ namespace model
 
         
         /**********************************************************************/
+        void update()
+        {
+            updateGeometry();
+            //
+        }
+        
+        /**********************************************************************/
         void updateGeometry()
         {
             nA.setZero();
@@ -542,6 +584,12 @@ namespace model
         MatrixDim plasticDistortion() const
         {
             return -burgers()*nA.transpose()/this->network().mesh.volume();
+        }
+        
+        /**********************************************************************/
+        bool isMergeable(const std::shared_ptr<LoopType>& other) const
+        {
+            return glidePlane==other->glidePlane;
         }
     };
     

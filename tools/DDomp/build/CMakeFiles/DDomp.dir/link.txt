@@ -1,1 +1,0 @@
-/opt/local/bin/c++  -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/DDomp.dir/main.cpp.o  -o DDomp 

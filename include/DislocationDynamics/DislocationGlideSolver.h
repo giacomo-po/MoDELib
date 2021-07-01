@@ -30,9 +30,10 @@ namespace model
 {
     
     template <typename DislocationNetworkType>
+//    template<int dim,int corder>
     class DislocationGlideSolver
     {
-        
+//        typedef DislocationNetwork<dim,corder> DislocationNetworkType;
         typedef typename DislocationNetworkType::VectorDim   VectorDim;
         typedef typename DislocationNetworkType::MatrixDim   MatrixDim;
         typedef typename DislocationNetworkType::NetworkNodeType   NetworkNodeType;

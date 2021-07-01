@@ -13,7 +13,7 @@
 #define _model_FieldBase_h
 
 #include <Eigen/Dense>
-#include <SpatialCellObserver.h>
+//#include <SpatialCellObserver.h>
 
 
 namespace model

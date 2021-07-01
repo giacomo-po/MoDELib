@@ -7,9 +7,6 @@ set(MoDELibRootDir "/Users/giacomo/Documents/MODELIB2")
 
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 
-#set_property(TARGET microstructureGenerator PROPERTY CXX_STANDARD 17)
-
-
 
 include_directories(/usr/local/include)
 
