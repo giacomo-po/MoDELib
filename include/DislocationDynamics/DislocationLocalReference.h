@@ -23,19 +23,7 @@ namespace model
 		typedef Eigen::Matrix<double,dim,1>   VectorDimD;
 		typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
 
-		static MatrixDimD global2local(const VectorDimD& C, const VectorDimD& N)
-        {
-			assert(C.norm()>FLT_EPSILON);
-			assert(N.norm()>FLT_EPSILON);
-			assert(std::fabs(C.dot(N))<FLT_EPSILON);
-			MatrixDimD R(MatrixDimD::Zero());
-			R.col(0)=C.normalized();
-			R.col(2)=N.normalized();
-			R.col(1)= R.col(2).cross(R.col(0));
-//			assert(R.determinant())
-			return R.transpose();
-//			return R;
-		}
+		static MatrixDimD global2local(const VectorDimD& C, const VectorDimD& N);
 	};
 
 }

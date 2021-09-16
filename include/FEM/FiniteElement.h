@@ -18,6 +18,7 @@
 
 #include <Eigen/Dense>
 
+#include <TrialFunctionTraits.h>
 //#include <AreSameType.h>
 #include <SimplicialMesh.h>
 #include <TerminalColors.h>

@@ -15,11 +15,14 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include <DislocationDynamicsModule.h>
 #include <TypeTraits.h>
 #include <NetworkLink.h>
 #include <SplineSegment.h>
 #include <ConfinedDislocationObject.h>
 #include <DislocationQuadraturePoint.h>
+#include <DislocationLoopIO.h>
+
 
 #ifndef NDEBUG
 #define VerboseDislocationSegment(N,x) if(verboseDislocationSegment>=N){std::cout<<x;}

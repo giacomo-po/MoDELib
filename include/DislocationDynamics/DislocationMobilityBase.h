@@ -15,6 +15,7 @@
 #include <random>
 #include <cmath>
 #include <vector>
+#include <chrono>
 #include <assert.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
@@ -31,10 +32,26 @@ namespace model
     struct StochasticForceGenerator
     {
         typedef std::default_random_engine T;
-        static std::vector<T> generators;
-        static std::vector<std::normal_distribution<double>> distributions;
-        
+        std::vector<T> generators;
+        std::vector<std::normal_distribution<double>> distributions;
+        const int stochasticForceSeed;
+        const int seed;
         /**********************************************************************/
+        StochasticForceGenerator():
+        			 stochasticForceSeed(TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true))
+        			, seed(stochasticForceSeed<0?std::chrono::system_clock::now().time_since_epoch().count():stochasticForceSeed)
+        {
+         
+#ifdef _OPENMP
+            const size_t nThreads = omp_get_max_threads();
+#else
+            const size_t nThreads = 1;
+#endif
+            generators.resize(nThreads,T(seed));
+            distributions.resize(nThreads,std::normal_distribution<double>(0.0,1.0));
+        
+        }
+/*
         static void init(const int& seed)
         {
 #ifdef _OPENMP
@@ -45,13 +62,14 @@ namespace model
             generators.resize(nThreads,T(seed));
             distributions.resize(nThreads,std::normal_distribution<double>(0.0,1.0));
         }
+*/
         
         /**********************************************************************/
-        static double velocity(const double& kB,
+        double stochasticVelocity(const double& kB,
                                const double& T,
                                const double& B,
                                const double& L,
-                               const double& dt)
+                               const double& dt) 
         {
 #ifdef _OPENMP
             return distributions[omp_get_thread_num()](generators[omp_get_thread_num()])*sqrt(2.0*kB*T/B/L/dt);
@@ -62,6 +80,7 @@ namespace model
         
     };
     
+/*
 #ifndef _MODEL_GREATWHITE_
     std::vector<std::default_random_engine> StochasticForceGenerator::generators;
     std::vector<std::normal_distribution<double>> StochasticForceGenerator::distributions;
@@ -72,14 +91,16 @@ namespace model
 #endif
 
 #endif
-    
+  */  
     /**************************************************************************/
     /**************************************************************************/
     struct DislocationMobilityBase : public StaticID<DislocationMobilityBase>
+    				, public StochasticForceGenerator
     {
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
         const std::string name;
+
         
         /**********************************************************************/
         DislocationMobilityBase(const std::string& name_in) :
@@ -99,7 +120,7 @@ namespace model
                                 const double& T,
                                 const double& dL,
                                 const double& dt,
-                                const bool& use_stochasticForce) const=0 ;
+                                const bool& use_stochasticForce) =0 ;
         
     };
     

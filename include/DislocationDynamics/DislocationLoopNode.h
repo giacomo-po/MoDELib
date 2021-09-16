@@ -14,10 +14,10 @@
 #ifndef model_DislocationLoopNode_h_
 #define model_DislocationLoopNode_h_
 
-#include <TypeTraits.h>
-#include <LoopNode.h>
-#include <GlidePlaneModule.h>
-#include <SplineNode.h>
+#include <PeriodicGlidePlane.h>
+#include <PeriodicGlidePlane.hpp>
+
+#include <DislocationDynamicsModule.h>
 
 #ifndef NDEBUG
 #define VerboseDislocationLoopNode(N,x) if(verboseDislocationLoopNode>=N){std::cout<<x;}

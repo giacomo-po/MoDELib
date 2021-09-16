@@ -10,10 +10,8 @@
 #ifndef model_DislocationLoopLink_h_
 #define model_DislocationLoopLink_h_
 
-#include <memory>
+#include <DislocationDynamicsModule.h>
 
-#include <TypeTraits.h>
-#include <LoopLink.h>
 //#include <LatticeVector.h>
 //#include <LatticePlaneBase.h>
 //#include <LatticePlane.h>

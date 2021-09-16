@@ -140,7 +140,9 @@ namespace model
 
 //    template class SegmentSegmentDistance<1>;
 //    template class SegmentSegmentDistance<2>;
-    template class SegmentSegmentDistance<3>;
+//    template class SegmentSegmentDistance<3>;
+    template class FiniteLineSegment<1>;
+    template class FiniteLineSegment<2>;
     template class FiniteLineSegment<3>;
 }
 #endif

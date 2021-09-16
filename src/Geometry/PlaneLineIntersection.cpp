@@ -75,10 +75,10 @@ namespace model
     
     /**********************************************************************/
     template <int dim>
-    PlaneLineIntersection<dim>::PlaneLineIntersection(const VectorDimD& pP,
-                          const VectorDimD& N,
-                          const VectorDimD& pL,
-                          const VectorDimD& D) :
+    PlaneLineIntersection<dim>::PlaneLineIntersection(const Eigen::Matrix<double,dim,1>& pP,
+                          const Eigen::Matrix<double,dim,1>& N,
+                          const Eigen::Matrix<double,dim,1>& pL,
+                          const Eigen::Matrix<double,dim,1>& D) :
     /* init */ sol(findIntersection(pP,N,pL,D)),
     /* init */ type(std::get<0>(sol)),
     /* init */ P(std::get<1>(sol)),

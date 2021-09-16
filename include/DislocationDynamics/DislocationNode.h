@@ -15,13 +15,10 @@
 
 //#include <PlanarDislocationNode.h>
 
-#include <TypeTraits.h>
-#include <NetworkNode.h>
-#include <SplineNode.h>
-#include <ConfinedDislocationObject.h>
+#include <DislocationDynamicsModule.h>
 
 #ifndef NDEBUG
-#define VerboseDislocationNode(N,x) if(verboseDislocationNode>=N){std::cout<<x;}
+#define VerboseDislocationNode(N,x) if(this->network().verboseDislocationNode>=N){std::cout<<x;}
 #else
 #define VerboseDislocationNode(N,x)
 #endif
@@ -51,9 +48,9 @@ namespace model
         typedef typename TypeTraits<NetworkNodeType>::MeshLocation MeshLocation;
         typedef std::vector<VectorDim> VectorOfNormalsType;
 
-        static bool use_velocityFilter;
-        static double velocityReductionFactor;
-        static int verboseDislocationNode;
+        // static bool use_velocityFilter;
+        // static double velocityReductionFactor;
+        // static int verboseDislocationNode;
 
         const Simplex<dim,dim>* p_Simplex;
         VectorDim velocity;
@@ -87,7 +84,7 @@ namespace model
         // bool isRemovable(const double& Lmin,const double& relAreaThIn);
         VectorDim invariantDirectionOfMotion() const;
         const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
-        static void initFromFile(const std::string&);
+        // static void initFromFile(const std::string&);
         // bool isZeroBurgersNode() const;
 
     };

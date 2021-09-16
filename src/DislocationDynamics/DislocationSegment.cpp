@@ -503,6 +503,8 @@ namespace model
     }
     
     
+
+    
     template <int dim, short unsigned int corder>
     const typename DislocationSegment<dim,corder>::MatrixDim DislocationSegment<dim,corder>::I=DislocationSegment<dim,corder>::MatrixDim::Identity();
     
@@ -517,6 +519,9 @@ namespace model
     
     template <int dim, short unsigned int corder>
     int DislocationSegment<dim,corder>::verboseDislocationSegment=0;
+        
+        
+    template class DislocationSegment<3,0>;
     
 }
 #endif

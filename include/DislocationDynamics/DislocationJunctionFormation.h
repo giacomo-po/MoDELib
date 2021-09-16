@@ -597,6 +597,7 @@ namespace model
                         if ((Nfar->get_P() - x).norm() > DN.networkRemesher.Lmin)
                         {
                             VerboseJunctions(4, "JunctionNode case c" << std::endl;);
+				
 
                             const VectorDim snappedPosition(L->glidePlanes().size() > 0 ? L->snapToGlidePlanes(x) : x);
 

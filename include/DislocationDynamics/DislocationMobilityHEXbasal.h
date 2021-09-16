@@ -121,7 +121,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) const override
+                        const bool& use_stochasticForce) override
         {
 
             const double bNorm=b.norm();
@@ -157,8 +157,8 @@ namespace model
             
             if(use_stochasticForce)
             {
-                ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
-                vs+=StochasticForceGenerator::velocity(kB,T,B0s+B1s*T,dL,dt);
+                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
+                vs+=this->stochasticVelocity(kB,T,B0s+B1s*T,dL,dt);
             }
             
             // Interpolate ve and vs

@@ -50,15 +50,15 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) const override
+                        const bool& use_stochasticForce) override
         {
             double ve=std::fabs(b.transpose()*S*n)/(B0e+B1e*T);
             double vs=std::fabs(b.transpose()*S*n)/(B0s+B1s*T);
             
             if(use_stochasticForce)
             {
-                ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
-                vs+=StochasticForceGenerator::velocity(kB,T,B0s+B1s*T,dL,dt);
+                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
+                vs+=this->stochasticVelocity(kB,T,B0s+B1s*T,dL,dt);
             }
             
             // Interpolate ve and vs

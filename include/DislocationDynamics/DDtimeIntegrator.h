@@ -32,28 +32,18 @@ namespace model
     struct DDtimeIntegrator<0>
     {
         static constexpr auto tag="vMax integrator";
-        static double dxMax;
-        static double shearWaveSpeedFraction;
-        static int timeIntegrationMethod;
-        static double dt;
+        double dxMax;
+        double shearWaveSpeedFraction;
+        int timeIntegrationMethod;
+        double dt;
         
         
         /******************************************************************/
-        static void initFromFile(const std::string& fileName)
-        {
-            dxMax=TextFileParser(fileName).readScalar<double>("dxMax",true);
-            timeIntegrationMethod=TextFileParser(fileName).readScalar<int>("timeIntegrationMethod",true);
-            dt=TextFileParser(fileName).readScalar<double>("timeStep",true);
-            assert(dxMax>0.0);
-            if (timeIntegrationMethod==0)
-            {
-                assert(dt>0.0 && "Time step should be greater than zero for constant time stepping.");
-            }
-        }
+        DDtimeIntegrator(const std::string& fileName);
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        static double getGlideTimeIncrement(const DislocationNetworkType& DN)
+        double getGlideTimeIncrement(const DislocationNetworkType& DN)
         {
             double dt_temp(0.0);
             switch (timeIntegrationMethod)
@@ -163,7 +153,7 @@ namespace model
         
         /**********************************************************************/
         template <typename DislocationNetworkType>
-        static double getClimbTimeIncrement(const DislocationNetworkType& DN)
+        double getClimbTimeIncrement(const DislocationNetworkType& DN)
         {
             //! Compute and store DislocaitonNode velocities
             //            DN.assembleAndSolve(runID,straightSegmentsDeq);
@@ -254,12 +244,12 @@ namespace model
     };
 
     //template <>
-#ifndef _MODEL_GREATWHITE_
-    double DDtimeIntegrator<0>::dxMax=10.0;
-    double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
-    int DDtimeIntegrator<0>::timeIntegrationMethod=0;
-    double DDtimeIntegrator<0>::dt=1000.0;
-#endif
+// #ifndef _MODEL_GREATWHITE_
+//     double DDtimeIntegrator<0>::dxMax=10.0;
+//     double DDtimeIntegrator<0>::shearWaveSpeedFraction=1.0e-3;
+//     int DDtimeIntegrator<0>::timeIntegrationMethod=0;
+//     double DDtimeIntegrator<0>::dt=1000.0;
+// #endif
 
     //template <>
 	

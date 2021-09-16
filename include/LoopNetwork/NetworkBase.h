@@ -10,6 +10,8 @@
 #define model_NetworkBase_H_
 
 #include <TerminalColors.h>
+#include <map>
+#include <memory>
 
 
 namespace model

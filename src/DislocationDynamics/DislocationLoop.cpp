@@ -386,5 +386,7 @@ namespace model
     template <int dim, short unsigned int corder>
     int DislocationLoop<dim,corder>::verboseDislocationLoop=0;
     
+    template class DislocationLoop<3,0>;
+
 }
 #endif

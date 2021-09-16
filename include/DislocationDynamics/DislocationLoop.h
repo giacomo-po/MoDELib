@@ -10,22 +10,9 @@
 #ifndef model_DislocationLoop_h_
 #define model_DislocationLoop_h_
 
-#include <memory>
 
-#include <TypeTraits.h>
-#include <Loop.h>
-#include <GlidePlaneModule.h>
-//#include <LatticeVector.h>
-//#include <LatticePlaneBase.h>
-//#include <LatticePlane.h>
-//#include <Grain.h>
-//#include <GlidePlane.h>
-////#include <DislocationLoopIO.h>
-////#include <PlanarDislocationLoop.h>
-//#include <SlipSystem.h>
+#include <DislocationDynamicsModule.h>
 
-//#include <PlanarPolygon.h>
-//#include <DislocationNetwork.h>
 
 #ifndef NDEBUG
 #define VerboseDislocationLoop(N,x) if(verboseDislocationLoop>=N){std::cout<<x;}

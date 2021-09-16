@@ -37,8 +37,8 @@
 #include <Eigen/Dense>
 
 #include <TerminalColors.h>
-
 #include <DislocationNetworkTraits.h>
+#include <DislocationDynamicsModule.h>
 #include <LoopNetwork.h>
 //#include <DislocationNetworkComponent.h>
 #include <DislocationLoop.h>
@@ -50,7 +50,7 @@
 
 #include <DislocationNetworkRemesh.h>
 #include <DislocationJunctionFormation.h>
-#include <DislocationCrossSlip.h>
+// #include <DislocationCrossSlip.h>
 ////#include <Material.h>
 #include <UniqueOutputFile.h>
 #include <DislocationNetworkIO.h>
@@ -59,7 +59,7 @@
 ////#include <ParticleSystem.h>
 //
 ////#include <SingleFieldPoint.h>
-//#include <DDtimeIntegrator.h>
+#include <DDtimeIntegrator.h>
 //#include <EqualIteratorRange.h>
 ////#include <BoundingLineSegments.h>
 //#include <GrainBoundaryTransmission.h>
@@ -144,8 +144,9 @@ namespace model
         const std::vector<VectorDim>& periodicShifts;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
         DislocationJunctionFormation<LoopNetworkType> junctionsMaker;
-        DislocationCrossSlip<LoopNetworkType> crossSlipMaker;
+        DislocationCrossSlip<DislocationNetwork<dim,corder>> crossSlipMaker;
         DislocationNodeContraction<LoopNetworkType> nodeContractor;
+        DDtimeIntegrator<0> timeIntegrator;
 //        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
         //        MatrixDimD _plasticDistortionFromVelocities;
         // std::pair<double,MatrixDim> oldPlasticDistortionFromAreas;
@@ -176,6 +177,11 @@ namespace model
         //        bool computePlasticDistortionRateFromVelocities;
         std::string folderSuffix;
         std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
+
+        const bool use_velocityFilter;
+        const double velocityReductionFactor;
+        const int verboseDislocationNode;
+
 
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[],

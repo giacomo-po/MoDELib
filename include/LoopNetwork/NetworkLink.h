@@ -9,10 +9,12 @@
 #ifndef model_NetworkLink_H_
 #define model_NetworkLink_H_
 
+#include <StaticID.h>
 #include <set>
 #include <CRTP.h>
 #include <NetworkBase.h>
 #include <LoopLink.h>
+
 //#include <NetworkLinkObserver.h>
 //#include <NetworkComponent.h>
 

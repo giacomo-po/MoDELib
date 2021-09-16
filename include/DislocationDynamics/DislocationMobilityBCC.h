@@ -123,7 +123,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) const
+                        const bool& use_stochasticForce) 
         {
             
             const double bNorm=b.norm();
@@ -158,8 +158,8 @@ namespace model
             
             if(use_stochasticForce)
             {
-                vs+=StochasticForceGenerator::velocity(kB,T,Bs,dL,dt);
-                ve+=StochasticForceGenerator::velocity(kB,T,B0e+B1e*T,dL,dt);
+                vs+=this->stochasticVelocity(kB,T,Bs,dL,dt);
+                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
             }
             
             // Interpolate ve and vs

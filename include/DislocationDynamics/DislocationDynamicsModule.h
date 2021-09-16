@@ -10,6 +10,73 @@
 #ifndef model_DislocationDynamicsModule_h_
 #define model_DislocationDynamicsModule_h_
 
+//Generic includes
+#include <iostream>
+#include <iomanip>
+#include <chrono>
+#include <memory>
+#include <utility> 
+#include <assert.h>
+
+//STL includes
+#include <vector>
+#include <map>
+#include <set>
+#include <deque>
+#include <algorithm>
+
+//Eigen includes
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+
+//MoDELib Utilities
+#include <TypeTraits.h>
+#include <TextFileParser.h>
+#include <TerminalColors.h>
+
+//MoDELib Mesh Module
+#include <Simplex.h>
+#include <PlanarMeshFace.h>
+
+//MoDELib Lattice Module
+#include <LatticeModule.h>
+
+
+
+
+
+
+//DDD includes
+
+
+
+//Topology layer
+#include <LoopLink.h>
+#include <Loop.h>
+#include <LoopNode.h>
+#include <NetworkNode.h>
+
+
+//Geometry layer
+#include <SplineNode.h>
+
+//Math functions
+#include <GramSchmidt.h>
+
+
+//Geometry functions
+#include <SegmentSegmentDistance.h>
+#include <FiniteLineSegment.h>
+#include <LineLineIntersection.h>
+#include <PlanePlaneIntersection.h>
+
+//Physics layer
+#include <DislocationNetworkTraits.h>
+#include <GlidePlaneModule.h>
+#include <GlidePlane.h>
+#include <Grain.h>
+#include <ConfinedDislocationObject.h>
+#include <DislocationCrossSlip.h>
 #include <DislocationNetwork.h>
 #include <DislocationLoop.h>
 #include <DislocationLoopNode.h>
@@ -19,14 +86,9 @@
 #include <DislocationGlideSolver.h>
 #include <DislocationNetworkRemesh.h>
 
+//#include <DislocationNetworkRemesh.cpp>
 
-#include <DislocationNetwork.hpp>
-#include <DislocationLoop.hpp>
-#include <DislocationLoopNode.hpp>
-#include <DislocationLoopLink.hpp>
-#include <DislocationNode.hpp>
-#include <DislocationSegment.hpp>
-#include <DislocationGlideSolver.hpp>
-#include <DislocationNetworkRemesh.hpp>
+
+
 
 #endif

@@ -14,7 +14,6 @@
 #define model_DislocationNode_cpp_
 
 #include <DislocationNode.h>
-#include <GramSchmidt.h>
 
 
 namespace model
@@ -207,17 +206,17 @@ namespace model
         velocity=vNew;
         projectVelocity();
         
-        if(use_velocityFilter && !isBoundaryNode())
+        if(this->network().use_velocityFilter && !isBoundaryNode())
         {
             const double filterThreshold=0.05*velocity.norm()*vOld.norm()+FLT_EPSILON;
             
             if(velocity.dot(vOld)<-filterThreshold)
             {
-                velocityReductionCoeff*=velocityReductionFactor;
+                velocityReductionCoeff*=this->network().velocityReductionFactor;
             }
             else if(velocity.dot(vOld)>filterThreshold)
             {
-                velocityReductionCoeff/=velocityReductionFactor;
+                velocityReductionCoeff/=this->network().velocityReductionFactor;
             }
             else
             {
@@ -247,14 +246,14 @@ namespace model
     
 
 
-    template <int dim, short unsigned int corder>
-    void DislocationNode<dim,corder>::initFromFile(const std::string& fileName)
-    {
-        use_velocityFilter=TextFileParser(fileName).readScalar<double>("use_velocityFilter",true);
-        velocityReductionFactor=TextFileParser(fileName).readScalar<double>("velocityReductionFactor",true);
-        assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
-        verboseDislocationNode=TextFileParser(fileName).readScalar<int>("verboseDislocationNode",true);
-    }
+    // template <int dim, short unsigned int corder>
+    // void DislocationNode<dim,corder>::initFromFile(const std::string& fileName)
+    // {
+    //     this->network().use_velocityFilter=TextFileParser(fileName).readScalar<double>("this->network().use_velocityFilter",true);
+    //     this->network().velocityReductionFactor=TextFileParser(fileName).readScalar<double>("this->network().velocityReductionFactor",true);
+    //     assert(this->network().velocityReductionFactor>0.0 && this->network().velocityReductionFactor<=1.0);
+    //     verboseDislocationNode=TextFileParser(fileName).readScalar<int>("verboseDislocationNode",true);
+    // }
 
     template <int dim, short unsigned int corder>
     void DislocationNode<dim,corder>::updateGeometry()
@@ -567,14 +566,16 @@ namespace model
 
     
     
-    template <int dim, short unsigned int corder>
-    int DislocationNode<dim,corder>::verboseDislocationNode=0;
+    // template <int dim, short unsigned int corder>
+    // int DislocationNode<dim,corder>::verboseDislocationNode=0;
 
-    template <int dim, short unsigned int corder>
-    bool DislocationNode<dim,corder>::use_velocityFilter=true;
+    // template <int dim, short unsigned int corder>
+    // bool DislocationNode<dim,corder>::this->network().use_velocityFilter=true;
 
-    template <int dim, short unsigned int corder>
-    double DislocationNode<dim,corder>::velocityReductionFactor=0.75;
+    // template <int dim, short unsigned int corder>
+    // double DislocationNode<dim,corder>::this->network().velocityReductionFactor=0.75;
+
+   template class DislocationNode<3,0>;
     
 }
 #endif

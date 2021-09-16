@@ -15,7 +15,6 @@
 #define model_DislocationLoopNode_cpp_
 
 #include <DislocationLoopNode.h>
-#include <SegmentSegmentDistance.h>
 
 namespace model
 {
@@ -999,5 +998,7 @@ namespace model
     
     template <int dim, short unsigned int corder>
     int DislocationLoopNode<dim,corder>::verboseDislocationLoopNode=0;
+
+    template class DislocationLoopNode<3,0>;
 }
 #endif

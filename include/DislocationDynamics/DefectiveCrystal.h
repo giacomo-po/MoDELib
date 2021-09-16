@@ -284,7 +284,7 @@ namespace model
                 updateLoadControllers(simulationParameters.runID, false);
 
                 DN->assembleAndSolveGlide();
-                simulationParameters.dt=DDtimeIntegrator<0>::getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
+                simulationParameters.dt=DN->timeIntegrator.getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 // output
                 DN->io().output(simulationParameters.runID);
 

@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DislocationNetwork_cpp_
-#define model_DislocationNetwork_cpp_
+#ifndef model_DislocationNetwork_CPP_
+#define model_DislocationNetwork_CPP_
 
 
 #include <DislocationNetwork.h>
@@ -40,6 +40,7 @@ namespace model
     /* init */,junctionsMaker(*this)
     /* init */,crossSlipMaker(*this)
     /* init */,nodeContractor(*this)
+    /* init */,timeIntegrator("inputFiles/DD.txt")
     //    /* init */,gbTransmission(*this)
     //        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
     ///* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
@@ -75,7 +76,12 @@ namespace model
     /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
     //        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
     /* init */,folderSuffix("")
+    /* init */,use_velocityFilter(TextFileParser("inputFiles/DD.txt").readScalar<double>("use_velocityFilter",true))
+    /* init */,velocityReductionFactor(TextFileParser("inputFiles/DD.txt").readScalar<double>("velocityReductionFactor",true))
+    /* init */,verboseDislocationNode(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationNode",true))
     {
+
+        assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
         
         // Some sanity checks
         //            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
@@ -87,13 +93,14 @@ namespace model
         LoopNodeType::initFromFile("inputFiles/DD.txt");
         LoopLinkType::initFromFile("inputFiles/DD.txt");
         NetworkLinkType::initFromFile("inputFiles/DD.txt");
-        NetworkNodeType::initFromFile("inputFiles/DD.txt");
+        // NetworkNodeType::initFromFile("inputFiles/DD.txt");
         //        PeriodicDislocationBase::initFromFile("inputFiles/DD.txt");
         //        DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
         DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
-        DDtimeIntegrator<0>::initFromFile("inputFiles/DD.txt");
+        
 //        DislocationCrossSlip<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
 //        DislocationJunctionFormation<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
+        /*
         int stochasticForceSeed=TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true);
         if(stochasticForceSeed<0)
         {
@@ -103,6 +110,7 @@ namespace model
         {
             StochasticForceGenerator::init(stochasticForceSeed);
         }
+        */
         
         if(argc>1)
         {
@@ -1207,6 +1215,8 @@ namespace model
     template <int dim, short unsigned int corder>
     int DislocationNetwork<dim,corder>::verboseDislocationNetwork=0;
     
+    template class DislocationNetwork<3,0>;
+    // template class DislocationNetwork<3,1>;
     
 }
 #endif

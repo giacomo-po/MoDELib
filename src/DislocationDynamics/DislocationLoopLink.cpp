@@ -113,7 +113,7 @@ namespace model
     template <int dim, short unsigned int corder>
     int DislocationLoopLink<dim,corder>::verboseDislocationLoopLink=0;
 
-    
+    template class DislocationLoopLink<3,0>;
     
 }
 #endif
