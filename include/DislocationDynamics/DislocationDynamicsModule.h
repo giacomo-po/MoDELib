@@ -25,6 +25,9 @@
 #include <deque>
 #include <algorithm>
 
+//MPIInclude
+#include <MPIcout.h>
+
 //Eigen includes
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -65,6 +68,7 @@
 
 
 //Geometry functions
+#include <SweepPlane.h>
 #include <SegmentSegmentDistance.h>
 #include <FiniteLineSegment.h>
 #include <LineLineIntersection.h>
@@ -77,6 +81,7 @@
 #include <Grain.h>
 #include <ConfinedDislocationObject.h>
 #include <DislocationCrossSlip.h>
+#include <DislocationJunctionFormation.h>
 #include <DislocationNetwork.h>
 #include <DislocationLoop.h>
 #include <DislocationLoopNode.h>

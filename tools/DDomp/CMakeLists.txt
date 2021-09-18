@@ -3,7 +3,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 PROJECT(DDomp CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Delete/Model2_Collaboration/MoDELib/MoDELib")
+set(MoDELibRootDir "/home/ypachaur/Modelib_Development/MoDELib")
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
@@ -25,6 +25,7 @@ add_executable(DDomp DDomp.cpp)
 include_directories(/home/ypachaur/ModelEssentials/Eigen)
 
 include_directories(${MoDELibRootDir}/include/Utilities/)
+include_directories(${MoDELibRootDir}/include/MPI/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)

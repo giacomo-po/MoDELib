@@ -143,7 +143,7 @@ namespace model
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;
         const std::vector<VectorDim>& periodicShifts;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
-        DislocationJunctionFormation<LoopNetworkType> junctionsMaker;
+        DislocationJunctionFormation<DislocationNetwork<dim,corder>> junctionsMaker;
         DislocationCrossSlip<DislocationNetwork<dim,corder>> crossSlipMaker;
         DislocationNodeContraction<LoopNetworkType> nodeContractor;
         DDtimeIntegrator<0> timeIntegrator;

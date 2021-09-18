@@ -58,24 +58,13 @@ namespace model
 
         /**********************************************************************/
         GlidePlane(const GlidePlaneFactoryType* const gpF,
-                   const GlidePlaneKeyType& key_in) :
-        /* init */ LatticePlane(key_in.planeIndex(),ReciprocalLatticeDirection<dim>(key_in.reciprocalDirectionComponents(),gpF->poly.grain(key_in.latticeID()))) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
-        /* init */,MeshPlane<dim>(gpF->poly.mesh,key_in.latticeID(),this->planeOrigin(),this->n.cartesian())
-        /* init */,glidePlaneFactory(*gpF)
-        /* init */,grain(gpF->poly.grain(key_in.latticeID()))
-        /* init */,key(key_in)
-        {
-            VerboseGlidePlane(1,"Creating GlidePlane "<<this->sID<<std::endl;);
-        }
+                   const GlidePlaneKeyType& key_in) ;
         
         /**********************************************************************/
         GlidePlane(const GlidePlane<dim>& other) = delete;
         
         /**********************************************************************/
-        ~GlidePlane()
-        {
-            VerboseGlidePlane(1,"Destroying GlidePlane "<<this->sID<<std::endl;);
-        }
+        ~GlidePlane();
 
     };
 

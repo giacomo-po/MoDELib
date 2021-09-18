@@ -31,17 +31,7 @@ namespace model
         const double kB;
         
         /**********************************************************************/
-        DislocationMobilityFCC(const PolycrystallineMaterialBase& material) :
-        /* init */ DislocationMobilityBase("FCC mobility for "+material.materialName),
-        /* init */ B0e(TextFileParser(material.materialFile).readScalar<double>("B0e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
-        /* init */ B1e(TextFileParser(material.materialFile).readScalar<double>("B1e_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
-        /* init */ B0s(TextFileParser(material.materialFile).readScalar<double>("B0s_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
-        /* init */ B1s(TextFileParser(material.materialFile).readScalar<double>("B1s_SI",true)*material.cs_SI/(material.mu_SI*material.b_SI)),
-        //        /* init */ kB(kB_SI/mu_SI/std::pow(b_SI,3))
-        /* init */ kB(kB_SI/material.mu_SI/std::pow(material.b_SI,3))
-        {
-            
-        }
+        DislocationMobilityFCC(const PolycrystallineMaterialBase& material) ;
         /**********************************************************************/
         double velocity(const MatrixDim& S,
                         const VectorDim& b,
@@ -50,21 +40,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) override
-        {
-            double ve=std::fabs(b.transpose()*S*n)/(B0e+B1e*T);
-            double vs=std::fabs(b.transpose()*S*n)/(B0s+B1s*T);
-            
-            if(use_stochasticForce)
-            {
-                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
-                vs+=this->stochasticVelocity(kB,T,B0s+B1s*T,dL,dt);
-            }
-            
-            // Interpolate ve and vs
-            const double cos2=std::pow(b.normalized().dot(xi),2);
-            return vs*cos2+ve*(1.0-cos2);
-        }
+                        const bool& use_stochasticForce) override;
         
     };
     

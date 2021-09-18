@@ -12,6 +12,9 @@
 
 #include <iostream>
 #include <fstream>      // std::stringstream
+#include <Eigen/Dense>
+#include <TerminalColors.h>
+#include <UniqueOutputFile.h>
 //#include <cmath>
 //#include <cfloat>
 //#include <Material.h>
@@ -39,17 +42,10 @@ namespace model
 
         
         /**************************************************************************/
-        ExternalLoadControllerBase(const std::string& _inputFileName) :
-        /* init list */ inputFileName(_inputFileName)
-        {
-            std::cout<<greenBoldColor<<"Reading ExternalLoadController file: "<<inputFileName<<defaultColor<<std::endl;
-        }
+        ExternalLoadControllerBase(const std::string& _inputFileName) ;
         
         /**************************************************************************/
-        virtual ~ExternalLoadControllerBase()
-        {
-        }
-
+        virtual ~ExternalLoadControllerBase();
         /**************************************************************************/
         virtual MatrixDim stress(const VectorDim&) const = 0;
         

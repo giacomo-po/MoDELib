@@ -4,7 +4,9 @@ add_library(MoDELibDDD
 	DislocationLocalReference.cpp
 	DefectiveCrystalParameters.cpp
 		ConfinedDislocationObject.cpp
+		DefectiveCrystal.cpp
 		DislocationNetwork.cpp
+		DislocationGlideSolver.cpp
 		DislocationNode.cpp
 		DDtimeIntegrator.cpp
 		DislocationSegment.cpp
@@ -13,5 +15,15 @@ add_library(MoDELibDDD
 		DislocationLoopNode.cpp
 		DislocationNetworkRemesh.cpp
 		DislocationCrossSlip.cpp
+		DislocationMobilityBase.cpp
+		DislocationMobilityBCC.cpp
+		DislocationMobilityFCC.cpp
+		DislocationMobilityHEXbasal.cpp
+		DislocationMobilityHEXprismatic.cpp
+		DislocationMobilityHEXpyramidal.cpp
+		EshelbyInclusion.cpp
+		ExternalLoadControllerBase.cpp
+		GlidePlane.cpp
+
 			)
 

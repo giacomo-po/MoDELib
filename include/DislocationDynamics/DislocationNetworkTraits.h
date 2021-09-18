@@ -51,6 +51,8 @@ namespace model
     template <typename DislocationNetworkType>
     class DislocationCrossSlip;
     
+    template <typename DislocationNetworkType>
+    class DislocationJunctionFormation;
     
     /********************************************************************/
     /*	DislocationNetworkTraitsBase: a base class for Dislocation Network Traits */
