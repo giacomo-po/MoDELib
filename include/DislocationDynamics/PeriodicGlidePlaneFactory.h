@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <list>
+#include <WeakPtrFactories.h>
 
 #include <GlidePlane.h>
 #include <PeriodicGlidePlane.h>
@@ -20,7 +21,6 @@
 #include <TerminalColors.h>
 #include <DiophantineSolver.h>
 #include <PeriodicGlidePlane.h>
-
 namespace model
 {
         
@@ -43,7 +43,7 @@ namespace model
         GlidePlaneFactory<dim>& glidePlaneFactory;
         const Eigen::Matrix<long int,dim,dim> N; // B=AN, where A is lattice matrix
         PeriodicGlidePlaneFactory(const Polycrystal<dim>& poly_in,GlidePlaneFactory<dim>& glidePlaneFactory_in);
-        PeriodicGlidePlaneSharedPtrType get(const GlidePlaneType& plane);
+        // PeriodicGlidePlaneSharedPtrType get(const GlidePlaneType& plane);
         PeriodicGlidePlaneSharedPtrType get(const GlidePlaneKeyType& temp);
         BaseType& periodicGlidePlanes();
         const BaseType& periodicGlidePlanes() const;

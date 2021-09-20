@@ -18,6 +18,7 @@
 #include <SequentialOutputFile.h>
 #include <TerminalColors.h>
 
+#include <PeriodicGlidePlane.h>
 #include <LatticeModule.h>
 #include <LatticeModule.h>
 //#include <BoundaryDisplacementPoint.h>

@@ -1565,5 +1565,14 @@ template<int dim>
         return os;
     }
     
+    /*
+            template struct PeriodicPlaneEdge<3>;
+     template struct NodalConnectivity <3>;
+     template class PeriodicPlaneNode<3>;
+     template struct PeriodicPlanePatch<3>;
+     template struct PeriodicPatchBoundary<3>;
+     template class PeriodicGlidePlane<3>;
+     template class PeriodicPlanePatchIO<3>;
+    */
 }
 #endif

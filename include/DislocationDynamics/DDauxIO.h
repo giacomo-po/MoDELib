@@ -14,6 +14,7 @@
 #include <fstream>      // std::ifstream
 #include <cfloat>      // std::ifstream
 #include <DDbaseIO.h>
+#include <PeriodicGlidePlane.h>
 #include <GlidePlaneBoundaryIO.h>
 #include <GlidePlaneModule.h>
 #include <DislocationQuadraturePointIO.h>

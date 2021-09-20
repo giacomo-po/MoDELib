@@ -24,6 +24,8 @@ add_library(MoDELibDDD
 		EshelbyInclusion.cpp
 		ExternalLoadControllerBase.cpp
 		GlidePlane.cpp
-
+		MicrostructureGenerator.cpp
+		PeriodicGlidePlaneFactory.cpp
+		SimplexBndNormal.cpp
 			)
 

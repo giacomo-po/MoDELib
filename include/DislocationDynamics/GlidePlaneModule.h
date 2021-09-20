@@ -15,7 +15,7 @@
 #include <PeriodicGlidePlaneFactory.h>
 
 #include <PeriodicGlidePlane.hpp>
-#include <PeriodicGlidePlaneFactory.hpp>
+//#include <PeriodicGlidePlaneFactory.hpp>
 
 #endif
 

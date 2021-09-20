@@ -746,6 +746,87 @@ GlidePlane.cpp.s:
 	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/GlidePlane.cpp.s
 .PHONY : GlidePlane.cpp.s
 
+MicrostructureGenerator.o: MicrostructureGenerator.cpp.o
+
+.PHONY : MicrostructureGenerator.o
+
+# target to build an object file
+MicrostructureGenerator.cpp.o:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/MicrostructureGenerator.cpp.o
+.PHONY : MicrostructureGenerator.cpp.o
+
+MicrostructureGenerator.i: MicrostructureGenerator.cpp.i
+
+.PHONY : MicrostructureGenerator.i
+
+# target to preprocess a source file
+MicrostructureGenerator.cpp.i:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/MicrostructureGenerator.cpp.i
+.PHONY : MicrostructureGenerator.cpp.i
+
+MicrostructureGenerator.s: MicrostructureGenerator.cpp.s
+
+.PHONY : MicrostructureGenerator.s
+
+# target to generate assembly for a file
+MicrostructureGenerator.cpp.s:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/MicrostructureGenerator.cpp.s
+.PHONY : MicrostructureGenerator.cpp.s
+
+PeriodicGlidePlaneFactory.o: PeriodicGlidePlaneFactory.cpp.o
+
+.PHONY : PeriodicGlidePlaneFactory.o
+
+# target to build an object file
+PeriodicGlidePlaneFactory.cpp.o:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/PeriodicGlidePlaneFactory.cpp.o
+.PHONY : PeriodicGlidePlaneFactory.cpp.o
+
+PeriodicGlidePlaneFactory.i: PeriodicGlidePlaneFactory.cpp.i
+
+.PHONY : PeriodicGlidePlaneFactory.i
+
+# target to preprocess a source file
+PeriodicGlidePlaneFactory.cpp.i:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/PeriodicGlidePlaneFactory.cpp.i
+.PHONY : PeriodicGlidePlaneFactory.cpp.i
+
+PeriodicGlidePlaneFactory.s: PeriodicGlidePlaneFactory.cpp.s
+
+.PHONY : PeriodicGlidePlaneFactory.s
+
+# target to generate assembly for a file
+PeriodicGlidePlaneFactory.cpp.s:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/PeriodicGlidePlaneFactory.cpp.s
+.PHONY : PeriodicGlidePlaneFactory.cpp.s
+
+SimplexBndNormal.o: SimplexBndNormal.cpp.o
+
+.PHONY : SimplexBndNormal.o
+
+# target to build an object file
+SimplexBndNormal.cpp.o:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/SimplexBndNormal.cpp.o
+.PHONY : SimplexBndNormal.cpp.o
+
+SimplexBndNormal.i: SimplexBndNormal.cpp.i
+
+.PHONY : SimplexBndNormal.i
+
+# target to preprocess a source file
+SimplexBndNormal.cpp.i:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/SimplexBndNormal.cpp.i
+.PHONY : SimplexBndNormal.cpp.i
+
+SimplexBndNormal.s: SimplexBndNormal.cpp.s
+
+.PHONY : SimplexBndNormal.s
+
+# target to generate assembly for a file
+SimplexBndNormal.cpp.s:
+	cd /home/ypachaur/Modelib_Development/MoDELib/tools/DDomp && $(MAKE) -f DislocationDynamics/CMakeFiles/MoDELibDDD.dir/build.make DislocationDynamics/CMakeFiles/MoDELibDDD.dir/SimplexBndNormal.cpp.s
+.PHONY : SimplexBndNormal.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -824,6 +905,15 @@ help:
 	@echo "... GlidePlane.o"
 	@echo "... GlidePlane.i"
 	@echo "... GlidePlane.s"
+	@echo "... MicrostructureGenerator.o"
+	@echo "... MicrostructureGenerator.i"
+	@echo "... MicrostructureGenerator.s"
+	@echo "... PeriodicGlidePlaneFactory.o"
+	@echo "... PeriodicGlidePlaneFactory.i"
+	@echo "... PeriodicGlidePlaneFactory.s"
+	@echo "... SimplexBndNormal.o"
+	@echo "... SimplexBndNormal.i"
+	@echo "... SimplexBndNormal.s"
 .PHONY : help
 
 

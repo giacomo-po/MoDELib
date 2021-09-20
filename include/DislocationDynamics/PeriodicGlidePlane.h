@@ -280,7 +280,7 @@ namespace model
 //        friend T& operator << (T& os, const PeriodicPlanePatchIO<dim>& ds);
         
     };
-    
+
 
 }
 #endif

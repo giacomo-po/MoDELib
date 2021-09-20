@@ -15,7 +15,7 @@
 #define model_DislocationLoopNode_h_
 
 #include <PeriodicGlidePlane.h>
-#include <PeriodicGlidePlane.hpp>
+// #include <PeriodicGlidePlane.hpp>
 
 #include <DislocationDynamicsModule.h>
 
