@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 PROJECT(DDomp CXX)
 set(CMAKE_CXX_STANDARD 17)
@@ -13,7 +13,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
 endif()
 
 
-#set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 #set(CMAKE_CXX_FLAGS_RELEASE "-H")

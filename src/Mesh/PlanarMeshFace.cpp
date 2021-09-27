@@ -165,8 +165,9 @@ namespace model
     }
     
 //    template class PlanarMeshFace<1>;
-//    template class PlanarMeshFace<2>;
-    template class PlanarMeshFace<3>;
+    // template class PlanarMeshFace<1>;
+    // template class PlanarMeshFace<2>;
+    template struct PlanarMeshFace<3>;
 
 }
 #endif

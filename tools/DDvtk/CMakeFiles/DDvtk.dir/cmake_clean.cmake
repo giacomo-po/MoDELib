@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/DDvtk.dir/DDvtk.cxx.o"
-  "DDvtk.pdb"
   "DDvtk"
+  "DDvtk.pdb"
 )
 
 # Per-language clean rules from dependency scanning.

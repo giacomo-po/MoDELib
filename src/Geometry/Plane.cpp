@@ -125,7 +125,7 @@ namespace model
             return temp;
         }
 
-    template class Plane<3>;
+    template struct Plane<3>;
 
 }
 #endif

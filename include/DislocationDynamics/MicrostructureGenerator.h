@@ -38,7 +38,8 @@
 #include <MeshBoundarySegment.h>
 #include <ConfinedDislocationObject.h>
 #include <GlidePlaneModule.h>
-
+#include <MeshModule.h>
+#include <Plane.h>
 namespace model
 {
 
