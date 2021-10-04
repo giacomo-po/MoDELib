@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION 3.0)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
+
+
 
 PROJECT(microstructureGenerator CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(MoDELibRootDir "/home/ypachaur/Modelib_Development/MoDELib")
+
+set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 

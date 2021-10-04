@@ -76,15 +76,28 @@ namespace model
     template<int dim>
     typename PeriodicPlaneEdge<dim>::VectorDim PeriodicPlaneEdge<dim>::getDeltaShift(const PeriodicPlanePatch<dim>* const patch,const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection)
     {
-        
+        std::cout<<"Starting to calculate delta shift "<<std::endl;
         VectorDim shift(VectorDim::Zero());
         for(const PlanarMeshFace<dim>* const face : meshIntersection->faces)
         {
+            std::cout<<"Normal corresponding to this face "<<face->sID<<face->outNormal().transpose()<<std::endl;
             const auto parallelFaceID(patch->glidePlane->grain.region.parallelFaces().at(face->sID));
             const auto parallelFace(patch->glidePlane->grain.region.faces().at(parallelFaceID));
-            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
-            
+            const double parallelFD(((parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal()).norm());
+            for (const auto& pface : patch->glidePlane->grain.region.parallelFaces())
+            {
+                if (pface.first!= face->sID && pface.second!= face->sID)
+                {
+                    const auto otherFaceOutNormal(patch->glidePlane->grain.region.faces().at(pface.second)->outNormal());
+                    const auto shiftDirection((face->outNormal()-(face->outNormal().dot(otherFaceOutNormal)*otherFaceOutNormal)).normalized());
+                    std::cout<<"Shift direction "<<shiftDirection.transpose()<<std::endl;
+                    VectorDim faceShift(shiftDirection*parallelFD/face->outNormal().dot(shiftDirection));
+                    shift+=0.5*faceShift;
+                }
+            }
         }
+        std::cout<<"Finished to calculate delta shift "<<shift.transpose()<<std::endl;
+
         return shift;
     }
     
