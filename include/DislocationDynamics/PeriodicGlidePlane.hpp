@@ -84,17 +84,30 @@ namespace model
             const auto parallelFaceID(patch->glidePlane->grain.region.parallelFaces().at(face->sID));
             const auto parallelFace(patch->glidePlane->grain.region.faces().at(parallelFaceID));
             const double parallelFD(((parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal()).norm());
+
+            std::vector<VectorDim> vectorofNormals;
+            
+
             for (const auto& pface : patch->glidePlane->grain.region.parallelFaces())
             {
                 if (pface.first!= face->sID && pface.second!= face->sID)
                 {
                     const auto otherFaceOutNormal(patch->glidePlane->grain.region.faces().at(pface.second)->outNormal());
-                    const auto shiftDirection((face->outNormal()-(face->outNormal().dot(otherFaceOutNormal)*otherFaceOutNormal)).normalized());
-                    std::cout<<"Shift direction "<<shiftDirection.transpose()<<std::endl;
-                    VectorDim faceShift(shiftDirection*parallelFD/face->outNormal().dot(shiftDirection));
-                    shift+=0.5*faceShift;
+                    vectorofNormals.push_back(otherFaceOutNormal);
+                    // const auto shiftDirection((face->outNormal()-(face->outNormal().dot(otherFaceOutNormal)*otherFaceOutNormal)).normalized());
+                    // std::cout<<"Shift direction "<<shiftDirection.transpose()<<std::endl;
+                    // VectorDim faceShift(shiftDirection*parallelFD/face->outNormal().dot(shiftDirection));
+                    // shift+=0.5*faceShift;
                 }
             }
+            GramSchmidt::orthoNormalize(vectorofNormals);
+            VectorDim faceShift(face->outNormal());
+            for (const auto& normal : vectorofNormals)
+            {
+                faceShift-=faceShift.dot(normal)*normal;
+            }
+            faceShift.normalize();
+            shift-=faceShift*parallelFD/faceShift.dot(face->outNormal());
         }
         std::cout<<"Finished to calculate delta shift "<<shift.transpose()<<std::endl;
 

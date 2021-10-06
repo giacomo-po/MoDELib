@@ -9,7 +9,7 @@ Tm=2128;		# [K]		melting temperature
 
 
 # Mobility parameters in prismatic planes (G.Po et al. A phenomenological dislocation mobility law for bcc metals. Acta Mater 119, 2016)
-enablePrismaticSlipSystems=1;
+enablePrismaticSlipSystems=0;
 B0e_SI_p=50.e-6;	# [Pa*s]	temperature-independent drag coefficient for edge  dislocations in 
 B1e_SI_p=0.0;	# [Pa*s/K]	temperature-dependent drag coefficient for edge  dislocations
 B0s_SI_p=50.e-6;		# [Pa*s]	temperature-independent drag coefficient for screw  dislocations
