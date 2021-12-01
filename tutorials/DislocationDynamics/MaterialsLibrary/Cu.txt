@@ -1,5 +1,6 @@
 materialName=Cu;
 crystalStructure=FCC;
+enablePartials=0;
 b_SI=0.2556e-9; # [m] 		Burgers vector magnitude 
 mu0_SI=48e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
@@ -23,4 +24,5 @@ dOmegav=0;	# [-]	Relative vacancy relaxation volume
 Ufv_eV=0;	# [eV]	Vacancy formation energy
 Umv_eV=0; 	# [eV]	Vacancy migration energy
 D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
-
+DVv=0;
+Udv_eV=0;

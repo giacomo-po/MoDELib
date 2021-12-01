@@ -231,10 +231,10 @@ namespace model
         for(const auto& loop : evl.loops())
         {
             const bool faulted= poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false;
-            std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
+            model::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
-            
+
             
             switch (loop.loopType)
             {
@@ -264,7 +264,7 @@ namespace model
         size_t netNodeNumber=1;
         for(const auto& node : evl.nodes())
         {
-            std::cout<<"Creating DislocationNode "<<node.sID<<" ("<<netNodeNumber<<" of "<<evl.nodes().size()<<")"<<std::endl;
+            model::cout<<"Creating DislocationNode "<<node.sID<<" ("<<netNodeNumber<<" of "<<evl.nodes().size()<<")"<<std::endl;
             const size_t nodeIDinFile(node.sID);
             NetworkNodeType::set_count(nodeIDinFile);
             tempNetNodes.push_back(this->networkNodes().create(node.P,node.V,node.velocityReduction));
@@ -277,16 +277,16 @@ namespace model
         size_t loopNodeNumber=1;
         for(const auto& node : evl.loopNodes())
         {
-            std::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
+            model::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
             // std::cout<<"Printing stuff for loopNodes "<<std::endl;
-            
+
             // std::cout << node.loopID << std::endl;
             // std::cout << node.sID << std::endl;
             // std::cout << std::setprecision(15) << std::scientific << node.P.transpose() << std::endl;
             // std::cout << node.networkNodeID << std::endl;
             // std::cout << std::setprecision(15) << std::scientific << node.periodicShift.transpose() << std::endl;
             // std::cout << node.edgeID << std::endl;
-            
+
             const size_t nodeIDinFile(node.sID);
             LoopNodeType::set_count(nodeIDinFile);
             const auto loop(this->loops().get(node.loopID));
@@ -294,19 +294,24 @@ namespace model
             assert(loop && "Loop does not exist");
             assert(netNode && "NetworkNode does not exist");
             const auto periodicPatch(loop->periodicGlidePlane? loop->periodicGlidePlane->patches().getFromKey(node.periodicShift) : nullptr);
-            const auto periodicPatchEdge((periodicPatch && node.edgeID>=0)? periodicPatch->edges()[node.edgeID] : nullptr);
+            const auto periodicPatchEdge((periodicPatch && node.edgeIDs.first>=0)? (node.edgeIDs.second>=0 ? std::make_pair(periodicPatch->edges()[node.edgeIDs.first],
+            periodicPatch->edges()[node.edgeIDs.second]): std::make_pair(periodicPatch->edges()[node.edgeIDs.first],nullptr)):std::make_pair(nullptr,nullptr)); 
             // std::cout<<"PeriodicPlane edge created "<<std::endl;
             if(periodicPatch)
             {
-                std::cout<<", on patch "<<periodicPatch->shift.transpose()<<std::flush;
+                model::cout<<", on patch "<<periodicPatch->shift.transpose()<<std::flush;
             }
-            if(periodicPatchEdge)
+            if(periodicPatchEdge.first)
             {
-                std::cout<<" on edge "<<periodicPatchEdge->edgeID<<std::flush;
+                model::cout<<" on edge "<<periodicPatchEdge.first->edgeID<<std::flush;
+            }
+            if(periodicPatchEdge.second)
+            {
+                model::cout<<" and "<<periodicPatchEdge.second->edgeID<<std::flush;
             }
             // std::cout<<"Trying to create the loop node with loopID "<<loop->sID<<" if loop has GP "<<(loop->glidePlane!=nullptr)<<" networkID is "
             // <<netNode->sID<<std::endl;
-            std::cout<<std::endl;
+            model::cout<<std::endl;
             tempLoopNodes.push_back(this->loopNodes().create(loop,netNode,node.P,periodicPatch,periodicPatchEdge));
             assert(this->loopNodes().get(nodeIDinFile)->sID==nodeIDinFile);
             loopNodeNumber++;
@@ -534,237 +539,7 @@ namespace model
     }
     
     
-    template <int dim, short unsigned int corder>
-    void DislocationNetwork<dim,corder>::dummyMove(const int& runID)
-    {/*!\returns the plastic strain rate tensor generated during the last time step.
-      */
-        std::cout<<"Dummy move: runID="<<runID<<std::endl;
-        
-        danglingBoundaryLoopNodes.clear();
-        
-        //        std::cout<<"Computing loop centers"<<std::endl;
-        std::map<size_t,std::pair<VectorDim,size_t>> loopCenters;
-        for(const auto& node : this->loopNodes())
-        {
-            const auto sharedNode(node.second.lock());
-            const auto sharedLoop(sharedNode->loop());
-            auto loopIter(loopCenters.find(sharedLoop->sID));
-            if(loopIter==loopCenters.end())
-            {
-                loopCenters.emplace(sharedLoop->sID,std::make_pair(sharedNode->get_P(),1));
-            }
-            else
-            {
-                loopIter->second.first+=sharedNode->get_P();
-                loopIter->second.second++;
-            }
-        }
-        
-        for(auto& pair : loopCenters)
-        {
-            pair.second.first/=pair.second.second;
-        }
-        
-        //        std::cout<<"Set_P loop"<<std::endl;
-        
-        
-        
-        const double dt=10;
-        for(auto& node : this->networkNodes())
-        {// Expansion
-            
-            VectorDim v(VectorDim::Zero());
-            for(const auto& loopNode : node.second.lock()->loopNodes())
-            {
-                auto loopIter(loopCenters.find(loopNode->loop()->sID));
-                v+=(loopNode->get_P()-loopIter->second.first).normalized()/node.second.lock()->loopNodes().size();
-            }
-            
-            if(node.second.lock()->loopNodes().size()>1)
-            {
-                const auto dir((node.second.lock()->glidePlaneIntersections()->P1-node.second.lock()->glidePlaneIntersections()->P0).normalized());
-                v=v.dot(dir)*dir;
-            }
-            
-            node.second.lock()->trySet_P(node.second.lock()->get_P()+v*dt);
-            
-        }
-        
-        //        const auto loop0(this->loops().begin());
-        //        const auto loop1(this->loops().rbegin());
-        //
-        //                const auto v=loop0->second.lock()->glidePlane->unitNormal.cross(loop1->second.lock()->glidePlane->unitNormal).normalized();
-        //                for(auto& node : this->networkNodes())
-        //                {// translation
-        //                    node.second.lock()->trySet_P(node.second.lock()->get_P()+v*dt);
-        //                }
-        
-        
-        
-        std::cout<<"Removing Nodes"<<std::endl;
-        for(const auto& node : danglingBoundaryLoopNodes)
-        {
-            //            std::cout<<"removing node="<<node->sID<<std::endl;
-            this->removeLoopNode(node->sID);
-        }
-        
-        // std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>>
-        
-        std::cout<<"Inserting new boundary nodes"<<std::endl;
-        //        std::map<std::pair<std::shared_ptr<NetworkLinkType>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
-        std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
-        
-        for(const auto& weakLoop : this->loops())
-        {
-            const auto loop(weakLoop.second.lock());
-            
-            //            std::cout<<"internal loop nodes "<<std::endl;
-            
-            std::vector<std::pair<VectorLowerDim,const LoopNodeType* const>> loopNodesPos;
-            std::map<std::tuple<const LoopNodeType*,const LoopNodeType*,const PeriodicPlaneEdge<dim>*>,const LoopNodeType*> bndNodesMap;
-            for(const auto& loopLink : loop->linkSequence())
-            {
-                if(!loopLink->source->periodicPlaneEdge)
-                {
-                    loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()),loopLink->source.get());
-                    //                    std::cout<<loopNodesPos.back().first.transpose()<<std::endl;
-                    
-                }
-                else
-                {
-                    if (loopLink->source->periodicPrev() && loopLink->source->periodicNext())
-                    {
-                        if(loopLink->source->periodicPrev() && loopLink->source->periodicNext())
-                        {
-                            bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(),loopLink->source->periodicNext(),loopLink->source->periodicPlaneEdge.get()),loopLink->source.get());
-                        }
-                    }
-                }
-            }
-            
-            
-            const auto polyInt(loop->periodicGlidePlane->polygonPatchIntersection(loopNodesPos)); // 2dPos,shift,edgeID,LoopNodeType*
-            std::map<const LoopNodeType*,size_t> polyIntMap;
-            for(size_t p=0;p<polyInt.size();++p)
-            {
-                if(std::get<3>(polyInt[p]))
-                {
-                    polyIntMap.emplace(std::get<3>(polyInt[p]),p);
-                }
-            }
-            
-            
-            for(size_t k=0;k<loopNodesPos.size();++k)
-            {
-                const auto periodicPrev(loopNodesPos[k].second);
-                const auto periodicPrevNetwork(periodicPrev->networkNode.get());
-                const auto polyIter(polyIntMap.find(periodicPrev));
-                assert(polyIter!=polyIntMap.end());
-                const size_t p(polyIter->second);
-                
-                const size_t k1(k<loopNodesPos.size()-1? k+1 : 0);
-                const auto periodicNext(loopNodesPos[k1].second);
-                const auto periodicNextNetwork(periodicNext->networkNode.get());
-                const auto polyIter1(polyIntMap.find(periodicNext));
-                assert(polyIter1!=polyIntMap.end());
-                const size_t p1(polyIter1->second);
-                
-                const auto periodicNetworkSource(periodicPrevNetwork->sID<periodicNextNetwork->sID? periodicPrevNetwork : periodicNextNetwork);
-                const auto periodicNetworkSink  (periodicPrevNetwork->sID<periodicNextNetwork->sID? periodicNextNetwork : periodicPrevNetwork);
-                
-                const LoopNodeType* currentSource(periodicPrev);
-                //                std::cout<<"periodicPrev="<<periodicPrev->sID<<std::endl;
-                //                std::cout<<"periodicNext="<<periodicNext->sID<<std::endl;
-                size_t p2 = (p+1)%polyInt.size();
-                while(p2<p1)
-                {
-                    const auto periodicPatch(loop->periodicGlidePlane->getPatch(std::get<1>(polyInt[p2])));
-                    const auto periodicPatchEdge(periodicPatch->edges()[std::get<2>(polyInt[p2])]);
-                    const auto bndIter(bndNodesMap.find(std::make_tuple(periodicPrev,periodicNext,periodicPatchEdge.get())));
-                    
-                    if(bndIter!=bndNodesMap.end())
-                    {// exising bnd node found
-                        currentSource=bndIter->second;
-                        //                        std::cout<<"existing point="<<std::get<0>(polyInt[p2]).transpose()<<std::endl;
-                        
-                    }
-                    else
-                    {
-                        const VectorDim    loopNodePos(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
-                        const VectorDim networkNodePos(loopNodePos+std::get<1>(polyInt[p2]));
-                        const auto currentLoopLink(currentSource->next.second);
-                        const auto currentNetworkLink(currentLoopLink->networkLink());
-                        
-                        
-                        //                        const float u((networkNodePos-currentNetworkLink->source->get_P()).dot(currentNetworkLink->chord())/currentNetworkLink->chordLengthSquared());
-                        
-                        std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float> key(std::tuple<const NetworkNodeType* const,const NetworkNodeType* const,std::set<const PlanarMeshFace<dim>*>,float>(nullptr,nullptr,std::set<const PlanarMeshFace<dim>*>(),-1.0));
-                        if(periodicPrevNetwork==periodicNetworkSource)
-                        {
-                            const auto chord(periodicNext->get_P()-periodicPrev->get_P());
-                            const auto chordNorm2(chord.squaredNorm());
-                            const float u((loopNodePos-periodicPrev->get_P()).dot(chord)/chordNorm2);
-                            key=std::make_tuple(periodicNetworkSource,periodicNetworkSink,periodicPatchEdge->meshIntersection->faces,u);
-                        }
-                        else if(periodicNextNetwork==periodicNetworkSource)
-                        {
-                            const auto chord(periodicPrev->get_P()-periodicNext->get_P());
-                            const auto chordNorm2(chord.squaredNorm());
-                            const float u((loopNodePos-periodicNext->get_P()).dot(chord)/chordNorm2);
-                            key=std::make_tuple(periodicNetworkSource,periodicNetworkSink,periodicPatchEdge->meshIntersection->faces,u);
-                        }
-                        else
-                        {
-                            assert(false && "periodicNetworkSource must be periodicPrevNetwork or periodicNextNetwork");
-                        }
-                        //
-                        //
-                        //
-                        //                        const auto key(std::make_tuple(periodicNetworkSource,periodicNetworkSink,u));
-                        
-                        
-                        //                        std::cout<<"currentLoopLink="<<currentLoopLink->tag()<<std::endl;
-                        //                        std::cout<<"u="<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<std::endl;
-                        //                        std::cout<<"faces:";
-                        //                        for(const auto& face : std::get<2>(key))
-                        //                        {
-                        //                            std::cout<<" "<<face->sID;
-                        //                        }
-                        //                        std::cout<<std::endl;
-                        //                        std::cout<<"currentNetworkLink="<<currentNetworkLink->tag()<<std::endl;
-                        //                        std::cout<<"networkNodePos="<<networkNodePos.transpose()<<std::endl;
-                        //                        std::cout<<"currentNetworkLink->source->get_P()="<<currentNetworkLink->source->get_P().transpose()<<std::endl;
-                        //                        std::cout<<"currentNetworkLink->chordLengthSquared()="<<currentNetworkLink->chordLengthSquared()<<std::endl;
-                        
-                        
-                        const auto networkNodeIter(newNetworkNodesMap.find(key));
-                        if(networkNodeIter!=newNetworkNodesMap.end())
-                        {
-                            //                            std::cout<<"using networkNode "<<networkNodeIter->second->tag()<<std::endl;
-                            const auto newLoopNode(this->loopNodes().create(loop,networkNodeIter->second,loopNodePos,periodicPatch,periodicPatchEdge));
-                            currentSource=this->expandLoopLink(*currentLoopLink,newLoopNode).get();
-                        }
-                        else
-                        {
-                            const auto newNetNode(this->networkNodes().create(networkNodePos,VectorDim::Zero(),1.0)); // TODO compute velocity and velocityReduction by interpolation
-                            //                            std::cout<<"emplacing "<<currentNetworkLink->tag()<<"@"<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<", newNetNode="<<newNetNode->tag()<<std::endl;
-                            newNetworkNodesMap.emplace(key,newNetNode);
-                            const auto newLoopNode(this->loopNodes().create(loop,newNetNode,loopNodePos,periodicPatch,periodicPatchEdge));
-                            currentSource=this->expandLoopLink(*currentLoopLink,newLoopNode).get();
-                        }
-                    }
-                    p2= (p2+1)%polyInt.size();
-                }
-            }
-        }
-        
-        danglingBoundaryLoopNodes.clear();
-        
-        //        std::cout<<"Ouputing"<<std::endl;
-        //        DDconfigIO<dim> configIO(*this);
-        //        configIO.writeTxt(runID);
-        
-    }
+
     
     
     template <int dim, short unsigned int corder>
@@ -912,141 +687,236 @@ namespace model
     template <int dim, short unsigned int corder>
     void DislocationNetwork<dim,corder>::updateBoundaryNodes()
     {
-        std::cout <<"Updating boundary nodes..." << std::flush;
-        const auto t0= std::chrono::system_clock::now();
-
 
         if (danglingBoundaryLoopNodes.size())
         {
+            std::cout << "Removing bnd Nodes" << std::endl;
             for (const auto &node : danglingBoundaryLoopNodes)
             {
                 this->removeLoopNode(node->sID);
             }
         }
-        
-        std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>,float>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
-        for (const auto &weakLoop : this->loops())
-        {
-            const auto loop(weakLoop.second.lock());
-            if (loop->periodicGlidePlane)
+            std::cout<<"Inserting new boundary nodes"<<std::endl;
+            std::map<std::tuple<const NetworkNodeType*,const NetworkNodeType*,std::set<const PlanarMeshFace<dim>*>>,std::shared_ptr<NetworkNodeType>> newNetworkNodesMap;
+            for (const auto &weakLoop : this->loops())
             {
-                VerboseDislocationNetwork(1, " DisloationNetwork::DislocationLoop "<<loop->sID<<" Updating boundary nodes " << std::endl;);
                 
-                std::vector<std::pair<VectorLowerDim, const LoopNodeType *const>> loopNodesPos;
-                std::map<std::tuple<const LoopNodeType *, const LoopNodeType *, const PeriodicPlaneEdge<dim> *>, const LoopNodeType *> bndNodesMap;
-                for (const auto &loopLink : loop->linkSequence())
+                const auto loop(weakLoop.second.lock());
+                if (loop->periodicGlidePlane)
                 {
-                    if (!loopLink->source->periodicPlaneEdge)
-                    {// internal nodes
-                        loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()), loopLink->source.get());
-                    }
-                    else
-                    {// nodes on edges
-                        bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(), loopLink->source->periodicNext(), loopLink->source->periodicPlaneEdge.get()), loopLink->source.get());
-                    }
-                }
-                
-                
-                if (loopNodesPos.size())
-                {
-                    const auto polyInt(loop->periodicGlidePlane->polygonPatchIntersection(loopNodesPos)); // 2dPos,shift,edgeID,LoopNodeType*
-                    std::map<const LoopNodeType *, size_t> polyIntMap;
-                    for (size_t p = 0; p < polyInt.size(); ++p)
-                    {
-                        if (std::get<3>(polyInt[p]))
-                        {
-                            polyIntMap.emplace(std::get<3>(polyInt[p]), p);
-                        }
-                    }
-                    
-                    for (size_t k = 0; k < loopNodesPos.size(); ++k)
-                    {
-                        const auto periodicPrev(loopNodesPos[k].second);
-                        const auto periodicPrevNetwork(periodicPrev->networkNode.get());
-                        const auto polyIter(polyIntMap.find(periodicPrev));
-                        assert(polyIter != polyIntMap.end());
-                        const size_t p(polyIter->second);
-                        
-                        const size_t k1(k < loopNodesPos.size() - 1 ? k + 1 : 0);
-                        const auto periodicNext(loopNodesPos[k1].second);
-                        const auto periodicNextNetwork(periodicNext->networkNode.get());
-                        const auto polyIter1(polyIntMap.find(periodicNext));
-                        assert(polyIter1 != polyIntMap.end());
-                        const size_t p1(polyIter1->second);
-                        
-                        const auto periodicNetworkSource(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicPrevNetwork : periodicNextNetwork);
-                        const auto periodicNetworkSink(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicNextNetwork : periodicPrevNetwork);
-                        
-                        // std::cout<<"periodicPrev->periodicNext"<<periodicPrev->tag()<<"==>"<<periodicNext->tag()<<std::endl;
-                        
-                        const LoopNodeType *currentSource(periodicPrev);
-                        size_t p2 = (p + 1) % polyInt.size();
-                        while (p2 < p1)
-                        {
-                            const auto periodicPatch(loop->periodicGlidePlane->getPatch(std::get<1>(polyInt[p2])));
-                            const auto periodicPatchEdge(periodicPatch->edges()[std::get<2>(polyInt[p2])]);
-                            const auto bndIter(bndNodesMap.find(std::make_tuple(periodicPrev, periodicNext, periodicPatchEdge.get())));
-                            
-                            if (bndIter != bndNodesMap.end())
-                            { // exising bnd node found
-                                // std::cout<<" Using boundary node "<<bndIter->second->tag()<<std::endl;
-                                currentSource = bndIter->second;
-                            }
-                            else
-                            {
-                                const VectorDim loopNodePos(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
-                                const VectorDim networkNodePos(loopNodePos + std::get<1>(polyInt[p2]));
-                                const auto currentLoopLink(currentSource->next.second);
-                                const auto currentNetworkLink(currentLoopLink->networkLink());
-                                
-                                std::tuple<const NetworkNodeType *, const NetworkNodeType *, std::set<const PlanarMeshFace<dim> *>, float> key(std::tuple<const NetworkNodeType *const, const NetworkNodeType *const, std::set<const PlanarMeshFace<dim> *>, float>(nullptr, nullptr, std::set<const PlanarMeshFace<dim> *>(), -1.0));
-                                if (periodicPrevNetwork == periodicNetworkSource)
-                                {
-                                    const auto chord(periodicNext->get_P() - periodicPrev->get_P());
-                                    const auto chordNorm2(chord.squaredNorm());
-                                    const float u((loopNodePos - periodicPrev->get_P()).dot(chord) / chordNorm2);
-                                    key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
-                                }
-                                else if (periodicNextNetwork == periodicNetworkSource)
-                                {
-                                    const auto chord(periodicPrev->get_P() - periodicNext->get_P());
-                                    const auto chordNorm2(chord.squaredNorm());
-                                    const float u((loopNodePos - periodicNext->get_P()).dot(chord) / chordNorm2);
-                                    key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
-                                }
-                                else
-                                {
-                                    assert(false && "periodicNetworkSource must be periodicPrevNetwork or periodicNextNetwork");
-                                }
-                                
-                                const auto networkNodeIter(newNetworkNodesMap.find(key));
-                                if (networkNodeIter != newNetworkNodesMap.end())
-                                {// key found
-                                    //    std::cout<<"using networkNode "<<networkNodeIter->second->tag()<<std::endl;
-                                    const auto newLoopNode(this->loopNodes().create(loop, networkNodeIter->second, loopNodePos, periodicPatch, periodicPatchEdge));
-                                    currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
-                                }
-                                else
-                                {// key not found
-                                    const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
-                                    //                            std::cout<<"emplacing "<<currentNetworkLink->tag()<<"@"<<std::setprecision(15)<<std::scientific<<std::get<3>(key)<<", newNetNode="<<newNetNode->tag()<<std::endl;
-                                    newNetworkNodesMap.emplace(key, newNetNode);
-                                    const auto newLoopNode(this->loopNodes().create(loop, newNetNode, loopNodePos, periodicPatch, periodicPatchEdge));
-                                    currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
-                                }
-                            }
-                            p2 = (p2 + 1) % polyInt.size();
-                        }
-                    }
-                }
-                
-            }
-        }
-        std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+                    VerboseDislocationNetwork(1, " DisloationNetwork::DislocationLoop "<<loop->sID<<" Updating boundary nodes " << std::endl;);
 
-        danglingBoundaryLoopNodes.clear();
+                    std::vector<std::pair<VectorLowerDim, const LoopNodeType *const>> loopNodesPos;
+                    std::map<std::tuple<const LoopNodeType *, const LoopNodeType *, const std::pair<const PeriodicPlaneEdge<dim> *,const PeriodicPlaneEdge<dim> *>>, const LoopNodeType *> bndNodesMap;
+                    for (const auto &loopLink : loop->linkSequence())
+                    {
+                        if (!loopLink->source->periodicPlaneEdge.first)
+                        {
+                            loopNodesPos.emplace_back(loop->periodicGlidePlane->referencePlane->localPosition(loopLink->source->get_P()), loopLink->source.get());
+                        }
+                        else
+                        {
+                            bndNodesMap.emplace(std::make_tuple(loopLink->source->periodicPrev(), loopLink->source->periodicNext(), std::make_pair(loopLink->source->periodicPlaneEdge.first.get(),loopLink->source->periodicPlaneEdge.second.get())), loopLink->source.get());
+                        }
+                    }
+
+
+                    if (loopNodesPos.size())
+                    {
+                        const auto polyInt(loop->periodicGlidePlane->polygonPatchIntersection(loopNodesPos)); // 2dPos,shift,edgeID,LoopNodeType*
+                        std::map<const LoopNodeType *, size_t> polyIntMap;
+                        for (size_t p = 0; p < polyInt.size(); ++p)
+                        {
+                            if (std::get<3>(polyInt[p]))
+                            {
+                                polyIntMap.emplace(std::get<3>(polyInt[p]), p);
+                            }
+                        }
+
+                        for (size_t k = 0; k < loopNodesPos.size(); ++k)
+                        {
+                            const auto periodicPrev(loopNodesPos[k].second);
+                            const auto periodicPrevNetwork(periodicPrev->networkNode.get());
+                            const auto polyIter(polyIntMap.find(periodicPrev));
+                            assert(polyIter != polyIntMap.end());
+                            const size_t p(polyIter->second);
+
+                            const size_t k1(k < loopNodesPos.size() - 1 ? k + 1 : 0);
+                            const auto periodicNext(loopNodesPos[k1].second);
+                            const auto periodicNextNetwork(periodicNext->networkNode.get());
+                            const auto polyIter1(polyIntMap.find(periodicNext));
+                            assert(polyIter1 != polyIntMap.end());
+                            const size_t p1(polyIter1->second);
+
+                            const auto periodicNetworkSource(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicPrevNetwork : periodicNextNetwork);
+                            const auto periodicNetworkSink(periodicPrevNetwork->sID < periodicNextNetwork->sID ? periodicNextNetwork : periodicPrevNetwork);
+
+                            // std::cout<<"periodicPrev->periodicNext"<<periodicPrev->tag()<<"==>"<<periodicNext->tag()<<std::endl;
+
+                            const LoopNodeType *currentSource(periodicPrev);
+                            size_t p2 = (p + 1) % polyInt.size();
+                            while (p2 < p1)
+                            {
+                                const auto periodicPatch(loop->periodicGlidePlane->getPatch(std::get<1>(polyInt[p2])));
+                                // const auto periodicPatchEdge(periodicPatch->edges()[std::get<2>(polyInt[p2])]);
+                                const auto periodicPatchEdge(std::get<2>(polyInt[p2]).second < 0 ? std::make_pair(periodicPatch->edges()[std::get<2>(polyInt[p2]).first], nullptr) : 
+                                std::make_pair(periodicPatch->edges()[std::get<2>(polyInt[p2]).first], periodicPatch->edges()[std::get<2>(polyInt[p2]).second]));
+                                const auto bndIter(bndNodesMap.find(std::make_tuple(periodicPrev, periodicNext, std::make_pair(periodicPatchEdge.first.get(),periodicPatchEdge.second.get()))));
+
+                                if (bndIter != bndNodesMap.end())
+                                { // exising bnd node found
+                                    // std::cout<<" Using boundary node "<<bndIter->second->tag()<<std::endl;
+                                    currentSource = bndIter->second;
+                                }
+                                else
+                                {
+                                    //Original
+
+                                    // const VectorDim loopNodePos(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
+                                    // const VectorDim networkNodePos(loopNodePos + std::get<1>(polyInt[p2]));
+
+                                    //There may be some error due to 2D usage of ssd.dMin
+                                    const VectorDim loopNodePostemp(loop->periodicGlidePlane->referencePlane->globalPosition(std::get<0>(polyInt[p2])));
+                                    
+                                    VectorDim networkNodePos(VectorDim::Zero());
+                                    if (periodicPatchEdge.second)
+                                    {
+                                        SegmentSegmentDistance<dim> ssd (periodicPatchEdge.first->meshIntersection->P0,periodicPatchEdge.first->meshIntersection->P1,
+                                        periodicPatchEdge.second->meshIntersection->P0,periodicPatchEdge.first->meshIntersection->P1);
+                                        assert(ssd.dMin<FLT_EPSILON && "Two edges must intersect");
+                                        networkNodePos=0.5*(ssd.x0+ssd.x1);
+                                        assert((networkNodePos-(loopNodePostemp + std::get<1>(polyInt[p2]))).norm()<FLT_EPSILON && "Position mismatch");
+                                    }
+                                    else
+                                    {
+                                        networkNodePos=periodicPatchEdge.first->meshIntersection->snap(loopNodePostemp + std::get<1>(polyInt[p2]));
+                                    }
+                                    const VectorDim loopNodePos(networkNodePos - std::get<1>(polyInt[p2]));
+
+                                    const auto currentLoopLink(currentSource->next.second);
+
+                                    const auto currentNetworkLink(currentLoopLink->networkLink());
+
+                                    // float u(0.0);
+                                    // if (periodicPrevNetwork == periodicNetworkSource)
+                                    // {
+                                    //     const auto chord(periodicNext->get_P() - periodicPrev->get_P());
+                                    //     const auto chordNorm2(chord.squaredNorm());
+                                    //     u = (loopNodePos - periodicPrev->get_P()).dot(chord) / chordNorm2;
+                                    //     // key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
+                                    // }
+                                    // else if (periodicNextNetwork == periodicNetworkSource)
+                                    // {
+                                    //     const auto chord(periodicPrev->get_P() - periodicNext->get_P());
+                                    //     const auto chordNorm2(chord.squaredNorm());
+                                    //     u=(loopNodePos - periodicNext->get_P()).dot(chord) / chordNorm2;
+                                    //     // key = std::make_tuple(periodicNetworkSource, periodicNetworkSink, periodicPatchEdge->meshIntersection->faces, u);
+                                    // }
+                                    // else
+                                    // {
+                                    //     assert(false && "periodicNetworkSource must be periodicPrevNetwork or periodicNextNetwork");
+                                    // }
+                                    // if (u<FLT_EPSILON)
+                                    // {
+                                    //     u=0.0;
+                                    // }
+                                    // if (u>1.0-FLT_EPSILON)
+                                    // {
+                                    //     u=1.0;
+                                    // }
+                                    std::set <const PlanarMeshFace<dim>*>tmpMeshFaces;
+                                    for (const auto& pmface : periodicPatchEdge.first->meshIntersection->faces)
+                                    {
+                                        tmpMeshFaces.emplace(pmface);
+                                    }
+                                    if (periodicPatchEdge.second)
+                                    {
+                                        for (const auto &pmface : periodicPatchEdge.second->meshIntersection->faces)
+                                        {
+                                            tmpMeshFaces.emplace(pmface);
+                                        }
+                                    }
+                                    const auto key(std::make_tuple(periodicNetworkSource, periodicNetworkSink, tmpMeshFaces));
+
+                                    const auto networkNodeIter(newNetworkNodesMap.find(key));
+                                    if (networkNodeIter != newNetworkNodesMap.end())
+                                    {
+                                        // std::cout<<" CaseA key is "<<std::get<0>(key)->tag()<<" "<<std::get<1>(key)->tag()<<" and mesh faces "<<std::flush;
+                                        // for (const auto& mf : std::get<2>(key))
+                                        // {
+                                        //     std::cout<<mf->sID<<" with outnormal"<<mf->outNormal().transpose()<< "\t "<<std::flush; 
+                                        // }
+                                        // std::cout<<" and patch shift "<<std::get<1>(polyInt[p2]).transpose()<<std::endl;
+
+                                        if ((networkNodeIter->second->get_P() - networkNodePos).norm() > 10000*FLT_EPSILON) //THis condition is just to check for widely different positions
+                                        {
+                                            std::cout<<std::scientific<<std::setprecision(15) << " PeriodicNetwork Source "<<periodicNetworkSource->sID <<"P= "<<periodicNetworkSource->get_P().transpose()<<
+                                            "\n PeriodicNetwork Sink "<<periodicNetworkSink->sID<<" P = "<<periodicNetworkSink->get_P().transpose()<<std::endl; 
+                                            std::cout << " Position of the network node "<<std::scientific<<std::setprecision(15) << networkNodeIter->second->get_P().transpose()<<std::endl;
+                                            std::cout << " Actual Position of the network node should be " <<std::scientific<<std::setprecision(15) << networkNodePos.transpose()<<std::endl;
+                                            std::cout << " Position difference "<<std::setprecision(15)<< (networkNodeIter->second->get_P()- networkNodePos).transpose()<<std::endl;
+                                            std::cout << " Position difference norm "<<std::setprecision(15)<< (networkNodeIter->second->get_P()- networkNodePos).norm()<<std::endl;
+                                            assert(false && "Loop node position and network node position mismatch");
+                                        }
+                                        //Here we want the loop node position to be commensurate with the network node (This is important for minimizing accumulating error)
+                                        const VectorDim commensurateLoopNodePos(networkNodeIter->second->get_P()-std::get<1>(polyInt[p2]));
+                                        const auto newLoopNode(this->loopNodes().create(loop, networkNodeIter->second, commensurateLoopNodePos, periodicPatch, periodicPatchEdge));
+                                        currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
+                                        
+                                        //Loop into this this may be important
+                                        // if((networkNodeIter->second->get_P()-networkNodePos).norm()> FLT_EPSILON )
+                                        // {
+                                        //     /*This is a very important definition...This means a new network node must be created...This condition may arise when a loop link exits from the edge of the cube
+                                        //     Since for a loop node we can have just one shared pointer to the periodicplaneedge this means that the loop link exiting must
+                                        //     from the edge of the cube must create nodes on all equivalen edges even through the actual connection will take place on diagnonally
+                                        //     opposite ends. For such a case the network node position picked here may be different than the actual one... In such a case, we must
+                                        //     create a new dislocation. If not satisfied enable the assert condition and let the code run... It will come into this conditio
+                                        //     */
+                                        //     const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
+                                        //     std::cout << "emplacing " << currentNetworkLink->tag() << "@" << std::setprecision(15) << std::scientific  << ", newNetNode=" << newNetNode->tag() << std::endl;
+                                            
+                                        //     newNetworkNodesMap.emplace(key, newNetNode);
+                                            
+                                        //     const auto newLoopNode(this->loopNodes().create(loop, newNetNode, loopNodePos, periodicPatch, periodicPatchEdge));
+                                        //     currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
+                                        //     // std::cout<<" Position of the network node "<<networkNodeIter->second->get_P().transpose();
+                                        //     // std::cout<<" Actual Position of the network node should be "<<networkNodePos.transpose();
+                                        //     // assert(false && "Loop node position and network node position mismatch");
+                                        // }
+                                        // else
+                                        // {
+                                        
+                                            
+                                        // }
+                                    }
+                                    else
+                                    {
+                                        // std::cout << " CaseB key is " << std::get<0>(key)->tag() << " " << std::get<1>(key)->tag() << " and mesh faces " << std::flush;
+                                        // for (const auto& mf : std::get<2>(key))
+                                        // { 
+                                        //     std::cout<<mf->sID<<" with outnormal"<<mf->outNormal().transpose()<< "\t "<<std::flush; 
+                                        // }
+                                        // std::cout<<" and patch shift "<<std::get<1>(polyInt[p2]).transpose()<<std::endl;
+
+                                        const auto newNetNode(this->networkNodes().create(networkNodePos, VectorDim::Zero(), 1.0)); // TODO compute velocity and velocityReduction by interpolation
+                                        // std::cout << "emplacing " << currentNetworkLink->tag() << "@" << std::setprecision(15) << std::scientific  << ", newNetNode=" << newNetNode->tag() << std::endl;
+                                        newNetworkNodesMap.emplace(key, newNetNode);
+                                        const auto newLoopNode(this->loopNodes().create(loop, newNetNode, loopNodePos, periodicPatch, periodicPatchEdge));
+                                        currentSource = this->expandLoopLink(*currentLoopLink, newLoopNode).get();
+                                    }
+                                }
+                                p2 = (p2 + 1) % polyInt.size();
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            danglingBoundaryLoopNodes.clear();
         
     }
+    
     
     template <int dim, short unsigned int corder>
     void DislocationNetwork<dim,corder>::moveGlide(const double & dt_in)

@@ -29,7 +29,7 @@ namespace model
         VectorDim P;          // position
         size_t networkNodeID;          // sID
         VectorDim periodicShift;
-        short int edgeID;          // sID
+        std::pair<short int,short int> edgeIDs;          // sID
 
         
         /**********************************************************************/
@@ -40,7 +40,7 @@ namespace model
         /* init */,P(dn.get_P())
         /* init */,networkNodeID(dn.networkNode->sID)
         /* init */,periodicShift(dn.periodicPlanePatch()? dn.periodicPlanePatch()->shift : VectorDim::Zero())
-        /* init */,edgeID(dn.periodicPlaneEdge? dn.periodicPlaneEdge->edgeID : -1)
+        /* init */,edgeIDs(dn.periodicPlaneEdge.first? (dn.periodicPlaneEdge.second ? std::make_pair(dn.periodicPlaneEdge.first->edgeID,dn.periodicPlaneEdge.second->edgeID) : std::make_pair(dn.periodicPlaneEdge.first->edgeID,(short int) -1))  : std::make_pair((short int) -1,(short int) -1))
         {
          
             
@@ -52,13 +52,13 @@ namespace model
                           const VectorDim& P_in,          // position
                           const size_t& nnID,
                             const VectorDim& shift,
-                              const short int& edgeID_in) :
+                              const  std::pair<short int,short int>& edgeID_in) :
         /* init */ loopID(loopID_in),
         /* init */ sID(sID_in),
         /* init */ P(P_in),
         /* init */ networkNodeID(nnID),
         /* init */ periodicShift(shift),
-        /* init */ edgeID(edgeID_in)
+        /* init */ edgeIDs(edgeID_in)
         {// Constructor for MicrostructureGenerator
         }
         
@@ -69,7 +69,7 @@ namespace model
         /* init */ P(VectorDim::Zero()),
         /* init */ networkNodeID(0),
         /* init */ periodicShift(VectorDim::Zero()),
-        /* init */ edgeID(-1)
+        /* init */ edgeIDs(std::make_pair((short int) -1,(short int) -1))
         {
         }
 
@@ -80,7 +80,7 @@ namespace model
         /* init */ P(VectorDim::Zero()),
         /* init */ networkNodeID(0),
         /* init */ periodicShift(VectorDim::Zero()),
-        /* init */ edgeID(-1)
+        /* init */ edgeIDs(std::make_pair((short int)-1,(short int)-1))
         {
             ss>>loopID;
             ss>>sID;
@@ -93,7 +93,8 @@ namespace model
             {
                 ss>>periodicShift(d);
             }
-            ss>>edgeID;
+            ss>>edgeIDs.first;
+            ss>>edgeIDs.second;
         }
 
         
@@ -106,7 +107,8 @@ namespace model
             /**/<< std::setprecision(15)<<std::scientific<<ds.P.transpose()<<"\t"
             /**/<< ds.networkNodeID<<"\t"
             /**/<< std::setprecision(15)<<std::scientific<<ds.periodicShift.transpose()<<"\t"
-            /**/<< ds.edgeID;
+            /**/<< ds.edgeIDs.first<<"\t"
+            /**/<< ds.edgeIDs.second<<"\t";
             return os;
         }
         
@@ -114,4 +116,3 @@ namespace model
 	
 }
 #endif
-

@@ -83,7 +83,7 @@ namespace model
                            const int& grainID,
                            const int& loopType,
                            const std::vector<VectorDimD>& loopNodeShifts,
-                           const std::vector<short int>& periodicEdgeIDs // default -1 for non-periodic nodes
+                           const std::vector<std::pair<short int,short int>>& periodicEdgeIDs // default -1 for non-periodic nodes
                            );
         /**********************************************************************/
         bool addSingleLoopwithJunction(const bool randomizeBurgersSense,
@@ -95,7 +95,7 @@ namespace model
                            const int& grainID,
                            const int& loopType,
                            const std::vector<VectorDimD>& loopNodeShifts,
-                           const std::vector<short int>& periodicEdgeIDs // default -1 for non-periodic nodes
+                           const std::vector<std::pair<short int,short int>>& periodicEdgeIDs // default -1 for non-periodic nodes
                            );
 
         /**********************************************************************/

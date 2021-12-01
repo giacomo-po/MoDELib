@@ -25,7 +25,7 @@ namespace model
                                                                          const std::shared_ptr<NetworkNodeType>& nJ) :
     /* init */ NetworkLink<DislocationSegment>(net,nI,nJ)
     /* init */,SplineSegment<dim,corder>(this->source->get_P(),this->sink->get_P())
-    /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
+    // /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
     /* init */,Burgers(VectorDim::Zero())
     /* init */,BurgersNorm(Burgers.norm())
     /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
@@ -204,13 +204,49 @@ namespace model
             const auto periodicPlanePatch(pL->periodicPlanePatch());
             if(periodicPlanePatch)
             {
-                this->confinedObject().addGlidePlane(periodicPlanePatch->glidePlane.get());
+                // this->confinedObject().addGlidePlane(periodicPlanePatch->glidePlane.get());
+               // /* Check for the consistency of the glide planes
+                //assert if the confined object glide planes are the same as that of the each node glide planes
+                bool glidePlanesConsistency(false);
+                for (const auto &Seggps : glidePlanes())
+                {
+                    glidePlanesConsistency = false;
+                    for (const auto &sourceGPs : this->source->glidePlanes())
+                    {
+                        if (Seggps == sourceGPs)
+                        {
+                            glidePlanesConsistency = true;
+                            break;
+                        }
+                    }
+                }
+                // std::cout<<" A " <<glidePlanesConsistency<<std::endl;
+
+                if (glidePlanesConsistency)
+                {
+                    for (const auto &Seggps : glidePlanes())
+                    {
+                        glidePlanesConsistency=false;
+                        for (const auto &sinkGPs : this->sink->glidePlanes())
+                        {
+                            if (Seggps==sinkGPs)
+                            {
+                                glidePlanesConsistency=true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                // std::cout<<" B " <<glidePlanesConsistency<<std::endl;
+
+                assert(glidePlanesConsistency && "Not a consistent definition of glide planes for segments and segment nodes");
+              // Check for the consistency of glide planes end here  */
             }
         }
-        else
-        {
-            this->confinedObject().addGlidePlane(pL->loop->glidePlane.get());
-        }
+        // else
+        // {
+        //     this->confinedObject().addGlidePlane(pL->loop->glidePlane.get());
+        // }
 
 
         updateSlipSystem();
@@ -222,7 +258,7 @@ namespace model
     template <int dim, short unsigned int corder>
     void DislocationSegment<dim,corder>::removeLoopLink(LoopLinkType* const pL)
     {
-        VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", removing LoopLink "<<pL->tag()<<std::endl;);
+       VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", removing LoopLink "<<pL->tag()<<std::endl;);
         NetworkLink<DislocationSegment>::removeLoopLink(pL);  // forward to base class
         
         if(pL->source->networkNode==this->source)
@@ -236,23 +272,23 @@ namespace model
         BurgersNorm=Burgers.norm();
         straight.updateGeometry(); // update b x t
         
-        this->confinedObject().clear();
-        for(const auto& loopLink : this->loopLinks())
-        {
-            // std::cout<<"loopLink"<<loopLink->tag()<<" Adding glidePlane "<<std::endl;
-            if(this->network().simulationParameters.isPeriodicSimulation())
-            {
-                const auto periodicPlanePatch(loopLink->periodicPlanePatch());
-                if(periodicPlanePatch)
-                {
-                    this->confinedObject().addGlidePlane(periodicPlanePatch->glidePlane.get());
-                }
-            }
-            else
-            {
-                this->confinedObject().addGlidePlane(loopLink->loop->glidePlane.get());
-            }
-        }
+        // this->confinedObject().clear();
+        // for(const auto& loopLink : this->loopLinks())
+        // {
+        //     // std::cout<<"loopLink"<<loopLink->tag()<<" Adding glidePlane "<<std::endl;
+        //     if(this->network().simulationParameters.isPeriodicSimulation())
+        //     {
+        //         const auto periodicPlanePatch(loopLink->periodicPlanePatch());
+        //         // if(periodicPlanePatch)
+        //         // {
+        //         //     this->confinedObject().addGlidePlane(periodicPlanePatch->glidePlane.get());
+        //         // }
+        //     }
+        //     else
+        //     {
+        //         this->confinedObject().addGlidePlane(loopLink->loop->glidePlane.get());
+        //     }
+        // }
         
         updateSlipSystem();
         
@@ -291,7 +327,7 @@ namespace model
         //            straight.updateGeometry();
         //        }
         SplineSegmentType::updateGeometry();
-        this->updateConfinement(this->source->get_P(),this->sink->get_P());
+        // this->updateConfinement(this->source->get_P(),this->sink->get_P());
         straight.updateGeometry();
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", updateGeometry DONE"<<std::endl;);
     }

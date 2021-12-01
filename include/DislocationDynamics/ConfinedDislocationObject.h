@@ -76,6 +76,23 @@ namespace model
         ConfinedDislocationObject(const ConfinedDislocationObject<dim>& A,
                                   const ConfinedDislocationObject<dim>& B) ;
         
+        /**********************************************************************/
+        template <typename NodeType>
+        ConfinedDislocationObject(const NodeType& A):
+        /* init */ _isOnExternalBoundary(A.isOnExternalBoundary())
+        /* init */,_isOnInternalBoundary(A.isOnInternalBoundary())
+        /* init */,_outNormal(VectorDim::Zero())
+        {
+            for(const auto& glidePlane : A.glidePlanes())
+            {
+                addGlidePlane(glidePlane);
+            }
+            for(const auto& face : A.meshFaces())
+            {
+                meshFaces().insert(face);
+            }
+        }
+        
         ConfinedDislocationObject& confinedObject();
 
         const ConfinedDislocationObject& confinedObject() const;

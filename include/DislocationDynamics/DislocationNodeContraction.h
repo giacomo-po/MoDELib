@@ -1156,6 +1156,7 @@ namespace model
         bool contract(std::shared_ptr<NetworkNodeType> nA,
                       std::shared_ptr<NetworkNodeType> nB)
         {
+            
             if (!(DN.simulationParameters.isPeriodicSimulation() && (nA->isBoundaryNode() || nB->isBoundaryNode()))) //Added for avoiding node contraction with boundary node
             {
                 VerboseNodeContraction(1, "DislocationNodeContraction::contract " << nA->sID << " " << nB->sID << std::endl;);
@@ -1180,6 +1181,9 @@ namespace model
                 }
                 else
                 { // nA and nB cannot be moved to each other. The calculation of a third point is necessary
+                    const ConfinedDislocationObject<dim> cdoA(*nA);
+                    const ConfinedDislocationObject<dim> cdoB(*nB);
+
                     VerboseNodeContraction(1, "DislocationNodeContraction case 1d" << std::endl;);
 
                     const double maxRange = 4.0 * (nA->get_P() - nB->get_P()).norm();
@@ -1278,11 +1282,10 @@ namespace model
                     else
                     { // neither nA nor nB are on bounding box
                         VerboseNodeContraction(1, "DislocationNodeContraction case 5" << std::endl;);
-                        if (nA->glidePlaneIntersections() && nB->glidePlaneIntersections())
+                        if (cdoA.glidePlaneIntersections() && cdoB.glidePlaneIntersections())
                         { // both nodes confined by more then one plane
-
-                            SegmentSegmentDistance<dim> ssd(nA->glidePlaneIntersections()->P0, nA->glidePlaneIntersections()->P1,
-                                                            nB->glidePlaneIntersections()->P0, nB->glidePlaneIntersections()->P1);
+                            SegmentSegmentDistance<dim> ssd(cdoA.glidePlaneIntersections()->P0, cdoA.glidePlaneIntersections()->P1,
+                                                            cdoB.glidePlaneIntersections()->P0, cdoB.glidePlaneIntersections()->P1);
 
                             const auto iSeg = ssd.intersectionSegment();
                             if (iSeg.size() == 1)
@@ -1290,8 +1293,8 @@ namespace model
                                 VerboseNodeContraction(1, "DislocationNodeContraction case 5a" << std::endl;);
                                 if (DN.simulationParameters.isPeriodicSimulation())
                                 {
-                                    if (((nA->glidePlaneIntersections()->snap(std::get<0>(iSeg[0]))-nA->glidePlaneIntersections()->snapToInfiniteLine(std::get<0>(iSeg[0]))).squaredNorm()<FLT_EPSILON)
-                                && ((nB->glidePlaneIntersections()->snap(std::get<0>(iSeg[0]))-nB->glidePlaneIntersections()->snapToInfiniteLine(std::get<0>(iSeg[0]))).squaredNorm()<FLT_EPSILON))
+                                    if (((cdoA.glidePlaneIntersections()->snap(std::get<0>(iSeg[0]))-cdoA.glidePlaneIntersections()->snapToInfiniteLine(std::get<0>(iSeg[0]))).squaredNorm()<FLT_EPSILON)
+                                && ((cdoB.glidePlaneIntersections()->snap(std::get<0>(iSeg[0]))-cdoB.glidePlaneIntersections()->snapToInfiniteLine(std::get<0>(iSeg[0]))).squaredNorm()<FLT_EPSILON))
                                     {
                                         if ((std::get<1>(iSeg[0])>FLT_EPSILON && std::get<1>(iSeg[0])<(1.0-FLT_EPSILON)) &&
                                         (std::get<2>(iSeg[0])>FLT_EPSILON && std::get<2>(iSeg[0])<(1.0-FLT_EPSILON)) )
@@ -1354,12 +1357,12 @@ namespace model
                                 return false;
                             }
                         }
-                        else if (nA->glidePlaneIntersections() && !nB->glidePlaneIntersections())
+                        else if (cdoA.glidePlaneIntersections() && !cdoB.glidePlaneIntersections())
                         { // nA confined by more then one plane, nB confined by zero or one plane
                             if (nB->glidePlanes().size() == 0)
                             { // nB confined by zero planes
                                 VerboseNodeContraction(1, "DislocationNodeContraction case 6AA" << std::endl;);
-                                if (nA->glidePlaneIntersections()->contains(nB->get_P()))
+                                if (cdoA.glidePlaneIntersections()->contains(nB->get_P()))
                                 {
                                     VerboseNodeContraction(1, "DislocationNodeContraction case 6AA1" << std::endl;);
                                     return contractToPosition(nA, nB, nB->get_P(), maxRange);
@@ -1374,8 +1377,8 @@ namespace model
                             { // nB confined by one plane
                                 PlaneLineIntersection<dim> pli((*nB->glidePlanes().begin())->P,
                                                                (*nB->glidePlanes().begin())->unitNormal,
-                                                               nA->glidePlaneIntersections()->P0,                                    // origin of line
-                                                               nA->glidePlaneIntersections()->P1 - nA->glidePlaneIntersections()->P0 // line direction
+                                                               cdoA.glidePlaneIntersections()->P0,                                    // origin of line
+                                                               cdoA.glidePlaneIntersections()->P1 - cdoA.glidePlaneIntersections()->P0 // line direction
                                 );
 
                                 // THERE SHOULD BE A PlaneSegmentIntersection class, which intersects the plane with a finite segment
@@ -1387,9 +1390,9 @@ namespace model
                                     {
                                                 //There should be no need to check for the intersection here for internal nodes being placed at the boundary
 
-                                        if ((nA->glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P()))-nA->glidePlaneIntersections()->snapToInfiniteLine(0.5 * (nA->get_P() + nB->get_P()))).squaredNorm()<FLT_EPSILON)
+                                        if ((cdoA.glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P()))-cdoA.glidePlaneIntersections()->snapToInfiniteLine(0.5 * (nA->get_P() + nB->get_P()))).squaredNorm()<FLT_EPSILON)
                                         {
-                                            return contractToPosition(nA, nB, nA->glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P())), maxRange);
+                                            return contractToPosition(nA, nB, cdoA.glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P())), maxRange);
                                         }
                                         else
                                         {
@@ -1398,13 +1401,13 @@ namespace model
                                     }
                                     else
                                     {
-                                        return contractToPosition(nA, nB, nA->glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P())), maxRange);
+                                        return contractToPosition(nA, nB, cdoA.glidePlaneIntersections()->snap(0.5 * (nA->get_P() + nB->get_P())), maxRange);
                                     }
                                 }
                                 else if (pli.type == PlaneLineIntersection<dim>::INCIDENT)
                                 { // _glidePlaneIntersections becomes a singular point
                                     VerboseNodeContraction(1, "DislocationNodeContraction case 6b" << std::endl;);
-                                    FiniteLineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0, nA->glidePlaneIntersections()->P1);
+                                    FiniteLineSegment<dim> cutLine(cdoA.glidePlaneIntersections()->P0, cdoA.glidePlaneIntersections()->P1);
                                     if ((pli.P - cutLine.snap(pli.P)).squaredNorm() < FLT_EPSILON)
                                     { // intersection point is inside mesh
                                         VerboseNodeContraction(1, "DislocationNodeContraction case 6b1" << std::endl;);
@@ -1444,10 +1447,10 @@ namespace model
                             }
                             else
                             {
-                                assert(false && " no nB->glidePlaneIntersections() with more than one glide planes");
+                                assert(false && " no cdoB.glidePlaneIntersections() with more than one glide planes");
                             }
                         }
-                        else if (!nA->glidePlaneIntersections() && nB->glidePlaneIntersections())
+                        else if (!cdoA.glidePlaneIntersections() && cdoB.glidePlaneIntersections())
                         { // same as previous case, so switch nA and nB
                             VerboseNodeContraction(1, "DislocationNodeContraction case 7a" << std::endl;);
                             return contract(nB, nA);
@@ -1463,7 +1466,7 @@ namespace model
                                 { // the contraction point can be the averago of nA and nB, which should be internal for convex domains
                                     VerboseNodeContraction(1, "DislocationNodeContraction case 8a" << std::endl;);
                                     return contractToPosition(nA, nB, (*nA->glidePlanes().begin())->snapToPlane(0.5 * (nA->get_P() + nB->get_P())), maxRange);
-                                    //                                return contractToPosition(nA,nB,nA->glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
+                                    //                                return contractToPosition(nA,nB,cdoA.glidePlaneIntersections()->snap(0.5*(nA->get_P()+nB->get_P())),maxRange);
                                 }
                                 else if (ppi.type == PlanePlaneIntersection<dim>::INCIDENT)
                                 {
@@ -1554,7 +1557,7 @@ namespace model
                                     { // _glidePlaneIntersections becomes a singular point
                                         VerboseNodeContraction(1, "DislocationNodeContraction case 9b" << std::endl;);
                                         // This is a wrong case
-                                        FiniteLineSegment<dim> cutLine(nA->glidePlaneIntersections()->P0, nA->glidePlaneIntersections()->P1);
+                                        FiniteLineSegment<dim> cutLine(cdoA.glidePlaneIntersections()->P0, cdoA.glidePlaneIntersections()->P1);
                                         return contractToPosition(nA, nB, pli.P, maxRange);
                                         //
                                         //                                    if((pli.P-cutLine.snap(pli.P)).squaredNorm()<FLT_EPSILON)

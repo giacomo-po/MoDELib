@@ -27,52 +27,60 @@ namespace model
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
+
+        typedef Eigen::Matrix<long double,dim,1> VectorDimLD;
         
         typedef std::tuple<VectorDim,double,double> IntersectionPointType;
         typedef std::deque<IntersectionPointType> IntersectionContainerType;
         
-        static constexpr double tol=FLT_EPSILON;
+        static constexpr double tol=100*DBL_EPSILON;
         
         /**********************************************************************/
-        static double limitRange(const double& v);
+        static long double limitRange(const long double& v);
+        
         
         /**********************************************************************/
-        std::pair<double,double> step4U(const double& T) const;
+        std::pair<long double,long double> step4U(const long double& T) const;
+        
         
         /**********************************************************************/
-        std::pair<double,double> step4(const double& U) const;
+        std::pair<long double,long double> step4(const long double& U) const;
+       
         
         /**********************************************************************/
-        std::pair<double,double> step3(const double& T) const;
+        std::pair<long double,long double> step3(const long double& T) const;
+        
         
         /**********************************************************************/
-        std::pair<double,double> step2() const;
+        std::pair<long double,long double> step2() const;
+        
         
         /**********************************************************************/
-        std::pair<double,double> getTU() const;
+        std::pair<long double,long double> getTU() const;
+       
         
         
-        const VectorDim A;
-        const VectorDim B;
-        const VectorDim C;
-        const VectorDim D;
+        const VectorDimLD A;
+        const VectorDimLD B;
+        const VectorDimLD C;
+        const VectorDimLD D;
         const double degeneracyValue;
         
-        const VectorDim d1;
-        const VectorDim d2;
-        const VectorDim d12;
+        const VectorDimLD d1;
+        const VectorDimLD d2;
+        const VectorDimLD d12;
         
-        const double R;
-        const double S1;
-        const double S2;
-        const double D1;
-        const double D2;
-        const double den;
+        const long double R;
+        const long double S1;
+        const long double S2;
+        const long double D1;
+        const long double D2;
+        const long double den;
         
-        const std::pair<double,double> tu;
-        const double t;
-        const double u;
-        const double dMin;
+        const std::pair<long double,long double> tu;
+        const long double t;
+        const long double u;
+        const long double dMin;
         const VectorDim x0;
         const VectorDim x1;
         
@@ -82,13 +90,12 @@ namespace model
                                const VectorDim& B0,
                                const VectorDim& C0,
                                const VectorDim& D0,
-                               const double& degeneracyValue_in=0.0);
+                               const double& degeneracyValue_in=0.0) ;
         
         /**********************************************************************/
         IntersectionContainerType intersectionSegment() const;
-        
-        
+
+        bool isIntersecting(const double tolerance = FLT_EPSILON) const;
     };
-    
 }
 #endif

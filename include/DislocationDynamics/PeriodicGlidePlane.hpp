@@ -76,41 +76,15 @@ namespace model
     template<int dim>
     typename PeriodicPlaneEdge<dim>::VectorDim PeriodicPlaneEdge<dim>::getDeltaShift(const PeriodicPlanePatch<dim>* const patch,const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection)
     {
-        std::cout<<"Starting to calculate delta shift "<<std::endl;
+        
         VectorDim shift(VectorDim::Zero());
         for(const PlanarMeshFace<dim>* const face : meshIntersection->faces)
         {
-            std::cout<<"Normal corresponding to this face "<<face->sID<<face->outNormal().transpose()<<std::endl;
             const auto parallelFaceID(patch->glidePlane->grain.region.parallelFaces().at(face->sID));
             const auto parallelFace(patch->glidePlane->grain.region.faces().at(parallelFaceID));
-            const double parallelFD(((parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal()).norm());
-
-            std::vector<VectorDim> vectorofNormals;
+            shift+=(parallelFace->center()-face->center()).dot(face->outNormal())*face->outNormal();
             
-
-            for (const auto& pface : patch->glidePlane->grain.region.parallelFaces())
-            {
-                if (pface.first!= face->sID && pface.second!= face->sID)
-                {
-                    const auto otherFaceOutNormal(patch->glidePlane->grain.region.faces().at(pface.second)->outNormal());
-                    vectorofNormals.push_back(otherFaceOutNormal);
-                    // const auto shiftDirection((face->outNormal()-(face->outNormal().dot(otherFaceOutNormal)*otherFaceOutNormal)).normalized());
-                    // std::cout<<"Shift direction "<<shiftDirection.transpose()<<std::endl;
-                    // VectorDim faceShift(shiftDirection*parallelFD/face->outNormal().dot(shiftDirection));
-                    // shift+=0.5*faceShift;
-                }
-            }
-            GramSchmidt::orthoNormalize(vectorofNormals);
-            VectorDim faceShift(face->outNormal());
-            for (const auto& normal : vectorofNormals)
-            {
-                faceShift-=faceShift.dot(normal)*normal;
-            }
-            faceShift.normalize();
-            shift-=faceShift*parallelFD/faceShift.dot(face->outNormal());
         }
-        std::cout<<"Finished to calculate delta shift "<<shift.transpose()<<std::endl;
-
         return shift;
     }
     
@@ -327,7 +301,6 @@ namespace model
         }
         else
         {
-            assert(false && "not a right-handed boundary");
             BoundingMeshSegments<dim> flippedTemp;
             for (auto it = glidePlane->meshIntersections.rbegin(); it != glidePlane->meshIntersections.rend(); ++it)
             {
@@ -960,7 +933,7 @@ namespace model
 
     template<int dim>
     template<typename T>
-    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints)
+    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints)
     {
         std::vector<std::pair<VectorLowerDim,const T* const>> lowerPolyPoints;
         for(const auto& point : polyPoints)
@@ -1118,10 +1091,10 @@ namespace model
     //Function updated to account for the insertion of the nodes on the periodically opposite faces
 template<int dim>
     template<typename T>
-    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints)
+    std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short  int>,const T* const>> PeriodicGlidePlane<dim>::polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints)
     {
-        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> ppi;
-
+        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> ppi; // 2dPos,shift,std::pair<edgeIDs>,LoopNodeType*
+ 
         if (polyPoints.size())
         {
             PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory, referencePlane);
@@ -1155,43 +1128,44 @@ template<int dim>
                     { // loop over outer boundaries and holes
                         SegmentSegmentDistance<dim - 1> ssd(startPoint.first, endPoint.first, *bndEdge->source, *bndEdge->sink);
                         // std::cout << " Determining intersection between " << startPoint.second->tag() << " and " << endPoint.second->tag()<<" dMin "<<ssd.dMin <<" den is "<< std::flush;
-                        
-                        if (ssd.dMin < FLT_EPSILON)
+                        // const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
+                        // const double maxAngleAlignment(cos(1.0e-4 * M_PI / 180.0)); // Alignment angle is fixed to 10 degrees
+
+                        if (ssd.isIntersecting(FLT_EPSILON)) 
                         { // intersection with current boundary found
                             // std::cout << std::setprecision(15) << " Intersection found " << ssd.t << " " << ssd.u << std::endl;
                             crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
                         }
                         //Changed to allow for the intersection of the near parallel segment with the boundary
-                        else
-                        {
-                            if (startPoint.second && endPoint.second)
-                            {
-                                // Check the alignment of the links with the bndEdge Source
-                                //                    	std::cout<<"Coming here to check for 3D intersection"<<std::endl;
-                                const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
-                                const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
-                                // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
-                                // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
+                        // else
+                        // {
+                        //     if (startPoint.second && endPoint.second)
+                        //     {
+                        //         // Check the alignment of the links with the bndEdge Source
+                        //         //                    	std::cout<<"Coming here to check for 3D intersection"<<std::endl;
+                        //         const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
+                        //         // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
+                        //         // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
 
-                                if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
-                                {
-                                    //The value of 1000 is determined by trial and error
-                                    //Determine the patches of startPoint and endPoint
-                                    if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
-                                    {
-                                        //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
-                                        //This is only valid with the if for the alignment angle and the ssd.dMin
-                                        crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
-                                    }
-                                }
-                            }
-                        }
+                        //         if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
+                        //         {
+                        //             //The value of 1000 is determined by trial and error
+                        //             //Determine the patches of startPoint and endPoint
+                        //             if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
+                        //             {
+                        //                 //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
+                        //                 //This is only valid with the if for the alignment angle and the ssd.dMin
+                        //                 crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+                        //             }
+                        //         }
+                        //     }
+                        // }
                         
                     }
 
                     if (crossdEdges.size() == 0)
                     { // No untwinned edges have been crossed, break and move to next pair of polyPoints
-                        ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+                        ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
                         //                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
                         break;
                     }
@@ -1201,31 +1175,58 @@ template<int dim>
                         { // loop over crossed patches
                             //VectorDim shift(pair.first->shift);
                             //                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+                            assert((pair.second.size()>0 && pair.second.size()<=2) && "At max two periodic plane edges can be intersected (2D geometry constraint)");
 
-                            for (const auto &edge : pair.second)
-                            { // loop over crossed edges
-                                ppi.emplace_back(edge.first, pair.first->shift, edge.second->edgeID, nullptr);
-                              //  shift += edge.second->deltaShift;
-                                const VectorDim localShift(pair.first->shift+edge.second->deltaShift);    
-        //Insert patches corresponding to the individual intersections as well
+                            // if (pair.second.size()==2)
+                            // {
+                            //     std::cout<<" Two intersection case "<<std::endl;
+                            //     std::cout<<" First "<<pair.second.begin()->first.transpose()<<std::endl;
+                            //     std::cout<<" second "<<pair.second.rbegin()->first.transpose()<<std::endl;
+                            //     std::cout<<" difference "<<(pair.second.begin()->first-pair.second.rbegin()->first).norm()<<std::endl;
+                            //     std::cout<<" difference "<<((pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)<<std::endl;
+                            // }
+                            
+                            if (pair.second.size()==2 && (pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)
+                            {
+                                //The two intersection points are the same... Insert at diagonally opposite end
+
+                                // std::cout<<"Coming in two intersection case "<<std::endl;
+
+                                ppi.emplace_back(pair.second.begin()->first, pair.first->shift, std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID), nullptr);
+
+                                const VectorDim localShift(pair.first->shift + pair.second.begin()->second->deltaShift+pair.second.rbegin()->second->deltaShift);
+                                //here three patches are needed to be inserted... two at periodically opposite faces and one at diagonally opposite faces
+                                lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.begin()->second->deltaShift);
+                                currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                                lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.rbegin()->second->deltaShift);
+                                currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
                                 lastPatch = patchBoundary.patches().getFromKey(localShift);
                                 currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-
+                                assert(pair.second.begin()->second->twin); //Now the twin for both the edges must exist
+                                assert(pair.second.rbegin()->second->twin);
+                                
+                                //Insert a new node at the twinned edge of the current pair of edges
+                                ppi.emplace_back(pair.second.begin()->first, localShift, std::make_pair(pair.second.begin()->second->twin->edgeID, pair.second.rbegin()->second->twin->edgeID), nullptr);
+                            }
+                            else
+                            {
+                                for (const auto &edge : pair.second)
+                                { // loop over crossed edges
+                                    ppi.emplace_back(edge.first, pair.first->shift, std::make_pair(edge.second->edgeID,-1), nullptr);
+                                    //  shift += edge.second->deltaShift;
+                                    const VectorDim localShift(pair.first->shift + edge.second->deltaShift);
+                                    // Insert patches corresponding to the individual intersections as well
+                                    lastPatch = patchBoundary.patches().getFromKey(localShift);
+                                    currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                                    assert(edge.second->twin);
+                                    ppi.emplace_back(edge.first, edge.second->twin->patch->shift, std::make_pair(edge.second->twin->edgeID,-1), nullptr);
+                                }
                             }
 
-                            //Diagonally Opposite patch cannot be inserted (only perpendicular opposite patch is possible)
-                            // lastPatch = patchBoundary.patches().getFromKey(shift);
-                            // currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-
-                            for (const auto &edge : pair.second)
-                            { // loop over crossed edges of current patch
-                                assert(edge.second->twin);
-                                ppi.emplace_back(edge.first, edge.second->twin->patch->shift, edge.second->twin->edgeID, nullptr);
-                            }
                         }
                         if (lastPatch->contains(endPoint.first))
                         {
-                            ppi.emplace_back(endPoint.first, lastPatch->shift, -1, endPoint.second);
+                            ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
                             //                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
                             break;
                         }
@@ -1265,7 +1266,7 @@ template<int dim>
 
         return ppi;
     }
-    
+
     template<typename T1,typename T2, typename T3,typename T4>
     void printIntersections(const T1& ppi,const T2& usedPatches,const T3& lastPatch,int& removeMe, const T4& untwinnedEdges)
     {
@@ -1550,10 +1551,11 @@ template<int dim>
 //    }
     
     /**********************************************************************/
+        /**********************************************************************/
     template<int dim>
     PeriodicPlanePatchIO<dim>::PeriodicPlanePatchIO() :
     /* init */ glidePlaneID(0)
-    /* init */,referencePlaneID(0)
+    /* init */,patchBoundaryID(0)
     /* init */,shift(VectorDim::Zero())
     {
         
@@ -1562,7 +1564,7 @@ template<int dim>
     template<int dim>
     PeriodicPlanePatchIO<dim>::PeriodicPlanePatchIO(const PeriodicPlanePatch<dim>& patch) :
     /* init */ glidePlaneID(patch.glidePlane->sID)
-    /* init */,referencePlaneID(patch.periodicPlane->referencePlane->sID)
+    /* init */,patchBoundaryID(patch.patchBoundary->sID)
     /* init */,shift(patch.shift)
     {
         
@@ -1571,11 +1573,11 @@ template<int dim>
     template<int dim>
     PeriodicPlanePatchIO<dim>::PeriodicPlanePatchIO(std::stringstream& ss) :
     /* init */ glidePlaneID(0)
-    /* init */,referencePlaneID(0)
+    /* init */,patchBoundaryID(0)
     /* init */,shift(VectorDim::Zero())
     {
         ss>>glidePlaneID;
-        ss>>referencePlaneID;
+        ss>>patchBoundaryID;
         for(int d=0;d<dim;++d)
         {
             ss>>shift(d);
@@ -1586,19 +1588,10 @@ template<int dim>
     T& operator << (T& os, const PeriodicPlanePatchIO<dim>& ds)
     {
         os  << ds.glidePlaneID<<"\t"
-        /**/<< ds.referencePlaneID<<"\t"
+        /**/<< ds.patchBoundaryID<<"\t"
         /**/<< std::setprecision(15)<<std::scientific<<ds.shift.transpose();
         return os;
     }
     
-    /*
-            template struct PeriodicPlaneEdge<3>;
-     template struct NodalConnectivity <3>;
-     template class PeriodicPlaneNode<3>;
-     template struct PeriodicPlanePatch<3>;
-     template struct PeriodicPatchBoundary<3>;
-     template class PeriodicGlidePlane<3>;
-     template class PeriodicPlanePatchIO<3>;
-    */
 }
 #endif

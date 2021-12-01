@@ -20,7 +20,7 @@
 #include <TerminalColors.h>
 #include <DiophantineSolver.h>
 #include <SharedPtrFactories.h>
-#include <GramSchmidt.h>
+
 
 
 namespace model
@@ -255,9 +255,10 @@ namespace model
         VectorDim getGlidePlaneShiftfromReferencePlane(const GlidePlane<dim> *gp) const;
 
         template<typename T>
-        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints);
+        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints);
         template<typename T>
-        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,short int,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints);
+        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints);
+        
         
         VectorDim findPatch(const VectorLowerDim&,const VectorDim&);
 
@@ -270,7 +271,7 @@ namespace model
     {
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         size_t glidePlaneID;
-        size_t referencePlaneID;
+        size_t patchBoundaryID;
         VectorDim shift;
         
         PeriodicPlanePatchIO();
@@ -280,7 +281,7 @@ namespace model
 //        friend T& operator << (T& os, const PeriodicPlanePatchIO<dim>& ds);
         
     };
-
+    
 
 }
 #endif

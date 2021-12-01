@@ -28,43 +28,42 @@ namespace model
     template <int dim, short unsigned int corder>
     bool DislocationLoopLink<dim,corder>::hasNetworkLink() const
     {
-        // return !((this->source->get_P()-this->sink->get_P()).squaredNorm()<FLT_EPSILON 
+        // return !((this->source->get_P()-this->sink->get_P()).squaredNorm()<FLT_EPSILON
         // /*    */ && this->source->periodicPlaneEdge
         // /*    */ &&   this->sink->periodicPlaneEdge
         // /*    */ && this->source->loop()->sID==this->sink->loop()->sID);
-        if (this->source->periodicPlaneEdge && this->sink->periodicPlaneEdge)
+        if (this->source->periodicPlaneEdge.first && this->sink->periodicPlaneEdge.first)
         {
             // bool temp((this->source->loop()->sID==this->sink->loop()->sID));
             // if (temp)
             // {
-                // std::cout<<"Checking Twin"<<std::endl;
-                // std::cout<<this->source->periodicPlaneEdge->twin->tag()<<"=>= " <<this->sink->periodicPlaneEdge->tag()<<std::endl;
-                // std::cout<<this->sink->periodicPlaneEdge->twin->tag()<<"=>= " <<this->source->periodicPlaneEdge->tag()<<std::endl;
-                if (this->source->periodicPlaneEdge->twin && this->sink->periodicPlaneEdge->twin)
+            // std::cout<<"Checking Twin"<<std::endl;
+            // std::cout<<this->source->periodicPlaneEdge->twin->tag()<<"=>= " <<this->sink->periodicPlaneEdge->tag()<<std::endl;
+            // std::cout<<this->sink->periodicPlaneEdge->twin->tag()<<"=>= " <<this->source->periodicPlaneEdge->tag()<<std::endl;
+            // std::cout<<" Case A"<<std::flush;
+            if (this->source->periodicPlaneEdge.first->twin && this->sink->periodicPlaneEdge.first->twin)
+            {
+                // std::cout<<".1"<<std::endl;
+                // temp *= ((this->source->periodicPlaneEdge->twin == this->sink->periodicPlaneEdge.get()) &&
+                //          (this->sink->periodicPlaneEdge->twin == this->source->periodicPlaneEdge.get()));
+                const bool firstEdgeMatch((this->source->periodicPlaneEdge.first->twin == this->sink->periodicPlaneEdge.first.get()) &&
+                                          (this->sink->periodicPlaneEdge.first->twin == this->source->periodicPlaneEdge.first.get()));
+                if (firstEdgeMatch && this->source->periodicPlaneEdge.second && this->sink->periodicPlaneEdge.second)
                 {
-                    // temp *= ((this->source->periodicPlaneEdge->twin == this->sink->periodicPlaneEdge.get()) &&
-                    //          (this->sink->periodicPlaneEdge->twin == this->source->periodicPlaneEdge.get()));
-                    return !((this->source->periodicPlaneEdge->twin == this->sink->periodicPlaneEdge.get()) &&
-                             (this->sink->periodicPlaneEdge->twin == this->source->periodicPlaneEdge.get()));
+                    if (this->source->periodicPlaneEdge.second->twin && this->sink->periodicPlaneEdge.second->twin)
+                    {
+                        const bool secondEdgeMatch((this->source->periodicPlaneEdge.second->twin == this->sink->periodicPlaneEdge.second.get()) &&
+                                                   (this->sink->periodicPlaneEdge.second->twin == this->source->periodicPlaneEdge.second.get()));
+                        assert(secondEdgeMatch && "Second edge must match provided first edge match for network link creation");
+                    }
+                }
 
-                }
-                else
-                {
-                    // temp=true;
-                    return true;
-                }
-            // }
-            // std::cout<<"Return temo "<<temp<<std::endl;
-            // std::cout<<" This->tag() "<<this->tag()<<" has networklink "<<temp<<std::endl;
-            // return !temp;
+                return !firstEdgeMatch;
+            }
         }
-        else
-        {
-            return true;
-        }
-        
+        return true;
     }
-    
+
     template <int dim, short unsigned int corder>
     std::shared_ptr<PeriodicPlanePatch<dim>> DislocationLoopLink<dim,corder>::periodicPlanePatch() const
     {

@@ -63,8 +63,7 @@ namespace model
                            const int& grainID,
                            const int& loopType,
                            const std::vector<VectorDimD>& loopNodeShifts,
-                           const std::vector<short int>& periodicEdgeIDs // default -1 for non-periodic nodes
-                           )
+                           const std::vector<std::pair<short int,short int>>& periodicEdgeIDs) // default -1 for non-periodic nodes                           )
 //                           const long int& periodicLoopID,
 //                           const VectorDimD& periodicShift)
         {
@@ -110,7 +109,7 @@ namespace model
                            const int& grainID,
                            const int& loopType,
                            const std::vector<VectorDimD>& loopNodeShifts,
-                           const std::vector<short int>& periodicEdgeIDs // default -1 for non-periodic nodes
+                           const std::vector<std::pair<short int,short int>>& periodicEdgeIDs // default -1 for non-periodic nodes
                            )
 //                           const long int& periodicLoopID,
 //                           const VectorDimD& periodicShift)
@@ -183,9 +182,9 @@ namespace model
                 while(density<targetStraightDislocationDensity)
                 {
                     
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const int& grainID=rp.second;   // random grain ID
-                    const LatticeVector<MicrostructureGenerator::dim>& L0=rp.first; // random lattice position in the grain
+                    const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                     const VectorDimD P0(L0.cartesian());   // cartesian position of L0
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
                     const int rSS=distribution(generator); // a random SlipSystem ID
@@ -206,8 +205,8 @@ namespace model
                         d=Eigen::AngleAxisd(theta, n)*n.cross(VectorDimD::Random()).normalized();
                     }
 
-                    MeshPlane<MicrostructureGenerator::dim> plane(mesh,grainID,P0,n);
-                    const std::vector<VectorDimD> nodePos(DislocationInjector<MicrostructureGenerator::dim>::straightLineBoundaryClosure(P0,d,plane,mesh));
+                    MeshPlane<dim> plane(mesh,grainID,P0,n);
+                    const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,plane,mesh));
 
                     const double lineLength=(nodePos.back()-nodePos.front()).norm();
                     //                nodePos.push_back(nodePos[nodePos.size()-1]+1.0/3.0*(nodePos[0]-nodePos[nodePos.size()-1]));
@@ -233,9 +232,9 @@ namespace model
 //                        nodeID+=nodePos.size();
 
                         // write loop file
-//                        configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+//                        configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        addSingleLoop(false,nodePos,nodePos, b,n,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1));
+                        addSingleLoop(false,nodePos,nodePos, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(nodePos.size(),std::make_pair(-1,-1)));
                         
                         if(enforceMonotonicHelicity)
                         {
@@ -281,8 +280,8 @@ namespace model
 
                 while(density<targetFrankReadDislocationDensity)
                 {
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                    const LatticeVector<MicrostructureGenerator::dim> L0=rp.first;
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
                     const int grainID=rp.second;
 
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
@@ -299,14 +298,14 @@ namespace model
 
 
 
-                    LatticeDirection<3> d1(LatticeVector<MicrostructureGenerator::dim>(sr.cross(slipSystem.n)*randomSign()));
+                    LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));
                     double d1cNorm(d1.cartesian().norm());
                     //                    const double size = distribution(generator)*inclusionsDiameterLognormalDistribution_A[f]/poly.b_SI;
 
                     int a1=sizeDistribution(generator)/d1cNorm;
                     if(a1>0)
                     {
-                        LatticeVector<MicrostructureGenerator::dim> L1=L0+d1*a1;
+                        LatticeVector<dim> L1=L0+d1*a1;
 
 
                         if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
@@ -324,8 +323,8 @@ namespace model
                         const int a2=aspectRatioDistribution(generator)*a1; // aspect ratio of double FR source
                         if(a2>0)
                         {
-                            LatticeVector<MicrostructureGenerator::dim> L2=L1+d2*a2;
-                            LatticeVector<MicrostructureGenerator::dim> L3=L0+d2*a2;
+                            LatticeVector<dim> L2=L1+d2*a2;
+                            LatticeVector<dim> L3=L0+d2*a2;
 
                             const VectorDimD P0=L0.cartesian();
                             const VectorDimD P1=L1.cartesian();
@@ -374,24 +373,24 @@ namespace model
 
                                
                                
-                                configIO.loopNodes().emplace_back(loopNodeID+0,loopID+0,P0,nodeID+0,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+1,loopID+0,P1,nodeID+1,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+2,loopID+0,P4,nodeID+4,VectorDimD::Zero(),-1);
+                                configIO.loopNodes().emplace_back(loopNodeID+0,loopID+0,P0,nodeID+0,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+1,loopID+0,P1,nodeID+1,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+2,loopID+0,P4,nodeID+4,VectorDimD::Zero(),std::make_pair(-1,-1));
 
-                                configIO.loopNodes().emplace_back(loopNodeID+3,loopID+1,P0,nodeID+0,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+4,loopID+1,P3,nodeID+3,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+5,loopID+1,P2,nodeID+2,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+6,loopID+1,P1,nodeID+1,VectorDimD::Zero(),-1);
+                                configIO.loopNodes().emplace_back(loopNodeID+3,loopID+1,P0,nodeID+0,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+4,loopID+1,P3,nodeID+3,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+5,loopID+1,P2,nodeID+2,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+6,loopID+1,P1,nodeID+1,VectorDimD::Zero(),std::make_pair(-1,-1));
 
-                                configIO.loopNodes().emplace_back(loopNodeID+7,loopID+2,P3,nodeID+3,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+8,loopID+2,P5,nodeID+5,VectorDimD::Zero(),-1);
-                                configIO.loopNodes().emplace_back(loopNodeID+9,loopID+2,P2,nodeID+2,VectorDimD::Zero(),-1);
+                                configIO.loopNodes().emplace_back(loopNodeID+7,loopID+2,P3,nodeID+3,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+8,loopID+2,P5,nodeID+5,VectorDimD::Zero(),std::make_pair(-1,-1));
+                                configIO.loopNodes().emplace_back(loopNodeID+9,loopID+2,P2,nodeID+2,VectorDimD::Zero(),std::make_pair(-1,-1));
 
 
 
-                                configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
-                                configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);
-                                configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                                configIO.loops().emplace_back(loopID+0,b,n1,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                configIO.loops().emplace_back(loopID+1,b,n2,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                configIO.loops().emplace_back(loopID+2,b,n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
                                 // configIO.loopLinks().emplace_back(loopID+0,nodeID+0,nodeID+1,true,0);
                                 // configIO.loopLinks().emplace_back(loopID+0,nodeID+1,nodeID+4,true,0);
@@ -453,8 +452,8 @@ namespace model
 
                 while(density<targetSingleArmDislocationDensity)
                 {
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                    const LatticeVector<MicrostructureGenerator::dim> L0=rp.first;
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
                     const int grainID=rp.second;
 
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
@@ -468,7 +467,7 @@ namespace model
 
                     //                    bool isEdge=true;
 
-                    LatticeDirection<3> d1(LatticeVector<MicrostructureGenerator::dim>(sr.cross(slipSystem.n)*randomSign()));  // this is the projection direction
+                    LatticeDirection<3> d1(LatticeVector<dim>(sr.cross(slipSystem.n)*randomSign()));  // this is the projection direction
                     //     if(edgeDensity>fractionEdge*density) // overwrite with screw dislocaiton
                     //      {
                     //           d1=slipSystem.s;
@@ -477,7 +476,7 @@ namespace model
                     LatticeDirection<3> d2(poly.grain(grainID).latticeDirection(-slipSystem.n.cartesian()*randomSign()));
                     double d2cNorm(d2.cartesian().norm());
                     const int a2=randomSize()/d2cNorm;
-                    LatticeVector<MicrostructureGenerator::dim> L3=L0+d2*a2;
+                    LatticeVector<dim> L3=L0+d2*a2;
 
 
                     const auto search2(mesh.search(L3.cartesian()));
@@ -496,8 +495,8 @@ namespace model
                         const VectorDimD n1=slipSystem.unitNormal;
                         const VectorDimD n2=d2.cross(d1).cartesian().normalized();
 
-                        MeshPlane<MicrostructureGenerator::dim> plane01(mesh,grainID,P0,n2);
-//                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<MicrostructureGenerator::dim>(mesh,P0,n2,grainID);
+                        MeshPlane<dim> plane01(mesh,grainID,P0,n2);
+//                        PlaneMeshIntersectionContainerType pmi01=PlaneMeshIntersection<dim>(mesh,P0,n2,grainID);
                         const VectorDimD P1=boundaryProjection(P0,d1.cartesian(),plane01.meshIntersections).second;
                         const VectorDimD P2=boundaryProjection(P3,d1.cartesian(),plane01.meshIntersections).second;
                         const std::map<double,VectorDimD> P12=boundaryProjection(P0,P3,d1.cartesian(),plane01.meshIntersections);
@@ -554,17 +553,17 @@ namespace model
                                     }
                                 }
                             }
-                            configIO.loops().emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                            configIO.loops().emplace_back(loopID,slipSystem.s.cartesian(),n2,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                             configIO.loopLinks().emplace_back(loopID,refNodeID+5,refNodeID+1,true,0);
                             configIO.loopLinks().emplace_back(loopID,refNodeID+1,refNodeID+0,true,0);
                             configIO.loopLinks().emplace_back(loopID,refNodeID+0,refNodeID+4,true,0);
 
-                            configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);
+                            configIO.loops().emplace_back(loopID+1,slipSystem.s.cartesian(),n1,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                             configIO.loopLinks().emplace_back(loopID+1,refNodeID+0,refNodeID+2,true,0);
                             configIO.loopLinks().emplace_back(loopID+1,refNodeID+2,refNodeID+4,true,0);
                             configIO.loopLinks().emplace_back(loopID+1,refNodeID+4,refNodeID+0,true,0);
 
-                            configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                            configIO.loops().emplace_back(loopID+2,slipSystem.s.cartesian(),n1,P3,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                             configIO.loopLinks().emplace_back(loopID+2,refNodeID+1,refNodeID+5,true,0);
                             configIO.loopLinks().emplace_back(loopID+2,refNodeID+5,refNodeID+3,true,0);
                             configIO.loopLinks().emplace_back(loopID+2,refNodeID+3,refNodeID+1,true,0);
@@ -592,8 +591,8 @@ namespace model
                 while (density < targetPrismaticLoopDensity)
                 {
 
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>, int> rp = randomPointInMesh();
-                    const LatticeVector<MicrostructureGenerator::dim> L0 = rp.first;
+                    const std::pair<LatticeVector<dim>, int> rp = randomPointInMesh();
+                    const LatticeVector<dim> L0 = rp.first;
                     const int grainID = rp.second;
 
                     std::uniform_int_distribution<> distribution(0, poly.grain(grainID).slipSystems().size() - 1);
@@ -620,7 +619,7 @@ namespace model
                         exit(EXIT_FAILURE);
                     }
 
-                    std::vector<LatticeDirection<MicrostructureGenerator::dim>> dirVector;
+                    std::vector<LatticeDirection<dim>> dirVector;
                     std::vector<int> sizeVector;
                     for (const int &normalID : normalIDs)
                     {
@@ -685,10 +684,10 @@ namespace model
                         {
                             const int nextNodeID = (k + 1) < posVector.size() ? nodeID + k + 1 : nodeID;
 
-                            configIO.loopNodes().emplace_back(loopNodeID + k +countLoopNode, loopID + k, posVector[nodeID + k- nodeID], nodeID + k, VectorDimD::Zero(), -1);
-                            configIO.loopNodes().emplace_back(loopNodeID + k + 1+countLoopNode, loopID + k, posVector[nextNodeID- nodeID], nextNodeID, VectorDimD::Zero(), -1);
-                            configIO.loopNodes().emplace_back(loopNodeID + k + 2+countLoopNode, loopID + k, posVector[nextNodeID- nodeID], nextNodeID + posVector.size(), VectorDimD::Zero(), -1);
-                            configIO.loopNodes().emplace_back(loopNodeID + k + 3+countLoopNode, loopID + k, posVector[nodeID + k- nodeID], nodeID + k + posVector.size(), VectorDimD::Zero(), -1);
+                            configIO.loopNodes().emplace_back(loopNodeID + k +countLoopNode, loopID + k, posVector[nodeID + k- nodeID], nodeID + k, VectorDimD::Zero(), std::make_pair(-1,-1));
+                            configIO.loopNodes().emplace_back(loopNodeID + k + 1+countLoopNode, loopID + k, posVector[nextNodeID- nodeID], nextNodeID, VectorDimD::Zero(), std::make_pair(-1,-1));
+                            configIO.loopNodes().emplace_back(loopNodeID + k + 2+countLoopNode, loopID + k, posVector[nextNodeID- nodeID], nextNodeID + posVector.size(), VectorDimD::Zero(), std::make_pair(-1,-1));
+                            configIO.loopNodes().emplace_back(loopNodeID + k + 3+countLoopNode, loopID + k, posVector[nodeID + k- nodeID], nodeID + k + posVector.size(), VectorDimD::Zero(), std::make_pair(-1,-1));
                             // configIO.loopNodes().emplace_back(loopNodeID + k + 4, loopID + k, posVector[nodeID + k], nodeID + k , VectorDimD::Zero(), -1);
                             configIO.loopLinks().emplace_back(loopID + k, loopNodeID+countLoopNode + k, loopNodeID+countLoopNode + k + 1 , true, 0);
                             configIO.loopLinks().emplace_back(loopID + k, loopNodeID+countLoopNode + k + 1, loopNodeID+countLoopNode + k + 2, true, 0);
@@ -696,18 +695,18 @@ namespace model
                             configIO.loopLinks().emplace_back(loopID + k, loopNodeID+countLoopNode + k + 3, loopNodeID+countLoopNode + k , true, 0);
                             countLoopNode += 3;
 
-                            configIO.loops().emplace_back(loopID + k, b, normalsVector[k], posVector[k], grainID, DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                            configIO.loops().emplace_back(loopID + k, b, normalsVector[k], posVector[k], grainID, DislocationLoopIO<dim>::GLISSILELOOP);
                         }
 
                         // Add back loop (sessile)
                         for (size_t k = 0; k < posVector.size(); ++k)
                         {
                             const size_t nextLoopNodeID = (k + 1) < posVector.size() ? loopNodeID + k + 4*posVector.size() + 1 : loopNodeID + 4*posVector.size();
-                            configIO.loopNodes().emplace_back(loopNodeID + 4*posVector.size()+k, loopID + posVector.size(), posVector[nodeID + k- nodeID], nodeID + k, VectorDimD::Zero(), -1);
+                            configIO.loopNodes().emplace_back(loopNodeID + 4*posVector.size()+k, loopID + posVector.size(), posVector[nodeID + k- nodeID], nodeID + k, VectorDimD::Zero(), std::make_pair(-1,-1));
 
                             configIO.loopLinks().emplace_back(loopID + posVector.size(), loopNodeID + 4*posVector.size() + k, nextLoopNodeID, true, 0);
                         }
-                        configIO.loops().emplace_back(loopID + posVector.size(), -b, b.normalized(), posVector[0], grainID, DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);
+                        configIO.loops().emplace_back(loopID + posVector.size(), -b, b.normalized(), posVector[0], grainID, DislocationLoopIO<dim>::SESSILELOOP);
 
                         for (size_t k = 0; k < dirVector.size(); ++k)
                         {
@@ -762,7 +761,7 @@ namespace model
 
                     if(rSS>=0)
                     {
-                        std::pair<bool,const Simplex<MicrostructureGenerator::dim,MicrostructureGenerator::dim>*> found=mesh.search(pointsAlongStraightDislocations.row(k));
+                        std::pair<bool,const Simplex<dim,dim>*> found=mesh.search(pointsAlongStraightDislocations.row(k));
                         if(!found.first)
                         {
                             std::cout<<"Point "<<pointsAlongStraightDislocations.row(k)<<" is outside mesh. EXITING."<<std::endl;
@@ -794,7 +793,7 @@ namespace model
                         const VectorDimD b(slipSystem.s.cartesian());
 
                         const VectorDimD d=Eigen::AngleAxisd(theta,slipSystem.unitNormal)*b.normalized();
-                        const std::vector<VectorDimD> nodePos(DislocationInjector<MicrostructureGenerator::dim>::straightLineBoundaryClosure(P0,d,slipSystem.unitNormal,grainID,mesh));
+                        const std::vector<VectorDimD> nodePos(DislocationInjector<dim>::straightLineBoundaryClosure(P0,d,slipSystem.unitNormal,grainID,mesh));
 
                         const double lineLength=(nodePos.back()-nodePos.front()).norm();
 
@@ -813,7 +812,7 @@ namespace model
 //                                const int nextNodeID=(k+1)<nodePos.size()? nodeID+k+1 : nodeID;
 //                                configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
 //                            }
-//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);  // write loop file
+//                            configIO.loops().emplace_back(loopID+0, b,n,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);  // write loop file
 //
 //                            nodeID+=nodePos.size();
 //                            loopID+=1;
@@ -825,9 +824,9 @@ namespace model
                                 exit(EXIT_FAILURE);
                             }
                             
-                            if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
+                            if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int,short int>>(nodePos.size(),std::make_pair(-1,-1))))
                             {
-//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP)
+//                                addSingleLoop(true,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP)
                                 std::cout<<"["<<b.transpose()<<"]("<<slipSystem.unitNormal.transpose()<<") dislocation. Line dir="<<d.transpose()<<". Length="<<lineLength<<std::endl;
 
                             }
@@ -856,8 +855,8 @@ namespace model
                 double density=0.0;
                 while(density<targetNonPlanarLoopDensity)
                 {
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                    const LatticeVector<MicrostructureGenerator::dim> L0=rp.first;
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
                     const VectorDimD P0(L0.cartesian());
                     const int grainID=rp.second;
                     
@@ -880,7 +879,7 @@ namespace model
                         nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/nonPlanarLoopSides, sessileAxis)*slipSystem.s.cartesian().normalized()*radius+height*sessileAxis);
                     }
                     
-                    if(addSingleLoop(true,nodePos,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
+                    if(addSingleLoop(true,nodePos,nodePos,b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(nodePos.size(),std::make_pair(-1,-1))))
                     {
                         density += 2.0*radius*sin(M_PI/nonPlanarLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"non-planar loop density="<<density<<std::endl;
@@ -894,7 +893,7 @@ namespace model
 //                            configIO.nodes().emplace_back(nodeID+k,nodePos[k],Eigen::Matrix<double,1,3>::Zero(),1.0,0);
 //                            configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,0);
 //                        }
-//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);  // write loop file
+//                        configIO.loops().emplace_back(loopID+0, b,VectorDimD::Zero(),P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);  // write loop file
 //                        nodeID+=nodePos.size();
 //                        loopID+=1;
 //                        snID+=1;
@@ -923,8 +922,8 @@ namespace model
                 //                size_t periodicLoopID(0);
                 while (density < targetPeriodicLoopDensity)
                 {
-                    std::vector<std::pair<LatticeVector<MicrostructureGenerator::dim>, int>> rps;
-                    std::vector<LatticeVector<MicrostructureGenerator::dim>> L0s;
+                    std::vector<std::pair<LatticeVector<dim>, int>> rps;
+                    std::vector<LatticeVector<dim>> L0s;
                     rps.emplace_back(randomPointInMesh());
                     L0s.emplace_back(rps.begin()->first);
                     rps.emplace_back(randomPointInMesh());
@@ -953,7 +952,7 @@ namespace model
                             loopNodePosTemp.push_back(std::make_pair(P0 + Eigen::AngleAxisd(k * 2.0 * M_PI / periodicLoopSides, slipSystem.unitNormal) * slipSystem.s.cartesian().normalized() * radius, &dummyPolyPoints.back()));
                         }
 
-                        PeriodicGlidePlaneFactory<MicrostructureGenerator::dim> pgpf(poly, glidePlaneFactory);
+                        PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
                         GlidePlaneKey<3> glidePlaneKey(P0, slipSystem.n);
                         std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(pgpf.get(glidePlaneKey));
 
@@ -962,7 +961,7 @@ namespace model
                         std::vector<VectorDimD> loopNodePos;
                         std::vector<VectorDimD> networkNodePos;
                         std::vector<VectorDimD> loopNodeShifts;
-                        std::vector<short int> edgeIDs;
+                        std::vector<std::pair<short int,short int>> edgeIDs;
 
                         for (const auto &tup : ppi)
                         {
@@ -974,7 +973,7 @@ namespace model
                         }
 
                         //
-                        if (addSingleLoop(false, networkNodePos, loopNodePos, bs[i], slipSystem.unitNormal, P0, grainID, DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
+                        if (addSingleLoop(false, networkNodePos, loopNodePos, bs[i], slipSystem.unitNormal, P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP, loopNodeShifts, edgeIDs))
                         {
                             density += 2.0 *periodicLoopSides * radius * sin(M_PI / periodicLoopSides) / mesh.volume() / std::pow(poly.b_SI, 2);
 
@@ -995,8 +994,8 @@ namespace model
                 double density=0.0;
                 while(density<targetFrankLoopDensity)
                 {
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                    const LatticeVector<MicrostructureGenerator::dim> L0=rp.first;
+                    const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
+                    const LatticeVector<dim> L0=rp.first;
                     const VectorDimD P0(L0.cartesian());
                     const int grainID=rp.second;
 
@@ -1016,7 +1015,7 @@ namespace model
                         nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/frankLoopSides, unitNormal)*R);
                     }
                     
-                    if(addSingleLoop(true,nodePos,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
+                    if(addSingleLoop(true,nodePos,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(nodePos.size(),std::make_pair(-1,-1))))
                     {
                         density += 2.0*radius*sin(M_PI/frankLoopSides)/mesh.volume()/std::pow(poly.b_SI,2);
                         std::cout<<"Frank loop density="<<density<<std::endl;
@@ -1270,87 +1269,77 @@ namespace model
         /**********************************************************************/
         void MicrostructureGenerator::addStackingFaultTetrahedra()
         {
+        if (targetSFTdensity > 0.0)
+        {
+            std::cout << magentaBoldColor << "Generating Stacking Fault Tetrahedra" << defaultColor << std::endl;
 
-            if(targetSFTdensity>0.0)
+            if (poly.crystalStructure == "FCC")
             {
-                std::cout<<magentaBoldColor<<"Generating Stacking Fault Tetrahedra"<<defaultColor<<std::endl;
+                size_t ndefects = 0;
+                double defectsDensity = ndefects / mesh.volume() / std::pow(poly.b_SI, 3);
 
+                const std::pair<LatticeVector<dim>, int> rp = randomPointInMesh();
+                const int &grainID = rp.second;          // random grain ID
+                const LatticeVector<dim> &L0 = rp.first; // random lattice position in the grain
 
-                if(poly.crystalStructure=="FCC")
+                LatticeVector<3> a1(VectorDimI(1, 0, 0), poly.grain(grainID)); // [011]
+                LatticeVector<3> a2(VectorDimI(0, 1, 0), poly.grain(grainID)); // [101]
+                LatticeVector<3> a3(VectorDimI(0, 0, 1), poly.grain(grainID)); // [110]
+                LatticeVector<3> a12(a2 - a1);                                 // [1-10]
+                LatticeVector<3> a23(a3 - a2);                                 // [01-1]
+                LatticeVector<3> a31(a1 - a3);                                 // [-101]
+
+                int Li = 100;
+                const VectorDimD P0(L0.cartesian());
+                const VectorDimD P1(P0 + a1.cartesian() * Li);
+                const VectorDimD P2(P0 + a2.cartesian() * Li);
+                const VectorDimD P3(P0 + a3.cartesian() * Li);
+
+                if (mesh.searchRegion(grainID, P1).first && mesh.searchRegion(grainID, P1).first && mesh.searchRegion(grainID, P2).first)
                 {
-                    size_t ndefects=0;
-                    double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
 
-                    const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                    const int& grainID=rp.second;   // random grain ID
-                    const LatticeVector<MicrostructureGenerator::dim>& L0=rp.first; // random lattice position in the grain
+                    assert(false && "FINISH IMPLEMENTATION< CHECK ALL BURGERS VECTORS");
 
+                    VectorDimD b = L0.cartesian();
 
-                    LatticeVector<3> a1(VectorDimI(1,0,0),poly.grain(grainID)); // [011]
-                    LatticeVector<3> a2(VectorDimI(0,1,0),poly.grain(grainID)); // [101]
-                    LatticeVector<3> a3(VectorDimI(0,0,1),poly.grain(grainID)); // [110]
-                    LatticeVector<3> a12(a2-a1); // [1-10]
-                    LatticeVector<3> a23(a3-a2); // [01-1]
-                    LatticeVector<3> a31(a1-a3); // [-101]
+                    configIO.nodes().emplace_back(nodeID + 0, P0, Eigen::Matrix<double, 1, 3>::Zero(), 1.0, 0);
+                    configIO.nodes().emplace_back(nodeID + 1, P1, Eigen::Matrix<double, 1, 3>::Zero(), 1.0, 0);
+                    configIO.nodes().emplace_back(nodeID + 2, P2, Eigen::Matrix<double, 1, 3>::Zero(), 1.0, 0);
+                    configIO.nodes().emplace_back(nodeID + 3, P3, Eigen::Matrix<double, 1, 3>::Zero(), 1.0, 0);
 
-                    int Li=100;
-                    const VectorDimD P0(L0.cartesian());
-                    const VectorDimD P1(P0+a1.cartesian()*Li);
-                    const VectorDimD P2(P0+a2.cartesian()*Li);
-                    const VectorDimD P3(P0+a3.cartesian()*Li);
+                    configIO.loopLinks().emplace_back(loopID + 0, nodeID + 0, nodeID + 2, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 0, nodeID + 2, nodeID + 1, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 0, nodeID + 1, nodeID + 0, true, 0);
+                    configIO.loops().emplace_back(loopID + 0, b, a2.cross(a1).cartesian(), P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP);
 
-                    if(   mesh.searchRegion(grainID,P1).first
-                       && mesh.searchRegion(grainID,P1).first
-                       && mesh.searchRegion(grainID,P2).first)
-                    {
-                        
-                        assert(false && "FINISH IMPLEMENTATION< CHECK ALL BURGERS VECTORS");
-                        
-                        VectorDimD b=L0.cartesian();
+                    configIO.loopLinks().emplace_back(loopID + 1, nodeID + 0, nodeID + 1, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 1, nodeID + 1, nodeID + 3, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 1, nodeID + 3, nodeID + 0, true, 0);
+                    configIO.loops().emplace_back(loopID + 1, b, a1.cross(a3).cartesian(), P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.nodes().emplace_back(nodeID+0,P0,Eigen::Matrix<double,1,3>::Zero(),1.0,0);
-                        configIO.nodes().emplace_back(nodeID+1,P1,Eigen::Matrix<double,1,3>::Zero(),1.0,0);
-                        configIO.nodes().emplace_back(nodeID+2,P2,Eigen::Matrix<double,1,3>::Zero(),1.0,0);
-                        configIO.nodes().emplace_back(nodeID+3,P3,Eigen::Matrix<double,1,3>::Zero(),1.0,0);
+                    configIO.loopLinks().emplace_back(loopID + 2, nodeID + 0, nodeID + 3, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 2, nodeID + 3, nodeID + 2, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 2, nodeID + 2, nodeID + 0, true, 0);
+                    configIO.loops().emplace_back(loopID + 2, b, a3.cross(a2).cartesian(), P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.loopLinks().emplace_back(loopID+0,nodeID+0,nodeID+2,true,0);
-                        configIO.loopLinks().emplace_back(loopID+0,nodeID+2,nodeID+1,true,0);
-                        configIO.loopLinks().emplace_back(loopID+0,nodeID+1,nodeID+0,true,0);
-                        configIO.loops().emplace_back(loopID+0, b,a2.cross(a1).cartesian(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                    configIO.loopLinks().emplace_back(loopID + 3, nodeID + 1, nodeID + 2, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 3, nodeID + 2, nodeID + 3, true, 0);
+                    configIO.loopLinks().emplace_back(loopID + 3, nodeID + 3, nodeID + 1, true, 0);
+                    configIO.loops().emplace_back(loopID + 3, b, a31.cross(a12).cartesian(), P0, grainID, DislocationLoopIO<dim>::GLISSILELOOP);
 
-                        configIO.loopLinks().emplace_back(loopID+1,nodeID+0,nodeID+1,true,0);
-                        configIO.loopLinks().emplace_back(loopID+1,nodeID+1,nodeID+3,true,0);
-                        configIO.loopLinks().emplace_back(loopID+1,nodeID+3,nodeID+0,true,0);
-                        configIO.loops().emplace_back(loopID+1, b,a1.cross(a3).cartesian(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
-
-                        configIO.loopLinks().emplace_back(loopID+2,nodeID+0,nodeID+3,true,0);
-                        configIO.loopLinks().emplace_back(loopID+2,nodeID+3,nodeID+2,true,0);
-                        configIO.loopLinks().emplace_back(loopID+2,nodeID+2,nodeID+0,true,0);
-                        configIO.loops().emplace_back(loopID+2, b,a3.cross(a2).cartesian(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
-
-                        configIO.loopLinks().emplace_back(loopID+3,nodeID+1,nodeID+2,true,0);
-                        configIO.loopLinks().emplace_back(loopID+3,nodeID+2,nodeID+3,true,0);
-                        configIO.loopLinks().emplace_back(loopID+3,nodeID+3,nodeID+1,true,0);
-                        configIO.loops().emplace_back(loopID+3, b,a31.cross(a12).cartesian(),P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
-
-
-//                        snID++;
-                        loopID+=4;
-                        nodeID+=4;
-                        ndefects++;
-                        defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                        std::cout<<"SFT density="<<defectsDensity<<std::endl;
-
-
-                    }
-
-                }
-                else
-                {
-                    std::cout<<"SFTs can only be generated for FCC crystals"<<std::endl;
+                    //                        snID++;
+                    loopID += 4;
+                    nodeID += 4;
+                    ndefects++;
+                    defectsDensity = ndefects / mesh.volume() / std::pow(poly.b_SI, 3);
+                    std::cout << "SFT density=" << defectsDensity << std::endl;
                 }
             }
-
+            else
+            {
+                std::cout << "SFTs can only be generated for FCC crystals" << std::endl;
+            }
+        }
         }
 
         /**********************************************************************/
@@ -1371,49 +1360,48 @@ namespace model
         /**********************************************************************/
         void MicrostructureGenerator::addIrradiationLoopsFCC()
         {// Irradiation loops in FCC are Frank loops
+        const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes", true));
+        std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M / irradiationLoopsDiameterLognormalDistribution_A), (irradiationLoopsDiameterLognormalDistribution_S));
 
-            const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
-            std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+        size_t ndefects = 0;
+        double defectsDensity = ndefects / mesh.volume() / std::pow(poly.b_SI, 3);
+        while (defectsDensity < targetIrradiationLoopDensity)
+        {
+            const std::pair<LatticeVector<dim>, int> rp = randomPointInMesh();
+            const int &grainID = rp.second;          // random grain ID
+            const LatticeVector<dim> &L0 = rp.first; // random lattice position in the grain
+            const VectorDimD P0(L0.cartesian());     // cartesian position of L0
 
-            size_t ndefects=0;
-            double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-            while(defectsDensity<targetIrradiationLoopDensity)
+            std::uniform_int_distribution<> planesDistribution(0, poly.grain(grainID).planeNormals().size() - 1);
+            const int rSS = planesDistribution(generator);
+            const auto &n(poly.grain(grainID).planeNormals()[rSS]); // a random {111} plane
+            const VectorDimD unitNormal(n.cartesian().normalized());
+            const VectorDimD b(n.planeSpacing() * unitNormal); // Frank loops are plateletslane of vanancies/interstitials
+
+            const double diameter_SI = sizeDistribution(generator) * irradiationLoopsDiameterLognormalDistribution_A;
+            const double radius(0.5 * diameter_SI / poly.b_SI);
+            const VectorDimD R(randomOrthogonalUnitVector(b) * radius);
+
+            std::vector<VectorDimD> nodePos;
+            for (size_t k = 0; k < irradiationLoopsNumberOfNodes; ++k)
             {
-                const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
-                const int& grainID=rp.second;   // random grain ID
-                const LatticeVector<MicrostructureGenerator::dim>& L0=rp.first; // random lattice position in the grain
-                const VectorDimD P0(L0.cartesian());   // cartesian position of L0
-                
-                std::uniform_int_distribution<> planesDistribution(0,poly.grain(grainID).planeNormals().size()-1);
-                const int rSS=planesDistribution(generator);
-                const auto& n(poly.grain(grainID).planeNormals()[rSS]); // a random {111} plane
-                const VectorDimD unitNormal(n.cartesian().normalized());
-                const VectorDimD b(n.planeSpacing()*unitNormal); // Frank loops are plateletslane of vanancies/interstitials
-
-                const double diameter_SI = sizeDistribution(generator)*irradiationLoopsDiameterLognormalDistribution_A;
-                const double radius(0.5*diameter_SI/poly.b_SI);
-                const VectorDimD R(randomOrthogonalUnitVector(b)*radius);
-
-                std::vector<VectorDimD> nodePos;
-                for(size_t k=0;k<irradiationLoopsNumberOfNodes;++k)
-                {
-                    nodePos.push_back(P0+Eigen::AngleAxisd(k*2.0*M_PI/irradiationLoopsNumberOfNodes, unitNormal)*R);
-                }
-                
-                if(addSingleLoop(true,nodePos,nodePos,b,unitNormal,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
-                {
-                    ndefects++;
-                    defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
-                    std::cout<<"irradiation loops density="<<defectsDensity<<std::endl;
-                }
+                nodePos.push_back(P0 + Eigen::AngleAxisd(k * 2.0 * M_PI / irradiationLoopsNumberOfNodes, unitNormal) * R);
             }
+
+            if (addSingleLoop(true, nodePos, nodePos, b, unitNormal, P0, grainID, DislocationLoopIO<dim>::SESSILELOOP, std::vector<VectorDimD>(nodePos.size(), VectorDimD::Zero()), std::vector<std::pair<short int, short int>>(nodePos.size(), std::make_pair(-1, -1))))
+            {
+                ndefects++;
+                defectsDensity = ndefects / mesh.volume() / std::pow(poly.b_SI, 3);
+                std::cout << "irradiation loops density=" << defectsDensity << std::endl;
+            }
+        }
         }
         
         /**********************************************************************/
         void MicrostructureGenerator::addIrradiationLoopsHCP()
         {// Irradiation loops in FCC are Frank loops.
          // TO DO: actaully Frank loops can be unfaulted and become prismatic (exagonal) loops bounded by pairs of {111} planes and {001} planes. See P. B. Hirsch , J. Silcox , R. E. Smallman & K. H. Westmacott
-            
+           
             const size_t irradiationLoopsNumberOfNodes(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("irradiationLoopsNumberOfNodes",true));
             std::lognormal_distribution<double> sizeDistribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
             
@@ -1421,9 +1409,9 @@ namespace model
             double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
             while(defectsDensity<targetIrradiationLoopDensity)
             {
-                const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
+                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                 const int& grainID=rp.second;   // random grain ID
-                const LatticeVector<MicrostructureGenerator::dim>& L0=rp.first; // random lattice position in the grain
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                 const VectorDimD P0(L0.cartesian());   // cartesian position of L0
                 
                 std::uniform_int_distribution<> slipSystemDistribution(0,poly.grain(grainID).slipSystems().size()-1);
@@ -1446,7 +1434,7 @@ namespace model
                 {// prismatic plane spacing
                     const VectorDimD e=slipSystem.s.cartesian().cross(slipSystem.n.cartesian()).normalized();                 // "edge" direction, along prism axis
                     const VectorDimD b=Eigen::AngleAxisd(randomSign()*M_PI/3.0, e)*(slipSystem.s.cartesian());                  // rotate slip direction out of the plane by 60 deg
-                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
+                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(nodePos.size(),std::make_pair(-1,-1))))
                     {
                         ndefects++;
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
@@ -1456,7 +1444,7 @@ namespace model
                 else if(fabs(planeSpacing-sqrt(8.0/3.0))<FLT_EPSILON)
                 {// basal plane spacing
                     const VectorDimD b(0.5*slipSystem.n.planeSpacing()*slipSystem.n.cartesian().normalized()); // 1/2 c-type loop
-                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<short int>(nodePos.size(),-1)))
+                    if(addSingleLoop(true,nodePos,nodePos,b,slipSystem.unitNormal,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,std::vector<VectorDimD>(nodePos.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(nodePos.size(),std::make_pair(-1,-1))))
                     {
                         ndefects++;
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
@@ -1481,9 +1469,9 @@ namespace model
             
             while(defectsDensity<targetIrradiationLoopDensity)
             {
-                const std::pair<LatticeVector<MicrostructureGenerator::dim>,int> rp=randomPointInMesh();
+                const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                 const int& grainID=rp.second;   // random grain ID
-                const LatticeVector<MicrostructureGenerator::dim>& L0=rp.first; // random lattice position in the grain
+                const LatticeVector<dim>& L0=rp.first; // random lattice position in the grain
                 const VectorDimD P0(L0.cartesian());   // cartesian position of L0
                 
                 if (defectsDensity<targetIrradiationLoopDensity*fraction111Loops)
@@ -1515,7 +1503,7 @@ namespace model
                                 const int nextNodeID=(k+1)<6? nodeID+k+1 : nodeID;
                                 configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,true,0);
                             }
-                            configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);
+                            configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                             loopID++;
                             
                             
@@ -1530,7 +1518,7 @@ namespace model
                                     configIO.loopLinks().emplace_back(loopID,nextNodeID+6,nextNodeID,true,0);
                                     configIO.loopLinks().emplace_back(loopID,nextNodeID,nodeID+k,true,0);
                                     
-                                    configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<MicrostructureGenerator::dim>::GLISSILELOOP);
+                                    configIO.loops().emplace_back(loopID+0, b,Eigen::AngleAxis<double>(k*2.0*M_PI/6,a)*slipSystem.unitNormal,points[k],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                                     loopID++;
                                 }
                                 nodeID+=2*points.size();
@@ -1549,9 +1537,9 @@ namespace model
                 else
                 {// add [100] loop (by Yinan Cui)
                     std::vector<LatticeDirectionType> sessileb;
-                    sessileb.emplace_back(LatticeVector<MicrostructureGenerator::dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
-                    sessileb.emplace_back(LatticeVector<MicrostructureGenerator::dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
-                    sessileb.emplace_back(LatticeVector<MicrostructureGenerator::dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(0,1,1),poly.grain(grainID).lattice())); // is ( 1, 0, 0) in cartesian
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,0,1),poly.grain(grainID).lattice())); // is ( 0, 1, 0) in cartesian
+                    sessileb.emplace_back(LatticeVector<dim>(VectorDimI(1,1,0),poly.grain(grainID).lattice())); // is ( 0, 0, 1) in cartesian
                     
                     std::uniform_int_distribution<> dist(0,2);
                     typedef Eigen::Matrix<long int,2,1> Vector2I;
@@ -1596,7 +1584,7 @@ namespace model
                             
                         }
                         
-                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<MicrostructureGenerator::dim>::SESSILELOOP);
+                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                         
                         
 //                        snID++;
@@ -1613,7 +1601,7 @@ namespace model
         /**********************************************************************/
         void MicrostructureGenerator::addIrradiationLoops()
         {
-            if(targetIrradiationLoopDensity>0.0)
+           if(targetIrradiationLoopDensity>0.0)
             {
                 std::cout<<magentaBoldColor<<"Generating Irradiation Loops"<<defaultColor<<std::endl;
 
@@ -1642,11 +1630,11 @@ namespace model
                              const VectorDimD& newBurgers) const
         {
 
-            double h(0.0);
+             double h(0.0);
             assert(loopPoints.size()==loopBurgers.size());
             for(size_t k=0;k<loopPoints.size(); ++k)
             {
-                h+=LinkingNumber<MicrostructureGenerator::dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
+                h+=LinkingNumber<dim>::loopPairHelicity(loopPoints[k],loopBurgers[k],newPoints,newBurgers);
             }
 
             return h;
@@ -1770,6 +1758,5 @@ namespace model
             assert(success);
             return temp;
         }
-
 }
 #endif

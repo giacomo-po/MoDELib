@@ -53,8 +53,8 @@ namespace model
 
         
         static int verboseDislocationLoopNode;
-        const std::shared_ptr<PeriodicPlaneEdge<dim>> periodicPlaneEdge;
-        
+        const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>> periodicPlaneEdge; 
+        //First will always be populated if the ndoe is on an edge..Second will only be populated if the node belongs to multiple edges        
 //        DislocationLoopNode(LoopNetworkType* const,
 //                      const std::shared_ptr<LoopType>&,
 //                      const std::shared_ptr<NetworkNodeType>&,
@@ -67,7 +67,7 @@ namespace model
                             const std::shared_ptr<NetworkNodeType>&,
                             const VectorDim&,
                             const std::shared_ptr<PeriodicPlanePatch<dim>>&,
-                            const std::shared_ptr<PeriodicPlaneEdge<dim>>&);
+                            const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>&);
 
         DislocationLoopNode(LoopNetworkType* const,
                             const std::shared_ptr<LoopType>&,
@@ -87,8 +87,8 @@ namespace model
         std::vector<DislocationLoopNodeType*> boundaryNext() const;
 
         
-        void addLoopLink(LoopLinkType* const);
-        void removeLoopLink(LoopLinkType* const);
+        // void addLoopLink(LoopLinkType* const);
+        // void removeLoopLink(LoopLinkType* const);
         void updateGeometry();
 
         void updateConfinedGeometry();

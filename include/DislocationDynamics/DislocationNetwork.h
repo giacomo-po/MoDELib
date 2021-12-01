@@ -200,7 +200,6 @@ namespace model
         MatrixDim plasticStrainRate() const;
         void updateGeometry();//
         // void updatePlasticDistortionRateFromAreas();
-        void dummyMove(const int&);
         DislocationNetworkIOType io();
         DislocationNetworkIOType io() const;
         std::tuple<double,double,double,double> networkLength() const;

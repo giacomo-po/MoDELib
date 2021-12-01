@@ -26,7 +26,7 @@ namespace model
                                                                    const double& vrc) :
     /* init */ NetworkNode<DislocationNode>(net)
     /* init */,SplineNodeType(P)
-    /* init */,ConfinedDislocationObjectType(this->get_P())
+    // /* init */,ConfinedDislocationObjectType(this->get_P())
     /* init */,p_Simplex(get_includingSimplex(this->get_P(),(const Simplex<dim,dim>*) NULL))
     /* init */,velocity(V)
     /* init */,vOld(velocity)
@@ -96,38 +96,38 @@ namespace model
         return temp.second;
     }
 
-    template <int dim, short unsigned int corder>
-    void DislocationNode<dim,corder>::addLoopNode(LoopNodeType* const pN)
-    {
-        NetworkNode<DislocationNode>::addLoopNode(pN);
+    // template <int dim, short unsigned int corder>
+    // void DislocationNode<dim,corder>::addLoopNode(LoopNodeType* const pN)
+    // {
+    //     NetworkNode<DislocationNode>::addLoopNode(pN);
 
-        //Check if the node is connected
-        if (pN->next.first && pN->prev.first)
-        {
-            if (pN->periodicPlanePatch())
-            {
-                this->addGlidePlane(pN->periodicPlanePatch()->glidePlane.get());
-            }
-        }
+    //     //Check if the node is connected
+    //     if (pN->next.first && pN->prev.first)
+    //     {
+    //         if (pN->periodicPlanePatch())
+    //         {
+    //             this->addGlidePlane(pN->periodicPlanePatch()->glidePlane.get());
+    //         }
+    //     }
 
-    }
+    // }
 
-    template <int dim, short unsigned int corder>
-    void DislocationNode<dim,corder>::removeLoopNode(LoopNodeType* const pN)
-    {
-        NetworkNode<DislocationNode>::removeLoopNode(pN);
-        this->glidePlanes().clear();
-        for (const auto &loopN : this->loopNodes())
-        {
-            if (loopN->next.first && loopN->prev.first)
-            {
-                if (loopN->periodicPlanePatch())
-                {
-                    this->addGlidePlane(loopN->periodicPlanePatch()->glidePlane.get());
-                }
-            }
-        }
-    }
+    // template <int dim, short unsigned int corder>
+    // void DislocationNode<dim,corder>::removeLoopNode(LoopNodeType* const pN)
+    // {
+    //     NetworkNode<DislocationNode>::removeLoopNode(pN);
+    //     this->glidePlanes().clear();
+    //     for (const auto &loopN : this->loopNodes())
+    //     {
+    //         if (loopN->next.first && loopN->prev.first)
+    //         {
+    //             if (loopN->periodicPlanePatch())
+    //             {
+    //                 this->addGlidePlane(loopN->periodicPlanePatch()->glidePlane.get());
+    //             }
+    //         }
+    //     }
+    // }
     
     
     template <int dim, short unsigned int corder>
@@ -291,7 +291,7 @@ namespace model
         if((SplineNodeType::get_P()-newP).norm()>FLT_EPSILON)   //Check with the base classs
         {
             SplineNodeType::set_P(newP);
-            this->updateConfinement(this->get_P());
+            // this->updateConfinement(this->get_P());
             p_Simplex=get_includingSimplex(this->get_P(),p_Simplex); // update including simplex
             
         }
@@ -498,32 +498,7 @@ namespace model
     template <int dim, short unsigned int corder>
     bool DislocationNode<dim,corder>::isBoundaryNode() const
     {
-        if (this->network().simulationParameters.isPeriodicSimulation())
-        {
-            bool temp(this->loopNodes().size()>0?((*this->loopNodes().begin())->periodicPlaneEdge!=nullptr): false);
-            for (const auto& LN : this->loopNodes())
-            {
-                if (temp)
-                {
-                    if (LN->periodicPlaneEdge == nullptr)
-                    {
-                        assert(false && "Inconsistent definition of loopNodes");
-                    }
-                }
-                else
-                {
-                    if (LN->periodicPlaneEdge != nullptr)
-                    {
-                        assert(false && "Inconsistent definition of loopNodes");
-                    }
-                }
-            }
-            return temp;
-        }
-        else
-        {
-            return this->isOnExternalBoundary();
-        }
+        return isOnExternalBoundary();
     }
     
     template <int dim, short unsigned int corder>

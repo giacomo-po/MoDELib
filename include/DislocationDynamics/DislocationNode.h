@@ -16,7 +16,7 @@
 //#include <PlanarDislocationNode.h>
 
 #include <DislocationDynamicsModule.h>
-
+#include <PlaneLineIntersection.h>
 #ifndef NDEBUG
 #define VerboseDislocationNode(N,x) if(this->network().verboseDislocationNode>=N){std::cout<<x;}
 #else
@@ -29,7 +29,7 @@ namespace model
     template <int dim, short unsigned int corder>
     class DislocationNode : public NetworkNode<DislocationNode<dim,corder>>
     /*                   */,public SplineNode<DislocationNode<dim,corder>,dim,corder,Hermite>
-    /*                   */,public ConfinedDislocationObject<dim>
+    // /*                   */,public ConfinedDislocationObject<dim>
     {
         
         public:
@@ -47,7 +47,12 @@ namespace model
         typedef ConfinedDislocationObject<dim> ConfinedDislocationObjectType;
         typedef typename TypeTraits<NetworkNodeType>::MeshLocation MeshLocation;
         typedef std::vector<VectorDim> VectorOfNormalsType;
-
+        typedef GlidePlane<dim> GlidePlaneType;
+        typedef std::set<const GlidePlaneType *> GlidePlaneContainerType;
+        typedef PlanarMeshFace<dim> PlanarMeshFaceType;
+        typedef std::set<const PlanarMeshFaceType *> PlanarMeshFaceContainerType;
+        typedef Grain<dim> GrainType;
+        typedef std::set<const GrainType*> GrainContainerType;
         // static bool use_velocityFilter;
         // static double velocityReductionFactor;
         // static int verboseDislocationNode;
@@ -79,13 +84,186 @@ namespace model
         void set_V(const VectorDim& vNew);
         void projectVelocity();
         // size_t uniqueLoopNodes() const;
-        void addLoopNode(LoopNodeType* const);
-        void removeLoopNode(LoopNodeType* const);
+        // void addLoopNode(LoopNodeType* const);
+        // void removeLoopNode(LoopNodeType* const);
         // bool isRemovable(const double& Lmin,const double& relAreaThIn);
         VectorDim invariantDirectionOfMotion() const;
         const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
         // static void initFromFile(const std::string&);
         // bool isZeroBurgersNode() const;
+        /**********************************************************************/
+        GlidePlaneContainerType glidePlanes() const
+        {
+            GlidePlaneContainerType temp;
+            for (const auto &ln : this->loopNodes())
+            {
+                if (ln->periodicPlanePatch())
+                {
+                    temp.emplace(ln->periodicPlanePatch()->glidePlane.get());
+                }
+            }
+            return temp;
+        }
+
+        /**********************************************************************/
+        PlanarMeshFaceContainerType meshFaces() const
+        {
+            PlanarMeshFaceContainerType temp;
+            for (const auto&ln : this->loopNodes() )
+            {
+                if (ln->periodicPlaneEdge.first)
+                {
+                  temp=ln->periodicPlaneEdge.first->meshIntersection->faces;  
+                }
+                if (ln->periodicPlaneEdge.second)
+                {
+                    for (const auto& face : ln->periodicPlaneEdge.second->meshIntersection->faces)
+                    {
+                          temp.emplace(face);  
+                    }
+                }
+            }
+            return temp;
+        }
+        /**********************************************************************/
+        bool isOnExternalBoundary() const
+        { /*!\returns _isOnExternalBoundarySegment.
+           */
+            bool _isOnExternalBoundary(false);
+            for(const auto& face : meshFaces())
+            {                
+                if(face->regionIDs.first==face->regionIDs.second)
+                {
+                    _isOnExternalBoundary=true;
+                }
+            }
+
+            return _isOnExternalBoundary;
+        }
+
+        /**********************************************************************/
+        bool isOnInternalBoundary() const
+        {
+            bool _isOnInternalBoundary(false);
+            for (const auto &face : meshFaces())
+            {
+                if (face->regionIDs.first != face->regionIDs.second)
+                {
+                    _isOnInternalBoundary = true;
+                }
+            }
+            return _isOnInternalBoundary;
+        }
+
+        // /**********************************************************************/
+        bool isOnBoundary() const
+        {
+            return  isOnExternalBoundary() || isOnInternalBoundary();
+        }
+
+        /**********************************************************************/
+        VectorDim bndNormal() const
+        {
+            VectorDim _outNormal(VectorDim::Zero());
+            for (const auto &face : meshFaces())
+            {
+                _outNormal += face->outNormal();
+            }
+            const double _outNormalNorm(_outNormal.norm());
+            if (_outNormalNorm > FLT_EPSILON)
+            {
+                _outNormal /= _outNormalNorm;
+            }
+            else
+            {
+                _outNormal.setZero();
+            }
+            return _outNormal;
+        }
+       
+         /**********************************************************************/
+        VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P)
+        {
+            GlidePlaneContainerType gps(glidePlanes());
+            switch(gps.size())
+            {
+                case 0 :
+                {
+                    assert (false && "Glide plane size must be larger than 0");
+                    return P;
+                    break;
+                }
+                case 1 :
+                {
+                    return (*gps.begin())->snapToPlane(P);
+                    break;
+                }
+                case 2 : 
+                {
+                    const PlanePlaneIntersection<dim> ppi(**gps.begin(),**gps.rbegin());
+                    assert(ppi.type==PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+                    return ppi.P+(P-ppi.P).dot(ppi.d)*ppi.d;
+                    break;
+                }
+                case 3 : 
+                {
+                    const PlanePlaneIntersection<dim> ppi(**gps.begin(),**gps.rbegin());
+                    assert(ppi.type==PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+                    const auto iterP(++gps.begin());
+                    const PlaneLineIntersection<dim> pli((*iterP)->P,(*iterP)->unitNormal,ppi.P,ppi.d);
+                    assert(pli.type==PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+                    return pli.P;
+                    break;
+
+                }
+                default :
+                {
+                    const auto iterPlane1(gps.begin());
+                    const auto iterPlane2(++gps.begin());
+                    auto iterPlane3(++(++gps.begin()));
+
+                    const PlanePlaneIntersection<dim> ppi(**iterPlane1,**iterPlane2);
+                    assert(ppi.type==PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+                    const PlaneLineIntersection<dim> pli((*iterPlane3)->P,(*iterPlane3)->unitNormal,ppi.P,ppi.d);
+                    const VectorDim snappedPos(pli.P);
+                    assert(pli.type==PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+                    // if (pli.type!=PlaneLineIntersection<dim>::INCIDENT)
+                    // {
+                    //     std::cout<<" IterPlane1 "<<(*iterPlane1)->P.transpose()<<"\t"<<(*iterPlane1)->unitNormal.transpose()<<std::endl;
+                    //     std::cout<<" IterPlane2 "<<(*iterPlane2)->P.transpose()<<"\t"<<(*iterPlane2)->unitNormal.transpose()<<std::endl;
+                    //     std::cout<<" IterPlane3 "<<(*iterPlane3)->P.transpose()<<"\t"<<(*iterPlane3)->unitNormal.transpose()<<std::endl;
+                    //     std::cout<<"ppi infor "<<std::endl;
+                    //     std::cout<<ppi.P.transpose()<<"\t"<<ppi.d.transpose()<<std::endl;
+                    //     std::cout<<" glide plane size "<<gps.size()<<" Printing glide planes "<<std::endl;
+                    //     for (const auto& gp : gps)
+                    //     {
+                    //         std::cout<<gp->P.transpose()<<"\t"<<gp->unitNormal.transpose()<<"\t"<<gp->planeIndex<<std::endl;
+                    //     }
+                    //     std::cout<<" intersection type "<<pli.type<<std::endl;
+                    // }
+                    while (++iterPlane3 !=gps.end())
+                    {
+                        if (!(*iterPlane3)->contains(snappedPos))
+                        {
+                            std::cout<<" Glide Plane "<<(*iterPlane3)->P.transpose()<<" "<<(*iterPlane3)->unitNormal.transpose()<<std::endl;
+                            assert(false && "Plane must contain the position for glide plane size >=3");
+                        }
+                    }
+                    return snappedPos;
+                    break;
+                }
+            }
+        }
+        /**********************************************************************/
+        GrainContainerType grains() const
+        {
+            GrainContainerType temp;
+            for (const auto &glidePlane : glidePlanes())
+            {
+                temp.insert(&glidePlane->grain);
+            }
+            return temp;
+        }
 
     };
     
