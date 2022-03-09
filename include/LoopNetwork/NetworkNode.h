@@ -42,6 +42,9 @@ namespace model
     public:
         
         typedef Derived NetworkNodeType;
+        typedef typename TypeTraits<Derived>::LoopType LoopType;
+        typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
+        typedef typename std::set<LoopLinkType*> LoopLinkContainerType;
                 typedef typename TypeTraits<Derived>::NetworkLinkType NetworkLinkType;
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
@@ -128,7 +131,52 @@ namespace model
 //        {
 //            return std::distance(this->network().networkNodes().begin(),this->network().networkNodes().find(this->key));
 //        }
-        
+         LoopLinkContainerType outLoopLinks() const
+        {
+            LoopLinkContainerType temp;
+            for (const auto &ln : loopNodes())
+            {
+                if (ln->next.second)
+                {
+                    temp.insert(ln->next.second);
+                }
+            }
+            return temp;
+        }
+
+        LoopLinkContainerType inLoopLinks() const
+        {
+            LoopLinkContainerType temp;
+            for (const auto &ln : loopNodes())
+            {
+                if (ln->prev.second)
+                {
+                    temp.insert(ln->prev.second);
+                }
+            }
+            return temp;
+        }
+
+        std::set<size_t> loopIDs() const
+        {
+            std::set<size_t> temp;
+            for (const auto &loopIter : loops())
+            {
+                temp.insert(loopIter->sID);
+            }
+            return temp;
+        }
+
+        std::set<LoopType*> loops() const
+        {
+            std::set<LoopType*> temp;
+            for (const auto& ln : loopNodes())
+            {
+                temp.insert(ln->loop().get());
+            }
+            return temp;
+        }
+
         const LoopNodeContainerType& loopNodes() const
         {
             return *this;

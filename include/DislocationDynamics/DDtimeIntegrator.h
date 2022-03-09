@@ -35,13 +35,14 @@ namespace model
         double dxMax;
         double shearWaveSpeedFraction;
         int timeIntegrationMethod;
-        double dt;
+        double dtMax;
         
         
         /******************************************************************/
         DDtimeIntegrator(const std::string& fileName);
         
         /**********************************************************************/
+         /**********************************************************************/
         template <typename DislocationNetworkType>
         double getGlideTimeIncrement(const DislocationNetworkType& DN)
         {
@@ -50,7 +51,7 @@ namespace model
             {
                 case 0: //Constant time step
                 {
-                    dt_temp = dt;
+                    dt_temp = dtMax;
                     break;
                 }
                     
@@ -138,7 +139,7 @@ namespace model
                     //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
                     //            }
 
-                    //            std::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+                    //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
                     break;
                 }
 
@@ -238,7 +239,7 @@ namespace model
             //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
             //            }
             
-            //            std::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+            //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
         }
         
     };

@@ -31,18 +31,44 @@ namespace model
 //
 //    }
     
+    // template <int dim, short unsigned int corder>
+    // DislocationLoopNode<dim,corder>::DislocationLoopNode(typename DislocationLoopNode<dim,corder>::LoopNetworkType* const net,
+    //                                                                        const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& loop,
+    //                                                                        const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& networkNode,
+    //                                                                        const VectorDim& P,
+    //                                                                        const std::shared_ptr<PeriodicPlanePatch<dim>>& patch_in,
+    //                                                                        const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>& edge_in) :    /* init */ LoopNode<DislocationLoopNode>(net,loop,networkNode)
+    // /* init */,SplineNodeType(P)
+    // /* init */,_periodicPlanePatch(patch_in)
+    // /* init */,periodicPlaneEdge(edge_in)
+    // {
+    //     VerboseDislocationLoopNode(1,"Creating LoopNode "<<this->tag()<<std::endl;);
+        
+    // }
+
     template <int dim, short unsigned int corder>
     DislocationLoopNode<dim,corder>::DislocationLoopNode(typename DislocationLoopNode<dim,corder>::LoopNetworkType* const net,
                                                                            const std::shared_ptr<typename DislocationLoopNode<dim,corder>::LoopType>& loop,
                                                                            const std::shared_ptr<typename DislocationLoopNode<dim,corder>::NetworkNodeType>& networkNode,
                                                                            const VectorDim& P,
                                                                            const std::shared_ptr<PeriodicPlanePatch<dim>>& patch_in,
-                                                                           const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>& edge_in) :    /* init */ LoopNode<DislocationLoopNode>(net,loop,networkNode)
+                                                                           const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>& edge_in,
+                                                                           const std::set<std::shared_ptr<PeriodicPlanePatch<dim>>>& auxPatch_in
+                                                                           ) :
+    /* init */ LoopNode<DislocationLoopNode>(net,loop,networkNode)
     /* init */,SplineNodeType(P)
     /* init */,_periodicPlanePatch(patch_in)
     /* init */,periodicPlaneEdge(edge_in)
+    /* init */,_auxperiodicPlanePatch(auxPatch_in)
     {
         VerboseDislocationLoopNode(1,"Creating LoopNode "<<this->tag()<<std::endl;);
+        if (periodicPlaneEdge.second!=nullptr)
+        {
+            if (periodicPlaneEdge.first == nullptr)
+            {
+                assert(false && "Inconsisten definition of periodic plane edges for the dislocation loop node");
+            }
+        }
         
     }
 
@@ -55,7 +81,8 @@ namespace model
     /* init */,SplineNodeType(loopLink->periodicPlanePatch()? networkNode->get_P()-loopLink->periodicPlanePatch()->shift : networkNode->get_P())
     /* init */,_periodicPlanePatch(loopLink->periodicPlanePatch())
     /* init */,periodicPlaneEdge(std::make_pair(nullptr,nullptr))
-        {
+    /* init */,_auxperiodicPlanePatch(std::set<std::shared_ptr<PeriodicPlanePatch<dim>>>{nullptr})
+    {
         VerboseDislocationLoopNode(1,"Creating LoopNode without PeriodicPlaneEdge "<<this->tag()<<std::endl;);
         
     }

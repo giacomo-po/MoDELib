@@ -3,7 +3,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 PROJECT(DDomp CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Modelib_Development/MoDELib")
+set(MoDELibRootDir "/home/ypachaur/Collaboration_Model/Model_CMAKE")
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)

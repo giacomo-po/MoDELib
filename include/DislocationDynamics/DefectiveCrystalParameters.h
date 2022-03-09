@@ -13,7 +13,7 @@
 #include <string>
 #include <TextFileParser.h>
 #include <IDreader.h>
-
+#include <set>
 
 
 namespace model
@@ -34,7 +34,8 @@ namespace model
         const int periodicImages_z;
         const long int Nsteps;
         const int timeIntegrationMethod;
-
+        const int useSubCycling;
+        const std::set<int> subcyclingBins; 
         const std::string externalLoadControllerName;
         const double virtualSegmentDistance;
 
@@ -45,7 +46,11 @@ namespace model
         
         /**********************************************************************/
         void manageRestart();
-        
+
+    private:
+
+        static std::set<int> getSubCyclingSet(const std::vector<int> &inpVector);
+
     public:
         
         

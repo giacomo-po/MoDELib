@@ -255,9 +255,9 @@ namespace model
         VectorDim getGlidePlaneShiftfromReferencePlane(const GlidePlane<dim> *gp) const;
 
         template<typename T>
-        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints);
+        std::vector<std::tuple<VectorLowerDim,VectorDim,std::pair<short int,short  int>,std::map<VectorDim,std::set<std::pair<short int,short  int>>,CompareVectorsByComponent<double,dim,float>>,size_t ,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorDim,const T* const>>& polyPoints);
         template<typename T>
-        std::vector<std::tuple<typename PeriodicGlidePlane<dim>::VectorLowerDim,typename PeriodicGlidePlane<dim>::VectorDim,std::pair<short int,short int>,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints);
+        std::vector<std::tuple<VectorLowerDim,VectorDim,std::pair<short int,short  int>,std::map<VectorDim,std::set<std::pair<short int,short  int>>,CompareVectorsByComponent<double,dim,float>>,size_t ,const T* const>> polygonPatchIntersection(const std::vector<std::pair<VectorLowerDim,const T* const>>& polyPoints);
         
         
         VectorDim findPatch(const VectorLowerDim&,const VectorDim&);

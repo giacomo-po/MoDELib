@@ -497,11 +497,14 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
-    void DislocationSegment<dim,corder>::assembleGlide()
+    void DislocationSegment<dim,corder>::assembleGlide(const bool& computeForcesanVelocities)
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", assembleGlide"<<std::endl;);
-        this->updateForcesAndVelocities(*this);
-        Fq= this->quadraturePoints().size()? this->nodalVelocityVector() : VectorNdof::Zero();
+        if (computeForcesanVelocities)
+        {
+            this->updateForcesAndVelocities(*this,quadPerLength,false);
+        }
+        Fq= this->quadraturePoints().size()? this->nodalVelocityVector(*this) : VectorNdof::Zero();
         Kqq=this->nodalVelocityMatrix(*this);
         h2posMap.clear();
         switch (corder)
@@ -531,16 +534,256 @@ namespace model
             c++;
         }
     }
-    
+
+    template <int dim, short unsigned int corder>
+    int DislocationSegment<dim, corder>::velocityGroup(const double &maxVelocity, const std::set<int> &subcyclingBins) const
+    // This represents how many number of steps taken for updating the velocity
+    {
+        if (this->quadraturePoints().size() == 0)
+        {
+            return *subcyclingBins.begin();
+        }
+        else
+        {
+            if (maxVelocity > FLT_EPSILON)
+            {
+                const double avgV((0.5 * (this->source->get_V() + this->sink->get_V())).norm());
+
+                if (avgV >= FLT_EPSILON)
+                {
+                    const double velRat(maxVelocity / avgV);
+                    std::map<double, int> temp;
+                    for (const auto &sbin : subcyclingBins)
+                    {
+                        temp.emplace(fabs(velRat - sbin), sbin);
+                    }
+                    return temp.begin()->second;
+                }
+                else
+                {
+                    return *subcyclingBins.rbegin();
+                }
+
+                // if (relV >= 0.1)
+                // {
+                //     return 1;
+                // }
+                // else if (relV >= 0.01)
+                // {
+                //     return 10;
+                // }
+                // else if (relV >= 0.001)
+                // {
+                //     return 100;
+                // }
+                // else
+                // {
+                //     return 1000;
+                // }
+            }
+            else
+            {
+                return *subcyclingBins.begin();
+            }
+        }
+
+        // return DislocationSegmentIO<dim>::velocityGroup(this->source->get_V(),this->sink->get_V(),maxVelocity);
+    }
+
     template <int dim, short unsigned int corder>
     const typename DislocationSegment<dim,corder>::VectorDim& DislocationSegment<dim,corder>::glidePlaneNormal() const
     {
         return this->glidePlanes().size()==1? (*this->glidePlanes().begin())->unitNormal : zeroVector;
     }
     
-    
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim,corder>::GlidePlaneContainerType DislocationSegment<dim,corder>::glidePlanes() const
+    {
+        GlidePlaneContainerType temp;
+        for (const auto &ln : this->loopLinks())
+        {
+            if (ln->periodicPlanePatch())
+            {
+                temp.emplace(ln->periodicPlanePatch()->glidePlane.get());
+            }
+        }
+        return temp;
+    }
 
-    
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim,corder>::PlanarMeshFaceContainerType DislocationSegment<dim,corder>::meshFaces() const
+    {
+        PlanarMeshFaceContainerType temp;
+        const PlanarMeshFaceContainerType sourceMeshFaces(this->source->meshFaces());
+        const PlanarMeshFaceContainerType sinkMeshFaces(this->sink->meshFaces());
+
+        for (const auto &sourceMeshFace : sourceMeshFaces)
+        {
+            if (sinkMeshFaces.find(sourceMeshFace) != sinkMeshFaces.end())
+            {
+                temp.emplace(sourceMeshFace);
+            }
+        }
+        return temp;
+    }
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isOnExternalBoundary() const
+    { /*!\returns _isOnExternalBoundarySegment.
+       */
+        bool _isOnExternalBoundary(false);
+        for (const auto &face : meshFaces())
+        {
+            if (face->regionIDs.first == face->regionIDs.second)
+            {
+                _isOnExternalBoundary = true;
+            }
+        }
+
+        return _isOnExternalBoundary;
+    }
+
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isOnInternalBoundary() const
+    {
+        bool _isOnInternalBoundary(false);
+        for (const auto &face : meshFaces())
+        {
+            if (face->regionIDs.first != face->regionIDs.second)
+            {
+                _isOnInternalBoundary = true;
+            }
+        }
+        return _isOnInternalBoundary;
+    }
+
+    template <int dim, short unsigned int corder>
+    bool DislocationSegment<dim,corder>::isOnBoundary() const
+    {
+        return isOnExternalBoundary() || isOnInternalBoundary();
+    }
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim,corder>::GrainContainerType DislocationSegment<dim,corder>::grains() const
+    {
+        GrainContainerType temp;
+        for (const auto &glidePlane : glidePlanes())
+        {
+            temp.insert(&glidePlane->grain);
+        }
+        return temp;
+    }
+
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim,corder>::VectorDim DislocationSegment<dim,corder>::bndNormal() const
+    {
+        VectorDim _outNormal(VectorDim::Zero());
+        for (const auto &face : meshFaces())
+        {
+            _outNormal += face->outNormal();
+        }
+        const double _outNormalNorm(_outNormal.norm());
+        if (_outNormalNorm > FLT_EPSILON)
+        {
+            _outNormal /= _outNormalNorm;
+        }
+        else
+        {
+            _outNormal.setZero();
+        }
+        return _outNormal;
+    }
+
+    template <int dim, short unsigned int corder>
+    std::vector<std::pair<const GlidePlane<dim> *const, const GlidePlane<dim> *const>> DislocationSegment<dim,corder>::parallelAndCoincidentGlidePlanes(const GlidePlaneContainerType &other) const
+    {
+        std::vector<std::pair<const GlidePlane<dim> *const, const GlidePlane<dim> *const>> pp;
+
+        for (const auto &plane : glidePlanes())
+        {
+            for (const auto &otherPlane : other)
+            {
+                //                    if(plane!=otherPlane && plane->n.cross(otherPlane->n).squaredNorm()==0)
+                if (plane->n.cross(otherPlane->n).squaredNorm() == 0)
+                { // parallel planes
+                    pp.emplace_back(plane, otherPlane);
+                }
+            }
+        }
+        return pp;
+    }
+
+    template <int dim, short unsigned int corder>
+    typename DislocationSegment<dim, corder>::VectorDim DislocationSegment<dim, corder>::snapToGlidePlanes(const VectorDim &P)
+    {
+        GlidePlaneContainerType gps(glidePlanes());
+        switch (gps.size())
+        {
+        case 0:
+        {
+            assert(false && "Glide plane size must be larger than 0");
+            return P;
+            break;
+        }
+        case 1:
+        {
+            return (*gps.begin())->snapToPlane(P);
+            break;
+        }
+        case 2:
+        {
+            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
+            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+            return ppi.P + (P - ppi.P).dot(ppi.d) * ppi.d;
+            break;
+        }
+        case 3:
+        {
+            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
+            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+            const auto iterP(++gps.begin());
+            const PlaneLineIntersection<dim> pli((*iterP)->P, (*iterP)->unitNormal, ppi.P, ppi.d);
+            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+            return pli.P;
+            break;
+        }
+        default:
+        {
+            const auto iterPlane1(gps.begin());
+            const auto iterPlane2(++gps.begin());
+            auto iterPlane3(++(++gps.begin()));
+
+            const PlanePlaneIntersection<dim> ppi(**iterPlane1, **iterPlane2);
+            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+            const PlaneLineIntersection<dim> pli((*iterPlane3)->P, (*iterPlane3)->unitNormal, ppi.P, ppi.d);
+            const VectorDim snappedPos(pli.P);
+            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+            // if (pli.type!=PlaneLineIntersection<dim>::INCIDENT)
+            // {
+            //     std::cout<<" IterPlane1 "<<(*iterPlane1)->P.transpose()<<"\t"<<(*iterPlane1)->unitNormal.transpose()<<std::endl;
+            //     std::cout<<" IterPlane2 "<<(*iterPlane2)->P.transpose()<<"\t"<<(*iterPlane2)->unitNormal.transpose()<<std::endl;
+            //     std::cout<<" IterPlane3 "<<(*iterPlane3)->P.transpose()<<"\t"<<(*iterPlane3)->unitNormal.transpose()<<std::endl;
+            //     std::cout<<"ppi infor "<<std::endl;
+            //     std::cout<<ppi.P.transpose()<<"\t"<<ppi.d.transpose()<<std::endl;
+            //     std::cout<<" glide plane size "<<gps.size()<<" Printing glide planes "<<std::endl;
+            //     for (const auto& gp : gps)
+            //     {
+            //         std::cout<<gp->P.transpose()<<"\t"<<gp->unitNormal.transpose()<<"\t"<<gp->planeIndex<<std::endl;
+            //     }
+            //     std::cout<<" intersection type "<<pli.type<<std::endl;
+            // }
+            while (++iterPlane3 != gps.end())
+            {
+                if (!(*iterPlane3)->contains(snappedPos))
+                {
+                    std::cout << " Glide Plane " << (*iterPlane3)->P.transpose() << " " << (*iterPlane3)->unitNormal.transpose() << std::endl;
+                    assert(false && "Plane must contain the position for glide plane size >=3");
+                }
+            }
+            return snappedPos;
+            break;
+        }
+        }
+    }
+
     template <int dim, short unsigned int corder>
     const typename DislocationSegment<dim,corder>::MatrixDim DislocationSegment<dim,corder>::I=DislocationSegment<dim,corder>::MatrixDim::Identity();
     

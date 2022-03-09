@@ -158,7 +158,22 @@ namespace model
             
           
         }
-        
+
+        template <int _dim, short unsigned int corder>
+        double DefectiveCrystal<_dim,corder>::getMaxVelocity() const
+        {
+            double vmax = 0.0;
+
+            for (const auto &nodeIter : DN->networkNodes())
+            {
+                    const double vNorm(nodeIter.second.lock()->get_V().norm());
+                    if (vNorm > vmax)
+                    {
+                        vmax = vNorm;
+                    }
+            }
+            return vmax;
+        }
         
         /**********************************************************************/
         template <int _dim, short unsigned int corder>
@@ -186,8 +201,8 @@ namespace model
                 // }
                 DN->updateGeometry();
                 updateLoadControllers(simulationParameters.runID, false);
-
-                DN->assembleAndSolveGlide();
+                const double maxVelocity(getMaxVelocity());
+                DN->assembleAndSolveGlide(simulationParameters.runID, maxVelocity);
                 simulationParameters.dt=DN->timeIntegrator.getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
                 // output
                 DN->io().output(simulationParameters.runID);

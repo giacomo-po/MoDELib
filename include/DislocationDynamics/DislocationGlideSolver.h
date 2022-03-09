@@ -53,8 +53,8 @@ namespace model
         public:
         
         DislocationGlideSolver(DislocationNetworkType& );
-        void solve();
-
+        void solve(const size_t& runID);
+        void lumpedSolve(const size_t& runID);
         size_t assembleNCtriplets(TripletContainerType& kqqT, Eigen::VectorXd& Fq);
         void storeNodeSolution(const Eigen::VectorXd& X);
         size_t assembleConstraintsforPeriodicSimulationsNULL(TripletContainerType& zT) const;

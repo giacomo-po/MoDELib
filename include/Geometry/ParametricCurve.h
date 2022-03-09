@@ -122,10 +122,7 @@ namespace model {
 		
 	public:
 		
-
-		
-		
-		/*************************************************************/
+/*************************************************************/
 		double get_j(const double & u) const {
 			/*! The  jacobian of the transformation r(u)->r(l):
 			 * \f[
@@ -157,13 +154,13 @@ namespace model {
 
 		
 		/*************************************************************/
-		VectorDim& get_rll(const double & u) const {
+		VectorDim get_rll(const double & u) const {
 			/*! The curvature vector at u:
 			 * \f[
 			 * \mathbf{r}_{,ll}=\frac{\mathbf{r}_{,uu}}{J^2}-J_{,u}\frac{\mathbf{r}_{,u}}{J^3}
 			 * \f]
 			 */
-			double j2(get_jSquare(u));
+			const double j2(get_jSquare(u));
 			VectorDim ru (p_derivedCurve()->get_ru (u));
 			VectorDim ruu(p_derivedCurve()->get_ruu(u));
 			return (ruu - ru*ru.dot(ruu)/j2)/j2;

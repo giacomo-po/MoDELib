@@ -175,7 +175,27 @@ namespace model
 
             
         }
-        
+
+        std::set<LoopType *> loops() const
+        {
+            std::set<LoopType *> temp;
+            for (const auto &ll : loopLinks())
+            {
+                temp.insert(ll->loop.get());
+            }
+            return temp;
+        }
+
+        std::set<size_t> loopIDs() const
+        {
+            std::set<size_t> temp;
+            for (const auto &loopIter : loops())
+            {
+                temp.insert(loopIter->sID);
+            }
+            return temp;
+        }
+
         /**********************************************************************/
         static typename NetworkBaseType::KeyType getKey(const LoopLinkType* const pL)
         {

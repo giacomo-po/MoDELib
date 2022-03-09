@@ -174,6 +174,10 @@ namespace model
         //        unsigned int _userOutputColumn;
         bool use_stochasticForce;
         double surfaceAttractionDistance;
+
+        bool useLineTension;
+        double alphaLineTension;
+
         //        bool computePlasticDistortionRateFromVelocities;
         std::string folderSuffix;
         std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
@@ -209,7 +213,7 @@ namespace model
         void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const;
         MatrixDim stress(const VectorDim& x) const;
         void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
-        void assembleAndSolveGlide();
+        void assembleAndSolveGlide(const long int& runID, const double& maxVelocity);
         void moveGlide(const double & dt_in);
         void singleGlideStepDiscreteEvents(const long int& runID);
         void updateBoundaryNodes();

@@ -57,9 +57,18 @@ namespace model
             std::cout<<"totalTime= "<<totalTime<<std::endl;
             std::cout<<"dt= "<<dt<<std::endl;
         }
-        
 
-        
+        /**********************************************************************/
+        std::set<int> DefectiveCrystalParameters::getSubCyclingSet(const std::vector<int> &inpVector)
+        {
+            std::set<int> temp;
+            for (const auto &iv : inpVector)
+            {
+                temp.insert(iv);
+            }
+            return temp;
+        }
+
         /**********************************************************************/
         DefectiveCrystalParameters::DefectiveCrystalParameters(int& , char* []) :
         /* init */ simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
@@ -70,6 +79,8 @@ namespace model
         /* init */,periodicImages_z(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
         /* init */,Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true))
         /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
+        /* init */,useSubCycling(TextFileParser("inputFiles/DD.txt").readScalar<int>("useSubCycling",true))
+        /* init */,subcyclingBins(getSubCyclingSet(TextFileParser("inputFiles/DD.txt").readArray<int>("subcyclingBins",true)))
         /* init */,externalLoadControllerName(TextFileParser("inputFiles/DD.txt").readString("externalLoadControllerName",true))
         /* init */,virtualSegmentDistance((simulationType==FINITE_FEM || simulationType==PERIODIC_FEM || simulationType==PERIODIC_IMAGES)? TextFileParser("inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
         /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<long int>("startAtTimeStep",true))

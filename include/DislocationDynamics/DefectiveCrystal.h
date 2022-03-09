@@ -89,6 +89,8 @@ namespace model
         MatrixDim plasticDistortionRate() const;
         /**********************************************************************/
         MatrixDim plasticStrainRate() const;
+        /**********************************************************************/
+        double getMaxVelocity() const;
 //
     };
 }

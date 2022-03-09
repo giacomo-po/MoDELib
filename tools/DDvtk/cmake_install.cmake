@@ -1,4 +1,4 @@
-# Install script for directory: /home/ypachaur/Modelib_Development/MoDELib/tools/DDvtk
+# Install script for directory: /home/ypachaur/Collaboration_Model/Model_CMAKE/tools/DDvtk
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,9 +39,9 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/ypachaur/Modelib_Development/MoDELib/tools/DDvtk/Lattices/cmake_install.cmake")
-  include("/home/ypachaur/Modelib_Development/MoDELib/tools/DDvtk/Mesh/cmake_install.cmake")
-  include("/home/ypachaur/Modelib_Development/MoDELib/tools/DDvtk/Geometry/cmake_install.cmake")
+  include("/home/ypachaur/Collaboration_Model/Model_CMAKE/tools/DDvtk/Lattices/cmake_install.cmake")
+  include("/home/ypachaur/Collaboration_Model/Model_CMAKE/tools/DDvtk/Mesh/cmake_install.cmake")
+  include("/home/ypachaur/Collaboration_Model/Model_CMAKE/tools/DDvtk/Geometry/cmake_install.cmake")
 
 endif()
 
@@ -53,5 +53,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ypachaur/Modelib_Development/MoDELib/tools/DDvtk/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ypachaur/Collaboration_Model/Model_CMAKE/tools/DDvtk/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

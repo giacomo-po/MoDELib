@@ -62,12 +62,24 @@ namespace model
 //                      const VectorDim&,
 //                      const size_t&);
 
+        // DislocationLoopNode(LoopNetworkType* const,
+        //                     const std::shared_ptr<LoopType>&,
+        //                     const std::shared_ptr<NetworkNodeType>&,
+        //                     const VectorDim&,
+        //                     const std::shared_ptr<PeriodicPlanePatch<dim>>&,
+        //                     const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>&);
+    private:
+        const std::set<std::shared_ptr<PeriodicPlanePatch<dim>>> _auxperiodicPlanePatch; // This is a specialized set implemented only for loopnodes
+        // exiting from diagonally opposite ends... this is just to have the intermediate patches alive to preserve the twins
+
+    public:
         DislocationLoopNode(LoopNetworkType* const,
                             const std::shared_ptr<LoopType>&,
                             const std::shared_ptr<NetworkNodeType>&,
                             const VectorDim&,
                             const std::shared_ptr<PeriodicPlanePatch<dim>>&,
-                            const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>&);
+                            const std::pair<const std::shared_ptr<PeriodicPlaneEdge<dim>>,const std::shared_ptr<PeriodicPlaneEdge<dim>>>&,
+                            const std::set<std::shared_ptr<PeriodicPlanePatch<dim>>>& auxPatch_in=std::set<std::shared_ptr<PeriodicPlanePatch<dim>>>{nullptr});
 
         DislocationLoopNode(LoopNetworkType* const,
                             const std::shared_ptr<LoopType>&,

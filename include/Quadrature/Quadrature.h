@@ -13,8 +13,7 @@
 #include <Eigen/Dense>
 #include <GaussLegendre.h>
 #include <UniformOpen.h>
-
-
+#include <NonUniformOpen.h>
 
 namespace model
 {

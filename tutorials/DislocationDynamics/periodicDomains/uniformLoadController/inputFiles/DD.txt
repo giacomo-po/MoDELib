@@ -4,20 +4,22 @@
 simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
-Nsteps=440;		# total number of simulation steps
-startAtTimeStep = 430;  # time step for restart. -1 means last available step in file F/F_0.txt
+Nsteps=2000000;		# total number of simulation steps
+startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 enablePartials=0;
-
+######################################
+useSubCycling=0;
+subcyclingBins=1 2 3 4 5 10 20 30 40 50 60 70 80 90 100 250 500;
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
 externalLoadControllerName=UniformExternalLoadController;
 
 ######################################
 # Settings for simulationType=1 (finite sample with FEM)
-stepsBetweenBVPupdates = 10;
+stepsBetweenBVPupdates = 1;
 virtualSegmentDistance=500;
-use_directSolver_FEM=0;
-solverTolerance=0.0001;
+use_directSolver_FEM=1;
+solverTolerance=1.0e-7;
 # Surface nucleation model (0=no nucleation)
 surfaceNucleationModel=0;
 
@@ -28,16 +30,16 @@ periodicImages_y=1;
 periodicImages_z=1;
 
 ######################################
-quadPerLength=0.1;
+quadPerLength=0.0000001;
 
 ######################################
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
-timeIntegrationMethod=1; # 0=fixed time step, 1=adaptive time step
+timeIntegrationMethod=1; # 0 for constant time integration 
+timeStep=600;
 dxMax=10;
-timeStep=100;
 use_velocityFilter=1;
-velocityReductionFactor=0.75;
+velocityReductionFactor=0.5;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
 
@@ -53,22 +55,21 @@ ddSolverType=0;
 # Options for output files:
 outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
+outputGlidePlanes=0;
 outputElasticEnergy=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputPlasticDistortionRate=0;
-outputDislocationLength=0;
+outputPlasticDistortionRate=1;
+outputDislocationLength=1;
 outputQuadraturePoints=0;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=1;
-computeElasticEnergyPerLength=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreSize=2.0;
+coreSize=5.0;
 
 ######################################
 # NETWORK REMESHING
@@ -79,14 +80,17 @@ coreSize=2.0;
 remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
+nodeRemoveAngleDeg=60;
 relativeAreaThreshold=0.001;
+
 
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
 maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=3;
+collisionTol=5;
+mergeGlissileJunctions=0;
 
 ######################################
 # BOUNDARY MESH
@@ -105,8 +109,14 @@ grainBoundaryTransmissionModel=0;
 parametrizationExponent=0.5;
 
 #####################################
+useLineTension=1;
+alphaLineTension=1.0;
+#####################################
 # DEBUGGING
 computeDDinteractions=1;
+computeElasticEnergyPerLength=0;
+
+#
 verboseLoopNetwork=0;
 verboseDislocationNetwork=0;
 verboseDislocationLoop=0;
@@ -114,6 +124,7 @@ verboseDislocationLoopNode=0;
 verboseDislocationLoopLink=0;
 verboseDislocationNode=0;
 verboseDislocationSegment=0;
+
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;

@@ -6,6 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
+//Implements non-uniform open quadrature rule
+
 #ifndef model_DislocationQuadraturePoint_H_
 #define model_DislocationQuadraturePoint_H_
 
@@ -19,7 +21,7 @@
 #include <EshelbyInclusion.h>
 #include <DefectiveCrystalParameters.h>
 #include <Polygon2D.h>
-
+#include <CatmullRomSplineSegment.h>
 namespace model
 {
     template<int dim,int corder>
@@ -35,9 +37,12 @@ namespace model
         typedef Eigen::Matrix<double,dim,Ndof> MatrixDimNdof;
         typedef Eigen::Matrix<double,Ncoeff,Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double,Ncoeff,dim> MatrixNcoeffDim;
-        typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
-        typedef QuadPowDynamic<pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
-        
+        // typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+        // typedef QuadPowDynamic<pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+
+        typedef   QuadratureDynamic<1,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadratureDynamicType;
+        typedef QuadPowDynamic<pOrder,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadPowDynamicType;
+
         const size_t sourceID;
         const size_t sinkID;
         const int qID;
@@ -70,7 +75,7 @@ namespace model
         /* init */,r(SF*qH)
         /* init */,ru(QuadPowDynamicType::duPow(qOrder).row(qID)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH)
         /* init */,j(ru.norm())
-        /* init */,rl(ru/j)
+        /* init */,rl(j > FLT_EPSILON ? (ru/j).eval() : VectorDim::Zero())
         /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
@@ -395,7 +400,9 @@ namespace model
 #else
         /**********************************************************************/
         template<typename LinkType>
-        void updateForcesAndVelocities(const LinkType& parentSegment)
+        void updateForcesAndVelocities(const LinkType& parentSegment,
+                                       const double& quadPerLength,
+                                       const double& isClimbStep)
         {
             // updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             
@@ -498,6 +505,82 @@ namespace model
                             qPoint.stress += inclusion.second.stress(qPoint.r+shift);
                         }
                     }
+                    // std::cout<<"For segment "<<parentSegment.tag()<<std::endl;
+                    
+                    // const MatrixDim qPointStressTemp(qPoint.stress);
+                    // std::cout<<"Before line tension stress "<<qPointStressTemp<<std::endl;
+                    //Add line tension contribution
+                    if (parentSegment.network().useLineTension && !parentSegment.hasZeroBurgers() && parentSegment.chordLength()>FLT_EPSILON)
+                    {
+                        //Add the line tension contribution due to only non -zero segments
+                        for (const auto &ll : parentSegment.loopLinks())
+                        {
+                            // To discuss what would happen for links connected to boundary??
+                            //  parameter may be same or opposite to the segment
+                            
+                            assert(ll->source->periodicPrev()!=nullptr && "PeriodicPrev must exist from network link for line tension contribution");
+                            assert(ll->sink->periodicNext()!=nullptr && "PeriodicNext must exist from network link for line tension contribution");
+                            
+                            CatmullRomSplineSegment<dim> cmSeg(ll->source->periodicPrev()->get_P(),ll->source->get_P(),ll->sink->get_P(),
+                            ll->sink->periodicNext()->get_P());
+                            const double alpha (parentSegment.network().alphaLineTension); 
+                            const double paramUTemp ((qPoint.r-parentSegment.source->get_P()).norm()/parentSegment.chordLength());
+                            const double paramU (ll->source->networkNode==parentSegment.source ? paramUTemp : 1.0-paramUTemp);
+                            const double kappa (cmSeg.get_kappa(paramU));
+                            const VectorDim llunitTangent(cmSeg.get_rl(paramU));
+                            // const double qPointEnergyDensity (alpha * PolycrystallineMaterial<dim,Isotropic>::C2 * (ll->loop->burgers().squaredNorm()-PolycrystallineMaterial<dim,Isotropic>::Nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                            const double qPointEnergyDensity (alpha * PolycrystallineMaterial<dim,Isotropic>::C2 * (ll->loop->burgers().squaredNorm()-PolycrystallineMaterial<dim,Isotropic>::Nu*0.0*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                            const VectorDim qPointForceVector (qPointEnergyDensity * cmSeg.get_rll(paramU));
+                            // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
+                            const double resolvedtensionStress (qPointForceVector.norm()/ll->loop->burgers().squaredNorm()); //this is wrong (Discuss this with Dr. Po)
+                            const VectorDim unitBurgers(ll->loop->burgers().normalized());
+                            const MatrixDim tensionStress(resolvedtensionStress*(unitBurgers*ll->loop->rightHandedUnitNormal().transpose() + ll->loop->rightHandedUnitNormal()*unitBurgers.transpose()));
+                            const VectorDim eqPKForce ((ll->loop->burgers().transpose()*tensionStress).cross(cmSeg.get_rl(paramU)));
+                            // std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+                            // std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
+                            const double eqForceNorm(eqPKForce.norm());
+                            if (eqForceNorm>FLT_EPSILON)
+                            {
+                                if (eqPKForce.dot(qPointForceVector) > 0.0)
+                                {
+                                    qPoint.stress += tensionStress;
+                                }
+                                else
+                                {
+                                    qPoint.stress -= tensionStress;
+                                }
+                                // if ((eqPKForce-qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased tolerance
+                                // {
+                                //     qPoint.stress += tensionStress;
+                                // }
+                                // else if ((eqPKForce+qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased Tolerance
+                                // {
+                                //     qPoint.stress -= tensionStress;
+                                // }
+                                // else
+                                // {
+                                //     std::cout<<" parentSegemtn "<<parentSegment.tag()<<std::endl;
+                                //     std::cout<<std::scientific<<std::setprecision(15)<<" paramU "<<paramU<<std::endl;
+                                //     std::cout<<" curvature "<<cmSeg.get_rll(paramU).transpose()<<std::endl;
+                                //     std::cout<<" qPointEnergyDensity "<<qPointEnergyDensity<<std::endl;
+                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+                                //     std::cout<<" resolvedtensionStress "<<resolvedtensionStress<<std::endl;
+                                //     std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
+                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+                                //     std::cout<<" tensionStress "<<tensionStress<<std::endl;
+                                //     std::cout<<" (eqPKForce-qPointForceVector).norm() "<<((eqPKForce-qPointForceVector).norm())<<std::endl;
+                                //     std::cout<<" (eqPKForc+qPointForceVector).norm() "<<((eqPKForce+qPointForceVector).norm())<<std::endl;
+                                //     std::cout<<" (eqPKForce-qPointForceVector).norm()/eqForceNorm "<<((eqPKForce-qPointForceVector).norm()/eqForceNorm)<<std::endl;
+                                //     std::cout<<" (eqPKForc+qPointForceVector).norm()/eqForceNorm "<<((eqPKForce+qPointForceVector).norm()/eqForceNorm)<<std::endl;
+                                //     assert(false && "Quadrature point force not the same for line tension calculation");
+                                // }
+                            }
+                        }
+                    }
+
+                    // std::cout<<"After line tension stress "<<qPoint.stress<<std::endl;
+                    // std::cout<<"Difference "<<(qPoint.stress-qPointStressTemp)<<std::endl;
+                    // std::cout<<"Relative Difference "<<((qPoint.stress-qPointStressTemp).norm()/qPointStressTemp.norm())<<std::endl;
                     qPoint.updateForcesAndVelocities(parentSegment);
                 }
                 
@@ -551,11 +634,23 @@ namespace model
         
         
         /**********************************************************************/
-        VectorNdof nodalVelocityVector() const
+        // VectorNdof nodalVelocityVector() const
+        // { /*\returns The segment-integrated nodal velocity vector int N^T*v dL
+        //    */
+        //     VectorNdof Fq(VectorNdof::Zero());
+        //     QuadratureDynamicType::integrate(this->size(),this,Fq,&DislocationQuadraturePointContainerType::nodalVelocityLinearKernel);
+        //     return Fq;
+        // }
+
+        template<typename LinkType>
+        VectorNdof nodalVelocityVector(const LinkType& parentSegment) const
         { /*\returns The segment-integrated nodal velocity vector int N^T*v dL
            */
             VectorNdof Fq(VectorNdof::Zero());
-            QuadratureDynamicType::integrate(this->size(),this,Fq,&DislocationQuadraturePointContainerType::nodalVelocityLinearKernel);
+            if(parentSegment.chordLength()>FLT_EPSILON)
+            {
+                QuadratureDynamicType::integrate(this->size(),this,Fq,&DislocationQuadraturePointContainerType::nodalVelocityLinearKernel);
+            }
             return Fq;
         }
         
@@ -566,7 +661,7 @@ namespace model
             MatrixNdof Kqq(MatrixNdof::Zero());
             if(corder==0)
             {// Analytical integral can be performed
-                const double L(parentSegment.chord().norm());
+                const double L(parentSegment.chordLength());
                 Kqq<<L/3.0,  0.0,  0.0, L/6.0,  0.0,  0.0,
                 /**/   0.0,L/3.0,  0.0,   0.0,L/6.0,  0.0,
                 /**/   0.0,  0.0,L/3.0,   0.0,  0.0,L/6.0,

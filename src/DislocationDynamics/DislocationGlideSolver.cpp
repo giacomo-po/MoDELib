@@ -28,10 +28,11 @@ namespace model
     }
     
     template <typename DislocationNetworkType>
-    void DislocationGlideSolver<DislocationNetworkType>::solve()
+    void DislocationGlideSolver<DislocationNetworkType>::solve(const size_t& runID)
     {
-        lumpedSolve();
+        lumpedSolve(runID);
     }
+    
     
     
     template <typename DislocationNetworkType>
@@ -333,13 +334,13 @@ namespace model
     }
 
     template <typename DislocationNetworkType>
-    void DislocationGlideSolver<DislocationNetworkType>::lumpedSolve()
+    void DislocationGlideSolver<DislocationNetworkType>::lumpedSolve(const size_t& runID)
     {
 //        if (NC.nodeOrder() > 0)
 //        {
 //
         const auto t0= std::chrono::system_clock::now();
-        std::cout<<"Assemblinig and solving glide velocities (lumped) "<<std::flush;
+        model::cout<<"        Assemble and solve (lumped) "<<std::flush;
         TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
         Eigen::VectorXd Fq;        // the vector of nodal forces
         const size_t Ndof = assembleNCtriplets(kqqT, Fq);
@@ -467,7 +468,8 @@ namespace model
 //                storeNodeSolution(x.segment(0, Ndof));
             }
 //        }
-        std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+        model::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
+
     }
     template class DislocationGlideSolver<DislocationNetwork<3,0>>;
     
