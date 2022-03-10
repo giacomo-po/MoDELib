@@ -179,18 +179,18 @@ namespace model
         template <int _dim, short unsigned int corder>
         void DefectiveCrystal<_dim,corder>::singleGlideStep()
         {
-            std::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
+            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
             /*                    */<< ", time="<<simulationParameters.totalTime;
             if(DN)
             {
-                std::cout<< ": networkNodes="<<DN->networkNodes().size()
+                model::cout<< ": networkNodes="<<DN->networkNodes().size()
                 /*                    */<< ", networkSegments="<<DN->networkLinks().size()
                 /*                    */<< ", loopNodes="<<DN->loopNodes().size()
                 /*                    */<< ", loopSegments="<<DN->loopLinks().size()
                 /*                    */<< ", loops="<<DN->loops().size();
 //                /*                    */<< ", components="<<DN->components().size();
             }
-            std::cout<< defaultColor<<std::endl;
+            model::cout<< defaultColor<<std::endl;
 
             if(DN)
             {
@@ -199,7 +199,10 @@ namespace model
                 //     std::cout<<std::scientific<<std::setprecision(7)<<"networkNode sID"<<netNode.second.lock()->sID<<"-->"<<netNode.second.lock()->get_P().transpose()<<
                 //     "-->"<<netNode.second.lock()->get_V().transpose()<<"-->"<<netNode.second.lock()->velocityReduction()<<std::endl;
                 // }
+                DislocationNode<dim,corder>::totalCappedNodes=0;
                 DN->updateGeometry();
+                // DN->io().output(simulationParameters.runID);
+
                 updateLoadControllers(simulationParameters.runID, false);
                 const double maxVelocity(getMaxVelocity());
                 DN->assembleAndSolveGlide(simulationParameters.runID, maxVelocity);
@@ -207,21 +210,23 @@ namespace model
                 // output
                 DN->io().output(simulationParameters.runID);
 
-//                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
+                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
                 // move
 //                DN->dummyMove(simulationParameters.runID);
-                DN->crossSlipMaker.findCrossSlipSegments();
                 DN->moveGlide(simulationParameters.dt);
-//                crossSlip.execute();
-                DN->crossSlipMaker.execute();
-
+                crossSlip.execute();
                 // DN->io().output(simulationParameters.runID);
 
 
                 // manage discrete topological events
                 DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
                 // DN->io().output(simulationParameters.runID);
-
+                if (true)
+                {
+                    model::cout<<redBoldColor<<"( "<<(DislocationNode<dim,corder>::totalCappedNodes)<<" total nodes capped "<<defaultColor<<std::endl;
+                    model::cout<<redBoldColor<<", "<<(double(DislocationNode<dim,corder>::totalCappedNodes)/double(DN->networkNodes().size()))<<" fraction of nodes capped "
+                    <<defaultColor<<" )"<<std::endl;
+                }
             }
             simulationParameters.totalTime+=simulationParameters.dt;
             ++simulationParameters.runID;

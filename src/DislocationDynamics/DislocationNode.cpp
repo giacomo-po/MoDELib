@@ -96,39 +96,6 @@ namespace model
         return temp.second;
     }
 
-    // template <int dim, short unsigned int corder>
-    // void DislocationNode<dim,corder>::addLoopNode(LoopNodeType* const pN)
-    // {
-    //     NetworkNode<DislocationNode>::addLoopNode(pN);
-
-    //     //Check if the node is connected
-    //     if (pN->next.first && pN->prev.first)
-    //     {
-    //         if (pN->periodicPlanePatch())
-    //         {
-    //             this->addGlidePlane(pN->periodicPlanePatch()->glidePlane.get());
-    //         }
-    //     }
-
-    // }
-
-    // template <int dim, short unsigned int corder>
-    // void DislocationNode<dim,corder>::removeLoopNode(LoopNodeType* const pN)
-    // {
-    //     NetworkNode<DislocationNode>::removeLoopNode(pN);
-    //     this->glidePlanes().clear();
-    //     for (const auto &loopN : this->loopNodes())
-    //     {
-    //         if (loopN->next.first && loopN->prev.first)
-    //         {
-    //             if (loopN->periodicPlanePatch())
-    //             {
-    //                 this->addGlidePlane(loopN->periodicPlanePatch()->glidePlane.get());
-    //             }
-    //         }
-    //     }
-    // }
-    
     
     template <int dim, short unsigned int corder>
     void DislocationNode<dim,corder>::projectVelocity()
@@ -138,8 +105,6 @@ namespace model
         
         for(const auto& loopNode : this->loopNodes())
         {
-//            for(const auto& loop : loopNode->loops())
-//            {
             const auto& loop(loopNode->loop());
             if(loop)
             {
@@ -161,8 +126,6 @@ namespace model
                 assert(false && "no loop in loop");
             }
 
-//            }
-
         }
         
         if(this->glidePlanes().size()>=dim)
@@ -183,12 +146,8 @@ namespace model
                 }
             }
 
-            // std::cout<<this->sID<<" Temp size for gramSchmidt before"<<temp.size()<<std::endl;
-            
             GramSchmidt::orthoNormalize(temp);
             
-            // std::cout<<this->sID<<" Temp size for gramSchmidt after"<<temp.size()<<std::endl;
-
             for(const auto& vec : temp)
             {
                 velocity-=velocity.dot(vec)*vec;
@@ -202,9 +161,22 @@ namespace model
     {
         vOld=velocity; // store current value of velocity before updating
         
-        //            velocity=this->prjM*vNew; // kill numerical errors from the iterative solver
         velocity=vNew;
         projectVelocity();
+
+        if (this->network().capMaxVelocity)
+        {
+            //Need to cap the max velocity based on the time step
+            const double vmax=this->network().timeIntegrator.dxMax/this->network().timeIntegrator.dtMax;
+            assert(fabs(vmax)>FLT_EPSILON && "Max velocity should be greater than 0");
+            if (velocity.norm()>=FLT_EPSILON && velocity.norm()>fabs(vmax))
+            {
+                const double velredFac(velocity.norm()/fabs(vmax));
+                assert(velredFac>=1.0 && "Velocity reduction factor must be greater than 1");
+                velocity/=velredFac;
+                totalCappedNodes+=1;
+            }
+        }
         
         if(this->network().use_velocityFilter && !isBoundaryNode())
         {
@@ -232,28 +204,8 @@ namespace model
             }
             velocity*=velocityReductionCoeff;
         }
-        // std::cout<<"Time integration methdo is "<<this->network().simulationParameters.timeIntegrationMethod<<std::endl;
-        // if (this->network().simulationParameters.timeIntegrationMethod==0)
-        // {
-        //     const double v_crit(0.1); //TODO : Read from the text file
-        //     if (velocity.norm()>v_crit)
-        //     {
-        //         const double alpha(0.1/velocity.norm());
-        //         velocity*=alpha;
-        //     }
-        // }
     }
-    
 
-
-    // template <int dim, short unsigned int corder>
-    // void DislocationNode<dim,corder>::initFromFile(const std::string& fileName)
-    // {
-    //     this->network().use_velocityFilter=TextFileParser(fileName).readScalar<double>("this->network().use_velocityFilter",true);
-    //     this->network().velocityReductionFactor=TextFileParser(fileName).readScalar<double>("this->network().velocityReductionFactor",true);
-    //     assert(this->network().velocityReductionFactor>0.0 && this->network().velocityReductionFactor<=1.0);
-    //     verboseDislocationNode=TextFileParser(fileName).readScalar<int>("verboseDislocationNode",true);
-    // }
 
     template <int dim, short unsigned int corder>
     void DislocationNode<dim,corder>::updateGeometry()
@@ -308,51 +260,6 @@ namespace model
         return velocity;
     }
 
-    // /**********************************************************************/
-    // template <int dim, short unsigned int corder>
-    // bool DislocationNode<dim,corder>::isZeroBurgersNode() const
-    // {
-    //     VerboseDislocationNode(4,"DislocationNode "<<this->tag()<<" isZeroBurgersNode "<<std::flush;);
-    //     bool temp = true;
-    //     for (const auto &neighborIter : this->neighbors())
-    //     {
-    //         temp *= std::get<1>(neighborIter.second)->hasZeroBurgers();
-    //         if (!temp)
-    //         {
-    //             break;
-    //         }
-    //     }
-        
-    //     VerboseDislocationNode(4,temp<<std::endl;);
-
-    //     return temp;
-    // }
-
-    // template <int dim, short unsigned int corder>
-    // const typename DislocationNode<dim,corder>::VectorDim& DislocationNode<dim,corder>::get_P() const
-    // {/*! The nodal velocity vector
-    //   */
-    //     VerboseDislocationNode(2, "  Getting P for Network Node " << this->tag() << std::endl;);
-
-    //     const VectorDim netNodePosition(SplineNodeType::get_P());
-    //     // check the consistency between the loop Nodes and networkNodes
-    //     for (const auto& lNode : this->loopNodes())
-    //     {
-    //         if (!(this->network().simulationParameters.isPeriodicSimulation() && lNode->periodicPlanePatch()) && lNode->get_P().norm()>FLT_EPSILON)
-    //         {
-    //             const VectorDim patchShift(lNode->periodicPlanePatch() ? lNode->periodicPlanePatch()->shift : VectorDim::Zero());
-    //             const VectorDim lNodePos(lNode->get_P() + patchShift);
-    //             if ((lNodePos - netNodePosition).squaredNorm() > FLT_EPSILON)
-    //             {
-    //                 std::cout << " Mistmatch for networknode " << this->tag() << " at loop Node " << lNode->tag() << std::endl;
-    //                 std::cout << "netNodePosition => lNodePos " << netNodePosition.transpose() << "=>" << lNodePos.transpose() << std::endl;
-    //                 assert(false && " Position mismatch ");
-    //             }
-    //         }
-            
-    //     }
-    //     return (SplineNodeType::get_P());
-    // }
 
     template <int dim, short unsigned int corder>
     const double& DislocationNode<dim,corder>::velocityReduction() const
@@ -426,53 +333,6 @@ namespace model
         }
         return true;
         
-//        if(this->network().simulationParameters.isPeriodicSimulation() && this->isBoundaryNode())
-//        {// cannot move boundary nodes under periodic simulations
-//            return (X-this->get_P()).squaredNorm()<FLT_EPSILON;
-//        }
-//        else
-//        {
-//            bool isMovable=true;
-//
-//            VerboseDislocationNode(4,"checking if PlanarDislocationNode "<<this->sID<< " isMovable:"<<std::endl;);
-//
-//            for(const auto& gp : this->glidePlanes())
-//            {// X must be contained by all glidePlanes
-//                isMovable*=gp->contains(X);
-//            }
-//            VerboseDislocationNode(4,"  meshPlanes contains X? "<<isMovable<<std::endl;);
-//
-//            if(isMovable)
-//            {
-//                for(const auto& pair : this->neighbors())
-//                {
-//                    if(std::get<1>(pair.second)->isSessile())
-//                    {// sessile segments cannot change direction if this node is moved
-//                        const double currentNorm((std::get<0>(pair.second)->get_P()-this->get_P()).norm());
-//                        const double newNorm((std::get<0>(pair.second)->get_P()-X).norm());
-//                        if(currentNorm>FLT_EPSILON && newNorm>FLT_EPSILON)
-//                        {
-//                            const bool sessileNeighborMovable=((std::get<0>(pair.second)->get_P()-X).cross(std::get<0>(pair.second)->get_P()-this->get_P()).norm()<FLT_EPSILON*currentNorm*newNorm);
-//                            VerboseDislocationNode(4,"  sessileNeighbor "<<std::get<1>(pair.second)->tag()<< " movable?"<<sessileNeighborMovable<<std::endl;);
-//                            isMovable=(isMovable&&sessileNeighborMovable);
-//                            //                                isMovable*=sessileNeighborMovable;
-//                            if(!isMovable)
-//                            {
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//
-//            if(isMovable && this->isOnBoundary())
-//            {
-//                isMovable*=this->boundingBoxSegments().contains(X);
-//            }
-//            return isMovable;
-//        }
-        
-        
     }
     
     template <int dim, short unsigned int corder>
@@ -489,11 +349,7 @@ namespace model
 //        return false;
     }
     
-    // template <int dim, short unsigned int corder>
-    // bool DislocationNode<dim,corder>::isBoundaryNode() const
-    // {
-    //     return this->isOnExternalBoundary();
-    // }
+
 
     template <int dim, short unsigned int corder>
     bool DislocationNode<dim,corder>::isBoundaryNode() const
@@ -641,20 +497,7 @@ namespace model
             const PlaneLineIntersection<dim> pli((*iterPlane3)->P, (*iterPlane3)->unitNormal, ppi.P, ppi.d);
             const VectorDim snappedPos(pli.P);
             assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
-            // if (pli.type!=PlaneLineIntersection<dim>::INCIDENT)
-            // {
-            //     std::cout<<" IterPlane1 "<<(*iterPlane1)->P.transpose()<<"\t"<<(*iterPlane1)->unitNormal.transpose()<<std::endl;
-            //     std::cout<<" IterPlane2 "<<(*iterPlane2)->P.transpose()<<"\t"<<(*iterPlane2)->unitNormal.transpose()<<std::endl;
-            //     std::cout<<" IterPlane3 "<<(*iterPlane3)->P.transpose()<<"\t"<<(*iterPlane3)->unitNormal.transpose()<<std::endl;
-            //     std::cout<<"ppi infor "<<std::endl;
-            //     std::cout<<ppi.P.transpose()<<"\t"<<ppi.d.transpose()<<std::endl;
-            //     std::cout<<" glide plane size "<<gps.size()<<" Printing glide planes "<<std::endl;
-            //     for (const auto& gp : gps)
-            //     {
-            //         std::cout<<gp->P.transpose()<<"\t"<<gp->unitNormal.transpose()<<"\t"<<gp->planeIndex<<std::endl;
-            //     }
-            //     std::cout<<" intersection type "<<pli.type<<std::endl;
-            // }
+            
             while (++iterPlane3 != gps.end())
             {
                 if (!(*iterPlane3)->contains(snappedPos))
@@ -678,8 +521,11 @@ namespace model
         }
         return temp;
     }
-
-   template class DislocationNode<3,0>;
+    
+    template <int dim, short unsigned int corder>
+    int DislocationNode<dim,corder>::totalCappedNodes=0;
+    
+    template class DislocationNode<3,0>;
     
 }
 #endif

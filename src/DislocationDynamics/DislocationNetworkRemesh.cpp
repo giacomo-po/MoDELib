@@ -135,30 +135,9 @@ namespace model
                         }
                     }
                 }
-              /*  else
-                {
-                    const auto pPrev(loopNode.second.lock()->periodicPrev());
-                    const auto pNext(loopNode.second.lock()->periodicNext());
-                    if (pPrev && pNext)
-                    {
-                        if (pPrev->networkNode==loopNode.second.lock()->networkNode && pNext->networkNode==loopNode.second.lock()->networkNode)
-                        {
-                            DN.removeLoopNode(loopNode.second.lock()->sID);
-                            removedLoopNodes.insert(loopNode.second.lock().get());
-                            Nremoved++;
-                            
-                        }
-                    }
-                }*/
-                
             }
         }
-        //
-        // for (const auto &nodeID : toBeRemoved)
-        // {
-        //     DN.removeLoopNode(nodeID);
-        //     Nremoved++;
-        // }
+        
         tempLoopNodes.clear(); //Very important to clear the loop node here
         model::cout << " (" << Nremoved << " LoopNodes removed) " << std::flush;
         Nremoved=0;
@@ -171,8 +150,6 @@ namespace model
 
                 const auto pPrev(bndNode->periodicPrev());
                 const auto pNext(bndNode->periodicNext());
-                // std::cout<< "pPrev remesh= " << pPrev->tag() << " @ " << pPrev->get_P().transpose() <<"with size "<<pPrev->networkNode->loopNodes().size() << std::endl;
-                // std::cout<< "pNext remesh= " << pNext->tag() << " @ " << pNext->get_P().transpose()  <<"with size "<<pNext->networkNode->loopNodes().size() << std::endl;
                 if (pPrev && pNext)
                 {
                     if (pPrev->sID == std::get<1>(nodeID) && pNext->sID== std::get<2>(nodeID))
@@ -186,9 +163,6 @@ namespace model
                         if (ssd1.dMin < FLT_EPSILON)
                         {
                             //                    VerboseDislocationLoopNode(3,"dMin= "<<ssd.dMin<<std::endl;);
-                            // const VectorDim tempShift(bndNode->loop()->periodicGlidePlane->referencePlane->globalPosition(0.5 * (ssd.x0 + ssd.x1)));
-                            // std::cout<<std::scientific<<std::setprecision(15)<<" bndNode tag "<<bndNode->tag()<<" ==> "<<bndNode->get_P().transpose()<<" Updated Position "<<tempShift.transpose()<<std::endl;
-                            // std::cout<<"From 3D intersection "<<(0.5 * (ssd3.x0 + ssd3.x1)-bndNode->periodicPlanePatch()->shift).transpose()<<std::endl;
                             if (bndNode->periodicPlaneEdge.second)
                             {
                                 SegmentSegmentDistance<dim - 1> ssd2(pPrevLocal, pNextLocal, *bndNode->periodicPlaneEdge.second->source, *bndNode->periodicPlaneEdge.second->sink);

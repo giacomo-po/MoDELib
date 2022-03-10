@@ -53,9 +53,6 @@ namespace model
         typedef std::set<const PlanarMeshFaceType *> PlanarMeshFaceContainerType;
         typedef Grain<dim> GrainType;
         typedef std::set<const GrainType*> GrainContainerType;
-        // static bool use_velocityFilter;
-        // static double velocityReductionFactor;
-        // static int verboseDislocationNode;
 
         const Simplex<dim,dim>* p_Simplex;
         VectorDim velocity;
@@ -63,7 +60,7 @@ namespace model
         double velocityReductionCoeff;
         std::shared_ptr<NetworkNodeType> virtualNode;
         NetworkNodeType* const masterNode;
-
+        static int totalCappedNodes; //gives the fraction of the capped velocities
         
         DislocationNode(LoopNetworkType* const,const VectorDim&,const VectorDim&,const double&);
         ~DislocationNode();
@@ -83,14 +80,8 @@ namespace model
         MeshLocation meshLocation() const;
         void set_V(const VectorDim& vNew);
         void projectVelocity();
-        // size_t uniqueLoopNodes() const;
-        // void addLoopNode(LoopNodeType* const);
-        // void removeLoopNode(LoopNodeType* const);
-        // bool isRemovable(const double& Lmin,const double& relAreaThIn);
         VectorDim invariantDirectionOfMotion() const;
         const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
-        // static void initFromFile(const std::string&);
-        // bool isZeroBurgersNode() const;
         /**********************************************************************/
         GlidePlaneContainerType glidePlanes() const;
         

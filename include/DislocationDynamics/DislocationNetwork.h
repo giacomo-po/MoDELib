@@ -185,7 +185,7 @@ namespace model
         const bool use_velocityFilter;
         const double velocityReductionFactor;
         const int verboseDislocationNode;
-
+        bool capMaxVelocity;
 
         /**********************************************************************/
         DislocationNetwork(int& argc, char* argv[],

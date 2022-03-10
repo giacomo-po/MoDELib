@@ -8,7 +8,7 @@ Nsteps=2000000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 enablePartials=0;
 ######################################
-useSubCycling=0;
+useSubCycling=1;
 subcyclingBins=1 2 3 4 5 10 20 30 40 50 60 70 80 90 100 250 500;
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
@@ -36,7 +36,8 @@ quadPerLength=0.0000001;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=1; # 0 for constant time integration 
-timeStep=600;
+capMaxVelocity=1;
+timeStepMax=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=10;
 use_velocityFilter=1;
 velocityReductionFactor=0.5;
@@ -61,7 +62,7 @@ outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
 outputDislocationLength=1;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 outputPeriodicConfiguration=1;

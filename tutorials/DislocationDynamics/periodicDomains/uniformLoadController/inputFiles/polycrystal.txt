@@ -1,5 +1,5 @@
-materialFile=../../MaterialsLibrary/Cu.txt;
-meshFile=../../MeshLibrary/bulkcube_commensurate.msh;
+materialFile=../../MaterialsLibrary/W.txt;
+meshFile=../../MeshLibrary/bccCommensurate_1micron.msh;
 
 C2G1=1 0 0
      0 1 0

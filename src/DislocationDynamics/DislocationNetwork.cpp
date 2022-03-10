@@ -26,13 +26,11 @@ namespace model
                                                                          const std::unique_ptr<ExternalLoadControllerBase<dim>>& _externalLoadController,
                                                                          const std::vector<VectorDim>& _periodicShifts,
                                                                          long int& runID) :
-    //    /* init */ LoopNetworkType(_simulationParameters.isPeriodicSimulation()? std::shared_ptr<NetworkComponentType>(new NetworkComponentType()) : nullptr)
     /* init */ simulationParameters(_simulationParameters)
     /* init */,mesh(_mesh)
     /* init */,poly(_poly)
     /* init */,glidePlaneFactory(poly)
     /* init */,periodicGlidePlaneFactory(simulationParameters.isPeriodicSimulation()? new PeriodicGlidePlaneFactory<dim>(poly, glidePlaneFactory) : nullptr)
-    //    /* init */,periodicDislocationLoopFactory(simulationParameters.isPeriodicSimulation()? new PeriodicDislocationLoopFactory<DislocationNetworkType>(poly,glidePlaneFactory) : nullptr)
     /* init */,bvpSolver(_bvpSolver)
     /* init */,externalLoadController(_externalLoadController)
     /* init */,periodicShifts(_periodicShifts)
@@ -41,18 +39,6 @@ namespace model
     /* init */,crossSlipMaker(*this)
     /* init */,nodeContractor(*this)
     /* init */,timeIntegrator("inputFiles/DD.txt")
-    //    /* init */,gbTransmission(*this)
-    //        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
-    ///* init */,maxJunctionIterations(TextFileParser("inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
-    //        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<int>("startAtTimeStep",true)),
-    //        /* init */,totalTime(0.0),
-    //        /* init */ dt(0.0),
-    //        /* init */ vMax(0.0),
-    //        /* init */ Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true)),
-    //        /* init */,_plasticDistortionFromVelocities(MatrixDim::Zero())
-    // /* init */,oldPlasticDistortionFromAreas(std::make_pair(0.0,MatrixDim::Zero()))
-    // /* init */,_plasticDistortionRateFromVelocities(MatrixDim::Zero())
-    // /* init */,_plasticDistortionRateFromAreas(MatrixDim::Zero())
     /* init */,ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true))
     /* init */,computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true))
     /* init */,crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
@@ -63,30 +49,26 @@ namespace model
     /* init */,outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true))
     /* init */,outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true))
     /* init */,outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true))
-    //        /* init */,outputPlasticDistortion(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortion",true))
     /* init */,outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true))
     /* init */,outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
     /* init */,outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
     /* init */,outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true))
     /* init */,outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
     /* init */,computeElasticEnergyPerLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeElasticEnergyPerLength",true))
-    //    /* init */,outputPeriodicConfiguration(simulationParameters.isPeriodicSimulation()? TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPeriodicConfiguration",true) : false)
-    //        /* init */ _userOutputColumn(3)
     /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
     /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
-    //        /* init */,computePlasticDistortionRateFromVelocities(TextFileParser("inputFiles/DD.txt").readScalar<int>("computePlasticDistortionRateFromVelocities",true))
     /* init */,useLineTension(TextFileParser("inputFiles/DD.txt").readScalar<int>("useLineTension",true))
     /* init */,alphaLineTension(TextFileParser("inputFiles/DD.txt").readScalar<double>("alphaLineTension",true))
     /* init */,folderSuffix("")
     /* init */,use_velocityFilter(TextFileParser("inputFiles/DD.txt").readScalar<double>("use_velocityFilter",true))
     /* init */,velocityReductionFactor(TextFileParser("inputFiles/DD.txt").readScalar<double>("velocityReductionFactor",true))
     /* init */,verboseDislocationNode(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationNode",true))
+    /* init */,capMaxVelocity(TextFileParser("inputFiles/DD.txt").readScalar<int>("capMaxVelocity",true))
     {
 
         assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
         
         // Some sanity checks
-        //            assert(Nsteps>=0 && "Nsteps MUST BE >= 0");
         
         // Initialize static variables
         LoopNetworkType::verboseLevel=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseLoopNetwork",true);
@@ -95,29 +77,11 @@ namespace model
         LoopNodeType::initFromFile("inputFiles/DD.txt");
         LoopLinkType::initFromFile("inputFiles/DD.txt");
         NetworkLinkType::initFromFile("inputFiles/DD.txt");
-        // NetworkNodeType::initFromFile("inputFiles/DD.txt");
-        //        PeriodicDislocationBase::initFromFile("inputFiles/DD.txt");
-        //        DislocationNetworkComponentType::initFromFile("inputFiles/DD.txt");
         DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
-        
-//        DislocationCrossSlip<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
-//        DislocationJunctionFormation<LoopNetworkType>::initFromFile("inputFiles/DD.txt");
-        /*
-        int stochasticForceSeed=TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true);
-        if(stochasticForceSeed<0)
-        {
-            StochasticForceGenerator::init(std::chrono::system_clock::now().time_since_epoch().count());
-        }
-        else
-        {
-            StochasticForceGenerator::init(stochasticForceSeed);
-        }
-        */
         
         if(argc>1)
         {
             folderSuffix=argv[1];
-            //                std::cout<<"folderSuffix="<<folderSuffix<<std::endl;
         }
         
         DDconfigIO<dim> evl(folderSuffix);
@@ -126,100 +90,6 @@ namespace model
         createEshelbyInclusions();
     }
     
-    /**********************************************************************/
-    //Giacomo Version
-    // template <int dim, short unsigned int corder>
-    // void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl)
-    // {
-    //     this->loopLinks().clear(); // erase base network to clear current config
-    
-    //     // Create Loops
-    //     std::deque<std::shared_ptr<LoopType>> tempLoops; // keep loops alive during setConfiguration
-    //     size_t loopNumber=1;
-    //     for(const auto& loop : evl.loops())
-    //     {
-    //         const bool faulted= poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false;
-    //         std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
-    //         const size_t loopIDinFile(loop.sID);
-    //         LoopType::set_count(loopIDinFile);
-    //         GlidePlaneKey<dim> loopPlaneKey(loop.P,poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
-    //         tempLoops.push_back(this->loops().create(loop.B,glidePlaneFactory.getFromKey(loopPlaneKey)));
-    //         assert(this->loops().get(loopIDinFile)->sID==loopIDinFile);
-    //         loopNumber++;
-    //     }
-    
-    //     // Create NetworkNodes
-    //     std::deque<std::shared_ptr<NetworkNodeType>> tempNetNodes; // keep loops alive during setConfiguration
-    //     size_t netNodeNumber=1;
-    //     for(const auto& node : evl.nodes())
-    //     {
-    //         std::cout<<"Creating DislocationNode "<<node.sID<<" ("<<netNodeNumber<<" of "<<evl.nodes().size()<<")"<<std::endl;
-    //         const size_t nodeIDinFile(node.sID);
-    //         NetworkNodeType::set_count(nodeIDinFile);
-    //         tempNetNodes.push_back(this->networkNodes().create(node.P,node.V,node.velocityReduction));
-    //         assert(this->networkNodes().get(nodeIDinFile)->sID==nodeIDinFile);
-    //         netNodeNumber++;
-    //     }
-    
-    //     // Create LoopNodes
-    //     std::deque<std::shared_ptr<LoopNodeType>> tempLoopNodes; // keep loops alive during setConfiguration
-    //     size_t loopNodeNumber=1;
-    //     for(const auto& node : evl.loopNodes())
-    //     {
-    //         std::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
-    //         const size_t nodeIDinFile(node.sID);
-    //         LoopNodeType::set_count(nodeIDinFile);
-    //         const auto loop(this->loops().get(node.loopID));
-    //         const auto netNode(this->networkNodes().get(node.networkNodeID));
-    //         assert(loop && "Loop does not exist");
-    //         assert(netNode && "NetworkNode does not exist");
-    //         const auto periodicPatch(loop->periodicGlidePlane? loop->periodicGlidePlane->patches().getFromKey(node.periodicShift) : nullptr);
-    //         const auto periodicPatchEdge((periodicPatch && node.edgeID>=0)? periodicPatch->edges()[node.edgeID] : nullptr);
-    //         if(periodicPatch)
-    //         {
-    //             std::cout<<", on patch "<<periodicPatch->shift.transpose()<<std::flush;
-    //         }
-    //         if(periodicPatchEdge)
-    //         {
-    //             std::cout<<" on edge "<<periodicPatchEdge->edgeID<<std::flush;
-    //         }
-    //         std::cout<<std::endl;
-    //         tempLoopNodes.push_back(this->loopNodes().create(loop,netNode,node.P,periodicPatch,periodicPatchEdge));
-    //         assert(this->loopNodes().get(nodeIDinFile)->sID==nodeIDinFile);
-    //         loopNodeNumber++;
-    //     }
-    
-    //     // Insert Loops
-    //     std::map<size_t,std::map<size_t,size_t>> loopMap;
-    //     for(const auto& looplink : evl.loopLinks())
-    //     {// Collect LoopLinks by loop IDs
-    //         loopMap[looplink.loopID].emplace(looplink.sourceID,looplink.sinkID);
-    //     }
-    //     assert(loopMap.size()==evl.loops().size());
-    
-    //     for(const auto& loop : evl.loops())
-    //     {// for each loop in the DDconfigIO<dim> object
-    
-    //         const auto loopFound=loopMap.find(loop.sID); // there must be an entry with key loopID in loopMap
-    //         assert(loopFound!=loopMap.end());
-    //         std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
-    //         loopNodes.push_back(this->loopNodes().get(loopFound->second.begin()->first));
-    //         for(size_t k=0;k<loopFound->second.size();++k)
-    //         {
-    //             const auto nodeFound=loopFound->second.find(loopNodes.back()->sID);
-    //             if(k<loopFound->second.size()-1)
-    //             {
-    //                 loopNodes.push_back(this->loopNodes().get(nodeFound->second));
-    //             }
-    //             else
-    //             {
-    //                 assert(nodeFound->second==loopNodes[0]->sID);
-    //             }
-    //         }
-    //         this->insertLoop(this->loops().get(loop.sID),loopNodes);
-    //     }
-    //     updateGeometry();
-    // }
     
     //New Version
     template <int dim, short unsigned int corder>
@@ -295,6 +165,7 @@ namespace model
             const auto netNode(this->networkNodes().get(node.networkNodeID));
             assert(loop && "Loop does not exist");
             assert(netNode && "NetworkNode does not exist");
+            std::set<std::shared_ptr<PeriodicPlanePatch<dim>>> auxPatchSets; //For inserting patches corresponding to diagonally opposite itnersections
             const auto periodicPatch(loop->periodicGlidePlane? loop->periodicGlidePlane->patches().getFromKey(node.periodicShift) : nullptr);
             const auto periodicPatchEdge((periodicPatch && node.edgeIDs.first>=0)? (node.edgeIDs.second>=0 ? std::make_pair(periodicPatch->edges()[node.edgeIDs.first],
             periodicPatch->edges()[node.edgeIDs.second]): std::make_pair(periodicPatch->edges()[node.edgeIDs.first],nullptr)):std::make_pair(nullptr,nullptr)); 
@@ -310,11 +181,17 @@ namespace model
             if(periodicPatchEdge.second)
             {
                 model::cout<<" and "<<periodicPatchEdge.second->edgeID<<std::flush;
+                auxPatchSets.emplace(loop->periodicGlidePlane->patches().getFromKey(periodicPatch->shift + periodicPatchEdge.first->deltaShift));
+                auxPatchSets.emplace(loop->periodicGlidePlane->patches().getFromKey(periodicPatch->shift + periodicPatchEdge.second->deltaShift));
+            }
+            if (auxPatchSets.size()==0)
+            {
+                auxPatchSets.insert(std::shared_ptr<PeriodicPlanePatch<dim>>(nullptr));
             }
             // std::cout<<"Trying to create the loop node with loopID "<<loop->sID<<" if loop has GP "<<(loop->glidePlane!=nullptr)<<" networkID is "
             // <<netNode->sID<<std::endl;
             model::cout<<std::endl;
-            tempLoopNodes.push_back(this->loopNodes().create(loop,netNode,node.P,periodicPatch,periodicPatchEdge));
+            tempLoopNodes.push_back(this->loopNodes().create(loop,netNode,node.P,periodicPatch,periodicPatchEdge,auxPatchSets));
             assert(this->loopNodes().get(nodeIDinFile)->sID==nodeIDinFile);
             loopNodeNumber++;
         }
@@ -421,22 +298,6 @@ namespace model
         VerboseDislocationNetwork(3,"DislocationNetwork::updateGeometry DONE"<<std::endl;);
     }
     
-    // template <int dim, short unsigned int corder>
-    // void DislocationNetwork<dim,corder>::updatePlasticDistortionRateFromAreas()
-    // {
-    //     VerboseDislocationNetwork(2,"DislocationNetwork::updatePlasticDistortionRateFromAreas"<<std::endl;);
-    //     const double dt(simulationParameters.totalTime-oldPlasticDistortionFromAreas.first);
-    //     if(dt>=0.0)
-    //     {
-    //         const MatrixDim pd(plasticDistortion());
-    //         if(dt>0.0)
-    //         {
-    //             _plasticDistortionRateFromAreas=(pd-oldPlasticDistortionFromAreas.second)/dt;
-    //         }
-    //         oldPlasticDistortionFromAreas=std::make_pair(simulationParameters.totalTime,pd); // update old values
-    //     }
-    //     VerboseDislocationNetwork(3,"DislocationNetwork::updatePlasticDistortionRateFromAreas DONE"<<std::endl;);
-    // }
     
     template <int dim, short unsigned int corder>
     typename DislocationNetwork<dim,corder>::DislocationNetworkIOType DislocationNetwork<dim,corder>::io()
@@ -562,13 +423,6 @@ namespace model
             {
                 temp-=loop.second.lock()->solidAngle(x+shift)/4.0/M_PI*loop.second.lock()->burgers();
             }
-            //                if(!(loop.second->isVirtualBoundaryLoop() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES))
-            //                {
-            //                    for(const auto& shift : periodicShifts)
-            //                    {
-            //                        temp-=loop.second->solidAngle(x+shift)/4.0/M_PI*loop.second->burgers();
-            //                    }
-            //                }
         }
         
         for(const auto& link : this->networkLinks())
@@ -1431,41 +1285,14 @@ namespace model
     void DislocationNetwork<dim,corder>::singleGlideStepDiscreteEvents(const long int& runID)
     {
         
-        //#ifdef DislocationNucleationFile
-        //            if(use_bvp && !(runID%use_bvp))
-        //            {
-        //                nucleateDislocations(); // needs to be called before updateQuadraturePoints()
-        //                updateQuadraturePoints();
-        //            }
-        //#endif
-        //            assembleAndSolve(runID,straightSegmentsDeq);
-        //            computeNodaVelocities(runID);
-        
-        //! 10- Cross Slip (needs upated PK force)
-        //        DislocationCrossSlip<DislocationNetworkType> crossSlip(*this);
-        //        crossSlip.execute();
-        //
-        //
-        //        //                        gbTransmission.transmit();
-        //        //gbTransmission.directTransmit();
-        //        //            GrainBoundaryDissociation<DislocationNetworkType>(*this).dissociate();
-        //        //            poly.reConnectGrainBoundarySegments(*this); // this makes stressGauss invalid, so must follw other GB operations
-        //
-        //
-        //        //! 12- Form Junctions
-        // junctionsMaker.formJunctions(DDtimeIntegrator<0>::dxMax);  //Length of the junction is changed
-        junctionsMaker.formJunctions(networkRemesher.Lmin);
-        // io().output(simulationParameters.runID);
-        //
-        //        //            // Remesh may contract juncitons to zero lenght. Remove those juncitons:
-        //        //            DislocationJunctionFormation<DislocationNetworkType>(*this).breakZeroLengthJunctions();
-        //
-        //
-        //
-        //        //! 13- Node redistribution
+//        //! 13- Node redistribution
         networkRemesher.remesh(runID);
-        //
-        //        updateVirtualBoundaryLoops();
+//        //! 12- Form Junctions
+        junctionsMaker.formJunctions(3.0*networkRemesher.Lmin);
+//Calling remesh again so that any other topological changes created by junctions whihc are otherwise removable can be removed
+//        //! 13- Node redistribution
+        networkRemesher.remesh(runID);
+//        updateVirtualBoundaryLoops();
         
     }
     

@@ -34,111 +34,6 @@ namespace model
         VerboseDislocationSegment(1,"Constructing DislocationSegment "<<this->tag()<<std::endl);
     }
     
-    // template <int dim, short unsigned int corder>
-    // void DislocationSegment<dim,corder>::updateSlipSystem()
-    // {
-    //     std::set<std::shared_ptr<SlipSystem>> ssSet;
-    //     for(const auto& loopLink : this->loopLinks())
-    //     {
-    //         if(loopLink->loop->slipSystem())
-    //         {
-    //             ssSet.insert(loopLink->loop->slipSystem());
-    //         }
-    //     }
-        
-    //     if(ssSet.size()==1)
-    //     {// a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
-    //         _slipSystem=*ssSet.begin();
-    //     }
-    //     else
-    //     {
-    //         _slipSystem=nullptr;
-    //     }
-    //     if(_slipSystem)
-    //     {
-    //         VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
-    //         VerboseDislocationSegment(3,"_slipSystem= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
-    //     }
-    // }
-
-    // template <int dim, short unsigned int corder>
-    // void DislocationSegment<dim, corder>::updateSlipSystem()
-    // {
-    //     if (this->grains().size() == 0)
-    //     {
-    //          _slipSystem=nullptr;
-    //     }
-    //     else if (this->grains().size() == 1)
-    //     {
-    //         std::set<std::shared_ptr<SlipSystem>> ssSet;
-
-    //         for (const auto &loopLink : this->loopLinks())
-    //         {
-    //             if (loopLink->loop->slipSystem())
-    //             {
-    //                 ssSet.insert(loopLink->loop->slipSystem());
-    //             }
-    //         }
-
-    //         if (ssSet.size() == 1)
-    //         { // a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
-    //             _slipSystem = *ssSet.begin();
-    //         }
-    //         else if (ssSet.size() > 1)
-    //         {
-    //             const auto firstSlipSystem(*ssSet.begin());
-    //             //            const auto& firstN(firstSlipSystem.n);
-    //             std::shared_ptr<RationalLatticeDirection<dim>> s(new RationalLatticeDirection<dim> (firstSlipSystem->s * 0));
-    //             for (const auto &ss : ssSet)
-    //             {
-    //                 _slipSystem = nullptr;
-    //                 if (ss->n.cross(firstSlipSystem->n).squaredNorm() == 0)
-    //                 {
-    //                     if (ss->n.cartesian().dot(firstSlipSystem->n.cartesian()) > 0.0)
-    //                     { // aligned normals
-    //                         // s = s + ss->s;
-    //                         s.reset(new RationalLatticeDirection<dim>(*s + ss->s));
-    //                     }
-    //                     else
-    //                     { // opposite normals
-    //                         // s = s - ss->s;
-    //                         s.reset(new RationalLatticeDirection<dim>(*s - ss->s));
-
-    //                     }
-    //                 }
-    //                 else
-    //                 {
-    //                     s.reset(new RationalLatticeDirection<dim>(firstSlipSystem->s * 0));
-    //                     // s = firstSlipSystem->s * 0;
-    //                     break;
-    //                 }
-    //             }
-    //             for (const auto &ss : (*this->grains().begin())->slipSystems())
-    //             {
-    //                 if (ss->isSameAs(*s, firstSlipSystem->n))
-    //                 {
-    //                     _slipSystem = ss;
-    //                     break;
-    //                 }
-    //             }
-    //         }
-    //         else
-    //         { // ssSet.size()==0
-    //             _slipSystem = nullptr;
-    //         }
-    //     }
-    //     else
-    //     {
-    //         assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
-    //         _slipSystem = nullptr;
-    //     }
-
-    //     if (_slipSystem)
-    //     {
-    //         VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->s.cartesian().transpose() << std::endl;);
-    //         VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->unitNormal.transpose() << std::endl;);
-    //     }
-    // }
        template <int dim, short unsigned int corder>
     void DislocationSegment<dim, corder>::updateSlipSystem()
     {
@@ -272,24 +167,6 @@ namespace model
         BurgersNorm=Burgers.norm();
         straight.updateGeometry(); // update b x t
         
-        // this->confinedObject().clear();
-        // for(const auto& loopLink : this->loopLinks())
-        // {
-        //     // std::cout<<"loopLink"<<loopLink->tag()<<" Adding glidePlane "<<std::endl;
-        //     if(this->network().simulationParameters.isPeriodicSimulation())
-        //     {
-        //         const auto periodicPlanePatch(loopLink->periodicPlanePatch());
-        //         // if(periodicPlanePatch)
-        //         // {
-        //         //     this->confinedObject().addGlidePlane(periodicPlanePatch->glidePlane.get());
-        //         // }
-        //     }
-        //     else
-        //     {
-        //         this->confinedObject().addGlidePlane(loopLink->loop->glidePlane.get());
-        //     }
-        // }
-        
         updateSlipSystem();
         
     }
@@ -298,34 +175,6 @@ namespace model
     void DislocationSegment<dim,corder>::updateGeometry()
     {
         VerboseDislocationSegment(2,"DislocationSegment "<<this->tag()<<", updateGeometry "<<std::endl;);
-        //        if(this->network().simulationParameters.isPeriodicSimulation())
-        //        {
-        //            bool periodicPlanePatchesReady(true);
-        //            for(const auto& loopLink : this->loopLinks())
-        //            {
-        //                VerboseDislocationSegment(3,"loopLink "<<loopLink->tag()<<", (loopLink->periodicPlanePatch()!=nullptr)= "<<(loopLink->periodicPlanePatch()!=nullptr)<<std::endl;);
-        //                periodicPlanePatchesReady*=(loopLink->periodicPlanePatch()!=nullptr);
-        //            }
-        //            if(periodicPlanePatchesReady)
-        //            {
-        //                SplineSegmentType::updateGeometry();
-        //                this->confinedObject().clear();
-        //                this->updateConfinement(this->source->get_P(),this->sink->get_P());
-        //                for(const auto& loopLink : this->loopLinks())
-        //                {
-        //                    VerboseDislocationSegment(3,"adding glidePlane for loopLink "<<loopLink->tag()<<std::endl;);
-        //                        this->confinedObject().addGlidePlane(loopLink->periodicPlanePatch()->glidePlane.get());
-        //                }
-        //                straight.updateGeometry();
-        //                updateSlipSystem();
-        //            }
-        //        }
-        //        else
-        //        {
-        //            SplineSegmentType::updateGeometry();
-        //            this->updateConfinement(this->source->get_P(),this->sink->get_P());
-        //            straight.updateGeometry();
-        //        }
         SplineSegmentType::updateGeometry();
         // this->updateConfinement(this->source->get_P(),this->sink->get_P());
         straight.updateGeometry();
@@ -564,22 +413,6 @@ namespace model
                     return *subcyclingBins.rbegin();
                 }
 
-                // if (relV >= 0.1)
-                // {
-                //     return 1;
-                // }
-                // else if (relV >= 0.01)
-                // {
-                //     return 10;
-                // }
-                // else if (relV >= 0.001)
-                // {
-                //     return 100;
-                // }
-                // else
-                // {
-                //     return 1000;
-                // }
             }
             else
             {
