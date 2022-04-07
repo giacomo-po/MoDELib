@@ -560,7 +560,7 @@ namespace model
 #else
             for (auto &linkIter : this->networkLinks())
             {
-                const int velGroup(simulationParameters.useSubCycling ? linkIter->second.lock()->velocityGroup(maxVelocity, simulationParameters.subcyclingBins) : 1);
+                const int velGroup(simulationParameters.useSubCycling ? linkIter.second.lock()->velocityGroup(maxVelocity, simulationParameters.subcyclingBins) : 1);
 
                 if ((runID % velGroup) == 0)
                 {

@@ -1,13 +1,14 @@
-materialFile=../../MaterialsLibrary/W.txt;
-meshFile=../../MeshLibrary/bccCommensurate_1micron.msh;
-
-C2G1=1 0 0
-     0 1 0
-     0 0 1;
-
-# Mesh transformation for each node x in the mesh
-# x'=A*(x-x0);
-A=1 0 0
-  0 1 0
-  0 0 1;  # affine transformation x'=A*(x-x0)
-x0=0 0 0; # shift in transformation x'=A*(x-x0)
+materialFile=../../MaterialsLibrary/W.txt; 
+meshFile=../../MeshLibrary/unitMesh.msh; 
+C2G1=1.000000000000000 0.000000000000000 0.000000000000000 
+ 0.000000000000000 1.000000000000000 0.000000000000000 
+ 0.000000000000000 0.000000000000000 1.000000000000000 ;
+ 
+ 
+ A=1001.125366774811255 100.458946838994905 9.814954576223606 
+ 10.392304845413264 999.970666236431953 99.881596569805311 
+ 99.304246300615659 0.000000000000000 1000.548016505621717 ;
+ 
+ 
+ x0=0.000000000000000 0.000000000000000 0.000000000000000 ;
+ 

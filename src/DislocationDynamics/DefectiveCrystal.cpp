@@ -124,37 +124,39 @@ namespace model
         {
             assert(mesh.simplices().size() && "MESH IS EMPTY.");
             
+
+            //Commensurate check happens while creation of periodic glideplane factory
             
-            if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
-               || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
-            {
-                assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
+//             if(   simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES
+//                || simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_FEM)
+//             {
+//                 assert(poly.grains().size()==1 && "ONLY SINGLE-CRYSTAL PERIODIC SIMULATIONS SUPPORTED.");
                 
-                for(const auto& rIter : mesh.regions())
-                {
-                    for(const auto& pair : rIter.second->parallelFaces())
-                    {
-                        std::cout<<"Checking if parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
-                        const PlanarMeshFace<DefectiveCrystal<_dim,corder>::dim>& face1(*rIter.second->faces().at(pair.first));
-                        const PlanarMeshFace<DefectiveCrystal<_dim,corder>::dim>& face2(*rIter.second->faces().at(pair.second));
-                        const VectorDim cc(face1.center()-face2.center());
-                        const VectorDim ccc(cc.dot(face1.outNormal())*face1.outNormal());
+//                 for(const auto& rIter : mesh.regions())
+//                 {
+//                     for(const auto& pair : rIter.second->parallelFaces())
+//                     {
+//                         std::cout<<"Checking if parallel faces "<<pair.first<<"<->"<<pair.second<<" are commensurate"<<std::endl;
+//                         const PlanarMeshFace<DefectiveCrystal<_dim,corder>::dim>& face1(*rIter.second->faces().at(pair.first));
+//                         const PlanarMeshFace<DefectiveCrystal<_dim,corder>::dim>& face2(*rIter.second->faces().at(pair.second));
+//                         const VectorDim cc(face1.center()-face2.center());
+//                         const VectorDim ccc(cc.dot(face1.outNormal())*face1.outNormal());
                         
-                        const LatticeDirection<DefectiveCrystal<_dim,corder>::dim> ld(poly.grains().begin()->second.latticeDirection(face1.outNormal()));
-                        const double normRatio(ccc.norm()/ld.cartesian().norm());
-                        if(std::fabs(std::round(normRatio)-normRatio)>FLT_EPSILON)
-                        {
-//                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
-                            std::cout<<"Mesh in direction "<< std::setprecision(15)<<std::scientific<<ld.cartesian().normalized().transpose()<<" is not commensurate for periodicity"<<std::endl;
-                            std::cout<<"Mesh size in that direction must be a multiple of "<< std::setprecision(15)<<std::scientific<<ld.cartesian().norm()<<std::endl;
-                            std::cout<<"Size detected="<< std::setprecision(15)<<std::scientific<<ccc.norm()<<std::endl;
-                            std::cout<<"Closest commensurate size="<< std::setprecision(15)<<std::scientific<<std::round(normRatio)*ld.cartesian().norm()<<std::endl;
-                            assert(false && "MESH NOT COMMENSURATE");
-                        }
-//                        LatticeVector<DefectiveCrystal<_dim,corder>::dim> lv(ccc,poly.grains().begin()->second);
-                    }
-                }
-            }
+//                         const LatticeDirection<DefectiveCrystal<_dim,corder>::dim> ld(poly.grains().begin()->second.latticeDirection(face1.outNormal()));
+//                         const double normRatio(ccc.norm()/ld.cartesian().norm());
+//                         if(std::fabs(std::round(normRatio)-normRatio)>FLT_EPSILON)
+//                         {
+// //                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
+//                             std::cout<<"Mesh in direction "<< std::setprecision(15)<<std::scientific<<ld.cartesian().normalized().transpose()<<" is not commensurate for periodicity"<<std::endl;
+//                             std::cout<<"Mesh size in that direction must be a multiple of "<< std::setprecision(15)<<std::scientific<<ld.cartesian().norm()<<std::endl;
+//                             std::cout<<"Size detected="<< std::setprecision(15)<<std::scientific<<ccc.norm()<<std::endl;
+//                             std::cout<<"Closest commensurate size="<< std::setprecision(15)<<std::scientific<<std::round(normRatio)*ld.cartesian().norm()<<std::endl;
+//                             assert(false && "MESH NOT COMMENSURATE");
+//                         }
+// //                        LatticeVector<DefectiveCrystal<_dim,corder>::dim> lv(ccc,poly.grains().begin()->second);
+//                     }
+//                 }
+//             }
             
           
         }

@@ -53,6 +53,7 @@ namespace model
         return *this;
     }
     
+    //Updated on April 7, 2022 to account for tilting of the box
     template<int dim>
     Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
     {
@@ -60,34 +61,76 @@ namespace model
         const auto &grain(poly.grains().begin()->second);
         const auto &meshRegion(grain.region);
         
-        Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
-        int col = 0;
-        for (const auto &pair : meshRegion.parallelFaces())
+        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
+        for (const auto &face : meshRegion.faces())
         {
-//            std::cout << "Checking if parallel faces " << pair.first << "<->" << pair.second << " are commensurate" << std::endl;
-            const PlanarMeshFace<dim> &face1(*meshRegion.faces().at(pair.first));
-            const PlanarMeshFace<dim> &face2(*meshRegion.faces().at(pair.second));
-            const VectorDim cc(face1.center() - face2.center());
-            const VectorDim ccc(cc.dot(face1.outNormal()) * face1.outNormal());
-            if (col < dim)
+            const auto cHull (face.second->convexHull());
+            for (int k=0;k<cHull.size();k++)
             {
-                B.col(col) = ccc;
-                col++;
+                const int k1(k==cHull.size()-1 ? 0 : k+1);
+                const Eigen::Matrix<double,dim,1> edge(cHull[k1]->P0-cHull[k]->P0);
+                bool isUnique(true);
+                for (const auto& uEd : uniqueEdges)
+                {
+                    isUnique = isUnique && (uEd.cross(edge).norm()>FLT_EPSILON);  
+                }
+                if (isUnique)
+                {
+                    uniqueEdges.push_back(edge);
+                }
             }
-            const LatticeDirection<dim> ld(grain.latticeDirection(face1.outNormal()));
-            const double normRatio(ccc.norm() / ld.cartesian().norm());
-            if (std::fabs(std::round(normRatio) - normRatio) > FLT_EPSILON)
+         }
+         if (uniqueEdges.size()==dim)
+         {
+            Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
+            for (int k=0 ; k<dim; k++)
             {
-                //                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
-                std::cout << "Mesh in direction " << std::setprecision(15) << std::scientific << ld.cartesian().normalized().transpose() << " is not commensurate for periodicity" << std::endl;
-                std::cout << "Mesh size in that direction must be a multiple of " << std::setprecision(15) << std::scientific << ld.cartesian().norm() << std::endl;
-                std::cout << "Size detected=" << std::setprecision(15) << std::scientific << ccc.norm() << std::endl;
-                std::cout << "Closest commensurate size=" << std::setprecision(15) << std::scientific << std::round(normRatio) * ld.cartesian().norm() << std::endl;
-                assert(false && "MESH NOT COMMENSURATE");
+                B.col(k)=uniqueEdges[k];
             }
-        }
-        return B;
+            return B;
+         }
+         else
+         {
+             assert(false && "Mesh not commensurate");
+         }
+        return (Eigen::Matrix<double, dim, dim>::Zero());
     }
+
+//     template<int dim>
+//     Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
+//     {
+//         assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+//         const auto &grain(poly.grains().begin()->second);
+//         const auto &meshRegion(grain.region);
+        
+//         Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
+//         int col = 0;
+//         for (const auto &pair : meshRegion.parallelFaces())
+//         {
+// //            std::cout << "Checking if parallel faces " << pair.first << "<->" << pair.second << " are commensurate" << std::endl;
+//             const PlanarMeshFace<dim> &face1(*meshRegion.faces().at(pair.first));
+//             const PlanarMeshFace<dim> &face2(*meshRegion.faces().at(pair.second));
+//             const VectorDim cc(face1.center() - face2.center());
+//             const VectorDim ccc(cc.dot(face1.outNormal()) * face1.outNormal());
+//             if (col < dim)
+//             {
+//                 B.col(col) = ccc;
+//                 col++;
+//             }
+//             const LatticeDirection<dim> ld(grain.latticeDirection(face1.outNormal()));
+//             const double normRatio(ccc.norm() / ld.cartesian().norm());
+//             if (std::fabs(std::round(normRatio) - normRatio) > FLT_EPSILON)
+//             {
+//                 //                            std::cout<<"Face outNormal="<<std::setprecision(15)<<std::scientific<<face1.outNormal().transpose()<<std::endl;
+//                 std::cout << "Mesh in direction " << std::setprecision(15) << std::scientific << ld.cartesian().normalized().transpose() << " is not commensurate for periodicity" << std::endl;
+//                 std::cout << "Mesh size in that direction must be a multiple of " << std::setprecision(15) << std::scientific << ld.cartesian().norm() << std::endl;
+//                 std::cout << "Size detected=" << std::setprecision(15) << std::scientific << ccc.norm() << std::endl;
+//                 std::cout << "Closest commensurate size=" << std::setprecision(15) << std::scientific << std::round(normRatio) * ld.cartesian().norm() << std::endl;
+//                 assert(false && "MESH NOT COMMENSURATE");
+//             }
+//         }
+//         return B;
+//     }
     
     template<int dim>
     Eigen::Matrix<long int,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B)

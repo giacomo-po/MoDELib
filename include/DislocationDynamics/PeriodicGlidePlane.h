@@ -20,7 +20,7 @@
 #include <TerminalColors.h>
 #include <DiophantineSolver.h>
 #include <SharedPtrFactories.h>
-
+#include <GramSchmidt.h>
 
 
 namespace model

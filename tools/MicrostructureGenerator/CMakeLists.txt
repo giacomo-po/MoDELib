@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 
 PROJECT(microstructureGenerator CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Modelib_Development/MoDELib")
+set(MoDELibRootDir "/home/ypachaur/Collaboration_Model/Model_CMAKE")
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
