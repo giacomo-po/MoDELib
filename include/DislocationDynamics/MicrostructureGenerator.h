@@ -209,8 +209,8 @@ namespace model
         const double irradiationLoopsDiameterLognormalDistribution_M;
         const double irradiationLoopsDiameterLognormalDistribution_S;
         const double irradiationLoopsDiameterLognormalDistribution_A;
-        const double fraction111Loops;  // fraction of [111] glissile loop;
-        const bool mobile111Loops;
+        // const double fraction111Loops;  // fraction of [111] glissile loop;
+        // const bool mobile111Loops;
 
         // SFTs
         const double targetSFTdensity;

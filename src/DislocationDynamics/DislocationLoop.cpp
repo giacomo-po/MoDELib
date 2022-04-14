@@ -36,7 +36,7 @@ namespace model
         assert(this->flow().dot(glidePlane->n)==0);
     }
 
-        /**********************************************************************/
+    /**********************************************************************/
     template <int dim, short unsigned int corder>
     DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
                           const VectorDim& B,

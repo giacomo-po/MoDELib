@@ -260,6 +260,20 @@ namespace model
         return velocity;
     }
 
+    template <int dim, short unsigned int corder>
+    std::set<typename DislocationNode<dim,corder>::LoopType*> DislocationNode<dim,corder>::sessileLoops() const
+    {
+        std::set<LoopType*> temp;
+        for (const auto& loop : this->loops())
+        {
+            if (loop->loopType == DislocationLoopIO<dim>::SESSILELOOP)
+            {
+                temp.insert(loop);
+            }
+        }
+        return temp;
+    }
+
 
     template <int dim, short unsigned int corder>
     const double& DislocationNode<dim,corder>::velocityReduction() const
@@ -460,7 +474,7 @@ namespace model
         {
         case 0:
         {
-            assert(false && "Glide plane size must be larger than 0");
+            assert(sessileLoops().size()==this->loops().size() && "All loops must be sessile");
             return P;
             break;
         }

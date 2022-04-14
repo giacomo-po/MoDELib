@@ -1202,8 +1202,8 @@ namespace model
         /* init*/,irradiationLoopsDiameterLognormalDistribution_M(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_M",true) : 0.0)
         /* init*/,irradiationLoopsDiameterLognormalDistribution_S(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_S",true) : 0.0)
         /* init*/,irradiationLoopsDiameterLognormalDistribution_A(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("irradiationLoopsDiameterLognormalDistribution_A",true) : 0.0)
-        /* init*/,fraction111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true) : 0.0)
-        /* init*/,mobile111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true) : 0.0)
+        // /* init*/,fraction111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true) : 0.0)
+        // /* init*/,mobile111Loops(targetIrradiationLoopDensity>0.0? TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true) : 0.0)
         /* SFTs */
         /* init*/,targetSFTdensity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("targetSFTdensity",true))
         /* Inclusions */
@@ -1466,6 +1466,10 @@ namespace model
             double defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
             //                    int NP=6;
             std::lognormal_distribution<double> distribution(log(irradiationLoopsDiameterLognormalDistribution_M/irradiationLoopsDiameterLognormalDistribution_A),(irradiationLoopsDiameterLognormalDistribution_S));
+
+
+            const double fraction111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<double>("fraction111Loops",true));  // fraction of [111] glissile loop;
+            const bool mobile111Loops(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("mobile111Loops",true));
             
             while(defectsDensity<targetIrradiationLoopDensity)
             {
@@ -1572,24 +1576,24 @@ namespace model
                     }
                     const VectorDimD a=(b.normalized());
                     
-                    if(allPointsInGrain(points,grainID))
+                    // if(allPointsInGrain(points,grainID))
+                    if(addSingleLoop(false,points,points,b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP,std::vector<VectorDimD>(points.size(),VectorDimD::Zero()),std::vector<std::pair<short int, short int>>(points.size(),std::make_pair(-1,-1))))
                     {
-                        
-                        for(int k=0;k<4;++k)
-                        {
-                            configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,0);
+
+                        // for(int k=0;k<4;++k)
+                        // {
+                        //     configIO.nodes().emplace_back(nodeID+k,points[k],Eigen::Matrix<double,1,3>::Zero(),1.0,0);
                             
-                            const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
-                            configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,true,0);
+                        //     const int nextNodeID=(k+1)<4? nodeID+k+1 : nodeID;
+                        //     configIO.loopLinks().emplace_back(loopID,nodeID+k,nextNodeID,true,0);
                             
-                        }
+                        // }
                         
-                        configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                        
+                        // configIO.loops().emplace_back(loopID+0, b,a,P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
                         
 //                        snID++;
-                        loopID++;
-                        nodeID+=4;
+                        // loopID++;
+                        // nodeID+=4;
                         ndefects++;
                         defectsDensity=ndefects/mesh.volume()/std::pow(poly.b_SI,3);
                         std::cout<<"irradiation defects density="<<defectsDensity<<std::endl;

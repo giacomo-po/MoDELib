@@ -76,6 +76,7 @@ namespace model
         bool set_P(const VectorDim&);
         bool trySet_P(const VectorDim&);
         const VectorDim& get_V() const;
+        std::set<LoopType*> sessileLoops() const;
         // const VectorDim& get_P() const;
         MeshLocation meshLocation() const;
         void set_V(const VectorDim& vNew);
