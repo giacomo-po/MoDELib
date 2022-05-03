@@ -65,7 +65,7 @@ namespace model
     }
 
     /******************************************************************************/
-    const typename ClipperEdge::ClipperEdge* ClipperEdge::next(std::set<const ClipperEdge*>& validStarts) const
+    const ClipperEdge* ClipperEdge::next(std::set<const ClipperEdge*>& validStarts) const
     {
         const bool isLoopEdg(isLoop());
         const bool isPatchEdg(isPatch());
@@ -331,7 +331,7 @@ namespace model
     }
 
     /******************************************************************************/
-    const typename ClipperEdge::ClipperEdge* ClipperEdge::twin() const
+    const ClipperEdge* ClipperEdge::twin() const
     {
         if(isLoop())
         {

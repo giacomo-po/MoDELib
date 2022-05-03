@@ -19,9 +19,9 @@ namespace model
 {
     
     DDqtMainWindow::DDqtMainWindow() :
-    /* init */ tabWidget(new QTabWidget(this))
+    /* init */ viewerCount(0)
+    /* init */,tabWidget(new QTabWidget(this))
     /* init */,newViewerAction(new QAction(tr("&New"), this))
-    /* init */,viewerCount(0)
     {
         resize(1920, 1080);
 

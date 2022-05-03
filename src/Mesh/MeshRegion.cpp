@@ -213,7 +213,7 @@ namespace model
 
 //    template class MeshRegion<1>;
 //    template class MeshRegion<2>;
-    template class MeshRegion<3>;
+    template struct MeshRegion<3>;
     
     
 }	// close namespace

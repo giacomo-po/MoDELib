@@ -209,8 +209,8 @@ namespace model
         return (dMin < tolerance);
     }
 
-    template class SegmentSegmentDistance<1>;
-    template class SegmentSegmentDistance<2>;
-    template class SegmentSegmentDistance<3>;
+    template struct SegmentSegmentDistance<1>;
+    template struct SegmentSegmentDistance<2>;
+    template struct SegmentSegmentDistance<3>;
 }
 #endif

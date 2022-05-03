@@ -20,7 +20,7 @@ namespace model
 
 
     
-    DDqtVTKwidget::DDqtVTKwidget(QWidget *parent) :
+    DDqtVTKwidget::DDqtVTKwidget(QWidget*) :
     /* init */ mainLayout(new QGridLayout(this))
     /* init */,tabWidget(new QTabWidget(this))
     /* init */,openglWidget(new QVTKOpenGLStereoWidget(this))

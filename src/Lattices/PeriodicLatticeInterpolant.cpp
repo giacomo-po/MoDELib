@@ -169,6 +169,6 @@ namespace model
         return temp;
     }
     
-template class PeriodicLatticeInterpolant<2>;
+template struct PeriodicLatticeInterpolant<2>;
 } // end namespace
 #endif

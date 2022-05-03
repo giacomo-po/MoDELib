@@ -119,6 +119,6 @@ namespace model
         
     }
 
-    template class PlaneSegmentIntersection<3>;
+    template struct PlaneSegmentIntersection<3>;
 }
 #endif

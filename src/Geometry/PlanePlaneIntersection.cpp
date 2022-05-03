@@ -133,7 +133,7 @@ namespace model
     {
     }
     
-    template class PlanePlaneIntersection<3>;
+    template struct PlanePlaneIntersection<3>;
     
 }
 #endif

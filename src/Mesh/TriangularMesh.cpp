@@ -67,13 +67,13 @@ if(boundaryPts.size()>=3)
             
             in.numberofpoints = boundaryPts.size()+internalPts.size();
             in.pointlist = (REAL *) malloc(in.numberofpoints * 2 * sizeof(REAL));
-            for(int i=0;i<boundaryPts.size();++i)
+            for(size_t i=0;i<boundaryPts.size();++i)
             {
                 //            std::cout<<points()[p]<<std::endl;
                 in.pointlist[2*i  ] = boundaryPts[i](0);
                 in.pointlist[2*i+1] = boundaryPts[i](1);
             }
-            for(int i=0;i<internalPts.size();++i)
+            for(size_t i=0;i<internalPts.size();++i)
             {
                 const int i1(i+boundaryPts.size());
                 //            std::cout<<points()[p]<<std::endl;

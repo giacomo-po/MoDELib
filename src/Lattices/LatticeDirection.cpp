@@ -64,7 +64,7 @@ namespace model
         dc /= dNorm;
         return dP.dot(dc) * dc;
     }
-    template class LatticeDirection<3>;
+    template struct LatticeDirection<3>;
 
 } // end namespace
 #endif

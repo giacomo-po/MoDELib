@@ -19,7 +19,7 @@ namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const std::string& folderName,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const SimplicialMesh<3>& mesh) :
+        DDconfigVtk::DDconfigVtk(const std::string& folderName,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const SimplicialMesh<3>& ) :
         /* init */ DDconfigIO<3>(folderName,"")
         /* init */,renderWindow(renWin)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
