@@ -23,6 +23,7 @@
 #include <DislocationLoopLinkIO.h>
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
+#include <EshelbyInclusionIO.h>
 //#include <PeriodicLoopIO.h>
 
 #include <TerminalColors.h>
@@ -39,6 +40,7 @@ namespace model
     /*              */,private std::vector<DislocationLoopIO<dim> >
     /*              */,private std::vector<DislocationLoopNodeIO<dim> >
     /*              */,private std::vector<DislocationLoopLinkIO<dim> >
+    /*              */,private std::vector<EshelbyInclusionIO<dim>>
     /*              */,private std::map<size_t,const DislocationLoopNodeIO<dim>* const>
     /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
     /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
@@ -71,7 +73,14 @@ namespace model
         
         
     public:
-        
+
+        /**********************************************************************/
+        DDconfigIO(const std::string& folderName,const std::string& suffix="") :
+        /* init */ DDbaseIO(folderName,"evl",suffix)
+        {
+            
+        }
+
         /**********************************************************************/
         DDconfigIO(const std::string& suffix="") :
         /* init */ DDbaseIO("evl","evl",suffix)
@@ -110,15 +119,17 @@ namespace model
             
 
             
-            // Write NetworkNodes
+            // Write Eshelby Inclusions
             for(const auto& node : dn.networkNodes())
             {
                 nodes().emplace_back(*node.second.lock());
             }
             
-
-            
- 
+            for(const auto& ei : dn.eshelbyInclusions())
+            {
+                eshelbyInclusions().emplace_back(ei.second);
+            }
+        
         }
         
         /**********************************************************************/
@@ -139,6 +150,17 @@ namespace model
         }
         
         std::vector<DislocationLoopNodeIO<dim> >& loopNodes()
+        {
+            return *this;
+        }
+        
+        /**********************************************************************/
+        const std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions() const
+        {
+            return *this;
+        }
+        
+        std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions()
         {
             return *this;
         }
@@ -361,6 +383,7 @@ namespace model
             file<<loops().size()<<"\n";
             file<<loopLinks().size()<<"\n";
             file<<loopNodes().size()<<"\n";
+            file<<eshelbyInclusions().size()<<"\n";
 
             // Write Nodes
             for(const auto& node : nodes())
@@ -383,6 +406,12 @@ namespace model
             for(const auto& loopNode : loopNodes())
             {
                 file<<loopNode<<"\n";
+            }
+            
+            // Eshelby inclusions
+            for(const auto& ei : eshelbyInclusions())
+            {
+                file<<ei<<"\n";
             }
             
             
@@ -412,11 +441,13 @@ namespace model
                 const size_t nL(loops().size());
                 const size_t nE(loopLinks().size());
                 const size_t nLN(loopNodes().size());
+                const size_t nEI(eshelbyInclusions().size());
 
                 binWrite(file,nV);
                 binWrite(file,nL);
                 binWrite(file,nE);
                 binWrite(file,nLN);
+                binWrite(file,nEI);
 
                 // Write Nodes
                 for(const auto& node : nodes())
@@ -440,6 +471,12 @@ namespace model
                 for(const auto& loopNode : loopNodes())
                 {
                     binWrite(file,loopNode);
+                }
+                
+                // Write EshelbyInclusions
+                for(const auto& ei : eshelbyInclusions())
+                {
+                    binWrite(file,ei);
                 }
                 
                 
@@ -495,6 +532,8 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeE), 1*sizeof(sizeE));
                 size_t sizeLN;
                 infile.read (reinterpret_cast<char*>(&sizeLN), 1*sizeof(sizeLN));
+                size_t sizeEI;
+                infile.read (reinterpret_cast<char*>(&sizeEI), 1*sizeof(sizeEI));
 
                 // Read vertices
                 nodes().resize(sizeV);
@@ -508,6 +547,9 @@ namespace model
                 // Read loopNodes
                 loopNodes().resize(sizeLN);
                 infile.read (reinterpret_cast<char*>(loopNodes().data()),loopNodes().size()*sizeof(DislocationLoopNodeIO<dim>));
+                // Read Eshlby Inclusions
+                eshelbyInclusions().resize(sizeEI);
+                infile.read (reinterpret_cast<char*>(eshelbyInclusions().data()),eshelbyInclusions().size()*sizeof(EshelbyInclusionIO<dim>));
 
                 
                 infile.close();
@@ -517,6 +559,7 @@ namespace model
                 std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
                 std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
+                std::cout<<"  "<<eshelbyInclusions().size()<<" eshelbyInclusions "<<std::endl;
 
             }
             else
@@ -547,6 +590,7 @@ namespace model
                 std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
                 std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
                 std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
+                std::cout<<"  "<<eshelbyInclusions().size()<<" eshelbyInclusions "<<std::endl;
             }
             else
             {
@@ -567,6 +611,7 @@ namespace model
             size_t sizeL;
             size_t sizeE;
             size_t sizeLN;
+            size_t sizeEI;
 
             std::string line;
             std::stringstream ss;
@@ -590,6 +635,11 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             ss >> sizeLN;
+            ss.clear();
+            
+            std::getline(infile, line);
+            ss<<line;
+            ss >> sizeEI;
             ss.clear();
             
             
@@ -629,12 +679,21 @@ namespace model
                 ss.clear();
             }
             
+            eshelbyInclusions().clear();
+            for(size_t k=0; k<sizeEI; ++k)
+            {
+                std::getline(infile, line);
+                ss<<line;
+                eshelbyInclusions().emplace_back(ss);
+                ss.clear();
+            }
+            
             
             make_maps();
             
-            std::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
-            std::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
-            std::cout<<" READING:  "<<loopLinks().size()<<" links "<<std::endl;
+//            std::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
+//            std::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
+//            std::cout<<" READING:  "<<loopLinks().size()<<" links "<<std::endl;
             
         }
         

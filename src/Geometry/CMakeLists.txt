@@ -1,4 +1,5 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
+include_directories(${MoDELibRootDir}/include/Geometry/)
 add_library(MoDELibGeometry
 	STATIC
 		FiniteLineSegment.cpp

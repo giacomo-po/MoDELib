@@ -1,18 +1,20 @@
 cmake_minimum_required(VERSION 3.0)
 set(CMAKE_BUILD_TYPE Debug)
 
-
-
 PROJECT(microstructureGenerator CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Collaboration_Model/Model_CMAKE")
+set(CMAKE_PREFIX_PATH "/Applications/Qt/6.1.3/macos/lib/cmake/")
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+set(EigenRootDir "/usr/local/include")
+
+include_directories(${EigenRootDir})
+
 
 set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 
 
-include_directories(/home/ypachaur/ModelEssentials/Eigen)
 
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/MPI/)

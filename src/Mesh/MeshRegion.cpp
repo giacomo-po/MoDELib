@@ -110,7 +110,7 @@ namespace model
     
     /**********************************************************************/
     template<int dim>
-    void MeshRegion<dim>::identifyParallelFaces()
+    void MeshRegion<dim>::identifyParallelFaces(const std::set<int>& periodicFaceIDs)
     {
         for(const auto& face1 : faces())
         {
@@ -123,6 +123,41 @@ namespace model
                         _parallelFaces.emplace(face1.first,face2.first);
                     }
                 }
+            }
+        }
+        
+        for(const auto& pair : _parallelFaces)
+        {
+            if(periodicFaceIDs.find(pair.first)!=periodicFaceIDs.end() || periodicFaceIDs.find(pair.second)!=periodicFaceIDs.end())
+            {// either pair.first or pair.second are declared as periodic
+                const VectorDim shift(faces()[pair.first]->center()-faces()[pair.second]->center());
+                std::set<const Simplex<dim,0>*> secondFaceVertices;
+                
+                for(const auto& secondFaceVertex : faces()[pair.second]->convexHull())
+                {
+                    secondFaceVertices.insert(secondFaceVertex);
+                }
+                
+                for(const auto& firstFaceVertex : faces()[pair.first]->convexHull())
+                {
+//                    bool shiftFound(false);
+                    for(const auto& secondFaceVertex : secondFaceVertices)
+                    {
+                        if((firstFaceVertex->P0-secondFaceVertex->P0-shift).norm()<FLT_EPSILON)
+                        {
+                            secondFaceVertices.erase(secondFaceVertex);
+                            break;
+                        }
+                    }
+                }
+                
+                if(secondFaceVertices.size()==0)
+                {//all vertices have been paired
+                    std::cout<<"Detected periodic face pair "<<pair.first<<"-"<<pair.second<<std::endl;
+                    faces()[pair.first] ->periodicFacePair=std::make_pair(-shift,faces()[pair.second].get());
+                    faces()[pair.second]->periodicFacePair=std::make_pair( shift,faces()[pair.first ].get());
+                }
+
             }
         }
     }

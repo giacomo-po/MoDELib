@@ -21,12 +21,13 @@
 #include <TerminalColors.h>
 #include <DiophantineSolver.h>
 #include <PeriodicGlidePlane.h>
+#include <PeriodicGlidePlane.hpp>
 namespace model
 {
         
     template<int dim>
     struct PeriodicGlidePlaneFactory : public KeyConstructableWeakPtrFactory<PeriodicGlidePlaneFactory<dim>,PeriodicGlidePlane<dim>>
-    /*                              */,public Lattice<dim>
+//    /*                              */,public Lattice<dim>
     {
         
         typedef Eigen::Matrix<double,dim,1> VectorDim;
@@ -41,14 +42,14 @@ namespace model
         
         const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim>& glidePlaneFactory;
-        const Eigen::Matrix<long int,dim,dim> N; // B=AN, where A is lattice matrix
+//        const Eigen::Matrix<long int,dim,dim> N; // B=AN, where A is lattice matrix
         PeriodicGlidePlaneFactory(const Polycrystal<dim>& poly_in,GlidePlaneFactory<dim>& glidePlaneFactory_in);
         // PeriodicGlidePlaneSharedPtrType get(const GlidePlaneType& plane);
         PeriodicGlidePlaneSharedPtrType get(const GlidePlaneKeyType& temp);
         BaseType& periodicGlidePlanes();
         const BaseType& periodicGlidePlanes() const;
-        static Eigen::Matrix<double,dim,dim> get_B(const Polycrystal<dim>& poly);
-        static Eigen::Matrix<long int,dim,dim> get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B);
+//        static Eigen::Matrix<double,dim,dim> get_B(const Polycrystal<dim>& poly);
+//        static Eigen::Matrix<long int,dim,dim> get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B);
         
         
         //        GlidePlaneKeyType periodicPlaneKey(const GlidePlaneKeyType& key) const

@@ -87,7 +87,7 @@ namespace model
         
     }
 
-    template class PlaneLineIntersection<3>;
+    template struct PlaneLineIntersection<3>;
         
 } /* namespace model */
 #endif

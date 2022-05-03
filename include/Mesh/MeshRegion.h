@@ -14,10 +14,11 @@
 #include <memory>
 #include <assert.h>
 
-#include <MeshRegionObserver.h>
-#include <PlanarMeshFace.h>
-#include <Simplex.h>
-#include <TerminalColors.h>
+#include <MeshModule.h>
+//#include <MeshRegionObserver.h>
+//#include <PlanarMeshFace.h>
+//#include <Simplex.h>
+//#include <TerminalColors.h>
 
 namespace model
 {
@@ -53,7 +54,7 @@ namespace model
                    const size_t& rID);
         ~MeshRegion();
         void update();
-        void identifyParallelFaces();
+        void identifyParallelFaces(const std::set<int>&);
         const std::map<size_t,size_t>& parallelFaces() const;
         const std::set<const SimplexType*>& simplices() const;
         std::set<const SimplexType*>& simplices();

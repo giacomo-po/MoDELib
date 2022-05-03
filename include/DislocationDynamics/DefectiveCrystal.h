@@ -47,7 +47,7 @@ namespace model
         //        long int runID;
         
         
-        
+        const std::set<int> periodicFaceIDs;
         const SimplicialMesh<dim> mesh;
         const std::vector<VectorDim> periodicShifts;
         const Polycrystal<dim> poly;

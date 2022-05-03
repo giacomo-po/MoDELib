@@ -1051,7 +1051,7 @@ namespace model
 
                     std::cout<<magentaBoldColor<<"Generating Inclusions"<<defaultColor<<std::endl;
 
-                    std::ofstream inclusionsfile("E/E_0.txt");
+//                    std::ofstream inclusionsfile("E/E_0.txt");
                     std::deque<std::pair<double,VectorDimD>> existingPrecipitates;
 
                     size_t inclusionID=0;
@@ -1101,12 +1101,13 @@ namespace model
 
                                 if(isGoodPosition)
                                 {
-                                    inclusionsfile<<inclusionID
-                                    /*          */<<" "<<P.transpose()
-                                    /*          */<<" "<<radius
-                                    /*          */<<" "<<inclusionsTransformationStrains.row(f)
-                                    /*          */<<" "<<f
-                                    /*          */<<"\n";
+                                    Eigen::Matrix<double,1,dim*dim> etRow(inclusionsTransformationStrains.row(f));
+                                    MatrixDimD eT(Eigen::Map<MatrixDimD>(etRow.data(),dim,dim).transpose());
+//                                    eT<<;
+                                    
+                                    
+                                    configIO.eshelbyInclusions().emplace_back(inclusionID,P,radius,eT,f,0);
+                                    
 
                                     numberDensity+=1.0/mesh.volume()/std::pow(poly.b_SI,3);
                                     inclusionID++;
@@ -1117,7 +1118,7 @@ namespace model
                             }
                         }
                     }
-                    inclusionsfile.close();
+//                    inclusionsfile.close();
                 }
             }
         }
@@ -1148,9 +1149,10 @@ namespace model
         /* init*/,helicity(0.0)
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
 //        /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
+        /* init */,periodicFaceIDs(TextFileParser("./inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
         /* init*/,meshFilename(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true))
 //        /* init*/,mesh(meshFilename)
-        /* init */,mesh(meshFilename,TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose())
+        /* init */,mesh(meshFilename,TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
         /* init*/,minSize(0.1*min(mesh.xMax(0)-mesh.xMin(0),min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,maxSize(max(mesh.xMax(0)-mesh.xMin(0),max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
         /* init*/,poly("./inputFiles/polycrystal.txt",mesh)

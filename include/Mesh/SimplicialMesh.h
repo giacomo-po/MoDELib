@@ -52,7 +52,7 @@ namespace model
         
         double vol0;
         
-        void createMesh();
+        void createMesh(const std::set<int>&);
         
         
     public:
@@ -72,9 +72,9 @@ namespace model
         
         SimplicialMesh();
         
-        SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0);
+        SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0,const std::set<int>&);
         
-        void readMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0);
+        void readMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0,const std::set<int>&);
         
         const SimplexMapType& simplices() const;
         
@@ -84,7 +84,7 @@ namespace model
         
         void updateRegionBoundaries();
         
-        void identifyParallelFaces();
+        void identifyParallelFaces(const std::set<int>&);
         
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID);
         

@@ -1,6 +1,7 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
 add_library(MoDELibDDD 
 	STATIC 
+	PeriodicGlidePlane.cpp
 	DislocationLocalReference.cpp
 	DefectiveCrystalParameters.cpp
 		ConfinedDislocationObject.cpp
@@ -24,7 +25,7 @@ add_library(MoDELibDDD
 		EshelbyInclusion.cpp
 		ExternalLoadControllerBase.cpp
 		GlidePlane.cpp
-		MicrostructureGenerator.cpp
+		MicrostructureGenerator.cpp		
 		PeriodicGlidePlaneFactory.cpp
 		SimplexBndNormal.cpp
 			)

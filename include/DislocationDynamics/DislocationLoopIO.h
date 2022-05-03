@@ -10,6 +10,7 @@
 #define model_DislocationLoopIO_H_
 
 #include <tuple>
+#include <Eigen/Dense>
 
 namespace model
 {

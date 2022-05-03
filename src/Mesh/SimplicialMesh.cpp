@@ -40,7 +40,7 @@ namespace model
     
     /**********************************************************************/
     template<int dim>
-    void SimplicialMesh<dim>::createMesh()
+    void SimplicialMesh<dim>::createMesh(const std::set<int>& periodicFaceIDs)
     {/*!
       */
         
@@ -123,7 +123,7 @@ namespace model
         
         updateRegions();
         updateRegionBoundaries();
-        identifyParallelFaces();
+        identifyParallelFaces(periodicFaceIDs);
         
         
         size_t bndFaceSimplexSum=0;
@@ -188,23 +188,23 @@ namespace model
     
     /**********************************************************************/
     template<int dim>
-    SimplicialMesh<dim>::SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0) :
+    SimplicialMesh<dim>::SimplicialMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0,const std::set<int>& periodicFaceIDs) :
     /* init */ _xMin(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,_xMax(Eigen::Matrix<double,dim,1>::Zero())
     /* init */,vol0(0.0)
     {
         this->read(meshFileName,A,x0);
-        createMesh();
+        createMesh(periodicFaceIDs);
         this->simplexReader().clear();
     }
     
     /**********************************************************************/
     template<int dim>
-    void SimplicialMesh<dim>::readMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0)
+    void SimplicialMesh<dim>::readMesh(const std::string& meshFileName,const Eigen::Matrix<double,dim,dim>& A,const Eigen::Matrix<double,dim,1>& x0,const std::set<int>& periodicFaceIDs)
     {
         simplices().clear();
         this->read(meshFileName,A,x0);
-        createMesh();
+        createMesh(periodicFaceIDs);
         this->simplexReader().clear();
     }
     
@@ -252,11 +252,11 @@ namespace model
     
     /**********************************************************************/
     template<int dim>
-    void SimplicialMesh<dim>::identifyParallelFaces()
+    void SimplicialMesh<dim>::identifyParallelFaces(const std::set<int>& periodicFaceIDs)
     {
         for(auto region : MeshRegionObserverType::regions())
         {
-            region.second->identifyParallelFaces();
+            region.second->identifyParallelFaces(periodicFaceIDs);
         }
     }
     

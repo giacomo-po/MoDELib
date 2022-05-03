@@ -48,6 +48,8 @@ namespace model
         MeshBoundarySegment(const VectorDim& p0,
                             const VectorDim& p1,
                             const FaceContainerType& faces_in);
+        
+        VectorDim periodicShift() const;
 
     };
 

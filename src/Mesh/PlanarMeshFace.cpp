@@ -28,6 +28,7 @@ namespace model
     /* init */ regionIDs(std::make_pair(*pS->regionIDs().begin(),*pS->regionIDs().rbegin()))
     /* init */,n(pS->outNormal(regionIDs.first))
     /* init */,c(pS->center())
+    /* init */,periodicFacePair(std::make_pair(VectorDim::Zero(),nullptr))
     {
         //            std::cout<<"Creating PlanarMeshFace "<<this->sID<<", n="<<outNormal().transpose()<<std::endl;
         assert((n.norm()-1.0)<FLT_EPSILON);

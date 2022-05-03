@@ -144,6 +144,7 @@ namespace model
 
         const bool outputBinary;
 //        const int meshID;
+        const std::set<int> periodicFaceIDs;
         const std::string meshFilename;
         const SimplicialMesh<dim> mesh;
         const double minSize;

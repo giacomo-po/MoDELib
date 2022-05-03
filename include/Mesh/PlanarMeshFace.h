@@ -30,6 +30,7 @@ namespace model
     struct PlanarMeshFace : public StaticID<PlanarMeshFace<dim>>
     /*                   */,public std::set<const Simplex<dim,dim-1>*>
     {
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Simplex<dim,dim-1> SimplexType;
         typedef std::set<const SimplexType*> SimplexContainerType;
         const std::pair<int,int> regionIDs;
@@ -41,6 +42,8 @@ namespace model
         std::vector<const Simplex<dim,0>*> _hull;
         
     public:
+        
+        std::pair<VectorDim,const PlanarMeshFace<dim>* > periodicFacePair;
 
         PlanarMeshFace(const Simplex<dim,dim-1>* const pS);
         const std::set<const Simplex<dim,dim-1>*>& internalSimplices() const;

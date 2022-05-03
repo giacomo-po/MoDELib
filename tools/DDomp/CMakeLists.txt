@@ -3,7 +3,9 @@ set(CMAKE_BUILD_TYPE Debug)
 
 PROJECT(DDomp CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Collaboration_Model/Model_CMAKE")
+set(EigenRootDir "/usr/local/include")
+
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
@@ -22,7 +24,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 add_executable(DDomp DDomp.cpp)
 
 
-include_directories(/home/ypachaur/ModelEssentials/Eigen)
+include_directories(${EigenRootDir})
 
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/MPI/)

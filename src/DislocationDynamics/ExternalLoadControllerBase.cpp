@@ -32,19 +32,19 @@ namespace model
         {
         }
 
-        /**************************************************************************/
-        template <int dim>
-        typename ExternalLoadControllerBase<dim>::MatrixDim ExternalLoadControllerBase<dim>::stress(const VectorDim&) const = 0;
-        
-        /*************************************************************************/
-        template <int dim>
-        void ExternalLoadControllerBase<dim>::update(const long int& runID) = 0;
-        
-        /**************************************************************************/
-        template <int dim>
-        void ExternalLoadControllerBase<dim>::output(const long int& runID,
-                            UniqueOutputFile<'F'>& f_file,
-                            std::ofstream& F_labels) const = 0;
+//        /**************************************************************************/
+//        template <int dim>
+//        typename ExternalLoadControllerBase<dim>::MatrixDim ExternalLoadControllerBase<dim>::stress(const VectorDim&) const = 0;
+//        
+//        /*************************************************************************/
+//        template <int dim>
+//        void ExternalLoadControllerBase<dim>::update(const long int& runID) = 0;
+//        
+//        /**************************************************************************/
+//        template <int dim>
+//        void ExternalLoadControllerBase<dim>::output(const long int& runID,
+//                            UniqueOutputFile<'F'>& f_file,
+//                            std::ofstream& F_labels) const = 0;
         
         template class ExternalLoadControllerBase<3>;
 }

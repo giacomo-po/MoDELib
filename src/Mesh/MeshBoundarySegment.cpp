@@ -18,6 +18,22 @@
 
 namespace model
 {
+
+template <int dim>
+typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicShift() const
+{
+    VectorDim temp(VectorDim::Zero());
+    for(const auto& face : faces)
+    {
+        if(face->periodicFacePair.second)
+        {
+            temp+=face->periodicFacePair.first;
+        }
+    }
+    return temp;
+}
+
+
     template <int dim>
     typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::getBoundaryNormal(const typename MeshBoundarySegment<dim>::FaceContainerType& fcs)
     {
@@ -343,7 +359,7 @@ namespace model
     //        }
     
     template class MeshBoundarySegment<3>;
-    template class BoundingMeshSegments<3>;
+    template struct BoundingMeshSegments<3>;
 
     
 }

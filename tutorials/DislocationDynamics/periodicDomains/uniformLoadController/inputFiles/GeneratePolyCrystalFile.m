@@ -61,5 +61,8 @@ fprintf(fID,'x0=');
 fprintf(fID,'%1.15f ',x0(1,:));
 fprintf(fID,';\n ');
 
+fprintf(fID,'periodicFaceIDs=');
+fprintf(fID,'%d ',[0 1 2]);
+fprintf(fID,';\n ');
 
 

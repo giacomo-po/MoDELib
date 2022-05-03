@@ -3,7 +3,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 PROJECT(DDvtk CXX)
 set(CMAKE_CXX_STANDARD 17)
-set(MoDELibRootDir "/home/ypachaur/Collaboration_Model/Model_CMAKE")
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)

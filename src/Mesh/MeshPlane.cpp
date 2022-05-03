@@ -77,22 +77,22 @@ namespace model
             {// a segment not crossing the branch cut of atan2
                 if(angleP1>angleP0)
                 {// a right-handed segment
-                    segmentsByAngle.emplace(angleP0,segment).second;
+                    segmentsByAngle.emplace(angleP0,segment);
                 }
                 else
                 {// a left-handed segment, need to flip it
-                    segmentsByAngle.emplace(angleP1,std::shared_ptr<MeshBoundarySegment<dim>>(new MeshBoundarySegment<dim>(segment->P1,segment->P0,segment->faces))).second;
+                    segmentsByAngle.emplace(angleP1,std::shared_ptr<MeshBoundarySegment<dim>>(new MeshBoundarySegment<dim>(segment->P1,segment->P0,segment->faces)));
                 }
             }
             else
             {// a segment crossing the branch cut
                 if(angleP1<0.0)
                 {// P1 below the branch cut, P0 must be above to this is a right-handed segment
-                    segmentsByAngle.emplace(angleP0,segment).second;
+                    segmentsByAngle.emplace(angleP0,segment);
                 }
                 else
                 {// P1 above the branch cut, P0 must be below to this is a left-handed segment
-                    segmentsByAngle.emplace(angleP1,std::shared_ptr<MeshBoundarySegment<dim>>(new MeshBoundarySegment<dim>(segment->P1,segment->P0,segment->faces))).second;
+                    segmentsByAngle.emplace(angleP1,std::shared_ptr<MeshBoundarySegment<dim>>(new MeshBoundarySegment<dim>(segment->P1,segment->P0,segment->faces)));
                 }
             }
         }
@@ -175,7 +175,7 @@ namespace model
     //            return os;
     //        }
     
-    template class MeshPlane<3>;
+    template struct MeshPlane<3>;
     
 }
 #endif

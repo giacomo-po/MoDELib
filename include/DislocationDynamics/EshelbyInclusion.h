@@ -19,7 +19,7 @@
 #include <StaticID.h>
 
 //#include <DislocationStress.h>
-
+// http://solidmechanics.org/text/Chapter5_4/Chapter5_4.htm
 #include <SlipSystem.h>
 
 namespace model
@@ -39,9 +39,8 @@ namespace model
         const int typeID;
         const double L;
         const double M;
-        const double K;
+//        const double K;
 
-    private:
         VectorDim C;
         double a;
         double a2;
@@ -55,7 +54,11 @@ namespace model
         static std::map<const GammaSurface*,GammaSurface> gammaSurfaceMap;
         
         static void addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems);
-        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface);
+        
+        
+        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const;
+
+        
         /**********************************************************************/
         EshelbyInclusion(const VectorDim& _C,
                          const double& _a,
@@ -63,11 +66,16 @@ namespace model
                          const double& _nu,
                          const double& _mu,
                          const double& _mobilityReduction,
-                         const int& _type) ;
+                         const int& _type);
+  
+        
         /**********************************************************************/
         bool contains(const VectorDim& x) const;
+        
+        
         /**********************************************************************/
         MatrixDim stress(const VectorDim& x) const;
+        
     };
     
     

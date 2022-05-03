@@ -62,7 +62,7 @@ namespace model
         PeriodicPlaneEdge<dim>* prev;
         PeriodicPlaneEdge<dim>* twin;
         
-        static VectorDim getDeltaShift(const PeriodicPlanePatch<dim>* const patch,const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection);
+        //static VectorDim getDeltaShift(const PeriodicPlanePatch<dim>* const patch,const std::shared_ptr<const MeshBoundarySegment<dim>> meshIntersection);
         
         /**********************************************************************/
         PeriodicPlaneEdge(const PeriodicPlanePatch<dim>* const patch_in,

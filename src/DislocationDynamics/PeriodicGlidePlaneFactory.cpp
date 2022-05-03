@@ -18,11 +18,28 @@ namespace model
     template<int dim>
     PeriodicGlidePlaneFactory<dim>::PeriodicGlidePlaneFactory(const Polycrystal<dim>& poly_in,
                               GlidePlaneFactory<dim>& glidePlaneFactory_in) :
-    /* init */ Lattice<dim>(get_B(poly_in),Eigen::Matrix<double,dim,dim>::Identity())
-    /* init */,poly(poly_in)
+//    /* init */ Lattice<dim>(get_B(poly_in),Eigen::Matrix<double,dim,dim>::Identity())
+    /* init */ poly(poly_in)
     /* init */,glidePlaneFactory(glidePlaneFactory_in)
-    /* init */,N(get_N(poly,this->latticeBasis))
+//    /* init */,N(get_N(poly,this->latticeBasis))
     {
+        
+        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+        const auto &grain(poly.grains().begin()->second);
+        const auto &meshRegion(grain.region);
+
+//        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
+        for (const auto &face : meshRegion.faces())
+        {
+            if(face.second->periodicFacePair.second)
+            {
+                std::cout<<"MeshFace "<<face.first<<" checking if periodicShift is a LatticeVector "<<std::flush;
+                const auto lv(grain.latticeVector(face.second->periodicFacePair.first));
+                std::cout<<"LatticeVector"<<"="<<lv.transpose()<<std::endl;
+            }
+        }
+
+        
     }
     
     /**********************************************************************/
@@ -53,48 +70,70 @@ namespace model
         return *this;
     }
     
-    //Updated on April 7, 2022 to account for tilting of the box
-    template<int dim>
-    Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
-    {
-        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-        const auto &grain(poly.grains().begin()->second);
-        const auto &meshRegion(grain.region);
-        
-        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
-        for (const auto &face : meshRegion.faces())
-        {
-            const auto cHull (face.second->convexHull());
-            for (int k=0;k<cHull.size();k++)
-            {
-                const int k1(k==cHull.size()-1 ? 0 : k+1);
-                const Eigen::Matrix<double,dim,1> edge(cHull[k1]->P0-cHull[k]->P0);
-                bool isUnique(true);
-                for (const auto& uEd : uniqueEdges)
-                {
-                    isUnique = isUnique && (uEd.cross(edge).norm()>FLT_EPSILON);  
-                }
-                if (isUnique)
-                {
-                    uniqueEdges.push_back(edge);
-                }
-            }
-         }
-         if (uniqueEdges.size()==dim)
-         {
-            Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
-            for (int k=0 ; k<dim; k++)
-            {
-                B.col(k)=uniqueEdges[k];
-            }
-            return B;
-         }
-         else
-         {
-             assert(false && "Mesh not commensurate");
-         }
-        return (Eigen::Matrix<double, dim, dim>::Zero());
-    }
+//    //Updated on April 7, 2022 to account for tilting of the box
+//    template<int dim>
+//    Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
+//    {
+//        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+//        const auto &grain(poly.grains().begin()->second);
+//        const auto &meshRegion(grain.region);
+//
+//        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
+//        for (const auto &face : meshRegion.faces())
+//        {
+//            const auto cHull (face.second->convexHull());
+//            for (int k=0;k<cHull.size();k++)
+//            {
+//                const int k1(k==cHull.size()-1 ? 0 : k+1);
+//                const Eigen::Matrix<double,dim,1> edge(cHull[k1]->P0-cHull[k]->P0);
+//                bool isUnique(true);
+//                for (const auto& uEd : uniqueEdges)
+//                {
+//                    isUnique = isUnique && (uEd.cross(edge).norm()>FLT_EPSILON);
+//                }
+//                if (isUnique)
+//                {
+//                    uniqueEdges.push_back(edge);
+//                }
+//            }
+//         }
+//         if (uniqueEdges.size()==dim)
+//         {
+//            Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());
+//            for (int k=0 ; k<dim; k++)
+//            {
+//                B.col(k)=uniqueEdges[k];
+//            }
+//            return B;
+//         }
+//         else
+//         {
+//             assert(false && "Mesh not commensurate");
+//         }
+//        return (Eigen::Matrix<double, dim, dim>::Zero());
+//    }
+
+
+    
+//    template<int dim>
+//    Eigen::Matrix<long int,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B)
+//    {
+//        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
+//        const auto &grain(poly.grains().begin()->second);
+//        // const auto &meshRegion(grain.region);
+//
+//        Eigen::Matrix<double,dim,dim> Nd(grain.latticeBasis.inverse()*B);
+//        Eigen::Matrix<double,dim,dim> Ni(Nd.array().round().matrix());
+//        if((Nd-Ni).norm()>FLT_EPSILON)
+//        {
+//            assert(0 && "Mesh not commensurate with the lattice");
+//        }
+//        return Ni.template cast<long int>();
+//    }
+    template struct PeriodicGlidePlaneFactory<3>;
+}
+#endif
+
 
 //     template<int dim>
 //     Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
@@ -131,22 +170,3 @@ namespace model
 //         }
 //         return B;
 //     }
-    
-    template<int dim>
-    Eigen::Matrix<long int,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B)
-    {
-        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-        const auto &grain(poly.grains().begin()->second);
-        // const auto &meshRegion(grain.region);
-        
-        Eigen::Matrix<double,dim,dim> Nd(grain.latticeBasis.inverse()*B);
-        Eigen::Matrix<double,dim,dim> Ni(Nd.array().round().matrix());
-        if((Nd-Ni).norm()>FLT_EPSILON)
-        {
-            assert(0 && "Mesh not commensurate with the lattice");
-        }
-        return Ni.template cast<long int>();
-    }
-    template struct PeriodicGlidePlaneFactory<3>;
-}
-#endif

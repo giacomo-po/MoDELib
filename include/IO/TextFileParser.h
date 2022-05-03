@@ -16,6 +16,7 @@
 #include <fstream>
 #include <regex>
 #include <vector>
+#include <set>
 #include <Eigen/Dense>
 
 #include <TerminalColors.h>
@@ -29,7 +30,7 @@ namespace model
         
         static T toScalar(const std::string& key)
         {
-            std::cout<<"Unknown conversion from std::string to "<< typeid(T).name()<<". Exiting."<<std::endl;
+            std::cout<<"Unknown conversion from std::string "<<key<<" to "<< typeid(T).name()<<". Exiting."<<std::endl;
             exit(EXIT_FAILURE);
         }
     };
@@ -213,6 +214,29 @@ namespace model
             if(verbose) std::cout<<read<<" "<<strPair.second<<defaultColor<<std::endl;
             return read;
         }
+        
+        /**********************************************************************/
+        template<typename Scalar>
+        std::set<Scalar> readSet(const std::string& key,const bool&verbose=false)
+        {
+            std::vector<Scalar> tempV(readArray<Scalar>(key,false));
+            std::set<Scalar> tempS;
+            for(const auto& val : tempV)
+            {
+                tempS.insert(val);
+            }
+            if(verbose)
+            {
+                std::cout<<cyanColor<<key<<"=";
+                for(const auto& val : tempS)
+                {
+                    std::cout<<" "<<val;
+                }
+                std::cout<<"; "<<defaultColor<<std::endl;
+            }
+            return tempS;
+        }
+        
         
         /**********************************************************************/
         template<typename Scalar>

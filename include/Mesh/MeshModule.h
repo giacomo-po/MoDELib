@@ -75,6 +75,9 @@ namespace model
     class SimplicialMesh;
     
     class TriangularMesh;
+
+    template<short int _dim>
+    struct BarycentricTraits;
     
 }
 
@@ -96,6 +99,7 @@ namespace model
 #include <SimplexVolume.h>
 #include <SimplicialMesh.h>
 #include <TriangularMesh.h>
+#include <BarycentricTraits.h>
 
 
 #endif
