@@ -23,19 +23,17 @@ namespace model
         /* init */ DDconfigIO<3>(folderName,"")
         /* init */,renderWindow(renWin)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
-//        /* init */,controlsBox(new QGroupBox(""))
+        /* init */,segments(new NetworkLinkActor(renWin,ren))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
         /* init */,minusFrameButton(new QPushButton("<"))
         /* init */,frameIncrementEdit(new QLineEdit("1"))
         /* init */,tabWidget(new QTabWidget())
-//        /* init */,segments(ren)
-//        /* init */,loops(ren)
         {
             
-            tabWidget->addTab(nodes, tr(std::string("NetworkNodes").c_str()));
-//            tabWidget->addTab(ddWidget->ddConfigVtk.controlsBox, tr(std::string("Config").c_str()));
+            tabWidget->addTab(nodes, tr(std::string("Nodes").c_str()));
+            tabWidget->addTab(segments, tr(std::string("Segments").c_str()));
 
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);

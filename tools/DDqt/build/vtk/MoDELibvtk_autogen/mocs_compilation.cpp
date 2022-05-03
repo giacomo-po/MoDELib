@@ -2,5 +2,6 @@
 #include "XXFJKTJW6K/moc_DDconfigVtk.cpp"
 #include "XXFJKTJW6K/moc_DDqtMainWindow.cpp"
 #include "XXFJKTJW6K/moc_DDqtVTKwidget.cpp"
+#include "XXFJKTJW6K/moc_NetworkLinkActor.cpp"
 #include "XXFJKTJW6K/moc_NetworkNodeActor.cpp"
 #include "XXFJKTJW6K/moc_SimplicialMeshActor.cpp"

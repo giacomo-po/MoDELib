@@ -25,7 +25,7 @@
 //#include <DDconfigVtkBase.h>
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
-//#include <DislocationSegmentActor.h>
+#include <NetworkLinkActor.h>
 //#include <DislocationLoopActor.h>
 
 namespace model
@@ -40,7 +40,7 @@ namespace model
         
         vtkGenericOpenGLRenderWindow* const renderWindow;
         NetworkNodeActor* nodes;
-//        DislocationSegmentActor segments;
+        NetworkLinkActor* segments;
 //        DislocationLoopActor loops;
         private slots:
         void updateConfiguration();

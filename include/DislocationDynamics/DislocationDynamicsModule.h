@@ -74,6 +74,22 @@
 #include <LineLineIntersection.h>
 #include <PlanePlaneIntersection.h>
 
+
+namespace model
+{
+
+    template <int dim, short unsigned int corder>
+    class DislocationNetwork;
+
+    template <int dim>
+    class DDconfigIO;
+
+    template <int dim>
+    class DDauxIO;
+
+}
+
+
 //Physics layer
 #include <DislocationNetworkTraits.h>
 #include <GlidePlaneModule.h>
@@ -83,6 +99,8 @@
 #include <DislocationCrossSlip.h>
 #include <DislocationJunctionFormation.h>
 #include <DislocationNetwork.h>
+#include <DDconfigIO.h>
+#include <DDauxIO.h>
 #include <DislocationLoop.h>
 #include <DislocationLoopNode.h>
 #include <DislocationLoopLink.h>

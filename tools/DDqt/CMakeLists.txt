@@ -34,9 +34,8 @@ include_directories(${MoDELibRootDir}/include/Lattices/)
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
-add_subdirectory(${MoDELibRootDir}/src/vtk vtk)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
-
+add_subdirectory(${MoDELibRootDir}/src/vtk vtk)
 
 
 find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)

@@ -240,6 +240,30 @@ MoDELibvtk_autogen/mocs_compilation.cpp.s:
 	cd /Users/giacomo/Documents/MoDELib2/tools/DDqt/build && $(MAKE) $(MAKESILENT) -f vtk/CMakeFiles/MoDELibvtk.dir/build.make vtk/CMakeFiles/MoDELibvtk.dir/MoDELibvtk_autogen/mocs_compilation.cpp.s
 .PHONY : MoDELibvtk_autogen/mocs_compilation.cpp.s
 
+NetworkLinkActor.o: NetworkLinkActor.cpp.o
+.PHONY : NetworkLinkActor.o
+
+# target to build an object file
+NetworkLinkActor.cpp.o:
+	cd /Users/giacomo/Documents/MoDELib2/tools/DDqt/build && $(MAKE) $(MAKESILENT) -f vtk/CMakeFiles/MoDELibvtk.dir/build.make vtk/CMakeFiles/MoDELibvtk.dir/NetworkLinkActor.cpp.o
+.PHONY : NetworkLinkActor.cpp.o
+
+NetworkLinkActor.i: NetworkLinkActor.cpp.i
+.PHONY : NetworkLinkActor.i
+
+# target to preprocess a source file
+NetworkLinkActor.cpp.i:
+	cd /Users/giacomo/Documents/MoDELib2/tools/DDqt/build && $(MAKE) $(MAKESILENT) -f vtk/CMakeFiles/MoDELibvtk.dir/build.make vtk/CMakeFiles/MoDELibvtk.dir/NetworkLinkActor.cpp.i
+.PHONY : NetworkLinkActor.cpp.i
+
+NetworkLinkActor.s: NetworkLinkActor.cpp.s
+.PHONY : NetworkLinkActor.s
+
+# target to generate assembly for a file
+NetworkLinkActor.cpp.s:
+	cd /Users/giacomo/Documents/MoDELib2/tools/DDqt/build && $(MAKE) $(MAKESILENT) -f vtk/CMakeFiles/MoDELibvtk.dir/build.make vtk/CMakeFiles/MoDELibvtk.dir/NetworkLinkActor.cpp.s
+.PHONY : NetworkLinkActor.cpp.s
+
 NetworkNodeActor.o: NetworkNodeActor.cpp.o
 .PHONY : NetworkNodeActor.o
 
@@ -310,6 +334,9 @@ help:
 	@echo "... MoDELibvtk_autogen/mocs_compilation.o"
 	@echo "... MoDELibvtk_autogen/mocs_compilation.i"
 	@echo "... MoDELibvtk_autogen/mocs_compilation.s"
+	@echo "... NetworkLinkActor.o"
+	@echo "... NetworkLinkActor.i"
+	@echo "... NetworkLinkActor.s"
 	@echo "... NetworkNodeActor.o"
 	@echo "... NetworkNodeActor.i"
 	@echo "... NetworkNodeActor.s"

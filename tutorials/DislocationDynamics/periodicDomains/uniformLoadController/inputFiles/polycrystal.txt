@@ -1,6 +1,5 @@
 materialFile=../../MaterialsLibrary/W.txt; 
-#meshFile=../../MeshLibrary/unitMesh.msh; 
-meshFile=../../../tutorials/DislocationDynamics/MeshLibrary/unitMesh.msh; 
+meshFile=../../MeshLibrary/unitMesh.msh; 
 
 C2G1=1.000000000000000 0.000000000000000 0.000000000000000 
  0.000000000000000 1.000000000000000 0.000000000000000 

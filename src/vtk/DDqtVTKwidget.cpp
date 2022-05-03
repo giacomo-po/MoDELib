@@ -29,7 +29,7 @@ namespace model
     /* init */,renderer(vtkSmartPointer<vtkRenderer>::New())
     /* init */,workingDir(getWorkingDir())
     /* init */,workingDirLabel(new QLabel(QString::fromStdString(workingDir)))
-    /* init */,mesh(TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readString("meshFile",true),
+    /* init */,mesh(workingDir+"/"+TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readString("meshFile",true),
                     TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),
                     TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),
                     TextFileParser(workingDir+"/inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))

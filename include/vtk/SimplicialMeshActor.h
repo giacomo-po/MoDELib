@@ -82,16 +82,11 @@ namespace model
 
         
     public:
-//        QGroupBox* controlsBox;
         QGridLayout* mainLayout;
         QCheckBox* showMesh;
-//        QLabel*  showMeshLabel;
         QCheckBox* showFaceBoundaries;
-//        QLabel*  showFaceBoundariesLabel;
         QCheckBox* showGrainColors;
-//        QLabel*  showGrainColorsLabel;
         QCheckBox* showRegionBoundaries;
-//        QLabel*  showRegionBoundariesLabel;
 
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
@@ -99,10 +94,6 @@ namespace model
         const SimplicialMesh<3>& mesh;
         
         double dispCorr;
-//        bool showGrainColors;
-//        bool showRegionBoundaries;
-//        bool showFaceBoundaries;
-//        bool showMesh;
 
         std::map<size_t,std::pair<size_t,Eigen::Matrix<double,3,1>>> sIDtoVtkPointsMap;
         

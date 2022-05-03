@@ -9,6 +9,7 @@
 #ifndef model_MeshBoundarySegment_H_
 #define model_MeshBoundarySegment_H_
 
+#include <iomanip>
 #include <cfloat>
 #include <set>
 #include <Eigen/Dense>

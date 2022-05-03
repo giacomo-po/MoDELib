@@ -429,6 +429,7 @@
   /Users/giacomo/Documents/MoDELib2/include/Utilities/TerminalColors.h \
   /Users/giacomo/Documents/MoDELib2/include/Utilities/TypeTraits.h \
   /Users/giacomo/Documents/MoDELib2/include/vtk/DDconfigVtk.h \
+  /Users/giacomo/Documents/MoDELib2/include/vtk/NetworkLinkActor.h \
   /Users/giacomo/Documents/MoDELib2/include/vtk/NetworkNodeActor.h \
   /Users/giacomo/Documents/MoDELib2/include/vtk/SimplicialMeshActor.h \
   /Users/giacomo/Documents/eigen/Eigen/Cholesky \

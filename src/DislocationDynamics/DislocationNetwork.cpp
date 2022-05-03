@@ -84,7 +84,7 @@ namespace model
             folderSuffix=argv[1];
         }
         
-        DDconfigIO<dim> evl(folderSuffix);
+        DDconfigIO<dim> evl("evl",folderSuffix);
         evl.read(runID);
         setConfiguration(evl);
         createEshelbyInclusions();

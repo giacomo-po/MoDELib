@@ -24,6 +24,7 @@
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
 #include <EshelbyInclusionIO.h>
+#include <DislocationNetwork.h>
 //#include <PeriodicLoopIO.h>
 
 #include <TerminalColors.h>
@@ -89,8 +90,9 @@ namespace model
         }
         
         /**********************************************************************/
-        template<typename DislocationNetworkType>
-        DDconfigIO(const DislocationNetworkType& dn,
+//        template<typename DislocationNetworkType>
+        template <short unsigned int corder>
+        DDconfigIO(const DislocationNetwork<dim,corder>& dn,
                    const std::string& suffix="") :
         /* init */ DDbaseIO("evl","evl",suffix)
         {

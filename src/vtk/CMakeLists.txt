@@ -21,6 +21,9 @@ add_library(MoDELibvtk STATIC
 	DDconfigVtk.cpp
 	${MoDELibRootDir}/include/vtk/NetworkNodeActor.h
 	NetworkNodeActor.cpp
+	${MoDELibRootDir}/include/vtk/NetworkLinkActor.h
+	NetworkLinkActor.cpp
 			)
 
-target_link_libraries(MoDELibvtk ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)
+
+target_link_libraries(MoDELibvtk MoDELibMesh MoDELibGeometry ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)

@@ -169,6 +169,19 @@ MoDELibMesh/fast:
 .PHONY : MoDELibMesh/fast
 
 #=============================================================================
+# Target rules for targets named MoDELibLattices
+
+# Build rule for target.
+MoDELibLattices: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MoDELibLattices
+.PHONY : MoDELibLattices
+
+# fast build rule for target.
+MoDELibLattices/fast:
+	$(MAKE) $(MAKESILENT) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/build
+.PHONY : MoDELibLattices/fast
+
+#=============================================================================
 # Target rules for targets named MoDELibvtk
 
 # Build rule for target.
@@ -193,19 +206,6 @@ MoDELibvtk_autogen: cmake_check_build_system
 MoDELibvtk_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f vtk/CMakeFiles/MoDELibvtk_autogen.dir/build.make vtk/CMakeFiles/MoDELibvtk_autogen.dir/build
 .PHONY : MoDELibvtk_autogen/fast
-
-#=============================================================================
-# Target rules for targets named MoDELibLattices
-
-# Build rule for target.
-MoDELibLattices: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 MoDELibLattices
-.PHONY : MoDELibLattices
-
-# fast build rule for target.
-MoDELibLattices/fast:
-	$(MAKE) $(MAKESILENT) -f Lattices/CMakeFiles/MoDELibLattices.dir/build.make Lattices/CMakeFiles/MoDELibLattices.dir/build
-.PHONY : MoDELibLattices/fast
 
 DDqt.o: DDqt.cxx.o
 .PHONY : DDqt.o

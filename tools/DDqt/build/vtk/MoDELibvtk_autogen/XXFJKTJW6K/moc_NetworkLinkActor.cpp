@@ -1,5 +1,5 @@
 /****************************************************************************
-** Meta object code from reading C++ file 'widget.h'
+** Meta object code from reading C++ file 'NetworkLinkActor.h'
 **
 ** Created by: The Qt Meta Object Compiler version 68 (Qt 6.1.3)
 **
@@ -7,11 +7,11 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../widget.h"
+#include "../../../../../../include/vtk/NetworkLinkActor.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
-#error "The header file 'widget.h' doesn't include <QObject>."
+#error "The header file 'NetworkLinkActor.h' doesn't include <QObject>."
 #elif Q_MOC_OUTPUT_REVISION != 68
 #error "This file was generated using the moc from 6.1.3. It"
 #error "cannot be used with the include files from this version of Qt."
@@ -21,24 +21,24 @@
 QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
-struct qt_meta_stringdata_Widget_t {
+struct qt_meta_stringdata_model__NetworkLinkActor_t {
     const uint offsetsAndSize[6];
-    char stringdata0[30];
+    char stringdata0[32];
 };
 #define QT_MOC_LITERAL(ofs, len) \
-    uint(offsetof(qt_meta_stringdata_Widget_t, stringdata0) + ofs), len 
-static const qt_meta_stringdata_Widget_t qt_meta_stringdata_Widget = {
+    uint(offsetof(qt_meta_stringdata_model__NetworkLinkActor_t, stringdata0) + ofs), len 
+static const qt_meta_stringdata_model__NetworkLinkActor_t qt_meta_stringdata_model__NetworkLinkActor = {
     {
-QT_MOC_LITERAL(0, 6), // "Widget"
-QT_MOC_LITERAL(7, 21), // "on_pushButton_clicked"
-QT_MOC_LITERAL(29, 0) // ""
+QT_MOC_LITERAL(0, 23), // "model::NetworkLinkActor"
+QT_MOC_LITERAL(24, 6), // "modify"
+QT_MOC_LITERAL(31, 0) // ""
 
     },
-    "Widget\0on_pushButton_clicked\0"
+    "model::NetworkLinkActor\0modify\0"
 };
 #undef QT_MOC_LITERAL
 
-static const uint qt_meta_data_Widget[] = {
+static const uint qt_meta_data_model__NetworkLinkActor[] = {
 
  // content:
        9,       // revision
@@ -60,26 +60,26 @@ static const uint qt_meta_data_Widget[] = {
        0        // eod
 };
 
-void Widget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
+void model::NetworkLinkActor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     if (_c == QMetaObject::InvokeMetaMethod) {
-        auto *_t = static_cast<Widget *>(_o);
+        auto *_t = static_cast<NetworkLinkActor *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->on_pushButton_clicked(); break;
+        case 0: _t->modify(); break;
         default: ;
         }
     }
     (void)_a;
 }
 
-const QMetaObject Widget::staticMetaObject = { {
+const QMetaObject model::NetworkLinkActor::staticMetaObject = { {
     QMetaObject::SuperData::link<QWidget::staticMetaObject>(),
-    qt_meta_stringdata_Widget.offsetsAndSize,
-    qt_meta_data_Widget,
+    qt_meta_stringdata_model__NetworkLinkActor.offsetsAndSize,
+    qt_meta_data_model__NetworkLinkActor,
     qt_static_metacall,
     nullptr,
-qt_incomplete_metaTypeArray<qt_meta_stringdata_Widget_t
+qt_incomplete_metaTypeArray<qt_meta_stringdata_model__NetworkLinkActor_t
 
 , QtPrivate::TypeAndForceComplete<void, std::false_type>
 
@@ -89,20 +89,20 @@ qt_incomplete_metaTypeArray<qt_meta_stringdata_Widget_t
 } };
 
 
-const QMetaObject *Widget::metaObject() const
+const QMetaObject *model::NetworkLinkActor::metaObject() const
 {
     return QObject::d_ptr->metaObject ? QObject::d_ptr->dynamicMetaObject() : &staticMetaObject;
 }
 
-void *Widget::qt_metacast(const char *_clname)
+void *model::NetworkLinkActor::qt_metacast(const char *_clname)
 {
     if (!_clname) return nullptr;
-    if (!strcmp(_clname, qt_meta_stringdata_Widget.stringdata0))
+    if (!strcmp(_clname, qt_meta_stringdata_model__NetworkLinkActor.stringdata0))
         return static_cast<void*>(this);
     return QWidget::qt_metacast(_clname);
 }
 
-int Widget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
+int model::NetworkLinkActor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)
