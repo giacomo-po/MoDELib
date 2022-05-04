@@ -38,89 +38,89 @@ namespace model
     {
         
         /**********************************************************************/
-        DDauxIO(const std::string& suffix="") :
-        /* init */ DDbaseIO("evl","ddAux",suffix)
+        DDauxIO(const std::string& folderName,const std::string& suffix="") :
+        /* init */ DDbaseIO(folderName,"ddAux",suffix)
         {
             
         }
         
-        /**********************************************************************/
-        template<typename DislocationNodeType>
-        DDauxIO(const DislocationNodeType& DN,
-                   const std::string& suffix="") :
-        /* init */ DDbaseIO("evl","ddAux",suffix)
-        {
-
-            if(DN.outputMeshDisplacement)
-            {
-                std::vector<FEMnodeEvaluation<typename DislocationNodeType::ElementType,dim,1>> fieldPoints; // the container of field points
-                fieldPoints.reserve(DN.mesh.template observer<0>().size());
-                for (const auto& sIter : DN.mesh.template observer<0>())
-                {
-                    if(sIter.second->isBoundarySimplex())
-                    {
-                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
-                    }
-                }
-                meshNodes().reserve(fieldPoints.size());
-                
-                DN.displacement(fieldPoints);
-                
-                for(auto& node : fieldPoints)
-                {// add FEM solution and output
-                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
-                    {
-                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
-                        node+=DN.bvpSolver->displacement().dofs(femID);
-                    }
-                    meshNodes().emplace_back(node);
-                }
-            }
-            
-            if (DN.outputQuadraturePoints)
-            {
-                for (const auto& link : DN.networkLinks())
-                {
-                    for(const auto& qPoint : link.second.lock()->quadraturePoints())
-                    {
-                        quadraturePoints().push_back(qPoint);
-                    }
-                }
-            }
-            
-            if(DN.outputGlidePlanes)
-            {
-                setGlidePlaneBoundaries(DN.glidePlaneFactory);
-            }
-            
-//            if(DN.outputPeriodicConfiguration && DN.periodicDislocationLoopFactory)
+//        /**********************************************************************/
+//        template<typename DislocationNodeType>
+//        DDauxIO(const DislocationNodeType& DN,
+//                   const std::string& suffix="") :
+//        /* init */ DDbaseIO("evl","ddAux",suffix)
+//        {
+//
+//            if(DN.outputMeshDisplacement)
 //            {
-//                for(const auto& pair : *DN.periodicDislocationLoopFactory)
-//                {// output periodic glide planes too
-//
-//                    if(!pair.second.expired())
+//                std::vector<FEMnodeEvaluation<typename DislocationNodeType::ElementType,dim,1>> fieldPoints; // the container of field points
+//                fieldPoints.reserve(DN.mesh.template observer<0>().size());
+//                for (const auto& sIter : DN.mesh.template observer<0>())
+//                {
+//                    if(sIter.second->isBoundarySimplex())
 //                    {
-//                        const auto periodicLoop(pair.second.lock());
-//                        addPeriodicGlidePlane(*periodicLoop->periodicGlidePlane);
+//                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
+//                    }
+//                }
+//                meshNodes().reserve(fieldPoints.size());
 //
-//                        for(const auto& node : periodicLoop->sharedNodes())
-//                        {
-//                            if(!node.second.expired())
-//                            {
-//                                periodicLoopNodes().emplace_back(*node.second.lock());
-//                            }
-//                        }
+//                DN.displacement(fieldPoints);
 //
-//                        for(const auto& link : periodicLoop->loopLinks())
-//                        {
-//                            periodicLoopLinks().emplace_back(link.second);
-//                        }
+//                for(auto& node : fieldPoints)
+//                {// add FEM solution and output
+//                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+//                    {
+//                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+//                        node+=DN.bvpSolver->displacement().dofs(femID);
+//                    }
+//                    meshNodes().emplace_back(node);
+//                }
+//            }
 //
+//            if (DN.outputQuadraturePoints)
+//            {
+//                for (const auto& link : DN.networkLinks())
+//                {
+//                    for(const auto& qPoint : link.second.lock()->quadraturePoints())
+//                    {
+//                        quadraturePoints().push_back(qPoint);
 //                    }
 //                }
 //            }
-            
-        }
+//
+//            if(DN.outputGlidePlanes)
+//            {
+//                setGlidePlaneBoundaries(DN.glidePlaneFactory);
+//            }
+//
+////            if(DN.outputPeriodicConfiguration && DN.periodicDislocationLoopFactory)
+////            {
+////                for(const auto& pair : *DN.periodicDislocationLoopFactory)
+////                {// output periodic glide planes too
+////
+////                    if(!pair.second.expired())
+////                    {
+////                        const auto periodicLoop(pair.second.lock());
+////                        addPeriodicGlidePlane(*periodicLoop->periodicGlidePlane);
+////
+////                        for(const auto& node : periodicLoop->sharedNodes())
+////                        {
+////                            if(!node.second.expired())
+////                            {
+////                                periodicLoopNodes().emplace_back(*node.second.lock());
+////                            }
+////                        }
+////
+////                        for(const auto& link : periodicLoop->loopLinks())
+////                        {
+////                            periodicLoopLinks().emplace_back(link.second);
+////                        }
+////
+////                    }
+////                }
+////            }
+//
+//        }
         
         /**********************************************************************/
         void setGlidePlaneBoundaries(const GlidePlaneFactory<dim>& gpf)

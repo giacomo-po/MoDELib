@@ -24,7 +24,7 @@
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
 #include <EshelbyInclusionIO.h>
-#include <DislocationNetwork.h>
+//#include <DislocationNetwork.h>
 //#include <PeriodicLoopIO.h>
 
 #include <TerminalColors.h>
@@ -42,35 +42,61 @@ namespace model
     /*              */,private std::vector<DislocationLoopNodeIO<dim> >
     /*              */,private std::vector<DislocationLoopLinkIO<dim> >
     /*              */,private std::vector<EshelbyInclusionIO<dim>>
-    /*              */,private std::map<size_t,const DislocationLoopNodeIO<dim>* const>
-    /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
-    /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
-    {
+//    /*              */,private std::map<size_t,const DislocationLoopNodeIO<dim>* const>
+//    /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
+//    /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
+{
         
         //        static_assert(std::is_pod<DislocationNodeIO<dim>>::value,"DislocationNodeIO<dim> is NOT PLANE OLD DATA");
         
         /**********************************************************************/
-        void make_maps()
+//        void make_maps()
+//        {
+//
+//            // node map
+//            for(const auto& loopNode : loopNodes())
+//            {
+//                loopNodeMap().emplace(loopNode.sID,&loopNode);
+//            }
+//
+//            // node map
+//            for(const auto& node : nodes())
+//            {
+//                nodeMap().emplace(node.sID,&node);
+//            }
+//
+//            // loop map
+//            for(const auto& loop : loops())
+//            {
+//                loopMap().emplace(loop.sID,&loop);
+//            }
+//        }
+    
+    std::map<size_t,const size_t> _loopNodeMap;
+    std::map<size_t,const size_t> _nodeMap;
+    std::map<size_t, const size_t> _loopMap;
+    
+    void make_maps()
+    {
+        
+        // node map
+        for(size_t k=0;k<loopNodes().size();++k)
         {
-            
-            // node map
-            for(const auto& loopNode : loopNodes())
-            {
-                loopNodeMap().emplace(loopNode.sID,&loopNode);
-            }
-            
-            // node map
-            for(const auto& node : nodes())
-            {
-                nodeMap().emplace(node.sID,&node);
-            }
-            
-            // loop map
-            for(const auto& loop : loops())
-            {
-                loopMap().emplace(loop.sID,&loop);
-            }
+            loopNodeMap().insert(std::make_pair(loopNodes()[k].sID,k));
         }
+        
+        // node map
+        for(size_t k=0;k<nodes().size();++k)
+        {
+            nodeMap().emplace(nodes()[k].sID,k);
+        }
+        
+        // loop map
+        for(size_t k=0;k<loops().size();++k)
+        {
+            loopMap().emplace(loops()[k].sID,k);
+        }
+    }
         
         
     public:
@@ -82,57 +108,53 @@ namespace model
             
         }
 
-        /**********************************************************************/
-        DDconfigIO(const std::string& suffix="") :
-        /* init */ DDbaseIO("evl","evl",suffix)
-        {
-            
-        }
+//        /**********************************************************************/
+//        DDconfigIO(const std::string& suffix="") :
+//        /* init */ DDbaseIO("evl","evl",suffix)
+//        {
+//
+//        }
         
-        /**********************************************************************/
+//        /**********************************************************************/
 //        template<typename DislocationNetworkType>
-        template <short unsigned int corder>
-        DDconfigIO(const DislocationNetwork<dim,corder>& dn,
-                   const std::string& suffix="") :
-        /* init */ DDbaseIO("evl","evl",suffix)
-        {
-            
-            
-            // Write Loops
-            for(const auto& loop : dn.loops())
-            {
-                loops().emplace_back(*loop.second.lock());
-            }
-            
-
-            // Write LoopNodes
-            for(const auto& node : dn.loopNodes())
-            {
-                loopNodes().emplace_back(*node.second.lock());
-            }
-            
-
-            
-            // Write LoopLinks
-            for(const auto& link : dn.loopLinks())
-            {
-                loopLinks().emplace_back(link.second);
-            }
-            
-
-            
-            // Write Eshelby Inclusions
-            for(const auto& node : dn.networkNodes())
-            {
-                nodes().emplace_back(*node.second.lock());
-            }
-            
-            for(const auto& ei : dn.eshelbyInclusions())
-            {
-                eshelbyInclusions().emplace_back(ei.second);
-            }
-        
-        }
+//  //      template <short unsigned int corder>
+////        DDconfigIO(const DislocationNetwork<dim,corder>& dn,
+//        DDconfigIO(const DislocationNetworkType& dn,
+//                   const std::string& suffix="") :
+//        /* init */ DDbaseIO("evl","evl",suffix)
+//        {
+//
+//            // Store Loops
+//            for(const auto& loop : dn.loops())
+//            {
+//                loops().emplace_back(*loop.second.lock());
+//            }
+//
+//            // Store LoopNodes
+//            for(const auto& node : dn.loopNodes())
+//            {
+//                loopNodes().emplace_back(*node.second.lock());
+//            }
+//
+//            // Store LoopLinks
+//            for(const auto& link : dn.loopLinks())
+//            {
+//                loopLinks().emplace_back(link.second);
+//            }
+//
+//            // Store NetworkNodes
+//            for(const auto& node : dn.networkNodes())
+//            {
+//                nodes().emplace_back(*node.second.lock());
+//            }
+//
+//            // Store Eshelby Inclusions
+//            for(const auto& ei : dn.eshelbyInclusions())
+//            {
+//                eshelbyInclusions().emplace_back(ei.second);
+//            }
+//
+//        }
         
         /**********************************************************************/
         const std::vector<DislocationNodeIO<dim> >& nodes() const
@@ -155,6 +177,30 @@ namespace model
         {
             return *this;
         }
+    
+    /**********************************************************************/
+    const std::vector<DislocationLoopIO<dim> >& loops() const
+    {
+        return *this;
+    }
+    
+    std::vector<DislocationLoopIO<dim> >& loops()
+    {
+        return *this;
+    }
+    
+
+    
+    /**********************************************************************/
+    const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const
+    {
+        return *this;
+    }
+    
+    std::vector<DislocationLoopLinkIO<dim> >& loopLinks()
+    {
+        return *this;
+    }
         
         /**********************************************************************/
         const std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions() const
@@ -167,67 +213,79 @@ namespace model
             return *this;
         }
         
-        /**********************************************************************/
-        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
+//        {
+//            return *this;
+//        }
+//
+//        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap() const
+//        {
+//            return *this;
+//        }
+//
+//        std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap()
+//        {
+//            return *this;
+//        }
+//
+//    /**********************************************************************/
+//    const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
+//    {
+//        return *this;
+//    }
+//
+//    /**********************************************************************/
+//    std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap()
+//    {
+//        return *this;
+//    }
         
-        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
-        {
-            return *this;
-        }
+    /**********************************************************************/
+    const std::map<size_t,const size_t>& nodeMap() const
+    {
+        return _nodeMap;
+    }
+    
+    std::map<size_t,const size_t>& nodeMap()
+    {
+        return _nodeMap;
+    }
+    
+    /**********************************************************************/
+    const std::map<size_t,const size_t>& loopNodeMap() const
+    {
+        return _loopNodeMap;
+    }
+    
+    std::map<size_t,const size_t>& loopNodeMap()
+    {
+        return _loopNodeMap;
+    }
+    
+/**********************************************************************/
+const std::map<size_t, const size_t>& loopMap() const
+{
+    return _loopMap;
+}
+
+/**********************************************************************/
+std::map<size_t, const size_t>& loopMap()
+{
+    return _loopMap;
+}
+    
         
-        /**********************************************************************/
-        const std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap() const
-        {
-            return *this;
-        }
-        
-        std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap()
-        {
-            return *this;
-        }
-        
-        
-        /**********************************************************************/
-        const std::vector<DislocationLoopIO<dim> >& loops() const
-        {
-            return *this;
-        }
-        
-        std::vector<DislocationLoopIO<dim> >& loops()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const
-        {
-            return *this;
-        }
-        
-        std::vector<DislocationLoopLinkIO<dim> >& loopLinks()
-        {
-            return *this;
-        }
         
         /**********************************************************************/
         std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > segments() const
         {
-            
             std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > temp;
             
             for(const auto& link : loopLinks())
@@ -243,6 +301,7 @@ namespace model
                 const auto loopSinkIter(loopNodeMap().find(link.sinkID));
                 assert(loopSinkIter!=loopNodeMap().end());
 
+
 //                const bool arePeriodicBoundaryNodes((loopSourceIter->second->P-loopSinkIter->second->P).norm()<FLT_EPSILON
 //                                                    && loopSourceIter->second->edgeID>=0
 //                                                    &&   loopSinkIter->second->edgeID>=0
@@ -250,8 +309,12 @@ namespace model
                 
                 if(link.hasNetworkLink)
                 {
-                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
-                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+                    const auto& loopNodeSource(loopNodes()[loopSourceIter->second]);
+                    const auto&   loopNodeSink(loopNodes()[  loopSinkIter->second]);
+                    const auto& loop(loops()[loopIter->second]);
+
+                    const size_t sourceID(std::min(loopNodeSource.networkNodeID,loopNodeSink.networkNodeID));
+                    const size_t   sinkID(std::max(loopNodeSource.networkNodeID,loopNodeSink.networkNodeID));
                     const auto key=std::make_pair(sourceID,sinkID);
                     
                     const auto insertPair=temp.insert(std::make_pair(key,DislocationSegmentIO<dim>(sourceID,sinkID)));
@@ -263,7 +326,7 @@ namespace model
                     if(success)
                     {
                         // std::cout<<" Adding link "<<link.sourceID<<"=>"<<link.sinkID<<" with normal "<<loopIter->second->N.transpose()<<"and burgres "<<loopIter->second->B.transpose();
-                        iter->second.n=loopIter->second->N;
+                        iter->second.n=loop.N;
                         // std::cout<<" After adding Normal is "<<iter->second.n.transpose();
 
                     }
@@ -271,7 +334,7 @@ namespace model
                     {
                         // std::cout<<" Adding link "<<link.sourceID<<"=>"<<link.sinkID<<" with normal "<<loopIter->second->N.transpose()<<"and burgres "<<loopIter->second->B.transpose();
 
-                        if(iter->second.n.cross(loopIter->second->N).norm()>FLT_EPSILON)
+                        if(iter->second.n.cross(loop.N).norm()>FLT_EPSILON)
                         {
                             iter->second.n.setZero();
                         }
@@ -281,14 +344,14 @@ namespace model
                     }
                     
 //                    if(link.sourceID<link.sinkID)
-                    if(loopSourceIter->second->networkNodeID<loopSinkIter->second->networkNodeID)
+                    if(loopNodeSource.networkNodeID<loopNodeSink.networkNodeID)
                     {
-                        iter->second.b+=loopIter->second->B;
+                        iter->second.b+=loop.B;
                         // std::cout<<" Burgers vector "<<iter->second.b.transpose()<<std::endl;
                     }
                     else
                     {
-                        iter->second.b-=loopIter->second->B;
+                        iter->second.b-=loop.B;
                         // std::cout<<" Burgers vector "<<iter->second.b.transpose()<<std::endl;
 
                     }
@@ -307,38 +370,38 @@ namespace model
             return temp;
         }
 
-        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
-        {
-            
-           std::map<std::pair<size_t,size_t>,std::set<size_t> >temp;
-            
-            for(const auto& link : loopLinks())
-            {
-                
-                
-                const auto loopIter=loopMap().find(link.loopID);
-                assert(loopIter!=loopMap().end());
-                
-                const auto loopSourceIter(loopNodeMap().find(link.sourceID));
-                assert(loopSourceIter!=loopNodeMap().end());
-
-                const auto loopSinkIter(loopNodeMap().find(link.sinkID));
-                assert(loopSinkIter!=loopNodeMap().end());
-
-                
-                if(link.hasNetworkLink)
-                {
-                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
-                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
-                    const auto key=std::make_pair(sourceID,sinkID);
-
-                    temp[key].insert(link.loopID);
-                    
-                }
-            }
-            
-            return temp;
-        }
+//        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
+//        {
+//
+//           std::map<std::pair<size_t,size_t>,std::set<size_t> >temp;
+//
+//            for(const auto& link : loopLinks())
+//            {
+//
+//
+//                const auto loopIter=loopMap().find(link.loopID);
+//                assert(loopIter!=loopMap().end());
+//
+//                const auto loopSourceIter(loopNodeMap().find(link.sourceID));
+//                assert(loopSourceIter!=loopNodeMap().end());
+//
+//                const auto loopSinkIter(loopNodeMap().find(link.sinkID));
+//                assert(loopSinkIter!=loopNodeMap().end());
+//
+//
+//                if(link.hasNetworkLink)
+//                {
+//                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+//                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
+//                    const auto key=std::make_pair(sourceID,sinkID);
+//
+//                    temp[key].insert(link.loopID);
+//
+//                }
+//            }
+//
+//            return temp;
+//        }
         
         /**********************************************************************/
         void write(const size_t& runID,const bool& outputBinary)
@@ -496,6 +559,7 @@ namespace model
         /**********************************************************************/
         void read(const size_t& runID)
         {
+                        
             if(isBinGood(runID))
             {
                 readBin(runID);
@@ -517,6 +581,17 @@ namespace model
         /**********************************************************************/
         void readBin(const size_t& runID)
         {
+            
+            nodes().clear();
+            loops().clear();
+            loopLinks().clear();
+            loopNodes().clear();
+            eshelbyInclusions().clear();
+            nodeMap().clear();
+            loopNodeMap().clear();
+            loopMap().clear();
+
+            
             const std::string filename(this->getBinFilename(runID));
             
             std::ifstream infile (filename.c_str(), std::ios::in|std::ios::binary);
@@ -576,6 +651,7 @@ namespace model
         /**********************************************************************/
         void readTxt(const size_t& runID)
         {
+            
             const std::string filename(this->getTxtFilename(runID));
             
             std::ifstream infile (filename.c_str(), std::ios::in);
@@ -608,6 +684,15 @@ namespace model
         /**********************************************************************/
         void readTxtStream(std::istream &infile)
         {
+            
+            nodes().clear();
+            loops().clear();
+            loopLinks().clear();
+            loopNodes().clear();
+            eshelbyInclusions().clear();
+            nodeMap().clear();
+            loopNodeMap().clear();
+            loopMap().clear();
             
             size_t sizeV;
             size_t sizeL;

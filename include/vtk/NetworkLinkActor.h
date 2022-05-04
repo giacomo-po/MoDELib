@@ -43,6 +43,9 @@ namespace model
 {
     struct NetworkLinkActor : public QWidget
     {
+        static constexpr int dim=3;
+        enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
+        typedef Eigen::Matrix<double,dim,1>  VectorDim;
         
         Q_OBJECT
         private slots:
@@ -53,14 +56,30 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showLinks;
+        double tubeRadius;
+        ColorScheme clr;
+
+
+        vtkSmartPointer<vtkPolyData> polyData;
+        vtkSmartPointer<vtkPolyData> polyDataBnd;
+        vtkSmartPointer<vtkPolyData> polyData0;
+        vtkSmartPointer<vtkTubeFilter> tubeFilter;
+        vtkSmartPointer<vtkTubeFilter> tubeFilterBnd;
+        vtkSmartPointer<vtkTubeFilter> tubeFilter0;
+        vtkSmartPointer<vtkPolyDataMapper> tubeMapper;
+        vtkSmartPointer<vtkActor> tubeActor;
+        vtkSmartPointer<vtkPolyDataMapper> tubeMapperBnd;
+        vtkSmartPointer<vtkActor> tubeActorBnd;
+        vtkSmartPointer<vtkPolyDataMapper> tubeMapper0;
+        vtkSmartPointer<vtkActor> tubeActor0;
 
         
         public:
                 
         
         NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);
-        void updateConfiguration(const DDconfigIO<3>& configIO);
-        
+        void updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData);
+        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
         
     };
     

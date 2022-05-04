@@ -99,13 +99,87 @@ namespace model
         /**********************************************************************/
         DDconfigIO<dim> configIO() const
         {
-            return DDconfigIO<dim>(DN,suffix);
+            DDconfigIO<dim> temp("evl",suffix);
+            for(const auto& loop : DN.loops())
+            {
+                temp.loops().emplace_back(*loop.second.lock());
+            }
+            
+            // Store LoopNodes
+            for(const auto& node : DN.loopNodes())
+            {
+                temp.loopNodes().emplace_back(*node.second.lock());
+            }
+            
+            // Store LoopLinks
+            for(const auto& link : DN.loopLinks())
+            {
+                temp.loopLinks().emplace_back(link.second);
+            }
+            
+            // Store NetworkNodes
+            for(const auto& node : DN.networkNodes())
+            {
+                temp.nodes().emplace_back(*node.second.lock());
+            }
+            
+            // Store Eshelby Inclusions
+            for(const auto& ei : DN.eshelbyInclusions())
+            {
+                temp.eshelbyInclusions().emplace_back(ei.second);
+            }
+            
+            return temp;
         }
         
         /**********************************************************************/
         DDauxIO<dim> auxIO() const
         {
-            return DDauxIO<dim>(DN,suffix);
+            DDauxIO<dim> temp("evl",suffix);
+            
+            if(DN.outputMeshDisplacement)
+            {
+                std::vector<FEMnodeEvaluation<typename DislocationNetworkType::ElementType,dim,1>> fieldPoints; // the container of field points
+                fieldPoints.reserve(DN.mesh.template observer<0>().size());
+                for (const auto& sIter : DN.mesh.template observer<0>())
+                {
+                    if(sIter.second->isBoundarySimplex())
+                    {
+                        fieldPoints.emplace_back(sIter.second->xID(0),sIter.second->P0);
+                    }
+                }
+                temp.meshNodes().reserve(fieldPoints.size());
+                
+                DN.displacement(fieldPoints);
+                
+                for(auto& node : fieldPoints)
+                {// add FEM solution and output
+                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+                    {
+                        const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
+                        node+=DN.bvpSolver->displacement().dofs(femID);
+                    }
+                    temp.meshNodes().emplace_back(node);
+                }
+            }
+            
+            if (DN.outputQuadraturePoints)
+            {
+                for (const auto& link : DN.networkLinks())
+                {
+                    for(const auto& qPoint : link.second.lock()->quadraturePoints())
+                    {
+                        temp.quadraturePoints().push_back(qPoint);
+                    }
+                }
+            }
+            
+            if(DN.outputGlidePlanes)
+            {
+                temp.setGlidePlaneBoundaries(DN.glidePlaneFactory);
+            }
+            
+            return temp;
         }
         
         /* outputTXT **********************************************************/

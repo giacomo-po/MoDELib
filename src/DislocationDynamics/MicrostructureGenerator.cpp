@@ -1147,6 +1147,8 @@ namespace model
         /* init*/,loopID(0)
         /* init*/,enforceMonotonicHelicity(TextFileParser("./inputFiles/initialMicrostructure.txt").readScalar<int>("enforceMonotonicHelicity",true))
         /* init*/,helicity(0.0)
+        /* init*/,configIO("evl")
+        /* init*/,auxIO("evl")
         /* init*/,outputBinary(TextFileParser("./inputFiles/DD.txt").readScalar<int>("outputBinary",true))
 //        /* init*/,meshID(TextFileParser("./inputFiles/DD.txt").readScalar<int>("meshID",true))
         /* init */,periodicFaceIDs(TextFileParser("./inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))

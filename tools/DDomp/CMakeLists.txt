@@ -9,17 +9,14 @@ set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
-#	set(CMAKE_CXX_FLAGS "-fopenmp -O3 -Ofast")
+set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
-	set(CMAKE_CXX_FLAGS "-fopenmp -march=native")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native")
 endif()
 
-
-set(CMAKE_CXX_FLAGS_DEBUG "-O3")
+#set(CMAKE_CXX_FLAGS_DEBUG "-O3")
 #set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
-#set(CMAKE_CXX_FLAGS_RELEASE "-H")
-
 
 add_executable(DDomp DDomp.cpp)
 

@@ -8,7 +8,7 @@ Nsteps=2000000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 enablePartials=0;
 ######################################
-useSubCycling=1;
+useSubCycling=0;
 subcyclingBins=1 2 3 4 5 10;
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)

@@ -91,7 +91,7 @@ namespace model
             }
             
             nodes->updateConfiguration(*this);
-//            segments.updateConfiguration(*this,nodes.nodePolyData);
+            segments->updateConfiguration(*this,nodes->nodePolyData);
 //            loops.updateConfiguration(*this,nodes.nodePolyData);
 
         }
