@@ -126,7 +126,7 @@ namespace model
                 size_t newNodeAdded(0);
                 size_t oldNodeUsed(0);
 
-                size_t newNodeSize(nodePos.size());
+//                size_t newNodeSize(nodePos.size());
 
                 for(size_t k=0;k<nodePos.size();++k)
                 {
@@ -282,7 +282,7 @@ namespace model
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;
-                    const int grainID=rp.second;
+                    const size_t grainID=rp.second;
 
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
 
@@ -454,7 +454,7 @@ namespace model
                 {
                     const std::pair<LatticeVector<dim>,int> rp=randomPointInMesh();
                     const LatticeVector<dim> L0=rp.first;
-                    const int grainID=rp.second;
+                    const size_t grainID=rp.second;
 
                     std::uniform_int_distribution<> distribution(0,poly.grain(grainID).slipSystems().size()-1);
 
@@ -534,7 +534,7 @@ namespace model
                             }
                             else
                             {
-                                for(const auto pair : P12)
+                                for(const auto& pair : P12)
                                 {
                                     configIO.nodes().emplace_back(nodeID,pair.second,Eigen::Matrix<double,1,3>::Zero(),1.0,0);
                                     nodeID++;
@@ -652,7 +652,7 @@ namespace model
                     bool allInside = true;
                     for (const auto &pos : posVector)
                     {
-                        allInside *= mesh.searchRegion(grainID, pos).first;
+                        allInside = (allInside && mesh.searchRegion(grainID, pos).first);
                         if (!allInside)
                         {
                             break;
@@ -918,8 +918,10 @@ namespace model
                 std::cout << magentaBoldColor << "Generating periodic loops" << defaultColor << std::endl;
                 assert(poly.grains().size() == 1 && "PeriodicLoops only supported in single crystals.");
                 double density = 0.0;
-                size_t periodicNodeID(0);
+//                size_t periodicNodeID(0);
                 //                size_t periodicLoopID(0);
+                PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
+
                 while (density < targetPeriodicLoopDensity)
                 {
                     std::vector<std::pair<LatticeVector<dim>, int>> rps;
@@ -952,7 +954,6 @@ namespace model
                             loopNodePosTemp.push_back(std::make_pair(P0 + Eigen::AngleAxisd(k * 2.0 * M_PI / periodicLoopSides, slipSystem.unitNormal) * slipSystem.s.cartesian().normalized() * radius, &dummyPolyPoints.back()));
                         }
 
-                        PeriodicGlidePlaneFactory<dim> pgpf(poly, glidePlaneFactory);
                         GlidePlaneKey<3> glidePlaneKey(P0, slipSystem.n);
                         std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(pgpf.get(glidePlaneKey));
 
@@ -1092,7 +1093,7 @@ namespace model
                                 bool isGoodPosition=mesh.searchRegion(grainID,P).first;
                                 for(const auto& pair : existingPrecipitates)
                                 {
-                                    isGoodPosition *= (P-pair.second).norm()>pair.first+radius;
+                                    isGoodPosition = (isGoodPosition && ((P-pair.second).norm()>pair.first+radius));
                                     if(!isGoodPosition)
                                     {
                                         break;
@@ -1352,7 +1353,7 @@ namespace model
             bool temp=true;
             for(const auto& point : points)
             {
-                temp*=mesh.searchRegion(grainID,point).first;
+                temp= (temp && mesh.searchRegion(grainID,point).first);
                 if(!temp)
                 {
                     break;

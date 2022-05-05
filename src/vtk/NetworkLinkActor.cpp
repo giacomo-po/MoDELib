@@ -59,16 +59,16 @@ namespace model
         /* init */,polyData0(vtkSmartPointer<vtkPolyData>::New())
         /* init */,tubeFilter(vtkSmartPointer<vtkTubeFilter>::New())
         /* init */,tubeFilterBnd(vtkSmartPointer<vtkTubeFilter>::New())
+        /* init */,tubeFilter0(vtkSmartPointer<vtkTubeFilter>::New())
         /* init */,tubeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,tubeActor(vtkSmartPointer<vtkActor>::New())
         /* init */,tubeMapperBnd(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,tubeActorBnd(vtkSmartPointer<vtkActor>::New())
-        /* init */,tubeFilter0(vtkSmartPointer<vtkTubeFilter>::New())
         /* init */,tubeMapper0(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,tubeActor0(vtkSmartPointer<vtkActor>::New())
         {
             showLinks->setChecked(true);
-            showLinks->setText("show links");
+            showLinks->setText("links");
 
             mainLayout->addWidget(showLinks,0,0,1,1);
             this->setLayout(mainLayout);
@@ -140,18 +140,8 @@ namespace model
             vtkSmartPointer<vtkCellArray> cellsBnd(vtkSmartPointer<vtkCellArray>::New());
             vtkSmartPointer<vtkCellArray> cells0(vtkSmartPointer<vtkCellArray>::New());
 
-            size_t ptID=0;
             for (const auto& segment : segments)
             {
-//                std::cout<<"segment.first.first="<<segment.first.first<<std::endl;
-//                std::cout<<"segment.first.second="<<segment.first.second<<std::endl;
-//                std::cout<<"segment.second.sourceID="<<segment.second.sourceID<<std::endl;
-//                std::cout<<"segment.second.sinkID="<<segment.second.sinkID<<std::endl;
-//                std::cout<<"NodeMap"<<std::endl;
-//                for(const auto& pair : configIO.nodeMap())
-//                {
-//                    std::cout<<pair.first<<std::endl;
-//                }
                 
                 auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
                 assert(itSource!=configIO.nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
@@ -227,7 +217,7 @@ namespace model
         void NetworkLinkActor::modify()
         {
             
-//            nodeActor->SetVisibility(showLinks->isChecked());
+            tubeActor->SetVisibility(showLinks->isChecked());
 //            labelActor->SetVisibility(showLinks->isChecked());
 //            velocityActor->SetVisibility(showLinks->isChecked());
             

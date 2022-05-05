@@ -1,9 +1,14 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
+include_directories(${MoDELibRootDir}/include/LoopNetwork/)
+include_directories(${MoDELibRootDir}/include/Quadrature/)
+include_directories(${MoDELibRootDir}/include/ParticleInteraction/)
+include_directories(${MoDELibRootDir}/include/SpaceDecomposition/)
+include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
+include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
+
 add_library(MoDELibDDD 
 	STATIC 
-	PeriodicGlidePlane.cpp
 	DislocationLocalReference.cpp
-	DefectiveCrystalParameters.cpp
 		ConfinedDislocationObject.cpp
 		DefectiveCrystal.cpp
 		DislocationNetwork.cpp
@@ -16,17 +21,8 @@ add_library(MoDELibDDD
 		DislocationLoopNode.cpp
 		DislocationNetworkRemesh.cpp
 		DislocationCrossSlip.cpp
-		DislocationMobilityBase.cpp
-		DislocationMobilityBCC.cpp
-		DislocationMobilityFCC.cpp
-		DislocationMobilityHEXbasal.cpp
-		DislocationMobilityHEXprismatic.cpp
-		DislocationMobilityHEXpyramidal.cpp
 		EshelbyInclusion.cpp
 		ExternalLoadControllerBase.cpp
-		GlidePlane.cpp
-		MicrostructureGenerator.cpp		
-		PeriodicGlidePlaneFactory.cpp
 		SimplexBndNormal.cpp
 			)
 

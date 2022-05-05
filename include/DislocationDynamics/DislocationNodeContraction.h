@@ -22,7 +22,7 @@
 #include <PlaneLineIntersection.h>
 
 #ifndef NDEBUG
-#define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){model::cout<<x;}
+#define VerboseNodeContraction(N,x) if(verboseNodeContraction>=N){std::cout<<x;}
 #else
 #define VerboseNodeContraction(N,x)
 #endif

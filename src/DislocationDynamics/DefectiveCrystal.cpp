@@ -182,18 +182,18 @@ namespace model
         template <int _dim, short unsigned int corder>
         void DefectiveCrystal<_dim,corder>::singleGlideStep()
         {
-            model::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
+            std::cout<<blueBoldColor<< "runID="<<simulationParameters.runID<<" (of "<<simulationParameters.Nsteps<<")"
             /*                    */<< ", time="<<simulationParameters.totalTime;
             if(DN)
             {
-                model::cout<< ": networkNodes="<<DN->networkNodes().size()
+                std::cout<< ": networkNodes="<<DN->networkNodes().size()
                 /*                    */<< ", networkSegments="<<DN->networkLinks().size()
                 /*                    */<< ", loopNodes="<<DN->loopNodes().size()
                 /*                    */<< ", loopSegments="<<DN->loopLinks().size()
                 /*                    */<< ", loops="<<DN->loops().size();
 //                /*                    */<< ", components="<<DN->components().size();
             }
-            model::cout<< defaultColor<<std::endl;
+            std::cout<< defaultColor<<std::endl;
 
             if(DN)
             {
@@ -226,8 +226,8 @@ namespace model
                 // DN->io().output(simulationParameters.runID);
                 if (true)
                 {
-                    model::cout<<redBoldColor<<"( "<<(DislocationNode<dim,corder>::totalCappedNodes)<<" total nodes capped "<<defaultColor<<std::endl;
-                    model::cout<<redBoldColor<<", "<<(double(DislocationNode<dim,corder>::totalCappedNodes)/double(DN->networkNodes().size()))<<" fraction of nodes capped "
+                    std::cout<<redBoldColor<<"( "<<(DislocationNode<dim,corder>::totalCappedNodes)<<" total nodes capped "<<defaultColor<<std::endl;
+                    std::cout<<redBoldColor<<", "<<(double(DislocationNode<dim,corder>::totalCappedNodes)/double(DN->networkNodes().size()))<<" fraction of nodes capped "
                     <<defaultColor<<" )"<<std::endl;
                 }
             }

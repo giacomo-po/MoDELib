@@ -461,7 +461,7 @@ namespace model
 #else
         /**********************************************************************/
         template <typename DislocationNetworkType,int qOrder>
-        void assembleAndSolve(const DislocationNetworkType& DN, const bool& isClimbStep)
+        void assembleAndSolve(const DislocationNetworkType& DN, const bool& )
         {
             // Clear exisintg Dirichlet condition
             u.clearDirichletConditions();

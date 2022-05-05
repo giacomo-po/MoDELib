@@ -224,7 +224,7 @@ namespace model
             bool temp(true);
             for(const auto& val : faceIDs)
             {
-                temp*=(theseFaceIDs.find(val)!=theseFaceIDs.end());
+                temp= (temp && (theseFaceIDs.find(val)!=theseFaceIDs.end()));
                 if(!temp)
                 {
                     break;
@@ -635,7 +635,7 @@ namespace model
                         bool cointained(posCointainer.size()); // if posCointainer is empty set cointained to false
                         for(const auto& pos : posCointainer)
                         {
-                            cointained*=face.second->asPlane().contains(pos);
+                            cointained=(cointained && face.second->asPlane().contains(pos));
                         }
                         if(cointained)
                         {// faces contains all positions

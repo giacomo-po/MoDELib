@@ -54,7 +54,7 @@ namespace model
     void DislocationNetworkRemesh<DislocationNetworkType>::remeshByRemoval()
     {
         const auto t0 = std::chrono::system_clock::now();
-        model::cout << "        Remeshing network: removing... " << std::flush;
+        std::cout << "        Remeshing network: removing... " << std::flush;
         DN.danglingBoundaryLoopNodes.clear();
         
         std::vector<std::shared_ptr<typename DislocationNetworkType::LoopNodeType>> tempLoopNodes;
@@ -139,7 +139,7 @@ namespace model
         }
         
         tempLoopNodes.clear(); //Very important to clear the loop node here
-        model::cout << " (" << Nremoved << " LoopNodes removed) " << std::flush;
+        std::cout << " (" << Nremoved << " LoopNodes removed) " << std::flush;
         Nremoved=0;
         for (const auto &nodeID : bndLoopNodes)
         {
@@ -197,14 +197,14 @@ namespace model
             }
         }
 
-        model::cout << " (" << Nremoved << " bndLoopNodes removed). Updating boundary nodes " << std::flush;
+        std::cout << " (" << Nremoved << " bndLoopNodes removed). Updating boundary nodes " << std::flush;
 
         if (DN.danglingBoundaryLoopNodes.size())
         {
             DN.updateBoundaryNodes();
         }
 
-        model::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
+        std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
     }
     
     /**************************************************************************/
@@ -371,7 +371,7 @@ namespace model
     template <typename DislocationNetworkType>
     void DislocationNetworkRemesh<DislocationNetworkType>::contract0chordSegments()
     {
-        model::cout<<"        Contracting zero-chord segments... "<<std::flush;
+        std::cout<<"        Contracting zero-chord segments... "<<std::flush;
        const auto t0= std::chrono::system_clock::now();
 
        std::set<std::pair<double,std::pair<size_t,size_t> > > toBeContracted; // order by increasing segment length
@@ -485,8 +485,8 @@ namespace model
                }
            }
        }
-       model::cout<<"("<<Ncontracted<<" contracted)"<<std::flush;
-       model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+       std::cout<<"("<<Ncontracted<<" contracted)"<<std::flush;
+       std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
        std::cout << "Updating Boundary Nodes after 0chord contraction" << std::endl;
        if (DN.danglingBoundaryLoopNodes.size())
@@ -499,7 +499,7 @@ namespace model
     template <typename DislocationNetworkType>
     void DislocationNetworkRemesh<DislocationNetworkType>::remove0AreaLoopAcrossBnd()
     {
-        model::cout << "        Removing zero-area loops across boundary... " << std::flush;
+        std::cout << "        Removing zero-area loops across boundary... " << std::flush;
         const auto t0 = std::chrono::system_clock::now();
         size_t nRemoved(0);
 
@@ -543,8 +543,8 @@ namespace model
                 nRemoved++;
             }
         }
-        model::cout << "(" << nRemoved << " Loops Removed)" << std::flush;
-        model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        std::cout << "(" << nRemoved << " Loops Removed)" << std::flush;
+        std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
     }
     
     /**************************************************************************/

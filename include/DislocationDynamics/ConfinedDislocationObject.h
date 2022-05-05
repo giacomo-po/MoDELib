@@ -21,8 +21,6 @@
 #include <FiniteLineSegment.h>
 #include <LineLineIntersection.h>
 
-//#include <BoundingFiniteLineSegments.h>
-
 namespace model
 {
     
@@ -47,36 +45,22 @@ namespace model
         
     private:
         
-        /**********************************************************************/
         void updateBoundingBoxWithMeshFace(const PlanarMeshFace<dim>& face);
 
-        
-        
-        
-        //        GlidePlaneObserver<dim>& gpObserver;
         PositionCointainerType posCointainer;
         std::unique_ptr<FiniteLineSegment<dim>> _glidePlaneIntersections;
         bool _isOnExternalBoundary;
         bool _isOnInternalBoundary;
         VectorDim _outNormal;
-        
-        
+    
     public:
         
-        /**********************************************************************/
+        
         ConfinedDislocationObject(const PositionCointainerType& temp) ;
-        /**********************************************************************/
-        ConfinedDislocationObject(const VectorDim& P0) ;
-        
-        /**********************************************************************/
+                ConfinedDislocationObject(const VectorDim& P0) ;
         ConfinedDislocationObject(const VectorDim& P0,const VectorDim& P1) ;
-        
-        
-        /**********************************************************************/
         ConfinedDislocationObject(const ConfinedDislocationObject<dim>& A,
                                   const ConfinedDislocationObject<dim>& B) ;
-        
-        /**********************************************************************/
         template <typename NodeType>
         ConfinedDislocationObject(const NodeType& A):
         /* init */ _isOnExternalBoundary(A.isOnExternalBoundary())
@@ -94,66 +78,28 @@ namespace model
         }
         
         ConfinedDislocationObject& confinedObject();
-
         const ConfinedDislocationObject& confinedObject() const;
-        
-        /**********************************************************************/
         void clear();
-        
-        /**********************************************************************/
         const GlidePlaneContainerType& glidePlanes() const;
-        
         GlidePlaneContainerType& glidePlanes();
-        
-        /**********************************************************************/
         const PlanarMeshFaceContainerType& meshFaces() const;
         PlanarMeshFaceContainerType& meshFaces();
-        
-        /**********************************************************************/
         std::set<size_t> meshFaceIDs() const;
-        /**********************************************************************/
         bool isOnMeshFaces(const std::set<size_t>& faceIDs) const;
-        
-        /**********************************************************************/
         VectorDim snapToGlidePlanes(const VectorDim& P);
-
-        /**********************************************************************/
         VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P);
-        
-        /**********************************************************************/
         const std::unique_ptr<FiniteLineSegment<dim>>& glidePlaneIntersections() const;
-        
-        /**********************************************************************/
         const bool& isOnExternalBoundary() const;
-        
-        /**********************************************************************/
         const bool& isOnInternalBoundary() const;
-        
-        /**********************************************************************/
         bool isOnBoundary() const;
-        
-        /**********************************************************************/
         const VectorDim& bndNormal() const;
-        
-        /**********************************************************************/
         void updateConfinement(const VectorDim& P0);
-        
-        /**********************************************************************/
         void updateConfinement(const VectorDim& P0,const VectorDim& P1);
-        
         void updateConfinement(const PositionCointainerType& temp);
-        
-        /**********************************************************************/
         void addGlidePlane(const GlidePlaneType* const lastGlidePlane);
-        /**********************************************************************/
         void updateConfinement();
-        
-        /**********************************************************************/
         GrainContainerType grains() const;
-        
-        /**********************************************************************/
         std::vector<std::pair<const GlidePlane<dim>* const,const GlidePlane<dim>* const>> parallelAndCoincidentGlidePlanes(const GlidePlaneContainerType& other) const;
-        
         
     };
 }

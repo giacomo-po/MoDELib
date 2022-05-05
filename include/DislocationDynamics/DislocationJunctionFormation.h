@@ -16,14 +16,15 @@
 #include <SegmentSegmentDistance.h>
 #include <SweepPlane.h>
 #include <TypeTraits.h>
+#include <StressStraight.h>
 
 #include <DislocationNetworkRemesh.h>
-#include <MPIcout.h>
+//#include <MPIcout.h>
 // #include <EqualIteratorRange.h>
 // #include <N2IteratorRange.h>
 
 #ifndef NDEBUG
-#define VerboseJunctions(N,x) if(verboseJunctions>=N){model::cout<<x;}
+#define VerboseJunctions(N,x) if(verboseJunctions>=N){std::cout<<x;}
 #else
 #define VerboseJunctions(N,x)
 #endif
@@ -285,7 +286,7 @@ namespace model
           */
             
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"		Finding collisions "<<std::flush;
+            std::cout<<"		Finding collisions "<<std::flush;
             
             // Use SweepPlane to compute possible intersections
             SweepPlane<NetworkLinkType,dim> swp;
@@ -303,7 +304,7 @@ namespace model
                 }
             }
             swp.computeIntersectionPairs();
-            model::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
+            std::cout<<"("<<swp.potentialIntersectionPairs().size()<<" sweep-line pairs) "<<defaultColor<<std::flush;
             
             
             std::deque<std::pair<const NetworkLinkType*,const NetworkLinkType*>> reducedIntersectionPairs;
@@ -337,10 +338,10 @@ namespace model
             }
             
             
-            model::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            std::cout<<" ("<<reducedIntersectionPairs.size()<<" reduced pairs) "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
             
             const auto t1= std::chrono::system_clock::now();
-            model::cout<<"        Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
+            std::cout<<"        Selecting junctions ("<<nThreads<<" threads): "<<std::flush;
             
             //! 2- loop over all links and determine their intersections
 // #ifdef _OPENMP
@@ -555,8 +556,8 @@ namespace model
             {
                 nIntersections+=intersectionByThreadContainer.size();
             }
-            model::cout<<nIntersections<<" physical junctions "<<std::flush;
-            model::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+            std::cout<<nIntersections<<" physical junctions "<<std::flush;
+            std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
             
         }
         
@@ -656,7 +657,7 @@ namespace model
         size_t contractJunctions(const std::deque<IntersectionTypeContainerType>& intersectionContainer)
         {
             const auto t0= std::chrono::system_clock::now();
-            model::cout<<"        : "<<std::flush;
+            std::cout<<"        : "<<std::flush;
 
             DN.danglingBoundaryLoopNodes.clear();
             size_t nContracted=0;
@@ -813,7 +814,7 @@ namespace model
                 }
             }
 
-            model::cout<<" ("<<nContracted<<" contracted)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            std::cout<<" ("<<nContracted<<" contracted)"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
 
             std::cout << "Updating Boundary Nodes after junction contraction" << std::endl;
@@ -833,7 +834,7 @@ namespace model
         void glissileJunctions(const double &dx)
         {
             const auto t0 = std::chrono::system_clock::now();
-            model::cout << "        Forming Glissile Junctions: " << std::flush;
+            std::cout << "        Forming Glissile Junctions: " << std::flush;
 
             std::deque<std::tuple<std::shared_ptr<NetworkNodeType>, std::shared_ptr<NetworkNodeType>, size_t, size_t>> glissDeq;
 
@@ -1016,8 +1017,8 @@ namespace model
                                 bool tempLink(true);
                                 for (const auto &tnLink : equivalentNetworkLinks)
                                 {
-                                    tempLink *= ((tnLink->burgers() - isLink->burgers()).squaredNorm() < FLT_EPSILON ||
-                                                 (tnLink->burgers() + isLink->burgers()).squaredNorm() < FLT_EPSILON);
+                                    tempLink = (tempLink && ((tnLink->burgers() - isLink->burgers()).squaredNorm() < FLT_EPSILON ||
+                                                 (tnLink->burgers() + isLink->burgers()).squaredNorm() < FLT_EPSILON));
                                     if (!tempLink)
                                     {
                                         break;
@@ -1178,8 +1179,8 @@ namespace model
                                 bool tempLink(true);
                                 for (const auto &tnLink : equivalentNetworkLinks)
                                 {
-                                    tempLink *= ((tnLink->burgers() - isLink->burgers()).squaredNorm() < FLT_EPSILON ||
-                                                 (tnLink->burgers() + isLink->burgers()).squaredNorm() < FLT_EPSILON);
+                                    tempLink =(tempLink && ((tnLink->burgers() - isLink->burgers()).squaredNorm() < FLT_EPSILON ||
+                                                 (tnLink->burgers() + isLink->burgers()).squaredNorm() < FLT_EPSILON));
                                     if (!tempLink)
                                     {
                                         break;
@@ -1271,7 +1272,7 @@ namespace model
                     }
                 }
             }
-            model::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
+            std::cout << "(" << formedJunctions << " junctions)" << magentaColor << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]" << defaultColor << std::endl;
         }
 
         //! A reference to the DislocationNetwork

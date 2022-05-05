@@ -87,7 +87,7 @@ namespace model
         DDconfigIO<dim> evl("evl",folderSuffix);
         evl.read(runID);
         setConfiguration(evl);
-        createEshelbyInclusions();
+//        createEshelbyInclusions();
     }
     
     
@@ -103,7 +103,7 @@ namespace model
         for(const auto& loop : evl.loops())
         {
             const bool faulted= poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false;
-            model::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
+            std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
 
@@ -136,7 +136,7 @@ namespace model
         size_t netNodeNumber=1;
         for(const auto& node : evl.nodes())
         {
-            model::cout<<"Creating DislocationNode "<<node.sID<<" ("<<netNodeNumber<<" of "<<evl.nodes().size()<<")"<<std::endl;
+            std::cout<<"Creating DislocationNode "<<node.sID<<" ("<<netNodeNumber<<" of "<<evl.nodes().size()<<")"<<std::endl;
             const size_t nodeIDinFile(node.sID);
             NetworkNodeType::set_count(nodeIDinFile);
             tempNetNodes.push_back(this->networkNodes().create(node.P,node.V,node.velocityReduction));
@@ -149,7 +149,7 @@ namespace model
         size_t loopNodeNumber=1;
         for(const auto& node : evl.loopNodes())
         {
-            model::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
+            std::cout<<"Creating DislocationLoopNode "<<node.sID<<" ("<<loopNodeNumber<<" of "<<evl.loopNodes().size()<<")"<<std::flush;
             // std::cout<<"Printing stuff for loopNodes "<<std::endl;
 
             // std::cout << node.loopID << std::endl;
@@ -172,15 +172,15 @@ namespace model
             // std::cout<<"PeriodicPlane edge created "<<std::endl;
             if(periodicPatch)
             {
-                model::cout<<", on patch "<<periodicPatch->shift.transpose()<<std::flush;
+                std::cout<<", on patch "<<periodicPatch->shift.transpose()<<std::flush;
             }
             if(periodicPatchEdge.first)
             {
-                model::cout<<" on edge "<<periodicPatchEdge.first->edgeID<<std::flush;
+                std::cout<<" on edge "<<periodicPatchEdge.first->edgeID<<std::flush;
             }
             if(periodicPatchEdge.second)
             {
-                model::cout<<" and "<<periodicPatchEdge.second->edgeID<<std::flush;
+                std::cout<<" and "<<periodicPatchEdge.second->edgeID<<std::flush;
                 auxPatchSets.emplace(loop->periodicGlidePlane->patches().getFromKey(periodicPatch->shift + periodicPatchEdge.first->deltaShift));
                 auxPatchSets.emplace(loop->periodicGlidePlane->patches().getFromKey(periodicPatch->shift + periodicPatchEdge.second->deltaShift));
             }
@@ -190,7 +190,7 @@ namespace model
             }
             // std::cout<<"Trying to create the loop node with loopID "<<loop->sID<<" if loop has GP "<<(loop->glidePlane!=nullptr)<<" networkID is "
             // <<netNode->sID<<std::endl;
-            model::cout<<std::endl;
+            std::cout<<std::endl;
             tempLoopNodes.push_back(this->loopNodes().create(loop,netNode,node.P,periodicPatch,periodicPatchEdge,auxPatchSets));
             assert(this->loopNodes().get(nodeIDinFile)->sID==nodeIDinFile);
             loopNodeNumber++;
@@ -227,6 +227,48 @@ namespace model
             this->insertLoop(this->loops().get(loop.sID),loopNodes);
         }
         updateGeometry();
+        
+        
+        // Eshelby Inclusions
+        for(const auto& grain : poly.grains())
+        {
+            EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
+        }
+        
+        
+//        IDreader<'E',1,14,double> inclusionsReader;
+//        inclusionsReader.read(0,true);
+        
+//        const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
+        for(const auto& inclusion : evl.eshelbyInclusions())
+        {
+            
+//            const size_t& inclusionID(pair.first);
+//            Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
+            
+//            const VectorDim C(row.template segment<dim>(0));
+//            const double a(row(dim+0));
+//            MatrixDim eT(MatrixDim::Zero());
+//            const int typeID(row(13));
+//            int k=dim+1;
+//            for(int i=0;i<dim;++i)
+//            {
+//                for(int j=0;j<dim;++j)
+//                {
+//                    eT(i,j)=row(k);
+//                    k++;
+//                }
+//            }
+            
+            
+            
+            EshelbyInclusion<dim>::set_count(inclusion.inclusionID);
+            eshelbyInclusions().emplace(std::piecewise_construct,
+                                        std::make_tuple(inclusion.inclusionID),
+                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.typeID) );
+        }
+        
+        
     }
     
     /**********************************************************************/
@@ -244,47 +286,47 @@ namespace model
     
     
     /**********************************************************************/
-    template <int dim, short unsigned int corder>
-    void DislocationNetwork<dim,corder>::createEshelbyInclusions()
-    {
-        for(const auto& grain : poly.grains())
-        {
-            EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
-        }
-        
-        
-        IDreader<'E',1,14,double> inclusionsReader;
-        inclusionsReader.read(0,true);
-        
-        const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
-        for(const auto& pair : inclusionsReader)
-        {
-            
-            const size_t& inclusionID(pair.first);
-            Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
-            
-            const VectorDim C(row.template segment<dim>(0));
-            const double a(row(dim+0));
-            MatrixDim eT(MatrixDim::Zero());
-            const int typeID(row(13));
-            int k=dim+1;
-            for(int i=0;i<dim;++i)
-            {
-                for(int j=0;j<dim;++j)
-                {
-                    eT(i,j)=row(k);
-                    k++;
-                }
-            }
-            
-            
-            
-            EshelbyInclusion<dim>::set_count(inclusionID);
-            eshelbyInclusions().emplace(std::piecewise_construct,
-                                        std::make_tuple(inclusionID),
-                                        std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
-        }
-    }
+//    template <int dim, short unsigned int corder>
+//    void DislocationNetwork<dim,corder>::createEshelbyInclusions()
+//    {
+//        for(const auto& grain : poly.grains())
+//        {
+//            EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
+//        }
+//
+//
+//        IDreader<'E',1,14,double> inclusionsReader;
+//        inclusionsReader.read(0,true);
+//
+//        const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
+//        for(const auto& pair : inclusionsReader)
+//        {
+//
+//            const size_t& inclusionID(pair.first);
+//            Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
+//
+//            const VectorDim C(row.template segment<dim>(0));
+//            const double a(row(dim+0));
+//            MatrixDim eT(MatrixDim::Zero());
+//            const int typeID(row(13));
+//            int k=dim+1;
+//            for(int i=0;i<dim;++i)
+//            {
+//                for(int j=0;j<dim;++j)
+//                {
+//                    eT(i,j)=row(k);
+//                    k++;
+//                }
+//            }
+//
+//
+//
+//            EshelbyInclusion<dim>::set_count(inclusionID);
+//            eshelbyInclusions().emplace(std::piecewise_construct,
+//                                        std::make_tuple(inclusionID),
+//                                        std::make_tuple(C,a,eT,poly.nu,poly.mu,inclusionsMobilityReduction[typeID],typeID) );
+//        }
+//    }
     
     template <int dim, short unsigned int corder>
     void DislocationNetwork<dim,corder>::updateGeometry()
@@ -514,7 +556,7 @@ namespace model
         if (corder == 0)
         { // For straight segments use analytical expression of stress field
             const auto t1 = std::chrono::system_clock::now();
-            model::cout << "        Computing analytical stress field at quadrature points (" << nThreads << " threads) " << std::flush;
+            std::cout << "        Computing analytical stress field at quadrature points (" << nThreads << " threads) " << std::flush;
 
             for (const auto &links : this->networkLinks())
             {
@@ -572,7 +614,7 @@ namespace model
                 }
             }
 #endif
-            model::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
+            std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
         }
         else
         { // For curved segments use quandrature integration of stress field
@@ -580,7 +622,7 @@ namespace model
         }
 
         //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
-        model::cout << "        Assembling and solving " << std::flush;
+        std::cout << "        Assembling and solving " << std::flush;
         DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
         std::cout << " Velocity bins for segments " << velocityBinMap.size() << std::endl;
         for (const auto &vBins : velocityBinMap)

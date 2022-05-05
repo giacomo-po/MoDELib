@@ -26,14 +26,13 @@
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
 #include <NetworkLinkActor.h>
+#include <InclusionActor.h>
 //#include <DislocationLoopActor.h>
 
 namespace model
 {
     struct DDconfigVtk : public QWidget,
                          public DDconfigIO<3>
-//: public DDconfigVtkBase
-    /*                */
     {
         
         Q_OBJECT
@@ -41,6 +40,7 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
+        InclusionActor* inclusions;
 //        DislocationLoopActor loops;
         private slots:
         void updateConfiguration();

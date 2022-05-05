@@ -1,1 +1,0 @@
-With this version, I was able to reach 1.5% strain. The only proble this is giving is that the source and the sink points to the same network node. In order to circumvent this issue, I plan to add a functionality for replacing a network node in a loop.

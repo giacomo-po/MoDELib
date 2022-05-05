@@ -9,6 +9,7 @@
 #ifndef model_DislocationLoopIO_H_
 #define model_DislocationLoopIO_H_
 
+#include <iomanip>
 #include <tuple>
 #include <Eigen/Dense>
 

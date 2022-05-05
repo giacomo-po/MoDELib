@@ -9,6 +9,7 @@
 #ifndef model_DislocationLoopLinkIO_h_
 #define model_DislocationLoopLinkIO_h_
 
+#include <iomanip>
 #include <tuple>
 #include <TypeTraits.h>
 

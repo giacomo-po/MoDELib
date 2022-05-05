@@ -48,6 +48,8 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showNodes(new QCheckBox(this))
+        /* init */,showNodeLabels(new QCheckBox(this))
+        /* init */,showVelocities(new QCheckBox(this))
         /* init */,nodePolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
         /* init */,nodeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
@@ -65,13 +67,27 @@ namespace model
         /* init */,singleNodeID(0)
         /* init */,nodeClr{{100,100,100},{0,255,255},{255,0,255},{1,1,1}}
         {
-            showNodes->setChecked(true);
-            showNodes->setText("show nodes");
+            
+            showNodes->setText("nodes");
+            showNodes->setChecked(false);
+            nodeActor->SetVisibility(false);
+
+            showNodeLabels->setText("node labels");
+            showNodeLabels->setChecked(false);
+            labelActor->SetVisibility(false);
+
+            showVelocities->setText("velocities");
+            showVelocities->setChecked(false);
+            velocityActor->SetVisibility(false);
 
             mainLayout->addWidget(showNodes,0,0,1,1);
+            mainLayout->addWidget(showNodeLabels,1,0,1,1);
+            mainLayout->addWidget(showVelocities,2,0,1,1);
             this->setLayout(mainLayout);
 
             connect(showNodes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showNodeLabels,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showVelocities,SIGNAL(stateChanged(int)), this, SLOT(modify()));
 
             
             nodeGlyphs->SetInputData(nodePolyData);
@@ -119,8 +135,6 @@ namespace model
             renderer->AddActor(velocityActor);
             renderer->AddActor(labelActor);
             renderer->AddActor(singleNodeLabelActor);
-
-//            modify();
 
         }
         
@@ -185,8 +199,8 @@ namespace model
         {
             
             nodeActor->SetVisibility(showNodes->isChecked());
-            labelActor->SetVisibility(showNodes->isChecked());
-            velocityActor->SetVisibility(showNodes->isChecked());
+            labelActor->SetVisibility(showNodeLabels->isChecked());
+            velocityActor->SetVisibility(showVelocities->isChecked());
             
 //            nodeGlyphs->SetScaleFactor(2.0*this->tubeRadius*1.2);
 //            

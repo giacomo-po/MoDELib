@@ -401,8 +401,8 @@ namespace model
         /**********************************************************************/
         template<typename LinkType>
         void updateForcesAndVelocities(const LinkType& parentSegment,
-                                       const double& quadPerLength,
-                                       const double& isClimbStep)
+                                       const double&,
+                                       const double& )
         {
             // updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
             
@@ -493,10 +493,10 @@ namespace model
                         qPoint.stress += parentSegment.network().bvpSolver->stress(qPoint.r,parentSegment.source->includingSimplex());
                     }
                     
-                    for(const auto& sStraight : parentSegment.network().poly.grainBoundaryDislocations() )
-                    {// Add GB stress
-                        qPoint.stress += sStraight.stress(qPoint.r);
-                    }
+//                    for(const auto& sStraight : parentSegment.network().poly.grainBoundaryDislocations() )
+//                    {// Add GB stress
+//                        qPoint.stress += sStraight.stress(qPoint.r);
+//                    }
                     
                     for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
                     {// Add EshelbyInclusions stress

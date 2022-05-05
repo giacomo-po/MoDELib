@@ -321,7 +321,7 @@ namespace model
                     next=linkSeq.begin();
                 }
                 
-                temp*=((*iter)->sink->sID==(*next)->source->sID);
+                temp=(temp && ((*iter)->sink->sID==(*next)->source->sID));
                 if(!temp)
                 {
                     break;

@@ -1,5 +1,8 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/Lattices/)
+include_directories(${MoDELibRootDir}/include/Math/)
+include_directories(${MoDELibRootDir}/include/Geometry/)
+
 add_library(MoDELibLattices 
 	STATIC 
 		CSL.cpp

@@ -55,6 +55,8 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showNodes;
+        QCheckBox* showNodeLabels;
+        QCheckBox* showVelocities;
 
         
         public:

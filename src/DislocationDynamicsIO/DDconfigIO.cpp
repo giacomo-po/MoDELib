@@ -7,8 +7,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_DDconfigIO_H_
-#define model_DDconfigIO_H_
+#ifndef model_DDconfigIO_cpp_
+#define model_DDconfigIO_cpp_
 
 #include <type_traits>
 #include <vector>
@@ -28,7 +28,7 @@
 //#include <PeriodicLoopIO.h>
 
 #include <TerminalColors.h>
-#include <set>
+#include <DDconfigIO.h>
 
 
 namespace model
@@ -36,47 +36,7 @@ namespace model
     
     
     template <int dim>
-    class DDconfigIO : public DDbaseIO
-    /*              */,private std::vector<DislocationNodeIO<dim> >
-    /*              */,private std::vector<DislocationLoopIO<dim> >
-    /*              */,private std::vector<DislocationLoopNodeIO<dim> >
-    /*              */,private std::vector<DislocationLoopLinkIO<dim> >
-    /*              */,private std::vector<EshelbyInclusionIO<dim>>
-//    /*              */,private std::map<size_t,const DislocationLoopNodeIO<dim>* const>
-//    /*              */,private std::map<size_t,const DislocationNodeIO<dim>* const>
-//    /*              */,private std::map<size_t, const DislocationLoopIO<dim>* const>
-{
-        
-        //        static_assert(std::is_pod<DislocationNodeIO<dim>>::value,"DislocationNodeIO<dim> is NOT PLANE OLD DATA");
-        
-        /**********************************************************************/
-//        void make_maps()
-//        {
-//
-//            // node map
-//            for(const auto& loopNode : loopNodes())
-//            {
-//                loopNodeMap().emplace(loopNode.sID,&loopNode);
-//            }
-//
-//            // node map
-//            for(const auto& node : nodes())
-//            {
-//                nodeMap().emplace(node.sID,&node);
-//            }
-//
-//            // loop map
-//            for(const auto& loop : loops())
-//            {
-//                loopMap().emplace(loop.sID,&loop);
-//            }
-//        }
-    
-    std::map<size_t,const size_t> _loopNodeMap;
-    std::map<size_t,const size_t> _nodeMap;
-    std::map<size_t, const size_t> _loopMap;
-    
-    void make_maps()
+    void DDconfigIO<dim>::make_maps()
     {
         
         // node map
@@ -99,192 +59,116 @@ namespace model
     }
         
         
-    public:
 
-        /**********************************************************************/
-        DDconfigIO(const std::string& folderName,const std::string& suffix="") :
+    template <int dim>
+DDconfigIO<dim>::DDconfigIO(const std::string& folderName,const std::string& suffix) :
         /* init */ DDbaseIO(folderName,"evl",suffix)
         {
             
         }
 
-//        /**********************************************************************/
-//        DDconfigIO(const std::string& suffix="") :
-//        /* init */ DDbaseIO("evl","evl",suffix)
-//        {
-//
-//        }
         
-//        /**********************************************************************/
-//        template<typename DislocationNetworkType>
-//  //      template <short unsigned int corder>
-////        DDconfigIO(const DislocationNetwork<dim,corder>& dn,
-//        DDconfigIO(const DislocationNetworkType& dn,
-//                   const std::string& suffix="") :
-//        /* init */ DDbaseIO("evl","evl",suffix)
-//        {
-//
-//            // Store Loops
-//            for(const auto& loop : dn.loops())
-//            {
-//                loops().emplace_back(*loop.second.lock());
-//            }
-//
-//            // Store LoopNodes
-//            for(const auto& node : dn.loopNodes())
-//            {
-//                loopNodes().emplace_back(*node.second.lock());
-//            }
-//
-//            // Store LoopLinks
-//            for(const auto& link : dn.loopLinks())
-//            {
-//                loopLinks().emplace_back(link.second);
-//            }
-//
-//            // Store NetworkNodes
-//            for(const auto& node : dn.networkNodes())
-//            {
-//                nodes().emplace_back(*node.second.lock());
-//            }
-//
-//            // Store Eshelby Inclusions
-//            for(const auto& ei : dn.eshelbyInclusions())
-//            {
-//                eshelbyInclusions().emplace_back(ei.second);
-//            }
-//
-//        }
-        
-        /**********************************************************************/
-        const std::vector<DislocationNodeIO<dim> >& nodes() const
+        template <int dim>
+        const std::vector<DislocationNodeIO<dim>>& DDconfigIO<dim>::nodes() const
         {
             return *this;
         }
         
-        std::vector<DislocationNodeIO<dim> >& nodes()
+        template <int dim>
+        std::vector<DislocationNodeIO<dim>>& DDconfigIO<dim>::nodes()
         {
             return *this;
         }
         
-        /**********************************************************************/
-        const std::vector<DislocationLoopNodeIO<dim> >& loopNodes() const
+        template <int dim>
+        const std::vector<DislocationLoopNodeIO<dim>>& DDconfigIO<dim>::loopNodes() const
         {
             return *this;
         }
         
-        std::vector<DislocationLoopNodeIO<dim> >& loopNodes()
+        template <int dim>
+        std::vector<DislocationLoopNodeIO<dim>>& DDconfigIO<dim>::loopNodes()
         {
             return *this;
         }
     
-    /**********************************************************************/
-    const std::vector<DislocationLoopIO<dim> >& loops() const
+        template <int dim>
+        const std::vector<DislocationLoopIO<dim>>& DDconfigIO<dim>::loops() const
     {
         return *this;
     }
     
-    std::vector<DislocationLoopIO<dim> >& loops()
+template <int dim>
+    std::vector<DislocationLoopIO<dim>>& DDconfigIO<dim>::loops()
     {
         return *this;
     }
     
 
     
-    /**********************************************************************/
-    const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const
+template <int dim>
+    const std::vector<DislocationLoopLinkIO<dim>>& DDconfigIO<dim>::loopLinks() const
     {
         return *this;
     }
     
-    std::vector<DislocationLoopLinkIO<dim> >& loopLinks()
+template <int dim>
+    std::vector<DislocationLoopLinkIO<dim>>& DDconfigIO<dim>::loopLinks()
     {
         return *this;
     }
         
-        /**********************************************************************/
-        const std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions() const
+template <int dim>
+        const std::vector<EshelbyInclusionIO<dim>>& DDconfigIO<dim>::eshelbyInclusions() const
         {
             return *this;
         }
         
-        std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions()
+template <int dim>
+        std::vector<EshelbyInclusionIO<dim>>& DDconfigIO<dim>::eshelbyInclusions()
         {
             return *this;
         }
         
-//        /**********************************************************************/
-//        const std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap() const
-//        {
-//            return *this;
-//        }
-//
-//        std::map<size_t,const DislocationNodeIO<dim>* const>& nodeMap()
-//        {
-//            return *this;
-//        }
-//
-//        /**********************************************************************/
-//        const std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap() const
-//        {
-//            return *this;
-//        }
-//
-//        std::map<size_t,const DislocationLoopNodeIO<dim>* const>& loopNodeMap()
-//        {
-//            return *this;
-//        }
-//
-//    /**********************************************************************/
-//    const std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap() const
-//    {
-//        return *this;
-//    }
-//
-//    /**********************************************************************/
-//    std::map<size_t, const DislocationLoopIO<dim>* const>& loopMap()
-//    {
-//        return *this;
-//    }
         
-    /**********************************************************************/
-    const std::map<size_t,const size_t>& nodeMap() const
+template <int dim>
+    const std::map<size_t,const size_t>& DDconfigIO<dim>::nodeMap() const
     {
         return _nodeMap;
     }
     
-    std::map<size_t,const size_t>& nodeMap()
+template <int dim>
+    std::map<size_t,const size_t>& DDconfigIO<dim>::nodeMap()
     {
         return _nodeMap;
     }
     
-    /**********************************************************************/
-    const std::map<size_t,const size_t>& loopNodeMap() const
+template <int dim>
+    const std::map<size_t,const size_t>& DDconfigIO<dim>::loopNodeMap() const
     {
         return _loopNodeMap;
     }
     
-    std::map<size_t,const size_t>& loopNodeMap()
+template <int dim>
+    std::map<size_t,const size_t>& DDconfigIO<dim>::loopNodeMap()
     {
         return _loopNodeMap;
     }
     
-/**********************************************************************/
-const std::map<size_t, const size_t>& loopMap() const
+template <int dim>
+const std::map<size_t, const size_t>& DDconfigIO<dim>::loopMap() const
 {
     return _loopMap;
 }
 
-/**********************************************************************/
-std::map<size_t, const size_t>& loopMap()
+template <int dim>
+std::map<size_t, const size_t>& DDconfigIO<dim>::loopMap()
 {
     return _loopMap;
 }
     
-        
-        
-        /**********************************************************************/
-        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > segments() const
+template <int dim>
+        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim>> DDconfigIO<dim>::segments() const
         {
             std::map<std::pair<size_t,size_t>,DislocationSegmentIO<dim> > temp;
             
@@ -370,41 +254,9 @@ std::map<size_t, const size_t>& loopMap()
             return temp;
         }
 
-//        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
-//        {
-//
-//           std::map<std::pair<size_t,size_t>,std::set<size_t> >temp;
-//
-//            for(const auto& link : loopLinks())
-//            {
-//
-//
-//                const auto loopIter=loopMap().find(link.loopID);
-//                assert(loopIter!=loopMap().end());
-//
-//                const auto loopSourceIter(loopNodeMap().find(link.sourceID));
-//                assert(loopSourceIter!=loopNodeMap().end());
-//
-//                const auto loopSinkIter(loopNodeMap().find(link.sinkID));
-//                assert(loopSinkIter!=loopNodeMap().end());
-//
-//
-//                if(link.hasNetworkLink)
-//                {
-//                    const size_t sourceID(std::min(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
-//                    const size_t   sinkID(std::max(loopSourceIter->second->networkNodeID,loopSinkIter->second->networkNodeID));
-//                    const auto key=std::make_pair(sourceID,sinkID);
-//
-//                    temp[key].insert(link.loopID);
-//
-//                }
-//            }
-//
-//            return temp;
-//        }
         
-        /**********************************************************************/
-        void write(const size_t& runID,const bool& outputBinary)
+        template <int dim>
+        void DDconfigIO<dim>::write(const size_t& runID,const bool& outputBinary)
         {
             if(outputBinary)
             {
@@ -416,8 +268,8 @@ std::map<size_t, const size_t>& loopMap()
             }
         }
         
-        /**********************************************************************/
-        void writeTxt(const size_t& runID)
+        template <int dim>
+        void DDconfigIO<dim>::writeTxt(const size_t& runID)
         {
             const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getTxtFilename(runID));
@@ -439,8 +291,8 @@ std::map<size_t, const size_t>& loopMap()
         }
         
         
-        /**********************************************************************/
-        void writeTxtStream(std::ostream &file)
+        template <int dim>
+        void DDconfigIO<dim>::writeTxtStream(std::ostream &file)
         {
             
             // Write header
@@ -478,21 +330,10 @@ std::map<size_t, const size_t>& loopMap()
             {
                 file<<ei<<"\n";
             }
-            
-            
-            
-            
-//            std::cout<<" WRITING:  "<<nodes().size()<<" nodes "<<std::endl;
-//            std::cout<<" WRITING:  "<<loops().size()<<" loops "<<std::endl;
-//            std::cout<<" WRITING:  "<<loopLinks().size()<<" links "<<std::endl;
         }
         
-        
-        
-        
-        
-        /**********************************************************************/
-        void writeBin(const size_t& runID)
+        template <int dim>
+        void DDconfigIO<dim>::writeBin(const size_t& runID)
         {
             const auto t0=std::chrono::system_clock::now();
             const std::string filename(this->getBinFilename(runID));
@@ -556,8 +397,8 @@ std::map<size_t, const size_t>& loopMap()
             }
         }
         
-        /**********************************************************************/
-        void read(const size_t& runID)
+        template <int dim>
+        void DDconfigIO<dim>::read(const size_t& runID)
         {
                         
             if(isBinGood(runID))
@@ -578,8 +419,8 @@ std::map<size_t, const size_t>& loopMap()
             }
         }
         
-        /**********************************************************************/
-        void readBin(const size_t& runID)
+        template <int dim>
+        void DDconfigIO<dim>::readBin(const size_t& runID)
         {
             
             nodes().clear();
@@ -648,8 +489,8 @@ std::map<size_t, const size_t>& loopMap()
         }
         
         
-        /**********************************************************************/
-        void readTxt(const size_t& runID)
+        template <int dim>
+        void DDconfigIO<dim>::readTxt(const size_t& runID)
         {
             
             const std::string filename(this->getTxtFilename(runID));
@@ -678,11 +519,8 @@ std::map<size_t, const size_t>& loopMap()
             
         }
         
-        
-        
-        
-        /**********************************************************************/
-        void readTxtStream(std::istream &infile)
+        template <int dim>
+        void DDconfigIO<dim>::readTxtStream(std::istream &infile)
         {
             
             nodes().clear();
@@ -777,17 +615,13 @@ std::map<size_t, const size_t>& loopMap()
             
             
             make_maps();
-            
-//            std::cout<<" READING:  "<<nodes().size()<<" nodes "<<std::endl;
-//            std::cout<<" READING:  "<<loops().size()<<" loops "<<std::endl;
-//            std::cout<<" READING:  "<<loopLinks().size()<<" links "<<std::endl;
-            
+                        
         }
         
         
         
-        /**********************************************************************/
-        void bin2txt(const size_t& runID,const bool& writeSegments)
+        template <int dim>
+        void DDconfigIO<dim>::bin2txt(const size_t& runID,const bool& writeSegments)
         {
             readBin(runID);
             writeTxt(runID);
@@ -803,7 +637,7 @@ std::map<size_t, const size_t>& loopMap()
             }
         }
         
-    };
+    template class DDconfigIO<3>;
     
 }
 #endif

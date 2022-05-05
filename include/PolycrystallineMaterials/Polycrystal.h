@@ -27,7 +27,7 @@
 #include <Grain.h>
 #include <GrainBoundary.h>
 #include <LatticeVector.h>
-#include <StressStraight.h>
+//#include <StressStraight.h>
 #include <GrainBoundaryType.h>
 //#include <GlidePlane.h>
 #include <TextFileParser.h>
@@ -44,7 +44,7 @@ namespace model
     class Polycrystal : public  PolycrystallineMaterial<dim,Isotropic>
     /*               */,private std::map<size_t,Grain<dim>>
     /*               */,private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
-    /*               */,public  std::vector<StressStraight<dim> >
+//    /*               */,public  std::vector<StressStraight<dim> >
     {
         typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         typedef SimplicialMesh<dim> SimplicialMeshType;
@@ -87,7 +87,7 @@ namespace model
             }
             
             // Construct GrainsBoundaries
-            grainBoundaryDislocations().clear();
+//            grainBoundaryDislocations().clear();
             //            int fileID=1;
             for(const auto& rgnBnd : mesh.regionBoundaries())
             {// loop over region boundaries
@@ -202,17 +202,17 @@ namespace model
             return reciprocalLatticeVectorFromPosition(p,&(mesh.simplices().begin()->second));
         }
         
-        /**********************************************************************/
-        std::vector<StressStraight<dim>>& grainBoundaryDislocations()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
-        {
-            return *this;
-        }
+//        /**********************************************************************/
+//        std::vector<StressStraight<dim>>& grainBoundaryDislocations()
+//        {
+//            return *this;
+//        }
+//
+//        /**********************************************************************/
+//        const std::vector<StressStraight<dim>>& grainBoundaryDislocations() const
+//        {
+//            return *this;
+//        }
         
         /**********************************************************************/
         VectorDim randomPoint() const

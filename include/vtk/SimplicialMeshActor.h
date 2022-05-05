@@ -9,12 +9,14 @@
 #ifndef model_SimplicialMeshActor_H_
 #define model_SimplicialMeshActor_H_
 
+#include <random>
+#include <algorithm>
+
 #include <QGroupBox>
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLabel>
 #include <QWidget>
-
 
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
@@ -52,8 +54,11 @@
 #include <vtkUnsignedCharArray.h>
 #include <vtkPointData.h>
 #include <vtkGenericOpenGLRenderWindow.h>
-#include <random>
-#include <algorithm>
+#include <vtkPlane.h>
+#include <vtkCommand.h>
+#include <vtkImplicitPlaneWidget2.h>
+#include <vtkImplicitPlaneRepresentation.h>
+
 
 #include <TextFileParser.h>
 
@@ -71,6 +76,33 @@
 namespace model
 {
 
+
+//struct FieldActorCallback : public vtkCommand
+//
+//{
+//    vtkPlane *plane;
+////    TriangularMesh planeTriangulation;
+//
+//
+//    FieldActorCallback():
+//    /* init */ plane(0)
+//    {
+//    }
+//
+//    static FieldActorCallback *New()
+//    {
+//        return new FieldActorCallback;
+//
+//    }
+//
+//    virtual void Execute(vtkObject *caller, unsigned long, void*)
+//    {
+//        vtkImplicitPlaneWidget2 *planeWidget = reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
+//        vtkImplicitPlaneRepresentation  *rep = reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
+//        rep->GetPlane(this->plane);
+//    }
+//};
+
     struct SimplicialMeshActor : public QWidget
     {
         
@@ -85,8 +117,9 @@ namespace model
         QGridLayout* mainLayout;
         QCheckBox* showMesh;
         QCheckBox* showFaceBoundaries;
-        QCheckBox* showGrainColors;
+//        QCheckBox* showGrainColors;
         QCheckBox* showRegionBoundaries;
+        QCheckBox* showClipPlane;
 
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
@@ -120,6 +153,11 @@ namespace model
         vtkSmartPointer<vtkPolyData> clippedPolyData;
         vtkSmartPointer<vtkDataSetMapper> clipMapper;
         vtkSmartPointer<vtkActor> clipActor;
+        
+//        vtkSmartPointer<FieldActorCallback> myCallback;
+//        vtkSmartPointer<vtkImplicitPlaneRepresentation> rep;
+//        vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget;
+
                 
 
         SimplicialMeshActor(vtkSmartPointer<vtkGenericOpenGLRenderWindow>,vtkRenderer* const renderer_in, const SimplicialMesh<3>& mesh_in);

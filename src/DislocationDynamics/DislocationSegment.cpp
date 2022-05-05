@@ -193,7 +193,7 @@ namespace model
         {
             for(const auto& loopLink : this->loopLinks())
             {
-                temp*=loopLink->loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP;
+                temp=(temp && loopLink->loop->loopType==DislocationLoopIO<dim>::GLISSILELOOP);
             }
         }
         return temp;
@@ -248,7 +248,7 @@ namespace model
         bool temp(true);
         for(const auto& loopLink : this->loopLinks())
         {
-            temp*=loopLink->loop->isVirtualBoundaryLoop();
+            temp= (temp && loopLink->loop->isVirtualBoundaryLoop());
             if(!temp)
             {
                 break;

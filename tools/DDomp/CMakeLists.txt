@@ -2,58 +2,45 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_BUILD_TYPE Debug)
 
 PROJECT(DDomp CXX)
-set(CMAKE_CXX_STANDARD 17)
-set(EigenRootDir "/usr/local/include")
-
+set(CMAKE_CXX_STANDARD 20)
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
+set(EigenRootDir "/usr/local/include")
+include_directories(${EigenRootDir})
 
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
-set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
+	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native")
 endif()
 
-#set(CMAKE_CXX_FLAGS_DEBUG "-O3")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-
 add_executable(DDomp DDomp.cpp)
 
-
-include_directories(${EigenRootDir})
-
 include_directories(${MoDELibRootDir}/include/Utilities/)
-include_directories(${MoDELibRootDir}/include/MPI/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
-include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
-include_directories(${MoDELibRootDir}/include/FEM/)
-include_directories(${MoDELibRootDir}/include/Quadrature/)
-include_directories(${MoDELibRootDir}/include/LoopNetwork/)
-include_directories(${MoDELibRootDir}/include/ParticleInteraction/)
-include_directories(${MoDELibRootDir}/include/SpaceDecomposition/)
-include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
-
-
-
 include_directories(${MoDELibRootDir}/include/Geometry/)
 include_directories(${MoDELibRootDir}/include/Mesh/)
 include_directories(${MoDELibRootDir}/include/Lattices/)
+include_directories(${MoDELibRootDir}/include/FEM/)
+include_directories(${MoDELibRootDir}/include/GlidePlanes/)
+include_directories(${MoDELibRootDir}/include/LoopNetwork/)
+include_directories(${MoDELibRootDir}/include/Quadrature/)
+include_directories(${MoDELibRootDir}/include/ParticleInteraction/)
+include_directories(${MoDELibRootDir}/include/SpaceDecomposition/)
+include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
+include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
+include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO/)
+include_directories(${MoDELibRootDir}/include/DislocationMobilities/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
 
-
-add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DislocationDynamics)
-target_link_libraries(DDomp MoDELibDDD)
-
-add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
-target_link_libraries(DDomp MoDELibLattices)
-
-add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
-target_link_libraries(DDomp MoDELibMesh)
-
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
-target_link_libraries(DDomp MoDELibGeometry)
+add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
+add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
+add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
+add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
+add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
+add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 
-
-
+target_link_libraries(DDomp MoDELibGeometry MoDELibLattices MoDELibMesh MoDELibGlidePlanes MoDELibDDDmobilities MoDELibDDDIO MoDELibDDD)

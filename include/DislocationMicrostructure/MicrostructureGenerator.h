@@ -36,7 +36,7 @@
 #include <TextFileParser.h>
 #include <DislocationInjector.h>
 #include <MeshBoundarySegment.h>
-#include <ConfinedDislocationObject.h>
+//#include <ConfinedDislocationObject.h>
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
@@ -127,8 +127,8 @@ namespace model
         std::mt19937 generator;
         size_t nodeID;
 //        size_t snID;
-        size_t loopID;
         size_t loopNodeID;
+        size_t loopID;
         std::list<PeriodicGlidePlane<dim>> periodicGlidePlaneContainer;
         
         std::deque<std::vector<VectorDimD>> loopPoints;

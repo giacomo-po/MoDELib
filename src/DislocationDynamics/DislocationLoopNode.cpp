@@ -941,12 +941,12 @@ namespace model
         
         if(periodicPlaneEdge.first)
         {
-            isMovable*=((X-this->get_P()).squaredNorm()<FLT_EPSILON);
+            isMovable=(isMovable && ((X-this->get_P()).squaredNorm()<FLT_EPSILON));
         }
         
         if(isMovable && this->loop()->glidePlane)
         {
-            isMovable*=this->loop()->glidePlane->contains(X);
+            isMovable=(isMovable && this->loop()->glidePlane->contains(X));
         }
         else
         {

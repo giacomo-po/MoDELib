@@ -367,7 +367,7 @@ namespace model
                 bool isPlanar(true);
                 for(const auto& loopLink : this->loopLinks())
                 {
-                    isPlanar*=tempPlane.contains(loopLink->source->get_P());
+                    isPlanar= (isPlanar && tempPlane.contains(loopLink->source->get_P()));
                 }
                 if(!isPlanar)
                 {

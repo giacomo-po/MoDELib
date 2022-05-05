@@ -27,7 +27,6 @@ namespace model
         VectorDim P;          // position
         VectorDim V;          // velocity
         double velocityReduction;             // velocity reduction factor
-//        size_t snID;          // component ID
         int  meshLocation;    // mesh location
         size_t masterID;          // sID
 

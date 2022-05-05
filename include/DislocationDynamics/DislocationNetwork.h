@@ -198,7 +198,7 @@ namespace model
                            long int& runID);
         
         void setConfiguration(const DDconfigIO<dim>&);
-        void createEshelbyInclusions();
+//        void createEshelbyInclusions();
         MatrixDim plasticDistortionRate() const;
         MatrixDim plasticDistortion() const;
         MatrixDim plasticStrainRate() const;
