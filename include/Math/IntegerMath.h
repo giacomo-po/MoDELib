@@ -29,7 +29,9 @@ namespace model
         template<typename ArrayType>
         static IntScalarType gcd(const ArrayType& a)
         {
-            switch (a.size())
+            
+            const size_t aSize(a.size());
+            switch (aSize)
             {
                 case 0:
                 {
@@ -53,7 +55,7 @@ namespace model
                 default:
                 {
                     IntScalarType temp(a[0]);
-                    for(size_t k=1;k<a.size();++k)
+                    for(size_t k=1;k<aSize;++k)
                     {
                         temp=gcd(temp,a[k]);
                     }

@@ -69,7 +69,7 @@ namespace model
         {
             // const auto gcd(LatticeGCD<dim>::gcd(key.reciprocalDirectionComponents().transpose()*N));
 //            const long int gcd(LatticeGCD<3>::gcd(alphas));
-            const long int gcd(IntegerMath::gcd(alphas));
+            const long int gcd(IntegerMath<long int>::gcd(alphas));
 
 
             if (t1 % gcd != 0)
@@ -83,7 +83,7 @@ namespace model
             const long int t(t1 / gcd);
 
 //            const long int gcdab(LatticeGCD<3>::gcd(a, b));
-            const long int gcdab(IntegerMath::gcd(a, b));
+            const long int gcdab(IntegerMath<long int>::gcd(a, b));
 
             const long int ap(a / gcdab);
             const long int bp(b / gcdab);
