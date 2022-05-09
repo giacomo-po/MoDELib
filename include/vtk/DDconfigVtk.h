@@ -26,6 +26,7 @@
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
 #include <NetworkLinkActor.h>
+#include <NetworkLoopActor.h>
 #include <InclusionActor.h>
 //#include <DislocationLoopActor.h>
 
@@ -40,6 +41,7 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
+        NetworkLoopActor* loops;
         InclusionActor* inclusions;
 //        DislocationLoopActor loops;
         private slots:
@@ -48,9 +50,7 @@ namespace model
         void prevConfiguration();
 
         public:
-
         
-//        QGroupBox* controlsBox;
         QGridLayout* mainLayout;
         QLineEdit* frameIDedit;
         QPushButton* plusFrameButton;

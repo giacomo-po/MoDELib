@@ -46,6 +46,8 @@ add_library(MoDELibvtk STATIC
 	NetworkLinkActor.cpp
 	${MoDELibRootDir}/include/vtk/InclusionActor.h
 	InclusionActor.cpp
+	${MoDELibRootDir}/include/vtk/NetworkLoopActor.h
+	NetworkLoopActor.cpp
 			)
 
 target_link_libraries(MoDELibvtk MoDELibMesh MoDELibGeometry ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)

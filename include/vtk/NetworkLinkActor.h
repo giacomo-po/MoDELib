@@ -16,6 +16,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QCheckBox>
+#include <QComboBox>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -49,13 +50,17 @@ namespace model
         
         Q_OBJECT
         private slots:
-            void modify();
-
+        void modify();
+        Eigen::Matrix<int,3,1> vector2Clr(VectorDim) const;
+        
         private:
+        
+        
         vtkGenericOpenGLRenderWindow* const renderWindow;
 
         QGridLayout* mainLayout;
         QCheckBox* showLinks;
+        QComboBox* linksColorBox;
         double tubeRadius;
         ColorScheme clr;
 

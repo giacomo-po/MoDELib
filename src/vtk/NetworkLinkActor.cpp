@@ -52,6 +52,7 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLinks(new QCheckBox(this))
+        /* init */,linksColorBox(new QComboBox(this))
         /* init */,tubeRadius(5.0)
         /* init */,clr(ColorScheme::colorBurgers)
         /* init */,polyData(vtkSmartPointer<vtkPolyData>::New())
@@ -70,7 +71,12 @@ namespace model
             showLinks->setChecked(true);
             showLinks->setText("links");
 
+            linksColorBox->addItem("Burgers vector");
+            linksColorBox->addItem("Plane normal");
+            linksColorBox->addItem("glissile/sessile");
+
             mainLayout->addWidget(showLinks,0,0,1,1);
+            mainLayout->addWidget(linksColorBox,1,0,1,1);
             this->setLayout(mainLayout);
 
             connect(showLinks,SIGNAL(stateChanged(int)), this, SLOT(modify()));
@@ -225,6 +231,7 @@ namespace model
         {
             
             tubeActor->SetVisibility(showLinks->isChecked());
+            linksColorBox->setEnabled(showLinks->isChecked());
 //            labelActor->SetVisibility(showLinks->isChecked());
 //            velocityActor->SetVisibility(showLinks->isChecked());
             
@@ -276,6 +283,33 @@ namespace model
             renderWindow->Render();
         }
 
+Eigen::Matrix<int,3,1> NetworkLinkActor::vector2Clr(VectorDim clrVector) const
+{
+    float clrTol=100.0*FLT_EPSILON;
+    if(clrVector(0)<-clrTol)
+    {// first component not zero but begative, flip color
+        clrVector*=-1.0;
+    }
+    else if(fabs(clrVector(0))<=clrTol)
+    {// first component is zero, use second component
+        if(clrVector(1)<-clrTol)
+        {// second component not zero but begative, flip color
+            clrVector*=-1.0;
+        }
+        else if(fabs(clrVector(1))<=clrTol)
+        {// second component is zero, use third component
+            if(clrVector(2)<-clrTol)
+            {
+                clrVector*=-1.0;
+            }
+        }
+    }
+    
+    clrVector = (clrVector + VectorDim::Ones(dim) * clrVector.norm()).eval();
+    clrVector.normalize();
+    return (clrVector*255).cast<int>();
+}
+
 /*********************************************************************/
 Eigen::Matrix<int,3,1> NetworkLinkActor::computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const
 {
@@ -317,29 +351,31 @@ Eigen::Matrix<int,3,1> NetworkLinkActor::computeColor(const VectorDim& burgers, 
             break;
     }
     
-    float clrTol=100.0*FLT_EPSILON;
-    if(clrVector(0)<-clrTol)
-    {// first component not zero but begative, flip color
-        clrVector*=-1.0;
-    }
-    else if(fabs(clrVector(0))<=clrTol)
-    {// first component is zero, use second component
-        if(clrVector(1)<-clrTol)
-        {// second component not zero but begative, flip color
-            clrVector*=-1.0;
-        }
-        else if(fabs(clrVector(1))<=clrTol)
-        {// second component is zero, use third component
-            if(clrVector(2)<-clrTol)
-            {
-                clrVector*=-1.0;
-            }
-        }
-    }
+    return vector2Clr(clrVector);
     
-    clrVector = (clrVector + VectorDim::Ones(dim) * clrVector.norm()).eval();
-    clrVector.normalize();
-    return (clrVector*255).cast<int>();
+//    float clrTol=100.0*FLT_EPSILON;
+//    if(clrVector(0)<-clrTol)
+//    {// first component not zero but begative, flip color
+//        clrVector*=-1.0;
+//    }
+//    else if(fabs(clrVector(0))<=clrTol)
+//    {// first component is zero, use second component
+//        if(clrVector(1)<-clrTol)
+//        {// second component not zero but begative, flip color
+//            clrVector*=-1.0;
+//        }
+//        else if(fabs(clrVector(1))<=clrTol)
+//        {// second component is zero, use third component
+//            if(clrVector(2)<-clrTol)
+//            {
+//                clrVector*=-1.0;
+//            }
+//        }
+//    }
+//
+//    clrVector = (clrVector + VectorDim::Ones(dim) * clrVector.norm()).eval();
+//    clrVector.normalize();
+//    return (clrVector*255).cast<int>();
 }
         
     
