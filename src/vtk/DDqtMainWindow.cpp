@@ -34,8 +34,15 @@ namespace model
 
     void DDqtMainWindow::newViewerTab()
     {
-        tabWidget->addTab(new DDqtVTKwidget(this), tr(std::string("Viewer "+std::to_string(viewerCount)).c_str()));
-        viewerCount++;
+        try
+        {
+            tabWidget->addTab(new DDqtVTKwidget(this), tr(std::string("Viewer "+std::to_string(viewerCount)).c_str()));
+            viewerCount++;
+        }
+        catch(const std::exception& e)
+        {
+            std::cout<<e.what()<<std::endl;
+        }
     }
 
 } // namespace model

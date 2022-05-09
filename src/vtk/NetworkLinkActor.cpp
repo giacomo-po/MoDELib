@@ -144,53 +144,60 @@ namespace model
             {
                 
                 auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
-                assert(itSource!=configIO.nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
-                assert(  itSink!=configIO.nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
-                
-                
-                
-
-                vtkSmartPointer<vtkLine> line(vtkSmartPointer<vtkLine>::New());
-                line->GetPointIds()->SetId(0, std::distance(configIO.nodeMap().begin(),itSource)); // the second 0 is the index of the Origin in linesPolyData's points
-                line->GetPointIds()->SetId(1, std::distance(configIO.nodeMap().begin(),itSink));
-                
-                const auto chord(configIO.nodes()[itSink->second].P-configIO.nodes()[itSource->second].P);
-                const double burgersNorm(segment.second.b.norm());
-                if(burgersNorm>FLT_EPSILON)
+                if(itSource!=configIO.nodeMap().end())
                 {
-                    Eigen::Matrix<int,3,1> colorVector=computeColor(segment.second.b,chord,segment.second.n);
-                    unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
-                    
-                    if(segment.second.meshLocation!=0)
-                    {// 0=MeshLocation::insideMesh
-                        cellsBnd->InsertNextCell(line);
-//                        polyDataBnd->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
-                        colorsBnd->InsertNextTypedTuple(lineClr);
-                    }
-                    else
+                    auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
+                    if(itSink!=configIO.nodeMap().end())
                     {
-//                        polyData->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
-                        cells->InsertNextCell(line);
-                        if(segment.second.meshLocation==2 /*&& blackGrainBoundarySegments*/)
+                        vtkSmartPointer<vtkLine> line(vtkSmartPointer<vtkLine>::New());
+                        line->GetPointIds()->SetId(0, std::distance(configIO.nodeMap().begin(),itSource)); // the second 0 is the index of the Origin in linesPolyData's points
+                        line->GetPointIds()->SetId(1, std::distance(configIO.nodeMap().begin(),itSink));
+                        
+                        const auto chord(configIO.nodes()[itSink->second].P-configIO.nodes()[itSource->second].P);
+                        const double burgersNorm(segment.second.b.norm());
+                        if(burgersNorm>FLT_EPSILON)
                         {
-                            unsigned char lineClr1[3]={1,1,1};
-                            colors->InsertNextTypedTuple(lineClr1);
+                            Eigen::Matrix<int,3,1> colorVector=computeColor(segment.second.b,chord,segment.second.n);
+                            unsigned char lineClr[3]={(unsigned char) colorVector(0),(unsigned char) colorVector(1),(unsigned char) colorVector(2)};
+                            
+                            if(segment.second.meshLocation!=0)
+                            {// 0=MeshLocation::insideMesh
+                                cellsBnd->InsertNextCell(line);
+        //                        polyDataBnd->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+                                colorsBnd->InsertNextTypedTuple(lineClr);
+                            }
+                            else
+                            {
+        //                        polyData->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+                                cells->InsertNextCell(line);
+                                if(segment.second.meshLocation==2 /*&& blackGrainBoundarySegments*/)
+                                {
+                                    unsigned char lineClr1[3]={1,1,1};
+                                    colors->InsertNextTypedTuple(lineClr1);
+                                }
+                                else
+                                {
+                                    colors->InsertNextTypedTuple(lineClr);
+                                }
+
+                                radii->InsertNextValue(burgersNorm*tubeRadius);
+                            }
                         }
                         else
                         {
-                            colors->InsertNextTypedTuple(lineClr);
+                            cells0->InsertNextCell(line);
+        //                    polyData0->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
                         }
-
-                        radii->InsertNextValue(burgersNorm*tubeRadius);
+                    }
+                    else
+                    {
+                        throw std::runtime_error("SINK VERTEX NOT FOUND IN nodeMap");
                     }
                 }
                 else
                 {
-                    cells0->InsertNextCell(line);
-//                    polyData0->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+                    throw std::runtime_error("SOURCE VERTEX NOT FOUND IN nodeMap");
                 }
-                
             }
             
             polyData->SetPoints(nodePolyData->GetPoints());

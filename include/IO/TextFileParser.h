@@ -30,8 +30,9 @@ namespace model
         
         static T toScalar(const std::string& key)
         {
-            std::cout<<"Unknown conversion from std::string "<<key<<" to "<< typeid(T).name()<<". Exiting."<<std::endl;
-            exit(EXIT_FAILURE);
+            throw std::runtime_error("Unknown conversion from std::string "+key+" to "+typeid(T).name()+".");
+//            std::cout<<"Unknown conversion from std::string "<<key<<" to "<< typeid(T).name()<<". Exiting."<<std::endl;
+//            exit(EXIT_FAILURE);
         }
     };
     
@@ -165,8 +166,9 @@ namespace model
             
             if(!success)
             {
-                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+//                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
+//                exit(EXIT_FAILURE);
             }
             
             //            if(removeWitespaces)
@@ -189,8 +191,9 @@ namespace model
         {
             if(!this->is_open())
             {
-                std::cout<<"File "<<fileName<<" cannot be opened. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("File "+fileName+" cannot be opened.");
+//                std::cout<<"File "<<fileName<<" cannot be opened. Exiting."<<std::endl;
+//                exit(EXIT_FAILURE);
             }
         }
         
@@ -309,8 +312,9 @@ namespace model
             
             if(!success)
             {
-                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\nEXITING"<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+//                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\nEXITING"<<std::endl;
+//                exit(EXIT_FAILURE);
             }
             
             if(verbose)
@@ -335,9 +339,10 @@ namespace model
             const std::vector<Scalar> array=readArray<Scalar>(key,false);
             if(array.size()!=rows*cols)
             {
-                std::cout<<"Error in reading matrix "<<key<<std::endl;
-                std::cout<<"array.size="<<array.size()<<", is not equal to rows x cols ("<<rows<<"x"<<cols<<"). EXITING"<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not equal to rows x cols ("+std::to_string(rows)+"x"+std::to_string(cols)+").");
+//                std::cout<<"Error in reading matrix "<<key<<std::endl;
+//                std::cout<<"array.size="<<array.size()<<", is not equal to rows x cols ("<<rows<<"x"<<cols<<"). EXITING"<<std::endl;
+//                exit(EXIT_FAILURE);
             }
             
             EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
@@ -353,9 +358,10 @@ namespace model
             const std::vector<Scalar> array=readArray<Scalar>(key,false);
             if(array.size()%cols!=0)
             {
-                std::cout<<"Error in reading matrix "<<key<<std::endl;
-                std::cout<<"array.size="<<array.size()<<", is not a multiple of cols ("<<cols<<"). EXITING"<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of cols ("+std::to_string(cols)+").");
+//                std::cout<<"Error in reading matrix "<<key<<std::endl;
+//                std::cout<<"array.size="<<array.size()<<", is not a multiple of cols ("<<cols<<"). EXITING"<<std::endl;
+//                exit(EXIT_FAILURE);
             }
             const size_t rows(array.size()/cols);
             EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
@@ -371,9 +377,11 @@ namespace model
             const std::vector<Scalar> array=readArray<Scalar>(key,false);
             if(array.size()%rows!=0)
             {
-                std::cout<<"Error in reading matrix "<<key<<std::endl;
-                std::cout<<"array.size="<<array.size()<<", is not a multiple of rows ("<<rows<<"). EXITING"<<std::endl;
-                exit(EXIT_FAILURE);
+                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of rows ("+std::to_string(rows)+").");
+
+//                std::cout<<"Error in reading matrix "<<key<<std::endl;
+//                std::cout<<"array.size="<<array.size()<<", is not a multiple of rows ("<<rows<<"). EXITING"<<std::endl;
+//                exit(EXIT_FAILURE);
             }
             const size_t cols(array.size()/rows);
             EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));

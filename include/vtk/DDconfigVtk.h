@@ -43,7 +43,7 @@ namespace model
         InclusionActor* inclusions;
 //        DislocationLoopActor loops;
         private slots:
-        void updateConfiguration();
+        bool updateConfiguration();
         void nextConfiguration();
         void prevConfiguration();
 
@@ -63,7 +63,7 @@ namespace model
         
         /**********************************************************************/
         DDconfigVtk(const std::string& folderName,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const SimplicialMesh<3>& mesh);
-        void updateConfiguration(const size_t& frameID);
+        bool updateConfiguration(const size_t& frameID);
 
         void modify();
         

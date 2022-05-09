@@ -24,7 +24,6 @@ namespace model
     /* init */ mainLayout(new QGridLayout(this))
     /* init */,tabWidget(new QTabWidget(this))
     /* init */,openglWidget(new QVTKOpenGLStereoWidget(this))
-//    /* init */ QVTKOpenGLStereoWidget(parent)
     /* init */,renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New())
     /* init */,renderer(vtkSmartPointer<vtkRenderer>::New())
     /* init */,workingDir(getWorkingDir())
@@ -55,7 +54,6 @@ namespace model
     std::string DDqtVTKwidget::getWorkingDir() 
     {
         return QFileDialog::getExistingDirectory(this, tr("Open Directory"),
-                                                             //                                                        selectedTickDataPath->text(),
                                                              "/Users/giacomo/Documents/MoDELib2/tutorials/DislocationDynamics",
                                                              QFileDialog::ShowDirsOnly
                                                              | QFileDialog::DontUseNativeDialog ).toStdString();

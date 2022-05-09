@@ -10,7 +10,8 @@
 #define model_DiophantineSolver_h_
 
 #include <Eigen/Dense>
-#include <LatticeGCD.h>
+//#include <LatticeGCD.h>
+#include <IntegerMath.h>
 #include<climits>
 namespace model
 {
@@ -67,7 +68,9 @@ namespace model
         static void solveDiophantine3vars(const Eigen::Matrix<long int, 3, 1> &alphas, const long int t1, Eigen::Matrix<long int, 3, 1> &sols)
         {
             // const auto gcd(LatticeGCD<dim>::gcd(key.reciprocalDirectionComponents().transpose()*N));
-            const long int gcd(LatticeGCD<3>::gcd(alphas));
+//            const long int gcd(LatticeGCD<3>::gcd(alphas));
+            const long int gcd(IntegerMath::gcd(alphas));
+
 
             if (t1 % gcd != 0)
             {
@@ -79,7 +82,9 @@ namespace model
             const long int c(alphas(2) / gcd);
             const long int t(t1 / gcd);
 
-            const long int gcdab(LatticeGCD<3>::gcd(a, b));
+//            const long int gcdab(LatticeGCD<3>::gcd(a, b));
+            const long int gcdab(IntegerMath::gcd(a, b));
+
             const long int ap(a / gcdab);
             const long int bp(b / gcdab);
             long int u0, v0;

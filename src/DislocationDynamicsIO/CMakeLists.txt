@@ -1,4 +1,5 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
+include_directories(${MoDELibRootDir}/include/Lattices)
 include_directories(${MoDELibRootDir}/include/GlidePlanes)
 include_directories(${MoDELibRootDir}/include/DislocationMobilities)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)

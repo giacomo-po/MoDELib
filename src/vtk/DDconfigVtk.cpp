@@ -62,7 +62,10 @@ namespace model
             const long int currentIncrement(std::atoi(frameIncrementEdit->text() .toStdString().c_str()));
             const long int nextFrameID(std::max((long int)0,currentFrameID+currentIncrement));
             frameIDedit->setText(QString::fromStdString(std::to_string(nextFrameID)));
-            updateConfiguration();
+            if(!updateConfiguration())
+            {
+                frameIDedit->setText(QString::fromStdString(std::to_string(currentFrameID)));
+            }
         }
 
         void DDconfigVtk::prevConfiguration()
@@ -71,33 +74,42 @@ namespace model
             const long int currentIncrement(std::atoi(frameIncrementEdit->text() .toStdString().c_str()));
             const long int nextFrameID(std::max((long int)0,currentFrameID-currentIncrement));
             frameIDedit->setText(QString::fromStdString(std::to_string(nextFrameID)));
-            updateConfiguration();
+            if(!updateConfiguration())
+            {
+                frameIDedit->setText(QString::fromStdString(std::to_string(currentFrameID)));
+            }
         }
 
-        void DDconfigVtk::updateConfiguration()
+        bool DDconfigVtk::updateConfiguration()
         {
             const size_t frameID(std::atoi(frameIDedit->text() .toStdString().c_str()));
-            updateConfiguration(frameID);
-            renderWindow->Render();
-        }
-
-        void DDconfigVtk::updateConfiguration(const size_t& frameID)
-        {
-            if(DDconfigIO<3>::isBinGood(frameID))
+            if(updateConfiguration(frameID))
             {
-                this->readBin(frameID);
+                renderWindow->Render();
+                return true;
             }
             else
             {
-                this->readTxt(frameID);
+                return false;
             }
-            
-            nodes->updateConfiguration(*this);
-            segments->updateConfiguration(*this,nodes->nodePolyData);
-            inclusions->updateConfiguration(*this);
+        }
 
-//            loops.updateConfiguration(*this,nodes.nodePolyData);
-
+        bool DDconfigVtk::updateConfiguration(const size_t& frameID)
+        {
+            try
+            {
+                this->read(frameID);
+                nodes->updateConfiguration(*this);
+                segments->updateConfiguration(*this,nodes->nodePolyData);
+                //            loops.updateConfiguration(*this,nodes.nodePolyData);
+                inclusions->updateConfiguration(*this);
+                return true;
+            }
+            catch(const std::exception& e)
+            {
+                std::cout<<e.what()<<std::endl;
+                return false;
+            }
         }
         
         void DDconfigVtk::modify()

@@ -9,6 +9,7 @@
 #ifndef model_SimplicialMeshActor_cpp_
 #define model_SimplicialMeshActor_cpp_
 
+
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
@@ -64,7 +65,9 @@ namespace model
 //        /* init */,showGrainColors(new QCheckBox(this))
 //        /* init */,showGrainColorsLabel(new QLabel("show grain colors"))
         /* init */,showRegionBoundaries(new QCheckBox(this))
+        /* init */,sliderRegionBoundaries(new QSlider(this))
         /* init */,showClipPlane(new QCheckBox(this))
+        /* init */,sliderClipPlane(new QSlider(this))
 //        /* init */,showRegionBoundariesLabel(new QLabel("show grain boundaries"))
         /* init */,renderWindow(renderWindow_in)
         /* init */,renderer(renderer_in)
@@ -105,9 +108,12 @@ namespace model
 //            gbMapper->SetScalarVisibility(false);
             showRegionBoundaries->setChecked(false);
             showRegionBoundaries->setText("grain boundaries");
+            sliderRegionBoundaries->setEnabled(false);
             gbActor->SetVisibility(false);
+
             showClipPlane->setText("clip plane");
             showClipPlane->setChecked(false);
+            sliderClipPlane->setEnabled(false);
             clipActor->SetVisibility(false);
 
             mainLayout->addWidget(showMesh,0,0,1,1);
@@ -117,8 +123,19 @@ namespace model
 //            mainLayout->addWidget(showGrainColors,2,0,1,1);
   //          mainLayout->addWidget(showGrainColorsLabel,2,1,1,1);
             mainLayout->addWidget(showRegionBoundaries,2,0,1,1);
+            mainLayout->addWidget(sliderRegionBoundaries,2,1,1,2);
             mainLayout->addWidget(showClipPlane,3,0,1,1);
-            
+            mainLayout->addWidget(sliderClipPlane,3,1,1,2);
+            sliderRegionBoundaries->setOrientation(Qt::Horizontal);
+            sliderRegionBoundaries->setMinimum(0);
+            sliderRegionBoundaries->setMaximum(10);
+            sliderRegionBoundaries->setValue(5);
+            sliderClipPlane->setOrientation(Qt::Horizontal);
+            sliderClipPlane->setMinimum(0);
+            sliderClipPlane->setMaximum(10);
+            sliderClipPlane->setValue(5);
+
+
    //         mainLayout->addWidget(showRegionBoundariesLabel,3,1,1,1);
             mainLayout->setColumnStretch(0, 1);
             mainLayout->setColumnStretch(1, 12);
@@ -129,6 +146,12 @@ namespace model
 //            connect(showGrainColors,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showRegionBoundaries,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showClipPlane,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(sliderRegionBoundaries,SIGNAL(valueChanged(int)), this, SLOT(modify()));
+            connect(sliderClipPlane,SIGNAL(valueChanged(int)), this, SLOT(modify()));
+
+             
+            
+            
 
             const Eigen::Matrix<double,3,1> c(0.5*(mesh.xMax()+mesh.xMin()));
             clipPlane->SetOrigin(c(0),c(1),c(2));
@@ -164,16 +187,27 @@ namespace model
                 if(edge.second->isBoundarySimplex())
                 {
                     const auto iter0(sIDtoVtkPointsMap.find(edge.second->child(0).xID(0)));
-                    assert(iter0!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
-                    
-                    const auto iter1(sIDtoVtkPointsMap.find(edge.second->child(1).xID(0)));
-                    assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
-                    
-                    vtkIdType connectivity[2];
-                    connectivity[0] = iter0->second.first;
-                    connectivity[1] = iter1->second.first;
-                    polydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
-                }
+                    if(iter0!=sIDtoVtkPointsMap.end())
+                    {
+                        const auto iter1(sIDtoVtkPointsMap.find(edge.second->child(1).xID(0)));
+                        if(iter1!=sIDtoVtkPointsMap.end())
+                        {
+                            vtkIdType connectivity[2];
+                            connectivity[0] = iter0->second.first;
+                            connectivity[1] = iter1->second.first;
+                            polydata->InsertNextCell(VTK_LINE,2,connectivity); //Connects the first and fourth point we inserted into a line
+
+                        }
+                        else
+                        {
+                            throw std::runtime_error("child1 not found in sIDtoVtkPointsMap");
+                        }
+                    }
+                    else
+                    {
+                        throw std::runtime_error("child0 not found in sIDtoVtkPointsMap");
+                    }
+                  }
             }
             
             
@@ -341,7 +375,7 @@ namespace model
 //            //            planeWidget->SetInteractor(renderWindow->GetInteractor());
 //            planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
 //            planeWidget->SetRepresentation(rep);
-//            planeWidget->SetEnabled(true );
+//            planeWidget->setEnabled(true );
 
 //            modify();
         }
@@ -354,20 +388,13 @@ namespace model
         {
             actor->SetVisibility(showMesh->isChecked());
             faceActor->SetVisibility(showFaceBoundaries->isChecked());
-//            gbMapper->SetScalarVisibility(showRegionBoundaries->isChecked());
             gbActor->SetVisibility(showRegionBoundaries->isChecked());
+            sliderRegionBoundaries->setEnabled(showRegionBoundaries->isChecked());
+            gbActor->GetProperty()->SetOpacity(sliderRegionBoundaries->value()/10.0);
             clipActor->SetVisibility(showClipPlane->isChecked());
+            sliderClipPlane->setEnabled(showClipPlane->isChecked());
+            clipActor->GetProperty()->SetOpacity(sliderClipPlane->value()/10.0);
 
-//            if(showRegionBoundaries)
-//            {
-//                gbActor->VisibilityOn();
-//            }
-//            else
-//            {
-//                gbActor->VisibilityOff();
-//            }
-
-            
             renderWindow->Render();
         }
 
@@ -375,130 +402,27 @@ namespace model
         /**************************************************************************/
         void SimplicialMeshActor::modifyPts()
         {
-//            if(dispFileIsGood)
-//            {
-//                size_t k=0;
-//                for (const auto& edge : mesh.observer<1>())
-//                {
-//                    if(edge.second->isBoundarySimplex())
-//                    {
-//                        DispContainerType::const_iterator iterD1(DispContainerType::find(edge.second->child(0).xID(0)));
-//                        DispContainerType::const_iterator iterD2(DispContainerType::find(edge.second->child(1).xID(0)));
-//                        //                        VertexReader<'D',4,float>::const_iterator iterD3(DispContainerType::find(triangleID.second[2]));
-//
-//                        assert(iterD1!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-//                        assert(iterD2!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-//                        //                        assert(iterD3!=DispContainerType::end() && "MESH NODE NOT FOUND IN D FILE");
-//
-//
-//                        const float x1=edge.second->child(0).P0(0)+dispCorr*iterD1->second[0];
-//                        const float y1=edge.second->child(0).P0(1)+dispCorr*iterD1->second[1];
-//                        const float z1=edge.second->child(0).P0(2)+dispCorr*iterD1->second[2];
-//                        pts->SetPoint(k,x1,y1,z1);
-//
-//                        const float x2=edge.second->child(1).P0(0)+dispCorr*iterD2->second[0];
-//                        const float y2=edge.second->child(1).P0(1)+dispCorr*iterD2->second[1];
-//                        const float z2=edge.second->child(1).P0(2)+dispCorr*iterD2->second[2];
-//                        pts->SetPoint(k+1,x2,y2,z2);
-//
-//                        k=k+2;
-//                    }
-//                }
-//
-//                pts->Modified();
-//            }
-            
-//            for(const auto& pair : sIDtoVtkPointsMap)
-//            {
-//                const auto nodeIter(mesh.observer<1>())
-//                pts->SetPoint(pair.second.first,x2,y2,z2)
-//            }
-            
             for (const auto& node : mesh.observer<0>())
             {
                 if(node.second->isBoundarySimplex())
                 {
                     
                     const auto nodeIter(sIDtoVtkPointsMap.find(node.second->xID(0)));
-                    assert(nodeIter!=sIDtoVtkPointsMap.end() && "node not found in sIDtoVtkPointsMap");
-                    
-                    Eigen::Matrix<double,3,1> newP(node.second->P0+dispCorr*nodeIter->second.second);
-                    pts->SetPoint(nodeIter->second.first,newP(0),newP(1),newP(2));
+                    if(nodeIter!=sIDtoVtkPointsMap.end())
+                    {
+                        Eigen::Matrix<double,3,1> newP(node.second->P0+dispCorr*nodeIter->second.second);
+                        pts->SetPoint(nodeIter->second.first,newP(0),newP(1),newP(2));
+
+                    }
+                    else
+                    {
+                        throw std::runtime_error("node not found in sIDtoVtkPointsMap");
+                    }
                     
                 }
             }
             pts->Modified();
-            
-//            size_t t=0;
-//            for(const auto& meshTriangle : mesh.observer<2>())
-//            {
-//                if(meshTriangle.second->isBoundarySimplex())
-//                {
-//                    gbColors->SetTuple3(t,regionClr(1),regionClr(2)); // use this to assig color to each vertex
-//                    t++;
-//                }
-//            }
-            
-//            gbMapper->SetScalarVisibility(showGrainColors);
-            
-//            gbActor->GetProperty()->SetColor(0.0,0.5,0.5);
-            
-
-            
         }
-
-
-/**************************************************************************/
-//        void update(const std::vector<MeshNodeIO<dim>>& ddAux)
-//        {
-//
-//
-//
-//
-//            for(const auto& node : ddAux)
-//            {
-//                auto iter1(sIDtoVtkPointsMap.find(node.nodeID));
-//                if(iter1!=sIDtoVtkPointsMap.end())
-//                {
-//                    iter1->second.second=node.displacement;
-//                }
-////                assert(iter1!=sIDtoVtkPointsMap.end() && "child0 not found in sIDtoVtkPointsMap");
-//            }
-//
-//
-//
-//            modifyPts();
-//
-////            if(DispContainerType::isGood(frameID,true))
-////            {
-////                dispFileIsGood=true;
-////                DispContainerType::read(frameID,true);
-////
-////                modifyPts();
-////
-////
-////            }
-////            else
-////            {
-////                dispFileIsGood=false;
-////            }
-//
-////            const double axisNorm(spinAxis.norm());
-////            if(anglePerStep && axisNorm>0.0)
-////            {
-////                spinAxis/=axisNorm;
-//////                std::cout<<"rotating"<< frameID*anglePerStep<<std::endl;
-////                const double splinAngle((frameID-lastFrameID)*anglePerStep);
-////                std::cout<<"mesh "<<splinAngle<<std::endl;
-////
-////                actor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-////                gbActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-////                clipActor->RotateWXYZ(splinAngle,spinAxis(0),spinAxis(1),spinAxis(2));
-////
-////            }
-//
-//
-//        }
 
 } // namespace model
 

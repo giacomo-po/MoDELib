@@ -17,6 +17,7 @@
 #include <QCheckBox>
 #include <QLabel>
 #include <QWidget>
+#include <QSlider>
 
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
@@ -119,7 +120,9 @@ namespace model
         QCheckBox* showFaceBoundaries;
 //        QCheckBox* showGrainColors;
         QCheckBox* showRegionBoundaries;
+        QSlider* sliderRegionBoundaries;
         QCheckBox* showClipPlane;
+        QSlider* sliderClipPlane;
 
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
