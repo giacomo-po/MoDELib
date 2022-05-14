@@ -54,9 +54,9 @@ namespace model
         
         PeriodicLoopGenerator(const std::string& fileName);
 
-        void generate(MicrostructureGenerator& mg) override;
-        void generateSingle(MicrostructureGenerator& mg);
-        void generateDensity(MicrostructureGenerator& mg);
+//        void generate(MicrostructureGenerator& mg) override;
+        void generateIndividual(MicrostructureGenerator& mg) override;
+        void generateDensity(MicrostructureGenerator& mg) override;
 
     };
 

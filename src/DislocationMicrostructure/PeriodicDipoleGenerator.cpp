@@ -53,10 +53,10 @@ namespace model
         
     }
 
-    void PeriodicDipoleGenerator::generate(MicrostructureGenerator& mg)
-    {
-        generateIndividual(mg);
-    }
+//    void PeriodicDipoleGenerator::generate(MicrostructureGenerator& mg)
+//    {
+//        generateIndividual(mg);
+//    }
 
 
     void PeriodicDipoleGenerator::generateDensity(MicrostructureGenerator& mg)

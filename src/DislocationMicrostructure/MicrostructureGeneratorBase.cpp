@@ -28,10 +28,12 @@ namespace model
 
     MicrostructureGeneratorBase::MicrostructureGeneratorBase(const std::string& fileName):
     /* init */ parser(fileName)
-    /* init */,tag(parser.readString("tag",true))
+    /* init */,type(parser.readString("type",false))
+    /* init */,style(parser.readString("style",false))
+    /* init */,tag(parser.readString("tag",false))
 //    /* init */,microstructureType(parser.readString("microstructureType",true))
     {
-        std::cout<<greenColor<<"Generating microstructure from "<<fileName<<defaultColor<<std::endl;
+        std::cout<<greenColor<<tag<<" -> "<<type<<" "<<style<<defaultColor<<" ("<<fileName<<")"<<std::endl;
     }
 
 

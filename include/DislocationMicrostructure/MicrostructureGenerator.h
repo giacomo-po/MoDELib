@@ -48,7 +48,7 @@ namespace model
 
     
 
-    class MicrostructureGenerator : public std::vector<const MicrostructureGeneratorBase*>
+    class MicrostructureGenerator : public std::map<std::string,MicrostructureGeneratorBase* const>
     {
         constexpr static int dim=MicrostructureGeneratorBase::dim;
         typedef typename  MicrostructureGeneratorBase::VectorDimD VectorDimD;
@@ -85,17 +85,6 @@ namespace model
 
         void writeConfigFiles(const size_t& fileID);
 
-//        bool addSingleLoop(const bool randomizeBurgersSense,
-//                           const std::vector<size_t>& nodeIDs,
-//                           const std::vector<size_t>& loopNodeIDs,
-//                           VectorDimD b,
-//                           const VectorDimD& unitNormal,
-//                           const VectorDimD& P0,
-//                           const int& grainID,
-//                           const int& loopType,
-//                           const std::vector<VectorDimD>& loopNodeShifts,
-//                           const std::vector<std::pair<short int,short int>>& periodicEdgeIDs // default -1 for non-periodic nodes
-//                           );
         
     };
 //
