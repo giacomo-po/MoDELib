@@ -23,8 +23,8 @@ namespace model
     template <typename DislocationNetworkType>
     DislocationCrossSlip<DislocationNetworkType>::DislocationCrossSlip(DislocationNetworkType& DN_in) :
     /* init */ DN(DN_in)
-    /* init */,verboseCrossSlip(TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
-    /* init */,crossSlipDeg(TextFileParser("inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
+    /* init */,verboseCrossSlip(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
+    /* init */,crossSlipDeg(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("crossSlipDeg",true))
     {
         assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
         

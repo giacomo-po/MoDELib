@@ -46,7 +46,7 @@ namespace model
         /**********************************************************************/
         DislocationNodeContraction(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,verboseNodeContraction(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseNodeContraction",true))
+        /* init */,verboseNodeContraction(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("verboseNodeContraction",true))
         {
             
         }

@@ -96,7 +96,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) 
+                        const std::shared_ptr<StochasticForceGenerator>& sfg)
         {
             
             const double bNorm=b.norm();
@@ -129,10 +129,10 @@ namespace model
             // Compute edge velocity
             double ve=std::fabs(tau)*bNorm/(B0e+B1e*T);
             
-            if(use_stochasticForce)
+            if(sfg)
             {
-                vs+=this->stochasticVelocity(kB,T,Bs,dL,dt);
-                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
+                vs+=sfg->stochasticVelocity(kB,T,Bs,dL,dt);
+                ve+=sfg->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
             }
             
             // Interpolate ve and vs

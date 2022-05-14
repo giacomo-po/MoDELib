@@ -17,133 +17,142 @@
 #include <regex>
 #include <vector>
 #include <set>
+#include <regex>
 #include <Eigen/Dense>
 
 #include <TerminalColors.h>
 
 namespace model
 {
-    
-    template<typename T>
-    struct StringToScalar
-    {
-        
-        static T toScalar(const std::string& key)
-        {
-            throw std::runtime_error("Unknown conversion from std::string "+key+" to "+typeid(T).name()+".");
-//            std::cout<<"Unknown conversion from std::string "<<key<<" to "<< typeid(T).name()<<". Exiting."<<std::endl;
-//            exit(EXIT_FAILURE);
-        }
-    };
-    
-    template<>
-    struct StringToScalar<int>
-    {
-        
-        static int toScalar(const std::string& str)
-        {
-            return std::atoi(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<long>
-    {
-        
-        static long toScalar(const std::string& str)
-        {
-            return std::atol(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<long long>
-    {
-        
-        static long long toScalar(const std::string& str)
-        {
-            return std::atoll(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<unsigned long>
-    {
-        
-        static unsigned long toScalar(const std::string& str)
-        {
-            return std::stoul(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<unsigned long long>
-    {
-        
-        static unsigned long long toScalar(const std::string& str)
-        {
-            return std::stoull(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<float>
-    {
-        
-        static float toScalar(const std::string& str)
-        {
-            return std::stof(str.c_str());
-        }
-    };
-    
-    template<>
-    struct StringToScalar<double>
-    {
-        
-        static double toScalar(const std::string& str)
-        {
-            return std::stod(str.c_str());
-        }
-    };
-    
-    
-    template<>
-    struct StringToScalar<long double>
-    {
-        
-        static long double toScalar(const std::string& str)
-        {
-            return std::stold(str.c_str());
-        }
-    };
-    
-    
-    class TextFileParser : public std::ifstream
-    {
-        
-        template <typename Scalar>
-        using EigenMapType=Eigen::Map<const Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>, 0, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> >;
-        
-        /**********************************************************************/
-        std::pair<std::string,std::string> readKey( const std::string& key
-        //                               ,const bool& removeWitespaces=true
-        )
-        {
-            this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
 
-            std::string line;
-            std::string read;
-            std::string comment;
-            bool success(false);
-            
-            while (std::getline(*this, line))
+template<typename T>
+struct StringToScalar
+{
+    
+    static T toScalar(const std::string& key)
+    {
+        throw std::runtime_error("Unknown conversion from std::string "+key+" to "+typeid(T).name()+".");
+        //            std::cout<<"Unknown conversion from std::string "<<key<<" to "<< typeid(T).name()<<". Exiting."<<std::endl;
+        //            exit(EXIT_FAILURE);
+    }
+};
+
+template<>
+struct StringToScalar<int>
+{
+    
+    static int toScalar(const std::string& str)
+    {
+        return std::atoi(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<long>
+{
+    
+    static long toScalar(const std::string& str)
+    {
+        return std::atol(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<long long>
+{
+    
+    static long long toScalar(const std::string& str)
+    {
+        return std::atoll(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<unsigned long>
+{
+    
+    static unsigned long toScalar(const std::string& str)
+    {
+        return std::stoul(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<unsigned long long>
+{
+    
+    static unsigned long long toScalar(const std::string& str)
+    {
+        return std::stoull(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<float>
+{
+    
+    static float toScalar(const std::string& str)
+    {
+        return std::stof(str.c_str());
+    }
+};
+
+template<>
+struct StringToScalar<double>
+{
+    
+    static double toScalar(const std::string& str)
+    {
+        return std::stod(str.c_str());
+    }
+};
+
+
+template<>
+struct StringToScalar<long double>
+{
+    
+    static long double toScalar(const std::string& str)
+    {
+        return std::stold(str.c_str());
+    }
+};
+
+
+class TextFileParser : public std::ifstream
+{
+    
+    template <typename Scalar>
+    using EigenMapType=Eigen::Map<const Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>, 0, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> >;
+    
+    /**********************************************************************/
+    std::pair<std::string,std::string> readKey( const std::string& key
+    //                               ,const bool& removeWitespaces=true
+    )
+    {
+        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+        
+        std::string line;
+        std::string read;
+        std::string comment;
+        bool success(false);
+        
+        while (std::getline(*this, line))
+        {
+            const size_t foundKey=line.find(key);
+            const size_t foundEqual=line.find("=");
+            const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
+
+//            std::string keyRead(line.substr(0,foundEqual));
+//            keyRead.erase(std::remove_if(keyRead.begin(), keyRead.end(), std::isspace), keyRead.end());
+
+            //                    std::regex_replace( keyRead, "\s", "" );
+            //                    std::cout<<"key="<<key<<std::endl;
+            //                    std::cout<<"keyRead="<<keyRead<<std::endl;
+            if(keyRead==key)
             {
-                
-                const size_t foundKey=line.find(key);
-                const size_t foundEqual=line.find("=");
                 const size_t foundSemiCol=line.find(";");
                 const size_t foundPound=line.find("#");
-
                 
                 if(   foundKey!=std::string::npos
                    && foundEqual!=std::string::npos
@@ -160,104 +169,120 @@ namespace model
                     }
                     success=true;
                     break;
+                    
                 }
-                
             }
+        }
+        
+        if(!success)
+        {
+            throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+            //                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
+            //                exit(EXIT_FAILURE);
+        }
+        
+        //            if(removeWitespaces)
+        //            {
+        //                std::regex_replace( read, "\s", "" );
+        //            }
+        //            std::cout<<key<<"="<<read<<std::endl;
+        
+        return std::make_pair(read,comment);
+    }
+    
+    
+public:
+    
+    const std::string fileName;
+    
+    /**********************************************************************/
+    TextFileParser(const std::string& _fileName) :
+    /* init */ std::ifstream(_fileName)
+    /* init */,fileName(_fileName)
+    {
+        if(!this->is_open())
+        {
+            throw std::runtime_error("File "+fileName+" cannot be opened.");
+            //                std::cout<<"File "<<fileName<<" cannot be opened. Exiting."<<std::endl;
+            //                exit(EXIT_FAILURE);
+        }
+    }
+    
+    static std::string removeSpaces(std::string key)
+    {
+        key.erase(std::remove_if(key.begin(), key.end(), [](unsigned char x) { return std::isspace(x); }), key.end());
+        return key;
+    }
+    
+    /**********************************************************************/
+    std::string readString(const std::string& key,const bool&verbose=false)
+    {
+        const std::pair<std::string,std::string> strPair(readKey(key));
+        //const std::string& read(readKey(key));
+        if(verbose) std::cout<<cyanColor<<key<<"="<<strPair.first<<" "<<strPair.second<<defaultColor<<std::endl;
+        return strPair.first;
+    }
+    
+    /**********************************************************************/
+    template<typename Scalar>
+    Scalar readScalar(const std::string& key,const bool&verbose=false)
+    {
+        if(verbose) std::cout<<cyanColor<<key<<"="<<std::flush;
+        //            const std::string str(readKey(key));
+        const std::pair<std::string,std::string> strPair(readKey(key));
+        const Scalar read(StringToScalar<Scalar>::toScalar(strPair.first));
+        if(verbose) std::cout<<read<<" "<<strPair.second<<defaultColor<<std::endl;
+        return read;
+    }
+    
+    /**********************************************************************/
+    template<typename Scalar>
+    std::set<Scalar> readSet(const std::string& key,const bool&verbose=false)
+    {
+        std::vector<Scalar> tempV(readArray<Scalar>(key,false));
+        std::set<Scalar> tempS;
+        for(const auto& val : tempV)
+        {
+            tempS.insert(val);
+        }
+        if(verbose)
+        {
+            std::cout<<cyanColor<<key<<"=";
+            for(const auto& val : tempS)
+            {
+                std::cout<<" "<<val;
+            }
+            std::cout<<"; "<<defaultColor<<std::endl;
+        }
+        return tempS;
+    }
+    
+    
+    /**********************************************************************/
+    template<typename Scalar>
+    std::vector<Scalar> readArray(const std::string& key,const bool&verbose=false)
+    {
+        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+        
+        std::string line;
+        std::string lines;
+        std::string comment;
+        std::vector<Scalar> array;
+        bool success=false;
+        
+        while (std::getline(*this, line))
+        {
             
-            if(!success)
-            {
-                throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
-//                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
-//                exit(EXIT_FAILURE);
-            }
-            
-            //            if(removeWitespaces)
-            //            {
-            //                std::regex_replace( read, "\s", "" );
-            //            }
-            //            std::cout<<key<<"="<<read<<std::endl;
-            
-            return std::make_pair(read,comment);
-        }
-        
-    public:
-        
-        const std::string fileName;
-        
-        /**********************************************************************/
-        TextFileParser(const std::string& _fileName) :
-        /* init */ std::ifstream(_fileName)
-        /* init */,fileName(_fileName)
-        {
-            if(!this->is_open())
-            {
-                throw std::runtime_error("File "+fileName+" cannot be opened.");
-//                std::cout<<"File "<<fileName<<" cannot be opened. Exiting."<<std::endl;
-//                exit(EXIT_FAILURE);
-            }
-        }
-        
-        /**********************************************************************/
-        std::string readString(const std::string& key,const bool&verbose=false)
-        {
-            const std::pair<std::string,std::string> strPair(readKey(key));
-            //const std::string& read(readKey(key));
-            if(verbose) std::cout<<cyanColor<<key<<"="<<strPair.first<<" "<<strPair.second<<defaultColor<<std::endl;
-            return strPair.first;
-        }
-        
-        /**********************************************************************/
-        template<typename Scalar>
-        Scalar readScalar(const std::string& key,const bool&verbose=false)
-        {
-            if(verbose) std::cout<<cyanColor<<key<<"="<<std::flush;
-//            const std::string str(readKey(key));
-            const std::pair<std::string,std::string> strPair(readKey(key));
-            const Scalar read(StringToScalar<Scalar>::toScalar(strPair.first));
-            if(verbose) std::cout<<read<<" "<<strPair.second<<defaultColor<<std::endl;
-            return read;
-        }
-        
-        /**********************************************************************/
-        template<typename Scalar>
-        std::set<Scalar> readSet(const std::string& key,const bool&verbose=false)
-        {
-            std::vector<Scalar> tempV(readArray<Scalar>(key,false));
-            std::set<Scalar> tempS;
-            for(const auto& val : tempV)
-            {
-                tempS.insert(val);
-            }
-            if(verbose)
-            {
-                std::cout<<cyanColor<<key<<"=";
-                for(const auto& val : tempS)
-                {
-                    std::cout<<" "<<val;
-                }
-                std::cout<<"; "<<defaultColor<<std::endl;
-            }
-            return tempS;
-        }
-        
-        
-        /**********************************************************************/
-        template<typename Scalar>
-        std::vector<Scalar> readArray(const std::string& key,const bool&verbose=false)
-        {
-            this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+            const size_t foundKey=line.find(key);
+            const size_t foundEqual=line.find("=");
+//            const std::string keyRead(line.substr(0,foundEqual));
+            const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
 
-            std::string line;
-            std::string lines;
-            std::string comment;
-            std::vector<Scalar> array;
-            bool success=false;
-            
-            while (std::getline(*this, line))
+            //                    std::regex_replace( keyRead, "\s", "" );
+            //                    std::cout<<"key="<<key<<std::endl;
+            //                    std::cout<<"keyRead="<<keyRead<<std::endl;
+            if(keyRead==key)
             {
-                
-                const size_t foundKey=line.find(key);
-                const size_t foundEqual=line.find("=");
                 size_t foundSemiCol=line.find(";");
                 size_t foundPound=line.find("#");
                 
@@ -288,7 +313,7 @@ namespace model
                             }
                         }
                     }
-                                        
+                    
                     if(success)
                     {
                         foundPound=line.find("#");
@@ -296,7 +321,7 @@ namespace model
                         {
                             comment=lines.substr(foundPound,lines.size()-foundPound);
                         }
-
+                        
                         
                         Scalar temp(0.0);
                         std::stringstream ss(lines.substr(foundEqual+1,foundSemiCol-foundEqual-1));
@@ -307,89 +332,89 @@ namespace model
                         break;
                     }
                 }
-                
             }
-            
-            if(!success)
-            {
-                throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
-//                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\nEXITING"<<std::endl;
-//                exit(EXIT_FAILURE);
-            }
-            
-            if(verbose)
-            {
-                std::cout<<cyanColor<<key<<"=";
-                for(const auto& val : array)
-                {
-                    std::cout<<" "<<val;
-                }
-                std::cout<<"; "<<comment<<defaultColor<<std::endl;
-                
-            }
-            
-            return array;
         }
         
-        /**********************************************************************/
-        template<typename Scalar>
-         Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrix(const std::string& key,const size_t& rows,const size_t& cols,const bool&verbose=false)
+        if(!success)
         {
-
-            const std::vector<Scalar> array=readArray<Scalar>(key,false);
-            if(array.size()!=rows*cols)
-            {
-                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not equal to rows x cols ("+std::to_string(rows)+"x"+std::to_string(cols)+").");
-//                std::cout<<"Error in reading matrix "<<key<<std::endl;
-//                std::cout<<"array.size="<<array.size()<<", is not equal to rows x cols ("<<rows<<"x"<<cols<<"). EXITING"<<std::endl;
-//                exit(EXIT_FAILURE);
-            }
-            
-            EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
-            if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
-            return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+            throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+            //                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\nEXITING"<<std::endl;
+            //                exit(EXIT_FAILURE);
         }
         
-        /**********************************************************************/
-        template<typename Scalar>
-        Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrixCols(const std::string& key,const size_t& cols,const bool&verbose=false)
+        if(verbose)
         {
-            
-            const std::vector<Scalar> array=readArray<Scalar>(key,false);
-            if(array.size()%cols!=0)
+            std::cout<<cyanColor<<key<<"=";
+            for(const auto& val : array)
             {
-                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of cols ("+std::to_string(cols)+").");
-//                std::cout<<"Error in reading matrix "<<key<<std::endl;
-//                std::cout<<"array.size="<<array.size()<<", is not a multiple of cols ("<<cols<<"). EXITING"<<std::endl;
-//                exit(EXIT_FAILURE);
+                std::cout<<" "<<val;
             }
-            const size_t rows(array.size()/cols);
-            EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
-            if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
-            return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+            std::cout<<"; "<<comment<<defaultColor<<std::endl;
+            
         }
         
-        /**********************************************************************/
-        template<typename Scalar>
-        Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrixRows(const std::string& key,const size_t& rows,const bool&verbose=false)
-        {
-            
-            const std::vector<Scalar> array=readArray<Scalar>(key,false);
-            if(array.size()%rows!=0)
-            {
-                throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of rows ("+std::to_string(rows)+").");
-
-//                std::cout<<"Error in reading matrix "<<key<<std::endl;
-//                std::cout<<"array.size="<<array.size()<<", is not a multiple of rows ("<<rows<<"). EXITING"<<std::endl;
-//                exit(EXIT_FAILURE);
-            }
-            const size_t cols(array.size()/rows);
-            EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
-            if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
-            return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
-        }
-        
-    };
+        return array;
+    }
     
+    /**********************************************************************/
+    template<typename Scalar>
+    Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrix(const std::string& key,const size_t& rows,const size_t& cols,const bool&verbose=false)
+    {
+        
+        const std::vector<Scalar> array=readArray<Scalar>(key,false);
+        if(array.size()!=rows*cols)
+        {
+            throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not equal to rows x cols ("+std::to_string(rows)+"x"+std::to_string(cols)+").");
+            //                std::cout<<"Error in reading matrix "<<key<<std::endl;
+            //                std::cout<<"array.size="<<array.size()<<", is not equal to rows x cols ("<<rows<<"x"<<cols<<"). EXITING"<<std::endl;
+            //                exit(EXIT_FAILURE);
+        }
+        
+        EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
+        if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
+        return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+    }
+    
+    /**********************************************************************/
+    template<typename Scalar>
+    Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrixCols(const std::string& key,const size_t& cols,const bool&verbose=false)
+    {
+        
+        const std::vector<Scalar> array=readArray<Scalar>(key,false);
+        if(array.size()%cols!=0)
+        {
+            throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of cols ("+std::to_string(cols)+").");
+            //                std::cout<<"Error in reading matrix "<<key<<std::endl;
+            //                std::cout<<"array.size="<<array.size()<<", is not a multiple of cols ("<<cols<<"). EXITING"<<std::endl;
+            //                exit(EXIT_FAILURE);
+        }
+        const size_t rows(array.size()/cols);
+        EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
+        if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
+        return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+    }
+    
+    /**********************************************************************/
+    template<typename Scalar>
+    Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic> readMatrixRows(const std::string& key,const size_t& rows,const bool&verbose=false)
+    {
+        
+        const std::vector<Scalar> array=readArray<Scalar>(key,false);
+        if(array.size()%rows!=0)
+        {
+            throw std::runtime_error("Error in reading matrix "+key+": array.size="+std::to_string(array.size())+" is not a multiple of rows ("+std::to_string(rows)+").");
+            
+            //                std::cout<<"Error in reading matrix "<<key<<std::endl;
+            //                std::cout<<"array.size="<<array.size()<<", is not a multiple of rows ("<<rows<<"). EXITING"<<std::endl;
+            //                exit(EXIT_FAILURE);
+        }
+        const size_t cols(array.size()/rows);
+        EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
+        if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
+        return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+    }
+    
+};
+
 }
 #endif

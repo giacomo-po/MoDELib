@@ -65,9 +65,11 @@ namespace model
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
               const PolycrystallineMaterial<dim,Isotropic>& material,
-              const std::string& polyFile
+//              const std::string& polyFile
+              const MatrixDimD& C2G_in
               ) :
-        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))
+//        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))
+        /* init */ SingleCrystalType(material,C2G_in)
         /* init */,region(region_in)
         /* init */,grainID(region.regionID) // remove grain ID, use lattice.sID
         {

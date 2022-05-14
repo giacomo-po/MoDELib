@@ -7,7 +7,7 @@ format long
 A=1/sqrt(3)*[-1 1 1;1 -1 1;1 1 -1];
 
 
-g=0.1;
+g=0.0;
 
 Fs=1000*eye(3);
 
@@ -36,7 +36,8 @@ x0=[0 0 0];
 
 fID=fopen('polycrystal.txt','w');
 fprintf(fID,'materialFile=../../MaterialsLibrary/W.txt; \n');
-fprintf(fID,'meshFile=../../MeshLibrary/unitMesh.msh; \n');
+fprintf(fID,'absoluteTemperature = 300; # [K] simulation temperature \n');
+fprintf(fID,'meshFile=../../MeshLibrary/unitCube.msh; \n');
 fprintf(fID,'C2G1=');
 fprintf(fID,'%1.15f ',C2G1(1,:));
 fprintf(fID,'\n ');

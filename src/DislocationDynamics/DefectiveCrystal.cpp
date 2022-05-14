@@ -22,7 +22,7 @@ namespace model
                                                                                           const DefectiveCrystalType& dc,
                                                                                           const long int& rID)
         {
-            
+                     
             if(params.simulationType==DefectiveCrystalParameters::FINITE_FEM)
             {
                 return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(nullptr);
@@ -33,16 +33,21 @@ namespace model
                 {
                     return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(new UniformExternalLoadController<DefectiveCrystalType>(dc,rID));
                 }
-                else if(params.externalLoadControllerName=="None")
-                {
-                    return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(nullptr);
-                }
+//                else if(params.externalLoadControllerName=="None")
+//                {
+//                    return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(nullptr);
+//                }
                 else
                 {
-                    std::cout<<"Unknown externalLoadController name "<<params.externalLoadControllerName<<". Use 'None' for no-controller. EXITING."<<std::endl;
-                    exit(EXIT_FAILURE);
+                    std::cout<<"Unknown externalLoadController name "<<params.externalLoadControllerName<<"No controller applied."<<std::endl;
+                    return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(nullptr);
+//
+//                    exit(EXIT_FAILURE);
+//                    return nullptr;
                 }
             }
+            
+            
         }
         
         /**********************************************************************/
@@ -111,13 +116,15 @@ namespace model
         
         /**********************************************************************/
         template <int _dim, short unsigned int corder>
-        DefectiveCrystal<_dim,corder>::DefectiveCrystal(int& argc, char* argv[]) :
-        /* init */ simulationParameters(argc,argv)
-        /* init */,periodicFaceIDs(TextFileParser("./inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
-        /* init */,mesh(TextFileParser("./inputFiles/polycrystal.txt").readString("meshFile",true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),TextFileParser("./inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+        DefectiveCrystal<_dim,corder>::DefectiveCrystal(const std::string& folderName) :
+        /* init */ simulationParameters(folderName)
+        /* init */,periodicFaceIDs(TextFileParser(folderName+"/inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
+        /* init */,mesh(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true),
+                        TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),
+                        TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
-        /* init */,poly("./inputFiles/polycrystal.txt",mesh)
-        /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
+        /* init */,poly(folderName+"/inputFiles",mesh)
+        /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
         //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
         /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)

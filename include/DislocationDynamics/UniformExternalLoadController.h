@@ -19,7 +19,7 @@
 #include <ExternalLoadControllerBase.h>
 #include <TextFileParser.h>
 #include <IDreader.h>
-#include <UniqueOutputFile.h>
+//#include <UniqueOutputFile.h>
 
 
 
@@ -65,7 +65,7 @@ namespace model
         template <typename DislocationNetworkType>
         UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
         //        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
-        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>("./inputFiles/uniformExternalLoadController.txt")
+        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>(_DN.simulationParameters.simulationFolder+"/inputFiles/uniformExternalLoadController.txt")
         /* init list */,DN(_DN)
         /* init list */,ExternalStress(MatrixDim::Zero())
         /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
@@ -280,7 +280,7 @@ namespace model
         
         /**************************************************************************/
         void output(const long int& runID,
-                    UniqueOutputFile<'F'>& f_file,
+                    std::ofstream& f_file,
                     std::ofstream& F_labels) const override
         {
             f_file<<ExternalStrain.row(0)<<" "<<ExternalStrain.row(1)<<" "<<ExternalStrain.row(2)<<" "<<ExternalStress.row(0)<<" "<<ExternalStress.row(1)<<" "<<ExternalStress.row(2)<<" ";

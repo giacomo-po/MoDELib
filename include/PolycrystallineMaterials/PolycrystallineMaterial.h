@@ -112,7 +112,7 @@ namespace model
         
         const std::map<std::string,std::shared_ptr<DislocationMobilityBase>> dislocationMobilities;
         
-                const double Omega;     // shear wave speed [-]
+        const double Omega;     // shear wave speed [-]
         
         static double C1;        // 1-nu
         static double C2;        // 1.0/(4.0*M_PI*C1)
@@ -121,11 +121,12 @@ namespace model
         static double Nu;        // 0.5*C2;
 
         /**********************************************************************/
-        PolycrystallineMaterial(const std::string& fileName) :
-        /* init */ PolycrystallineMaterialBase(fileName)
+        PolycrystallineMaterial(const std::string& fileName,const double& absoluteTemperature) :
+        /* init */ PolycrystallineMaterialBase(fileName,absoluteTemperature)
         /* init */,dislocationMobilities(getMobilities(*this))
         /* init */,Omega(atomicVolume(crystalStructure))
         {
+            std::cout<<magentaColor<<"  temperature: T="<<this->T<<" [K]"<<std::endl;
             std::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
             std::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
             std::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;

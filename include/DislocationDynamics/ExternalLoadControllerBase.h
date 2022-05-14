@@ -14,7 +14,7 @@
 #include <fstream>      // std::stringstream
 #include <Eigen/Dense>
 #include <TerminalColors.h>
-#include <UniqueOutputFile.h>
+//#include <UniqueOutputFile.h>
 //#include <cmath>
 //#include <cfloat>
 //#include <Material.h>
@@ -38,7 +38,7 @@ namespace model
         
     public:
         
-                 const std::string inputFileName;
+        const std::string inputFileName;
 
         
         /**************************************************************************/
@@ -54,7 +54,7 @@ namespace model
         
         /**************************************************************************/
         virtual void output(const long int& runID,
-                            UniqueOutputFile<'F'>& f_file,
+                            std::ofstream& f_file,
                             std::ofstream& F_labels) const = 0;
         
     };

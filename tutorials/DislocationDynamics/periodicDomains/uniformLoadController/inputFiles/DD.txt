@@ -36,8 +36,8 @@ quadPerLength=0.0000001;
 # TIME STEP
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=1; # 0 for constant time integration 
-capMaxVelocity=1;
-timeStepMax=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
+capMaxVelocity=0;
+timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=10;
 use_velocityFilter=1;
 velocityReductionFactor=0.5;
@@ -54,10 +54,10 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=0;
-outputElasticEnergy=0;
+computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
 outputPlasticDistortionRate=1;
@@ -115,7 +115,6 @@ alphaLineTension=1.0;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-computeElasticEnergyPerLength=0;
 
 #
 verboseLoopNetwork=0;

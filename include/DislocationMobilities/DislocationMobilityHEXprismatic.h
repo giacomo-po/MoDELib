@@ -73,7 +73,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) override;
+                        const std::shared_ptr<StochasticForceGenerator>& sfg) override;
         
     };
     

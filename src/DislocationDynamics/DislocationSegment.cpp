@@ -215,7 +215,7 @@ namespace model
         quadPerLength=TextFileParser(fileName).readScalar<double>("quadPerLength",true);
         //            assembleWithTangentProjection=TextFileParser(fileName).readScalar<int>("assembleWithTangentProjection",true);
         assert((NetworkLinkType::quadPerLength)>=0.0 && "quadPerLength MUST BE >= 0.0");
-        verboseDislocationSegment=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationSegment",true);
+        verboseDislocationSegment=TextFileParser(fileName).readScalar<int>("verboseDislocationSegment",true);
     }
     
     template <int dim, short unsigned int corder>

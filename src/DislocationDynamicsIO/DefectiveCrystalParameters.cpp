@@ -70,20 +70,22 @@ namespace model
         }
 
         /**********************************************************************/
-        DefectiveCrystalParameters::DefectiveCrystalParameters(int& , char* []) :
-        /* init */ simulationType(TextFileParser("inputFiles/DD.txt").readScalar<int>("simulationType",true))
-        /* init */,useDislocations(TextFileParser("inputFiles/DD.txt").readScalar<int>("useDislocations",true))
-        /* init */,useCracks(TextFileParser("inputFiles/DD.txt").readScalar<int>("useCracks",true))
-        /* init */,periodicImages_x(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_x",true) : 0)
-        /* init */,periodicImages_y(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_y",true) : 0)
-        /* init */,periodicImages_z(simulationType==PERIODIC_IMAGES? TextFileParser("inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
-        /* init */,Nsteps(TextFileParser("inputFiles/DD.txt").readScalar<size_t>("Nsteps",true))
-        /* init */,timeIntegrationMethod(TextFileParser("inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
-        /* init */,useSubCycling(TextFileParser("inputFiles/DD.txt").readScalar<int>("useSubCycling",true))
-        /* init */,subcyclingBins(getSubCyclingSet(TextFileParser("inputFiles/DD.txt").readArray<int>("subcyclingBins",true)))
-        /* init */,externalLoadControllerName(TextFileParser("inputFiles/DD.txt").readString("externalLoadControllerName",true))
-        /* init */,virtualSegmentDistance((simulationType==FINITE_FEM || simulationType==PERIODIC_FEM || simulationType==PERIODIC_IMAGES)? TextFileParser("inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
-        /* init */,runID(TextFileParser("inputFiles/DD.txt").readScalar<long int>("startAtTimeStep",true))
+        DefectiveCrystalParameters::DefectiveCrystalParameters(const std::string& folderName) :
+        /* init */ simulationFolder(folderName)
+        /* init */,simulationType(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("simulationType",true))
+        /* init */,useDislocations(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("useDislocations",true))
+        /* init */,useCracks(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("useCracks",true))
+        /* init */,periodicImages_x(simulationType==PERIODIC_IMAGES? TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("periodicImages_x",true) : 0)
+        /* init */,periodicImages_y(simulationType==PERIODIC_IMAGES? TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("periodicImages_y",true) : 0)
+        /* init */,periodicImages_z(simulationType==PERIODIC_IMAGES? TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("periodicImages_z",true) : 0)
+        /* init */,Nsteps(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<size_t>("Nsteps",true))
+        /* init */,timeIntegrationMethod(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("timeIntegrationMethod",true))
+        /* init */,useSubCycling(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("useSubCycling",true))
+        /* init */,subcyclingBins(getSubCyclingSet(TextFileParser(folderName+"/inputFiles/DD.txt").readArray<int>("subcyclingBins",true)))
+        /* init */,externalLoadControllerName(TextFileParser(folderName+"/inputFiles/DD.txt").readString("externalLoadControllerName",true))
+        /* init */,virtualSegmentDistance((simulationType==FINITE_FEM || simulationType==PERIODIC_FEM || simulationType==PERIODIC_IMAGES)? TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<double>("virtualSegmentDistance",true) : 0.0)
+        /* init */,use_stochasticForce(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
+        /* init */,runID(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<long int>("startAtTimeStep",true))
         /* init */,totalTime(0.0)
         /* init */,dt(10.0)
         {

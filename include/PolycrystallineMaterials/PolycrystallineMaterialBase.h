@@ -14,10 +14,6 @@
 #include <TerminalColors.h> // defines mode::cout
 #include <TextFileParser.h>
 
-//#include <BCClattice.h>
-//#include <FCClattice.h>
-//#include <HEXlattice.h>
-
 namespace model
 {
     
@@ -32,11 +28,11 @@ namespace model
         const std::string crystalStructure;
         
         // Material constants in SI units
-        const double T;         // Absolute temparature [K]
+        const double T;         // simulation temparature [K]
         const double Tm;        // Melting temparature [K]
         const double mu0_SI;    // [Pa]
         const double mu1_SI;    // [Pa/K]
-        const double mu_SI;     // temperature-dependent shear modulus mu=m0+m1*T [Pa]
+        const double mu_SI;     // temperature-dependent shear modulus mu=mu0+mu1*T [Pa]
         const double nu;        // Poisson's ratio
         const double rho_SI;    // mass density [Kg/m^3]
         const double cs_SI;     // shear wave speed [m/s]
@@ -48,18 +44,6 @@ namespace model
         const double b;         // Burgers vector [-]
         const double cs;        // shear wave speed [-]
         
-        
-        // Vacancy concentration
-//        const double Omega;     // shear wave speed [-]
-//        const double Ufv_SI;
-//        const double Ufv;
-//        const double DVv;
-//        const double Udv_SI;        // shear wave speed [-]
-//        const double Udv;        // shear wave speed [-]
-//        const double D0v_SI;        // shear wave speed [-]
-//        const double Dv;        // shear wave speed [-]
-//        const double c0;        // shear wave speed [-]
-
         const double dOmegav;
         const double Ufv_SI;
         const double Ufv;
@@ -71,18 +55,16 @@ namespace model
         /**********************************************************************/
         static const std::string& getMaterialFile(const std::string& fileName)
         {
-            std::cout<<greenBoldColor<<"Creating material from file: "<<fileName<<defaultColor<<std::endl;
+            std::cout<<greenBoldColor<<"Reading material file "<<fileName<<defaultColor<<std::endl;
             return fileName;
         }
         
-
-        
-        /**************************************************************************/
-        PolycrystallineMaterialBase(const std::string& fileName) :
+        /**********************************************************************/
+        PolycrystallineMaterialBase(const std::string& fileName,const double& absoluteTemperature) :
         /* init */ materialFile(getMaterialFile(fileName))
         /* init */,materialName(TextFileParser(materialFile).readString("materialName",true))
         /* init */,crystalStructure(TextFileParser(materialFile).readString("crystalStructure",true))
-        /* init */,T(TextFileParser(materialFile).readScalar<double>("T",true))
+        /* init */,T(absoluteTemperature)
         /* init */,Tm(TextFileParser(materialFile).readScalar<double>("Tm",true))
         /* init */,mu0_SI(TextFileParser(materialFile).readScalar<double>("mu0_SI",true))
         /* init */,mu1_SI(TextFileParser(materialFile).readScalar<double>("mu1_SI",true))
@@ -91,20 +73,10 @@ namespace model
         /* init */,rho_SI(TextFileParser(materialFile).readScalar<double>("rho_SI",true))
         /* init */,cs_SI(sqrt(mu_SI/rho_SI))
         /* init */,b_SI(TextFileParser(materialFile).readScalar<double>("b_SI",true))
-//        /* init */,Dv_SI(TextFileParser(materialFile).readScalar<double>("Dv_SI",true))
         /* init */,kB(kB_SI/mu_SI/std::pow(b_SI,3))
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
-//        /* init */,Omega(atomicVolume(crystalStructure))
-//        /* init */,Omega(TextFileParser(materialFile).readScalar<double>("Omega_SI",true) * 1e-30 /std::pow(b_SI,3))
-//        /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
-//        /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
-//        /* init */,DVv(TextFileParser(materialFile).readScalar<double>("DVv",true))
-//        /* init */,Udv_SI(TextFileParser(materialFile).readScalar<double>("Udv_eV",true) * eV2J)
-//        /* init */,Udv(Udv_SI/mu_SI/std::pow(b_SI,3))
-//        /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
-//        /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Udv/kB/T))
         /* init */,dOmegav(TextFileParser(materialFile).readScalar<double>("dOmegav",true))
         /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
@@ -113,9 +85,6 @@ namespace model
         /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
         /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Umv/kB/T))
         {
-//            std::cout<<greenBoldColor<<"Reading material file: "<<materialFile<<defaultColor<<std::endl;
-
-//            std::cout<<"FINISH CALCULATION OF ATOMIC VOLUME AND REMOVE IT FROM INPUT FILE"<<std::endl;
             
         }
         

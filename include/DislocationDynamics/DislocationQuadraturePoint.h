@@ -168,7 +168,7 @@ namespace model
                 VectorDim glideForce = fPK-fPK.dot(n)*n;
                 double glideForceNorm(glideForce.norm());
                 
-                if(glideForceNorm<FLT_EPSILON && parentSegment.network().use_stochasticForce)
+                if(glideForceNorm<FLT_EPSILON && parentSegment.network().stochasticForceGenerator)
                 {
                     glideForce=parentSegment.chord().cross(n);
                     glideForceNorm=glideForce.norm();
@@ -185,14 +185,14 @@ namespace model
                     //                    double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
                     double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
                                                                              parentSegment.network().poly.T,
-                                                                             dL,parentSegment.network().simulationParameters.dt,parentSegment.network().use_stochasticForce);
+                                                                             dL,parentSegment.network().simulationParameters.dt,parentSegment.network().stochasticForceGenerator);
                     // std::cout<<"v is "<<v<<std::endl;
                     if(v<0.0 && v>=-FLT_EPSILON)
                     {
                         v=0.0; // kill roundoff errors for small negative velocities
                     }
                     
-                    assert((parentSegment.network().use_stochasticForce || v>= 0.0) && "Velocity must be a positive scalar");
+                    assert((parentSegment.network().stochasticForceGenerator || v>= 0.0) && "Velocity must be a positive scalar");
                     const bool useNonLinearVelocity=true;
                     if(useNonLinearVelocity && v>FLT_EPSILON)
                     {

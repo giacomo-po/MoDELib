@@ -55,7 +55,7 @@ namespace model
         {
             insertSimplex(eIter.second.first,eIter.second.second);
             eleConter++;
-            std::cout<<greenBoldColor<<"\r Creating mesh "<<eleConter*100/this->simplexReader().elements().size()<<"%"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::flush;
+            std::cout<<greenBoldColor<<"\r"<<"Creating mesh "<<eleConter*100/this->simplexReader().elements().size()<<"%"<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::flush;
         }
         std::cout<<defaultColor<<std::endl;
         //            std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;

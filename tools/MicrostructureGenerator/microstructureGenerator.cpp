@@ -12,6 +12,9 @@ using namespace model;
 
 int main(int argc, char** argv)
 {
-    MicrostructureGenerator mg(argc,argv);
+    
+    const std::string folderName(argc>1? std::string(argv[1]) : "./");
+    
+    MicrostructureGenerator mg(folderName);
     return 0;
 }

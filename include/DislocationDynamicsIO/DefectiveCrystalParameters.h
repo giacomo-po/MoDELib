@@ -11,6 +11,7 @@
 #define model_DefectiveCrystalParameters_H_
 
 #include <string>
+#include <Eigen/Dense>
 #include <TextFileParser.h>
 #include <IDreader.h>
 #include <set>
@@ -24,7 +25,7 @@ namespace model
         
         enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC_IMAGES=2,PERIODIC_FEM=3};
 
-        
+        const std::string simulationFolder;
         const int simulationType;
         const bool useDislocations;
         const bool useCracks;
@@ -38,6 +39,8 @@ namespace model
         const std::set<int> subcyclingBins; 
         const std::string externalLoadControllerName;
         const double virtualSegmentDistance;
+        const bool use_stochasticForce;
+
 
         
         long int runID;
@@ -55,7 +58,7 @@ namespace model
         
         
         /**********************************************************************/
-        DefectiveCrystalParameters(int& , char* []) ;
+        DefectiveCrystalParameters(const std::string& folderName) ;
         
         bool isPeriodicSimulation() const;
     };

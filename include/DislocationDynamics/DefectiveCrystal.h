@@ -75,7 +75,7 @@ namespace model
         
         
         /**********************************************************************/
-        DefectiveCrystal(int& argc, char* argv[]) ;
+        DefectiveCrystal(const std::string& folderName) ;
         /**********************************************************************/
         void singleGlideStep();;
 //

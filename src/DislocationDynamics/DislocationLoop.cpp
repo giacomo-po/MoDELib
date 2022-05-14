@@ -22,7 +22,7 @@ namespace model
     /* init */,glidePlane(glidePlane_in)
     /* init */,periodicGlidePlane(this->network().periodicGlidePlaneFactory? this->network().periodicGlidePlaneFactory->getFromKey(glidePlane->key) : nullptr)
     /* init */,grain(glidePlane->grain)
-    /* init */,loopType(DislocationLoopIO<dim>::GLISSILELOOP)
+    /* init */,loopType(this->flow().dot(glidePlane->n)==0? DislocationLoopIO<dim>::GLISSILELOOP : DislocationLoopIO<dim>::SESSILELOOP)
     /* init */,nA(VectorDim::Zero())
     /* init */,nAR(VectorDim::Zero())
     /* init */,_slippedArea(0.0)
@@ -33,30 +33,30 @@ namespace model
 
     {
         VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->tag()<<std::endl;);
-        assert(this->flow().dot(glidePlane->n)==0);
+//        assert(this->flow().dot(glidePlane->n)==0);
     }
 
-    /**********************************************************************/
-    template <int dim, short unsigned int corder>
-    DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
-                          const VectorDim& B,
-                          const int& grainID,
-                          const int& _loopType) :
-    /* base init */ Loop<DislocationLoop>(net,net->poly.grain(grainID).rationalLatticeDirection(B))
-    /*      init */,glidePlane(nullptr)
-    /*      init */,periodicGlidePlane(nullptr)
-    /*      init */,grain(net->poly.grain(grainID))
-    /*      init */,loopType(_loopType)
-    /*      init */,nA(VectorDim::Zero())
-    /*      init */,nAR(VectorDim::Zero())
-    /*      init */,_slippedArea(0.0)
-    /*      init */,_slippedAreaRate(0.0)
-    /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-    /*      init */,_rightHandedNormal(grain)
-    /*      init */,_slipSystem(nullptr)
-    {
-        VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->sID<<" without plane."<<std::endl;);
-    }
+//    /**********************************************************************/
+//    template <int dim, short unsigned int corder>
+//    DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
+//                          const VectorDim& B,
+//                          const int& grainID,
+//                          const int& _loopType) :
+//    /* base init */ Loop<DislocationLoop>(net,net->poly.grain(grainID).rationalLatticeDirection(B))
+//    /*      init */,glidePlane(nullptr)
+//    /*      init */,periodicGlidePlane(nullptr)
+//    /*      init */,grain(net->poly.grain(grainID))
+//    /*      init */,loopType(_loopType)
+//    /*      init */,nA(VectorDim::Zero())
+//    /*      init */,nAR(VectorDim::Zero())
+//    /*      init */,_slippedArea(0.0)
+//    /*      init */,_slippedAreaRate(0.0)
+//    /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
+//    /*      init */,_rightHandedNormal(grain)
+//    /*      init */,_slipSystem(nullptr)
+//    {
+//        VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->sID<<" without plane."<<std::endl;);
+//    }
 
     template <int dim, short unsigned int corder>
     DislocationLoop<dim,corder>::~DislocationLoop()

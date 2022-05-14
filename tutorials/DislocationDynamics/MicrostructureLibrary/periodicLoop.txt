@@ -1,0 +1,6 @@
+microstructureType=PeriodicLoop;
+tag=plp0;
+periodicLoopSlipSystemIDs=0;
+periodicLoopRadius_SI=0;
+periodicLoopSides=100;
+periodicLoopCenter=500 500 500;

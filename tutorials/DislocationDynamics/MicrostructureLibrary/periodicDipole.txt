@@ -1,0 +1,8 @@
+microstructureType=PeriodicDipole;
+tag=pdl0;
+periodicDipoleSlipSystemIDs=0 14 8; 
+periodicDipoleExitFaceIDs=4 0 5;
+periodicDipolePoints=500 500 500
+		   200 200 200
+		   300 600 200;
+periodicDipoleHeights=400 200 300;

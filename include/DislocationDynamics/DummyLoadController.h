@@ -56,7 +56,7 @@ namespace model
         template <typename DislocationNetworkType>
         void output(const DislocationNetworkType& ,
                     const long int& ,
-                    UniqueOutputFile<'F'>& ,
+                    std::ofstream& ,
                     std::ofstream& ) const
         {
             

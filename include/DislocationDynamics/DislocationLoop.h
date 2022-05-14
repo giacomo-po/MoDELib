@@ -69,10 +69,10 @@ namespace model
         DislocationLoop(LoopNetworkType* const,
                         const VectorDim&,
                         const std::shared_ptr<GlidePlaneType>& glidePlane_in);
-        DislocationLoop(LoopNetworkType *const ,
-                        const VectorDim &,
-                        const int &,
-                        const int &);
+//        DislocationLoop(LoopNetworkType *const ,
+//                        const VectorDim &,
+//                        const int &,
+//                        const int &);
         ~DislocationLoop();
         std::shared_ptr<LoopType> clone() const;
         const double& slippedArea() const;

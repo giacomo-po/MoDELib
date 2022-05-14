@@ -207,10 +207,13 @@ namespace model
             {
                 for (const auto &loopNode : netNode.second.lock()->loopNodes())
                 {
+                    
                     if (loopNode->periodicPrev() && loopNode->periodicNext())
                     {
+
                         const auto periodicPrev(loopNode->periodicPrev());
                         const auto periodicNext(loopNode->periodicNext());
+
                         const double lij = (loopNode->get_P() - periodicPrev->get_P()).norm();
                         const double ljk = (loopNode->get_P() - periodicNext->get_P()).norm();
 

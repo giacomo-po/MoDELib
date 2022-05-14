@@ -96,7 +96,7 @@ namespace model
                         const double& T,
                         const double& dL,
                         const double& dt,
-                        const bool& use_stochasticForce) 
+                        const std::shared_ptr<StochasticForceGenerator>& sfg)
         {
 
             const double bNorm=b.norm();
@@ -130,10 +130,10 @@ namespace model
             double ve=std::fabs(tau)*bNorm/(B0e+B1e*T);
 
             
-            if(use_stochasticForce)
+            if(sfg)
             {
-                ve+=this->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
-                vs+=this->stochasticVelocity(kB,T,B0s+B1s*T,dL,dt);
+                ve+=sfg->stochasticVelocity(kB,T,B0e+B1e*T,dL,dt);
+                vs+=sfg->stochasticVelocity(kB,T,B0s+B1s*T,dL,dt);
             }
             
             // Interpolate ve and vs

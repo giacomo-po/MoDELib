@@ -51,7 +51,7 @@ namespace model
     /**************************************************************************/
     /**************************************************************************/
     struct DislocationMobilityBase : public StaticID<DislocationMobilityBase>
-    				, public StochasticForceGenerator
+//    				, public StochasticForceGenerator
     {
         typedef Eigen::Matrix<double,3,3> MatrixDim;
         typedef Eigen::Matrix<double,3,1> VectorDim;
@@ -72,7 +72,7 @@ namespace model
                                 const double& T,
                                 const double& dL,
                                 const double& dt,
-                                const bool& use_stochasticForce) =0 ;
+                                const std::shared_ptr<StochasticForceGenerator>& sfg) =0 ;
         
     };
     

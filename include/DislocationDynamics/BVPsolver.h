@@ -327,9 +327,9 @@ namespace model
         /* init  */,e(def(u))
         /* init  */,s(C*e)
         /* init  */,c(cfe.template trial<'c',1>())
-        /* init  */,tolerance(TextFileParser("inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
-        /* init  */,use_directSolver(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
-        /* init  */,stepsBetweenBVPupdates(TextFileParser("inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
+        /* init  */,tolerance(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("solverTolerance",true))
+        /* init  */,use_directSolver(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("use_directSolver_FEM",true))
+        /* init  */,stepsBetweenBVPupdates(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("stepsBetweenBVPupdates",true))
         {
             
             

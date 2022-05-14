@@ -24,7 +24,10 @@ int main (int argc, char* argv[])
 {
     // Create the DislocationNetwork object
 //    DislocationNetwork<3,0,Hermite> DN(argc,argv);
-    DefectiveCrystal<3,0> DC(argc,argv);
+    
+    const std::string folderName(argc>1? std::string(argv[1]) : "./");
+
+    DefectiveCrystal<3,0> DC(folderName);
     
     // Run time steps
     DC.runGlideSteps();

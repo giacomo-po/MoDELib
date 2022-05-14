@@ -18,8 +18,7 @@ namespace model
     
     /**********************************************************************/
     template <int dim, short unsigned int corder>
-    DislocationNetwork<dim,corder>::DislocationNetwork(int& argc, char* argv[],
-                                                                         const DefectiveCrystalParameters& _simulationParameters,
+    DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParameters& _simulationParameters,
                                                                          const SimplicialMesh<dim>& _mesh,
                                                                          const Polycrystal<dim>& _poly,
                                                                          const std::unique_ptr<BVPsolver<dim,2>>& _bvpSolver,
@@ -38,32 +37,34 @@ namespace model
     /* init */,junctionsMaker(*this)
     /* init */,crossSlipMaker(*this)
     /* init */,nodeContractor(*this)
-    /* init */,timeIntegrator("inputFiles/DD.txt")
-    /* init */,ddSolverType(TextFileParser("inputFiles/DD.txt").readScalar<int>("ddSolverType",true))
-    /* init */,computeDDinteractions(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true))
-    /* init */,crossSlipModel(TextFileParser("inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
-    /* init */,outputFrequency(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFrequency",true))
-    /* init */,outputBinary(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputBinary",true))
-    /* init */,outputGlidePlanes(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true))
-    /* init */,outputElasticEnergy(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true))
-    /* init */,outputMeshDisplacement(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true))
-    /* init */,outputFEMsolution(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true))
-    /* init */,outputDislocationLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true))
-    /* init */,outputPlasticDistortionRate(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true))
-    /* init */,outputQuadraturePoints(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
-    /* init */,outputLinkingNumbers(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
-    /* init */,outputLoopLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputLoopLength",true))
-    /* init */,outputSegmentPairDistances(TextFileParser("inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
-    /* init */,computeElasticEnergyPerLength(TextFileParser("inputFiles/DD.txt").readScalar<int>("computeElasticEnergyPerLength",true))
-    /* init */,use_stochasticForce(TextFileParser("inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
-    /* init */,surfaceAttractionDistance(TextFileParser("inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
-    /* init */,useLineTension(TextFileParser("inputFiles/DD.txt").readScalar<int>("useLineTension",true))
-    /* init */,alphaLineTension(TextFileParser("inputFiles/DD.txt").readScalar<double>("alphaLineTension",true))
-    /* init */,folderSuffix("")
-    /* init */,use_velocityFilter(TextFileParser("inputFiles/DD.txt").readScalar<double>("use_velocityFilter",true))
-    /* init */,velocityReductionFactor(TextFileParser("inputFiles/DD.txt").readScalar<double>("velocityReductionFactor",true))
-    /* init */,verboseDislocationNode(TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationNode",true))
-    /* init */,capMaxVelocity(TextFileParser("inputFiles/DD.txt").readScalar<int>("capMaxVelocity",true))
+    /* init */,timeIntegrator(simulationParameters.simulationFolder+"/inputFiles/DD.txt")
+    /* init */,stochasticForceGenerator(simulationParameters.use_stochasticForce? new StochasticForceGenerator() : nullptr)
+    /* init */,networkIO(*this)
+    /* init */,ddSolverType(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("ddSolverType",true))
+    /* init */,computeDDinteractions(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("computeDDinteractions",true))
+    /* init */,crossSlipModel(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("crossSlipModel",true))
+    /* init */,outputFrequency(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputFrequency",true))
+    /* init */,outputBinary(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputBinary",true))
+    /* init */,outputGlidePlanes(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputGlidePlanes",true))
+//    /* init */,outputElasticEnergy(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputElasticEnergy",true))
+    /* init */,outputMeshDisplacement(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputMeshDisplacement",true))
+    /* init */,outputFEMsolution(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputFEMsolution",true))
+    /* init */,outputDislocationLength(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputDislocationLength",true))
+    /* init */,outputPlasticDistortionRate(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputPlasticDistortionRate",true))
+    /* init */,outputQuadraturePoints(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputQuadraturePoints",true))
+    /* init */,outputLinkingNumbers(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputLinkingNumbers",true))
+    /* init */,outputLoopLength(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputLoopLength",true))
+    /* init */,outputSegmentPairDistances(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("outputSegmentPairDistances",true))
+    /* init */,computeElasticEnergyPerLength(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("computeElasticEnergyPerLength",true))
+//    /* init */,use_stochasticForce(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("use_stochasticForce",true))
+    /* init */,surfaceAttractionDistance(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("surfaceAttractionDistance",true))
+    /* init */,useLineTension(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("useLineTension",true))
+    /* init */,alphaLineTension(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("alphaLineTension",true))
+//    /* init */,folderSuffix("")
+    /* init */,use_velocityFilter(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("use_velocityFilter",true))
+    /* init */,velocityReductionFactor(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<double>("velocityReductionFactor",true))
+    /* init */,verboseDislocationNode(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("verboseDislocationNode",true))
+    /* init */,capMaxVelocity(TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("capMaxVelocity",true))
     {
 
         assert(velocityReductionFactor>0.0 && velocityReductionFactor<=1.0);
@@ -71,20 +72,20 @@ namespace model
         // Some sanity checks
         
         // Initialize static variables
-        LoopNetworkType::verboseLevel=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseLoopNetwork",true);
-        verboseDislocationNetwork=TextFileParser("inputFiles/DD.txt").readScalar<int>("verboseDislocationNetwork",true);
-        LoopType::initFromFile("inputFiles/DD.txt");
-        LoopNodeType::initFromFile("inputFiles/DD.txt");
-        LoopLinkType::initFromFile("inputFiles/DD.txt");
-        NetworkLinkType::initFromFile("inputFiles/DD.txt");
-        DislocationStressBase<dim>::initFromFile("inputFiles/DD.txt");
+        LoopNetworkType::verboseLevel=TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("verboseLoopNetwork",true);
+        verboseDislocationNetwork=TextFileParser(simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("verboseDislocationNetwork",true);
+        LoopType::initFromFile(simulationParameters.simulationFolder+"/inputFiles/DD.txt");
+        LoopNodeType::initFromFile(simulationParameters.simulationFolder+"/inputFiles/DD.txt");
+        LoopLinkType::initFromFile(simulationParameters.simulationFolder+"/inputFiles/DD.txt");
+        NetworkLinkType::initFromFile(simulationParameters.simulationFolder+"/inputFiles/DD.txt");
+        DislocationStressBase<dim>::initFromFile(simulationParameters.simulationFolder+"/inputFiles/DD.txt");
         
-        if(argc>1)
-        {
-            folderSuffix=argv[1];
-        }
+//        if(argc>1)
+//        {
+//            folderSuffix=argv[1];
+//        }
         
-        DDconfigIO<dim> evl("evl",folderSuffix);
+        DDconfigIO<dim> evl(simulationParameters.simulationFolder+"/evl");
         evl.read(runID);
         setConfiguration(evl);
 //        createEshelbyInclusions();
@@ -107,28 +108,33 @@ namespace model
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
 
+            GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+            tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
+            assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
+            loopNumber++;
+
             
-            switch (loop.loopType)
-            {
-                case DislocationLoopIO<dim>::GLISSILELOOP:
-                {
-                    GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
-                    tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
-                    assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
-                    loopNumber++;
-                    break;
-                }
-                case DislocationLoopIO<dim>::SESSILELOOP:
-                {
-                    tempLoops.push_back(this->loops().create(loop.B,loop.grainID,loop.loopType ));
-                    assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
-                    loopNumber++;
-                    break;
-                }
-                default:
-                    assert(false && "Unknown DislocationLoop type");
-                    break;
-            }
+//            switch (loop.loopType)
+//            {
+//                case DislocationLoopIO<dim>::GLISSILELOOP:
+//                {
+//                    GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+//                    tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
+//                    assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
+//                    loopNumber++;
+//                    break;
+//                }
+//                case DislocationLoopIO<dim>::SESSILELOOP:
+//                {
+//                    tempLoops.push_back(this->loops().create(loop.B,loop.grainID,loop.loopType ));
+//                    assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
+//                    loopNumber++;
+//                    break;
+//                }
+//                default:
+//                    assert(false && "Unknown DislocationLoop type");
+//                    break;
+//            }
         }
         
         // Create NetworkNodes
@@ -342,15 +348,17 @@ namespace model
     
     
     template <int dim, short unsigned int corder>
-    typename DislocationNetwork<dim,corder>::DislocationNetworkIOType DislocationNetwork<dim,corder>::io()
+    typename DislocationNetwork<dim,corder>::DislocationNetworkIOType& DislocationNetwork<dim,corder>::io()
     {
-        return DislocationNetworkIOType(*this,folderSuffix);
+//        return DislocationNetworkIOType(*this);
+        return networkIO;
     }
     
     template <int dim, short unsigned int corder>
-    typename DislocationNetwork<dim,corder>::DislocationNetworkIOType DislocationNetwork<dim,corder>::io() const
+    const typename DislocationNetwork<dim,corder>::DislocationNetworkIOType& DislocationNetwork<dim,corder>::io() const
     {
-        return DislocationNetworkIOType(*this,folderSuffix);
+//        return DislocationNetworkIOType(*this);
+        return networkIO;
     }
     
     template <int dim, short unsigned int corder>

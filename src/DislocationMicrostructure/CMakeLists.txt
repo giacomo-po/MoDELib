@@ -6,5 +6,8 @@ include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
 add_library(MoDELibDDDmicrostructure 
 	STATIC 
 	MicrostructureGenerator.cpp
+	MicrostructureGeneratorBase.cpp
+	PeriodicDipoleGenerator.cpp
+	PeriodicLoopGenerator.cpp
 			)
 

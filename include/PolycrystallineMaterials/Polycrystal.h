@@ -65,25 +65,27 @@ namespace model
 //        const std::unique_ptr<DislocationMobilityBase> mobility;
         
         /**********************************************************************/
-        Polycrystal(const std::string& polyFile,
+        Polycrystal(const std::string& polyFolder,
                     const SimplicialMeshType& mesh_in) :
-        /* init */ MaterialType(TextFileParser(polyFile).readString("materialFile",false))
+        /* init */ MaterialType(polyFolder+"/"+TextFileParser(polyFolder+"/polyCrystal.txt").readString("materialFile",false),
+                                TextFileParser(polyFolder+"/polyCrystal.txt").readScalar<double>("absoluteTemperature",true))
         /* init */,mesh(mesh_in)
-//        /* init */,mobility(getMobility(*this))
         {
             std::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
-            TextFileParser polyParser(polyFile);
             
             // Construct Grains
             for(const auto& rIter : mesh.regions())
             {
                 std::cout<<greenBoldColor<<"Creating Grain "<<rIter.second->regionID<<defaultColor<<std::endl;
+                
+                const auto C2G(TextFileParser(polyFolder+"/polyCrystal.txt").readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,true));
+                
                 StaticID<Lattice<dim>>::set_count(rIter.second->regionID);
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),
                                                        *this,
-                                                       polyFile));
+                                                       C2G));
             }
             
             // Construct GrainsBoundaries
