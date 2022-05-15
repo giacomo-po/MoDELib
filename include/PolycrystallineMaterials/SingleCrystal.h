@@ -15,7 +15,6 @@
 #include <vector>
 #include <tuple>
 
- // defines mode::cout
 #include <TerminalColors.h> // defines mode::cout
 #include <MaterialSymmetry.h>
 #include <PolycrystallineMaterial.h>
@@ -40,108 +39,19 @@ namespace model
         typedef std::vector<LatticePlaneBase> PlaneNormalContainerType;
         typedef std::vector<std::shared_ptr<SlipSystem>> SlipSystemContainerType;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        
-        /**********************************************************************/
-        static Eigen::Matrix<double,dim,dim> getLatticeBasis(const PolycrystallineMaterial<dim,Isotropic>& material)
-        {
-            if(material.crystalStructure=="BCC")
-            {
-                return BCClattice<dim>::getLatticeBasis();
-            }
-            else if(material.crystalStructure=="FCC")
-            {
-                return FCClattice<dim>::getLatticeBasis();
-            }
-            else if(material.crystalStructure=="HEX")
-            {
-                return HEXlattice<dim>::getLatticeBasis();
-            }
-            else
-            {
-                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
-        
-        /**********************************************************************/
-        static PlaneNormalContainerType getPlaneNormals(const PolycrystallineMaterial<dim,Isotropic>& material,
-                                                        const LatticeType& lat)
-        {
-            if(material.crystalStructure=="BCC")
-            {
-                return BCClattice<dim>::reciprocalPlaneNormals(lat);
-            }
-            else if(material.crystalStructure=="FCC")
-            {
-                return FCClattice<dim>::reciprocalPlaneNormals(lat);
-            }
-            else if(material.crystalStructure=="HEX")
-            {
-                return HEXlattice<dim>::reciprocalPlaneNormals(material,lat);
-            }
-            else
-            {
-                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
-        
-        /**********************************************************************/
+
+        static Eigen::Matrix<double,dim,dim> getLatticeBasis(const PolycrystallineMaterial<dim,Isotropic>& material);
+        static PlaneNormalContainerType getPlaneNormals(const PolycrystallineMaterial<dim,Isotropic>& material,const LatticeType& lat);
         static SlipSystemContainerType getSlipSystems(const PolycrystallineMaterial<dim,Isotropic>& material,
                                                       const LatticeType& lat,
-                                                      const std::string& polyFile)
-        {
-            if(material.crystalStructure=="BCC")
-            {
-                return BCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material);
-            }
-            else if(material.crystalStructure=="FCC")
-            {
-                const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
-                return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
-            }
-            else if(material.crystalStructure=="HEX")
-            {
-                const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
-                return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
-            }
-            else
-            {
-                std::cout<<"Unknown crystal structure '"<<material.crystalStructure<<"'. Exiting."<<std::endl;
-                exit(EXIT_FAILURE);
-            }
-        }
+                                                      const std::string& polyFile);
         
     public:
-        
 
-        /**********************************************************************/
-//        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
-        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G,const std::string& polyFile) :
-        /* init */ LatticeType(getLatticeBasis(material),C2G)
-        /* init */,PlaneNormalContainerType(getPlaneNormals(material,*this))
-        /* init */,SlipSystemContainerType(getSlipSystems(material,*this,polyFile))
-        {
-                        
-        }
-        
-        /**********************************************************************/
-        const LatticeType& lattice() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const PlaneNormalContainerType& planeNormals() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        const SlipSystemContainerType& slipSystems() const
-        {
-            return *this;
-        }
+        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G,const std::string& polyFile);
+        const LatticeType& lattice() const;
+        const PlaneNormalContainerType& planeNormals() const;
+        const SlipSystemContainerType& slipSystems() const;
         
     };
     

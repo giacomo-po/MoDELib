@@ -42,5 +42,6 @@ add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
 add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
 add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
+add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 

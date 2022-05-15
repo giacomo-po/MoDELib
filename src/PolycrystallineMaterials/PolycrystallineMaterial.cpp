@@ -7,8 +7,8 @@
  */
 
 
-#ifndef model_DISLOCATEDMATERIAL_H_
-#define model_DISLOCATEDMATERIAL_H_
+#ifndef model_DISLOCATEDMATERIAL_cpp_
+#define model_DISLOCATEDMATERIAL_cpp_
 
 
 #include <cmath>
@@ -33,42 +33,110 @@
 #include <DislocationMobilityHEXbasal.h>
 #include <DislocationMobilityHEXprismatic.h>
 #include <DislocationMobilityHEXpyramidal.h>
+#include <PolycrystallineMaterial.h>
 
 
 
 namespace model
 {
     
-    /**************************************************************************/
-    /**************************************************************************/
-    template<int dim,typename SymmetryType>
-    class PolycrystallineMaterial { };
-    
-    /**************************************************************************/
-    /**************************************************************************/
-    template<int dim>
-    class PolycrystallineMaterial<dim,Isotropic> : public PolycrystallineMaterialBase
-    {
-        
-        static std::map<std::string,std::shared_ptr<DislocationMobilityBase>> getMobilities(const PolycrystallineMaterialBase& materialBase);
-        static double atomicVolume(const std::string& structure);
-        
-    public:
-        
-        const std::map<std::string,std::shared_ptr<DislocationMobilityBase>> dislocationMobilities;
-        
-        const double Omega;     // shear wave speed [-]
-        
-        static double C1;        // 1-nu
-        static double C2;        // 1.0/(4.0*M_PI*C1)
-        static double C3;        // 1.0-2.0*nu;
-        static double C4;        // 0.5*C2;
-        static double Nu;        // 0.5*C2;
+        template<int dim>
+        std::map<std::string,std::shared_ptr<DislocationMobilityBase>> PolycrystallineMaterial<dim,Isotropic>::getMobilities(const PolycrystallineMaterialBase& materialBase)
+        {
 
-        PolycrystallineMaterial(const std::string& fileName,const double& absoluteTemperature);
+            std::map<std::string,std::shared_ptr<DislocationMobilityBase>> temp;
+
+            if(materialBase.crystalStructure=="BCC")
+            {
+                temp.emplace("bcc",new DislocationMobilityBCC(materialBase));
+            }
+            else if(materialBase.crystalStructure=="FCC")
+            {
+                temp.emplace("fcc",new DislocationMobilityFCC(materialBase));
+            }
+            else if(materialBase.crystalStructure=="HEX")
+            {
+                temp.emplace("hexBasal",new DislocationMobilityHEXbasal(materialBase));
+                temp.emplace("hexPrismatic",new DislocationMobilityHEXprismatic(materialBase));
+                temp.emplace("hexPyramidal",new DislocationMobilityHEXpyramidal(materialBase));
+            }
+            else
+            {
+                std::cout<<"Unknown mobility for crystal structure '"<<materialBase.crystalStructure<<"'. Exiting."<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+
+            return temp;
+        }
         
-    };
+template<int dim>
+        double PolycrystallineMaterial<dim,Isotropic>::atomicVolume(const std::string& structure)
+        {
+            
+            if(structure=="BCC")
+            {
+                return BCClattice<3>::getLatticeBasis().determinant();
+            }
+            else if(structure=="FCC")
+            {
+                return FCClattice<3>::getLatticeBasis().determinant();
+            }
+            else if(structure=="HEX")
+            {
+                return HEXlattice<3>::getLatticeBasis().determinant();
+            }
+            else
+            {
+                std::cout<<"Unknown crystal structure '"<<structure<<"'. Exiting."<<std::endl;
+                exit(EXIT_FAILURE);
+                return 0.0;
+            }
+            
+            //            std::cout<<" !!!!!!!!! FINISH CALCULATION OF Omega !!!!!"<<std::endl;
+            
+            //           return 1.0;
+        }
+        
+
+template<int dim>
+PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::string& fileName,const double& absoluteTemperature) :
+        /* init */ PolycrystallineMaterialBase(fileName,absoluteTemperature)
+        /* init */,dislocationMobilities(getMobilities(*this))
+        /* init */,Omega(atomicVolume(crystalStructure))
+        {
+            std::cout<<magentaColor<<"  temperature: T="<<this->T<<" [K]"<<std::endl;
+            std::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
+            std::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
+            std::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
+            std::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
+
+            C1=1.0-nu;
+            C2=1.0/(4.0*M_PI*C1);
+            C3=1.0-2.0*nu;
+            C4=0.5*C2;
+            Nu=nu;
+            
+        }
+        
     
+    
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::C1=1.0-0.34;    // 1-nu
+    
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
+    
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+
+    template<int dim>
+    double PolycrystallineMaterial<dim,Isotropic>::Nu=0.34;  // 1/(4*pi*(1-nu))
+
+    template class PolycrystallineMaterial<3,Isotropic>;
+
 }
 #endif
 

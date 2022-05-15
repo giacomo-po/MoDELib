@@ -46,6 +46,8 @@ add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
+add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
+add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/vtk vtk)
 
 target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)

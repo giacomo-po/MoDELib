@@ -62,50 +62,14 @@ namespace model
         const MeshRegionType& region;
         const size_t& grainID;
         
-        /**********************************************************************/
         Grain(const MeshRegionType& region_in,
               const PolycrystallineMaterial<dim,Isotropic>& material,
               const std::string& polyFile
-              ) :
-        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true),polyFile)
-        /* init */,region(region_in)
-        /* init */,grainID(region.regionID) // remove grain ID, use lattice.sID
-        {
-            assert(this->sID==region.regionID); // lattice.sID must be same as grainID
-            std::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
-            std::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;
-            std::cout<<"  # slip systems="<<this->slipSystems().size()<<std::endl;            
-        }
-        
-        /**********************************************************************/
-        const GrainBoundaryContainerType& grainBoundaries() const
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
-        GrainBoundaryContainerType& grainBoundaries()
-        {
-            return *this;
-        }
-        
-        /**********************************************************************/
+              );
+        const GrainBoundaryContainerType& grainBoundaries() const;
+        GrainBoundaryContainerType& grainBoundaries();
         std::deque<const LatticePlaneBase*> conjugatePlaneNormal(const LatticeVectorType& B,
-                                                                 const ReciprocalLatticeDirectionType& N) const
-        {
-            std::deque<const LatticePlaneBase*> temp;
-            if(B.dot(N)==0) // not sessile
-            {
-                for (const auto& planeNormal : this->planeNormals())
-                {
-                    if(	 B.dot(planeNormal)==0 && N.cross(planeNormal).squaredNorm()>0)
-                    {
-                        temp.push_back(&planeNormal);
-                    }
-                }
-            }
-            return temp;
-        }
+                                                                 const ReciprocalLatticeDirectionType& N) const;
         
     };
     

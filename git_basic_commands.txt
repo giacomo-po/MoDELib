@@ -19,3 +19,6 @@ git push
 
 4) Pull changes from repo
 git pull
+
+5) show what is ignored
+git status --ignored
