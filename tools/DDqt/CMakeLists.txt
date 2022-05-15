@@ -1,28 +1,37 @@
-# https://cliutils.gitlab.io/modern-cmake/chapters/basics/structure.html
 cmake_minimum_required(VERSION 3.1.0)
-
-
-
 project(DDqt VERSION 1.0.0 LANGUAGES CXX)
+
+set(EigenRootDir "/usr/local/include")
+set(CMAKE_PREFIX_PATH "/Applications/Qt/6.1.3/macos/lib/cmake/")
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../../")
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -O3")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_PREFIX_PATH "/Applications/Qt/6.1.3/macos/lib/cmake/")
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
 
+add_executable(${PROJECT_NAME} DDqt.cxx)
 
-
-if(CMAKE_VERSION VERSION_LESS "3.7.0")
-    set(CMAKE_INCLUDE_CURRENT_DIR ON)
+find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)
+message (STATUS "Qt6_VERSION: ${Qt6_VERSION}")
+if (NOT Qt6_FOUND)
+  message("Skipping DDvtk: ${Qt6_NOT_FOUND_MESSAGE}")
+  return()
 endif()
 
-set(EigenRootDir "/usr/local/include")
-set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../../")
-
+find_package(VTK REQUIRED)
+message (STATUS "VTK_VERSION: ${VTK_VERSION}")
+if (NOT VTK_FOUND)
+  message("Skipping DDvtk: ${VTK_NOT_FOUND_MESSAGE}")
+  return()
+endif()
 
 include_directories(${EigenRootDir})
 include_directories(${MoDELibRootDir}/include/DislocationMobilities)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO)
 include_directories(${MoDELibRootDir}/include/Mesh/)
+include_directories(${MoDELibRootDir}/include/FEM/)
 include_directories(${MoDELibRootDir}/include/IO)
 include_directories(${MoDELibRootDir}/include/Utilities)
 include_directories(${MoDELibRootDir}/include/Math/)
@@ -32,33 +41,12 @@ include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/Lattices/)
 include_directories(${MoDELibRootDir}/include/GlidePlanes/)
 
-
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
-include_directories(${MoDELibRootDir}/include/FEM/)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
 add_subdirectory(${MoDELibRootDir}/src/vtk vtk)
 
-find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)
-message (STATUS "Qt6_VERSION: ${Qt6_VERSION}")
-message (STATUS "Qt6_LIBRARY_DIRS: ${Qt6_LIBRARY_DIRS}")
-if (NOT Qt6_FOUND)
-  message("Skipping DDvtk: ${Qt6_NOT_FOUND_MESSAGE}")
-  return()
-endif()
-
-
-find_package(VTK REQUIRED)
-message (STATUS "VTK_VERSION: ${VTK_VERSION}")
-message (STATUS "VTK_LIBRARY_DIRS: ${VTK_LIBRARY_DIRS}")
-if (NOT VTK_FOUND)
-  message("Skipping DDvtk: ${VTK_NOT_FOUND_MESSAGE}")
-  return()
-endif()
-
-add_executable(DDqt DDqt.cxx)
-
-target_link_libraries(DDqt MoDELibMesh MoDELibGlidePlanes  MoDELibGeometry MoDELibvtk MoDELibDDDIO ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)
+target_link_libraries(${PROJECT_NAME} ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)
 vtk_module_autoinit(TARGETS DDqt MODULES ${VTK_LIBRARIES} )

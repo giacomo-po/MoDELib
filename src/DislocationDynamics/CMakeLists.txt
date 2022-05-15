@@ -6,24 +6,21 @@ include_directories(${MoDELibRootDir}/include/SpaceDecomposition/)
 include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
 
-add_library(MoDELibDDD 
-	STATIC 
-	DislocationLocalReference.cpp
-		ConfinedDislocationObject.cpp
-		DefectiveCrystal.cpp
-		DislocationNetwork.cpp
-		DislocationGlideSolver.cpp
-		DislocationNode.cpp
-		DDtimeIntegrator.cpp
-		DislocationSegment.cpp
-		DislocationLoop.cpp
-		DislocationLoopLink.cpp
-		DislocationLoopNode.cpp
-		DislocationNetworkRemesh.cpp
-		DislocationCrossSlip.cpp
-		EshelbyInclusion.cpp
-		ExternalLoadControllerBase.cpp
-		SimplexBndNormal.cpp
-			)
-
-
+target_sources(${PROJECT_NAME} PRIVATE 
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLocalReference.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/ConfinedDislocationObject.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DefectiveCrystal.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetwork.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationGlideSolver.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNode.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DDtimeIntegrator.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationSegment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoop.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopLink.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopNode.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetworkRemesh.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationCrossSlip.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/EshelbyInclusion.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/ExternalLoadControllerBase.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/SimplexBndNormal.cpp
+		)

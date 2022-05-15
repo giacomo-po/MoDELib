@@ -6,10 +6,8 @@ include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/GlidePlanes/)
 include_directories(${MoDELibRootDir}/include/FEM/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO)
-add_library(MoDELibDDDIO 
-	STATIC 
-	DefectiveCrystalParameters.cpp
-	DDconfigIO.cpp
-	
-			)
+target_sources(${PROJECT_NAME} PRIVATE 
+	${CMAKE_CURRENT_SOURCE_DIR}/DefectiveCrystalParameters.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/DDconfigIO.cpp
+	)
 

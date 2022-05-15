@@ -33,9 +33,11 @@ CMakeFiles
 #microstructureGenerator
 
 # Folders
-docs/HTML
-OLD
-header_symlinks
+docs/HTML/
+OLD/
+header_symlinks/
+build/
+evl/
 
 # Output Files
 *.jpg

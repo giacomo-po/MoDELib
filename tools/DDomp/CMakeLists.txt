@@ -1,12 +1,12 @@
-cmake_minimum_required(VERSION 3.0)
-set(CMAKE_BUILD_TYPE Debug)
+cmake_minimum_required(VERSION 3.1.0)
+project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
-PROJECT(DDomp CXX)
-set(CMAKE_CXX_STANDARD 20)
-set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 set(EigenRootDir "/usr/local/include")
-include_directories(${EigenRootDir})
+set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
 	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
@@ -17,6 +17,7 @@ endif()
 
 add_executable(DDomp DDomp.cpp)
 
+include_directories(${EigenRootDir})
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
@@ -43,4 +44,3 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 
-target_link_libraries(DDomp MoDELibGeometry MoDELibLattices MoDELibMesh MoDELibGlidePlanes MoDELibDDDmobilities MoDELibDDDIO MoDELibDDD)

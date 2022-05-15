@@ -3,11 +3,10 @@ include_directories(${MoDELibRootDir}/include/DislocationMobilities)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO)
 include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
 
-add_library(MoDELibDDDmicrostructure 
-	STATIC 
-	MicrostructureGenerator.cpp
-	MicrostructureGeneratorBase.cpp
-	PeriodicDipoleGenerator.cpp
-	PeriodicLoopGenerator.cpp
+target_sources(${PROJECT_NAME} PRIVATE 
+	${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureGenerator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MicrostructureGeneratorBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PeriodicDipoleGenerator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/PeriodicLoopGenerator.cpp
 			)
 
