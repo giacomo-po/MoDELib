@@ -9,7 +9,7 @@
 #ifndef model_MicrostructureGenerator_H_
 #define model_MicrostructureGenerator_H_
 
-
+#include <filesystem>
 #include <chrono>
 #include <random>
 #include <cmath>
@@ -29,6 +29,7 @@
 //#include <DislocationLoopIO.h>
 //#include <DislocationLoopLinkIO.h>
 //#include <DislocationLoopNodeIO.h>
+#include <DDtraitsIO.h>
 #include <DDconfigIO.h>
 #include <DDauxIO.h>
 
@@ -56,7 +57,7 @@ namespace model
         typedef typename  MicrostructureGeneratorBase::DislocationLoopType DislocationLoopType;
 
 
-        
+        DDtraitsIO traitsIO;
         DDconfigIO<3> configIO;
         DDauxIO<dim> auxIO;
 
@@ -66,7 +67,7 @@ namespace model
         const bool outputBinary;
 //        const int meshID;
         const std::set<int> periodicFaceIDs;
-        const std::string meshFilename;
+//        const std::string meshFilename;
         const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;

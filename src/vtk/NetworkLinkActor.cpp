@@ -52,6 +52,7 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLinks(new QCheckBox(this))
+        /* init */,showZeroLinks(new QCheckBox(this))
         /* init */,linksColorBox(new QComboBox(this))
         /* init */,tubeRadius(5.0)
         /* init */,clr(ColorScheme::colorBurgers)
@@ -70,6 +71,10 @@ namespace model
         {
             showLinks->setChecked(true);
             showLinks->setText("links");
+            
+            showZeroLinks->setChecked(false);
+            showZeroLinks->setText("0-Burgers links");
+            tubeActor0->SetVisibility(false);
 
             linksColorBox->addItem("Burgers vector");
             linksColorBox->addItem("Plane normal");
@@ -77,9 +82,12 @@ namespace model
 
             mainLayout->addWidget(showLinks,0,0,1,1);
             mainLayout->addWidget(linksColorBox,1,0,1,1);
+            mainLayout->addWidget(showZeroLinks,2,0,1,1);
+
             this->setLayout(mainLayout);
 
             connect(showLinks,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showZeroLinks,SIGNAL(stateChanged(int)), this, SLOT(modify()));
 
             tubeFilter->SetInputData(polyData);
             tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
@@ -232,6 +240,8 @@ namespace model
             
             tubeActor->SetVisibility(showLinks->isChecked());
             linksColorBox->setEnabled(showLinks->isChecked());
+            tubeActor0->SetVisibility(showZeroLinks->isChecked());
+
 //            labelActor->SetVisibility(showLinks->isChecked());
 //            velocityActor->SetVisibility(showLinks->isChecked());
             

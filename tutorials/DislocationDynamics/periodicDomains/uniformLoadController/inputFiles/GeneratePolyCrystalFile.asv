@@ -5,38 +5,25 @@ close all
 format long
 
 alignToSlipSystem0=1;
-lattice='fcc';
+lattice='bcc';
 
 if(alignToSlipSystem0)
 switch lattice
     case 'bcc'
-        s=[5.773502691896258e-01  5.773502691896258e-01 -5.773502691896258e-01];
-        n=[8.660254037844385e-01 0.000000000000000e+00 8.660254037844385e-01];
-        n=n/norm(n);
-    case 'fcc'
-        s=[ 0.000000000000000e+00 7.071067811865475e-01 7.071067811865475e-01];
-        n=[-7.071067811865476e-01  7.071067811865476e-01 -7.071067811865476e-01];
-        n=n/norm(n);
-    otherwise
-end
-    C2G1=[s;cross(n,s);n]
-    else
-    C2G1=eye(3)
+else
+    C2G1=eye(3);
 end
 
-switch lattice
-    case 'bcc'
-        A=1/sqrt(3)*[-1 1 1;1 -1 1;1 1 -1]; % bcc
-        material='W';
-    case 'fcc'
-        A=1/sqrt(2)*[0 1 1;1 0 1;1 1 0]; % fcc
-        material='Cu';
-    otherwise
-end
-A=C2G1*A;
+s=[5.773502691896258e-01  5.773502691896258e-01 -5.773502691896258e-01];
+n=[8.660254037844385e-01 0.000000000000000e+00 8.660254037844385e-01];
+n=n/norm(n);
 
+C2G=[s;cross(n,s);n]
+%return
 
-
+A=1/sqrt(3)*[-1 1 1;1 -1 1;1 1 -1]; % bcc
+%A=1/sqrt(2)*[0 1 1;1 0 1;1 1 0]; % fcc
+A=C2G*A;
 
 g=0.0;
 
@@ -65,7 +52,7 @@ x0=[0 0 0];
 
 
 fID=fopen('polycrystal.txt','w');
-fprintf(fID,['materialFile=../../../MaterialsLibrary/' material '.txt; \n']);
+fprintf(fID,'materialFile=../../../MaterialsLibrary/W.txt; \n');
 fprintf(fID,'enablePartials=0; \n');
 fprintf(fID,'absoluteTemperature = 300; # [K] simulation temperature \n');
 fprintf(fID,'meshFile=../../../MeshLibrary/unitCube.msh; \n');

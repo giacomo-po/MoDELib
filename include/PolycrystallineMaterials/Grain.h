@@ -65,17 +65,12 @@ namespace model
         /**********************************************************************/
         Grain(const MeshRegionType& region_in,
               const PolycrystallineMaterial<dim,Isotropic>& material,
-//              const std::string& polyFile
-              const MatrixDimD& C2G_in
+              const std::string& polyFile
               ) :
-//        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true))
-        /* init */ SingleCrystalType(material,C2G_in)
+        /* init */ SingleCrystalType(material,TextFileParser(polyFile).readMatrix<double>("C2G"+std::to_string(region_in.regionID),dim,dim,true),polyFile)
         /* init */,region(region_in)
         /* init */,grainID(region.regionID) // remove grain ID, use lattice.sID
         {
-//            std::cout<<"region.regionID="<<region.regionID<<std::endl;
-//            std::cout<<"this->sID="<<this->sID<<std::endl;
-//            std::cout<<"grainID="<<grainID<<std::endl;
             assert(this->sID==region.regionID); // lattice.sID must be same as grainID
             std::cout<<"  lattice basis="<<this->latticeBasis<<std::endl;
             std::cout<<"  # plane normals="<<this->planeNormals().size()<<std::endl;

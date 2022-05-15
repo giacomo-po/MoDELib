@@ -9,6 +9,7 @@
 #ifndef model_Polycrystal_H_
 #define model_Polycrystal_H_
 
+#include <filesystem>
 #include <string>       // std::string
 #include <iostream>     // std::cout
 #include <sstream>
@@ -28,7 +29,7 @@
 #include <GrainBoundary.h>
 #include <LatticeVector.h>
 //#include <StressStraight.h>
-#include <GrainBoundaryType.h>
+//#include <GrainBoundaryType.h>
 //#include <GlidePlane.h>
 #include <TextFileParser.h>
 #include <PolycrystallineMaterial.h>
@@ -55,20 +56,17 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
-        
-
-        
-        
+                
     public:
         
         const SimplicialMeshType& mesh;
 //        const std::unique_ptr<DislocationMobilityBase> mobility;
         
         /**********************************************************************/
-        Polycrystal(const std::string& polyFolder,
+        Polycrystal(const std::string& polyFile,
                     const SimplicialMeshType& mesh_in) :
-        /* init */ MaterialType(polyFolder+"/"+TextFileParser(polyFolder+"/polyCrystal.txt").readString("materialFile",false),
-                                TextFileParser(polyFolder+"/polyCrystal.txt").readScalar<double>("absoluteTemperature",true))
+        /* init */ MaterialType(std::filesystem::path(polyFile).parent_path().string()+"/"+TextFileParser(polyFile).readString("materialFile",false),
+                                TextFileParser(polyFile).readScalar<double>("absoluteTemperature",true))
         /* init */,mesh(mesh_in)
         {
             std::cout<<greenBoldColor<<"Creating Polycrystal"<<defaultColor<<std::endl;
@@ -78,14 +76,14 @@ namespace model
             {
                 std::cout<<greenBoldColor<<"Creating Grain "<<rIter.second->regionID<<defaultColor<<std::endl;
                 
-                const auto C2G(TextFileParser(polyFolder+"/polyCrystal.txt").readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,true));
+//                const auto C2G(TextFileParser(polyFolder+"/polyCrystal.txt").readMatrix<double>("C2G"+std::to_string(rIter.second->regionID),dim,dim,true));
                 
                 StaticID<Lattice<dim>>::set_count(rIter.second->regionID);
                 grains().emplace(std::piecewise_construct,
                                  std::forward_as_tuple(rIter.second->regionID),
                                  std::forward_as_tuple(*(rIter.second),
                                                        *this,
-                                                       C2G));
+                                                       polyFile));
             }
             
             // Construct GrainsBoundaries

@@ -88,7 +88,8 @@ namespace model
         
         /**********************************************************************/
         static SlipSystemContainerType getSlipSystems(const PolycrystallineMaterial<dim,Isotropic>& material,
-                                                      const LatticeType& lat)
+                                                      const LatticeType& lat,
+                                                      const std::string& polyFile)
         {
             if(material.crystalStructure=="BCC")
             {
@@ -96,12 +97,12 @@ namespace model
             }
             else if(material.crystalStructure=="FCC")
             {
-                const bool enablePartials(TextFileParser("inputFiles/DD.txt").readScalar<int>("enablePartials",true));
+                const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
                 return FCClattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else if(material.crystalStructure=="HEX")
             {
-                const bool enablePartials(TextFileParser("inputFiles/DD.txt").readScalar<int>("enablePartials",true));
+                const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
                 return HEXlattice<dim>::slipSystems(material.dislocationMobilities,lat,material,enablePartials);
             }
             else
@@ -115,10 +116,11 @@ namespace model
         
 
         /**********************************************************************/
-        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
+//        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G) :
+        SingleCrystal(const PolycrystallineMaterial<dim,Isotropic>& material,const MatrixDim& C2G,const std::string& polyFile) :
         /* init */ LatticeType(getLatticeBasis(material),C2G)
         /* init */,PlaneNormalContainerType(getPlaneNormals(material,*this))
-        /* init */,SlipSystemContainerType(getSlipSystems(material,*this))
+        /* init */,SlipSystemContainerType(getSlipSystems(material,*this,polyFile))
         {
                         
         }

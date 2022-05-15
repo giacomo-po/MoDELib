@@ -22,6 +22,7 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 
 #include <DDconfigIO.h>
+#include <DDauxIO.h>
 //#include <DDconfigVtkBase.h>
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
@@ -33,7 +34,8 @@
 namespace model
 {
     struct DDconfigVtk : public QWidget,
-                         public DDconfigIO<3>
+                         public DDconfigIO<3>,
+                         public DDauxIO<3>
     {
         
         Q_OBJECT
@@ -62,11 +64,14 @@ namespace model
 
         
         /**********************************************************************/
-        DDconfigVtk(const std::string& folderName,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const SimplicialMesh<3>& mesh);
+        DDconfigVtk(const std::string& evlFolder,const std::string& auxFolder,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const SimplicialMesh<3>& mesh);
         bool updateConfiguration(const size_t& frameID);
 
         void modify();
-        
+        const DDconfigIO<3>& configIO() const;
+        DDconfigIO<3>& configIO();
+        const DDauxIO<3>& auxIO() const;
+        DDauxIO<3>& auxIO();
     };
     
 }

@@ -21,16 +21,17 @@ namespace model
 
     /**********************************************************************/
     MicrostructureGenerator::MicrostructureGenerator(const std::string& folderName) :
-    /* init*/ configIO(folderName+"/evl")
-    /* init*/,auxIO(folderName+"/evl")
-    /* init*/,outputBinary(TextFileParser(folderName+"/inputFiles/DD.txt").readScalar<int>("outputBinary",true))
-    /* init */,periodicFaceIDs(TextFileParser(folderName+"/inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
-    /* init */,meshFilename(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true))
-    /* init */,mesh(meshFilename,TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),
-                    TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+    /* init*/ traitsIO(folderName)
+    /* init*/,configIO(traitsIO.evlFolder)
+    /* init*/,auxIO(traitsIO.auxFolder)
+    /* init*/,outputBinary(TextFileParser(traitsIO.ddFile).readScalar<int>("outputBinary",true))
+    /* init */,periodicFaceIDs(TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
+//    /* init */,meshFilename(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true))
+    /* init */,mesh(traitsIO.meshFile,TextFileParser(traitsIO.polyFile).readMatrix<double>("A",3,3,true),
+                    TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
     /* init*/,minSize(0.1*std::min(mesh.xMax(0)-mesh.xMin(0),std::min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
     /* init*/,maxSize(std::max(mesh.xMax(0)-mesh.xMin(0),std::max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-    /* init*/,poly(folderName+"/inputFiles",mesh)
+    /* init*/,poly(traitsIO.polyFile,mesh)
     /* init*/,glidePlaneFactory(poly)
     /* init*/,periodicGlidePlaneFactory(poly, glidePlaneFactory)
     {
@@ -41,7 +42,7 @@ namespace model
         // Some sanity checks
         if(mesh.volume()<FLT_EPSILON)
         {
-            throw std::runtime_error("mesh "+meshFilename+" is empty.");
+            throw std::runtime_error("mesh "+traitsIO.meshFile+" is empty.");
         }
         
         

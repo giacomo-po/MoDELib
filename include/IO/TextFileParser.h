@@ -10,6 +10,7 @@
 #ifndef model_TextFileParser_H_
 #define model_TextFileParser_H_
 
+//#include <filesystem>
 #include <iostream>
 #include <iomanip>
 #include <string>
@@ -19,6 +20,8 @@
 #include <set>
 #include <regex>
 #include <Eigen/Dense>
+
+
 
 #include <TerminalColors.h>
 
@@ -207,6 +210,18 @@ public:
             //                exit(EXIT_FAILURE);
         }
     }
+    
+//    TextFileParser(const std::filesystem::path& _fileName) :
+//    /* init */ std::ifstream(_fileName.string())
+//    /* init */,fileName(_fileName.string())
+//    {
+//        if(!this->is_open())
+//        {
+//            throw std::runtime_error("File "+fileName+" cannot be opened.");
+//            //                std::cout<<"File "<<fileName<<" cannot be opened. Exiting."<<std::endl;
+//            //                exit(EXIT_FAILURE);
+//        }
+//    }
     
     static std::string removeSpaces(std::string key)
     {

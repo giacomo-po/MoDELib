@@ -65,7 +65,7 @@ namespace model
         template <typename DislocationNetworkType>
         UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
         //        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
-        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>(_DN.simulationParameters.simulationFolder+"/inputFiles/uniformExternalLoadController.txt")
+        /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>(_DN.simulationParameters.traitsIO.simulationFolder+"/inputFiles/uniformExternalLoadController.txt")
         /* init list */,DN(_DN)
         /* init list */,ExternalStress(MatrixDim::Zero())
         /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))

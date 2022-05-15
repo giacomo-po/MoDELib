@@ -26,14 +26,14 @@ namespace model
     /* init */,openglWidget(new QVTKOpenGLStereoWidget(this))
     /* init */,renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New())
     /* init */,renderer(vtkSmartPointer<vtkRenderer>::New())
-    /* init */,workingDir(getWorkingDir())
-    /* init */,workingDirLabel(new QLabel(QString::fromStdString(workingDir)))
-    /* init */,mesh(workingDir+"/inputFiles/"+TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readString("meshFile",true),
-                    TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),
-                    TextFileParser(workingDir+"/inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),
-                    TextFileParser(workingDir+"/inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
+    /* init */,traitsIO(getWorkingDir())
+    /* init */,workingDirLabel(new QLabel(QString::fromStdString(traitsIO.simulationFolder)))
+    /* init */,mesh(traitsIO.meshFile,
+                    TextFileParser(traitsIO.polyFile).readMatrix<double>("A",3,3,true),
+                    TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),
+                    TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
     /* init */,meshActor(new SimplicialMeshActor(renderWindow,renderer,mesh))
-    /* init */,ddConfigVtk(new DDconfigVtk(workingDir+"/evl",renderWindow,renderer,mesh))
+    /* init */,ddConfigVtk(new DDconfigVtk(traitsIO.evlFolder,traitsIO.auxFolder,renderWindow,renderer,mesh))
     {
         renderer->SetBackground(1,1,1);
         renderWindow->AddRenderer(renderer);

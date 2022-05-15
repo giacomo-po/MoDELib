@@ -6,7 +6,6 @@ useDislocations=1;
 useCracks=0;
 Nsteps=2000000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
-enablePartials=0;
 ######################################
 useSubCycling=0;
 subcyclingBins=1 2 3 4 5 10;
@@ -30,7 +29,7 @@ periodicImages_y=1;
 periodicImages_z=1;
 
 ######################################
-quadPerLength=0.0000001;
+quadPerLength=0.1;
 
 ######################################
 # TIME STEP
@@ -54,7 +53,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=0;
 outputGlidePlanes=0;
 computeElasticEnergyPerLength=0;

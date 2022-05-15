@@ -1,4 +1,7 @@
+# https://cliutils.gitlab.io/modern-cmake/chapters/basics/structure.html
 cmake_minimum_required(VERSION 3.1.0)
+
+
 
 project(DDqt VERSION 1.0.0 LANGUAGES CXX)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -O3")
@@ -27,12 +30,15 @@ include_directories(${MoDELibRootDir}/include/Geometry/)
 include_directories(${MoDELibRootDir}/include/vtk/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/Lattices/)
+include_directories(${MoDELibRootDir}/include/GlidePlanes/)
 
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
+include_directories(${MoDELibRootDir}/include/FEM/)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
+add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
 add_subdirectory(${MoDELibRootDir}/src/vtk vtk)
 
 find_package(Qt6 COMPONENTS Widgets OpenGL REQUIRED)
@@ -54,5 +60,5 @@ endif()
 
 add_executable(DDqt DDqt.cxx)
 
-target_link_libraries(DDqt MoDELibMesh MoDELibGeometry MoDELibvtk MoDELibDDDIO ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)
+target_link_libraries(DDqt MoDELibMesh MoDELibGlidePlanes  MoDELibGeometry MoDELibvtk MoDELibDDDIO ${VTK_LIBRARIES} Qt6::Widgets Qt6::OpenGL Qt6::Core)
 vtk_module_autoinit(TARGETS DDqt MODULES ${VTK_LIBRARIES} )

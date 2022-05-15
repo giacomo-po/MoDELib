@@ -1,6 +1,7 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/Geometry/)
 include_directories(${MoDELibRootDir}/include/Mesh/)
+include_directories(${MoDELibRootDir}/include/GlidePlanes/)
 include_directories(${MoDELibRootDir}/include/vtk/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)

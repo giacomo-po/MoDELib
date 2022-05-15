@@ -11,10 +11,14 @@
 #define model_DefectiveCrystalParameters_H_
 
 #include <string>
+#include <set>
+
 #include <Eigen/Dense>
+
 #include <TextFileParser.h>
 #include <IDreader.h>
-#include <set>
+#include <DDtraitsIO.h>
+
 
 
 namespace model
@@ -25,7 +29,8 @@ namespace model
         
         enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC_IMAGES=2,PERIODIC_FEM=3};
 
-        const std::string simulationFolder;
+        const DDtraitsIO traitsIO;
+//        const std::string simulationFolder;
         const int simulationType;
         const bool useDislocations;
         const bool useCracks;

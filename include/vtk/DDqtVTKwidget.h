@@ -19,6 +19,7 @@
 #include <SimplicialMesh.h>
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
+#include <DDtraitsIO.h>
 
 namespace model
 {
@@ -47,7 +48,8 @@ private:
 
 public:
     
-    const std::string workingDir;
+//    const std::string workingDir;
+    const DDtraitsIO traitsIO;
     QLabel* workingDirLabel;
     SimplicialMesh<3> mesh;
     SimplicialMeshActor* meshActor;

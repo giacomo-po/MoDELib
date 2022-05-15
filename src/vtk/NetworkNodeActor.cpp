@@ -13,6 +13,7 @@
 #include <deque>
 #include <string>
 
+
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
@@ -50,6 +51,7 @@ namespace model
         /* init */,showNodes(new QCheckBox(this))
         /* init */,showNodeLabels(new QCheckBox(this))
         /* init */,showVelocities(new QCheckBox(this))
+        /* init */,velocityScaleEdit(new QLineEdit("1"))
         /* init */,nodePolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,nodeGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
         /* init */,nodeMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
@@ -79,15 +81,19 @@ namespace model
             showVelocities->setText("velocities");
             showVelocities->setChecked(false);
             velocityActor->SetVisibility(false);
+            velocityScaleEdit->setEnabled(false);
+
 
             mainLayout->addWidget(showNodes,0,0,1,1);
             mainLayout->addWidget(showNodeLabels,1,0,1,1);
             mainLayout->addWidget(showVelocities,2,0,1,1);
+            mainLayout->addWidget(velocityScaleEdit,2,1,1,1);
             this->setLayout(mainLayout);
 
             connect(showNodes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showNodeLabels,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showVelocities,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(velocityScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
 
             
             nodeGlyphs->SetInputData(nodePolyData);
@@ -165,7 +171,7 @@ namespace model
             {
                 nodePoints->InsertNextPoint(node.P.data());
                 nodeLabels->InsertNextTuple1(node.sID);
-                velocityVectors->InsertNextTuple(node.V.data()); // arrow vactor
+                velocityVectors->InsertNextTuple(node.V.data()); // arrow vector
                 nodeColors->InsertNextTypedTuple(node.meshLocation>2? this->nodeClr[3] : this->nodeClr[node.meshLocation]);
 
                 // Single node
@@ -201,7 +207,11 @@ namespace model
             nodeActor->SetVisibility(showNodes->isChecked());
             labelActor->SetVisibility(showNodeLabels->isChecked());
             velocityActor->SetVisibility(showVelocities->isChecked());
-            
+            velocityScaleEdit->setEnabled(showVelocities->isChecked());
+            const double vScaling(std::atof(velocityScaleEdit->text() .toStdString().c_str()));
+            velocityGlyphs->SetScaleFactor(vScaling);
+
+//                velocityActor->SetScale(vScaling);
 //            nodeGlyphs->SetScaleFactor(2.0*this->tubeRadius*1.2);
 //            
 //            if(this->showVelocities)

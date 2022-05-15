@@ -18,7 +18,7 @@
 #include <SimplicialMesh.h>
 #include <MeshRegionObserver.h>
 #include <Grain.h>
-#include <GrainBoundaryType.h>
+//#include <GrainBoundaryType.h>
 #include <LatticePlane.h>
 //#include <LineMeshIntersection.h>
 //#include <CSL.h>
@@ -462,7 +462,7 @@ namespace model
         VectorDimD _rotationAxis;
 
         double cosTheta; // cosine of relative rotation angle between grains
-        const GrainBoundaryType<dim>* p_gbType;
+//        const GrainBoundaryType<dim>* p_gbType;
 
     public:
 
@@ -487,7 +487,7 @@ namespace model
         /* init */ _crystallographicRotationAxis(VectorDimD::Zero()),
         /* init */ _rotationAxis(_crystallographicRotationAxis),
         /* init */ cosTheta(1.0),
-        /* init */ p_gbType(NULL),
+//        /* init */ p_gbType(NULL),
         /* init */ regionBoundary(regionbnd_in),
         /* init */ face(face_in),
         /* init */ grainBndID(regionBoundary.regionBndID)
@@ -591,10 +591,10 @@ namespace model
         }
 
         /**********************************************************************/
-        const GrainBoundaryType<dim>& grainBoundaryType() const
-        {
-            return *p_gbType;
-        }
+//        const GrainBoundaryType<dim>& grainBoundaryType() const
+//        {
+//            return *p_gbType;
+//        }
 
 //        /**********************************************************************/
 //        const CSL<dim>& csl() const

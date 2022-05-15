@@ -16,6 +16,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QCheckBox>
+#include <QLineEdit>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -57,6 +58,7 @@ namespace model
         QCheckBox* showNodes;
         QCheckBox* showNodeLabels;
         QCheckBox* showVelocities;
+        QLineEdit* velocityScaleEdit;
 
         
         public:

@@ -27,16 +27,16 @@ namespace model
 {
     
     template<int dim>
-    class PeriodicGlidePlaneFactory;
+    struct PeriodicGlidePlaneFactory;
     
     template<int dim>
-    class PeriodicPlanePatch;
+    struct PeriodicPlanePatch;
     
     template<int dim>
     class PeriodicPlaneNode;
    
     template<int dim>
-    class PeriodicPatchBoundary;
+    struct PeriodicPatchBoundary;
     
     template<int dim>
     class PeriodicGlidePlane;

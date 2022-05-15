@@ -1799,8 +1799,8 @@ namespace model
 //        return os;
 //    }
     
-template class PeriodicPlaneEdge<3>;
+template struct PeriodicPlaneEdge<3>;
 template class PeriodicPlaneNode<3>;
-template class PeriodicPlanePatch<3>;
+template struct PeriodicPlanePatch<3>;
 }
 #endif

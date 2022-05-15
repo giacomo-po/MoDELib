@@ -118,12 +118,12 @@ namespace model
         template <int _dim, short unsigned int corder>
         DefectiveCrystal<_dim,corder>::DefectiveCrystal(const std::string& folderName) :
         /* init */ simulationParameters(folderName)
-        /* init */,periodicFaceIDs(TextFileParser(folderName+"/inputFiles/polycrystal.txt").template readSet<int>("periodicFaceIDs",true))
-        /* init */,mesh(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true),
-                        TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("A",3,3,true),
-                        TextFileParser(folderName+"/inputFiles/polycrystal.txt").readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+        /* init */,periodicFaceIDs(TextFileParser(simulationParameters.traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
+        /* init */,mesh(simulationParameters.traitsIO.meshFile,
+                        TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("A",3,3,true),
+                        TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
-        /* init */,poly(folderName+"/inputFiles",mesh)
+        /* init */,poly(simulationParameters.traitsIO.polyFile,mesh)
         /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
         //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)

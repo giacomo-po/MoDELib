@@ -19,8 +19,9 @@ namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const std::string& folderName,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const SimplicialMesh<3>& ) :
-        /* init */ DDconfigIO<3>(folderName,"")
+        DDconfigVtk::DDconfigVtk(const std::string& evlFolder,const std::string& auxFolder,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const SimplicialMesh<3>& ) :
+        /* init */ DDconfigIO<3>(evlFolder,"")
+        /* init */,DDauxIO<3>(auxFolder,"")
         /* init */,renderWindow(renWin)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren))
@@ -56,6 +57,26 @@ namespace model
             connect(minusFrameButton,SIGNAL(pressed()), this, SLOT(prevConfiguration()));
 
 //            connect(frameIDedit,SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(updateConfiguration()));
+        }
+
+        const DDconfigIO<3>& DDconfigVtk::configIO() const
+        {
+            return *this;
+        }
+
+        DDconfigIO<3>& DDconfigVtk::configIO()
+        {
+            return *this;
+        }
+
+        const DDauxIO<3>& DDconfigVtk::auxIO() const
+        {
+            return *this;
+        }
+
+        DDauxIO<3>& DDconfigVtk::auxIO()
+        {
+            return *this;
         }
 
         void DDconfigVtk::nextConfiguration()
@@ -100,7 +121,8 @@ namespace model
         {
             try
             {
-                this->read(frameID);
+                configIO().read(frameID);
+                auxIO().read(frameID);
                 nodes->updateConfiguration(*this);
                 segments->updateConfiguration(*this,nodes->nodePolyData);
                 loops->updateConfiguration(*this,nodes->nodePolyData);

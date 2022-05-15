@@ -55,16 +55,16 @@ namespace model
         /**********************************************************************/
         DislocationNetworkIO(const DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,f_file(DN.simulationParameters.simulationFolder+"/F/F_0.txt")
-        /* init */,F_labels(DN.simulationParameters.simulationFolder+"/F/F_labels.txt")
+        /* init */,f_file(DN.simulationParameters.traitsIO.fFile)
+        /* init */,F_labels(DN.simulationParameters.traitsIO.flabFile)
         {
             if (!f_file.is_open())
               {
-                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.simulationFolder+"/F/F_0.txt");
+                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.traitsIO.fFile);
               }
             if (!F_labels.is_open())
               {
-                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.simulationFolder+"/F/F_labels.txt");
+                  throw std::runtime_error("Cannot open file "+DN.simulationParameters.traitsIO.flabFile);
               }
 
         }
@@ -91,7 +91,7 @@ namespace model
         /**********************************************************************/
         DDconfigIO<dim> configIO() const
         {
-            DDconfigIO<dim> temp(DN.simulationParameters.simulationFolder+"/evl");
+            DDconfigIO<dim> temp(DN.simulationParameters.traitsIO.evlFolder);
             for(const auto& loop : DN.loops())
             {
                 temp.loops().emplace_back(*loop.second.lock());
@@ -127,7 +127,7 @@ namespace model
         /**********************************************************************/
         DDauxIO<dim> auxIO() const
         {
-            DDauxIO<dim> temp(DN.simulationParameters.simulationFolder+"/evl");
+            DDauxIO<dim> temp(DN.simulationParameters.traitsIO.auxFolder);
             
             if(DN.outputMeshDisplacement)
             {
@@ -201,7 +201,7 @@ namespace model
             
             if(DN.outputSegmentPairDistances)
             {
-                const std::string outFileName(DN.simulationParameters.simulationFolder+"H/H_"+std::to_string(runID));
+                const std::string outFileName(DN.simulationParameters.traitsIO.simulationFolder+"H/H_"+std::to_string(runID));
                 std::ofstream h_file(outFileName);
                 if (h_file.is_open())
                 {
@@ -263,7 +263,7 @@ namespace model
             if (DN.outputLinkingNumbers)
             {
                 DislocationLinkingNumber<DislocationNetworkType> LN(DN);
-                const std::string outFileName(DN.simulationParameters.simulationFolder+"Z/Z_"+std::to_string(runID));
+                const std::string outFileName(DN.simulationParameters.traitsIO.simulationFolder+"Z/Z_"+std::to_string(runID));
                 std::ofstream z_file(outFileName);
                 if (z_file.is_open())
                 {

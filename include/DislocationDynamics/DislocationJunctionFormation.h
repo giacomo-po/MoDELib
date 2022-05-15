@@ -1289,8 +1289,8 @@ namespace model
         /**********************************************************************/
         DislocationJunctionFormation(DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,maxJunctionIterations(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("maxJunctionIterations",true))
-        /* init */,verboseJunctions(TextFileParser(DN.simulationParameters.simulationFolder+"/inputFiles/DD.txt").readScalar<int>("verboseJunctions",true))
+        /* init */,maxJunctionIterations(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("maxJunctionIterations",true))
+        /* init */,verboseJunctions(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseJunctions",true))
         /* init */,infiniteLineLength(10000.0)
         {
             
