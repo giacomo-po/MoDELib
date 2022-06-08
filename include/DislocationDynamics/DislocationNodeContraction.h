@@ -333,7 +333,7 @@ namespace model
         // contraction if all the nodes cannot be contracted but this condition give above to only contract those nodes which are at the same location
         // found successful))
         std::vector<std::set<std::shared_ptr<NetworkNodeType>>> contractBoundary(std::shared_ptr<NetworkNodeType> nA,
-                                                                                                                std::shared_ptr<NetworkNodeType> nB)
+                                                                                 std::shared_ptr<NetworkNodeType> nB)
         {
             std::vector<std::set<std::shared_ptr<NetworkNodeType>>> bndNodesToContract;
 

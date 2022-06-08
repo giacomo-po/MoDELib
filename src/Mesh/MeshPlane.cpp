@@ -9,7 +9,7 @@
 #ifndef model_MeshPlane_cpp_
 #define model_MeshPlane_cpp_
 
-
+#include <numbers>
 #include <cfloat>
 #include <tuple>
 #include <vector>
@@ -40,13 +40,15 @@ namespace model
         
         if(temp.size()<3)
         {
-            std::cout<<"meshIntersections.size()="<<temp.size()<<std::endl;
-            assert(false && "meshIntersections FAILED");
+            throw std::runtime_error("MeshPlane: Sorting MeshIntersections FAILED");
         }
         
         for(const auto& seg : temp)
         {
-            assert(!seg->hasZeroLength() && "Plane-Face intersection has zero length");
+            if(seg->hasZeroLength())
+            {
+                throw std::runtime_error("Plane-Face intersection has zero length");
+            }
         }
     }
     
@@ -73,7 +75,7 @@ namespace model
             const VectorLowerDim centerToP1(this->localPosition(segment->P1)-center);
             const float angleP1(std::atan2(centerToP1(1),centerToP1(0)));
             
-            if(std::fabs(angleP1-angleP0)<=M_PI)
+            if(std::fabs(angleP1-angleP0)<=std::numbers::pi)
             {// a segment not crossing the branch cut of atan2
                 if(angleP1>angleP0)
                 {// a right-handed segment
@@ -101,8 +103,7 @@ namespace model
         {
             std::cout<<"MeshIntersections.size="<<mshInt.size()<<std::endl;
             std::cout<<"segmentsByAngle="<<segmentsByAngle.size()<<std::endl;
-            assert(false && "MeshPlane: Sorting MeshIntersections FAILED.");
-            
+            throw std::runtime_error("MeshPlane: Sorting MeshIntersections FAILED");            
         }
         BoundingMeshSegments<dim> temp;
         for(const auto& pair : segmentsByAngle)
@@ -149,6 +150,7 @@ namespace model
       * Constructor for plane internal to a mesh region
       */
         checkPlaneIntersections(meshIntersections);
+
     }
     
     /**********************************************************************/

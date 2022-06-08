@@ -409,37 +409,41 @@ namespace model
                 std::getline(infile, line);
                 ss<<line;
                 ss >> sizeMP;
+                ss.str("");
                 ss.clear();
                 
                 size_t sizeQP;
                 std::getline(infile, line);
                 ss<<line;
                 ss >> sizeQP;
+                ss.str("");
                 ss.clear();
                 
                 size_t sizeGP;
                 std::getline(infile, line);
                 ss<<line;
                 ss >> sizeGP;
+                ss.str("");
                 ss.clear();
 
                 size_t sizePPP;
                 std::getline(infile, line);
                 ss<<line;
                 ss >> sizePPP;
+                ss.str("");
                 ss.clear();
                 
 //                size_t sizePLN;
 //                std::getline(infile, line);
 //                ss<<line;
 //                ss >> sizePLN;
-//                ss.clear();
+//                ss.str("");
 //
 //                size_t sizePLL;
 //                std::getline(infile, line);
 //                ss<<line;
 //                ss >> sizePLL;
-//                ss.clear();
+//                ss.str("");
 
                 meshNodes().clear();
                 meshNodes().reserve(sizeMP);
@@ -448,6 +452,7 @@ namespace model
                     std::getline(infile, line);
                     ss<<line;
                     meshNodes().emplace_back(ss);
+                    ss.str("");
                     ss.clear();
                 }
                 
@@ -458,6 +463,7 @@ namespace model
                     std::getline(infile, line);
                     ss<<line;
                     quadraturePoints().emplace_back(ss);
+                    ss.str("");
                     ss.clear();
                 }
                 
@@ -468,6 +474,7 @@ namespace model
                     std::getline(infile, line);
                     ss<<line;
                     glidePlanesBoundaries().emplace_back(ss);
+                    ss.str("");
                     ss.clear();
                 }
                 
@@ -478,6 +485,7 @@ namespace model
                     std::getline(infile, line);
                     ss<<line;
                     periodicGlidePlanePatches().emplace_back(ss);
+                    ss.str("");
                     ss.clear();
                 }
                 
@@ -488,7 +496,7 @@ namespace model
 //                    std::getline(infile, line);
 //                    ss<<line;
 //                    periodicLoopNodes().emplace_back(ss);
-//                    ss.clear();
+//                    ss.str("");
 //                }
 //
 //                periodicLoopLinks().clear();
@@ -498,7 +506,7 @@ namespace model
 //                    std::getline(infile, line);
 //                    ss<<line;
 //                    periodicLoopLinks().emplace_back(ss);
-//                    ss.clear();
+//                    ss.str("");
 //                }
 
                 

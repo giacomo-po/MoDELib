@@ -549,28 +549,32 @@ namespace model
         std::getline(infile, line);
         ss<<line;
         ss >> sizeV;
+        ss.str("");
         ss.clear();
         
         std::getline(infile, line);
         ss<<line;
         ss >> sizeL;
+        ss.str("");
         ss.clear();
-        
+
         std::getline(infile, line);
         ss<<line;
         ss >> sizeE;
+        ss.str("");
         ss.clear();
-        
+
         std::getline(infile, line);
         ss<<line;
         ss >> sizeLN;
+        ss.str("");
         ss.clear();
-        
+
         std::getline(infile, line);
         ss<<line;
         ss >> sizeEI;
+        ss.str("");
         ss.clear();
-        
         
         nodes().clear();
         for(size_t k=0; k<sizeV; ++k)
@@ -578,6 +582,7 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             nodes().emplace_back(ss);
+            ss.str("");
             ss.clear();
         }
         
@@ -587,6 +592,7 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             loops().emplace_back(ss);
+            ss.str("");
             ss.clear();
         }
         
@@ -596,6 +602,7 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             loopLinks().emplace_back(ss);
+            ss.str("");
             ss.clear();
         }
         
@@ -605,6 +612,7 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             loopNodes().emplace_back(ss);
+            ss.str("");
             ss.clear();
         }
         
@@ -614,6 +622,7 @@ namespace model
             std::getline(infile, line);
             ss<<line;
             eshelbyInclusions().emplace_back(ss);
+            ss.str("");
             ss.clear();
         }
         

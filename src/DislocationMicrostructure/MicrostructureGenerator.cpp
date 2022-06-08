@@ -10,11 +10,13 @@
 #define model_MicrostructureGenerator_cpp_
 
 #include <fstream>
+#include <filesystem>
 
 
 #include <MicrostructureGenerator.h>
 #include <PeriodicDipoleGenerator.h>
 #include <PeriodicLoopGenerator.h>
+#include <InclusionsGenerator.h>
 
 namespace model
 {
@@ -46,43 +48,73 @@ namespace model
         }
         
         
-        std::ifstream polyFile(folderName+"/inputFiles/initialMicrostructure.txt");
-        if(polyFile.is_open())
+//        std::ifstream initialMicrostructureFile(traitsIO.microstructureFile);
+        const auto microstructureFiles(TextFileParser(traitsIO.microstructureFile).readStringVector("microstructureFile"));
+        
+        for(const auto& pair : microstructureFiles)
         {
-            std::string line;
-            while (std::getline(polyFile, line))
+            const std::string microstructureFileName(std::filesystem::path(traitsIO.microstructureFile).parent_path().string()+"/"+TextFileParser::removeSpaces(pair.first));
+            const std::string microstructureType(TextFileParser(microstructureFileName).readString("type",false));
+            const std::string tag(TextFileParser(microstructureFileName).readString("tag",false));
+            bool success(false);
+            if(microstructureType=="PeriodicDipole")
             {
-                const std::string microstructureFileName(folderName+"/inputFiles/"+line);
-                const std::string microstructureType(TextFileParser(microstructureFileName).readString("type",false));
-                const std::string tag(TextFileParser(microstructureFileName).readString("tag",false));
-                bool success(false);
-                if(microstructureType=="PeriodicDipole")
-                {
-                    success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
-//                    PeriodicDipoleGenerator generator(microstructureFileName);
-//                    generator.generate(*this);
-                }
-                else if(microstructureType=="PeriodicLoop")
-                {
-                    success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
-
-//                    PeriodicLoopGenerator generator(microstructureFileName);
-//                    generator.generate(*this);
-                }
-                else
-                {
-                    std::cout<<"unkown microstructure type "<<microstructureType<<std::endl;
-                }
-                if(!success)
-                {
-                    throw std::runtime_error("Duplicate microstructure tag "+tag+".");
-                }
+                success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
+            }
+            else if(microstructureType=="PeriodicLoop")
+            {
+                success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
+            }
+            else if(microstructureType=="Inclusions")
+            {
+                success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
+            }
+            else
+            {
+                std::cout<<"unkown microstructure type "<<microstructureType<<std::endl;
+            }
+            if(!success)
+            {
+                throw std::runtime_error("Duplicate microstructure tag "+tag+".");
             }
         }
-        else
-        {
-            throw std::runtime_error("Cannot open file "+folderName+"/inputFiles/initialMicrostructure.txt");
-        }
+        
+        
+//        if(polyFile.is_open())
+//        {
+//            std::string line;
+//            while (std::getline(polyFile, line))
+//            {
+//                const std::string microstructureFileName(folderName+"/inputFiles/"+line);
+//                const std::string microstructureType(TextFileParser(microstructureFileName).readString("type",false));
+//                const std::string tag(TextFileParser(microstructureFileName).readString("tag",false));
+//                bool success(false);
+//                if(microstructureType=="PeriodicDipole")
+//                {
+//                    success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
+//                }
+//                else if(microstructureType=="PeriodicLoop")
+//                {
+//                    success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
+//                }
+//                else if(microstructureType=="Inclusions")
+//                {
+//                    success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
+//                }
+//                else
+//                {
+//                    std::cout<<"unkown microstructure type "<<microstructureType<<std::endl;
+//                }
+//                if(!success)
+//                {
+//                    throw std::runtime_error("Duplicate microstructure tag "+tag+".");
+//                }
+//            }
+//        }
+//        else
+//        {
+//            throw std::runtime_error("Cannot open file "+folderName+"/inputFiles/initialMicrostructure.txt");
+//        }
         
         for(auto& gen : *this)
         {
@@ -120,6 +152,48 @@ namespace model
         
     }
 
+    const DDconfigIO<3>& MicrostructureGenerator::config() const
+    {
+        return configIO;
+    }
+
+    const DDauxIO<3>& MicrostructureGenerator::aux() const
+    {
+        return auxIO;
+    }
+
+    void MicrostructureGenerator::insertJunctionLoop(const std::vector<VectorDimD>& loopNodePos,
+                                                 const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
+                                                 const VectorDimD& b,
+                                                 const VectorDimD& unitNormal,
+                                                 const VectorDimD& P0,
+                                                 const size_t& grainID,
+                                                 const DislocationLoopIO<dim>::DislocationLoopType& loopType)
+{
+    std::vector<PolyPoint> dummyPolyPoints;
+    std::vector<std::pair<VectorDimD, const PolyPoint *const>> loopNodePosTemp;
+    for(const auto& pos : loopNodePos)
+    {
+        dummyPolyPoints.push_back(PolyPoint());
+        loopNodePosTemp.emplace_back(pos, &dummyPolyPoints.back());
+    }
+    
+    const auto ppi(periodicPlane->polygonPatchIntersection(loopNodePosTemp));
+    const size_t loopID(insertLoop(b,unitNormal,P0,grainID,loopType));
+    std::vector<size_t> loopNodeIDs;
+    for(const auto &tup : ppi)
+    {
+        const VectorDimD loopNodePos(periodicPlane->referencePlane->globalPosition(std::get<0>(tup)));
+        const VectorDimD networkNodePos(loopNodePos+std::get<1>(tup));
+        const auto networkNodeIter(uniqueNetworkNodeMap.find(networkNodePos));
+        if(networkNodeIter==uniqueNetworkNodeMap.end())
+        {// no NetworkNode found at current position
+            uniqueNetworkNodeMap.emplace(networkNodePos,insertNetworkNode(networkNodePos)); // insert NetworkNode and store its ID
+        }
+        loopNodeIDs.push_back(insertLoopNode(loopID,loopNodePos,uniqueNetworkNodeMap.at(networkNodePos),std::get<1>(tup),std::get<2>(tup))); // insert LoopNode and store its ID
+    }
+    insertLoopLinks(loopID,loopNodeIDs);
+}
 
     size_t MicrostructureGenerator::insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType)
     {
@@ -159,6 +233,12 @@ namespace model
         return networkNodeID;
     }
 
+    size_t MicrostructureGenerator::insertInclusion(const VectorDimD& pos,const double& R, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type)
+    {
+        const size_t inclusionID(configIO.eshelbyInclusions().size());
+        configIO.eshelbyInclusions().emplace_back(inclusionID,pos,R,eT,vrc,type);
+        return inclusionID;
+    }
 
 
 

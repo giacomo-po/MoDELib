@@ -11,6 +11,8 @@
 #ifndef _model_DislocationMobilityBCC_cpp_
 #define _model_DislocationMobilityBCC_cpp_
 
+#include <numbers>
+
 #include <DislocationMobilityBCC.h>
 
 namespace model
@@ -101,7 +103,7 @@ namespace model
             
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;
-            const VectorDim n1 = Eigen::AngleAxisd(M_PI/3.0,s)*n;
+            const VectorDim n1 = Eigen::AngleAxisd(std::numbers::pi/3.0,s)*n;
             
             // Compute components of non-Schmid model
             const double tau=s.transpose()*S*n; // magnitude of resolved shear stress

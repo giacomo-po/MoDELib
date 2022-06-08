@@ -21,7 +21,7 @@
 #include <TerminalColors.h>
 #include <DiophantineSolver.h>
 #include <PeriodicGlidePlane.h>
-#include <PeriodicGlidePlane.hpp>
+//#include <PeriodicGlidePlane.hpp>
 namespace model
 {
         

@@ -10,7 +10,7 @@
 #ifndef model_DISLOCATEDMATERIAL_cpp_
 #define model_DISLOCATEDMATERIAL_cpp_
 
-
+#include <numbers>
 #include <cmath>
 #include <string>
 //#include <PeriodicElement.h>
@@ -111,7 +111,7 @@ PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::strin
             std::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
 
             C1=1.0-nu;
-            C2=1.0/(4.0*M_PI*C1);
+            C2=1.0/(4.0*std::numbers::pi*C1);
             C3=1.0-2.0*nu;
             C4=0.5*C2;
             Nu=nu;
@@ -124,13 +124,13 @@ PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::strin
     double PolycrystallineMaterial<dim,Isotropic>::C1=1.0-0.34;    // 1-nu
     
     template<int dim>
-    double PolycrystallineMaterial<dim,Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+    double PolycrystallineMaterial<dim,Isotropic>::C2=1.0/(4.0*std::numbers::pi*(1.0-0.34));  // 1/(4*pi*(1-nu))
 
     template<int dim>
     double PolycrystallineMaterial<dim,Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
     
     template<int dim>
-    double PolycrystallineMaterial<dim,Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+    double PolycrystallineMaterial<dim,Isotropic>::C4=1.0/(8.0*std::numbers::pi*(1.0-0.34));  // 1/(4*pi*(1-nu))
 
     template<int dim>
     double PolycrystallineMaterial<dim,Isotropic>::Nu=0.34;  // 1/(4*pi*(1-nu))
@@ -162,7 +162,7 @@ PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::strin
 //            nu=IM::nu;
 //            lambda=2.0*mu*nu/(1.0-2.0*nu);
 //            C1=1.0-nu;
-//            C2=1.0/(4.0*M_PI*C1);
+//            C2=1.0/(4.0*std::numbers::pi*C1);
 //            C3=1.0-2.0*nu;
 //            C4=0.5*C2;
 //
@@ -320,7 +320,7 @@ PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::strin
 //    double Material<Isotropic>::nu=0.34;
 //    double Material<Isotropic>::lambda=2.0*1.0*0.34/(1.0-2.0*0.34);
 //    double Material<Isotropic>::C1=1.0-0.34;    // 1-nu
-//    double Material<Isotropic>::C2=1.0/(4.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+//    double Material<Isotropic>::C2=1.0/(4.0*std::numbers::pi*(1.0-0.34));  // 1/(4*pi*(1-nu))
 //    double Material<Isotropic>::C3=1.0-2.0*0.34; // 1-2*nu
-//    double Material<Isotropic>::C4=1.0/(8.0*M_PI*(1.0-0.34));  // 1/(4*pi*(1-nu))
+//    double Material<Isotropic>::C4=1.0/(8.0*std::numbers::pi*(1.0-0.34));  // 1/(4*pi*(1-nu))
 //    double Material<Isotropic>::kB=1.38e-23/48.0e9/std::pow(0.2556e-9,3);  // Boltzmann constant

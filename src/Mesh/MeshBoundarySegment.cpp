@@ -217,13 +217,14 @@ typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicS
                                                     const size_t& rID,
                                                     const Plane<dim>& plane)
     {
-        //std::cout<<"I'm here A"<<std::endl;
         //            const MatrixDim R(plane.localRotationMatrix());
         
         for(const auto& face : mesh.region(rID)->faces())
         {
             computeFaceIntersections(plane,face.second);
         }
+        
+
         
         // Now sort segments
         ConvexHull<2,std::shared_ptr<MeshBoundarySegment<dim>>> finalHull;
@@ -235,6 +236,8 @@ typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicS
             finalHull.emplace(std::array<double,2>{x[0],x[1]},&pt);
             // THE PROBLEM HERE IS THAT IF COINCIDENT POINTS FROM DIFFERENCE FACES EXIST, THEN ONLY ONE OF THEM IS KEPT. E.G. A PLANE CUTTING AT THE INTERSECTION OF TWO FACES. IF WE HAD UNIQUE FACE EDGES WITH POINTERS TO THE ADJECENT FACES WE COULD SOLVE THIS
         }
+        
+
         
         const auto hullPts=finalHull.getPoints();
         BoundingMeshSegments<dim> sortedTemp;
@@ -278,11 +281,14 @@ typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicS
                 }
             }
         }
-        assert((sortedTemp.back()->P1-sortedTemp.front()->P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
-        
+
         
         if(sortedTemp.size())
         {
+            
+            assert((sortedTemp.back()->P1-sortedTemp.front()->P0).norm()<FLT_EPSILON && "OPEN FACE BOUNDARY");
+
+            
             //                VectorDim nA(VectorDim::Zero());
             //                const VectorDim P0(sortedTemp.front().P0);
             //                for(const auto& seg : sortedTemp)
@@ -303,7 +309,9 @@ typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicS
         
         
         assert(sortedTemp.size()==this->size());
+
         this->swap(sortedTemp);
+
     }
     
     /**********************************************************************/

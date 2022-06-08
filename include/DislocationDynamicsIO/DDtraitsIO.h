@@ -28,6 +28,7 @@ namespace model
         const std::string fFile;
         const std::string flabFile;
         const std::string polyFile;
+        const std::string microstructureFile;
         const std::string meshFile;
 
         /**********************************************************************/
@@ -38,9 +39,10 @@ namespace model
         /* init */,auxFolder(simulationFolder+"/evl")
         /* init */,fFolder(simulationFolder+"/F")
         /* init */,ddFile(inputFilesFolder+"/DD.txt")
-        /* init */,fFile(fFolder+"/F.txt")
+        /* init */,fFile(fFolder+"/F_0.txt")
         /* init */,flabFile(fFolder+"/F_labels.txt")
         /* init */,polyFile(inputFilesFolder+"/polycrystal.txt")
+        /* init */,microstructureFile(inputFilesFolder+"/initialMicrostructure.txt")
         /* init */,meshFile(inputFilesFolder+"/"+TextFileParser(polyFile).readString("meshFile",false))
         {
             std::cout<<"simulationFolder="<<simulationFolder<<std::endl;
@@ -52,6 +54,7 @@ namespace model
             std::cout<<"fFile="<<fFile<<std::endl;
             std::cout<<"flabFile="<<flabFile<<std::endl;
             std::cout<<"polyFile="<<polyFile<<std::endl;
+            std::cout<<"microstructureFile="<<microstructureFile<<std::endl;
             std::cout<<"meshFile="<<meshFile<<std::endl;
         }
         

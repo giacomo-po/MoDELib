@@ -497,7 +497,7 @@ namespace model
 //                    {// Add GB stress
 //                        qPoint.stress += sStraight.stress(qPoint.r);
 //                    }
-                    
+                                        
                     for(const auto& inclusion : parentSegment.network().eshelbyInclusions() )
                     {// Add EshelbyInclusions stress
                         for(const auto& shift : parentSegment.network().periodicShifts)

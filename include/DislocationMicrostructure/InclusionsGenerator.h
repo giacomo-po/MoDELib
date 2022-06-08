@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_PeriodicDipoleGenerator_H_
-#define model_PeriodicDipoleGenerator_H_
+#ifndef model_InclusionsGenerator_H_
+#define model_InclusionsGenerator_H_
 
 
 #include <chrono>
@@ -46,25 +46,18 @@
 namespace model
 {
 
-class PeriodicDipoleGenerator : public MicrostructureGeneratorBase
+class InclusionsGenerator : public MicrostructureGeneratorBase
 {
     
-    static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int dipoleHeight);
+    bool generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eT, const double& vrc,const int&type);
     
-    
-//    static void insertJunctionLoop(MicrostructureGenerator& mg,
-//                            std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
-//                            const std::vector<VectorDimD>& loopNodePos,
-//                            const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
-//                            const VectorDimD& b,
-//                            const VectorDimD& unitNormal,
-//                            const VectorDimD& P0,
-//                            const size_t& grainID,
-//                            const DislocationLoopIO<dim>::DislocationLoopType& loopType);
+
     
 public:
     
-    PeriodicDipoleGenerator(const std::string& fileName);
+    const bool allowOverlap;
+    
+    InclusionsGenerator(const std::string& fileName);
     
 //    void generate(MicrostructureGenerator& mg) override;
     void generateIndividual(MicrostructureGenerator& mg) override;

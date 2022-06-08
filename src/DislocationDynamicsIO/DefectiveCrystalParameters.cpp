@@ -21,8 +21,8 @@ namespace model
         void DefectiveCrystalParameters::manageRestart()
         {
             // Menage restart
-            IDreader<'F',1,200,double> vReader;
-            vReader.readLabelsFile("F/F_labels.txt");
+            IDreader<1,200,double> vReader(traitsIO.fFolder+"/F");
+            vReader.readLabelsFile(traitsIO.fFolder+"/F_labels.txt");
             if (vReader.isGood(0,true))
             {// F/F_0.txt exists
                 vReader.read(0,true);

@@ -1,0 +1,8 @@
+type=Inclusions;
+style=individual;
+tag=incl0;
+allowOverlap=0;
+inclusionRadii_SI=3e-8;
+inclusionsCenters=500 500 400;
+inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
+inclusionVelocityReductionFactors=1;

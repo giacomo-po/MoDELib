@@ -9,6 +9,7 @@
 #ifndef model_DislocationNetwork_CPP_
 #define model_DislocationNetwork_CPP_
 
+#include <numbers>
 
 #include <DislocationNetwork.h>
 
@@ -471,7 +472,7 @@ namespace model
         {// sum solid angle of each loop
             for(const auto& shift : periodicShifts)
             {
-                temp-=loop.second.lock()->solidAngle(x+shift)/4.0/M_PI*loop.second.lock()->burgers();
+                temp-=loop.second.lock()->solidAngle(x+shift)/4.0/std::numbers::pi*loop.second.lock()->burgers();
             }
         }
         

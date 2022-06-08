@@ -11,6 +11,8 @@
 #ifndef _model_DislocationMobilityHEXprismatic_cpp_
 #define _model_DislocationMobilityHEXprismatic_cpp_
 
+#include <numbers>
+
 #include <DislocationMobilityHEXprismatic.h>
 
 namespace model
@@ -101,7 +103,7 @@ namespace model
 
             const double bNorm=b.norm();
             const VectorDim s = b/bNorm;
-            const VectorDim n1 = Eigen::AngleAxisd(M_PI/2.0,s)*n; // associated plane, pi/2 or -pi/2
+            const VectorDim n1 = Eigen::AngleAxisd(std::numbers::pi/2.0,s)*n; // associated plane, pi/2 or -pi/2
             
             // Compute components of non-Schmid model
             const double tau=s.transpose()*S*n; // magnitude of resolved shear stress

@@ -144,10 +144,11 @@ namespace model
             std::cout<<" strainmultimachinestiffness="<<strainmultimachinestiffness<<std::endl;
             
             
-            IDreader<'F',1,200,double> vReader;
+            IDreader<1,200,double> vReader(DN.simulationParameters.traitsIO.fFolder+"/F");
             if (vReader.isGood(0,true))
             {
-                vReader.readLabelsFile("F/F_labels.txt");
+//                vReader.readLabelsFile("F/F_labels.txt");
+                vReader.readLabelsFile(DN.simulationParameters.traitsIO.fFolder+"/F_labels.txt");
                 vReader.read(0,true);
                 const auto iter=vReader.find(runID);
                 //                    Eigen::Matrix<double,1,200> temp(Eigen::Matrix<double,1,200>::Zero());
@@ -304,7 +305,7 @@ namespace model
                 F_labels<<"s_23 [mu]\n";
                 F_labels<<"s_31 [mu]\n";
                 F_labels<<"s_32 [mu]\n";
-                F_labels<<"s_33 [mu]\n";
+                F_labels<<"s_33 [mu]"<<std::endl;
             }
         }
         

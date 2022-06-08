@@ -9,6 +9,7 @@
 #ifndef model_NetworkLinkActor_cpp_
 #define model_NetworkLinkActor_cpp_
 
+#include <numbers>
 #include <iostream>
 #include <deque>
 #include <string>
@@ -347,7 +348,7 @@ Eigen::Matrix<int,3,1> NetworkLinkActor::computeColor(const VectorDim& burgers, 
             
         case colorEdgeScrew:
         {
-            const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/M_PI;
+            const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/std::numbers::pi;
             //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
             //                            colorVector << rgb.r, rgb.g, rgb.b;
             clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1-u);

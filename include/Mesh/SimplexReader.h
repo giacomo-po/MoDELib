@@ -96,7 +96,7 @@ namespace model
         {
             
             this->clear();
-            IDreader<'N',1,dim,double> nodeReader;
+            IDreader<1,dim,double> nodeReader("N/N");
             nodeReader.read(meshID,true);
             for(const auto& node : nodeReader)
             {
@@ -104,7 +104,7 @@ namespace model
             }
             assert(nodeReader.size()==this->nodes().size());
             
-            IDreader<'T',1,dim+2,size_t> elementReader;
+            IDreader<1,dim+2,size_t> elementReader("T/T");
             elementReader.read(meshID,true);
             for(const auto& eIter : elementReader)
             {

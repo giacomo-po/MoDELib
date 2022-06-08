@@ -129,68 +129,120 @@ class TextFileParser : public std::ifstream
     using EigenMapType=Eigen::Map<const Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>, 0, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic> >;
     
     /**********************************************************************/
-    std::pair<std::string,std::string> readKey( const std::string& key
-    //                               ,const bool& removeWitespaces=true
-    )
+//    std::pair<std::string,std::string> readKey( const std::string& key
+//    //                               ,const bool& removeWitespaces=true
+//    )
+//    {
+//        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+//    this->clear();
+//    this->seekg(0);
+//
+//        std::string line;
+//        std::string read;
+//        std::string comment;
+//        bool success(false);
+//
+//        while (std::getline(*this, line))
+//        {
+//            const size_t foundKey=line.find(key);
+//            const size_t foundEqual=line.find("=");
+//            const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
+//
+//            if(keyRead==key)
+//            {
+//                const size_t foundSemiCol=line.find(";");
+//                const size_t foundPound=line.find("#");
+//
+//                if(   foundKey!=std::string::npos
+//                   && foundEqual!=std::string::npos
+//                   && foundSemiCol!=std::string::npos
+//                   && foundKey<foundEqual
+//                   && foundEqual<foundSemiCol
+//                   && foundSemiCol<foundPound
+//                   )
+//                {
+//                    read=line.substr(foundEqual+1,foundSemiCol-foundEqual-1);
+//                    if(foundPound!=std::string::npos)
+//                    {
+//                        comment=line.substr(foundPound,line.size()-foundPound);
+//                    }
+//                    success=true;
+//                    break;
+//
+//                }
+//            }
+//        }
+//
+//        if(!success)
+//        {
+//            throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+//            //                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
+//            //                exit(EXIT_FAILURE);
+//        }
+//
+//        //            if(removeWitespaces)
+//        //            {
+//        //                std::regex_replace( read, "\s", "" );
+//        //            }
+//        //            std::cout<<key<<"="<<read<<std::endl;
+//
+//        return std::make_pair(read,comment);
+//    }
+    
+    std::vector<std::pair<std::string,std::string>> readKey( const std::string& key)
     {
-        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
-        
+        this->clear();
+        this->seekg(0);
+        std::vector<std::pair<std::string,std::string>> returnVector;
         std::string line;
-        std::string read;
-        std::string comment;
-        bool success(false);
-        
+
         while (std::getline(*this, line))
         {
             const size_t foundKey=line.find(key);
             const size_t foundEqual=line.find("=");
-            const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
-
-//            std::string keyRead(line.substr(0,foundEqual));
-//            keyRead.erase(std::remove_if(keyRead.begin(), keyRead.end(), std::isspace), keyRead.end());
-
-            //                    std::regex_replace( keyRead, "\s", "" );
-            //                    std::cout<<"key="<<key<<std::endl;
-            //                    std::cout<<"keyRead="<<keyRead<<std::endl;
-            if(keyRead==key)
+            
+            if(   foundKey!=std::string::npos
+               && foundEqual!=std::string::npos
+               && foundKey<foundEqual)
             {
-                const size_t foundSemiCol=line.find(";");
-                const size_t foundPound=line.find("#");
-                
-                if(   foundKey!=std::string::npos
-                   && foundEqual!=std::string::npos
-                   && foundSemiCol!=std::string::npos
-                   && foundKey<foundEqual
-                   && foundEqual<foundSemiCol
-                   && foundSemiCol<foundPound
-                   )
+                const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
+
+                if(keyRead==key)
                 {
-                    read=line.substr(foundEqual+1,foundSemiCol-foundEqual-1);
-                    if(foundPound!=std::string::npos)
-                    {
-                        comment=line.substr(foundPound,line.size()-foundPound);
-                    }
-                    success=true;
-                    break;
                     
+                    
+                    const size_t foundSemiCol=line.find(";");
+                    const size_t foundPound=line.find("#");
+                                        
+                    if(   //foundKey!=std::string::npos
+                        foundEqual!=std::string::npos
+                       && foundSemiCol!=std::string::npos
+                       //&& foundKey<foundEqual
+                       && foundEqual<foundSemiCol
+                       && foundSemiCol<foundPound
+                       )
+                    {
+                        const std::string read(line.substr(foundEqual+1,foundSemiCol-foundEqual-1));
+
+                        if(foundPound!=std::string::npos)
+                        {
+                            const std::string comment(line.substr(foundPound,line.size()-foundPound));
+                            returnVector.emplace_back(read,comment);
+                        }
+                        else
+                        {
+                            returnVector.emplace_back(read,std::string());
+                        }
+                    }
                 }
             }
         }
-        
-        if(!success)
+        if(returnVector.size()==0)
         {
             throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
-            //                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\n EXITING"<<std::endl;
-            //                exit(EXIT_FAILURE);
         }
-        
-        //            if(removeWitespaces)
-        //            {
-        //                std::regex_replace( read, "\s", "" );
-        //            }
-        //            std::cout<<key<<"="<<read<<std::endl;
-        
-        return std::make_pair(read,comment);
+
+        return returnVector;
     }
     
     
@@ -232,10 +284,15 @@ public:
     /**********************************************************************/
     std::string readString(const std::string& key,const bool&verbose=false)
     {
-        const std::pair<std::string,std::string> strPair(readKey(key));
-        //const std::string& read(readKey(key));
+        const std::pair<std::string,std::string> strPair(readKey(key)[0]);
         if(verbose) std::cout<<cyanColor<<key<<"="<<strPair.first<<" "<<strPair.second<<defaultColor<<std::endl;
         return strPair.first;
+    }
+    
+    /**********************************************************************/
+    std::vector<std::pair<std::string,std::string>> readStringVector(const std::string& key)
+    {
+        return readKey(key);
     }
     
     /**********************************************************************/
@@ -243,8 +300,7 @@ public:
     Scalar readScalar(const std::string& key,const bool&verbose=false)
     {
         if(verbose) std::cout<<cyanColor<<key<<"="<<std::flush;
-        //            const std::string str(readKey(key));
-        const std::pair<std::string,std::string> strPair(readKey(key));
+        const std::pair<std::string,std::string> strPair(readKey(key)[0]);
         const Scalar read(StringToScalar<Scalar>::toScalar(strPair.first));
         if(verbose) std::cout<<read<<" "<<strPair.second<<defaultColor<<std::endl;
         return read;
@@ -277,7 +333,9 @@ public:
     template<typename Scalar>
     std::vector<Scalar> readArray(const std::string& key,const bool&verbose=false)
     {
-        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+//        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+        this->clear();
+        this->seekg(0);
         
         std::string line;
         std::string lines;
@@ -290,12 +348,9 @@ public:
             
             const size_t foundKey=line.find(key);
             const size_t foundEqual=line.find("=");
-//            const std::string keyRead(line.substr(0,foundEqual));
+            
             const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
 
-            //                    std::regex_replace( keyRead, "\s", "" );
-            //                    std::cout<<"key="<<key<<std::endl;
-            //                    std::cout<<"keyRead="<<keyRead<<std::endl;
             if(keyRead==key)
             {
                 size_t foundSemiCol=line.find(";");
@@ -353,8 +408,6 @@ public:
         if(!success)
         {
             throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
-            //                std::cout<<"File "<<fileName<<" does not cointain line with format:\n"<< key <<"=...;\nEXITING"<<std::endl;
-            //                exit(EXIT_FAILURE);
         }
         
         if(verbose)
@@ -388,6 +441,13 @@ public:
         EigenMapType<Scalar> em(array.data(), rows, cols, Eigen::Stride<Eigen::Dynamic,Eigen::Dynamic>(1, cols));
         if(verbose) std::cout<<cyanColor<<key<<"=\n"<<em<<defaultColor<<std::endl;
         return  Eigen::Matrix<Scalar,Eigen::Dynamic,Eigen::Dynamic>(em);
+    }
+    
+    /**********************************************************************/
+    template<typename Scalar,int rows,int cols>
+    Eigen::Matrix<Scalar,rows,cols> readMatrix(const std::string& key,const bool&verbose=false)
+    {
+        return  readMatrix<Scalar>(key,rows,cols,verbose);
     }
     
     /**********************************************************************/

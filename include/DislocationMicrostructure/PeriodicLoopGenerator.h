@@ -49,6 +49,17 @@ namespace model
     class PeriodicLoopGenerator : public MicrostructureGeneratorBase
     {
         
+        static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const double& radius,const size_t& sides);
+
+//        static void insertJunctionLoop(MicrostructureGenerator& mg,
+//                                std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
+//                                const std::vector<VectorDimD>& loopNodePos,
+//                                const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
+//                                const VectorDimD& b,
+//                                const VectorDimD& unitNormal,
+//                                const VectorDimD& P0,
+//                                const size_t& grainID,
+//                                const DislocationLoopIO<dim>::DislocationLoopType& loopType);
         
     public:
         

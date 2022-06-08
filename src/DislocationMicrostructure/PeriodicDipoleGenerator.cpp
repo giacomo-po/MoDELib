@@ -18,6 +18,8 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 #include <limits>
+#include <random>
+#include <iomanip>
 
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
@@ -53,15 +55,40 @@ namespace model
         
     }
 
-//    void PeriodicDipoleGenerator::generate(MicrostructureGenerator& mg)
-//    {
-//        generateIndividual(mg);
-//    }
-
-
     void PeriodicDipoleGenerator::generateDensity(MicrostructureGenerator& mg)
     {
         
+        const double targetPeriodicDipoleDensity(this->parser.readScalar<double>("targetPeriodicDipoleDensity",true));
+        if(targetPeriodicDipoleDensity>0.0)
+        {
+            std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
+            std::mt19937 generator;
+            double density=0.0;
+            while(density<targetPeriodicDipoleDensity)
+            {
+                const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
+                const LatticeVector<dim> L0=rp.first;
+                const size_t grainID=rp.second;
+                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).slipSystems().size()-1);
+                const int rSS(ssDist(generator)); // a random SlipSystem
+//                const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+                std::uniform_int_distribution<> fDist(0,mg.poly.grain(grainID).region.faces().size()-1);
+                const int rF(fDist(generator)); // a random face
+                auto faceIter(mg.poly.grain(grainID).region.faces().begin());
+                std::advance(faceIter,rF);
+
+                try
+                {
+                    generateSingle(mg,rSS,L0.cartesian(),faceIter->first,100);
+                    density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
+                    std::cout<<"periodic dipole density="<<density<<std::endl;
+                }
+                catch(const std::exception& e)
+                {
+                    
+                }
+            }
+        }
     }
 
     void PeriodicDipoleGenerator::generateIndividual(MicrostructureGenerator& mg)
@@ -96,40 +123,40 @@ namespace model
         
     }
 
-    void PeriodicDipoleGenerator::insertJunctionLoop(MicrostructureGenerator& mg,
-                                                     std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
-                                                     const std::vector<VectorDimD>& loopNodePos,
-                                                     const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
-                                                     const VectorDimD& b,
-                                                     const VectorDimD& unitNormal,
-                                                     const VectorDimD& P0,
-                                                     const size_t& grainID,
-                                                     const DislocationLoopIO<dim>::DislocationLoopType& loopType)
-    {
-        std::vector<PolyPoint> dummyPolyPoints;
-        std::vector<std::pair<VectorDimD, const PolyPoint *const>> loopNodePosTemp;
-        for(const auto& pos : loopNodePos)
-        {
-            dummyPolyPoints.push_back(PolyPoint());
-            loopNodePosTemp.emplace_back(pos, &dummyPolyPoints.back());
-        }
-        
-        const auto ppi(periodicPlane->polygonPatchIntersection(loopNodePosTemp));
-        const size_t loopID(mg.insertLoop(b,unitNormal,P0,grainID,loopType));
-        std::vector<size_t> loopNodeIDs;
-        for(const auto &tup : ppi)
-        {
-            const VectorDimD loopNodePos(periodicPlane->referencePlane->globalPosition(std::get<0>(tup)));
-            const VectorDimD networkNodePos(loopNodePos+std::get<1>(tup));
-            const auto networkNodeIter(uniqueNetworkNodeMap.find(networkNodePos));
-            if(networkNodeIter==uniqueNetworkNodeMap.end())
-            {// no NetworkNode found at current position
-                uniqueNetworkNodeMap.emplace(networkNodePos,mg.insertNetworkNode(networkNodePos)); // insert NetworkNode and store its ID
-            }
-            loopNodeIDs.push_back(mg.insertLoopNode(loopID,loopNodePos,uniqueNetworkNodeMap.at(networkNodePos),std::get<1>(tup),std::get<2>(tup))); // insert LoopNode and store its ID
-        }
-        mg.insertLoopLinks(loopID,loopNodeIDs);
-    }
+//    void PeriodicDipoleGenerator::insertJunctionLoop(MicrostructureGenerator& mg,
+//                                                     std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,
+//                                                     const std::vector<VectorDimD>& loopNodePos,
+//                                                     const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
+//                                                     const VectorDimD& b,
+//                                                     const VectorDimD& unitNormal,
+//                                                     const VectorDimD& P0,
+//                                                     const size_t& grainID,
+//                                                     const DislocationLoopIO<dim>::DislocationLoopType& loopType)
+//    {
+//        std::vector<PolyPoint> dummyPolyPoints;
+//        std::vector<std::pair<VectorDimD, const PolyPoint *const>> loopNodePosTemp;
+//        for(const auto& pos : loopNodePos)
+//        {
+//            dummyPolyPoints.push_back(PolyPoint());
+//            loopNodePosTemp.emplace_back(pos, &dummyPolyPoints.back());
+//        }
+//
+//        const auto ppi(periodicPlane->polygonPatchIntersection(loopNodePosTemp));
+//        const size_t loopID(mg.insertLoop(b,unitNormal,P0,grainID,loopType));
+//        std::vector<size_t> loopNodeIDs;
+//        for(const auto &tup : ppi)
+//        {
+//            const VectorDimD loopNodePos(periodicPlane->referencePlane->globalPosition(std::get<0>(tup)));
+//            const VectorDimD networkNodePos(loopNodePos+std::get<1>(tup));
+//            const auto networkNodeIter(uniqueNetworkNodeMap.find(networkNodePos));
+//            if(networkNodeIter==uniqueNetworkNodeMap.end())
+//            {// no NetworkNode found at current position
+//                uniqueNetworkNodeMap.emplace(networkNodePos,mg.insertNetworkNode(networkNodePos)); // insert NetworkNode and store its ID
+//            }
+//            loopNodeIDs.push_back(mg.insertLoopNode(loopID,loopNodePos,uniqueNetworkNodeMap.at(networkNodePos),std::get<1>(tup),std::get<2>(tup))); // insert LoopNode and store its ID
+//        }
+//        mg.insertLoopLinks(loopID,loopNodeIDs);
+//    }
 
 
     void PeriodicDipoleGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int dipoleHeight)
@@ -147,15 +174,15 @@ namespace model
         
         if(rSS>=0 && rSS<int(grain.slipSystems().size()))
         {
-            
             const auto periodicFaceIter(grain.region.faces().find(exitFaceID));
             if(periodicFaceIter!=grain.region.faces().end())
             {
                 const auto periodicFaceA(periodicFaceIter->second);
                 const auto periodicFaceB(periodicFaceA->periodicFacePair.second);
-                
+
                 if(periodicFaceB!=nullptr)
                 {
+
                     const auto& faceAshift(periodicFaceA->periodicFacePair.first);
                     const auto faceAlatticeShift(grain.latticeVector(faceAshift));
                     
@@ -163,6 +190,7 @@ namespace model
                     
                     if(slipSystem.n.dot(faceAlatticeShift)==0)
                     {
+
                         //                        const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(slipSystem.n,dipolePoint);
                         
                         const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(dipolePoint));
@@ -179,49 +207,75 @@ namespace model
                             const VectorDimD AB(pliB.P-pliA.P);
                             if((AB-faceAshift).norm()<FLT_EPSILON)
                             {
-                                
+
                                 GlidePlaneKey<3> parallelGlidePlaneKey(planeIndex+dipoleHeight, slipSystem.n);
                                 std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
 
                                 GlidePlaneKey<3> prismaticPlaneKey(P0, grain.reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
                                 std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.periodicGlidePlaneFactory.get(prismaticPlaneKey));
 
-                                
-                                std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
-                                // The prismatic loop
-                                std::vector<VectorDimD> prismaticNodePos;
-                                prismaticNodePos.push_back(0.5*(pliB.P+pliA.P));
-                                prismaticNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
-                                prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)+AB));
-                                prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)));
-                                
-                                insertJunctionLoop(mg,uniqueNetworkNodeMap,prismaticNodePos,prismaticGlidePlane,
-                                                   slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
-                                                   P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                                
-                                // First glide loop
-                                const double glideStep=100.0;
-                                std::vector<VectorDimD> firstNodePos;
-                                firstNodePos.push_back(0.5*(pliB.P+pliA.P));
-                                firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
-                                firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                firstNodePos.push_back(0.5*(pliB.P+pliA.P)   +glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                
-                                insertJunctionLoop(mg,uniqueNetworkNodeMap,firstNodePos,glidePlane,
-                                                   -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-                                                   P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-
-                                // Second glide loop
-                                std::vector<VectorDimD> secondNodePos;
-                                for(const auto& pos : firstNodePos)
+                                if(parallelglidePlane && prismaticGlidePlane)
                                 {
-                                    secondNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(pos));
-                                }
-                                
-                                insertJunctionLoop(mg,uniqueNetworkNodeMap,secondNodePos,parallelglidePlane,
-                                                   slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
-                                                   parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
+                                    
+                                    std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
+                                    // The prismatic loop
+                                    std::vector<VectorDimD> prismaticNodePos;
+                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P));
+                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
+                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)+AB));
+                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)));
+                                    
+
+                                    
+//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,prismaticNodePos,prismaticGlidePlane,
+//                                                       slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
+//                                                       P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                    
+                                    mg.insertJunctionLoop(prismaticNodePos,prismaticGlidePlane,
+                                                       slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
+                                                       P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                    
+
+                                    
+                                    // First glide loop
+                                    const double glideStep=1.0;
+                                    std::vector<VectorDimD> firstNodePos;
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P));
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)   +glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                    
+//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,firstNodePos,glidePlane,
+//                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
+//                                                       P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                    
+                                    mg.insertJunctionLoop(firstNodePos,glidePlane,
+                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
+                                                       P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+
+
+                                    
+                                    // Second glide loop
+                                    std::vector<VectorDimD> secondNodePos;
+                                    for(const auto& pos : firstNodePos)
+                                    {
+                                        secondNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(pos));
+                                    }
+                                    
+
+//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,secondNodePos,parallelglidePlane,
+//                                                       slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
+//                                                       parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                    
+                                    mg.insertJunctionLoop(secondNodePos,parallelglidePlane,
+                                                       slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
+                                                       parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                }
+                                else
+                                {
+                                    std::cout<<"Cannot create glide planes"<<std::endl;
+                                }
                             }
                             else
                             {
@@ -232,11 +286,10 @@ namespace model
                         {
                             throw std::runtime_error("periodic line direction does not form an incident intersecitn with periodic faces");
                         }
-                        
                     }
                     else
                     {
-                        std::cout<<"planeNormal of slipSystem "<<rSS<<" is not othogonal to faceNormal "<<exitFaceID<<std::endl;
+                        throw std::runtime_error("planeNormal of slipSystem "+std::to_string(rSS)+" is not othogonal to faceNormal "+std::to_string(exitFaceID));
                     }
                 }
                 else
@@ -251,7 +304,14 @@ namespace model
         }
         else
         {
-            std::cout<<"slipSystem "<<rSS<<" not found, skipping."<<std::endl;
+            if(rSS<0)
+            {
+                std::cout<<"Skipping slip system "<<rSS<<std::endl;
+            }
+            else
+            {
+                throw std::runtime_error("slipSystem "+std::to_string(rSS)+" not found, skipping.");
+            }
         }
     }
 

@@ -1,1 +1,6 @@
-../../../MicrostructureLibrary/periodicDipole.txt
+#microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
+microstructureFile = ../../../MicrostructureLibrary/periodicDipoleDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;
+microstructureFile = ../../../MicrostructureLibrary/inclusionsDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/inclusionsIndividual.txt;
+

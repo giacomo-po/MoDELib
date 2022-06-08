@@ -9,10 +9,14 @@
 #ifndef model_DislocationCrossSlip_cpp_
 #define model_DislocationCrossSlip_cpp_
 
+#include <numbers>
+
 //#include <DislocationDynamicsModule.h>
 //Generic includes
 #include <DislocationCrossSlip.h>
 #include <CrossSlipModels.h>
+
+
 
 namespace model
 {
@@ -50,7 +54,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             
             crossSlipDeq.clear();
-            const double sinCrossSlipRad(std::sin(crossSlipDeg*M_PI/180.0));
+            const double sinCrossSlipRad(std::sin(crossSlipDeg*std::numbers::pi/180.0));
             //            CrossSlipContainerType crossSlipDeq;
             
             

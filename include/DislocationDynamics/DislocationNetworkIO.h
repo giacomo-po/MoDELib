@@ -55,8 +55,8 @@ namespace model
         /**********************************************************************/
         DislocationNetworkIO(const DislocationNetworkType& DN_in) :
         /* init */ DN(DN_in)
-        /* init */,f_file(DN.simulationParameters.traitsIO.fFile)
-        /* init */,F_labels(DN.simulationParameters.traitsIO.flabFile)
+        /* init */,f_file(DN.simulationParameters.traitsIO.fFile,std::ios_base::app)
+        /* init */,F_labels(DN.simulationParameters.traitsIO.flabFile,std::ios_base::app)
         {
             if (!f_file.is_open())
               {
@@ -348,6 +348,10 @@ namespace model
 #endif
             
             f_file<<std::endl;
+            if(runID==0)
+            {
+                F_labels<<std::flush;
+            }
             
         }
         

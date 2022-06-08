@@ -1,0 +1,4 @@
+type=PeriodicDipole;
+style=density;
+tag=pdd0;
+targetPeriodicDipoleDensity=1e14; # [m^-2] dislocation density  

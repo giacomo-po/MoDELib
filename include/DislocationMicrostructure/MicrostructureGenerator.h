@@ -74,17 +74,27 @@ namespace model
         const Polycrystal<dim> poly;
         GlidePlaneFactory<dim> glidePlaneFactory;
         PeriodicGlidePlaneFactory<dim> periodicGlidePlaneFactory;
-
+        std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap;
         
         MicrostructureGenerator(const std::string& folderName);
         
+        const DDconfigIO<3>& config() const;
+        const DDauxIO<3>& aux() const;
         size_t insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType);
         size_t insertLoopNode(const size_t& loopID,const VectorDimD& loopNodePos,const size_t& networkNodeID,const VectorDimD& loopNodeShift,const std::pair<short int,short int>& periodicEdgeIDs);
         std::vector<size_t> insertLoopLinks(const size_t& loopID,const std::vector<size_t>& loopNodeIDs);
         size_t insertNetworkNode(const VectorDimD& networkNodePos);
-
-
+        size_t insertInclusion(const VectorDimD& pos,const double& R, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
         void writeConfigFiles(const size_t& fileID);
+        
+        void insertJunctionLoop(const std::vector<VectorDimD>& loopNodePos,
+                                const std::shared_ptr<PeriodicGlidePlane<3>>& periodicPlane,
+                                const VectorDimD& b,
+                                const VectorDimD& unitNormal,
+                                const VectorDimD& P0,
+                                const size_t& grainID,
+                                const DislocationLoopIO<dim>::DislocationLoopType& loopType);
+
 
         
     };

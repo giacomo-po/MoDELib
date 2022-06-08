@@ -9,6 +9,7 @@
 #ifndef model_GrainBoundary_cpp_
 #define model_GrainBoundary_cpp_
 
+#include <numbers>
 #include <cfloat> // FLT_EPSILON
 #include <vector>
 #include <deque>
@@ -63,7 +64,7 @@ namespace model
         cosTheta=0.5*(R.trace()-1.0);
         
         std::cout<<"   Rotation axis="<<_crystallographicRotationAxis.transpose()<<std::endl;
-        std::cout<<"   Rotation angle="<<acos(cosTheta)*180.0/M_PI<<" deg"<<defaultColor<<std::endl;
+        std::cout<<"   Rotation angle="<<acos(cosTheta)*180.0/std::numbers::pi<<" deg"<<defaultColor<<std::endl;
     }
 
     template <int dim>

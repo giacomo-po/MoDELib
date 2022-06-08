@@ -63,7 +63,7 @@ namespace model
         
         typedef std::map<typename SimplexTraits<dim,dim>::SimplexIDType, // key
         /*            */ const Simplex<dim,dim>>  SimplexMapType;
-        typedef IDreader<'T',1,dim+2,size_t> ElementReaderType;
+        typedef IDreader<1,dim+2,size_t> ElementReaderType;
         typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;

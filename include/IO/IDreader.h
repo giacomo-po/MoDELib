@@ -15,7 +15,6 @@
 #include <sstream>
 #include <time.h> // clock()
 #include <map>
-#include <assert.h>
 #include <utility>
 #include <chrono>
 #include <array>
@@ -52,7 +51,7 @@ namespace model
     
     /*!	\brief A class template
      */
-	template <char c, int keySize, int valueSize, typename T>
+	template <int keySize, int valueSize, typename T>
     class IDreader : public std::map<typename IDreaderKeySelector<keySize>::KeyType, std::array<T, valueSize> >
     {
         static_assert(valueSize>=0,"valueSize must be >0");
@@ -94,9 +93,11 @@ namespace model
                     {
 						if(col<keySize)
                         {
-                            assert(temp==std::round(temp) && "key must be an integer");
+                            if(temp!=std::round(temp))
+                            {
+                                throw std::runtime_error("IDreader: key "+std::to_string(temp)+" must be an integer.");
+                            }
                             IDreaderKeySelector<keySize>::keyElement(key,col)=static_cast<SingleKeyType>(temp);
-//                            key[col]=static_cast<int>(temp);
                         }
                         else
                         {
@@ -135,38 +136,35 @@ namespace model
             std::cout<<"Reading: "<<filename<<std::flush<<" (";
             const auto t0=std::chrono::system_clock::now();
 			BinaryFileReader<BinType> rE(filename);
-//			for (unsigned int k=0;k<rE.size();++k)
-//            {
-////				this->insert(std::make_pair(rE[k].first,rE[k].second));
-//                const bool success=this->emplace(rE[k].first,rE[k].second).second;
-//				assert(success && "COULD NOT INSERT AFTER BINARY READ.");
-//			}
             for (const auto& pair : rE)
             {
                 //				this->insert(std::make_pair(rE[k].first,rE[k].second));
                 const bool success=this->emplace(pair.first,pair.second).second;
-                assert(success && "COULD NOT INSERT AFTER BINARY READ.");
+                if(!success)
+                {
+                    throw std::runtime_error("IDreader: cannot insert key="+std::to_string(pair.first)+".");
+                }
             }
             std::cout<<this->size()<<"elements in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec)"<<std::endl;
             return rE.success();
 		}
 		
 	public:	
-		const std::string folderSuffix; 
+		const std::string fileNamePrefix;
 		
         /**********************************************************************/
-		IDreader () :
-        /* init list */ currentFrame(-1), folderSuffix(std::string(""))
- //       /* init list */ success(false)
-        {/*! Constructor initializes currentFrame to -1 so that the statement
-          *  frameN!=currentFrame will initially return false
-          */
-        }
+//		IDreader () :
+//        /* init list */ currentFrame(-1), folderSuffix(std::string(""))
+// //       /* init list */ success(false)
+//        {/*! Constructor initializes currentFrame to -1 so that the statement
+//          *  frameN!=currentFrame will initially return false
+//          */
+//        }
 
         /***Overloaded constructor***********************************************/
-		IDreader (const std::string& s) :
+		IDreader (const std::string& fileNamePrefix_in) :
         /* init list */ currentFrame(-1),
-        /* init list */ folderSuffix(s)
+        /* init list */ fileNamePrefix(fileNamePrefix_in)
  //       /* init list */ success(false)
         {/*! Constructor initializes currentFrame to -1 so that the statement
           *  frameN!=currentFrame will initially return false
@@ -188,7 +186,7 @@ namespace model
                 size_t row = 0;
                 while (std::getline(labelsFile, line))
                 {
-                    
+                                        
                     const bool success=labelsMap.emplace(line,row).second;
                     if(!success)
                     {
@@ -240,14 +238,18 @@ namespace model
         /**********************************************************************/
 		std::string getFilename(const long long int& frameN, const bool& useTXT) const
         {
-			std::stringstream filename;
-			if(useTXT){
-				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".txt";
+//			std::stringstream filename;
+			if(useTXT)
+            {
+                return fileNamePrefix+"_"+std::to_string(frameN)+".txt";
+//				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".txt";
 			}
-			else{
-				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".bin";
+			else
+            {
+                return fileNamePrefix+"_"+std::to_string(frameN)+".bin";
+//				filename << c <<folderSuffix<< "/" << c << "_" << frameN << ".bin";
 			}
-			return filename.str();
+//			return filename.str();
 		}
 		
         /**********************************************************************/
