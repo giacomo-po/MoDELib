@@ -113,7 +113,36 @@ namespace model
 
     void PeriodicLoopGenerator::generateDensity(MicrostructureGenerator& mg)
     {
-        
+        const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
+        if(targetDensity>0.0)
+        {
+            std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
+            const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
+            const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
+            const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
+            std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.poly.b_SI,radiusDistributionStd/mg.poly.b_SI);
+            std::mt19937 generator;
+            double density=0.0;
+            while(density<targetDensity)
+            {
+                const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
+                const LatticeVector<dim> L0=rp.first;
+                const size_t grainID=rp.second;
+                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).slipSystems().size()-1);
+                const int rSS(ssDist(generator)); // a random SlipSystem
+                const double radius(radiusDistribution(generator));
+                try
+                {
+                    generateSingle(mg,rSS,L0.cartesian(),radius,numberOfSides);
+                    density+=2.0*std::numbers::pi*radius/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
+                    std::cout<<"periodic loop density="<<density<<std::endl;
+                }
+                catch(const std::exception& e)
+                {
+                    
+                }
+            }
+        }
     }
 
     void PeriodicLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
