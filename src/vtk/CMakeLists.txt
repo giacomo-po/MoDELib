@@ -26,4 +26,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/InclusionActor.cpp
 	${MoDELibRootDir}/include/vtk/NetworkLoopActor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/NetworkLoopActor.cpp
+	${MoDELibRootDir}/include/vtk/GlidePlaneActor.h
+	${CMAKE_CURRENT_SOURCE_DIR}/GlidePlaneActor.cpp
 	)

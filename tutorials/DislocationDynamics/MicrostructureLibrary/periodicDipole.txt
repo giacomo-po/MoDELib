@@ -2,7 +2,7 @@ type=PeriodicDipole;
 style=individual;
 tag=pdl0;
 periodicDipoleSlipSystemIDs=0 -1 -1; # each value in the vector is the slipSystem ID os a dipole
-periodicDipoleExitFaceIDs=0 0 5; #  each value in the vector is the ID of the face from which the dipole enters/exits
+periodicDipoleExitFaceIDs=1 0 5; #  each value in the vector is the ID of the face from which the dipole enters/exits
 periodicDipolePoints=500 500 500
 		   200 200 200
 		   300 600 200; # each row in the matrix is a the "center" of the dipole 

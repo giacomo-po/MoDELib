@@ -27,6 +27,7 @@
 #include <MeshPlane.h>
 #include <GlidePlaneFactory.h>
 
+
 #ifndef NDEBUG
 #define VerboseGlidePlane(N,x) if(verboseGlidePlane>=N){std::cout<<x;}
 #else

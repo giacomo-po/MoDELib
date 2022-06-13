@@ -12,7 +12,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
 	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
 	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native")
+	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native -O3 -Ofast")
 endif()
 
 add_executable(DDomp DDomp.cpp)

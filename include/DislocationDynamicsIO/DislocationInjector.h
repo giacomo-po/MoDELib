@@ -133,7 +133,7 @@ namespace model
             const VectorDim b=slipSystem.s.cartesian();    // Burgers vector
             const VectorDim n=slipSystem.n.cartesian().normalized(); // slip plane normal
             
-            std::uniform_real_distribution<> dis(0.0, 2.0*M_PI);
+            std::uniform_real_distribution<> dis(0.0, 2.0*std::numbers::pi);
             const double theta=dis(generator); // random angle of the dislocation line in the plane from screw orientation.
             const VectorDim d=Eigen::AngleAxisd(theta,n)*b.normalized(); // a random direction in the glide plane
             

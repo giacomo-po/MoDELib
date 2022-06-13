@@ -9,6 +9,7 @@
 #ifndef model_DislocationLinkingNumber_H_
 #define model_DislocationLinkingNumber_H_
 
+#include <numbers>
 #include <iostream>
 #include <vector>
 #include <Eigen/Dense>
@@ -40,9 +41,9 @@ namespace model
         //
         //            const double num=t1*t2+a0*a0*cosBeta;
         //            const double den=a0*sqrt(t1*t1+t2*t2-2.0*t1*t2*cosBeta+a0*a0*sinBeta2);
-        //            //            return -atan2(den+tol,num)/(4.0*M_PI);
-        //            //            return fabs(den)>tol? -atan2(den,num)/(4.0*M_PI) : -atan2(0.0,num)/(4.0*M_PI);
-        //            return fabs(den)>tol? -atan2(den,num)/(4.0*M_PI) : 0.0;
+        //            //            return -atan2(den+tol,num)/(4.0*std::numbers::pi);
+        //            //            return fabs(den)>tol? -atan2(den,num)/(4.0*std::numbers::pi) : -atan2(0.0,num)/(4.0*std::numbers::pi);
+        //            return fabs(den)>tol? -atan2(den,num)/(4.0*std::numbers::pi) : 0.0;
         //
         //        }
         
@@ -60,11 +61,11 @@ namespace model
         {
             if(x>=1.0)
             {
-                return 0.5*M_PI;
+                return 0.5*std::numbers::pi;
             }
             else if(x<=-1.0)
             {
-                return -0.5*M_PI;
+                return -0.5*std::numbers::pi;
             }
             else
             {
@@ -111,7 +112,7 @@ namespace model
                     /*            */+myAsin(n3.dot(n4))
                     /*            */+myAsin(n4.dot(n1));
                     
-                    return Os/(4.0*M_PI)*prod/fabs(prod);
+                    return Os/(4.0*std::numbers::pi)*prod/fabs(prod);
                     
                 }
                 else
@@ -250,7 +251,7 @@ namespace model
         //                    /*            */+myAsin(n3.dot(n4))
         //                    /*            */+myAsin(n4.dot(n1));
         //
-        //                    return Os/(4.0*M_PI)*prod/fabs(prod);
+        //                    return Os/(4.0*std::numbers::pi)*prod/fabs(prod);
         //
         //                }
         //                else

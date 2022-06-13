@@ -9,6 +9,7 @@
 #ifndef model_PeriodicLatticeInterpolant_cpp_
 #define model_PeriodicLatticeInterpolant_cpp_
 
+#include <numbers>
 #include <PeriodicLatticeInterpolant.h>
 
 namespace model
@@ -25,7 +26,7 @@ namespace model
         std::vector<MatrixDim> temp;
         for (int k = 0; k < rotSymm; ++k)
         { // apply rotations
-            const double theta(k * 2.0 * M_PI / rotSymm);
+            const double theta(k * 2.0 * std::numbers::pi / rotSymm);
             const double c(cos(theta));
             const double s(sin(theta));
             temp.push_back((MatrixDim() << c, -s, s, c).finished());
@@ -144,7 +145,7 @@ namespace model
                                const std::vector<Eigen::Matrix<double, dim, 1>> &N) : // rotSymm only works for 2d, in 3d we need to prescride axis and n-fold symm
                                                                                       /* init */ A(A_in)
                                                                                       /* init */,
-                                                                                      B(2.0 * M_PI * A.inverse().transpose())
+                                                                                      B(2.0 * std::numbers::pi * A.inverse().transpose())
                                                                                       /* init */,
                                                                                       waveVectors((B * waveVectors_in.transpose()).transpose())
                                                                                       /* init */,

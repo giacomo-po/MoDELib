@@ -168,7 +168,20 @@ namespace model
             
             if(DN.outputGlidePlanes)
             {
-                temp.setGlidePlaneBoundaries(DN.glidePlaneFactory);
+                for(const auto& pair : DN.glidePlaneFactory.glidePlanes())
+                {
+                    const auto glidePlane(pair.second.lock());
+                    if(glidePlane)
+                    {
+                        temp.glidePlanes().emplace_back(glidePlane->key);
+//                        for(const auto& seg : glidePlane->meshIntersections)
+//                        {
+//                            glidePlanesBoundaries().emplace_back(glidePlane->sID,*seg);
+//                        }
+                    }
+                }
+                
+//                temp.setGlidePlaneBoundaries(DN.glidePlaneFactory);
             }
             
             return temp;

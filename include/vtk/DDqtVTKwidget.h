@@ -17,6 +17,8 @@
 
 #include <TextFileParser.h>
 #include <SimplicialMesh.h>
+#include <Polycrystal.h>
+
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
 #include <DDtraitsIO.h>
@@ -52,6 +54,7 @@ public:
     const DDtraitsIO traitsIO;
     QLabel* workingDirLabel;
     SimplicialMesh<3> mesh;
+    Polycrystal<3> poly;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
     

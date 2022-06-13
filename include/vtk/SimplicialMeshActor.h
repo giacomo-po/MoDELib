@@ -59,7 +59,9 @@
 #include <vtkCommand.h>
 #include <vtkImplicitPlaneWidget2.h>
 #include <vtkImplicitPlaneRepresentation.h>
-
+#include <vtkAxesActor.h>
+#include <vtkOrientationMarkerWidget.h>
+#include <vtkCubeAxesActor.h>
 
 #include <TextFileParser.h>
 
@@ -123,6 +125,8 @@ namespace model
         QSlider* sliderRegionBoundaries;
         QCheckBox* showClipPlane;
         QSlider* sliderClipPlane;
+        QCheckBox* showAxes;
+ //       QSlider* sliderAxes;
 
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
@@ -157,6 +161,11 @@ namespace model
         vtkSmartPointer<vtkDataSetMapper> clipMapper;
         vtkSmartPointer<vtkActor> clipActor;
         
+        vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
+//        vtkSmartPointer<vtkAxesActor> axes;
+//        vtkSmartPointer<vtkOrientationMarkerWidget> axesWidget;
+
+
 //        vtkSmartPointer<FieldActorCallback> myCallback;
 //        vtkSmartPointer<vtkImplicitPlaneRepresentation> rep;
 //        vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget;

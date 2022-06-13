@@ -45,6 +45,8 @@
 #include <vtkLookupTable.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkPointData.h>
+#include <vtkNamedColors.h>
+#include <vtkTextProperty.h>
 #include <random>
 #include <algorithm>
 
@@ -68,6 +70,8 @@ namespace model
         /* init */,sliderRegionBoundaries(new QSlider(this))
         /* init */,showClipPlane(new QCheckBox(this))
         /* init */,sliderClipPlane(new QSlider(this))
+        /* init */,showAxes(new QCheckBox(this))
+        ///* init */,sliderAxes(new QSlider(this))
 //        /* init */,showRegionBoundariesLabel(new QLabel("show grain boundaries"))
         /* init */,renderWindow(renderWindow_in)
         /* init */,renderer(renderer_in)
@@ -92,6 +96,9 @@ namespace model
         /* init */,clippedPolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,clipMapper(vtkSmartPointer<vtkDataSetMapper>::New())
         /* init */,clipActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,cubeAxesActor(vtkSmartPointer<vtkCubeAxesActor>::New())
+//        /* init */,axes(vtkSmartPointer<vtkAxesActor>::New())
+//        /* init */,axesWidget(vtkSmartPointer<vtkOrientationMarkerWidget>::New())
 //        /* init */,myCallback(vtkSmartPointer<FieldActorCallback>::New())
 //        /* init */,rep(vtkSmartPointer<vtkImplicitPlaneRepresentation>::New())
 //        /* init */,planeWidget(vtkSmartPointer<vtkImplicitPlaneWidget2>::New())
@@ -115,6 +122,25 @@ namespace model
             showClipPlane->setChecked(false);
             sliderClipPlane->setEnabled(false);
             clipActor->SetVisibility(false);
+            
+            showAxes->setText("axes");
+            showAxes->setChecked(false);
+            showAxes->setEnabled(true);
+            cubeAxesActor->SetVisibility(false);
+            
+//            axesWidget->SetOrientationMarker( axes );
+////            axesWidget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
+//            std::cout<<"Interactor"<<std::endl;
+//            renderWindow->SetInteractor(renderWindow->MakeRenderWindowInteractor());
+////            std::cout<(renderWindow->GetInteractor())<<std::endl;
+//            std::cout<<bool(renderWindow->GetInteractor())<<std::endl;
+//            axesWidget->SetInteractor( renderWindow->GetInteractor());
+//            renderer->AddActor(axes);
+//
+////            axesWidget->SetViewport( 0.0, 0.0, 0.4, 0.4 );
+//            axesWidget->SetEnabled( true );
+//            axesWidget->InteractiveOn();
+
 
             mainLayout->addWidget(showMesh,0,0,1,1);
 //            mainLayout->addWidget(showMeshLabel,0,1,1,1);
@@ -126,6 +152,7 @@ namespace model
             mainLayout->addWidget(sliderRegionBoundaries,2,1,1,2);
             mainLayout->addWidget(showClipPlane,3,0,1,1);
             mainLayout->addWidget(sliderClipPlane,3,1,1,2);
+            mainLayout->addWidget(showAxes,4,0,1,1);
             sliderRegionBoundaries->setOrientation(Qt::Horizontal);
             sliderRegionBoundaries->setMinimum(0);
             sliderRegionBoundaries->setMaximum(10);
@@ -148,6 +175,7 @@ namespace model
             connect(showClipPlane,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(sliderRegionBoundaries,SIGNAL(valueChanged(int)), this, SLOT(modify()));
             connect(sliderClipPlane,SIGNAL(valueChanged(int)), this, SLOT(modify()));
+            connect(showAxes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
 
              
             
@@ -352,11 +380,70 @@ namespace model
             clipMapper->SetInputConnection(clipper->GetOutputPort());
             clipActor->SetMapper(clipMapper);
             
+            vtkNew<vtkNamedColors> colors;
+            vtkColor3d axisColor=colors->GetColor3d("LightSkyBlue");
+            const int fontSize=12;
+            
+            
+//            cubeAxesActor->GetTextActor()->SetTextScaleModeToNone();
+//              cubeAxesActor->SetUseTextActor3D(1);
+//            cubeAxesActor->SetUse2DMode(true);
+                //cubeAxesActor->SetUseTextActor3D(false);
+              cubeAxesActor->SetBounds(polydata->GetBounds());
+              cubeAxesActor->SetCamera(renderer->GetActiveCamera());
+//            cubeAxesActor->SetTitleOffset(20+fontSize);
+//            cubeAxesActor->GetAxisLabelTextProperty()->SetFontSize(fontsize);
+//            cubeAxesActor->GetAxisTitleTextProperty()->SetFontSize(fontsize);
+            
+              cubeAxesActor->GetTitleTextProperty(0)->SetColor(axisColor.GetData());
+              cubeAxesActor->GetTitleTextProperty(0)->SetFontSize(fontSize);
+              cubeAxesActor->GetLabelTextProperty(0)->SetColor(axisColor.GetData());
+            cubeAxesActor->GetLabelTextProperty(0)->SetFontSize(fontSize);
+            cubeAxesActor->XAxisTickVisibilityOn();
+            cubeAxesActor->GetXAxesLinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->GetXAxesLinesProperty()->SetLineWidth(4);
+            cubeAxesActor->DrawXGridlinesOn();
+            cubeAxesActor->GetXAxesGridlinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->SetXTitle("X");
 
+              cubeAxesActor->GetTitleTextProperty(1)->SetColor(axisColor.GetData());
+              cubeAxesActor->GetTitleTextProperty(1)->SetFontSize(fontSize);
+              cubeAxesActor->GetLabelTextProperty(1)->SetColor(axisColor.GetData());
+            cubeAxesActor->GetLabelTextProperty(1)->SetFontSize(fontSize);
+            cubeAxesActor->YAxisTickVisibilityOn();
+            cubeAxesActor->GetYAxesLinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->GetYAxesLinesProperty()->SetLineWidth(4);
+            cubeAxesActor->DrawYGridlinesOn();
+            cubeAxesActor->GetYAxesGridlinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->SetYTitle("Y");
+
+            
+              cubeAxesActor->GetTitleTextProperty(2)->SetColor(axisColor.GetData());
+              cubeAxesActor->GetTitleTextProperty(2)->SetFontSize(fontSize);
+              cubeAxesActor->GetLabelTextProperty(2)->SetColor(axisColor.GetData());
+            cubeAxesActor->GetLabelTextProperty(2)->SetFontSize(fontSize);
+            cubeAxesActor->ZAxisTickVisibilityOn();
+            cubeAxesActor->GetZAxesLinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->GetZAxesLinesProperty()->SetLineWidth(4);
+            cubeAxesActor->DrawZGridlinesOn();
+            cubeAxesActor->GetZAxesGridlinesProperty()->SetColor(axisColor.GetData());
+            cubeAxesActor->SetZTitle("Z");
+            
+            
+            //            cubeAxesActor->SetGridLineLocation(cubeAxesActor->VTK_GRID_LINES_FURTHEST);
+
+//            cubeAxesActor->XAxisMinorTickVisibilityOff();
+//              cubeAxesActor->YAxisMinorTickVisibilityOff();
+//              cubeAxesActor->ZAxisMinorTickVisibilityOff();
+//            cubeAxesActor->SetColor(0.0,0.0,0.0,0.0);
+
+              cubeAxesActor->SetFlyModeToStaticTriad();
+            
             
             renderer->AddActor(gbActor);
             renderer->AddActor(clipActor); // enable to clip grain boundaries
-            
+            renderer->AddActor(cubeAxesActor);
+
             
             // Update
             //            update(0/*,0,0.0,Eigen::Matrix<float,3,1>::Zero()*/);
@@ -365,7 +452,8 @@ namespace model
             // Render
             renderer->AddActor(actor);
             renderer->AddActor(faceActor);
-            
+            renderer->ResetCamera();
+
 
             
 //            myCallback->plane=clipPlane;
@@ -394,6 +482,8 @@ namespace model
             clipActor->SetVisibility(showClipPlane->isChecked());
             sliderClipPlane->setEnabled(showClipPlane->isChecked());
             clipActor->GetProperty()->SetOpacity(sliderClipPlane->value()/10.0);
+
+            cubeAxesActor->SetVisibility(showAxes->isChecked());
 
             renderWindow->Render();
         }

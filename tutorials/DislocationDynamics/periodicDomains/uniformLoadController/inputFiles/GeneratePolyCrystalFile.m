@@ -5,7 +5,7 @@ close all
 format long
 
 alignToSlipSystem0=1;
-lattice='bcc';
+lattice='fcc';
 
 if(alignToSlipSystem0)
 switch lattice
@@ -36,11 +36,9 @@ end
 A=C2G1*A;
 
 
+g=0.0;
 
-
-g=0.05;
-
-Fs=4000*eye(3);
+Fs=1000*eye(3);
 
 F12=[1 g 0;
     0 1 0;
@@ -96,5 +94,8 @@ fprintf(fID,';\n ');
 fprintf(fID,'periodicFaceIDs=');
 fprintf(fID,'%d ',[0 1 2 3 4 5]);
 fprintf(fID,';\n ');
+
+
+ 
 
 

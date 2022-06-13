@@ -60,7 +60,6 @@ namespace model
     public:
         
         const SimplicialMeshType& mesh;
-//        const std::unique_ptr<DislocationMobilityBase> mobility;
         
         Polycrystal(const std::string& polyFile,const SimplicialMeshType& mesh_in);
         GrainType& grain(const size_t& k);

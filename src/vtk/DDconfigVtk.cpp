@@ -19,14 +19,15 @@ namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const std::string& evlFolder,const std::string& auxFolder,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const SimplicialMesh<3>& ) :
-        /* init */ DDconfigIO<3>(evlFolder,"")
-        /* init */,DDauxIO<3>(auxFolder,"")
+        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>& poly) :
+        /* init */ DDconfigIO<3>(traitsIO.evlFolder,"")
+        /* init */,DDauxIO<3>(traitsIO.auxFolder,"")
         /* init */,renderWindow(renWin)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren))
         /* init */,loops(new NetworkLoopActor(renWin,ren))
         /* init */,inclusions(new InclusionActor(renWin,ren))
+        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -39,6 +40,7 @@ namespace model
             tabWidget->addTab(segments, tr(std::string("Segments").c_str()));
             tabWidget->addTab(loops, tr(std::string("Loops").c_str()));
             tabWidget->addTab(inclusions, tr(std::string("Inclusions").c_str()));
+            tabWidget->addTab(glidePlanes, tr(std::string("GlidePlanes").c_str()));
 
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);
@@ -127,6 +129,7 @@ namespace model
                 segments->updateConfiguration(*this,nodes->nodePolyData);
                 loops->updateConfiguration(*this,nodes->nodePolyData);
                 inclusions->updateConfiguration(*this);
+                glidePlanes->updateConfiguration(*this);
                 return true;
             }
             catch(const std::exception& e)

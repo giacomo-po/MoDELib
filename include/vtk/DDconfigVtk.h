@@ -29,6 +29,8 @@
 #include <NetworkLinkActor.h>
 #include <NetworkLoopActor.h>
 #include <InclusionActor.h>
+#include <GlidePlaneActor.h>
+
 //#include <DislocationLoopActor.h>
 
 namespace model
@@ -45,6 +47,7 @@ namespace model
         NetworkLinkActor* segments;
         NetworkLoopActor* loops;
         InclusionActor* inclusions;
+        GlidePlaneActor* glidePlanes;
 //        DislocationLoopActor loops;
         private slots:
         bool updateConfiguration();
@@ -64,7 +67,7 @@ namespace model
 
         
         /**********************************************************************/
-        DDconfigVtk(const std::string& evlFolder,const std::string& auxFolder,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const SimplicialMesh<3>& mesh);
+        DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const Polycrystal<3>& poly);
         bool updateConfiguration(const size_t& frameID);
 
         void modify();
