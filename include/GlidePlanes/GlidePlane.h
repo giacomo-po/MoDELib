@@ -60,12 +60,9 @@ namespace model
         /**********************************************************************/
         GlidePlane(const GlidePlaneFactoryType* const gpF,
                    const GlidePlaneKeyType& key_in) ;
-        
-        /**********************************************************************/
         GlidePlane(const GlidePlane<dim>& other) = delete;
-        
-        /**********************************************************************/
         ~GlidePlane();
+        std::vector<std::shared_ptr<SlipSystem>> slipSystems() const;
 
     };
 

@@ -17,6 +17,7 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QComboBox>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -36,6 +37,8 @@
 #include <vtkLabeledDataMapper.h>
 #include <vtkFloatArray.h>
 #include <vtkRenderer.h>
+#include <vtkDataSetMapper.h>
+
 #include <IDreader.h>
 #include <PlanarPolygon.h>
 #include <DDauxIO.h>
@@ -58,16 +61,22 @@ namespace model
 
         private:
         vtkGenericOpenGLRenderWindow* const renderWindow;
+        vtkRenderer* const renderer;
+
 
         QGridLayout* mainLayout;
         QCheckBox* showGlidePlanes;
-        QCheckBox* showCompositionNoise;
-
+        QCheckBox* showGlidePlanesNoise;
+        QComboBox* glidePlanesNoiseBox;
         
 //        vtkSmartPointer<vtkPoints> glidePlanePoints;
         vtkSmartPointer<vtkPolyData> glidePlanePolydata;
         vtkSmartPointer<vtkPolyDataMapper> glidePlaneMapper;
         vtkSmartPointer<vtkActor> glidePlaneActor;
+        
+        std::vector<vtkSmartPointer<vtkDataSetMapper>> noiseMappers;
+        std::vector<vtkSmartPointer<vtkActor>> noiseActors;
+
 
         GlidePlaneFactory<3> glidePlaneFactory;
         GlidePlaneNoise planeNoise;

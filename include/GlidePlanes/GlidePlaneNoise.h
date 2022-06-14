@@ -26,7 +26,7 @@
 namespace model
 {
 
-struct CompositionNoiseTraits
+struct SolidSolutionNoiseTraits
 {
     typedef double REAL_SCALAR;
 //    typedef double _Complex COMPLEX;
@@ -38,15 +38,15 @@ struct CompositionNoiseTraits
 
 };
 
-struct CompositionNoise : private CompositionNoiseTraits::GridType, // grid size
-                             private CompositionNoiseTraits::NoiseContainerType
+struct SolidSolutionNoise : private SolidSolutionNoiseTraits::GridType, // grid size
+                             private SolidSolutionNoiseTraits::NoiseContainerType
 {
     
-    typedef typename CompositionNoiseTraits::REAL_SCALAR REAL_SCALAR;
-    typedef typename CompositionNoiseTraits::COMPLEX COMPLEX;
-    typedef typename CompositionNoiseTraits::GridType GridType;
-    typedef typename CompositionNoiseTraits::NoiseType NoiseType;
-    typedef typename CompositionNoiseTraits::NoiseContainerType NoiseContainerType;
+    typedef typename SolidSolutionNoiseTraits::REAL_SCALAR REAL_SCALAR;
+    typedef typename SolidSolutionNoiseTraits::COMPLEX COMPLEX;
+    typedef typename SolidSolutionNoiseTraits::GridType GridType;
+    typedef typename SolidSolutionNoiseTraits::NoiseType NoiseType;
+    typedef typename SolidSolutionNoiseTraits::NoiseContainerType NoiseContainerType;
 
 
     
@@ -79,7 +79,7 @@ struct CompositionNoise : private CompositionNoiseTraits::GridType, // grid size
 //    }
 
     
-    CompositionNoise(const GridType _gridSize,const NoiseContainerType& _Noise) :
+    SolidSolutionNoise(const GridType _gridSize,const NoiseContainerType& _Noise) :
     /* init */ GridType(_gridSize)
     /* init */,NoiseContainerType(_Noise)
     {
@@ -153,7 +153,7 @@ struct CompositionNoise : private CompositionNoiseTraits::GridType, // grid size
 
 };
 
-struct CompositionNoiseGenerator
+struct SolidSolutionNoiseGenerator
 {
     
 //    int mod(int a, int b)
@@ -162,11 +162,11 @@ struct CompositionNoiseGenerator
 //        return r < 0 ? r + b : r;
 //    }
     
-    typedef typename CompositionNoiseTraits::REAL_SCALAR REAL_SCALAR;
-    typedef typename CompositionNoiseTraits::COMPLEX COMPLEX;
-    typedef typename CompositionNoiseTraits::GridType GridType;
-    typedef typename CompositionNoiseTraits::NoiseType NoiseType;
-    typedef typename CompositionNoiseTraits::NoiseContainerType NoiseContainerType;
+    typedef typename SolidSolutionNoiseTraits::REAL_SCALAR REAL_SCALAR;
+    typedef typename SolidSolutionNoiseTraits::COMPLEX COMPLEX;
+    typedef typename SolidSolutionNoiseTraits::GridType GridType;
+    typedef typename SolidSolutionNoiseTraits::NoiseType NoiseType;
+    typedef typename SolidSolutionNoiseTraits::NoiseContainerType NoiseContainerType;
 
     int NX, NY, NZ;
     REAL_SCALAR DX, DY, DZ;
@@ -180,7 +180,7 @@ struct CompositionNoiseGenerator
     int NK;
     REAL_SCALAR Norm;
     
-    CompositionNoiseGenerator() :
+    SolidSolutionNoiseGenerator() :
     /*init*/ NX(256)     // dimension along x
     /*init*/,NY(256)     // dimension along y
     /*init*/,NZ(64)     // dimension along z
@@ -251,12 +251,12 @@ struct CompositionNoiseGenerator
         return 120.*M_PI*sqrt(M_PI)*a*a*a/(LX*LY*LZ)*(ky*ky*kz*kz)/(k2*k2)*exp(-a*a*k2);
     }
 
-    CompositionNoise getNoiseBase() const
+    SolidSolutionNoise getNoiseBase() const
     {
         GridType gridSize;
         NoiseContainerType noise;
         
-        std::cout<<"Computing CompositionNoise"<<std::endl;
+        std::cout<<"Computing SolidSolutionNoise"<<std::endl;
         int ind = 0;
         REAL_SCALAR kx,ky,kz;
 
@@ -396,7 +396,7 @@ struct CompositionNoiseGenerator
                 for(int k=0;k<NZ;k++)
                 {
                     ind = NY*NZ*i + j*NZ + k;
-//                    noise.push_back(std::array<double,2>{CompositionNoise::ReverseDouble(double(Rr_xz[ind])),CompositionNoise::ReverseDouble(double(Rr_yz[ind]))});
+//                    noise.push_back(std::array<double,2>{SolidSolutionNoise::ReverseDouble(double(Rr_xz[ind])),SolidSolutionNoise::ReverseDouble(double(Rr_yz[ind]))});
                     noise.push_back((NoiseType()<<Rr_xz[ind],Rr_yz[ind]).finished());
 
 //                    std::cout<<noise.back()[0]<<" "<<noise.back()[1]<<std::endl;
@@ -410,15 +410,15 @@ struct CompositionNoiseGenerator
 //            noise.push_back(std::array<double,2>{Rr_xz[k],Rr_yz[k]});
 //        }
         
-        return CompositionNoise(gridSize,noise);
+        return SolidSolutionNoise(gridSize,noise);
     }
 #else
 
-    CompositionNoise getNoiseBase() const
+    SolidSolutionNoise getNoiseBase() const
     {
         GridType gridSize;
         NoiseContainerType  noise;
-        return CompositionNoise(gridSize,noise);
+        return SolidSolutionNoise(gridSize,noise);
     }
 #endif
 
@@ -427,14 +427,14 @@ struct CompositionNoiseGenerator
 
 };
 
-struct CompositionNoiseReader
+struct SolidSolutionNoiseReader
 {
 
-    typedef typename CompositionNoiseTraits::REAL_SCALAR REAL_SCALAR;
-    typedef typename CompositionNoiseTraits::COMPLEX COMPLEX;
-    typedef typename CompositionNoiseTraits::GridType GridType;
-    typedef typename CompositionNoiseTraits::NoiseType NoiseType;
-    typedef typename CompositionNoiseTraits::NoiseContainerType NoiseContainerType;
+    typedef typename SolidSolutionNoiseTraits::REAL_SCALAR REAL_SCALAR;
+    typedef typename SolidSolutionNoiseTraits::COMPLEX COMPLEX;
+    typedef typename SolidSolutionNoiseTraits::GridType GridType;
+    typedef typename SolidSolutionNoiseTraits::NoiseType NoiseType;
+    typedef typename SolidSolutionNoiseTraits::NoiseContainerType NoiseContainerType;
 
 
     
@@ -548,14 +548,14 @@ struct CompositionNoiseReader
         }
     }
     
-    static CompositionNoise getNoiseBase(const DDtraitsIO& traitsIO)
+    static SolidSolutionNoise getNoiseBase(const DDtraitsIO& traitsIO)
     {
-        std::cout<<"Reading CompositionNoise"<<std::endl;
+        std::cout<<"Reading SolidSolutionNoise"<<std::endl;
         NoiseContainerType Noise;
 
-        const std::string fileName_xz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("compositionNoiseFile_xz"));
+        const std::string fileName_xz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("solidSolutionNoiseFile_xz"));
         GridType gridSize_xz(Read_dimensions(fileName_xz.c_str()));
-        const std::string fileName_yz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("compositionNoiseFile_yz"));
+        const std::string fileName_yz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("solidSolutionNoiseFile_yz"));
         GridType gridSize_yz(Read_dimensions(fileName_yz.c_str()));
         if((gridSize_xz-gridSize_yz).squaredNorm()==0)
         {
@@ -583,7 +583,7 @@ struct CompositionNoiseReader
         }
         
         
-        return CompositionNoise(gridSize_xz,Noise);
+        return SolidSolutionNoise(gridSize_xz,Noise);
     }
     
 
@@ -591,16 +591,16 @@ struct CompositionNoiseReader
 
     struct GlidePlaneNoise
     {
-        const int compositionNoiseMode;
+        const int solidSolutionNoiseMode;
         
-        CompositionNoise compositionNoise;
+        SolidSolutionNoise solidSolution; //
         
 //        StackingFaultNoise sfNoise;
 
         
         GlidePlaneNoise(const DDtraitsIO& traitsIO) :
-        /* init */ compositionNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("compositionNoiseMode"))
-        /* init */,compositionNoise(compositionNoiseMode==1? CompositionNoiseGenerator().getNoiseBase() : CompositionNoiseReader::getNoiseBase(traitsIO))
+        /* init */ solidSolutionNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("solidSolutionNoiseMode"))
+        /* init */,solidSolution(solidSolutionNoiseMode==1? SolidSolutionNoiseGenerator().getNoiseBase() : SolidSolutionNoiseReader::getNoiseBase(traitsIO))
         {
             
         }

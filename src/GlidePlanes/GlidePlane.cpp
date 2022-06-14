@@ -37,6 +37,23 @@ namespace model
             VerboseGlidePlane(1,"Destroying GlidePlane "<<this->sID<<std::endl;);
         }
 
+template <int dim>
+std::vector<std::shared_ptr<SlipSystem>> GlidePlane<dim>::slipSystems() const
+{
+    std::vector<std::shared_ptr<SlipSystem>> temp;
+    for(const auto& ss : grain.slipSystems())
+    {
+        if(this->n.cross(ss->n).squaredNorm()==0)
+        {
+            temp.push_back(ss);
+        }
+    }
+    
+    return temp;
+    
+}
+
+
 
     template struct GlidePlane<3>;
 }

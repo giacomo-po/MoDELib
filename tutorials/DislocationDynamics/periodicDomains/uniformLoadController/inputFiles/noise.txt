@@ -1,6 +1,6 @@
 
-compositionNoiseMode=2;
-compositionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
-compositionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk; 
+solidSolutionNoiseMode=2;
+solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
+solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk; 
 
 sfNoise... = ;
