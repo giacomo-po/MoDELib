@@ -123,17 +123,17 @@ namespace model
                 if(planeNoise.solidSolution)
                 {
                     glidePlaneNoisePointsValuesXZ->SetNumberOfValues(planeNoise.gridSize.array().prod());
-                    glidePlaneNoisePointsValuesXZ->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
+//                    glidePlaneNoisePointsValuesXZ->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
                     
                     glidePlaneNoisePointsValuesYZ->SetNumberOfValues(planeNoise.gridSize.array().prod());
-                    glidePlaneNoisePointsValuesYZ->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
+//                    glidePlaneNoisePointsValuesYZ->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
                 }
                 
                 vtkNew<vtkDoubleArray> sfNoise;
                 if(planeNoise.stackingFault)
                 {
                     sfNoise->SetNumberOfValues(planeNoise.gridSize.array().prod());
-                    sfNoise->SetName(glidePlanesNoiseBox->itemText(2).toStdString().c_str());
+ //                   sfNoise->SetName(glidePlanesNoiseBox->itemText(2).toStdString().c_str());
                 }
                 
 
@@ -180,9 +180,16 @@ namespace model
                 vtkNew<vtkStructuredGrid> glidePlaneNoiseGrid;
                 glidePlaneNoiseGrid->SetDimensions(planeNoise.gridSize(0),planeNoise.gridSize(1),planeNoise.gridSize(2));
                 glidePlaneNoiseGrid->SetPoints(glidePlaneNoisePoints);
-                glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesXZ);
-                glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesYZ);
-                glidePlaneNoiseGrid->GetPointData()->AddArray(sfNoise);
+                if(planeNoise.solidSolution)
+                {
+                    glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesXZ);
+                    glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesYZ);
+                }
+                if(planeNoise.stackingFault)
+                {
+                    glidePlaneNoiseGrid->GetPointData()->AddArray(sfNoise);
+                }
+
 
                 
                 

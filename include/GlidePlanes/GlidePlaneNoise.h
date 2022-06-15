@@ -257,11 +257,6 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         {
             return *this;
         }
-//
-//        const GridSizeType& grid() const
-//        {
-//            return *this;
-//        }
         
         const GridSizeType gridSize;
         const GridSpacingType gridSpacing_A;
@@ -274,18 +269,18 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         /* init */,gridSpacing_A(_gridSpacing_A)
         {
             
-            std::cout<<greenBoldColor<<"Creating SolidSolutionNoise"<<defaultColor<<std::endl;
             switch (solidSolutionNoiseMode)
             {
                 case 1:
-                {// compute noise
-                    
+                {// read noise
+                    std::cout<<greenBoldColor<<"Reading SolidSolutionNoise"<<defaultColor<<std::endl;
+                    noiseVector()=(SolidSolutionNoiseReader(traitsIO,mat,gridSize,gridSpacing_A));
                     break;
                 }
                     
                 case 2:
-                {// read noise
-                    noiseVector()=(SolidSolutionNoiseReader(traitsIO,mat,gridSize,gridSpacing_A));
+                {// compute noise
+                    std::cout<<greenBoldColor<<"Computing SolidSolutionNoise"<<defaultColor<<std::endl;
                     break;
                 }
                     
