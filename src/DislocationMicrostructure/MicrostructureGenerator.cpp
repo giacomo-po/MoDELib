@@ -246,8 +246,18 @@ namespace model
     void MicrostructureGenerator::writeConfigFiles(const size_t& fileID)
     {
         
-        //    auxIO.setGlidePlaneBoundaries(glidePlaneFactory); // change this function to take a GlidePlaneFactory during write
+        const int outputGlidePlanes(TextFileParser(traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
+
         
+        if(outputGlidePlanes)
+        {
+            for(const auto& loop : configIO.loops())
+            {
+                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+                auxIO.glidePlanes().emplace_back(loopPlaneKey);
+            }
+        }
+                
         if(outputBinary)
         {
             std::cout<<greenBoldColor<<"Writing configuration to "<<configIO.getBinFilename(fileID)<<defaultColor<<std::endl;

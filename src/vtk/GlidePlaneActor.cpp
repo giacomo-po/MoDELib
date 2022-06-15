@@ -40,10 +40,15 @@ namespace model
         showGlidePlanesNoise->setChecked(false);
         showGlidePlanesNoise->setText("show GlidePlanesNoise");
         glidePlanesNoiseBox->setEnabled(false);
-        glidePlanesNoiseBox->addItem("solidSolution stress_xz");
-        glidePlanesNoiseBox->addItem("solidSolution stress_yz");
-        glidePlanesNoiseBox->addItem("ISF energy");
-        
+        if(planeNoise.solidSolution)
+        {
+            glidePlanesNoiseBox->addItem("solidSolution stress_xz");
+            glidePlanesNoiseBox->addItem("solidSolution stress_yz");
+        }
+        if(planeNoise.stackingFault)
+        {
+            glidePlanesNoiseBox->addItem("ISF energy");
+        }
         
         mainLayout->addWidget(showGlidePlanes,0,0,1,1);
         mainLayout->addWidget(showGlidePlanesNoise,1,0,1,1);
@@ -114,53 +119,66 @@ namespace model
                 vtkNew<vtkPoints> glidePlaneNoisePoints;
                 
                 vtkNew<vtkDoubleArray> glidePlaneNoisePointsValuesXZ;
-                glidePlaneNoisePointsValuesXZ->SetNumberOfValues(planeNoise.solidSolution.grid().array().prod());
-                glidePlaneNoisePointsValuesXZ->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
-                
                 vtkNew<vtkDoubleArray> glidePlaneNoisePointsValuesYZ;
-                glidePlaneNoisePointsValuesYZ->SetNumberOfValues(planeNoise.solidSolution.grid().array().prod());
-                glidePlaneNoisePointsValuesYZ->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
-
+                if(planeNoise.solidSolution)
+                {
+                    glidePlaneNoisePointsValuesXZ->SetNumberOfValues(planeNoise.gridSize.array().prod());
+                    glidePlaneNoisePointsValuesXZ->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
+                    
+                    glidePlaneNoisePointsValuesYZ->SetNumberOfValues(planeNoise.gridSize.array().prod());
+                    glidePlaneNoisePointsValuesYZ->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
+                }
+                
                 vtkNew<vtkDoubleArray> sfNoise;
-                sfNoise->SetNumberOfValues(planeNoise.solidSolution.grid().array().prod());
-                sfNoise->SetName(glidePlanesNoiseBox->itemText(2).toStdString().c_str());
+                if(planeNoise.stackingFault)
+                {
+                    sfNoise->SetNumberOfValues(planeNoise.gridSize.array().prod());
+                    sfNoise->SetName(glidePlanesNoiseBox->itemText(2).toStdString().c_str());
+                }
+                
+
 
                 
-                for (int k = 0; k < planeNoise.solidSolution.grid()(2); k++)
+                for (int k = 0; k < planeNoise.gridSize(2); k++)
                 {
-                    for (int j = 0; j < planeNoise.solidSolution.grid()(1); j++)
+                    for (int j = 0; j < planeNoise.gridSize(1); j++)
                     {
-                        for (int i = 0; i < planeNoise.solidSolution.grid()(0); i++)
+                        for (int i = 0; i < planeNoise.gridSize(0); i++)
                         {
                             
-                            const double x(i);
-                            const double y(j);
+                            const double x(i*planeNoise.gridSpacing(0));
+                            const double y(j*planeNoise.gridSpacing(1));
                             
                             const Eigen::Matrix<double,2,1> localPos((Eigen::Matrix<double,2,1>()<<x,y).finished());
                             const Eigen::Matrix<double,3,1> globalPos(glidePlane->globalPosition(localPos));
                             
                             glidePlaneNoisePoints->InsertNextPoint(globalPos(0), globalPos(1), globalPos(2));
                             
-                            const auto ind = planeNoise.solidSolution.grid()(1)*planeNoise.solidSolution.grid()(2)*i + j*planeNoise.solidSolution.grid()(2) + k;
-                            const auto& noiseVal(planeNoise.solidSolution.noiseVector()[ind]);
-                            glidePlaneNoisePointsValuesXZ->SetValue(ind, noiseVal(0));
-                            glidePlaneNoisePointsValuesYZ->SetValue(ind, noiseVal(1));
+                            const auto ind = planeNoise.gridSize(1)*planeNoise.gridSize(2)*i + j*planeNoise.gridSize(2) + k;
                             
-//                            std::cout<<planeNoise.stackingFault[ind]<<std::endl;
-                            sfNoise->SetValue(ind, planeNoise.stackingFault[ind]);
-
-//                            noiseValMin=std::min(noiseValMin,planeNoise.stackingFault[ind]);
-//                            noiseValMax=std::max(noiseValMax,planeNoise.stackingFault[ind]);
+                            if(planeNoise.solidSolution)
+                            {
+                                const auto& noiseVal(planeNoise.solidSolution->operator[](ind));
+                                glidePlaneNoisePointsValuesXZ->SetValue(ind, noiseVal(0));
+                                glidePlaneNoisePointsValuesYZ->SetValue(ind, noiseVal(1));
+                                noiseValMin=std::min(noiseValMin,std::min(noiseVal(0),noiseVal(1)));
+                                noiseValMax=std::max(noiseValMax,std::max(noiseVal(0),noiseVal(1)));
+                            }
+                            
+                            if(planeNoise.stackingFault)
+                            {
+                                const auto& noiseVal(planeNoise.stackingFault->operator[](ind));
+                                sfNoise->SetValue(ind, noiseVal);
+                                                            noiseValMin=std::min(noiseValMin,noiseVal);
+                                                            noiseValMax=std::max(noiseValMax,noiseVal);
+                            }
 
                             
-                            noiseValMin=std::min(noiseValMin,std::min(noiseVal(0),noiseVal(1)));
-                            noiseValMax=std::max(noiseValMax,std::max(noiseVal(0),noiseVal(1)));
                         }
                     }
                 }
                 vtkNew<vtkStructuredGrid> glidePlaneNoiseGrid;
-                glidePlaneNoiseGrid->SetDimensions(planeNoise.solidSolution.grid()(0), planeNoise.solidSolution.grid()(1),
-                                                   planeNoise.solidSolution.grid()(2));
+                glidePlaneNoiseGrid->SetDimensions(planeNoise.gridSize(0),planeNoise.gridSize(1),planeNoise.gridSize(2));
                 glidePlaneNoiseGrid->SetPoints(glidePlaneNoisePoints);
                 glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesXZ);
                 glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesYZ);
@@ -169,7 +187,7 @@ namespace model
                 
                 
                 vtkNew<vtkLookupTable> glidePlaneNoiseLut;
-                glidePlaneNoiseLut->SetNumberOfTableValues(planeNoise.solidSolution.grid().array().prod());
+                glidePlaneNoiseLut->SetNumberOfTableValues(planeNoise.gridSize.array().prod());
                 glidePlaneNoiseLut->Build();
                 
                 noiseMappers.push_back(vtkSmartPointer<vtkDataSetMapper>::New());

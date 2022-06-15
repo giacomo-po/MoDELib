@@ -3,5 +3,5 @@ microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoopDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;
 #microstructureFile = ../../../MicrostructureLibrary/inclusionsDensity.txt;
-microstructureFile = ../../../MicrostructureLibrary/inclusionsIndividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/inclusionsIndividual.txt;
 
