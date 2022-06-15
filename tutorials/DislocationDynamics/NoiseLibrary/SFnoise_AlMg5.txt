@@ -1,0 +1,3 @@
+
+isfEnergyDensityMEAN_SI = 109.796e-3; # [J/m^2] mean of ISF energy density
+isfEnergyDensitySTD_SI = 79.591e-13; # [J/m] std of ISF energy density is this value/sqrt(area) of cell 
