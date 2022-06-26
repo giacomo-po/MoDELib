@@ -9,21 +9,30 @@
 #ifndef model_DDtimeIntegrator_cpp_
 #define model_DDtimeIntegrator_cpp_
 
+#include <cfloat>
 #include <DDtimeIntegrator.h>
 
 namespace model
 {
 
     /******************************************************************/
-    DDtimeIntegrator<0>::DDtimeIntegrator(const std::string& fileName): dxMax(TextFileParser(fileName).readScalar<double>("dxMax", true))
+    DDtimeIntegrator<0>::DDtimeIntegrator(const std::string& fileName):
+    /*                  init                    */  dxMax(TextFileParser(fileName).readScalar<double>("dxMax", true))
+    /*                  init                    */, shearWaveSpeedFraction(1.0e-3)
     /*                  init                    */, timeIntegrationMethod(TextFileParser(fileName).readScalar<int>("timeIntegrationMethod", true))
     /*                  init                    */, dtMax(TextFileParser(fileName).readScalar<double>("timeStep", true))
     {
-        assert(dxMax > 0.0);
-        if (timeIntegrationMethod == 0)
+
+        if (dxMax < FLT_EPSILON)
         {
-            assert(dtMax > 0.0 && "Time step should be greater than zero for constant time stepping.");
+            throw std::runtime_error("dxMax must be > FLT_EPSILON.");
         }
+        
+        if (dtMax < FLT_EPSILON)
+        {
+            throw std::runtime_error("dtMax must be > FLT_EPSILON.");
+        }
+
     }
     
     template struct DDtimeIntegrator<0>;

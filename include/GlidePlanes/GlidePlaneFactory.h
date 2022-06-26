@@ -126,11 +126,14 @@ namespace model
             const auto iter=glidePlaneIntersections().find(key);
             if(iter==glidePlaneIntersections().end())
             {
-                const bool success=glidePlaneIntersections().emplace(std::piecewise_construct,
+                const bool success(glidePlaneIntersections().emplace(std::piecewise_construct,
                                                                      std::make_tuple(key),
                                                                      std::make_tuple(p1->P,p1->unitNormal,p2->P,p2->unitNormal)
-                                                                     ).second;
-                assert(success);
+                                                                     ).second);
+                if(!success)
+                {
+                    throw std::runtime_error("GlidePlaneFactory::glidePlaneIntersection not found.");
+                }
             }
             return glidePlaneIntersections().at(key);
         }

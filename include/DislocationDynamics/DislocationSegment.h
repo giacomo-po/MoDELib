@@ -65,7 +65,8 @@ namespace model
         typedef std::set<const GlidePlaneType *> GlidePlaneContainerType;
         typedef PlanarMeshFace<dim> PlanarMeshFaceType;
         typedef std::set<const PlanarMeshFaceType *> PlanarMeshFaceContainerType;
-
+        typedef typename DislocationQuadraturePoint<dim,corder>::QuadratureDynamicType QuadratureDynamicType;
+        
         std::map<size_t,
         /*    */ std::pair<VectorNcoeff,VectorDim>,
         /*    */ std::less<size_t>

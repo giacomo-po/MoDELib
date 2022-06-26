@@ -10,9 +10,8 @@
 #define model_DislocationCrossSlip_cpp_
 
 #include <numbers>
+#include <memory>
 
-//#include <DislocationDynamicsModule.h>
-//Generic includes
 #include <DislocationCrossSlip.h>
 #include <CrossSlipModels.h>
 
@@ -20,36 +19,65 @@
 
 namespace model
 {
-    
-    
-    
+
+    template <typename DislocationNetworkType>
+    std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>> DislocationCrossSlip<DislocationNetworkType>::getModel(const PolycrystallineMaterialBase& material,const int& crossSlipModel)
+    {
+        switch (crossSlipModel)
+        {
+            case 0:
+            {// no cross-slip
+                return std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>>(nullptr);
+                break;
+            }
+                
+            case 1:
+            {// deterministic cross-slip model based on max glide PK force
+                return std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>>(new AthermalCrossSlipModel<DislocationNetworkType>());
+                break;
+            }
+                
+            case 2:
+            {
+                if(material.crystalStructure=="HEX")
+                {
+                    return std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>>(new EscaigCrossSlipModelHEX<DislocationNetworkType>(material));
+                }
+                else
+                {
+                    throw std::runtime_error("Unknown cross-slip model "+std::to_string(crossSlipModel)+" for crystal structure "+material.crystalStructure);
+                    return std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>>(nullptr);
+                }
+                break;
+            }
+                
+            default:
+            {
+                throw std::runtime_error("Unknown cross-slip model "+std::to_string(crossSlipModel));
+                return std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>>(nullptr);
+                break;
+            }
+        }
+    }
+
     /**********************************************************************/
     template <typename DislocationNetworkType>
     DislocationCrossSlip<DislocationNetworkType>::DislocationCrossSlip(DislocationNetworkType& DN_in) :
     /* init */ DN(DN_in)
     /* init */,crossSlipModel(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("crossSlipModel",true))
-    /* init */,verboseCrossSlip(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("crossSlipDeg",true))
+    /* init */,model(getModel(DN.poly,crossSlipModel))
     /* init */,crossSlipDeg(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("crossSlipDeg",true))
+    /* init */,verboseCrossSlip(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("verboseCrossSlip",true))
     {
         assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-        
-        //            if(crossSlipModel)
-        //            {
-        //                const auto t0= std::chrono::system_clock::now();
-        //                std::cout<<"Finding CrossSlip segments: "<<std::flush;
-        //                crossSlipDeq=findCrossSlipSegments(DN.poly,crossSlipModel);
-        //                VerboseCrossSlip(1,crossSlipDeq.size()<<" found"<<std::endl;);
-        //                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-        //            }
-        
     }
-    
+
     /**********************************************************************/
     template <typename DislocationNetworkType>
     void  DislocationCrossSlip<DislocationNetworkType>::findCrossSlipSegments()
     {
         
-        if(crossSlipModel)
+        if(model)
         {
             std::cout<<"CrossSlip: "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
@@ -57,6 +85,11 @@ namespace model
             crossSlipDeq.clear();
             const double sinCrossSlipRad(std::sin(crossSlipDeg*std::numbers::pi/180.0));
             //            CrossSlipContainerType crossSlipDeq;
+            
+            
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_real_distribution<> dist(0.0,1.0);
             
             
             for(const auto& linkIter : DN.networkLinks())
@@ -74,44 +107,20 @@ namespace model
                    && link->chord().norm()>2.0*DN.networkRemesher.Lmin
                    )
                 {
-
-                    if(DN.poly.crystalStructure=="BCC")
-                    {
-                        CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
-                    }
-                    else if(DN.poly.crystalStructure=="FCC")
-                    {
-                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
-                    }
-                    else
-                    {
-                        std::cout<<"Unknown cross-slip model for crystal structure '"<<DN.poly.crystalStructure<<"'. Exiting."<<std::endl;
-                        exit(EXIT_FAILURE);
-                    }
-                    
+                    model->addToCrossSlip(*link,crossSlipDeq,dist(gen));
                 }
             }
             std::cout<<crossSlipDeq.size()<<" found "<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
-        
-        //            return crossSlipDeq;
     }
-    
-    //        /******************************************************************/
-    //        static void initFromFile(const std::string& fileName)
-    //        {
-    //            crossSlipDeg=TextFileParser(fileName).readScalar<double>("crossSlipDeg",true);
-    //            assert(crossSlipDeg>=0.0 && DislocationCrossSlip<DislocationNetworkType>::crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
-    //            verboseCrossSlip=TextFileParser(fileName).readScalar<int>("verboseCrossSlip",true);
-    //        }
-    
+
     /**********************************************************************/
     template <typename DislocationNetworkType>
     void  DislocationCrossSlip<DislocationNetworkType>::execute()
     {
-        if(crossSlipModel)
+        if(model)
         {
-       const auto t0= std::chrono::system_clock::now();
+            const auto t0= std::chrono::system_clock::now();
             std::cout<<"Cross slip: "<<std::flush;
             size_t executed(0);
             for(const auto& tup : crossSlipDeq)
@@ -155,12 +164,12 @@ namespace model
                     
                     const VectorDim newSourceP(ppi.P+(isSource->get_P()-ppi.P).dot(ppi.d)*ppi.d);
                     const VectorDim newSinkP(ppi.P+(isSink->get_P()-ppi.P).dot(ppi.d)*ppi.d);
-
-                        //Only one loopNode
-                        //New position do not belong to the patch boundary based on the glide plane intersection
+                    
+                    //Only one loopNode
+                    //New position do not belong to the patch boundary based on the glide plane intersection
                     bool sourcePositiononBoundary(false);
                     bool sinkPositiononBoundary(false);
-
+                    
                     for (const auto& gp : isSource->glidePlanes())
                     {
                         if (gp->meshIntersections.contains(newSourceP))
@@ -169,7 +178,7 @@ namespace model
                             break;
                         }
                     }
-                        
+                    
                     for (const auto& gp : isSink->glidePlanes())
                     {
                         if (gp->meshIntersections.contains(newSourceP))
@@ -178,45 +187,45 @@ namespace model
                             break;
                         }
                     }
-
+                    
                     if (!sourcePositiononBoundary && !sinkPositiononBoundary)
                     {
                         if (isSource->isMovableTo(newSourceP) && isSink->isMovableTo(newSinkP))
                         {
-
+                            
                             VerboseCrossSlip(1, "cross-slip " << sourceID << "->" << sinkID << std::endl;);
-
+                            
                             // Re-align source and sink
                             isSource->trySet_P(newSourceP);
                             isSink->trySet_P(newSinkP);
-
+                            
                             DN.updateBoundaryNodes();
                             if ((isSource->get_P() - newSourceP).norm() < FLT_EPSILON && (isSink->get_P() - newSinkP).norm() < FLT_EPSILON)
                             {
-
+                                
                                 // Check if source and sink are already part of loops on the conjugate plane
-
+                                
                                 // Construct and insert new loop in conjugate plane
                                 const VectorDim newNodeP(0.5 * (isSource->get_P() + isSink->get_P()));
                                 //                                const size_t newNodeID=DN.insertDanglingNode(newNodeP,VectorDim::Zero(),1.0).first->first;
                                 std::shared_ptr<NetworkNodeType> newNode(DN.networkNodes().create(newNodeP, VectorDim::Zero(), 1.0));
-
+                                
                                 //                                std::vector<size_t> nodeIDs;
                                 std::vector<std::shared_ptr<NetworkNodeType>> networkNodes;
-
+                                
                                 networkNodes.push_back(isSink);   // insert in reverse order, sink first, source second
                                 networkNodes.push_back(isSource); // insert in reverse order, sink first, source second
                                 networkNodes.push_back(newNode);
-
+                                
                                 GlidePlaneKey<dim> loopPlaneKey(newNodeP, DN.poly.grain(grainID).slipSystems()[slipID]->n);
                                 const auto glidePlane(DN.glidePlaneFactory.getFromKey(loopPlaneKey));
                                 auto glissileLoop(DN.loops().create(DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(), glidePlane));
-
+                                
                                 std::vector<std::shared_ptr<LoopNodeType>> loopNodes;
-
+                                
                                 const auto periodicGlidePlane(DN.periodicGlidePlaneFactory->get(glidePlane->key));
                                 const auto periodicPatch(periodicGlidePlane->getPatch(VectorDim::Zero()));
-
+                                
                                 if (isSink->isBoundaryNode())
                                 {
                                     assert(!isSource->isBoundaryNode() && "Cross-slip cannot happen at the boundary");
@@ -236,7 +245,7 @@ namespace model
                                 {
                                     loopNodes.emplace_back(DN.loopNodes().create(glissileLoop, isSink, isSink->get_P(), periodicPatch, std::make_pair(nullptr,nullptr)));
                                 }
-
+                                
                                 if (isSource->isBoundaryNode())
                                 {
                                     assert(!isSink->isBoundaryNode() && "Cross-slip cannot happen at the boundary");
@@ -256,22 +265,22 @@ namespace model
                                 {
                                     loopNodes.emplace_back(DN.loopNodes().create(glissileLoop, isSource, isSource->get_P(), periodicPatch, std::make_pair(nullptr,nullptr)));
                                 }
-
+                                
                                 //New node cannot be a boundary node
                                 loopNodes.emplace_back(DN.loopNodes().create(glissileLoop, newNode, newNode->get_P(), periodicPatch, std::make_pair(nullptr,nullptr)));
                                 //                                nodeIDs.push_back(sinkID);      // insert in reverse order, sink first, source second
                                 //                                nodeIDs.push_back(sourceID);    // insert in reverse order, sink first, source second
                                 //                                nodeIDs.push_back(newNodeID);
-
+                                
                                 //                                LatticePlane loopPlane(newNodeP,DN.poly.grain(grainID).slipSystems()[slipID]->n);
                                 //                                GlidePlaneKey<dim> loopPlaneKey(grainID,loopPlane);
-
+                                
                                 //                                DN.insertLoop(nodeIDs,
                                 //                                              DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(),
                                 //                                              DN.glidePlaneFactory.get(loopPlaneKey));
-
+                                
                                 DN.insertLoop(glissileLoop, loopNodes);
-
+                                
                                 executed++;
                             }
                         }
@@ -281,7 +290,7 @@ namespace model
             std::cout<<executed<< "executed "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }
     }
-    
+
     template class DislocationCrossSlip<DislocationNetwork<3,0>>;
 }
 #endif

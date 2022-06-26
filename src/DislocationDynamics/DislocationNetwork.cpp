@@ -1335,7 +1335,7 @@ namespace model
 
     /**********************************************************************/
     template <int dim, short unsigned int corder>
-    void DislocationNetwork<dim,corder>::storeSingleGlideStepDiscreteEvents(const long int& runID)
+    void DislocationNetwork<dim,corder>::storeSingleGlideStepDiscreteEvents(const long int&)
     {
         
         crossSlipMaker.findCrossSlipSegments();

@@ -32,10 +32,10 @@ namespace model
     struct DDtimeIntegrator<0>
     {
         static constexpr auto tag="vMax integrator";
-        double dxMax;
-        double shearWaveSpeedFraction;
-        int timeIntegrationMethod;
-        double dtMax;
+        const double dxMax;
+        const double shearWaveSpeedFraction;
+        const int timeIntegrationMethod;
+        const double dtMax;
         
         
         /******************************************************************/

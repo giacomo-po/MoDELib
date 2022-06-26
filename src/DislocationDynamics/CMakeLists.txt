@@ -20,6 +20,7 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopNode.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetworkRemesh.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationCrossSlip.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/CrossSlipModels.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/EshelbyInclusion.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ExternalLoadControllerBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/SimplexBndNormal.cpp

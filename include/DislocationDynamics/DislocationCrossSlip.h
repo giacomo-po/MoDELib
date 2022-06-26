@@ -9,7 +9,10 @@
 #ifndef model_DislocationCrossSlip_h_
 #define model_DislocationCrossSlip_h_
 
+#include <memory>
+
 #include <DislocationDynamicsModule.h>
+#include <CrossSlipModels.h>
 
 #ifndef NDEBUG
 #define VerboseCrossSlip(N,x) if(verboseCrossSlip>=N){std::cout<<x;}
@@ -35,12 +38,15 @@ namespace model
         DislocationNetworkType& DN; //! A reference to the DislocationNetwork
         CrossSlipContainerType crossSlipDeq;
         
+        static std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>> getModel(const PolycrystallineMaterialBase& material,const int& csModel);
+        
     public:
         
-        int crossSlipModel;
-        const int verboseCrossSlip;
+        const int crossSlipModel;
+        const std::shared_ptr<BaseCrossSlipModel<DislocationNetworkType>> model;
         const double crossSlipDeg;
-        
+        const int verboseCrossSlip;
+
         DislocationCrossSlip(DislocationNetworkType& DN_in) ;
         void findCrossSlipSegments();
         void execute();

@@ -100,13 +100,9 @@
 
 namespace model
 {
-    
-    
-    
     template <int dim, short unsigned int corder>
     class DislocationNetwork :public LoopNetwork<DislocationNetwork<dim,corder> >
-    //    /* base                 */ public ParticleSystem<DislocationParticle<_dim> >,
-    /*                      */,public std::map<size_t,EshelbyInclusion<dim>>
+    /*                     */,public std::map<size_t,EshelbyInclusion<dim>>
     {
         
     public:
@@ -150,48 +146,29 @@ namespace model
         DDtimeIntegrator<0> timeIntegrator;
         std::shared_ptr<StochasticForceGenerator> stochasticForceGenerator;
         DislocationNetworkIO<LoopNetworkType> networkIO;
-        
-//        GrainBoundaryTransmission<DislocationNetworkType> gbTransmission;
-        //        MatrixDimD _plasticDistortionFromVelocities;
-        // std::pair<double,MatrixDim> oldPlasticDistortionFromAreas;
-        // MatrixDim _plasticDistortionRateFromVelocities;
-        // MatrixDim _plasticDistortionRateFromAreas;
         int ddSolverType;
         bool computeDDinteractions;
-//        int crossSlipModel;
         int  outputFrequency;
         bool outputBinary;
         bool outputGlidePlanes;
-        //        bool outputSpatialCells;
-//        bool outputElasticEnergy;
         bool outputMeshDisplacement;
         bool outputFEMsolution;
         bool outputDislocationLength;
-//        bool outputPlasticDistortion;
         bool outputPlasticDistortionRate;
         bool outputQuadraturePoints;
         bool outputLinkingNumbers;
         bool outputLoopLength;
         bool outputSegmentPairDistances;
         const bool computeElasticEnergyPerLength;
-//        bool outputPeriodicConfiguration;
-        //        unsigned int _userOutputColumn;
-//        bool use_stochasticForce;
         double surfaceAttractionDistance;
-
         bool useLineTension;
         double alphaLineTension;
-
-        //        bool computePlasticDistortionRateFromVelocities;
-//        std::string folderSuffix;
         std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
-
         const bool use_velocityFilter;
         const double velocityReductionFactor;
         const int verboseDislocationNode;
         bool capMaxVelocity;
 
-        /**********************************************************************/
         DislocationNetwork(const DefectiveCrystalParameters& _simulationParameters,
                            const SimplicialMesh<dim>& _mesh,
                            const Polycrystal<dim>& _poly,
@@ -201,12 +178,10 @@ namespace model
                            long int& runID);
         
         void setConfiguration(const DDconfigIO<dim>&);
-//        void createEshelbyInclusions();
         MatrixDim plasticDistortionRate() const;
         MatrixDim plasticDistortion() const;
         MatrixDim plasticStrainRate() const;
         void updateGeometry();//
-        // void updatePlasticDistortionRateFromAreas();
         DislocationNetworkIOType& io();
         const DislocationNetworkIOType& io() const;
         std::tuple<double,double,double,double> networkLength() const;
