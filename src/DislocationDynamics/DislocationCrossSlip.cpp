@@ -51,7 +51,7 @@ namespace model
         
         if(crossSlipModel)
         {
-            std::cout<<"Finding CrossSlip segments... "<<std::flush;
+            std::cout<<"CrossSlip: "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
             crossSlipDeq.clear();
@@ -109,8 +109,10 @@ namespace model
     template <typename DislocationNetworkType>
     void  DislocationCrossSlip<DislocationNetworkType>::execute()
     {
+        if(crossSlipModel)
+        {
        const auto t0= std::chrono::system_clock::now();
-            std::cout<<"        Executing cross slip "<<std::flush;
+            std::cout<<"Cross slip: "<<std::flush;
             size_t executed(0);
             for(const auto& tup : crossSlipDeq)
             {
@@ -276,8 +278,8 @@ namespace model
                     }
                 }
             }
-            std::cout<<executed<<" executed"<<std::endl;
-            std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+            std::cout<<executed<< "executed "<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+        }
     }
     
     template class DislocationCrossSlip<DislocationNetwork<3,0>>;

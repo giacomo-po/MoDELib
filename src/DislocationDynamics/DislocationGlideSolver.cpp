@@ -343,7 +343,7 @@ namespace model
 //        {
 //
         const auto t0= std::chrono::system_clock::now();
-        std::cout<<"        Assemble and solve (lumped) "<<std::flush;
+        std::cout<<"GlideSolver (lumped) "<<std::flush;
         TripletContainerType kqqT; // the vector of Eigen::Triplets corresponding to the matrix Kqq
         Eigen::VectorXd Fq;        // the vector of nodal forces
         const size_t Ndof = assembleNCtriplets(kqqT, Fq);
