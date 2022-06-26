@@ -205,7 +205,7 @@ namespace model
         }
         
         
-template struct FCClattice<3>;
+//template struct FCClattice<3>;
 
     
     

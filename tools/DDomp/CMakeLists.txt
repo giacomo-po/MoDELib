@@ -9,11 +9,13 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
 if(${CMAKE_SYSTEM_NAME} MATCHES Darwin)
-	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++")
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
+	set(CMAKE_CXX_COMPILER "/opt/local/bin/g++-mp-11")
+#	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -O3 -Ofast")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
-	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native -O3 -Ofast")
+#	set(CMAKE_CXX_FLAGS "-Wall -Wextra -fopenmp -march=native -O3 -Ofast")
 endif()
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -Ofast")
+
 
 add_executable(DDomp DDomp.cpp)
 

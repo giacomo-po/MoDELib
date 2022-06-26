@@ -220,16 +220,18 @@ namespace model
                 // output
                 DN->io().output(simulationParameters.runID);
 
-                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
+//                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
                 // move
 //                DN->dummyMove(simulationParameters.runID);
+                DN->storeSingleGlideStepDiscreteEvents(simulationParameters.runID);
+
                 DN->moveGlide(simulationParameters.dt);
-                crossSlip.execute();
+//                crossSlip.execute();
                 // DN->io().output(simulationParameters.runID);
 
 
                 // manage discrete topological events
-                DN->singleGlideStepDiscreteEvents(simulationParameters.runID);
+                DN->executeSingleGlideStepDiscreteEvents(simulationParameters.runID);
                 // DN->io().output(simulationParameters.runID);
                 if (true)
                 {

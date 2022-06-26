@@ -43,7 +43,6 @@ namespace model
     /* init */,networkIO(*this)
     /* init */,ddSolverType(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("ddSolverType",true))
     /* init */,computeDDinteractions(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
-    /* init */,crossSlipModel(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("crossSlipModel",true))
     /* init */,outputFrequency(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
     /* init */,outputBinary(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
     /* init */,outputGlidePlanes(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true))
@@ -1330,12 +1329,23 @@ namespace model
         
         
     }
-    
-    /**********************************************************************/
+
+/**********************************************************************/
     template <int dim, short unsigned int corder>
-    void DislocationNetwork<dim,corder>::singleGlideStepDiscreteEvents(const long int& runID)
+    void DislocationNetwork<dim,corder>::storeSingleGlideStepDiscreteEvents(const long int& runID)
     {
         
+        crossSlipMaker.findCrossSlipSegments();
+        
+        
+    }
+
+    /**********************************************************************/
+    template <int dim, short unsigned int corder>
+    void DislocationNetwork<dim,corder>::executeSingleGlideStepDiscreteEvents(const long int& runID)
+    {
+        
+        crossSlipMaker.execute();
 //        //! 13- Node redistribution
         networkRemesher.remesh(runID);
 //        //! 12- Form Junctions

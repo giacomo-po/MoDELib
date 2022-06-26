@@ -881,7 +881,7 @@ namespace model
     template struct PeriodicPatchBoundary<3>;
     template class PeriodicPlaneNode<3>;
     template struct PeriodicPlanePatch<3>;
-    template struct PeriodicGlidePlane<3>;
+    template class PeriodicGlidePlane<3>;
     template struct PeriodicPlanePatchIO<3>;
 
 

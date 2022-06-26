@@ -39,7 +39,7 @@ namespace model
         /**********************************************************************/
         MeshNodeIO(const size_t& nodeID_in,          // sID
                    const VectorDim& disp) :
-        /* init */ nodeID(0),
+        /* init */ nodeID(nodeID_in),
         /* init */ displacement(disp)
         {
             

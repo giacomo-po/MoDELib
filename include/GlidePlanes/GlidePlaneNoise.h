@@ -602,18 +602,15 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         
         StackingFaultNoise(const DDtraitsIO& traitsIO,const PolycrystallineMaterialBase& mat,
                            const NoiseTraitsBase::GridSizeType& gridSize,
-                           const NoiseTraitsBase::GridSpacingType& gridSpacing)
+                           const NoiseTraitsBase::GridSpacingType& gridSpacing_SI)
         {
             
             std::cout<<greenBoldColor<<"Creating StackingFaultNoise"<<defaultColor<<std::endl;
             
             const std::string noiseFileName(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("stackingFaultNoiseFile"));
             const double isfEnergyDensityMEAN_SI(TextFileParser(noiseFileName).readScalar<double>("isfEnergyDensityMEAN_SI",true));
-            const double isfEnergyDensitySTD_SI(TextFileParser(noiseFileName).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing(0)*gridSpacing(1)));
-            
-//            std::cout<<"isfEnergyDensityMEAN_SI="<<isfEnergyDensityMEAN_SI<<std::endl;
-//            std::cout<<"isfEnergyDensitySTD_SI="<<isfEnergyDensitySTD_SI<<std::endl;
-            
+            const double isfEnergyDensitySTD_SI(TextFileParser(noiseFileName).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1)));
+                        
             std::normal_distribution<double> distribution (isfEnergyDensityMEAN_SI,isfEnergyDensitySTD_SI);
 
             const size_t N(gridSize.array().prod());
@@ -649,7 +646,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         /* init */,solidSolutionNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("solidSolutionNoiseMode"))
         /* init */,stackingFaultNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("stackingFaultNoiseMode"))
         /* init */,solidSolution(solidSolutionNoiseMode? new SolidSolutionNoise(traitsIO,mat,gridSize,gridSpacing_SI*1.0e10,solidSolutionNoiseMode) : nullptr)
-        /* init */,stackingFault(stackingFaultNoiseMode? new StackingFaultNoise(traitsIO,mat,gridSize,gridSpacing) : nullptr)
+        /* init */,stackingFault(stackingFaultNoiseMode? new StackingFaultNoise(traitsIO,mat,gridSize,gridSpacing_SI) : nullptr)
         {
             
         }

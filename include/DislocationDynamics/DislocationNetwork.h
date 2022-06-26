@@ -158,7 +158,7 @@ namespace model
         // MatrixDim _plasticDistortionRateFromAreas;
         int ddSolverType;
         bool computeDDinteractions;
-        int crossSlipModel;
+//        int crossSlipModel;
         int  outputFrequency;
         bool outputBinary;
         bool outputGlidePlanes;
@@ -218,7 +218,8 @@ namespace model
         void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
         void assembleAndSolveGlide(const long int& runID, const double& maxVelocity);
         void moveGlide(const double & dt_in);
-        void singleGlideStepDiscreteEvents(const long int& runID);
+        void storeSingleGlideStepDiscreteEvents(const long int& runID);
+        void executeSingleGlideStepDiscreteEvents(const long int& runID);
         void updateBoundaryNodes();
         bool contract(std::shared_ptr<NetworkNodeType> nA,std::shared_ptr<NetworkNodeType> nB);
         

@@ -110,7 +110,7 @@ namespace model
             return temp;
         }
   
-template struct BCClattice<3>;
+//template struct BCClattice<3>;
 
 
 } // namespace model

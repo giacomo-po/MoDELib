@@ -1,0 +1,25 @@
+materialName=AlMg10;
+crystalStructure=FCC;
+b_SI=0.286e-9;          # [m]           Burgers vector magnitude (pure Al) 
+mu0_SI=26.783697e9;     # [Pa]          temperature-independent shear modulus coeff in mu=mu0+mu1*T, (from Pierre data)
+mu1_SI=0.0;             # [Pa/K]        temperature-dependent shear modulus coeff in mu=mu0+mu1*T
+nu=0.342741;              # [-]           Poisson's ratio (from Pierre data)
+rho_SI=2700.0;          # [kg/m^3]      mass density (pure Al)
+Tm=933;                 # [K]           melting temperature (pure Al)
+
+# Mobility parameters
+B0e_SI=13.4e-6;                 # [Pa*s] (pure Al at 0 wave vector)    temperature-independent drag coefficient for edge  dislocations
+B1e_SI=0;       # [Pa*s]        temperature-dependent drag coefficient for edge  dislocations
+B0s_SI=13.4e-6;                 # [Pa*s] (pure Al at 0 wave vector)    temperature-independent drag coefficient for screw dislocations
+B1s_SI=0;       # [Pa*s]        temperature-dependent drag coefficient for screw dislocations
+
+# Gamma-surface
+ISF_SI=102e-3; 		# [J/m^2] (From MD) intrinsic stacking fault energy (X.-Y. Liu, and J.B. Adams, 1998)
+USF_SI=135e-3; 		# [J/m^2] (From MD) unstable stacking fault energy (X.-Y. Liu, and J.B. Adams, 1998)
+MSF_SI=434e-3; 		# [J/m^2] (From MD) maximum stacking fault energy (X.-Y. Liu, and J.B. Adams, 1998)
+
+# Vacancy diffusion (Ignored at this moment)
+dOmegav=0;              # [-]           Relative vacancy relaxation volume
+Ufv_eV=0;               # [eV]          Vacancy formation energy
+Umv_eV=0;               # [eV]          Vacancy migration energy
+D0v_SI=0;           # [m^2/s]   vacancy diffusion coefficient

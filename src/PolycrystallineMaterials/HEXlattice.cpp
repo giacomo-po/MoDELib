@@ -232,7 +232,7 @@ namespace model
             return temp;
         }
 
-    template struct HEXlattice<3>;
+//    template struct HEXlattice<3>;
 
 }
 #endif

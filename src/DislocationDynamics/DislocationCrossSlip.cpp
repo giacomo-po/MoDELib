@@ -27,16 +27,17 @@ namespace model
     template <typename DislocationNetworkType>
     DislocationCrossSlip<DislocationNetworkType>::DislocationCrossSlip(DislocationNetworkType& DN_in) :
     /* init */ DN(DN_in)
+    /* init */,crossSlipModel(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<int>("crossSlipModel",true))
     /* init */,verboseCrossSlip(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("crossSlipDeg",true))
     /* init */,crossSlipDeg(TextFileParser(DN.simulationParameters.traitsIO.ddFile).readScalar<double>("crossSlipDeg",true))
     {
         assert(crossSlipDeg>=0.0 && crossSlipDeg <= 90.0 && "YOU MUST CHOOSE 0.0<= crossSlipDeg <= 90.0");
         
-        //            if(DN.crossSlipModel)
+        //            if(crossSlipModel)
         //            {
         //                const auto t0= std::chrono::system_clock::now();
         //                std::cout<<"Finding CrossSlip segments: "<<std::flush;
-        //                crossSlipDeq=findCrossSlipSegments(DN.poly,DN.crossSlipModel);
+        //                crossSlipDeq=findCrossSlipSegments(DN.poly,crossSlipModel);
         //                VerboseCrossSlip(1,crossSlipDeq.size()<<" found"<<std::endl;);
         //                std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         //            }
@@ -48,7 +49,7 @@ namespace model
     void  DislocationCrossSlip<DislocationNetworkType>::findCrossSlipSegments()
     {
         
-        if(DN.crossSlipModel)
+        if(crossSlipModel)
         {
             std::cout<<"Finding CrossSlip segments... "<<std::flush;
             const auto t0= std::chrono::system_clock::now();
@@ -73,16 +74,14 @@ namespace model
                    && link->chord().norm()>2.0*DN.networkRemesher.Lmin
                    )
                 {
-                    //                    const auto& grain(**link.second->grains().begin());
-                    
-                    
+
                     if(DN.poly.crystalStructure=="BCC")
                     {
-                        CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,DN.crossSlipModel);
+                        CrossSlipModels<BCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
                     }
                     else if(DN.poly.crystalStructure=="FCC")
                     {
-                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,DN.crossSlipModel);
+                        CrossSlipModels<FCClattice<dim>>::addToCrossSlip(*link,crossSlipDeq,crossSlipModel);
                     }
                     else
                     {
