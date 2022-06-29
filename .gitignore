@@ -9,6 +9,10 @@ syntax: regexp
 evl_[123456789][0123456789]*\.txt
 evl_[123456789][0123456789]*\.bin
 
+F_0.txt
+F_0.bin
+F_labels.txt
+
 
 # mesh files
 mesh.ele
