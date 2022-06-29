@@ -76,6 +76,8 @@
 #include <EshelbyInclusion.h>
 #include <DDconfigIO.h>
 #include <DislocationGlideSolver.h>
+#include <CrossSlipModels.h>
+
 //#include <TextFileParser.h>
 ////#include <DisplacementPoint.h>
 
@@ -141,6 +143,7 @@ namespace model
         const std::vector<VectorDim>& periodicShifts;
         DislocationNetworkRemesh<LoopNetworkType> networkRemesher;
         DislocationJunctionFormation<DislocationNetwork<dim,corder>> junctionsMaker;
+        const std::shared_ptr<BaseCrossSlipModel<DislocationNetwork<dim,corder>>> crossSlipModel;
         DislocationCrossSlip<DislocationNetwork<dim,corder>> crossSlipMaker;
         DislocationNodeContraction<LoopNetworkType> nodeContractor;
         DDtimeIntegrator<0> timeIntegrator;

@@ -16,37 +16,52 @@
 namespace model
 {
 
-//    template <typename DislocationNetworkType>
-//    struct BaseCrossSlipModel
-//    {
-//
-//        typedef TypeTraits<DislocationNetworkType> TraitsType;
-//        static constexpr int dim=TraitsType::dim;
-//        typedef typename TraitsType::NetworkLinkType NetworkLinkType;
-//        typedef typename TraitsType::NetworkNodeType NetworkNodeType;
-//        typedef std::tuple<std::shared_ptr<NetworkNodeType>,std::shared_ptr<NetworkNodeType>,size_t,size_t> CrossSlipTupleType;
-//        typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
-//
-//
-//        virtual void addToCrossSlip(const NetworkLinkType& link,
-//                                    CrossSlipContainerType& crossSlipDeq,
-//                                    const double& r) =0;
-//
-//    };
-
+template <typename DislocationNetworkType>
+BaseCrossSlipModel<DislocationNetworkType>::BaseCrossSlipModel(const DDtraitsIO& traitsIO) :
+/* init */ crossSlipDeg(TextFileParser(traitsIO.ddFile).readScalar<double>("crossSlipAngle_deg",true))
+/* init */,sinCrossSlip(std::sin(crossSlipDeg*std::numbers::pi/180.0))
+{
     
-        template <typename DislocationNetworkType>
-        AthermalCrossSlipModel<DislocationNetworkType>::AthermalCrossSlipModel()
-        {
-            std::cout<<greenBoldColor<<"Creating AthermalCrossSlipModel"<<defaultColor<<std::endl;
-        }
+    if(crossSlipDeg<0.0 || crossSlipDeg>90.0)
+    {
+        throw std::runtime_error("crossSlipDeg must be 0.0<= crossSlipDeg <= 90.0");
+    }
         
-        template <typename DislocationNetworkType>
-        void AthermalCrossSlipModel<DislocationNetworkType>::addToCrossSlip(const NetworkLinkType& link,
-                            CrossSlipContainerType& crossSlipDeq,
-                            const double& r)
+}
+
+template <typename DislocationNetworkType>
+std::pair<bool,int> BaseCrossSlipModel<DislocationNetworkType>::isBaseCrossSlipLink(const NetworkLinkType& link) const
+{
+    if(   !link.isBoundarySegment()
+       && !link.isGrainBoundarySegment()
+       && link.loopLinks().size()==1
+       && link.unitDirection().cross(link.burgers().normalized()).norm()<=sinCrossSlip
+       && link.chordLength()>2.0*link.network().networkRemesher.Lmin
+       && link.grains().size()==1
+       )
+    {
+        if((*link.loopLinks().begin())->loop->slipSystem())
         {
-            if(link.grains().size()==1)
+            const auto& grain(**link.grains().begin());
+            return std::make_pair(true,grain.grainID);
+        }
+    }
+    return std::make_pair(false,-1);
+}
+
+template <typename DislocationNetworkType>
+AthermalCrossSlipModel<DislocationNetworkType>::AthermalCrossSlipModel(const DDtraitsIO& traitsIO) :
+/* init */ BaseCrossSlipModel<DislocationNetworkType>(traitsIO)
+{
+    std::cout<<greenBoldColor<<"Creating AthermalCrossSlipModel"<<defaultColor<<std::endl;
+}
+            
+        template <typename DislocationNetworkType>
+        std::pair<bool,std::pair<int,int>> AthermalCrossSlipModel<DislocationNetworkType>::isCrossSlipLink(const NetworkLinkType& link)
+        {
+            
+            const auto isBaseCSLink(this->isBaseCrossSlipLink(link));
+            if(isBaseCSLink.first)
             {
                 // Find slip system on which screw segment has highest glide force
                 const auto& grain(**link.grains().begin());
@@ -55,8 +70,8 @@ namespace model
                 for(size_t s=0;s<grain.slipSystems().size();++s)
                 {
                     const auto& slipSystem(grain.slipSystems()[s]);
-                    //const VectorDim ncs=slipSystem->unitNormal.normalized();
-                    if((slipSystem->s.cartesian()-link.burgers()).norm()<FLT_EPSILON)
+                    if(((*link.loopLinks().begin())->loop->slipSystem()->s-slipSystem->s).squaredNorm()==0
+                    && slipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON) // not current slip system
                     {
                         const double pkGlide=(pki-pki.dot(slipSystem->unitNormal)*slipSystem->unitNormal).norm();
                         ssMap.emplace(pkGlide,s);
@@ -65,24 +80,32 @@ namespace model
                 
                 if(ssMap.size())
                 {
-                    const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest pkGlide
-                    if(crosSlipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON)
-                    {// cross slip system is different than original system
-                        crossSlipDeq.emplace_back(link.source,
-                                                  link.sink,
-                                                  grain.grainID,
-                                                  ssMap.rbegin()->second);
-                    }
+                        return std::make_pair(true,std::make_pair(grain.grainID,ssMap.rbegin()->second));
                 }
             }
+            return std::make_pair(false,std::make_pair(-1,-1));
         }
-        
-    
-
 
         template <typename DislocationNetworkType>
-        EscaigCrossSlipModelHEX<DislocationNetworkType>::EscaigCrossSlipModelHEX(const PolycrystallineMaterialBase& material) :
-        /* init */ enableBasalSlipSystems(TextFileParser(material.materialFile).readScalar<int>("enableBasalSlipSystems",false))
+        void AthermalCrossSlipModel<DislocationNetworkType>::addToCrossSlip(const NetworkLinkType& link,
+                            CrossSlipContainerType& crossSlipDeq)
+        {
+                const auto isCSLink(isCrossSlipLink(link));
+                if(isCSLink.first)
+                {
+                    crossSlipDeq.emplace_back(link.source,
+                                              link.sink,
+                                              isCSLink.second.first,
+                                              isCSLink.second.second);
+                }
+        }
+        
+        template <typename DislocationNetworkType>
+        EscaigCrossSlipModelHEX<DislocationNetworkType>::EscaigCrossSlipModelHEX(const PolycrystallineMaterialBase& material,const DDtraitsIO& traitsIO) :
+        /* init */ BaseCrossSlipModel<DislocationNetworkType>(traitsIO)
+        /* init */,gen(rd())
+        /* init */,dist(0.0,1.0)
+        /* init */,enableBasalSlipSystems(TextFileParser(material.materialFile).readScalar<int>("enableBasalSlipSystems",false))
         /* init */,enablePrismaticSlipSystems(TextFileParser(material.materialFile).readScalar<int>("enablePrismaticSlipSystems",false))
         /* init */,enablePyramidalSlipSystems(TextFileParser(material.materialFile).readScalar<int>("enablePyramidalSlipSystems",false))
         /* init */,csw(TextFileParser(material.materialFile).readScalar<double>("csw_SI",true)*material.b_SI/material.cs_SI)
@@ -117,20 +140,19 @@ namespace model
             const double dG(dE-std::fabs(ss)*Vsc+eg*Veg-ec*Vec);
             return w*std::exp(-dG/link.network().poly.kB/link.network().poly.T)*link.quadraturePoint(k).j/L;
         }
-        
+
         template <typename DislocationNetworkType>
-        void EscaigCrossSlipModelHEX<DislocationNetworkType>::addToCrossSlip(const NetworkLinkType& link,
-                            CrossSlipContainerType& crossSlipDeq,
-                            const double& r)
+        std::pair<bool,std::pair<int,int>> EscaigCrossSlipModelHEX<DislocationNetworkType>::isCrossSlipLink(const NetworkLinkType& link)
         {
-            if(link.grains().size()==1)
+            const auto isBaseCSLink(this->isBaseCrossSlipLink(link));
+            if(isBaseCSLink.first)
             {
                 const auto& grain(**link.grains().begin());
                 std::map<double,int> ssMap;
                 for(size_t s=0;s<grain.slipSystems().size();++s)
                 {
                     const auto& slipSystem(grain.slipSystems()[s]);
-                    if(   (slipSystem->s.cartesian()-link.burgers()).norm()<FLT_EPSILON // slip system contains Burgers
+                       if(((*link.loopLinks().begin())->loop->slipSystem()->s-slipSystem->s).squaredNorm()==0
                        && slipSystem->unitNormal.cross(link.glidePlaneNormal()).squaredNorm()>FLT_EPSILON) // not current slip system
                     {
                         
@@ -151,7 +173,6 @@ namespace model
                                                                                   csw,csLp,csp2bE,csp2bVeg,csp2bVsc,csp2bVec);
                             }
                             const double csProb(1.0-std::exp(-csRate*link.network().simulationParameters.dt));
-                            std::cout<<"Link "<<link.tag()<<" with SS "<<link.slipSystem()->sID<<" and Length "<<(link.sink->get_P()-link.source->get_P()).norm()<<" has CS "<<s<<" and csRate "<<csRate<<std::endl;
                             ssMap.emplace(csProb,s);
                         }
                     }
@@ -159,25 +180,33 @@ namespace model
                 
                 if(ssMap.size())
                 {
-                    std::cout<<"Link "<<link.tag()<<" with SS "<<link.slipSystem()->sID<<" has CS "<<ssMap.rbegin()->second<<" and csProb "<<ssMap.rbegin()->first<<std::endl;
-                    std::cout<<"The random number is "<<r<<std::endl;
+                    const double r(dist(gen));
                     if(ssMap.rbegin()->first > r)
                     {
-                        const auto& crosSlipSystem(grain.slipSystems()[ssMap.rbegin()->second]); // last element in map has highest cross-slip probability
-                        std::cout<<"crossSlipDeq size "<<crossSlipDeq.size()<<std::endl;
-                        crossSlipDeq.emplace_back(link.source,
-                                                  link.sink,
-                                                  grain.grainID,
-                                                  ssMap.rbegin()->second);
+                        return std::make_pair(true,std::make_pair(grain.grainID,ssMap.rbegin()->second));
                     }
-                    
                 }
+            }
+            return std::make_pair(false,std::make_pair(-1,-1));
+        }
+        
+        template <typename DislocationNetworkType>
+        void EscaigCrossSlipModelHEX<DislocationNetworkType>::addToCrossSlip(const NetworkLinkType& link,
+                            CrossSlipContainerType& crossSlipDeq)
+        {
+            
+            const auto isCSLink(isCrossSlipLink(link));
+            if(isCSLink.first)
+            {
+                crossSlipDeq.emplace_back(link.source,
+                                          link.sink,
+                                          isCSLink.second.first,
+                                          isCSLink.second.second);
             }
         }
         
     template struct AthermalCrossSlipModel<DislocationNetwork<3,0>>;
     template struct EscaigCrossSlipModelHEX<DislocationNetwork<3,0>>;
-
 
 }
 #endif

@@ -78,13 +78,11 @@ namespace model
     
     template<typename Derived>
     class LoopNetwork : public CRTP<Derived>
-    //    /*               */ public NetworkComponentObserver<NetworkComponent<typename TypeTraits<Derived>::NodeType,typename TypeTraits<Derived>::LinkType>>,
-    /*               */,private std::map<typename TypeTraits<Derived>::LoopLinkType::KeyType,typename TypeTraits<Derived>::LoopLinkType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::LoopType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::LoopNodeType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkNodeType>
     /*               */,public WeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkLinkType>
-//    /*               */,public KeyConstructableWeakPtrFactory<Derived,typename TypeTraits<Derived>::NetworkLinkType>
+    /*               */,private std::map<typename TypeTraits<Derived>::LoopLinkType::KeyType,typename TypeTraits<Derived>::LoopLinkType>
     {
         
     public:

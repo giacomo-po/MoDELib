@@ -19,6 +19,7 @@
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
 
+#include <ChartActor.h>
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
 #include <DDtraitsIO.h>
@@ -57,6 +58,7 @@ public:
     Polycrystal<3> poly;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
+    ChartActor* chartActor;
     
     
     DDqtVTKwidget(QWidget *parent);

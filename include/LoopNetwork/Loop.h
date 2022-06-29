@@ -54,7 +54,7 @@ namespace model
         
     private:
         
-        LoopLinkSequenceType linkSeq;
+//        LoopLinkSequenceType linkSeq;
 //        LoopNetworkType* const _loopNetwork;
         FlowType _flow;
 

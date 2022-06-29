@@ -32,6 +32,12 @@ namespace model
         // /*    */ && this->source->periodicPlaneEdge
         // /*    */ &&   this->sink->periodicPlaneEdge
         // /*    */ && this->source->loop()->sID==this->sink->loop()->sID);
+        
+        if(this->source->networkNode==this->sink->networkNode)
+        {
+            return false;
+        }
+        
         if (this->source->periodicPlaneEdge.first && this->sink->periodicPlaneEdge.first)
         {
             // bool temp((this->source->loop()->sID==this->sink->loop()->sID));

@@ -39,7 +39,10 @@ namespace model
     template <int dim>
     typename LatticePlaneKey<dim>::ArrayType LatticePlaneKey<dim>::correct_h_sign(VectorDimI r, LongIntType h, const LongIntType &latticeID)
     {
-        assert(r.squaredNorm() > 0 && "zero direction cannot be used as LatticePlaneKey");
+        if(r.squaredNorm()==0)
+        {
+            throw std::runtime_error("LatticePlaneKey::correct_h_sign: A zero normal cannot be used as valid GlidePlane normal.");
+        }
         for (int d = 0; d < dim; ++d)
         {
             const int sgnrd(sgn(r(d)));
@@ -122,7 +125,10 @@ namespace model
                                                    const VectorDimD &P)
     { /*! ????
           */
-        assert(r.squaredNorm() > 0 && "A zero normal cannot be used as valid GlidePlane normal");
+        if(r.squaredNorm()==0)
+        {
+            throw std::runtime_error("LatticePlane::computeHeight: A zero normal cannot be used as valid GlidePlane normal");
+        }
         const double hd(P.dot(r.cartesian()));
         const long int h(std::lround(hd));
         return std::make_pair(fabs(hd - h) < FLT_EPSILON, h);
@@ -133,7 +139,10 @@ namespace model
                                                    const LatticeVector<dim> &L)
     { /*! ????
           */
-        assert(r.squaredNorm() > 0 && "A zero normal cannot be used as valid GlidePlane normal");
+        if(r.squaredNorm()==0)
+        {
+            throw std::runtime_error("LatticePlane::computeHeight: A zero normal cannot be used as valid GlidePlane normal");
+        }
         return std::make_pair(true, L.dot(r));
     }
 

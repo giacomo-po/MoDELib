@@ -36,27 +36,132 @@ namespace model
 //        assert(this->flow().dot(glidePlane->n)==0);
     }
 
-//    /**********************************************************************/
-//    template <int dim, short unsigned int corder>
-//    DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
-//                          const VectorDim& B,
-//                          const int& grainID,
-//                          const int& _loopType) :
-//    /* base init */ Loop<DislocationLoop>(net,net->poly.grain(grainID).rationalLatticeDirection(B))
-//    /*      init */,glidePlane(nullptr)
-//    /*      init */,periodicGlidePlane(nullptr)
-//    /*      init */,grain(net->poly.grain(grainID))
-//    /*      init */,loopType(_loopType)
-//    /*      init */,nA(VectorDim::Zero())
-//    /*      init */,nAR(VectorDim::Zero())
-//    /*      init */,_slippedArea(0.0)
-//    /*      init */,_slippedAreaRate(0.0)
-//    /*      init */,_rightHandedUnitNormal(VectorDim::Zero())
-//    /*      init */,_rightHandedNormal(grain)
-//    /*      init */,_slipSystem(nullptr)
-//    {
-//        VerboseDislocationLoop(1,"Constructing DislocationLoop "<<this->sID<<" without plane."<<std::endl;);
-//    }
+    template <int dim, short unsigned int corder>
+    void DislocationLoop<dim,corder>::crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const
+    {
+        
+        std::deque<std::deque<std::pair<const LoopLinkType*,int>>> csBranches;
+        const size_t startID(csBranches.size());
+//        std::cout<<"Loop "<<this->tag()<<", startID="<<startID<<std::endl;
+        if(this->network().crossSlipModel)
+        {
+            std::deque<std::pair<const LoopLinkType*,int>> currentBranch; // pair<link,cross-slip slipSystem ID>
+            for(const auto& link : this->linkSequence())
+            {
+//                std::cout<<"Link "<<link->tag()<<std::endl;
+
+                
+                if(link->hasNetworkLink())
+                {
+                    const auto isCSLink(this->network().crossSlipModel->isCrossSlipLink(*link->networkLink()));
+//                    std::cout<<isCSLink.first<<", "<<isCSLink.second.first<<", "<<isCSLink.second.second<<std::endl;
+
+                    if(isCSLink.first)
+                    {// a cross-slip segment
+                        if(currentBranch.empty())
+                        {// start of new branch
+                            currentBranch.emplace_back(link,isCSLink.second.second);
+//                            std::cout<<"A"<<std::endl;
+
+                        }
+                        else
+                        {// existing branch
+                            if(currentBranch.back().second==isCSLink.second.second)
+                            {
+                                currentBranch.emplace_back(link,isCSLink.second.second);
+//                                std::cout<<"B"<<std::endl;
+
+                            }
+                            else
+                            {// close, store, and push to currentBranch,
+                                csBranches.push_back(currentBranch);
+                                currentBranch.clear();
+                                currentBranch.emplace_back(link,isCSLink.second.second);
+//                                std::cout<<"C"<<std::endl;
+
+                            }
+                        }
+                    }
+                    else
+                    {// not a cross-slip segment
+                        if(!currentBranch.empty())
+                        {// close and store branch if not empty
+                            csBranches.push_back(currentBranch);
+                            currentBranch.clear();
+//                            std::cout<<"D"<<std::endl;
+                        }
+                    }
+                }
+                else
+                {
+                    if(!currentBranch.empty())
+                    {// close and store branch if not empty
+                        currentBranch.emplace_back(link,currentBranch.back().second);
+//                            std::cout<<"D"<<std::endl;
+                    }
+                }
+                
+            }
+            
+//            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
+            if(csBranches.size()>startID+1)
+            {// Inserted two or more branches. Merge last and first branch if possible
+                if(   csBranches[startID].front().first->prev==csBranches.back().back().first
+                   && csBranches[startID].front().second==csBranches.back().back().second)
+                {
+                    for(typename std::deque<std::pair<const LoopLinkType*,int>>::reverse_iterator rIter = csBranches.back().rbegin();
+                        rIter != csBranches.back().rend(); ++rIter)
+                    {
+                        csBranches[startID].push_front(*rIter);
+                    }
+                    
+//                    for(const auto& pair : csBranches.front())
+//                    {
+//                        csBranches.back().push_back(pair);
+//                    }
+                    csBranches.pop_back();
+                }
+            }
+            
+            for(const auto& branch : csBranches)
+            {
+                if(branch.size())
+                {
+                    csNodes.emplace_back(std::deque<std::shared_ptr<LoopNodeType>>(),branch.back().second);
+                    for(const auto& pair : branch)
+                    {
+                       if(!pair.first->source->periodicPlaneEdge.first && !pair.first->source->periodicPlaneEdge.second)
+                       {// not a boundary node
+                           csNodes.back().first.emplace_back(pair.first->source);
+                       }
+                    }
+                    if(    branch.back().first->sink!=csNodes.back().first.back()
+                       && !branch.back().first->sink->periodicPlaneEdge.first && !branch.back().first->sink->periodicPlaneEdge.second)
+                    {
+                        csNodes.back().first.emplace_back(branch.back().first->sink);
+                    }
+                }
+            }
+            
+//            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
+
+            
+//            std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
+//            for(const auto& brach : csBranches)
+//            {
+//                for(const auto& pair : brach)
+//                {
+//                    std::cout<<pair.first->tag()<<std::endl;
+//                }
+//            }
+            
+        }
+        
+        
+
+        
+        
+    }
 
     template <int dim, short unsigned int corder>
     DislocationLoop<dim,corder>::~DislocationLoop()

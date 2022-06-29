@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
+option(BUILD_AS_LIB "ON to build as a static library" OFF)
+
 set(EigenRootDir "/usr/local/include")
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")
@@ -16,8 +18,12 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES Linux)
 endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -fopenmp -Ofast")
 
+if(BUILD_AS_LIB)
+	add_library(DDomp STATIC)
+else()
+	add_executable(DDomp DDomp.cpp)
+endif()
 
-add_executable(DDomp DDomp.cpp)
 
 include_directories(${EigenRootDir})
 include_directories(${MoDELibRootDir}/include/Utilities/)
@@ -46,4 +52,5 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
+
 

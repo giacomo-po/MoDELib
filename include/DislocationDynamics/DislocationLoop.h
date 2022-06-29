@@ -89,104 +89,11 @@ namespace model
         const std::shared_ptr<SlipSystem>&  slipSystem() const;
         bool isVirtualBoundaryLoop() const;
         double solidAngle(const VectorDim& x) const;
+        void crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const;
         
         static void initFromFile(const std::string&);
         static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);
         template <typename T> static int sgn(const T& val);
-        
-        //        typedef DislocationLoop<_dim,corder> LoopType;
-
-//
-//        constexpr static int dim=_dim;
-//
-////        std::shared_ptr<SlipSystem> slipSystem;
-////
-////        /**********************************************************************/
-////        void updateSlipSystem()
-////        {
-////            slipSystem=nullptr;
-//////            const ReciprocalLatticeDirection<dim> rightHandedDir(this->grain.reciprocalLatticeDirection(this->rightHandedNormal()));
-////            for(const auto& ss : this->grain.slipSystems())
-////            {
-////                if(  ((this->flow()-ss->s).squaredNorm()==0 && (this->rightHandedNormal()-ss->n).squaredNorm()==0)
-////                   ||((this->flow()+ss->s).squaredNorm()==0 && (this->rightHandedNormal()+ss->n).squaredNorm()==0))
-////                {
-////                    slipSystem=ss;
-////                }
-////            }
-////        }
-//
-//    public:
-//
-//        typedef DislocationLoop<dim,corder> DislocationLoopType;
-//        typedef PlanarDislocationLoop<DislocationLoopType> BaseLoopType;
-//        typedef typename TypeTraits<DislocationLoopType>::LoopNetworkType LoopNetworkType;
-//        typedef PeriodicDislocationLoop<LoopNetworkType> PeriodicDislocationLoopType;
-//        typedef Eigen::Matrix<double,dim,1> VectorDim;
-//        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-//
-//
-//
-//        /**********************************************************************/
-//        DislocationLoop(LoopNetworkType* const dn,
-//                        const VectorDim& B,
-//                        const std::shared_ptr<GlidePlane<dim>>& glidePlane) :
-////        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane)
-//        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane)
-//        //        /* init */,slipSystem(nullptr)
-//        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
-//        {
-//        }
-//
-//        /**********************************************************************/
-//        DislocationLoop(LoopNetworkType* const dn,
-//                        const VectorDim& B,
-//                        const std::shared_ptr<GlidePlane<dim>>& glidePlane,
-////                        const std::shared_ptr<PeriodicDislocationLoopType>& pLoop,
-//                        const VectorDim& shift) :
-////        /* init */ BaseLoopType(dn,glidePlane->grain.latticeVector(B),glidePlane,pLoop,shift)
-//        /* init */ BaseLoopType(dn,glidePlane->grain.rationalLatticeDirection(B),glidePlane,shift)
-//        //        /* init */,slipSystem(nullptr)
-//        //        /* init */,isGlissile(this->flow().dot(this->glidePlane->n)==0)
-//        {
-//        }
-//
-//        /**********************************************************************/
-//        DislocationLoop(LoopNetworkType* const dn,
-//                        const VectorDim& B,
-//                        const int& grainID,
-//                        const int& _loopType) :
-//        /* init */ BaseLoopType(dn,dn->poly.grain(grainID).rationalLatticeDirection(B),grainID,_loopType)
-////        /* init */,slipSystem(nullptr)
-////        /* init */,isGlissile(false)
-//        {// Virtual dislocation loop
-//        }
-//
-////        /**********************************************************************/
-////        DislocationLoop(const DislocationLoop& other) :
-////        /* base init */ BaseLoopType(other)
-////        /* init */,slipSystem(other.slipSystem)
-//////        /* init */,isGlissile(other.isGlissile)
-////        {
-////        }
-//
-
-        /******************************************************************/
-
-
-        /**********************************************************************/
-//
-        /**********************************************************************/
-//
-//
-//        /**********************************************************************/
-//        template <class T>
-//        friend T& operator << (T& os, const DislocationLoopType& dL)
-//        {
-//            os<< DislocationLoopIO<dim>(dL);
-//            return os;
-//        }
-//
    };
     
 }

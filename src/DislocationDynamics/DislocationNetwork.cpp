@@ -36,6 +36,7 @@ namespace model
     /* init */,periodicShifts(_periodicShifts)
     /* init */,networkRemesher(*this)
     /* init */,junctionsMaker(*this)
+    /* init */,crossSlipModel(DislocationCrossSlip<DislocationNetwork<dim,corder>>::getModel(poly,simulationParameters.traitsIO))
     /* init */,crossSlipMaker(*this)
     /* init */,nodeContractor(*this)
     /* init */,timeIntegrator(simulationParameters.traitsIO.ddFile)
@@ -103,7 +104,7 @@ namespace model
         size_t loopNumber=1;
         for(const auto& loop : evl.loops())
         {
-            const bool faulted= poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false;
+            const bool faulted(poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false);
             std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
@@ -737,8 +738,9 @@ namespace model
                             // std::set<size_t> tempNext;
                             
                             const auto netLink (sharedLNptr->next.second->networkLink());
-                            assert(netLink!= nullptr && "A network link must exist");
-                            
+//                            assert(netLink!= nullptr && "A network link must exist");
+                            if(netLink)
+                            {
                             std::set<size_t> netLinkLoopIDs (netLink->loopIDs());
                             // std::set<size_t> tempNetLinkComparison;
                             
@@ -756,6 +758,7 @@ namespace model
                                     networkNodeLoopMap.emplace(std::make_pair(sharedLNptr->periodicNext()->networkNode,sharedLNptr->networkNode), netLinkLoopIDs);
                                 }
                             }
+                        }
                         }
                     }
                 }
