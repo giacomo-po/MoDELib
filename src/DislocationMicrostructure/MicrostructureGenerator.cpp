@@ -17,6 +17,7 @@
 #include <PeriodicDipoleGenerator.h>
 #include <PeriodicLoopGenerator.h>
 #include <InclusionsGenerator.h>
+#include <VTKGenerator.h>
 
 namespace model
 {
@@ -69,6 +70,10 @@ namespace model
             {
                 success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
             }
+            else if(microstructureType=="VTK")
+            {
+                success=this->emplace(tag,new VTKGenerator(microstructureFileName)).second;
+            }
             else
             {
                 std::cout<<"unkown microstructure type "<<microstructureType<<std::endl;
@@ -79,42 +84,6 @@ namespace model
             }
         }
         
-        
-//        if(polyFile.is_open())
-//        {
-//            std::string line;
-//            while (std::getline(polyFile, line))
-//            {
-//                const std::string microstructureFileName(folderName+"/inputFiles/"+line);
-//                const std::string microstructureType(TextFileParser(microstructureFileName).readString("type",false));
-//                const std::string tag(TextFileParser(microstructureFileName).readString("tag",false));
-//                bool success(false);
-//                if(microstructureType=="PeriodicDipole")
-//                {
-//                    success=this->emplace(tag,new PeriodicDipoleGenerator(microstructureFileName)).second;
-//                }
-//                else if(microstructureType=="PeriodicLoop")
-//                {
-//                    success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
-//                }
-//                else if(microstructureType=="Inclusions")
-//                {
-//                    success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
-//                }
-//                else
-//                {
-//                    std::cout<<"unkown microstructure type "<<microstructureType<<std::endl;
-//                }
-//                if(!success)
-//                {
-//                    throw std::runtime_error("Duplicate microstructure tag "+tag+".");
-//                }
-//            }
-//        }
-//        else
-//        {
-//            throw std::runtime_error("Cannot open file "+folderName+"/inputFiles/initialMicrostructure.txt");
-//        }
         
         for(auto& gen : *this)
         {

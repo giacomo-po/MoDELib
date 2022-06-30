@@ -50,6 +50,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,dim>    MatrixDimD;
         typedef Eigen::Matrix<long int,dim,dim>    MatrixDimI;
 
+        const std::string microstructureFileName;
         TextFileParser parser;
         const std::string type;
         const std::string style;
@@ -61,7 +62,6 @@ namespace model
         
         virtual void generateIndividual(MicrostructureGenerator&) =0;
         virtual void generateDensity(MicrostructureGenerator&) =0;
-
         
     };
 

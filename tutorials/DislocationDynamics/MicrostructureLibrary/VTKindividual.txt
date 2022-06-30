@@ -1,0 +1,5 @@
+type=VTK;
+style=individual;
+tag=vtk0;
+vtkFile=dxa_ovito_200.vtk;
+dislocationType=loop;

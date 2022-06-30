@@ -4,4 +4,5 @@ microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;
 #microstructureFile = ../../../MicrostructureLibrary/inclusionsDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/inclusionsIndividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/VTKindividual.txt;
 

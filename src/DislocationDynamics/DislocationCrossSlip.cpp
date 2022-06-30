@@ -123,6 +123,7 @@ namespace model
             const auto t0= std::chrono::system_clock::now();
             std::cout<<"Cross slip: "<<std::flush;
             std::cout<<"csNodes.size()="<<csNodes.size()<<std::endl;
+            std::cout<<"aligning nodes"<<std::endl;
             size_t executed(0);
             for(const auto& branch : csNodes)
             {// Align all nodes in a brach on the same cross-slip plane
@@ -152,13 +153,18 @@ namespace model
                         for(auto& node : branch.first)
                         {// align all nodes in the branch to perfect screw direction
                             const VectorDim deltaP(ppi.P-node->get_P()+(node->get_P()-ppi.P).dot(ppi.d)*ppi.d);
+                            std::cout<<"node "<<node->tag()<<", P="<<node->networkNode->get_P().transpose()<<std::endl;
+                            std::cout<<"node "<<node->tag()<<", dP"<<deltaP.transpose()<<std::endl;
+
                             node->networkNode->trySet_P(node->networkNode->get_P()+deltaP);
+                            std::cout<<"node "<<node->tag()<<", P="<<node->networkNode->get_P().transpose()<<std::endl;
                         }
                     }
                 }
             }
-            DN.updateBoundaryNodes(); // After aligning bnd nodes must be updated
+            DN.updateBoundaryNodes(); // After aligning, bnd nodes must be updated
             
+            std::cout<<"creting crossSlip loop"<<std::endl;
             for(const auto& branch : csNodes)
             {
                 if(branch.first.size())
@@ -174,16 +180,58 @@ namespace model
                         auto crossSlipLoop(DN.loops().create(crosSlipSystem->s.cartesian(), crossSlipPlane));
                         const auto periodicCrossSlipPlane(DN.periodicGlidePlaneFactory->get(crossSlipPlane->key));
                         
-                        VectorDim shift(VectorDim::Zero());
                         std::vector<std::shared_ptr<LoopNodeType>> crossSlipLoopNodes;
                         LoopNodeType* currentLoopNode(branch.first.back().get());
+                        VectorDim shift(periodicCrossSlipPlane->findPatch(periodicCrossSlipPlane->referencePlane->localPosition(currentLoopNode->get_P()),shift));
+                        std::shared_ptr<PeriodicPlanePatch<dim>> crossSlipPatch(periodicCrossSlipPlane->getPatch(shift));
+                        
+                        // add a new cross-slip node at the end of the branch
+                        std::shared_ptr<NetworkNodeType> newNetNode(DN.networkNodes().create(currentLoopNode->networkNode->get_P(), VectorDim::Zero(), 1.0));
+                        crossSlipLoopNodes.emplace_back(DN.loopNodes().create(crossSlipLoop, newNetNode, currentLoopNode->networkNode->get_P()-shift, crossSlipPatch, std::make_pair(nullptr,nullptr)));
+
                         while(true)
-                        {
+                        {// kepping adding new cross-slip nodes traversing the branch in reverse order
+                            std::shared_ptr<PeriodicPlaneEdge<dim>> edge1(nullptr);
+                            std::shared_ptr<PeriodicPlaneEdge<dim>> edge2(nullptr);
+                            if(currentLoopNode->periodicPlaneEdge.first)
+                            {// a boundary node on one edge
+                                edge1=crossSlipPatch->edgeOnIntersection(currentLoopNode->periodicPlaneEdge.first->meshIntersection);
+                                if(!edge1)
+                                {
+                                    throw std::runtime_error("crossSlipPatch patch does not have edge1.");
+                                }
+                                if(currentLoopNode->periodicPlaneEdge.second)
+                                {// a boundary node on two edges
+                                    edge2=crossSlipPatch->edgeOnIntersection(currentLoopNode->periodicPlaneEdge.second->meshIntersection);
+                                    if(!edge2)
+                                    {
+                                        throw std::runtime_error("crossSlipPatch patch does not have edge2.");
+                                    }
+                                }
+                            }
+                            else
+                            {// not a boundary node
+                                edge1=nullptr;
+                                edge2=nullptr;
+                            }
+                            crossSlipLoopNodes.emplace_back(DN.loopNodes().create(crossSlipLoop, currentLoopNode->networkNode, currentLoopNode->networkNode->get_P()-shift, crossSlipPatch, std::make_pair(edge1,edge2)));
                             
-//                            if()
+                            if(edge1)
+                            {
+                                shift+=edge1->deltaShift;
+                                if(edge2)
+                                {
+                                    shift+=edge2->deltaShift;
+                                }
+                                crossSlipPatch=periodicCrossSlipPlane->getPatch(shift);
+                            }
+                            
                             
                             if(currentLoopNode==branch.first.front().get())
                             {
+                                // add a new cross-slip node at the beginning of the branch and break
+                                newNetNode=DN.networkNodes().create(currentLoopNode->networkNode->get_P(), VectorDim::Zero(), 1.0);
+                                crossSlipLoopNodes.emplace_back(DN.loopNodes().create(crossSlipLoop, newNetNode, currentLoopNode->networkNode->get_P()-shift, crossSlipPatch, std::make_pair(nullptr,nullptr)));
                                 break;
                             }
                             else
@@ -219,7 +267,7 @@ namespace model
         
         
         
-        if(DN.crossSlipModel)
+        if(DN.crossSlipModel && true)
         {
             const auto t0= std::chrono::system_clock::now();
             std::cout<<"Cross slip: "<<std::flush;

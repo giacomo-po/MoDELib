@@ -437,6 +437,19 @@ namespace model
     }
 
     template<int dim>
+    std::shared_ptr<PeriodicPlaneEdge<dim>> PeriodicPlanePatch<dim>::edgeOnIntersection(const std::shared_ptr<const MeshBoundarySegment<dim>>& meshIntersection) const
+    {
+        for(const auto& edge : edges())
+        {
+            if(edge->meshIntersection==meshIntersection)
+            {
+                return edge;
+            }
+        }
+        return std::shared_ptr<PeriodicPlaneEdge<dim>>(nullptr);
+    }
+
+    template<int dim>
     int PeriodicPlanePatch<dim>::contains(const VectorLowerDim& test)
     {
         //                const auto& outerBoundary(outerBoundaries()[0]);

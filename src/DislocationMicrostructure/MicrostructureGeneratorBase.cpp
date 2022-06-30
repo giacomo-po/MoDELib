@@ -27,7 +27,8 @@ namespace model
     }
 
     MicrostructureGeneratorBase::MicrostructureGeneratorBase(const std::string& fileName):
-    /* init */ parser(fileName)
+    /* init */ microstructureFileName(fileName)
+    /* init */,parser(microstructureFileName)
     /* init */,type(parser.readString("type",false))
     /* init */,style(parser.readString("style",false))
     /* init */,tag(parser.readString("tag",false))

@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_PeriodicDipoleGenerator_cpp_
-#define model_PeriodicDipoleGenerator_cpp_
+#ifndef model_PeriodicLoopGenerator_cpp_
+#define model_PeriodicLoopGenerator_cpp_
 
 #include <numbers>
 #include <chrono>

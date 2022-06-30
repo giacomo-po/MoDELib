@@ -98,7 +98,7 @@ surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=0;
+crossSlipModel=1;
 crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
 
 ######################################
