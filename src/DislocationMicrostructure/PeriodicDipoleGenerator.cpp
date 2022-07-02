@@ -220,11 +220,14 @@ namespace model
                                     
                                     std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
                                     // The prismatic loop
+                                    const int nShift(2);
+                                    const VectorDimD lShift(nShift*AB);
+                                    const VectorDimD rShift(lShift+AB);
                                     std::vector<VectorDimD> prismaticNodePos;
-                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P));
-                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
-                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)+AB));
-                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)));
+                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P)+lShift); //HERE ADD N*AB
+                                    prismaticNodePos.push_back(0.5*(pliB.P+pliA.P)+rShift);
+                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)+rShift));
+                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(0.5*(pliB.P+pliA.P)+lShift));
                                     
 
                                     
@@ -241,10 +244,10 @@ namespace model
                                     // First glide loop
                                     const double glideStep=1.0;
                                     std::vector<VectorDimD> firstNodePos;
-                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P));
-                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB);
-                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+AB+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)   +glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+lShift);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+rShift);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+rShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                    firstNodePos.push_back(0.5*(pliB.P+pliA.P)+lShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
                                     
 //                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,firstNodePos,glidePlane,
 //                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,

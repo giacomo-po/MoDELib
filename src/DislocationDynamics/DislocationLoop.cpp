@@ -41,8 +41,7 @@ namespace model
     {
         
         std::deque<std::deque<std::pair<const LoopLinkType*,int>>> csBranches;
-        const size_t startID(csBranches.size());
-//        std::cout<<"Loop "<<this->tag()<<", startID="<<startID<<std::endl;
+//        std::cout<<"Loop "<<this->tag()<<std::endl;
         if(this->network().crossSlipModel)
         {
             std::deque<std::pair<const LoopLinkType*,int>> currentBranch; // pair<link,cross-slip slipSystem ID>
@@ -97,22 +96,28 @@ namespace model
                     if(!currentBranch.empty())
                     {// close and store branch if not empty
                         currentBranch.emplace_back(link,currentBranch.back().second);
-//                            std::cout<<"D"<<std::endl;
+//                            std::cout<<"E"<<std::endl;
                     }
                 }
                 
             }
+            if(!currentBranch.empty())
+            {// close and store branch if not empty
+                csBranches.push_back(currentBranch);
+                currentBranch.clear();
+//                std::cout<<"F"<<std::endl;
+            }
             
 //            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
-            if(csBranches.size()>startID+1)
+            if(csBranches.size()>1)
             {// Inserted two or more branches. Merge last and first branch if possible
-                if(   csBranches[startID].front().first->prev==csBranches.back().back().first
-                   && csBranches[startID].front().second==csBranches.back().back().second)
+                if(   csBranches[0].front().first->prev==csBranches.back().back().first
+                   && csBranches[0].front().second==csBranches.back().back().second)
                 {
                     for(typename std::deque<std::pair<const LoopLinkType*,int>>::reverse_iterator rIter = csBranches.back().rbegin();
                         rIter != csBranches.back().rend(); ++rIter)
                     {
-                        csBranches[startID].push_front(*rIter);
+                        csBranches[0].push_front(*rIter);
                     }
                     
 //                    for(const auto& pair : csBranches.front())
@@ -146,14 +151,14 @@ namespace model
 //            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
 
             
-//            std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
-//            for(const auto& brach : csBranches)
-//            {
-//                for(const auto& pair : brach)
-//                {
-//                    std::cout<<pair.first->tag()<<std::endl;
-//                }
-//            }
+            std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
+            for(const auto& brach : csBranches)
+            {
+                for(const auto& pair : brach)
+                {
+                    std::cout<<pair.first->tag()<<std::endl;
+                }
+            }
             
         }
         

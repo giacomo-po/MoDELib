@@ -145,7 +145,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
     
     
     
-    static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr)
+    static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr,const double& MSS)
     {
         char line[200];
         double temp;
@@ -177,7 +177,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
             for(int ind=0;ind<Nr;ind++)
             {
                 flag = fread(&temp, sizeof(double), 1, InFile);
-                Noise[ind] = REAL_SCALAR(temp);
+                Noise[ind] = MSS*REAL_SCALAR(temp);
             }
         }
     }
@@ -192,7 +192,9 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         const auto gridSize_xz(Read_dimensions(fileName_xz.c_str()));
         const std::string fileName_yz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("solidSolutionNoiseFile_yz",true));
         const auto gridSize_yz(Read_dimensions(fileName_yz.c_str()));
-        
+        const double MSSS_SI(TextFileParser(traitsIO.materialFile).readScalar<double>("MSSS_SI",true));
+        const double MSS(std::sqrt(MSSS_SI)/mat.mu);
+
         if((gridSize_xz.first-gridSize_yz.first).squaredNorm()==0 && (gridSize_xz.first-_gridSize).squaredNorm()==0)
         {
             if((gridSize_xz.second-gridSize_yz.second).squaredNorm()==0.0 && (gridSize_xz.second-_gridSpacing_A).squaredNorm()==0.0)
@@ -201,17 +203,17 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
                 // allocate noises
                 REAL_SCALAR *Noise_xz = (REAL_SCALAR *) malloc(sizeof(REAL_SCALAR)*Nr);
                 // read noise vtk file
-                Read_noise_vtk(fileName_xz.c_str(), Noise_xz, Nr);
+                Read_noise_vtk(fileName_xz.c_str(), Noise_xz, Nr,MSS);
                 
                 // allocate noises
                 REAL_SCALAR *Noise_yz = (REAL_SCALAR *) malloc(sizeof(REAL_SCALAR)*Nr);
                 // read noise vtk file
-                Read_noise_vtk(fileName_yz.c_str(), Noise_yz, Nr);
+                Read_noise_vtk(fileName_yz.c_str(), Noise_yz, Nr,MSS);
                 
                 this->resize(Nr);
                 for(size_t k=0;k<Nr;++k)
                 {
-                    this->operator[](k)<<Noise_xz[k]/mat.mu_SI,Noise_yz[k]/mat.mu_SI;
+                    this->operator[](k)<<Noise_xz[k],Noise_yz[k];
                 }
             }
             else
@@ -600,27 +602,46 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
 
 
         
-        StackingFaultNoise(const DDtraitsIO& traitsIO,const PolycrystallineMaterialBase& mat,
+        StackingFaultNoise(const DDtraitsIO& traitsIO,
+                           const PolycrystallineMaterialBase& mat,
                            const NoiseTraitsBase::GridSizeType& gridSize,
                            const NoiseTraitsBase::GridSpacingType& gridSpacing_SI)
         {
             
             std::cout<<greenBoldColor<<"Creating StackingFaultNoise"<<defaultColor<<std::endl;
             
-            const std::string noiseFileName(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("stackingFaultNoiseFile"));
-            const double isfEnergyDensityMEAN_SI(TextFileParser(noiseFileName).readScalar<double>("isfEnergyDensityMEAN_SI",true));
-            const double isfEnergyDensitySTD_SI(TextFileParser(noiseFileName).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1)));
+//            const std::string noiseFileName(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("stackingFaultNoiseFile"));
+            const double isfEnergyDensityMEAN(TextFileParser(traitsIO.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
+            const double isfEnergyDensitySTD(TextFileParser(traitsIO.materialFile).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1))/(mat.mu_SI*mat.b_SI));
                         
-            std::normal_distribution<double> distribution (isfEnergyDensityMEAN_SI,isfEnergyDensitySTD_SI);
+            std::normal_distribution<double> distribution (isfEnergyDensityMEAN,isfEnergyDensitySTD);
 
             const size_t N(gridSize.array().prod());
             this->reserve(N);
             for(size_t k=0;k<N;++k)
             {// J/m^2 = N/m = Pa*m
-                this->push_back((distribution(generator)-isfEnergyDensityMEAN_SI)/(mat.mu_SI*mat.b_SI));
-//                std::cout<<this->back()<<std::endl;
+//                this->push_back((distribution(generator)-isfEnergyDensityMEAN));
+                this->push_back(distribution(generator));
             }
             
+            NoiseType ave(0.0);
+            for(const auto& valArr: *this)
+            {
+                ave+=valArr;
+            }
+            ave/=this->size();
+            
+            NoiseType var(0.0);
+            for(const auto& valArr: *this)
+            {
+                var+= (valArr-ave)*(valArr-ave);
+            }
+            var/=this->size();
+            
+            std::cout<<"gridSize= "<<gridSize<<std::endl;
+            std::cout<<"gridSpacing_SI= "<<gridSpacing_SI<<std::endl;
+            std::cout<<"noiseAverage="<<ave<<std::endl;
+            std::cout<<"noiseVariance="<<var<<std::endl;
             
         }
         

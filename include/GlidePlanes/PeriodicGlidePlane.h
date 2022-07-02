@@ -154,7 +154,7 @@ namespace model
         static bool isRightHandedBoundary(const BoundingMeshSegments<dim>&, const Plane<dim>&);
         void addMeshIntersections(const BoundingMeshSegments<dim>&);
         const PeriodicPlaneEdgeContainerType& edges() const;
-        std::shared_ptr<PeriodicPlaneEdge<dim>> edgeOnIntersection(const std::shared_ptr<const MeshBoundarySegment<dim>>& meshIntersection) const;
+        std::shared_ptr<PeriodicPlaneEdge<dim>> edgeOnFaces(const std::set<const PlanarMeshFace<dim>*>& faces) const;
         int contains(const VectorLowerDim& test);
     };
     
