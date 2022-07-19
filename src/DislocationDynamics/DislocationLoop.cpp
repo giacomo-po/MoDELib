@@ -197,18 +197,23 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
-    std::vector<int> DislocationLoop<dim,corder>::windingNumber(const std::vector<VectorDim>& pts)
+    int DislocationLoop<dim,corder>::windingNumber(const VectorDim& pt)
     {/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
       
       */
-        std::vector<int> temp;
-
-        
-
-        
-        
-        
-        return temp;
+        int wn(0);
+        for(const auto& pair : _patches)
+        {
+            if(pair.first->glidePlane)
+            {
+                if(pair.first->glidePlane->contains(pt))
+                {
+                    const auto localPt(pair.first->glidePlane->localPosition(pt));
+                    wn+=Polygon2D::windingNumber(localPt,pair.second);
+                }
+            }
+        }
+        return wn;
     }
 
 
@@ -541,19 +546,20 @@ namespace model
         {
             _patches.clear();
             std::vector<VectorDim> linkShifts;
-            for(const auto& link : this->loopLinks())
+            std::vector<Eigen::Matrix<double,dim-1,1>> localNodePos;
+            for(const auto& link : this->linkSequence())
             {// Collect patches of the loop
                 if(link->periodicPlanePatch())
                 {
                     linkShifts.push_back(link->periodicPlanePatch()->shift);
                 }
+                if(   !link->source->periodicPlaneEdge.first
+                   && !link->source->periodicPlaneEdge.second)
+                {// source is not a bnd node
+                    localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(link->source->get_P()));
+                }
             }
             const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
-            std::vector<Eigen::Matrix<double,dim-1,1>> localNodePos;
-            for(const auto& nodePair : this->nodeSequence())
-            {
-                localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(nodePair.first->get_P()));
-            }
             
             for(const auto& patch : loopPatches)
             {
@@ -572,14 +578,17 @@ namespace model
                 }
                 
                             
-                std::cout<<"Loop "<<this->tag()<<", patches with #nodes="<<localLoopPosOnPatchPlane.size()<<std::endl;
+//                std::cout<<"Loop "<<this->tag()<<", patches with #nodes="<<localLoopPosOnPatchPlane.size()<<std::endl;
 
                 _patches.emplace(patch,localLoopPosOnPatchPlane);
                 
             }
             
-            
-//            _patches=;
+//            VectorDim xx;
+//            xx<<200,500,periodicGlidePlane->referencePlane->P(2);
+//            std::cout<<"xx="<<xx.transpose()<<std::endl;
+//            int wn(windingNumber( xx));
+//            std::cout<<"wn="<<wn<<std::endl;
         }
 
     }
