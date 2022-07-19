@@ -15,21 +15,20 @@
 #endif
 
 #include <Eigen/Dense>
-#include <PolycrystallineMaterial.h>
-#include <DislocationStress.h>
+#include <PolycrystallineMaterialBase.h>
+#include <DislocationFieldBase.h>
 
 namespace model
 {
     
-    template<short unsigned int _dim>
-	struct DislocationStress; // class predeclaration
     
-    template <int dim,typename Scalar=double>
+    template <int dim>
     class StraightDislocationSegment
     {
+        typedef double Scalar;
         typedef Eigen::Matrix<Scalar,dim,dim> MatrixDim;
         typedef Eigen::Matrix<Scalar,dim,1>   VectorDim;
-        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
+//        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         
         /**********************************************************************/
         template<typename Derived>
@@ -44,12 +43,12 @@ namespace model
             static_assert(0,"THERE IS NO CONSISTENT REGULARIZATION OF THIS EXPRESSION. USE _MODEL_NON_SINGULAR_DD_=1");
             
 //            const Scalar L(r.dot(t));
-//            const Scalar R(r.norm()+DislocationStress<dim>::a);
+//            const Scalar R(r.norm()+DislocationFieldBase<dim>::a);
 //            const VectorDim rho(r-L*t); // distance vector to the line
 //            const VectorDim Y((L+R)*t+rho); // = R*t + r
 //            // Y2=R^2+R^2+2R*(r*t)=2R*(R+L)
-////            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
-////            return (MaterialType::C1* b.cross(Y)*t.transpose()
+////            const Scalar Y2(Y.squaredNorm()+DislocationFieldBase<dim>::a2);
+////            return (material.C1* b.cross(Y)*t.transpose()
 ////            /*                 */ -b.cross(t)*Y.transpose()
 ////            /*                 */ -b.dot(Y.cross(t))*(2.0/Y2*rho*Y.transpose()+0.5*(MatrixDim::Identity()+t*t.transpose()+2.0/Y2*L/R*Y*Y.transpose()))
 ////                    )*2.0/Y2;
@@ -58,9 +57,9 @@ namespace model
 ////            const Scalar f1(2.0/Y.squaredNorm());
 //            const Scalar f1(1.0/(R*(R+L))); // =2/Y2=2/(2R*(R+L))
 //
-////            const Scalar f1(2.0/(Y.squaredNorm()+DislocationStress<dim>::a2));
+////            const Scalar f1(2.0/(Y.squaredNorm()+DislocationFieldBase<dim>::a2));
 ////            const Scalar f1(2.0/Y2);
-//            const Scalar f2(MaterialType::C1*f1);
+//            const Scalar f2(material.C1*f1);
 //            const Scalar bDotYcrosst(b.dot(Y.cross(t)));
 //            const Scalar f3(bDotYcrosst*f1*f1);
 //            const Scalar f4(0.5*f1*bDotYcrosst);
@@ -74,19 +73,19 @@ namespace model
 //            /*  */ -f5*Y*Y.transpose();
 
 //            const Scalar R(r.norm());
-            const Scalar Ra(sqrt(r.squaredNorm()+DislocationStress<dim>::a2));
+            const Scalar Ra(sqrt(r.squaredNorm()+DislocationFieldBase<dim>::a2));
             const VectorDim Y(r+Ra*t);
             const Scalar Yt(Y.dot(t));
-//            const Scalar Yta(Yt+DislocationStress<dim>::a);
-            const Scalar Yta(sqrt(Yt*Yt+DislocationStress<dim>::a2));
-            const Scalar Y2(Y.squaredNorm()+DislocationStress<dim>::a2);
+//            const Scalar Yta(Yt+DislocationFieldBase<dim>::a);
+            const Scalar Yta(sqrt(Yt*Yt+DislocationFieldBase<dim>::a2));
+            const Scalar Y2(Y.squaredNorm()+DislocationFieldBase<dim>::a2);
             const Scalar bYt(b.cross(Y).dot(t));
 
             
             const Scalar f1(2.0/Y2);
             
             
-            return  f1*MaterialType::C1*t*(b.cross(Y)).transpose()
+            return  f1*material.C1*t*(b.cross(Y)).transpose()
             /*   */-f1*Y*bCt.transpose()
             /*   */-f1*bYt/Yta*t*r.transpose()
             /*   */-0.5*f1*bYt*MatrixDim::Identity()
@@ -96,7 +95,7 @@ namespace model
             
 #elif _MODEL_NON_SINGULAR_DD_ == 1 /* Cai's non-singular theory */
 
-//            const double Ra2=r.squaredNorm()+DislocationStress<dim>::a2;
+//            const double Ra2=r.squaredNorm()+DislocationFieldBase<dim>::a2;
 //            const double Ra=sqrt(Ra2);
 //            const double Ra3=std::pow(Ra,3);
 //            const double rdt=r.dot(t);
@@ -105,9 +104,9 @@ namespace model
 //            const double A2=1.0/Ra3-rdt*A1;
 //            const double A6=-rdt/((Ra2-rdt2)*Ra);
 //            const double A3=-rdt/Ra3+A6+rdt2*A1;
-//            const double A4=A6+DislocationStress<dim>::a2*A1;
-//            const double A5=-MaterialType::C1*A6-0.5*DislocationStress<dim>::a2*MaterialType::C1*A1;
-//            const double A7=MaterialType::nu/Ra-rdt*A6-0.5*DislocationStress<dim>::a2*MaterialType::C1*A2;
+//            const double A4=A6+DislocationFieldBase<dim>::a2*A1;
+//            const double A5=-material.C1*A6-0.5*DislocationFieldBase<dim>::a2*material.C1*A1;
+//            const double A7=material.nu/Ra-rdt*A6-0.5*DislocationFieldBase<dim>::a2*material.C1*A2;
 //            
 //            const double rbt(r.cross(b).dot(t));
 //            
@@ -119,22 +118,22 @@ namespace model
 //            /*  */ +A6*t.cross(b)*r.transpose()
 //            /*  */ +A7*t.cross(b)*t.transpose();
 
-            const Scalar Ra2=r.squaredNorm()+DislocationStress<dim>::a2;
+            const Scalar Ra2=r.squaredNorm()+DislocationFieldBase<dim>::a2;
             const Scalar Ra(sqrt(Ra2));
             const VectorDim Ya(r+Ra*t);
             const Scalar Yat(Ya.dot(t));
-            const Scalar Ya2a2(Ya.squaredNorm()+DislocationStress<dim>::a2);
+            const Scalar Ya2a2(Ya.squaredNorm()+DislocationFieldBase<dim>::a2);
             const VectorDim bYa(b.cross(Ya));
             const Scalar bYat(bYa.dot(t));
             
             
             const Scalar f1(2.0/Ya2a2);
             
-            return f1*MaterialType::C1*(1.0+DislocationStress<dim>::a2/Ya2a2)*t*bYa.transpose()
-            /*  */+f1*MaterialType::C1*0.5*DislocationStress<dim>::a2/Ra2*t*b.cross(r).transpose()
+            return f1*material.C1*(1.0+DislocationFieldBase<dim>::a2/Ya2a2)*t*bYa.transpose()
+            /*  */+f1*material.C1*0.5*DislocationFieldBase<dim>::a2/Ra2*t*b.cross(r).transpose()
             /*  */-f1*Ya*bCt.transpose()
             /*  */-f1*bYat/Yat*t*r.transpose()
-            /*  */-0.5*f1*bYat*(1.0+2.0*DislocationStress<dim>::a2/Ya2a2+DislocationStress<dim>::a2/Ra2)*MatrixDim::Identity()
+            /*  */-0.5*f1*bYat*(1.0+2.0*DislocationFieldBase<dim>::a2/Ya2a2+DislocationFieldBase<dim>::a2/Ra2)*MatrixDim::Identity()
             /*  */-f1*bYat*(Ra+Yat)/Ra/Ya2a2*r*r.transpose()
             /*  */-0.5*f1*bYat*Ra/Yat*t*t.transpose();
             
@@ -149,16 +148,16 @@ namespace model
         template<typename Derived>
         VectorDim displacement_kernel(const Eigen::MatrixBase<Derived>& r) const
         {
-            const Scalar Ra(sqrt(r.squaredNorm()+DislocationStress<dim>::a2));
+            const Scalar Ra(sqrt(r.squaredNorm()+DislocationFieldBase<dim>::a2));
             const VectorDim Ya(r+Ra*t);
             const Scalar Yat(Ya.dot(t));
-            return -(2.0-0.5/MaterialType::C1+(2.0-1.0/MaterialType::C1)*log(Yat)-DislocationStress<dim>::a2/Ra/Yat)/8.0/M_PI*bCt
-            /*  */ +bCt.dot(r)/Yat/Ra/MaterialType::C1/8.0/M_PI*Ya;
+            return -(2.0-0.5/material.C1+(2.0-1.0/material.C1)*log(Yat)-DislocationFieldBase<dim>::a2/Ra/Yat)/8.0/M_PI*bCt
+            /*  */ +bCt.dot(r)/Yat/Ra/material.C1/8.0/M_PI*Ya;
         }
         
         double elasticInteractionEnergy_kernel(const VectorDim& z,const VectorDim& tA,const VectorDim& bA) const
         {
-            const Scalar za(sqrt(z.squaredNorm()+DislocationStress<dim>::a2));
+            const Scalar za(sqrt(z.squaredNorm()+DislocationFieldBase<dim>::a2));
             const VectorDim Ya(z+za*t);
             const Scalar Yat(Ya.dot(t));
             const Scalar logYat(log(Yat));
@@ -173,15 +172,15 @@ namespace model
             const Scalar zt(z.dot(t));
             const Scalar zb(z.dot(b));
             const Scalar zbA(z.dot(bA));
-            return (0.5*MaterialType::C1*bAtA*bt+MaterialType::Nu*bAt*btA)*(2.0+2.0*logYat-DislocationStress<dim>::a2/zaYat)
-            /*  */-bAb*tAt*(1.5+logYat-DislocationStress<dim>::a2/zaYat)
+            return (0.5*material.C1*bAtA*bt+material.nu*bAt*btA)*(2.0+2.0*logYat-DislocationFieldBase<dim>::a2/zaYat)
+            /*  */-bAb*tAt*(1.5+logYat-DislocationFieldBase<dim>::a2/zaYat)
             /*  */-bAt*bt*tAt*(0.5+logYat+zt/Yat)
             /*  */+tAt/Yat*(zbA*zb/za+bAt*zb+bt*zbA);
         }
         
     public:
         
-        
+        const PolycrystallineMaterialBase& material;
         const VectorDim& P0;
         const VectorDim& P1;
         const VectorDim& b;
@@ -194,11 +193,13 @@ namespace model
         
     public:
         /**********************************************************************/
-        StraightDislocationSegment(const VectorDim& _P0,
+        StraightDislocationSegment(const PolycrystallineMaterialBase& mat,
+                                   const VectorDim& _P0,
                                    const VectorDim& _P1,
                                    const VectorDim& _b,
                                    const double& _length,
                                    const VectorDim& _t) :
+        /* init list */ material(mat),
         /* init list */ P0(_P0),
         /* init list */ P1(_P1),
         /* init list */ b(_b),
@@ -236,7 +237,7 @@ namespace model
         MatrixDim stress(const VectorDim& x) const
         {
             const MatrixDim temp = nonSymmStress(x);
-            return MaterialType::C2*(temp+temp.transpose());
+            return material.C2*(temp+temp.transpose());
         }
         
         /**********************************************************************/
@@ -250,7 +251,7 @@ namespace model
         double elasticInteractionEnergy(const VectorDim& xA,const VectorDim& tA,const VectorDim& bA) const
         {
             
-            return -0.5*MaterialType::C2*(elasticInteractionEnergy_kernel(P1-xA,tA,bA)-elasticInteractionEnergy_kernel(P0-xA,tA,bA));
+            return -0.5*material.C2*(elasticInteractionEnergy_kernel(P1-xA,tA,bA)-elasticInteractionEnergy_kernel(P0-xA,tA,bA));
         }
         
 	};	

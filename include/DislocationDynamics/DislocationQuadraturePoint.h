@@ -528,8 +528,8 @@ namespace model
                             const double paramU (ll->source->networkNode==parentSegment.source ? paramUTemp : 1.0-paramUTemp);
                             const double kappa (cmSeg.get_kappa(paramU));
                             const VectorDim llunitTangent(cmSeg.get_rl(paramU));
-                            // const double qPointEnergyDensity (alpha * PolycrystallineMaterial<dim,Isotropic>::C2 * (ll->loop->burgers().squaredNorm()-PolycrystallineMaterial<dim,Isotropic>::Nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
-                            const double qPointEnergyDensity (alpha * PolycrystallineMaterial<dim,Isotropic>::C2 * (ll->loop->burgers().squaredNorm()-PolycrystallineMaterial<dim,Isotropic>::Nu*0.0*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                            // const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.Nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                            const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.nu*0.0*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
                             const VectorDim qPointForceVector (qPointEnergyDensity * cmSeg.get_rll(paramU));
                             // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
                             const double resolvedtensionStress (qPointForceVector.norm()/ll->loop->burgers().squaredNorm()); //this is wrong (Discuss this with Dr. Po)

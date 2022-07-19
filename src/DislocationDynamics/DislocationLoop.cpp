@@ -11,6 +11,8 @@
 
 
 #include <DislocationLoop.h>
+#include <DislocationFieldBase.h>
+#include <SutherlandHodgman.h>
 
 namespace model
 {
@@ -18,7 +20,7 @@ namespace model
     DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
                                      const VectorDim& B,
                                      const std::shared_ptr<GlidePlaneType>& glidePlane_in) :
-    /* init */ Loop<DislocationLoop>(net,glidePlane_in->grain.rationalLatticeDirection(B))
+    /* init */ Loop<DislocationLoop>(net,glidePlane_in->grain.singleCrystal->rationalLatticeDirection(B))
     /* init */,glidePlane(glidePlane_in)
     /* init */,periodicGlidePlane(this->network().periodicGlidePlaneFactory? this->network().periodicGlidePlaneFactory->getFromKey(glidePlane->key) : nullptr)
     /* init */,grain(glidePlane->grain)
@@ -28,7 +30,7 @@ namespace model
     /* init */,_slippedArea(0.0)
     /* init */,_slippedAreaRate(0.0)
     /* init */,_rightHandedUnitNormal(VectorDim::Zero())
-    /* init */,_rightHandedNormal(grain)
+    /* init */,_rightHandedNormal(*grain.singleCrystal)
     /* init */,_slipSystem(nullptr)
 
     {
@@ -41,26 +43,26 @@ namespace model
     {
         
         std::deque<std::deque<std::pair<const LoopLinkType*,int>>> csBranches;
-//        std::cout<<"Loop "<<this->tag()<<std::endl;
+        //std::cout<<"Loop "<<this->tag()<<std::endl;
         if(this->network().crossSlipModel)
         {
             std::deque<std::pair<const LoopLinkType*,int>> currentBranch; // pair<link,cross-slip slipSystem ID>
             for(const auto& link : this->linkSequence())
             {
-//                std::cout<<"Link "<<link->tag()<<std::endl;
+                //std::cout<<"Link "<<link->tag()<<std::endl;
 
                 
                 if(link->hasNetworkLink())
                 {
                     const auto isCSLink(this->network().crossSlipModel->isCrossSlipLink(*link->networkLink()));
-//                    std::cout<<isCSLink.first<<", "<<isCSLink.second.first<<", "<<isCSLink.second.second<<std::endl;
+                    //std::cout<<isCSLink.first<<", "<<isCSLink.second.first<<", "<<isCSLink.second.second<<std::endl;
 
                     if(isCSLink.first)
                     {// a cross-slip segment
                         if(currentBranch.empty())
                         {// start of new branch
                             currentBranch.emplace_back(link,isCSLink.second.second);
-//                            std::cout<<"A"<<std::endl;
+                            //std::cout<<"A"<<std::endl;
 
                         }
                         else
@@ -68,7 +70,7 @@ namespace model
                             if(currentBranch.back().second==isCSLink.second.second)
                             {
                                 currentBranch.emplace_back(link,isCSLink.second.second);
-//                                std::cout<<"B"<<std::endl;
+                                //std::cout<<"B"<<std::endl;
 
                             }
                             else
@@ -76,7 +78,7 @@ namespace model
                                 csBranches.push_back(currentBranch);
                                 currentBranch.clear();
                                 currentBranch.emplace_back(link,isCSLink.second.second);
-//                                std::cout<<"C"<<std::endl;
+                                //std::cout<<"C"<<std::endl;
 
                             }
                         }
@@ -87,7 +89,7 @@ namespace model
                         {// close and store branch if not empty
                             csBranches.push_back(currentBranch);
                             currentBranch.clear();
-//                            std::cout<<"D"<<std::endl;
+                            //std::cout<<"D"<<std::endl;
                         }
                     }
                 }
@@ -96,7 +98,7 @@ namespace model
                     if(!currentBranch.empty())
                     {// close and store branch if not empty
                         currentBranch.emplace_back(link,currentBranch.back().second);
-//                            std::cout<<"E"<<std::endl;
+                            //std::cout<<"E"<<std::endl;
                     }
                 }
                 
@@ -105,10 +107,10 @@ namespace model
             {// close and store branch if not empty
                 csBranches.push_back(currentBranch);
                 currentBranch.clear();
-//                std::cout<<"F"<<std::endl;
+                //std::cout<<"F"<<std::endl;
             }
             
-//            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
+            //std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
             if(csBranches.size()>1)
             {// Inserted two or more branches. Merge last and first branch if possible
                 if(   csBranches[0].front().first->prev==csBranches.back().back().first
@@ -128,37 +130,63 @@ namespace model
                 }
             }
             
+            //std::cout<<"Adding csNodes"<<std::endl;
             for(const auto& branch : csBranches)
             {
                 if(branch.size())
                 {
+                    //std::cout<<"A"<<std::endl;
+
                     csNodes.emplace_back(std::deque<std::shared_ptr<LoopNodeType>>(),branch.back().second);
                     for(const auto& pair : branch)
                     {
+                        //std::cout<<"B"<<std::endl;
+
                        if(!pair.first->source->periodicPlaneEdge.first && !pair.first->source->periodicPlaneEdge.second)
                        {// not a boundary node
+                           //std::cout<<"C"<<std::endl;
+
                            csNodes.back().first.emplace_back(pair.first->source);
+                           //std::cout<<"D"<<std::endl;
+
                        }
                     }
-                    if(    branch.back().first->sink!=csNodes.back().first.back()
-                       && !branch.back().first->sink->periodicPlaneEdge.first && !branch.back().first->sink->periodicPlaneEdge.second)
+//                    //std::cout<<"E"<<std::endl;
+//                    auto e1(branch.back().first->sink);
+//                    auto e2(csNodes.back().first.back());
+//                    bool aa(branch.back().first->sink!=csNodes.back().first.back());
+//                    //std::cout<<"E1 "<<aa<<std::endl;
+//                    bool bb(branch.back().first->sink->periodicPlaneEdge.first);
+//                    //std::cout<<"E2 "<<bb<<std::endl;
+//                    bool cc(branch.back().first->sink->periodicPlaneEdge.second);
+//                    //std::cout<<"E3 "<<cc<<std::endl;
+
+                    if(csNodes.back().first.size())
                     {
-                        csNodes.back().first.emplace_back(branch.back().first->sink);
+                        if(    branch.back().first->sink!=csNodes.back().first.back()
+                           && !branch.back().first->sink->periodicPlaneEdge.first && !branch.back().first->sink->periodicPlaneEdge.second)
+                        {
+                            //std::cout<<"F"<<std::endl;
+
+                            csNodes.back().first.emplace_back(branch.back().first->sink);
+                            //std::cout<<"G"<<std::endl;
+
+                        }
                     }
                 }
             }
             
-//            std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
+//            //std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
 
             
-            std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
-            for(const auto& brach : csBranches)
-            {
-                for(const auto& pair : brach)
-                {
-                    std::cout<<pair.first->tag()<<std::endl;
-                }
-            }
+//            //std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
+//            for(const auto& brach : csBranches)
+//            {
+//                for(const auto& pair : brach)
+//                {
+//                    //std::cout<<pair.first->tag()<<std::endl;
+//                }
+//            }
             
         }
         
@@ -167,6 +195,22 @@ namespace model
         
         
     }
+
+    template <int dim, short unsigned int corder>
+    std::vector<int> DislocationLoop<dim,corder>::windingNumber(const std::vector<VectorDim>& pts)
+    {/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+      
+      */
+        std::vector<int> temp;
+
+        
+
+        
+        
+        
+        return temp;
+    }
+
 
     template <int dim, short unsigned int corder>
     DislocationLoop<dim,corder>::~DislocationLoop()
@@ -249,9 +293,9 @@ namespace model
                             const VectorDim e2(e3.cross(e1));
                             const double ydy(e1.dot(Y1));
                             const double w=sqrt((1.0-ydy)/(1.0+ydy));
-                            const double oneA2=sqrt(1.0+DislocationStress<dim>::a2);
+                            const double oneA2=sqrt(1.0+DislocationFieldBase<dim>::a2);
                             const double s3(s.dot(e3));
-                            const double s3A2=sqrt(std::pow(s3,2)+DislocationStress<dim>::a2);
+                            const double s3A2=sqrt(std::pow(s3,2)+DislocationFieldBase<dim>::a2);
                             temp+=2.0*s3/oneA2/s3A2*atan(s3A2*w/(oneA2-s.dot(e1)-s.dot(e2)*w));
                         }
                     }
@@ -357,7 +401,7 @@ namespace model
     template <int dim, short unsigned int corder>
     std::shared_ptr<SlipSystem> DislocationLoop<dim,corder>::searchSlipSystem() const
     {
-        for(const auto& ss : grain.slipSystems())
+        for(const auto& ss : grain.singleCrystal->slipSystems())
         {
             if(ss->isSameAs(this->flow(),_rightHandedNormal))
             {
@@ -486,11 +530,58 @@ namespace model
                 _slippedArea=nA.norm();
                 _slippedAreaRate=0.0; //Slipped area rate will be zero because it is sessile (Discuss this with Dr. Po)
                 _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
-                _rightHandedNormal= grain.reciprocalLatticeDirection(_rightHandedUnitNormal);
+                _rightHandedNormal= grain.singleCrystal->reciprocalLatticeDirection(_rightHandedUnitNormal);
                 VerboseDislocationLoop(3,"non-glide _rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);
             }
         }
         updateSlipSystem();
+        
+        // Update patches
+        if(periodicGlidePlane)
+        {
+            _patches.clear();
+            std::vector<VectorDim> linkShifts;
+            for(const auto& link : this->loopLinks())
+            {// Collect patches of the loop
+                if(link->periodicPlanePatch())
+                {
+                    linkShifts.push_back(link->periodicPlanePatch()->shift);
+                }
+            }
+            const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
+            std::vector<Eigen::Matrix<double,dim-1,1>> localNodePos;
+            for(const auto& nodePair : this->nodeSequence())
+            {
+                localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(nodePair.first->get_P()));
+            }
+            
+            for(const auto& patch : loopPatches)
+            {
+                std::vector<Eigen::Matrix<double,dim-1,1>> localPatchPos;
+                for(const auto& edge : patch->edges())
+                {
+                    localPatchPos.push_back(*edge->source);
+                }
+
+                const auto localLoopPosOnPeriodicPlane(SutherlandHodgman::clip(localNodePos,localPatchPos));
+                std::vector<Eigen::Matrix<double,dim-1,1>> localLoopPosOnPatchPlane;
+                for(const auto& localPos : localLoopPosOnPeriodicPlane)
+                {
+                    const VectorDim globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
+                    localLoopPosOnPatchPlane.push_back(patch->glidePlane->localPosition(globalPos));
+                }
+                
+                            
+                std::cout<<"Loop "<<this->tag()<<", patches with #nodes="<<localLoopPosOnPatchPlane.size()<<std::endl;
+
+                _patches.emplace(patch,localLoopPosOnPatchPlane);
+                
+            }
+            
+            
+//            _patches=;
+        }
+
     }
 
     template <int dim, short unsigned int corder>

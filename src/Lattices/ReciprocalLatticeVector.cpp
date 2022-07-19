@@ -167,7 +167,7 @@ namespace model
             std::cout << "r=" << this->cartesian().transpose() << std::endl;
             std::cout << "hd=" << std::setprecision(15) << std::scientific << hd << std::endl;
             std::cout << "h=" << h << std::endl;
-            assert(0 && "P in not on a lattice plane.");
+            throw std::runtime_error("P in not on a lattice plane.");
         }
         return h;
     }
@@ -192,7 +192,7 @@ namespace model
         {
             std::cout << "d2cov, nd=" << nd.transpose() << std::endl;
             std::cout << "d2cov, rd=" << rd.transpose() << std::endl;
-            assert(0 && "Input vector is not a reciprocal lattice vector");
+            throw std::runtime_error("Input vector is not a reciprocal lattice vector");
         }
         //            assert((nd-rd).norm()<roundTol && "Input vector is not a lattice vector");
         return rd.template cast<long int>();

@@ -4,7 +4,6 @@
 type=Inclusions;
 style=density; 
 tag=incd0;
-allowOverlap=0;
 targetDensity=1e22; [1/m^3] number density of inclusions
 diameterLognormalDistribution_M=3.11e-8; #[m] of log-normal diameter M
 diameterLognormalDistribution_S=0.38; #[-] of log-normal distribution parameter S
@@ -12,3 +11,4 @@ diameterLognormalDistribution_A=1.05e-8; #[m] log-normal distribution parameter 
 transformationEigenDistortion = 0.003 0.0 0.0 0.0 0.003 0.0 0.0 0.0 0.003; # [-] inclusion eigendistortion components 11,12,13,21,22,23,31,32,33
 patternVector=0.0 0.0 0.0e-7; # [m] defines a planar pattern for the inclusions. Direction is plane normal, magnitude is plane spacing. Zero to zero for no pattern 
 velocityReductionFactor=1; [-] multiplicative factor applied to dislocation velocity if inside inclusion
+phaseID=0; # ID of secondPhase 

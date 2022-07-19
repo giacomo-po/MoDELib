@@ -32,7 +32,7 @@ namespace model
     template<int dim>
     struct MeshRegion;
     
-    template<typename _SimplexType>
+    template<int dim>
     struct MeshRegionBoundary;
     
     template<typename RegionType>

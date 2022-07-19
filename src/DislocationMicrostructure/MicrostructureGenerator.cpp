@@ -222,7 +222,7 @@ namespace model
         {
             for(const auto& loop : configIO.loops())
             {
-                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
                 auxIO.glidePlanes().emplace_back(loopPlaneKey);
             }
         }

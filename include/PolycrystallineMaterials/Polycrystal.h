@@ -32,9 +32,9 @@
 //#include <GrainBoundaryType.h>
 //#include <GlidePlane.h>
 #include <TextFileParser.h>
-#include <PolycrystallineMaterial.h>
-#include <DislocationMobilityFCC.h>
-#include <DislocationMobilityBCC.h>
+//#include <PolycrystallineMaterial.h>
+//#include <DislocationMobilityFCC.h>
+//#include <DislocationMobilityBCC.h>
 
 namespace model
 {
@@ -42,12 +42,12 @@ namespace model
     
     
     template <int dim>
-    class Polycrystal : public  PolycrystallineMaterial<dim,Isotropic>
-    /*               */,private std::map<size_t,Grain<dim>>
-    /*               */,private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
+    class Polycrystal : public  PolycrystallineMaterialBase
+//    /*               */,private std::map<size_t,Grain<dim>>
+//    /*               */,private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
 //    /*               */,public  std::vector<StressStraight<dim> >
     {
-        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
+//        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
@@ -56,20 +56,28 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Grain<dim> GrainType;
         typedef GrainBoundary<dim> GrainBoundaryType;
+        
+        std::map<size_t,GrainType> getGrains(const std::string& polyFile) const;
+        std::map<std::pair<size_t,size_t>,const GrainBoundaryType* const> getGrainBoundaries() const;
+
+//        const std::map<size_t,GrainType>& grains() const;
+
+        double getAtomicVolume() const;
                 
     public:
         
         const SimplicialMeshType& mesh;
+        const std::map<size_t,Grain<dim>> grains;
+        const std::map<std::pair<size_t,size_t>,const GrainBoundaryType* const> grainBoundaries;
+        const double Omega;
         
         Polycrystal(const std::string& polyFile,const SimplicialMeshType& mesh_in);
-        GrainType& grain(const size_t& k);
+//        GrainType& grain(const size_t& k);
         const GrainType& grain(const size_t& k) const;
-        const std::map<size_t,GrainType>& grains() const;
-        std::map<size_t,GrainType>& grains();
-        std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries();
-        const std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries() const;
+//        std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries();
+//        const std::map<std::pair<size_t,size_t>,GrainBoundaryType>& grainBoundaries() const;
         const GrainBoundaryType& grainBoundary(const size_t& i,const size_t& j) const;
-        GrainBoundaryType& grainBoundary(const size_t& i,const size_t& j);
+//        GrainBoundaryType& grainBoundary(const size_t& i,const size_t& j);
         LatticeVectorType latticeVectorFromPosition(const VectorDim& p, const Simplex<dim,dim>* const guess) const;
         LatticeVectorType latticeVectorFromPosition(const VectorDim& p) const;
         ReciprocalLatticeVectorType reciprocalLatticeVectorFromPosition(const VectorDim& p,const Simplex<dim,dim>* const guess) const;

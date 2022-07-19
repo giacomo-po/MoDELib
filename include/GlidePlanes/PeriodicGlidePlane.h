@@ -262,6 +262,8 @@ namespace model
         
         
         VectorDim findPatch(const VectorLowerDim&,const VectorDim&);
+        
+        std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> filledPatches(const std::vector<VectorDim>& patchShifts);
 
     };
     

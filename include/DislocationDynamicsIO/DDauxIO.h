@@ -38,6 +38,8 @@ namespace model
 //    /*            */,private std::vector<PeriodicLoopLinkIO<dim>>
     {
         
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        
         /**********************************************************************/
         DDauxIO(const std::string& folderName,const std::string& suffix="") :
         /* init */ DDbaseIO(folderName,"ddAux",suffix)

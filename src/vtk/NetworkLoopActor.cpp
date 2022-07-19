@@ -43,35 +43,68 @@
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <NetworkLoopActor.h>
-
+#include <SutherlandHodgman.h>
 
 namespace model
 {
     
         
         /**********************************************************************/
-        NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer) :
+        NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,
+                                           const Polycrystal<3>& poly_in,
+                                           PeriodicGlidePlaneFactory<3>& pgf) :
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLoops(new QCheckBox(this))
+        /* init */,showSlippedArea(new QCheckBox(this))
+        /* init */,sliderSlippedArea(new QSlider(this))
         /* init */,loopPolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,loopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,loopActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,areaPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,areaMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,areaActor(vtkSmartPointer<vtkActor>::New())
+        /* init */,poly(poly_in)
+        /* init */,periodicGlidePlaneFactory(pgf)
         {
             showLoops->setChecked(false);
-            showLoops->setText("loops");
+            showLoops->setText("Loops");
+            
+            showSlippedArea->setChecked(false);
+            showSlippedArea->setText("SlippedArea");
+            sliderSlippedArea->setEnabled(false);
+            sliderSlippedArea->setMinimum(0);
+            sliderSlippedArea->setMaximum(10);
+            sliderSlippedArea->setValue(5);
+            sliderSlippedArea->setOrientation(Qt::Horizontal);
+
+
 
             mainLayout->addWidget(showLoops,0,0,1,1);
+            mainLayout->addWidget(showSlippedArea,1,0,1,1);
+            mainLayout->addWidget(sliderSlippedArea,1,1,1,1);
+            
             this->setLayout(mainLayout);
 
             connect(showLoops,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showSlippedArea,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(sliderSlippedArea,SIGNAL(valueChanged(int)), this, SLOT(modify()));
 
             loopMapper->SetInputData(loopPolyData);
             loopActor->SetMapper(loopMapper);
             loopActor->GetProperty()->SetColor(0.0, 0.0, 1.0); //(R,G,B)
             loopActor->SetVisibility(false);
 
+            areaMapper->SetInputData(areaPolyData);
+            areaActor->SetMapper(areaMapper);
+            areaActor->GetProperty()->SetColor(0.0, 1.0, 1.0); //(R,G,B)
+            areaActor->SetVisibility(false);
+
+            
             renderer->AddActor(loopActor);
+            renderer->AddActor(areaActor);
+
+//            std::vector<Eigen::Vector2d> clippedPolygonTemp(SutherlandHodgman::clip(polygon2d,box2d));
 
         }
         
@@ -83,7 +116,8 @@ namespace model
             std::cout<<"Updating loops..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
-
+//            std::map<size_t,std::map<size_t,size_t>> loop2linkMap; // loopID->pair(source,sink)
+            
             vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
             std::map<size_t,size_t> loopNodesMap; // nodeID,nodePositionInDDauxIO
             for(size_t k=0;k<configIO.loopNodes().size();++k)
@@ -110,6 +144,9 @@ namespace model
                         line->GetPointIds()->SetId(0, sourceIter->second); // the second 0 is the index of the Origin in linesPolyData's points
                         line->GetPointIds()->SetId(1, sinkIter->second);
                         cells->InsertNextCell(line);
+                        
+//                        loop2linkMap[loopLink.loopID].emplace(loopLink.sourceID,loopLink.sinkID);
+                        
                     }
                     else
                     {
@@ -122,28 +159,72 @@ namespace model
                 }
                 
             }
-            
-//            // Create the polygon
-//            vtkSmartPointer<vtkPolygon> polygon = vtkSmartPointer<vtkPolygon>::New();
-//            polygon->GetPointIds()->SetNumberOfIds(n);
-//            for (int j = 0; j < n; j++)
-//            {
-//                polygon->GetPointIds()->SetId(j, j);
-//            }
-//            // Add the polygon to a list of polygons
-//            vtkSmartPointer<vtkCellArray> polygons = vtkSmartPointer<vtkCellArray>::New();
-//            polygons->InsertNextCell(polygon);
-
-            // Create a PolyData
-//            vtkPolyData* polygonPolyData =  vtkPolyData::New();
             loopPolyData->SetPoints(points);
             loopPolyData->SetLines(cells);
             loopPolyData->Modified();
-
-//            polygonPolyData->SetPolys(polygons);
-
-            // create mapper and actor using this polydata  - the usual stuff
             
+            // Slipped area
+            vtkNew<vtkPoints> areaPoints;
+            vtkNew<vtkCellArray> areaPolygons;
+
+            size_t areaPointID(0);
+            const auto loopNodeSequence(configIO.loopNodeSequence());
+            for(const auto& pair : loopNodeSequence)
+            {
+                const auto& loopID(pair.first);
+                const auto& loopIO(configIO.loops()[configIO.loopMap().at(loopID)]);
+                const auto& grain(poly.grain(loopIO.grainID));
+                GlidePlaneKey<3> glidePlaneKey(loopIO.P, grain.singleCrystal->reciprocalLatticeDirection(loopIO.N));
+                std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(periodicGlidePlaneFactory.get(glidePlaneKey));
+                
+                std::vector<Eigen::Matrix<double,3,1>> nodeShifts;
+                std::vector<Eigen::Matrix<double,2,1>> localNodePos;
+
+                if(true)
+                {
+
+                for(const auto& loopNodeID : pair.second)
+                {
+                    const auto& loopNodeIO(configIO.loopNodes()[configIO.loopNodeMap().at(loopNodeID)]);
+                        nodeShifts.push_back(loopNodeIO.periodicShift);
+                    if(loopNodeIO.edgeIDs.first<0 && loopNodeIO.edgeIDs.second<0)
+                    {
+                        localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(loopNodeIO.P));
+                    }
+                }
+                
+                const auto loopPatches(periodicGlidePlane->filledPatches(nodeShifts));
+
+
+                    for(const auto& patch : loopPatches)
+                    {
+                        std::vector<Eigen::Matrix<double,2,1>> localPatchPos;
+                        for(const auto& edge : patch->edges())
+                        {
+                            localPatchPos.push_back(*edge->source);
+                        }
+                        
+                        const auto localLoopPosOnPeriodicPlane(SutherlandHodgman::clip(localNodePos,localPatchPos));
+                        
+                        vtkNew<vtkPolygon> polygon;
+                        for(const auto& localPos : localLoopPosOnPeriodicPlane)
+                        {
+                            const Eigen::Matrix<double,3,1> globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
+                            areaPoints->InsertNextPoint(globalPos(0),
+                                                        globalPos(1),
+                                                        globalPos(2));
+                            
+                            polygon->GetPointIds()->InsertNextId(areaPointID);
+
+                            areaPointID++;
+                        }
+                        areaPolygons->InsertNextCell(polygon);
+                    }
+                }
+            }
+
+            areaPolyData->SetPoints(areaPoints);
+            areaPolyData->SetPolys(areaPolygons);
             
 
             std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -154,8 +235,10 @@ namespace model
         {
             
             loopActor->SetVisibility(showLoops->isChecked());
-
-
+            areaActor->SetVisibility(showSlippedArea->isChecked());
+            sliderSlippedArea->setEnabled(showSlippedArea->isChecked());
+            areaActor->GetProperty()->SetOpacity(sliderSlippedArea->value()/10.0);
+            
             renderWindow->Render();
         }
 

@@ -43,6 +43,9 @@ namespace model
     
         void InclusionActor::updateConfiguration(const DDconfigIO<3>& configIO)
         {
+            std::cout<<"Updating inclusions..."<<std::flush;
+            const auto t0= std::chrono::system_clock::now();
+
             
             vtkSmartPointer<vtkPoints> points(vtkSmartPointer<vtkPoints>::New());
             vtkSmartPointer<vtkFloatArray> diameters(vtkSmartPointer<vtkFloatArray>::New());
@@ -56,13 +59,15 @@ namespace model
             {
                 points->InsertNextPoint(inclusion.C(0), inclusion.C(1), inclusion.C(2));
                 diameters->InsertNextValue(2.0*inclusion.a);  // origin of arrow
-                colors->InsertNextValue(inclusion.typeID);
+                colors->InsertNextValue(inclusion.phaseID);
             }
 
             grid->SetPoints(points);
             grid->GetPointData()->AddArray(diameters);
             grid->GetPointData()->SetActiveScalars("diameters"); // to set radius first
             grid->GetPointData()->AddArray(colors);
+
+            std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
         }
 

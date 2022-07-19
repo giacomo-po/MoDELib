@@ -10,6 +10,7 @@
 #ifndef model_BCClattice_H_
 #define model_BCClattice_H_
 
+#include <memory>
 #include <vector>
 #include <Eigen/Dense>
 
@@ -17,33 +18,46 @@
 #include <SlipSystem.h>
 #include <PolycrystallineMaterialBase.h>
 #include <DislocationMobilityBCC.h>
+#include <RationalLatticeDirection.h>
+#include <SingleCrystalBase.h>
+#include <DislocationMobilityBCC.h>
+//#include <SecondPhase.h>
 
 namespace model
 {
-
+    
     template<int dim>
     struct BCClattice
     {
-    
-    };
-
-    template<>
-    struct BCClattice<3> : public Lattice<3>
-    {
         
+    };
+    
+    template<>
+    struct BCClattice<3> : public SingleCrystalBase<3>
+    /*                  */,private SingleCrystalBase<3>::PlaneNormalContainerType
+    /*                  */,private SingleCrystalBase<3>::SlipSystemContainerType
+    /*                  */,private SingleCrystalBase<3>::SecondPhaseContainerType
+    {
+//        static constexpr auto name="BCC";
         static constexpr int dim=3;
-        static constexpr auto name="BCC";
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef typename SingleCrystalBase<dim>::MatrixDim MatrixDim;
+        typedef typename SingleCrystalBase<dim>::PlaneNormalContainerType PlaneNormalContainerType;
+        typedef typename SingleCrystalBase<dim>::SlipSystemContainerType SlipSystemContainerType;
+        typedef typename SingleCrystalBase<dim>::SecondPhaseContainerType SecondPhaseContainerType;
 
-        BCClattice(const MatrixDim& Q);
+                
+        BCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile);
         static Eigen::Matrix<double,dim,dim> getLatticeBasis();
-        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Lattice<dim>& lat);
-        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
-                                                                    const Lattice<dim>& lat,
-                                                                    const PolycrystallineMaterialBase& );
-
-    };    
-
+        std::vector<std::shared_ptr<LatticePlaneBase>> getPlaneNormals() const;
+        std::vector<std::shared_ptr<SlipSystem>> getSlipSystems(const PolycrystallineMaterialBase& material,const std::string& polyFile,const PlaneNormalContainerType& plN);
+        std::vector<std::shared_ptr<SecondPhase<dim>>> getSecondPhases(const PolycrystallineMaterialBase& material,const PlaneNormalContainerType& plN);
+        
+        const PlaneNormalContainerType& planeNormals() const override;
+        const SlipSystemContainerType& slipSystems() const override;
+        const SecondPhaseContainerType& secondPhases() const override;
+        
+    };
+    
 } // namespace model
 #endif
 

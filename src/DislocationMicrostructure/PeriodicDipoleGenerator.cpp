@@ -24,7 +24,7 @@
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <PolycrystallineMaterial.h>
+#include <PolycrystallineMaterialBase.h>
 #include <LatticeModule.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
@@ -69,9 +69,9 @@ namespace model
                 const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
                 const LatticeVector<dim> L0=rp.first;
                 const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).slipSystems().size()-1);
+                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
                 const int rSS(ssDist(generator)); // a random SlipSystem
-//                const auto& slipSystem(*poly.grain(grainID).slipSystems()[rSS]);
+//                const auto& slipSystem(*poly.grain(grainID).singleCrystal->slipSystems()[rSS]);
                 std::uniform_int_distribution<> fDist(0,mg.poly.grain(grainID).region.faces().size()-1);
                 const int rF(fDist(generator)); // a random face
                 auto faceIter(mg.poly.grain(grainID).region.faces().begin());
@@ -172,7 +172,7 @@ namespace model
         assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
         const auto& grain(mg.poly.grain(grainID));
         
-        if(rSS>=0 && rSS<int(grain.slipSystems().size()))
+        if(rSS>=0 && rSS<int(grain.singleCrystal->slipSystems().size()))
         {
             const auto periodicFaceIter(grain.region.faces().find(exitFaceID));
             if(periodicFaceIter!=grain.region.faces().end())
@@ -184,9 +184,9 @@ namespace model
                 {
 
                     const auto& faceAshift(periodicFaceA->periodicFacePair.first);
-                    const auto faceAlatticeShift(grain.latticeVector(faceAshift));
+                    const auto faceAlatticeShift(grain.singleCrystal->latticeVector(faceAshift));
                     
-                    const auto& slipSystem(*grain.slipSystems()[rSS]);
+                    const auto& slipSystem(*grain.singleCrystal->slipSystems()[rSS]);
                     
                     if(slipSystem.n.dot(faceAlatticeShift)==0)
                     {
@@ -197,7 +197,7 @@ namespace model
                         GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
                         std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
                         //                        const VectorDimD P0(glidePlane->snapToPlane(dipolePoint));
-                        const VectorDimD P0(grain.snapToLattice(dipolePoint).cartesian());
+                        const VectorDimD P0(grain.singleCrystal->snapToLattice(dipolePoint).cartesian());
                         
                         PlaneLineIntersection<3> pliA(periodicFaceA->center(),periodicFaceA->outNormal(),P0,faceAshift);
                         PlaneLineIntersection<3> pliB(periodicFaceB->center(),periodicFaceB->outNormal(),P0,faceAshift);
@@ -211,7 +211,7 @@ namespace model
                                 GlidePlaneKey<3> parallelGlidePlaneKey(planeIndex+dipoleHeight, slipSystem.n);
                                 std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
 
-                                GlidePlaneKey<3> prismaticPlaneKey(P0, grain.reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
+                                GlidePlaneKey<3> prismaticPlaneKey(P0, grain.singleCrystal->reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
                                 std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.periodicGlidePlaneFactory.get(prismaticPlaneKey));
 
                                 if(parallelglidePlane && prismaticGlidePlane)

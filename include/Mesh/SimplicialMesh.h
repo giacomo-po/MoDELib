@@ -43,7 +43,7 @@ namespace model
     /*                  */,public SimplexReader<_dim>
     /*                  */,public std::map<typename SimplexTraits<_dim,_dim>::SimplexIDType, // key
     /*                                */ const Simplex<_dim,_dim>>
-    /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<Simplex<_dim,_dim-1>>> // MeshRegionBoundary container
+    /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<_dim>> // MeshRegionBoundary container
     //    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
         
@@ -66,7 +66,7 @@ namespace model
         typedef IDreader<1,dim+2,size_t> ElementReaderType;
         typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
-        typedef MeshRegionBoundary<Simplex<dim,dim-1>> MeshRegionBoundaryType;
+        typedef MeshRegionBoundary<dim> MeshRegionBoundaryType;
         typedef std::pair<size_t,size_t> MeshRegionIDType;
         typedef std::map<MeshRegionIDType,MeshRegionBoundaryType> MeshRegionBoundaryContainerType;
         

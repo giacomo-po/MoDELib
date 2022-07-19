@@ -38,7 +38,7 @@ namespace model
     {
         enum AxisPlaneRelation{TILT=0,TWIST=1,MIXED=2};
 
-        typedef MeshRegionBoundary<Simplex<dim,dim-1> > MeshRegionBoundaryType;
+        typedef MeshRegionBoundary<dim> MeshRegionBoundaryType;
         typedef Eigen::Matrix<long int,dim,1> VectorDimI;
         typedef Eigen::Matrix<  double,dim,1> VectorDimD;
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
@@ -64,8 +64,8 @@ namespace model
 
         GrainBoundary(const MeshRegionBoundaryType& regionbnd_in,
                       const std::shared_ptr<PlanarMeshFace<dim>>& face_in,
-                      Grain<dim>& grainFirst,
-                      Grain<dim>& grainSecond
+                      const Grain<dim>& grainFirst,
+                      const Grain<dim>& grainSecond
                       );
         const GrainContainerType& grains() const;
         const Grain<dim>& grain(const size_t& k) const;

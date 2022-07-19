@@ -28,14 +28,25 @@ namespace model
                       << Q << std::endl;
             std::cout << "Q*Q^T=\n"
                       << QQT << std::endl;
-            assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
+            throw std::runtime_error("ROTATION MATRIX IS NOT ORTHOGONAL.");
+//            assert(false && "ROTATION MATRIX IS NOT ORTHOGONAL.");
         }
 
         // Check sure that C2G is proper
-        assert(std::fabs(Q.determinant() - 1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
+        if(std::fabs(Q.determinant() - 1.0) > FLT_EPSILON)
+        {
+            throw std::runtime_error("ROTATION MATRIX IS NOT PROPER.");
+
+        }
+//        assert(std::fabs(Q.determinant() - 1.0) < FLT_EPSILON && "ROTATION MATRIX IS NOT PROPER.");
 
         // Check that A is full rank
-        assert(std::fabs(A.determinant()) > FLT_EPSILON && "A matrix is singular");
+        if(std::fabs(A.determinant()) < FLT_EPSILON)
+        {
+            throw std::runtime_error("A matrix is singular");
+
+        }
+//        assert(std::fabs(A.determinant()) > FLT_EPSILON && "A matrix is singular");
 
         return Q * A;
         //            const MatrixDimD QA(Q*A);
@@ -125,7 +136,7 @@ namespace model
             std::cout << "input direction=" << d.normalized().transpose() << std::endl;
             std::cout << "lattice direction=" << temp.cartesian().normalized().transpose() << std::endl;
             std::cout << "cross product norm=" << std::setprecision(15) << std::scientific << crossNorm << std::endl;
-            assert(0 && "LATTICE DIRECTION NOT FOUND");
+            throw std::runtime_error("LATTICE DIRECTION NOT FOUND");
         }
 
         return LatticeDirectionType(temp);
@@ -145,7 +156,9 @@ namespace model
             std::cout << "input direction=" << std::setprecision(15) << std::scientific << d.normalized().transpose() << std::endl;
             std::cout << "reciprocal lattice direction=" << std::setprecision(15) << std::scientific << temp.cartesian().normalized().transpose() << std::endl;
             std::cout << "cross product norm=" << std::setprecision(15) << std::scientific << crossNorm << std::endl;
-            assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
+//            assert(0 && "RECIPROCAL LATTICE DIRECTION NOT FOUND");
+            throw std::runtime_error("RECIPROCAL LATTICE DIRECTION NOT FOUND");
+
         }
 
         return ReciprocalLatticeDirectionType(temp);
@@ -167,7 +180,8 @@ namespace model
             std::cout << "lattice direction=" << ld.cartesian().transpose() << std::endl;
             std::cout << "rational=" << rat << std::endl;
             std::cout << "d.norm()/ld.cartesian().norm()=" << d.norm() / ld.norm() << std::endl;
-            assert(0 && "RationalLatticeDirectionType NOT FOUND");
+//            assert(0 && "RationalLatticeDirectionType NOT FOUND");
+            throw std::runtime_error("RationalLatticeDirectionType NOT FOUND");
         }
         return rld;
     }

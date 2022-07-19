@@ -1,4 +1,4 @@
-materialFile=../../../MaterialsLibrary/AlMg5.txt; 
+materialFile=../../../MaterialsLibrary/Cu.txt; 
 enablePartials=0; 
 absoluteTemperature = 300; # [K] simulation temperature 
 meshFile=../../../MeshLibrary/unitCube.msh; 

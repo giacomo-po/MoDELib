@@ -22,7 +22,7 @@
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <PolycrystallineMaterial.h>
+#include <PolycrystallineMaterialBase.h>
 #include <LatticeModule.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
@@ -49,7 +49,7 @@ namespace model
 
     InclusionsGenerator::InclusionsGenerator(const std::string& fileName) :
     /* init */ MicrostructureGeneratorBase(fileName)
-    /* init */,allowOverlap(parser.readScalar<int>("allowOverlap"))
+    /* init */,allowOverlap(false)
     {
         
     }
@@ -72,7 +72,9 @@ namespace model
             const Eigen::Matrix<double,1,dim*dim> inclusionsTransformationEigenDistortion(this->parser.readMatrix<double>("transformationEigenDistortion",1,dim*dim,true));
             const Eigen::Matrix<double,1,dim> patternVector(this->parser.readMatrix<double>("patternVector",1,dim,true)/mg.poly.b_SI);
             const double velocityReductionFactor(this->parser.readScalar<double>("velocityReductionFactor",true));
+            const int phaseIDs(this->parser.readScalar<int>("phaseID",true));
 
+            
             std::lognormal_distribution<double> distribution(log(inclusionsDiameterLognormalDistribution_M/inclusionsDiameterLognormalDistribution_A),inclusionsDiameterLognormalDistribution_S);
 
             const double patternHeigth(patternVector.norm());
@@ -92,13 +94,13 @@ namespace model
 
                 if(applyPattern)
                 {
-                    const VectorDimD globalVector(mg.poly.grain(grainID).C2G*patternVector.transpose());
-                    const VectorDimD globalDir(mg.poly.grain(grainID).C2G*patternDir);
+                    const VectorDimD globalVector(mg.poly.grain(grainID).singleCrystal->C2G*patternVector.transpose());
+                    const VectorDimD globalDir(mg.poly.grain(grainID).singleCrystal->C2G*patternDir);
                     const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
                     const VectorDimD O(pointHeigth*globalVector);
                     P-=(P-O).dot(globalDir)*globalDir;
                 }
-                if(generateSingle(mg,P,radius,inclusionsTransformationEigenDistortion,velocityReductionFactor,0))
+                if(generateSingle(mg,P,radius,inclusionsTransformationEigenDistortion,velocityReductionFactor,phaseIDs))
                 {
                     density+=1.0/mg.mesh.volume()/std::pow(mg.poly.b_SI,3);
                     std::cout<<"inclusion density="<<density<<std::endl;
@@ -131,9 +133,8 @@ namespace model
             const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsCenters(this->parser.readMatrix<double>("inclusionsCenters",inclusionRadii_SI.size(),dim,true));
             const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsEigenDistortions(this->parser.readMatrix<double>("inclusionsEigenDistortions",inclusionRadii_SI.size(),dim*dim,true));
             const std::vector<double> inclusionVRF(this->parser.readArray<double>("inclusionVelocityReductionFactors",true));
+            const std::vector<int> phaseIDs(this->parser.readArray<int>("phaseIDs",true));
 
-//            const std::vector<double> periodicDipoleHeights(this->parser.readArray<double>("periodicDipoleHeights",true));
-            
             if(int(inclusionRadii_SI.size())!=inclusionsCenters.rows())
             {
                 throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO inclusionsCenters.rows()="+std::to_string(inclusionsCenters.rows()));
@@ -146,10 +147,14 @@ namespace model
             {
                 throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO inclusionVRF.size()="+std::to_string(inclusionVRF.size()));
             }
+            if(inclusionRadii_SI.size()!=phaseIDs.size())
+            {
+                throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO phaseIDs.size()="+std::to_string(phaseIDs.size()));
+            }
             
             for(size_t k=0;k<inclusionRadii_SI.size();++k)
             {
-                if(generateSingle(mg,inclusionsCenters.row(k),inclusionRadii_SI[k]/mg.poly.b_SI,inclusionsEigenDistortions.row(k),inclusionVRF[k],0))
+                if(generateSingle(mg,inclusionsCenters.row(k),inclusionRadii_SI[k]/mg.poly.b_SI,inclusionsEigenDistortions.row(k),inclusionVRF[k],phaseIDs[k]))
                 {
                     std::cout<<"generated inclusion"<<std::endl;
                 }

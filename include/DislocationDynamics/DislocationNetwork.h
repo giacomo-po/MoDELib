@@ -56,7 +56,7 @@
 //#include <UniqueOutputFile.h>
 #include <DislocationNetworkIO.h>
 //#include <DislocationParticle.h>
-#include <DislocationStress.h>
+#include <DislocationFieldBase.h>
 ////#include <ParticleSystem.h>
 //
 ////#include <SingleFieldPoint.h>

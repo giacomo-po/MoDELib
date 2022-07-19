@@ -19,7 +19,7 @@ namespace model
         template <int dim>
         GlidePlane<dim>::GlidePlane(const GlidePlaneFactoryType* const gpF,
                    const GlidePlaneKeyType& key_in) :
-        /* init */ LatticePlane(key_in.planeIndex(),ReciprocalLatticeDirection<dim>(key_in.reciprocalDirectionComponents(),gpF->poly.grain(key_in.latticeID()))) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
+        /* init */ LatticePlane(key_in.planeIndex(),ReciprocalLatticeDirection<dim>(key_in.reciprocalDirectionComponents(),*gpF->poly.grain(key_in.latticeID()).singleCrystal)) // BETTER TO CONSTRUCT N WITH PRIMITIVE VECTORS ON THE PLANE
         /* init */,MeshPlane<dim>(gpF->poly.mesh,key_in.latticeID(),this->planeOrigin(),this->n.cartesian())
         /* init */,glidePlaneFactory(*gpF)
         /* init */,grain(gpF->poly.grain(key_in.latticeID()))
@@ -41,7 +41,7 @@ template <int dim>
 std::vector<std::shared_ptr<SlipSystem>> GlidePlane<dim>::slipSystems() const
 {
     std::vector<std::shared_ptr<SlipSystem>> temp;
-    for(const auto& ss : grain.slipSystems())
+    for(const auto& ss : grain.singleCrystal->slipSystems())
     {
         if(this->n.cross(ss->n).squaredNorm()==0)
         {

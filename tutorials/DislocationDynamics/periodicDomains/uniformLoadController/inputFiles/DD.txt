@@ -77,7 +77,7 @@ coreSize=5.0;
 # remeshFrequency = 0 redistribution is disabled (not recommended)
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
-remeshFrequency=0;
+remeshFrequency=1;
 Lmin=0.025;
 Lmax=0.080;
 nodeRemoveAngleDeg=60;
@@ -87,7 +87,7 @@ relativeAreaThreshold=0.001;
 ######################################
 # DISLOCATION JUNCTIONS
 # Enable/disable the use of dislocation junction formation
-maxJunctionIterations=0;
+maxJunctionIterations=1;
 # Tolerance used in detecting collisions between dislocation segments in different planes
 collisionTol=5;
 mergeGlissileJunctions=0;
@@ -98,7 +98,7 @@ surfaceAttractionDistance=20;
 
 ######################################
 # Enable/disable cross-slip
-crossSlipModel=1;
+crossSlipModel=0;
 crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
 
 ######################################

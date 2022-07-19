@@ -37,7 +37,7 @@ namespace model
         typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;
         
         DislocationNetworkType& DN; //! A reference to the DislocationNetwork
-        CrossSlipContainerType crossSlipDeq;
+//        CrossSlipContainerType crossSlipDeq;
         std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>> csNodes;
         
     public:

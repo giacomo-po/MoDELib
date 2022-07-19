@@ -23,6 +23,8 @@
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
 #include <DDtraitsIO.h>
+#include <GlidePlaneFactory.h>
+#include <PeriodicGlidePlaneFactory.h>
 
 namespace model
 {
@@ -56,6 +58,8 @@ public:
     QLabel* workingDirLabel;
     SimplicialMesh<3> mesh;
     Polycrystal<3> poly;
+    GlidePlaneFactory<3> glidePlaneFactory;
+    PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
     ChartActor* chartActor;

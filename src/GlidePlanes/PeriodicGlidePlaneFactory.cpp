@@ -24,8 +24,8 @@ namespace model
 //    /* init */,N(get_N(poly,this->latticeBasis))
     {
         
-        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-        const auto &grain(poly.grains().begin()->second);
+        assert(poly.grains.size() == 1 && "Periodic simulations only supported in single crystals");
+        const auto &grain(poly.grains.begin()->second);
         const auto &meshRegion(grain.region);
 
 //        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
@@ -34,7 +34,7 @@ namespace model
             if(face.second->periodicFacePair.second)
             {
                 std::cout<<"MeshFace "<<face.first<<" checking if periodicShift is a LatticeVector "<<std::flush;
-                const auto lv(grain.latticeVector(face.second->periodicFacePair.first));
+                const auto lv(grain.singleCrystal->latticeVector(face.second->periodicFacePair.first));
                 std::cout<<"LatticeVector"<<"="<<lv.transpose()<<std::endl;
             }
         }
@@ -74,8 +74,8 @@ namespace model
 //    template<int dim>
 //    Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
 //    {
-//        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-//        const auto &grain(poly.grains().begin()->second);
+//        assert(poly.grains.size() == 1 && "Periodic simulations only supported in single crystals");
+//        const auto &grain(poly.grains.begin()->second);
 //        const auto &meshRegion(grain.region);
 //
 //        std::vector<Eigen::Matrix<double,dim,1>> uniqueEdges;
@@ -118,8 +118,8 @@ namespace model
 //    template<int dim>
 //    Eigen::Matrix<long int,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_N(const Polycrystal<dim>& poly,const Eigen::Matrix<double,dim,dim>& B)
 //    {
-//        assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-//        const auto &grain(poly.grains().begin()->second);
+//        assert(poly.grains.size() == 1 && "Periodic simulations only supported in single crystals");
+//        const auto &grain(poly.grains.begin()->second);
 //        // const auto &meshRegion(grain.region);
 //
 //        Eigen::Matrix<double,dim,dim> Nd(grain.latticeBasis.inverse()*B);
@@ -138,8 +138,8 @@ namespace model
 //     template<int dim>
 //     Eigen::Matrix<double,dim,dim>  PeriodicGlidePlaneFactory<dim>::get_B(const Polycrystal<dim>& poly)
 //     {
-//         assert(poly.grains().size() == 1 && "Periodic simulations only supported in single crystals");
-//         const auto &grain(poly.grains().begin()->second);
+//         assert(poly.grains.size() == 1 && "Periodic simulations only supported in single crystals");
+//         const auto &grain(poly.grains.begin()->second);
 //         const auto &meshRegion(grain.region);
         
 //         Eigen::Matrix<double, dim, dim> B(Eigen::Matrix<double, dim, dim>::Zero());

@@ -22,7 +22,7 @@
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <PolycrystallineMaterial.h>
+#include <PolycrystallineMaterialBase.h>
 #include <LatticeModule.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>

@@ -7,4 +7,4 @@ solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise
 solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
 solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk; 
 
-stackingFaultNoiseMode=1; # 0=no noise
+stackingFaultNoiseMode=0; # 0=no noise

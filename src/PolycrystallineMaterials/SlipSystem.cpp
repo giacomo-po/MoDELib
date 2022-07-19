@@ -22,12 +22,16 @@
 namespace model
 {
 
-    SlipSystem::SlipSystem(const LatticeVector<3>& a1,
-                           const LatticeVector<3>& a2,
-                           const LatticeVector<3>& slip_in,
-                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                           const std::shared_ptr<GammaSurface>& gammaSurface_in):
-    /* init */ n(a1,a2)
+//    SlipSystem::SlipSystem(const LatticeVector<3>& a1,
+//                           const LatticeVector<3>& a2,
+//                           const LatticeVector<3>& slip_in,
+//                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+//                           const std::shared_ptr<GammaSurface>& gammaSurface_in):
+SlipSystem::SlipSystem(const LatticePlaneBase& n_in,
+                       const LatticeVector<3>& slip_in,
+                       const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+                       const std::shared_ptr<GammaSurface>& gammaSurface_in):
+    /* init */ n(n_in)
     /* init */,s(slip_in)
     /* init */,unitNormal(n.cartesian().normalized())
     /* init */,mobility(mobility_in)
@@ -42,22 +46,24 @@ namespace model
         
         if(s.dot(n)!=0)
         {
-            std::cout<<"PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL. EXITING."<<std::endl;
-            exit(EXIT_FAILURE);
+            throw std::runtime_error("SlipSystem: PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
         }
         if(!mobility)
         {
-            std::cout<<"MOBILITY CANNOT BE A NULLPTR. EXITING."<<std::endl;
-            exit(EXIT_FAILURE);
+            throw std::runtime_error("SlipSystem: MOBILITY CANNOT BE A NULLPTR.");
         }
     }
 
-    SlipSystem::SlipSystem(const LatticeVector<3>& a1,
-                           const LatticeVector<3>& a2,
-                           const RationalLatticeDirection<3>& slip_in,
-                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                           const std::shared_ptr<GammaSurface>& gammaSurface_in):
-    /* init */ n(a1,a2)
+//    SlipSystem::SlipSystem(const LatticeVector<3>& a1,
+//                           const LatticeVector<3>& a2,
+//                           const RationalLatticeDirection<3>& slip_in,
+//                           const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+//                           const std::shared_ptr<GammaSurface>& gammaSurface_in):
+SlipSystem::SlipSystem(const LatticePlaneBase& n_in,
+                       const RationalLatticeDirection<3>& slip_in,
+                       const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+                       const std::shared_ptr<GammaSurface>& gammaSurface_in):
+    /* init */ n(n_in)
     /* init */,s(slip_in)
     /* init */,unitNormal(n.cartesian().normalized())
     /* init */,mobility(mobility_in)
@@ -72,13 +78,11 @@ namespace model
         
         if(s.dot(n)!=0)
         {
-            std::cout<<"PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL. EXITING."<<std::endl;
-            exit(EXIT_FAILURE);
+            throw std::runtime_error("SlipSystem: PLANE NORMAL AND SLIP DIRECTION ARE NOT ORTHOGONAL.");
         }
         if(!mobility)
         {
-            std::cout<<"MOBILITY CANNOT BE A NULLPTR. EXITING."<<std::endl;
-            exit(EXIT_FAILURE);
+            throw std::runtime_error("SlipSystem: MOBILITY CANNOT BE A NULLPTR.");
         }
     }
 

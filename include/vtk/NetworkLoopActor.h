@@ -16,6 +16,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QCheckBox>
+#include <QSlider>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -38,6 +39,7 @@
 #include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
+#include <PeriodicGlidePlaneFactory.h>
 
 namespace model
 {
@@ -56,6 +58,9 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showLoops;
+        QCheckBox* showSlippedArea;
+        QSlider* sliderSlippedArea;
+
 //        double tubeRadius;
 //        ColorScheme clr;
 
@@ -66,10 +71,20 @@ namespace model
         vtkSmartPointer<vtkActor> loopActor;
 
         
+        vtkSmartPointer<vtkPolyData> areaPolyData;
+        vtkSmartPointer<vtkPolyDataMapper> areaMapper;
+        vtkSmartPointer<vtkActor> areaActor;
+
+
+        
         public:
                 
+        const Polycrystal<3>& poly;
+        PeriodicGlidePlaneFactory<3>& periodicGlidePlaneFactory;
         
-        NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);
+        NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,
+                         const Polycrystal<3>& poly_in,
+                         PeriodicGlidePlaneFactory<3>& pgf);
         void updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData);
 //        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
         

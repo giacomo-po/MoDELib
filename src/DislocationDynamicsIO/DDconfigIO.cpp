@@ -650,6 +650,52 @@ namespace model
         }
     }
 
+template <int dim>
+std::map<size_t,std::vector<size_t>> DDconfigIO<dim>::loopNodeSequence() const
+{
+    
+    std::map<size_t,std::vector<size_t>> temp;
+    
+    std::map<size_t,std::map<size_t,size_t>> loopLinkMap;
+    for(const auto& link : loopLinks())
+    {
+        loopLinkMap[link.loopID].emplace(link.sourceID,link.sinkID);
+    }
+    
+    
+    for(const auto& pair : loopLinkMap)
+    {
+        if(pair.second.size())
+        {
+            size_t sourceID(pair.second.begin()->first);
+            size_t sinkID(pair.second.begin()->second);
+            for(size_t k=0;k<pair.second.size();++k)
+            {
+                
+                temp[pair.first].push_back(sourceID);
+                
+                const auto mapIter(pair.second.find(sinkID));
+                if(mapIter==pair.second.end())
+                {
+                    throw std::runtime_error("Could not create loopNodeSequence");
+                }
+                
+                sourceID=mapIter->first;
+                sinkID=mapIter->second;
+            }
+
+            if(sourceID!=temp[pair.first].front())
+            {
+                throw std::runtime_error("loopNodeSequence is not a loop");
+            }
+            
+        }
+    }
+    
+    return temp;
+}
+
+
     template class DDconfigIO<3>;
 
 }

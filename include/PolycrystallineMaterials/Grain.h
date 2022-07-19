@@ -17,9 +17,9 @@
 #include <MeshRegion.h>
 #include <LatticeModule.h>
 //#include <PeriodicElement.h>
-#include <PolycrystallineMaterial.h>
+#include <PolycrystallineMaterialBase.h>
 #include <SlipSystem.h>
-#include <SingleCrystal.h>
+#include <SingleCrystalBase.h>
 
 //#include <BestRationalApproximation.h>
 
@@ -30,12 +30,12 @@ namespace model
     class GrainBoundary;
     
     template <int dim>
-    class Grain : public SingleCrystal<dim>,
-    /* base    */ public std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const>
+    class Grain : //public SingleCrystal<dim>,
+    /* base    */ public std::map<std::pair<size_t,size_t>,const std::shared_ptr<GrainBoundary<dim>>>
     {
         
         typedef Lattice<dim> LatticeType;
-        typedef SingleCrystal<dim> SingleCrystalType;
+//        typedef SingleCrystal<dim> SingleCrystalType;
         typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
         
@@ -48,10 +48,12 @@ namespace model
         typedef LatticeDirection<dim> LatticeDirectionType;
         
         typedef ReciprocalLatticeDirection<dim> ReciprocalLatticeDirectionType;
-        typedef std::map<std::pair<size_t,size_t>,const GrainBoundary<dim>* const> GrainBoundaryContainerType;
+        typedef std::map<std::pair<size_t,size_t>,const std::shared_ptr<GrainBoundary<dim>>> GrainBoundaryContainerType;
         
 
-        
+        static std::shared_ptr<SingleCrystalBase<dim>> getSingleCrystal(const MeshRegionType& region_in,
+                                                                        const PolycrystallineMaterialBase& material,
+                                                                        const std::string& polyFile);
         
     public:
         
@@ -61,9 +63,10 @@ namespace model
         
         const MeshRegionType& region;
         const size_t& grainID;
+        const std::shared_ptr<SingleCrystalBase<dim>> singleCrystal;
         
         Grain(const MeshRegionType& region_in,
-              const PolycrystallineMaterial<dim,Isotropic>& material,
+              const PolycrystallineMaterialBase& material,
               const std::string& polyFile
               );
         const GrainBoundaryContainerType& grainBoundaries() const;

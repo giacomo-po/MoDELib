@@ -63,16 +63,19 @@ namespace model
 
             std::ifstream flabFile(traitsIO.flabFile);
             std::string line;
-            while (std::getline(flabFile, line))
+            if(flabFile)
             {
-                if(!line.empty())
+                while (std::getline(flabFile, line))
                 {
-                    xComboBox->addItem(QString::fromStdString(line));
-                    yComboBox->addItem(QString::fromStdString(line));
-                    
-                    vtkNew<vtkFloatArray> farr;
-                    farr->SetName(line.c_str());
-                    table->AddColumn(farr);
+                    if(!line.empty())
+                    {
+                        xComboBox->addItem(QString::fromStdString(line));
+                        yComboBox->addItem(QString::fromStdString(line));
+                        
+                        vtkNew<vtkFloatArray> farr;
+                        farr->SetName(line.c_str());
+                        table->AddColumn(farr);
+                    }
                 }
             }
 
@@ -83,17 +86,20 @@ namespace model
             const int cols(xComboBox->count());
 
             std::ifstream fFile(traitsIO.fFile);
-            float temp;
-            while (std::getline(fFile, line))
+            if(fFile)
             {
-                if(!line.empty())
+                float temp;
+                while (std::getline(fFile, line))
                 {
-                    const auto row=table->InsertNextBlankRow(cols);
-                    std::stringstream ss(line);
-                    for(int col=0;col<cols;++col)
+                    if(!line.empty())
                     {
-                        ss >> temp;
-                        table->SetValue(row, col, temp);
+                        const auto row=table->InsertNextBlankRow(cols);
+                        std::stringstream ss(line);
+                        for(int col=0;col<cols;++col)
+                        {
+                            ss >> temp;
+                            table->SetValue(row, col, temp);
+                        }
                     }
                 }
             }
@@ -152,11 +158,14 @@ namespace model
 //              }
 
               // Add multiple line plots, setting the colors etc
-              vtkPlot* points = chart->AddPlot(vtkChart::LINE);
-              points->SetInputData(table, 0, 0);
-            vtkColor3d color3d = colors->GetColor3d("black");
-              points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-              points->SetWidth(1.0);
+            if(table->GetNumberOfRows()>0 && table->GetNumberOfColumns()>0)
+            {
+                vtkPlot* points = chart->AddPlot(vtkChart::LINE);
+                points->SetInputData(table, 0, 0);
+              vtkColor3d color3d = colors->GetColor3d("black");
+                points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
+                points->SetWidth(1.0);
+            }
 //              dynamic_cast<vtkPlotPoints*>(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
 //              points = chart->AddPlot(vtkChart::POINTS);
 //              points->SetInputData(table, 0, 2);
@@ -181,7 +190,6 @@ namespace model
             xAxisLog->setEnabled(showChart->isChecked());
             yAxisLog->setEnabled(showChart->isChecked());
 
-            
             chart->GetAxis(0)->SetTitle(yComboBox->currentText().toStdString());
             chart->GetAxis(1)->SetTitle(xComboBox->currentText().toStdString());
 
@@ -192,17 +200,22 @@ namespace model
             chart->GetAxis(1)->SetGridVisible(false);
             
             chart->ClearPlots();
-            vtkPlot* points = chart->AddPlot(vtkChart::LINE);
-            points->SetInputData(table, xComboBox->currentIndex(), yComboBox->currentIndex());
-            vtkColor3d color3d = colors->GetColor3d("magenta");
-            points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-            points->SetWidth(3.0);
-            chart->RecalculateBounds ();
-//            points->Modified();
-            chart->Modified();
-//            chart->Update();
-//
-//            chartScene->Modified();
+
+            if(xComboBox->count() && yComboBox->count())
+            {
+                if(table->GetNumberOfRows()>xComboBox->currentIndex() && table->GetNumberOfColumns()>yComboBox->currentIndex())
+                {
+                    vtkPlot* points = chart->AddPlot(vtkChart::LINE);
+                    points->SetInputData(table, xComboBox->currentIndex(), yComboBox->currentIndex());
+                                        
+                    vtkColor3d color3d = colors->GetColor3d("magenta");
+                    points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
+                    points->SetWidth(3.0);
+                    chart->RecalculateBounds();
+                    chart->Modified();
+
+                }
+            }
             
             chartActor->SetVisibility(showChart->isChecked());
             renderWindow->Render();
@@ -211,8 +224,6 @@ namespace model
 
 
 } // namespace model
-
- // namespace model
 #endif
 
 

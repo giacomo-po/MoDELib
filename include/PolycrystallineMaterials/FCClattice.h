@@ -19,6 +19,9 @@
 #include <PolycrystallineMaterialBase.h>
 #include <DislocationMobilityFCC.h>
 #include <RationalLatticeDirection.h>
+#include <SingleCrystalBase.h>
+#include <DislocationMobilityFCC.h>
+//#include <SecondPhase.h>
 
 namespace model
 {
@@ -30,24 +33,31 @@ namespace model
     };
     
     template<>
-    struct FCClattice<3> : public Lattice<3>
+    struct FCClattice<3> : public SingleCrystalBase<3>
+    /*                  */,private SingleCrystalBase<3>::PlaneNormalContainerType
+    /*                  */,private SingleCrystalBase<3>::SlipSystemContainerType
+    /*                  */,private SingleCrystalBase<3>::SecondPhaseContainerType
     {
+//        static constexpr auto name="FCC";
         static constexpr int dim=3;
-        static constexpr auto name="FCC";
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef typename SingleCrystalBase<dim>::MatrixDim MatrixDim;
+        typedef typename SingleCrystalBase<dim>::PlaneNormalContainerType PlaneNormalContainerType;
+        typedef typename SingleCrystalBase<dim>::SlipSystemContainerType SlipSystemContainerType;
+        typedef typename SingleCrystalBase<dim>::SecondPhaseContainerType SecondPhaseContainerType;
+
         
         static constexpr bool enable111planes=true;
         static constexpr bool enable110planes=false;
         
-        FCClattice(const MatrixDim& Q);
+        FCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile);
         static Eigen::Matrix<double,dim,dim> getLatticeBasis();
-        static std::vector<LatticePlaneBase> reciprocalPlaneNormals(const Lattice<dim>& lat);
-        static std::vector<std::shared_ptr<SlipSystem>> slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
-                                                                    const Lattice<dim>& lat,
-                                                                    const PolycrystallineMaterialBase& material,
-                                                                    const bool& enablePartials);
+        std::vector<std::shared_ptr<LatticePlaneBase>> getPlaneNormals() const;
+        std::vector<std::shared_ptr<SlipSystem>> getSlipSystems(const PolycrystallineMaterialBase& material,const std::string& polyFile,const PlaneNormalContainerType& plN);
+        std::vector<std::shared_ptr<SecondPhase<dim>>> getSecondPhases(const PolycrystallineMaterialBase& material,const PlaneNormalContainerType& plN);
         
-        
+        const PlaneNormalContainerType& planeNormals() const override;
+        const SlipSystemContainerType& slipSystems() const override;
+        const SecondPhaseContainerType& secondPhases() const override;
         
     };
     

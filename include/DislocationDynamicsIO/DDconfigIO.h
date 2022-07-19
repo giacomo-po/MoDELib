@@ -82,6 +82,7 @@ namespace model
         void readTxt(const size_t& runID);
         void readTxtStream(std::istream &infile);
         void bin2txt(const size_t& runID,const bool& writeSegments);
+        std::map<size_t,std::vector<size_t>> loopNodeSequence() const;
         
         //        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
         //        {

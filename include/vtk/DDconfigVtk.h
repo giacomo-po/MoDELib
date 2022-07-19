@@ -67,7 +67,8 @@ namespace model
 
         
         /**********************************************************************/
-        DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,const Polycrystal<3>& poly);
+        DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,
+                    const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf);
         bool updateConfiguration(const size_t& frameID);
 
         void modify();

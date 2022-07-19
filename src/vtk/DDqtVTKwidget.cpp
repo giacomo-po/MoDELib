@@ -33,8 +33,10 @@ namespace model
                     TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),
                     TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
     /* init */,poly(traitsIO.polyFile,mesh)
+    /* init */,glidePlaneFactory(poly)
+    /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
     /* init */,meshActor(new SimplicialMeshActor(renderWindow,renderer,mesh))
-    /* init */,ddConfigVtk(new DDconfigVtk(traitsIO,renderWindow,renderer,poly))
+    /* init */,ddConfigVtk(new DDconfigVtk(traitsIO,renderWindow,renderer,poly,periodicGlidePlaneFactory))
     /* init */,chartActor(new ChartActor(traitsIO,renderWindow,renderer))
     {
         renderer->SetBackground(1,1,1);

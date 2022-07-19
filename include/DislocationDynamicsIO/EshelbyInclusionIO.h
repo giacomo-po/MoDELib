@@ -37,7 +37,7 @@ namespace model
         double a; // size (radius)
         MatrixDim eT;
         double mobilityReduction;
-        int typeID;
+        int phaseID;
 
         /**********************************************************************/
         template<typename EshelbyInclusionType>
@@ -47,7 +47,7 @@ namespace model
         /* init */,a(ei.a)
         /* init */,eT(ei.eT)
         /* init */,mobilityReduction(ei.mobilityReduction)
-        /* init */,typeID(ei.typeID)
+        /* init */,phaseID(ei.phaseID)
         {
             
         }
@@ -57,13 +57,13 @@ namespace model
                            const double& a_in, // size (radius)
                            const MatrixDim& eT_in,
                            const double& mobilityReduction_in,
-                           const int& typeID_in) :
+                           const int& phaseID_in) :
         /* init */ inclusionID(inclusionID_in)
         /* init */,C(C_in)
         /* init */,a(a_in)
         /* init */,eT(eT_in)
         /* init */,mobilityReduction(mobilityReduction_in)
-        /* init */,typeID(typeID_in)
+        /* init */,phaseID(phaseID_in)
         {
             
         }
@@ -74,7 +74,7 @@ namespace model
         /* init */,a(0)
         /* init */,eT(MatrixDim::Zero())
         /* init */,mobilityReduction(1.0)
-        /* init */,typeID(0)
+        /* init */,phaseID(0)
         {
             
         }
@@ -85,7 +85,7 @@ namespace model
         /* init */,a(0)
         /* init */,eT(MatrixDim::Zero())
         /* init */,mobilityReduction(1.0)
-        /* init */,typeID(0)
+        /* init */,phaseID(0)
         {
             ss>>inclusionID;
             for(int d=0;d<dim;++d)
@@ -103,7 +103,7 @@ namespace model
                 }
             }
             ss>>mobilityReduction;
-            ss>>typeID;
+            ss>>phaseID;
         }
         
         template <class T>
@@ -117,7 +117,7 @@ namespace model
                 os  <<std::setprecision(15)<<std::scientific<<ei.eT.row(d)<<"\t";
             }
             os  <<std::setprecision(15)<<std::scientific<<ei.mobilityReduction<<"\t"
-            /**/<<ei.typeID;            
+            /**/<<ei.phaseID;
             return os;
         }
         

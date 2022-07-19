@@ -258,7 +258,7 @@ namespace model
             LoopNodeSequenceType temp;
             for(const auto& link : linkSequence())
             {
-                temp.emplace_back(link->source(),link->sink());
+                temp.emplace_back(link->source,link->sink);
             }
             return temp;
         }
@@ -269,7 +269,7 @@ namespace model
             std::deque<size_t> temp;
             for(const auto& link : linkSequence())
             {
-                temp.emplace_back(link->source()->sID);
+                temp.emplace_back(link->source->sID);
             }
             return temp;
         }

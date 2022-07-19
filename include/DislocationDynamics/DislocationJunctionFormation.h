@@ -218,11 +218,11 @@ namespace model
                     if (LA > FLT_EPSILON && LB > FLT_EPSILON)
                     {
 
-                        StressStraight<dim> stressA(ssd.x0 - infiniteLineLength / LA * chordA,
+                        StressStraight<dim> stressA(DN.poly,ssd.x0 - infiniteLineLength / LA * chordA,
                                                     ssd.x0 + infiniteLineLength / LA * chordA,
                                                     linkA->burgers());
 
-                        StressStraight<dim> stressB(ssd.x1 - infiniteLineLength / LB * chordB,
+                        StressStraight<dim> stressB(DN.poly,ssd.x1 - infiniteLineLength / LB * chordB,
                                                     ssd.x1 + infiniteLineLength / LB * chordB,
                                                     linkB->burgers());
 
@@ -865,9 +865,9 @@ namespace model
 
                             for (const auto &gr : link->grains())
                             {
-                                for (size_t s = 0; s < gr->slipSystems().size(); ++s)
+                                for (size_t s = 0; s < gr->singleCrystal->slipSystems().size(); ++s)
                                 {
-                                    const auto &slipSystem(gr->slipSystems()[s]);
+                                    const auto &slipSystem(gr->singleCrystal->slipSystems()[s]);
                                     if ((slipSystem->s.cartesian() - link->burgers()).norm() < FLT_EPSILON && fabs(slipSystem->n.cartesian().normalized().dot(unitChord)) < FLT_EPSILON)
                                     {
                                         VerboseJunctions(3, "glissDeq, emplacing" << std::endl;);
@@ -899,10 +899,10 @@ namespace model
                     {
                         const VectorDim newNodeP(0.5 * (isLink->source->get_P() + isLink->sink->get_P())); //This new node is only on one side
 
-                        const long int planeIndex(DN.poly.grain(grainID).slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
-                        const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).slipSystems()[slipID]->n);
+                        const long int planeIndex(DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n.closestPlaneIndexOfPoint(newNodeP));
+                        const GlidePlaneKey<dim> glissilePlaneKey(planeIndex, DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->n);
                         const auto glidePlane(DN.glidePlaneFactory.getFromKey(glissilePlaneKey));
-                        auto glissileLoop(DN.loops().create(DN.poly.grain(grainID).slipSystems()[slipID]->s.cartesian(), glidePlane));
+                        auto glissileLoop(DN.loops().create(DN.poly.grain(grainID).singleCrystal->slipSystems()[slipID]->s.cartesian(), glidePlane));
 
                         VerboseJunctions(3, "Glissile Junction from Link" << isLink->tag() << std::endl;);
 

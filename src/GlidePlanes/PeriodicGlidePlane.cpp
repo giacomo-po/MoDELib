@@ -858,6 +858,33 @@ namespace model
         
     }
 
+template<int dim>
+std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> PeriodicGlidePlane<dim>::filledPatches(const std::vector<VectorDim>& patchShifts)
+{/*\returns a vector of patch-shifts (including startShifts) which closes the "holes" on pgp
+  */
+    // Collect patches of the loop. We create a temporary PeriodicPatchBoundary for this, having only the patches of this loop
+    PeriodicPatchBoundary<dim> patchBoundary(glidePlaneFactory,referencePlane);
+    std::set<std::shared_ptr<PeriodicPlanePatch<dim>>> tempPatches;
+    for(const auto& ps : patchShifts)
+    {
+        tempPatches.insert(patchBoundary.getPatch(ps));
+    }
+    // There may be "holes" in the patches. Close them
+    while(patchBoundary.innerBoundaries().size())
+    {
+        const PeriodicPlaneEdge<dim>* const holeEdge(*patchBoundary.innerBoundaries().front().begin());
+        tempPatches.insert(patchBoundary.getPatch(holeEdge->deltaShift+holeEdge->patch->shift));
+    }
+
+    // Now grab corresponding patches from this->patchBoundary
+    std::vector<std::shared_ptr<PeriodicPlanePatch<dim>>> temp;
+    for(const auto& patch : tempPatches)
+    {
+        temp.push_back(this->getPatch(patch->shift));
+    }
+    return temp;
+}
+
     template<int dim>
     PeriodicPlanePatchIO<dim>::PeriodicPlanePatchIO() :
     /* init */ glidePlaneID(0)

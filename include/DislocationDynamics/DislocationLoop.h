@@ -62,7 +62,7 @@ namespace model
         VectorDim _rightHandedUnitNormal;
         ReciprocalLatticeDirectionType _rightHandedNormal;
         std::shared_ptr<SlipSystem> _slipSystem;
-
+        std::map<std::shared_ptr<PeriodicPlanePatch<_dim>>,std::vector<Eigen::Matrix<double,_dim-1,1>>> _patches;
         
     public:
         
@@ -90,10 +90,12 @@ namespace model
         bool isVirtualBoundaryLoop() const;
         double solidAngle(const VectorDim& x) const;
         void crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const;
+        std::vector<int> windingNumber(const std::vector<VectorDim>& pts);
         
         static void initFromFile(const std::string&);
         static double planarSolidAngle(const VectorDim& x,const VectorDim& planePoint,const VectorDim& rhN,const std::vector<std::pair<VectorDim,VectorDim>>& polygonSegments);
         template <typename T> static int sgn(const T& val);
+        
    };
     
 }

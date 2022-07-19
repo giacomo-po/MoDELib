@@ -74,6 +74,10 @@ namespace model
     void GlidePlaneActor::updateConfiguration(const DDauxIO<3>& auxIO)
     {
         
+        std::cout<<"Updating GlidePlanes..."<<std::flush;
+        const auto t0= std::chrono::system_clock::now();
+
+        
         for(const auto& actor : noiseActors)
         {
             renderer->RemoveActor(actor);
@@ -216,7 +220,8 @@ namespace model
         glidePlanePolydata->SetLines(glidePlaneCells);
         glidePlanePolydata->Modified();
         
-        
+        std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+
     }
 
     void GlidePlaneActor::modify()

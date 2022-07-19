@@ -20,29 +20,29 @@ namespace model
 {
 
 
-    template <int dim>
-    void EshelbyInclusion<dim>::addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems)
-    {
-        
-        for(const auto& slipSystem : slipSystems)
-        {
-            if(gammaSurfaceMap.find(slipSystem->gammaSurface.get())==gammaSurfaceMap.end())
-            {// current slipSystem gammaSurface not found
-                
-                //                    GammaSurface temp();
-                //
-                //                    gammaSurfaceMap.emaplace(slipSystem->gammaSurface.get(),temp);
-            }
-        }
-        
-    }
+//    template <int dim>
+//    void EshelbyInclusion<dim>::addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems)
+//    {
+//
+//        for(const auto& slipSystem : slipSystems)
+//        {
+//            if(gammaSurfaceMap.find(slipSystem->gammaSurface.get())==gammaSurfaceMap.end())
+//            {// current slipSystem gammaSurface not found
+//
+//                //                    GammaSurface temp();
+//                //
+//                //                    gammaSurfaceMap.emaplace(slipSystem->gammaSurface.get(),temp);
+//            }
+//        }
+//
+//    }
 
-    template <int dim>
-    double EshelbyInclusion<dim>::misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const
-    {
-        const auto iter(gammaSurfaceMap.find(matrixGammaSurface));
-        return iter==gammaSurfaceMap.end()? 0.0 : iter->second(b);
-    }
+//    template <int dim>
+//    double EshelbyInclusion<dim>::misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const
+//    {
+//        const auto iter(gammaSurfaceMap.find(matrixGammaSurface));
+//        return iter==gammaSurfaceMap.end()? 0.0 : iter->second(b);
+//    }
 
     /**********************************************************************/
     template <int dim>
@@ -52,11 +52,13 @@ namespace model
                                             const double& _nu,
                                             const double& _mu,
                                             const double& _mobilityReduction,
-                                            const int& _type) :
+                                            const int& _phaseID,
+                                            const std::shared_ptr<SecondPhase<dim>>& sph) :
     /* init */ nu(_nu)
     /* init */,mu(_mu)
     /* init */,mobilityReduction(_mobilityReduction)
-    /* init */,typeID(_type)
+    /* init */,phaseID(_phaseID)
+    /* init */,secondPhase(sph)
     /* init */,L((5.0*nu-1.0)/15.0/(1.0-nu))
     /* init */,M((4.0-5.0*nu)/15.0/(1.0-nu))
     //        /* init */,K((3.0*L+2.0*M)/3.0)
@@ -67,7 +69,7 @@ namespace model
     /* init */,eTNorm(eT.norm())
     /* init */,pT(2.0*mu*(eT+nu/(1.0-2.0*nu)*eT.trace()*MatrixDim::Identity()))
     {
-        std::cout<<"Creating EshelbyInclusion "<<this->sID<<" (type "<<typeID<<"):\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<eT<<std::endl;
+        std::cout<<"Creating EshelbyInclusion "<<this->sID<<" (type "<<phaseID<<"):\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<eT<<std::endl;
         assert((_eT-_eT.transpose()).norm()<FLT_EPSILON && "eT is not symmetric.");
     }
 

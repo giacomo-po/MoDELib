@@ -10,20 +10,26 @@
 #ifndef model_BCClattice_cpp_
 #define model_BCClattice_cpp_
 
-#include <vector>
-#include <Eigen/Dense>
-
-#include <LatticeModule.h>
-#include <SlipSystem.h>
-#include <PolycrystallineMaterialBase.h>
 #include <BCClattice.h>
+#include <DislocationMobilityBCC.h>
 
 namespace model
 {
-
+    
+        
+        BCClattice<3>::BCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile) :
+        /* init */ SingleCrystalBase<dim>(getLatticeBasis(),Q)
+        /* init */,PlaneNormalContainerType(getPlaneNormals())
+//        /* init */,DislocationMobilityContainerType(getMobilities())
+        /* init */,SlipSystemContainerType(getSlipSystems(material,polyFile,*this))
+        /* init */,SecondPhaseContainerType(getSecondPhases(material,*this))
+        {
+            
+        }
+        
         Eigen::Matrix<double,3,3> BCClattice<3>::getLatticeBasis()
-        {/*!\returns The matrix of lattice vectors (in columns), in units of the
-          * crystallographic Burgers vector.
+        {/*!\returns The matrix of lattice vectors (cartesian cooridinates in columns),
+          * in units of the crystallographic Burgers vector.
           */
             
             Eigen::Matrix<double,dim,dim> temp;
@@ -33,86 +39,104 @@ namespace model
             
             return temp/sqrt(3.0);
         }
+
+    const typename BCClattice<3>::PlaneNormalContainerType& BCClattice<3>::planeNormals() const
+    {
+        return *this;
+    }
+
+    const typename BCClattice<3>::SlipSystemContainerType& BCClattice<3>::slipSystems() const
+    {
+        return *this;
+    }
+
+    const typename BCClattice<3>::SecondPhaseContainerType& BCClattice<3>::secondPhases() const
+    {
+        return *this;
+    }
+
+
+//    const typename BCClattice<3>::DislocationMobilityContainerType& dislocationMobilities() const
+//    {
+//        return *this;
+//    }
+
+
         
-        std::vector<LatticePlaneBase> BCClattice<3>::reciprocalPlaneNormals(const Lattice<dim>& lat)
+        std::vector<std::shared_ptr<LatticePlaneBase>> BCClattice<3>::getPlaneNormals() const
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
-          * the slip plane normals of the FCC lattice
+          * the slip plane normals of the BCC lattice
           */
+            
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
             
             typedef LatticeVector<dim> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0),lat);
-            LatticeVectorType a2(VectorDimI(0,1,0),lat);
-            LatticeVectorType a3(VectorDimI(0,0,1),lat);
-            LatticeVectorType  y(VectorDimI(1,1,1),lat);
+            LatticeVectorType a1(VectorDimI(1,0,0),*this);
+            LatticeVectorType a2(VectorDimI(0,1,0),*this);
+            LatticeVectorType a3(VectorDimI(0,0,1),*this);
+            LatticeVectorType  y(VectorDimI(1,1,1),*this);
             
-            std::vector<LatticePlaneBase> temp;
-            temp.emplace_back(a3,a1); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back( y,a2); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(a2,a3); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back( y,a1); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(a1,a2); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back( y,a3); // is (-1, 1, 0) in cartesian
+            std::vector<std::shared_ptr<LatticePlaneBase>> temp;
+            temp.emplace_back(new LatticePlaneBase(a3,a1)); // is ( 1, 0, 1) in cartesian
+            temp.emplace_back(new LatticePlaneBase( y,a2)); // is ( 1, 0,-1) in cartesian
+            temp.emplace_back(new LatticePlaneBase(a2,a3)); // is ( 0, 1, 1) in cartesian
+            temp.emplace_back(new LatticePlaneBase( y,a1)); // is ( 0,-1, 1) in cartesian
+            temp.emplace_back(new LatticePlaneBase(a1,a2)); // is ( 1, 1, 0) in cartesian
+            temp.emplace_back(new LatticePlaneBase( y,a3)); // is (-1, 1, 0) in cartesian
             
             return temp;
-        }
 
-        std::vector<std::shared_ptr<SlipSystem>> BCClattice<3>::slipSystems(const std::map<std::string,std::shared_ptr<DislocationMobilityBase>>& mobilities,
-                                                                    const Lattice<dim>& lat,
-                                                                    const PolycrystallineMaterialBase& )
+        }
+        
+        std::vector<std::shared_ptr<SlipSystem>> BCClattice<3>::getSlipSystems(const PolycrystallineMaterialBase& material,
+                                                                               const std::string& polyFile,
+                                                                               const PlaneNormalContainerType& plN)
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
-          * the slip systems of the BCC lattice
+          * the slip systems of the Hexagonal lattice
           */
-            typedef Eigen::Matrix<long int,3,1> VectorDimI;
+            const std::shared_ptr<DislocationMobilityBase> bccMobility(new DislocationMobilityBCC(material));
             
-            typedef LatticeVector<3> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0),lat);
-            LatticeVectorType a2(VectorDimI(0,1,0),lat);
-            LatticeVectorType a3(VectorDimI(0,0,1),lat);
-            LatticeVectorType  y(VectorDimI(1,1,1),lat);
-            
-//            std::shared_ptr<DislocationMobilityBase> bccMobility(new DislocationMobilityBCC(materialBase));
-            const std::shared_ptr<DislocationMobilityBase>& bccMobility(mobilities.at("bcc"));
+            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+            const double d110(ReciprocalLatticeVector<3>(VectorDimI(1,1,0), *this).planeSpacing());
 
             
             std::vector<std::shared_ptr<SlipSystem>> temp;
+            for(const auto& planeBase : plN)
+            {
+                if(std::fabs(planeBase->planeSpacing()-d110)<FLT_EPSILON)
+                {// a {110} plane
+                    const auto& a1(planeBase->primitiveVectors.first);
+                    const auto& a3(planeBase->primitiveVectors.second);
+                    temp.emplace_back(new SlipSystem(*planeBase, a1,bccMobility,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),bccMobility,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase, a3,bccMobility,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),bccMobility,nullptr));
+                }
+            }
             
-            temp.emplace_back(new SlipSystem(a3,a1, a3,bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1,a3*(-1),bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1, a1,bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a3,a1,a1*(-1),bccMobility,nullptr)); // is ( 1, 0, 1) in cartesian
             
-            temp.emplace_back(new SlipSystem( y,a2, y,bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2,y*(-1),bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2, a2,bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a2,a2*(-1),bccMobility,nullptr)); // is ( 1, 0,-1) in cartesian
             
-            temp.emplace_back(new SlipSystem(a2,a3, a2,bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3,a2*(-1),bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3, a3,bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new SlipSystem(a2,a3,a3*(-1),bccMobility,nullptr)); // is ( 0, 1, 1) in cartesian
             
-            temp.emplace_back(new SlipSystem( y,a1, y,bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1,y*(-1),bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1, a1,bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new SlipSystem( y,a1,a1*(-1),bccMobility,nullptr)); // is ( 0,-1, 1) in cartesian
-            
-            temp.emplace_back(new SlipSystem(a1,a2, a1,bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2,a1*(-1),bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2, a2,bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem(a1,a2,a2*(-1),bccMobility,nullptr)); // is ( 1, 1, 0) in cartesian
-            
-            temp.emplace_back(new SlipSystem( y,a3, y,bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3,y*(-1),bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3, a3,bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
-            temp.emplace_back(new SlipSystem( y,a3,a3*(-1),bccMobility,nullptr)); // is (-1, 1, 0) in cartesian
             
             return temp;
         }
-  
-//template struct BCClattice<3>;
+        
+        
 
+    std::vector<std::shared_ptr<SecondPhase<3>>> BCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
+                                                                                const PlaneNormalContainerType& plN)
+    {
+        
+        const std::vector<std::string> spNames(TextFileParser(material.materialFile).readArray<std::string>("secondPhases",true));
+        std::vector<std::shared_ptr<SecondPhase<3>>> temp;
 
+        for(const std::string& sp : spNames)
+        {
+                throw std::runtime_error("Unnown SecondPhase "+sp+" in BCC crystal.");
+        }
+        return temp;
+    }
+        
 } // namespace model
 #endif
 

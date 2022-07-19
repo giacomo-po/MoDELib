@@ -28,7 +28,7 @@ namespace model
     // /* init */,ConfinedDislocationObjectType(this->source->get_P(),this->sink->get_P())
     /* init */,Burgers(VectorDim::Zero())
     /* init */,BurgersNorm(Burgers.norm())
-    /* init */,straight(this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
+    /* init */,straight(this->network().poly,this->source->get_P(),this->sink->get_P(),Burgers,this->chordLength(),this->unitDirection())
     /* init */,_slipSystem(nullptr)
     {
         VerboseDislocationSegment(1,"Constructing DislocationSegment "<<this->tag()<<std::endl);

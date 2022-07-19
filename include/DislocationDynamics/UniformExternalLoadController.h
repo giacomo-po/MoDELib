@@ -188,6 +188,20 @@ namespace model
                 }
                 else
                 {
+                    if(runID==0)
+                    {// F may just have been created, but runID must be zero
+                        MatrixDim pdr(DN.plasticDistortion());
+                        // MatrixDim pdr(MatrixDim::Zero());
+                        plasticStrain=(pdr+pdr.transpose())*0.5;
+                        MatrixDim dstrain(ExternalStrain0+ExternalStrainRate*last_update_time-plasticStrain);
+                        //MatrixDim S_strain(straininducedStress(dstrain,lambda));
+                        MatrixDim S_stress(ExternalStress0+ExternalStressRate*last_update_time);
+                        ExternalStress=stressconsidermachinestiffness(dstrain,S_stress);
+                    }
+                    else
+                    {
+                        throw std::runtime_error("UniformExternalLoadController:: runID "+std::to_string(runID)+" not found in F file.");
+                    }
                     // assert(0 && "LoadController::init runID not found inf F file");
                 }
             }
@@ -202,6 +216,7 @@ namespace model
                 ExternalStress=stressconsidermachinestiffness(dstrain,S_stress);
                 std::cout<<"UniformExternalLoadControllerController: F/F_0.txt cannot be opened."<<std::endl;
             }
+            std::cout<<"Initial ExternalStress=\n"<<ExternalStress<<std::endl;
         }
         
         

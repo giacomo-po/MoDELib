@@ -25,7 +25,7 @@
 //#include <DislocationNegativeFields.h>
 #include <SimplicialMesh.h>
 #include <JGNselector.h>
-#include <SingleFieldPoint.h>
+//#include <SingleFieldPoint.h>
 #include <FEMnodeEvaluation.h>
 #include <FEMfaceEvaluation.h>
 

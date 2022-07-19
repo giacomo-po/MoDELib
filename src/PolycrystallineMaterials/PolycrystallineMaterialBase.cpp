@@ -43,6 +43,10 @@ namespace model
         /* init */,mu(1.0)
         /* init */,b(1.0)
         /* init */,cs(1.0)
+        /* init */,C1(1.0-nu)
+        /* init */,C2(1.0/(4.0*std::numbers::pi*C1))
+        /* init */,C3(1.0-2.0*nu)
+        /* init */,C4(0.5*C2)
         /* init */,dOmegav(TextFileParser(materialFile).readScalar<double>("dOmegav",true))
         /* init */,Ufv_SI(TextFileParser(materialFile).readScalar<double>("Ufv_eV",true) * eV2J)
         /* init */,Ufv(Ufv_SI/mu_SI/std::pow(b_SI,3))
@@ -51,7 +55,12 @@ namespace model
         /* init */,D0v_SI(TextFileParser(materialFile).readScalar<double>("D0v_SI",true))
         /* init */,Dv(D0v_SI/b_SI/cs_SI*exp(-Umv/kB/T))
         {
-            
+            std::cout<<magentaColor<<"  temperature: T="<<T<<" [K]"<<std::endl;
+            std::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
+            std::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
+            std::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
+            std::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
+
         }
         
 

@@ -22,7 +22,7 @@
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
-#include <PolycrystallineMaterial.h>
+#include <PolycrystallineMaterialBase.h>
 #include <LatticeModule.h>
 //#include <PlaneMeshIntersection.h>
 #include <DislocationNodeIO.h>
@@ -66,15 +66,15 @@ namespace model
         assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
         const auto& grain(mg.poly.grain(grainID));
         
-        if(rSS>=0 && rSS<int(grain.slipSystems().size()))
+        if(rSS>=0 && rSS<int(grain.singleCrystal->slipSystems().size()))
         {
-            const auto& slipSystem(*grain.slipSystems()[rSS]);
+            const auto& slipSystem(*grain.singleCrystal->slipSystems()[rSS]);
             
             
             const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(center));
             GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
             std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
-            const VectorDimD P0(grain.snapToLattice(center).cartesian());
+            const VectorDimD P0(grain.singleCrystal->snapToLattice(center).cartesian());
             
             std::vector<VectorDimD> loopNodePos;
             for(size_t k=0;k< sides;++k)
@@ -128,7 +128,7 @@ namespace model
                 const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
                 const LatticeVector<dim> L0=rp.first;
                 const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).slipSystems().size()-1);
+                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
                 const int rSS(ssDist(generator)); // a random SlipSystem
                 const double radius(radiusDistribution(generator));
                 try

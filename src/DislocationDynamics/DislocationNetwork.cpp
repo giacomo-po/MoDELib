@@ -79,7 +79,7 @@ namespace model
         LoopNodeType::initFromFile(simulationParameters.traitsIO.ddFile);
         LoopLinkType::initFromFile(simulationParameters.traitsIO.ddFile);
         NetworkLinkType::initFromFile(simulationParameters.traitsIO.ddFile);
-        DislocationStressBase<dim>::initFromFile(simulationParameters.traitsIO.ddFile);
+        DislocationFieldBase<dim>::initFromFile(simulationParameters.traitsIO.ddFile);
         
         //        if(argc>1)
         //        {
@@ -89,7 +89,6 @@ namespace model
         DDconfigIO<dim> evl(simulationParameters.traitsIO.evlFolder);
         evl.read(runID);
         setConfiguration(evl);
-        //        createEshelbyInclusions();
     }
 
 
@@ -104,12 +103,12 @@ namespace model
         size_t loopNumber=1;
         for(const auto& loop : evl.loops())
         {
-            const bool faulted(poly.grain(loop.grainID).rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false);
+            const bool faulted(poly.grain(loop.grainID).singleCrystal->rationalLatticeDirection(loop.B).rat.asDouble()!=1.0? true : false);
             std::cout<<"Creating DislocationLoop "<<loop.sID<<" ("<<loopNumber<<" of "<<evl.loops().size()<<"), type="<<loop.loopType<<", faulted="<<faulted<<", |b|="<<loop.B.norm()<<std::endl;
             const size_t loopIDinFile(loop.sID);
             LoopType::set_count(loopIDinFile);
             
-            GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).reciprocalLatticeDirection(loop.N));
+            GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
             tempLoops.push_back(this->loops().create(loop.B, glidePlaneFactory.getFromKey(loopPlaneKey)));
             assert(this->loops().get(loopIDinFile)->sID == loopIDinFile);
             loopNumber++;
@@ -236,46 +235,24 @@ namespace model
         updateGeometry();
         
         
-        // Eshelby Inclusions
-        for(const auto& grain : poly.grains())
-        {
-            EshelbyInclusion<dim>::addSlipSystems(grain.second.slipSystems());
-        }
         
-        
-        //        IDreader<'E',1,14,double> inclusionsReader;
-        //        inclusionsReader.read(0,true);
-        
-        //        const std::vector<double> inclusionsMobilityReduction(TextFileParser("./inputFiles/initialMicrostructure.txt").readArray<double>("inclusionsMobilityReduction",true));
         for(const auto& inclusion : evl.eshelbyInclusions())
         {
-            
-            //            const size_t& inclusionID(pair.first);
-            //            Eigen::Map<const Eigen::Matrix<double,1,14>> row(pair.second.data());
-            
-            //            const VectorDim C(row.template segment<dim>(0));
-            //            const double a(row(dim+0));
-            //            MatrixDim eT(MatrixDim::Zero());
-            //            const int typeID(row(13));
-            //            int k=dim+1;
-            //            for(int i=0;i<dim;++i)
-            //            {
-            //                for(int j=0;j<dim;++j)
-            //                {
-            //                    eT(i,j)=row(k);
-            //                    k++;
-            //                }
-            //            }
-            
-            
-            
-            EshelbyInclusion<dim>::set_count(inclusion.inclusionID);
-            eshelbyInclusions().emplace(std::piecewise_construct,
-                                        std::make_tuple(inclusion.inclusionID),
-                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.typeID) );
+            std::cout<<"Creating EshelbyInclusion "<<inclusion.inclusionID<<std::endl;
+            const std::pair<bool,const Simplex<dim,dim>*> searchPair(mesh.search(inclusion.C));
+            if(searchPair.first)
+            {
+                
+                const auto& grain(poly.grain(searchPair.second->region->regionID));
+                const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
+                EshelbyInclusion<dim>::set_count(inclusion.inclusionID);
+                eshelbyInclusions().emplace(std::piecewise_construct,
+                                            std::make_tuple(inclusion.inclusionID),
+                                            std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase) );
+
+            }
         }
-        
-        
+                
     }
 
     /**********************************************************************/

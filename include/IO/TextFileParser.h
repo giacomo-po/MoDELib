@@ -393,7 +393,7 @@ public:
                         }
                         
                         
-                        Scalar temp(0.0);
+                        Scalar temp;
                         std::stringstream ss(lines.substr(foundEqual+1,foundSemiCol-foundEqual-1));
                         while (ss >> temp)
                         {

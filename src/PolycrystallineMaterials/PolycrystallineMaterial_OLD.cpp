@@ -104,11 +104,11 @@ PolycrystallineMaterial<dim,Isotropic>::PolycrystallineMaterial(const std::strin
         /* init */,dislocationMobilities(getMobilities(*this))
         /* init */,Omega(atomicVolume(crystalStructure))
         {
-            std::cout<<magentaColor<<"  temperature: T="<<this->T<<" [K]"<<std::endl;
-            std::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
-            std::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
-            std::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
-            std::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
+//            std::cout<<magentaColor<<"  temperature: T="<<this->T<<" [K]"<<std::endl;
+//            std::cout<<magentaColor<<"  units of stress (shear modulus): mu="<<mu_SI<<" [Pa]"<<std::endl;
+//            std::cout<<magentaColor<<"  units of length (Burgers vector): b="<<b_SI<<" [m]"<<std::endl;
+//            std::cout<<magentaColor<<"  units of speed (shear-wave speed): cs="<<cs_SI<<" [m/s]"<<std::endl;
+//            std::cout<<magentaColor<<"  units of time: b/cs="<<b_SI/cs_SI<<" [sec]"<<defaultColor<<std::endl;
 
             C1=1.0-nu;
             C2=1.0/(4.0*std::numbers::pi*C1);

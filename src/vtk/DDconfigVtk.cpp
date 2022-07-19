@@ -19,13 +19,14 @@ namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>& poly) :
+        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
+                                 const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf) :
         /* init */ DDconfigIO<3>(traitsIO.evlFolder,"")
         /* init */,DDauxIO<3>(traitsIO.auxFolder,"")
         /* init */,renderWindow(renWin)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren))
-        /* init */,loops(new NetworkLoopActor(renWin,ren))
+        /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
         /* init */,inclusions(new InclusionActor(renWin,ren))
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,mainLayout(new QGridLayout(this))
@@ -57,6 +58,7 @@ namespace model
             connect(frameIDedit,SIGNAL(returnPressed()), this, SLOT(updateConfiguration()));
             connect(plusFrameButton,SIGNAL(pressed()), this, SLOT(nextConfiguration()));
             connect(minusFrameButton,SIGNAL(pressed()), this, SLOT(prevConfiguration()));
+            
 
 //            connect(frameIDedit,SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(updateConfiguration()));
         }

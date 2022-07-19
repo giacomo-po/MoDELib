@@ -11,6 +11,7 @@
 #define model_PolycrystallineMaterialBase_H_
 
 #include <string>
+#include <numbers>
 #include <TerminalColors.h> // defines mode::cout
 #include <TextFileParser.h>
 
@@ -43,6 +44,11 @@ namespace model
         const double mu;        // shear modulus [-]
         const double b;         // Burgers vector [-]
         const double cs;        // shear wave speed [-]
+        const double C1;        // 1-nu
+        const double C2;        // 1.0/(4.0*M_PI*C1)
+        const double C3;        // 1.0-2.0*nu;
+        const double C4;        // 0.5*C2;
+
         
         const double dOmegav;
         const double Ufv_SI;

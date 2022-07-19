@@ -27,8 +27,8 @@ namespace model
         
          size_t sID;          // sID
          VectorDim B;          // position
-         VectorDim N;          // velocity
-         VectorDim P;          // velocity
+         VectorDim N;          // normal
+         VectorDim P;          // position
          size_t grainID;          // component ID
          int loopType;
 //         long int periodicLoopID;          // sID

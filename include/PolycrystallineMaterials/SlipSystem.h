@@ -26,21 +26,31 @@ namespace model
     struct SlipSystem : public StaticID<SlipSystem>
     {
         
-        const LatticePlaneBase n;
+        const LatticePlaneBase& n;
         const RationalLatticeDirection<3>  s;
         const Eigen::Matrix<double,3,1>  unitNormal;
         const std::shared_ptr<DislocationMobilityBase> mobility;
         const std::shared_ptr<GammaSurface> gammaSurface;
         
         
-        SlipSystem(const LatticeVector<3>& a1,
-                   const LatticeVector<3>& a2,
+//        SlipSystem(const LatticeVector<3>& a1,
+//                   const LatticeVector<3>& a2,
+//                   const LatticeVector<3>& slip_in,
+//                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+//                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
+//
+//        SlipSystem(const LatticeVector<3>& a1,
+//                   const LatticeVector<3>& a2,
+//                   const RationalLatticeDirection<3>& slip_in,
+//                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
+//                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
+        
+        SlipSystem(const LatticePlaneBase& n_in,
                    const LatticeVector<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
                    const std::shared_ptr<GammaSurface>& gammaSurface_in);
         
-        SlipSystem(const LatticeVector<3>& a1,
-                   const LatticeVector<3>& a2,
+        SlipSystem(const LatticePlaneBase& n_in,
                    const RationalLatticeDirection<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
                    const std::shared_ptr<GammaSurface>& gammaSurface_in);
