@@ -86,6 +86,29 @@ namespace model
             
         }
         
+        DislocationQuadraturePoint(const size_t sourceID_in,
+                                   const size_t sinkID_in,
+                                   const int& q,const int& qOrder,
+                                   const MatrixNcoeff& SFCH,
+                                   const MatrixNcoeffDim& qH) :
+        /* init */ sourceID(sourceID_in)
+        /* init */,sinkID(sinkID_in)
+        /* init */,qID(q)
+        /* init */,SF(QuadPowDynamicType::uPow(qOrder).row(qID)*SFCH)
+        /* init */,r(SF*qH)
+        /* init */,ru(QuadPowDynamicType::duPow(qOrder).row(qID)*SFCH.template block<Ncoeff-1,Ncoeff>(1,0)*qH)
+        /* init */,j(ru.norm())
+        /* init */,rl(j > FLT_EPSILON ? (ru/j).eval() : VectorDim::Zero())
+        /* init */,dL(j*QuadratureDynamicType::weight(qOrder,qID))
+        /* init */,stress(MatrixDim::Zero())
+        /* init */,pkForce(VectorDim::Zero())
+        /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,glideVelocity(VectorDim::Zero())
+        /* init */,elasticEnergyPerLength(0.0)
+        {
+            
+        }
+        
         /**********************************************************************/
         DislocationQuadraturePoint() :
         /* init */ sourceID(0)

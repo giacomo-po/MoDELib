@@ -1,0 +1,3 @@
+materialFile=../../../tutorials/DislocationDynamics/MaterialsLibrary/Cu.txt; 
+absoluteTemperature = 300; # [K] simulation temperature 
+quadPerLength=0.1; # number of quadrature points per unit length (e.g. 0.1 means 1 quadrature point over a length of 10 Burgers vectors)

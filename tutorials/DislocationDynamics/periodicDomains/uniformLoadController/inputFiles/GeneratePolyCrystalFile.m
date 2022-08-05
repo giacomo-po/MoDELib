@@ -4,7 +4,7 @@ close all
 
 format long
 
-alignToSlipSystem0=1;
+alignToSlipSystem0=0;
 lattice='fcc';
 
 if(alignToSlipSystem0)
@@ -38,8 +38,8 @@ A=C2G1*A;
 
 g=0.0;
 
-Fs=1000*eye(3);
-%Fs=diag([1000 1000 4000]);
+%Fs=1000*eye(3);
+Fs=diag([1000 1000 4000]);
 
 F12=[1 g 0;
     0 1 0;

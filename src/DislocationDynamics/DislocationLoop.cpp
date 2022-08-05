@@ -559,8 +559,8 @@ namespace model
                     localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(link->source->get_P()));
                 }
             }
-            const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
             
+            const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
             for(const auto& patch : loopPatches)
             {
                 std::vector<Eigen::Matrix<double,dim-1,1>> localPatchPos;
@@ -576,21 +576,9 @@ namespace model
                     const VectorDim globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
                     localLoopPosOnPatchPlane.push_back(patch->glidePlane->localPosition(globalPos));
                 }
-                
-                            
-//                std::cout<<"Loop "<<this->tag()<<", patches with #nodes="<<localLoopPosOnPatchPlane.size()<<std::endl;
-
                 _patches.emplace(patch,localLoopPosOnPatchPlane);
-                
             }
-            
-//            VectorDim xx;
-//            xx<<200,500,periodicGlidePlane->referencePlane->P(2);
-//            std::cout<<"xx="<<xx.transpose()<<std::endl;
-//            int wn(windingNumber( xx));
-//            std::cout<<"wn="<<wn<<std::endl;
         }
-
     }
 
     template <int dim, short unsigned int corder>
