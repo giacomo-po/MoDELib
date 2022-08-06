@@ -95,6 +95,8 @@ namespace model
                                 const size_t& grainID,
                                 const DislocationLoopIO<dim>::DislocationLoopType& loopType);
 
+        bool allPointsInGrain(const std::vector<VectorDimD>& points,const int& grainID);
+
 
         
     };

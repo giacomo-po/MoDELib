@@ -35,7 +35,7 @@ include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO/)
 include_directories(${MoDELibRootDir}/include/DislocationMobilities/)
 include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
-include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
+include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)

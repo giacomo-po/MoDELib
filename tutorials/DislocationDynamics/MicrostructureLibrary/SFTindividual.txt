@@ -1,0 +1,9 @@
+type=Irradiation;
+style=individual;
+defect=SFT;
+tag=sft0;
+sftPlaneIDs=0 1; #[-] planeID of the SFTs basal planes (planes of Frank loop). Use -1 to disable
+sftIsInverted=0 0; #[-] 0 = "positive" Thompson tetrahedron, 1 = "negative" Thompson tetrahedron
+sftSizes=2.5e-09 2.5e-09; #[m] side length of the SFTs. One value for each SFT
+sftBasePoints=500   500   500
+              550   500   500; #[b] centroid of the SFTs basal planes. One row for each SFT

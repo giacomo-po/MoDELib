@@ -1,0 +1,7 @@
+type=Irradiation;
+style=density;
+defect=SFT;
+tag=sftd0;
+targetSFTdensity=1e22; # [1/m^3] number density of SFTs
+sftSizeMean=2.5e-09; # [m] SFT normal size distribution mean
+sftSizeStd=1e-9;     # [m] SFT normal size distribution std

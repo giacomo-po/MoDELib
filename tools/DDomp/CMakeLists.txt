@@ -42,7 +42,9 @@ include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO/)
 include_directories(${MoDELibRootDir}/include/DislocationMobilities/)
+include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
+
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Lattices Lattices)

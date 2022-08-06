@@ -17,6 +17,8 @@
 #include <PeriodicDipoleGenerator.h>
 #include <PeriodicLoopGenerator.h>
 #include <InclusionsGenerator.h>
+#include <IrradiationDefectsGenerator.h>
+
 #include <VTKGenerator.h>
 
 namespace model
@@ -69,6 +71,10 @@ namespace model
             else if(microstructureType=="Inclusions")
             {
                 success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
+            }
+            else if(microstructureType=="Irradiation")
+            {
+                success=this->emplace(tag,new IrradiationDefectsGenerator(microstructureFileName)).second;
             }
             else if(microstructureType=="VTK")
             {
@@ -241,6 +247,19 @@ namespace model
         }
     }
 
+bool MicrostructureGenerator::allPointsInGrain(const std::vector<VectorDimD>& points,const int& grainID)
+{
+    bool temp=true;
+    for(const auto& point : points)
+    {
+        temp*=mesh.searchRegion(grainID,point).first;
+        if(!temp)
+        {
+            break;
+        }
+    }
+    return temp;
+}
 
 }
 #endif
