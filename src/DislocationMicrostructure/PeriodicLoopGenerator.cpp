@@ -113,10 +113,10 @@ namespace model
 
     void PeriodicLoopGenerator::generateDensity(MicrostructureGenerator& mg)
     {
+        std::cout<<magentaBoldColor<<"Generating periodic loop density"<<defaultColor<<std::endl;
         const double targetDensity(this->parser.readScalar<double>("targetDensity",true));
         if(targetDensity>0.0)
         {
-            std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
             const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
             const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
             const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));

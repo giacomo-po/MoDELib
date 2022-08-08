@@ -70,11 +70,11 @@ namespace model
             
             
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            
+
             typedef LatticeVector<dim> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0),*this); // [011]
-            LatticeVectorType a2(VectorDimI(0,1,0),*this); // [101]
-            LatticeVectorType a3(VectorDimI(0,0,1),*this); // [110]
+            LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),*this);
+            LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
+            LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),*this);
             
             std::vector<std::shared_ptr<LatticePlaneBase>> temp;
             
@@ -114,9 +114,13 @@ namespace model
             
             const bool enablePartials(TextFileParser(polyFile).readScalar<int>("enablePartials",true));
             
-            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            const double d111(ReciprocalLatticeVector<3>(VectorDimI(1,1,1), *this).planeSpacing());
+//            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
+            typedef Eigen::Matrix<double,dim,1> VectorDimD;
+
             
+//            const double d111(ReciprocalLatticeVector<3>(VectorDimI(1,1,1), *this).planeSpacing());
+            const double d111(this->reciprocalLatticeDirection((VectorDimD()<<1.0,1.0,1.0).finished()).planeSpacing());
+
 //            for(const auto& planeBase : plN)
 //            {
 //                const auto& a1(planeBase->primitiveVectors.first);

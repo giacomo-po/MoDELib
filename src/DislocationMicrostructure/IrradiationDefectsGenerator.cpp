@@ -36,7 +36,6 @@
 #include <TextFileParser.h>
 #include <DislocationInjector.h>
 #include <MeshBoundarySegment.h>
-//#include <ConfinedDislocationObject.h>
 #include <GlidePlaneModule.h>
 #include <MeshModule.h>
 #include <Plane.h>
@@ -253,6 +252,7 @@ void IrradiationDefectsGenerator::generateIndividualFCC(MicrostructureGenerator&
     const std::string defect(this->parser.readString("defect",true));
     if(defect=="SFT")
     {
+        std::cout<<magentaBoldColor<<"Generating individual SFTs"<<defaultColor<<std::endl;
         const std::vector<int> sftPlaneIDs(this->parser.readArray<int>("sftPlaneIDs",true));
         const std::vector<int> sftIsInverted(this->parser.readArray<int>("sftIsInverted",true));
         const std::vector<double> sftSizes(this->parser.readArray<double>("sftSizes",true));
@@ -302,7 +302,7 @@ void IrradiationDefectsGenerator::generateDensityFCC(MicrostructureGenerator& mg
     const std::string defect(this->parser.readString("defect",true));
     if(defect=="SFT")
     {
-
+        std::cout<<magentaBoldColor<<"Generating SFT density"<<defaultColor<<std::endl;
         const double targetSFTdensity(this->parser.readScalar<double>("targetSFTdensity",true));
         const double sftSizeMean(this->parser.readScalar<double>("sftSizeMean",true));
         const double sftSizeStd(this->parser.readScalar<double>("sftSizeStd",true));
@@ -330,9 +330,6 @@ void IrradiationDefectsGenerator::generateDensityFCC(MicrostructureGenerator& mg
         throw std::runtime_error("Unkonwn FCC irradiation defect "+defect);
     }
 }
-
-
-
 
 }
 #endif

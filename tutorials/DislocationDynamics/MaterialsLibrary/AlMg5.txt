@@ -28,3 +28,6 @@ dOmegav=0;		# [-]		Relative vacancy relaxation volume
 Ufv_eV=0;		# [eV]		Vacancy formation energy
 Umv_eV=0; 		# [eV]		Vacancy migration energy
 D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
+
+# Second Phases
+secondPhases=;

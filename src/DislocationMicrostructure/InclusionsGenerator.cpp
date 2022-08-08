@@ -62,10 +62,10 @@ namespace model
 
     void InclusionsGenerator::generateDensity(MicrostructureGenerator& mg)
     {
+        std::cout<<magentaBoldColor<<"Generating inclusions density"<<defaultColor<<std::endl;
         const double targetInclusionDensity(this->parser.readScalar<double>("targetDensity",true));
         if(targetInclusionDensity>0)
         {
-            std::cout<<magentaBoldColor<<"Generating inclusions density"<<defaultColor<<std::endl;
             const double inclusionsDiameterLognormalDistribution_M(this->parser.readScalar<double>("diameterLognormalDistribution_M",true) );
             const double inclusionsDiameterLognormalDistribution_S(this->parser.readScalar<double>("diameterLognormalDistribution_S",true));
             const double inclusionsDiameterLognormalDistribution_A(this->parser.readScalar<double>("diameterLognormalDistribution_A",true));
@@ -126,9 +126,9 @@ namespace model
     {
         const std::vector<double> inclusionRadii_SI(this->parser.readArray<double>("inclusionRadii_SI",true));
         
+        std::cout<<magentaBoldColor<<"Generating individual inclusions"<<defaultColor<<std::endl;
         if(inclusionRadii_SI.size())
         {
-            std::cout<<magentaBoldColor<<"Generating individual inclusions"<<defaultColor<<std::endl;
 //            const std::vector<int> periodicDipoleExitFaceIDs(this->parser.readArray<int>("periodicDipoleExitFaceIDs",true));
             const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsCenters(this->parser.readMatrix<double>("inclusionsCenters",inclusionRadii_SI.size(),dim,true));
             const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsEigenDistortions(this->parser.readMatrix<double>("inclusionsEigenDistortions",inclusionRadii_SI.size(),dim*dim,true));

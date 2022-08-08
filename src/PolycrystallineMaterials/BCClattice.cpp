@@ -20,7 +20,6 @@ namespace model
         BCClattice<3>::BCClattice(const MatrixDim& Q,const PolycrystallineMaterialBase& material,const std::string& polyFile) :
         /* init */ SingleCrystalBase<dim>(getLatticeBasis(),Q)
         /* init */,PlaneNormalContainerType(getPlaneNormals())
-//        /* init */,DislocationMobilityContainerType(getMobilities())
         /* init */,SlipSystemContainerType(getSlipSystems(material,polyFile,*this))
         /* init */,SecondPhaseContainerType(getSecondPhases(material,*this))
         {
@@ -69,20 +68,20 @@ namespace model
           */
             
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            
             typedef LatticeVector<dim> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0),*this);
-            LatticeVectorType a2(VectorDimI(0,1,0),*this);
-            LatticeVectorType a3(VectorDimI(0,0,1),*this);
-            LatticeVectorType  y(VectorDimI(1,1,1),*this);
-            
+
+            LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),*this);
+            LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
+            LatticeVectorType a3((VectorDimI()<<0,0,1).finished(),*this);
+            LatticeVectorType  y((VectorDimI()<<1,1,1).finished(),*this);
+
             std::vector<std::shared_ptr<LatticePlaneBase>> temp;
-            temp.emplace_back(new LatticePlaneBase(a3,a1)); // is ( 1, 0, 1) in cartesian
-            temp.emplace_back(new LatticePlaneBase( y,a2)); // is ( 1, 0,-1) in cartesian
-            temp.emplace_back(new LatticePlaneBase(a2,a3)); // is ( 0, 1, 1) in cartesian
-            temp.emplace_back(new LatticePlaneBase( y,a1)); // is ( 0,-1, 1) in cartesian
-            temp.emplace_back(new LatticePlaneBase(a1,a2)); // is ( 1, 1, 0) in cartesian
-            temp.emplace_back(new LatticePlaneBase( y,a3)); // is (-1, 1, 0) in cartesian
+            temp.emplace_back(new LatticePlaneBase(a3,a1));
+            temp.emplace_back(new LatticePlaneBase( y,a2));
+            temp.emplace_back(new LatticePlaneBase(a2,a3));
+            temp.emplace_back(new LatticePlaneBase( y,a1));
+            temp.emplace_back(new LatticePlaneBase(a1,a2));
+            temp.emplace_back(new LatticePlaneBase( y,a3));
             
             return temp;
 
@@ -94,12 +93,11 @@ namespace model
         {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
           * the slip systems of the Hexagonal lattice
           */
-            const std::shared_ptr<DislocationMobilityBase> bccMobility(new DislocationMobilityBCC(material));
-            
-            typedef Eigen::Matrix<long int,dim,1> VectorDimI;
-            const double d110(ReciprocalLatticeVector<3>(VectorDimI(1,1,0), *this).planeSpacing());
+            const std::shared_ptr<DislocationMobilityBase> mobility110(new DislocationMobilityBCC(material));
 
-            
+            typedef Eigen::Matrix<double,dim,1> VectorDimD;
+            const double d110(this->reciprocalLatticeDirection((VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
+
             std::vector<std::shared_ptr<SlipSystem>> temp;
             for(const auto& planeBase : plN)
             {
@@ -107,17 +105,13 @@ namespace model
                 {// a {110} plane
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
-                    temp.emplace_back(new SlipSystem(*planeBase, a1,bccMobility,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),bccMobility,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase, a3,bccMobility,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),bccMobility,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase, a3,mobility110,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),mobility110,nullptr));
                 }
             }
-            
-            
-            
-            
-            
+
             return temp;
         }
         
@@ -139,4 +133,3 @@ namespace model
         
 } // namespace model
 #endif
-

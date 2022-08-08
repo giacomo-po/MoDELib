@@ -8,4 +8,4 @@
 
 ### FCC-specific
 microstructureFile = ../../../MicrostructureLibrary/SFTindividual.txt;
-#microstructureFile = ../../../MicrostructureLibrary/SFTdensity.txt;
+microstructureFile = ../../../MicrostructureLibrary/SFTdensity.txt;

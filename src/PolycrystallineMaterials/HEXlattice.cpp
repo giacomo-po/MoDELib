@@ -76,10 +76,10 @@ namespace model
             typedef Eigen::Matrix<long int,dim,1> VectorDimI;
             
             typedef LatticeVector<dim> LatticeVectorType;
-            LatticeVectorType a1(VectorDimI(1,0,0),*this);
-            LatticeVectorType a2(VectorDimI(0,1,0),*this);
+            LatticeVectorType a1((VectorDimI()<<1,0,0).finished(),*this);
+            LatticeVectorType a2((VectorDimI()<<0,1,0).finished(),*this);
             LatticeVectorType a3(a2-a1);
-            LatticeVectorType c(VectorDimI(0,0,1),*this);
+            LatticeVectorType  c((VectorDimI()<<0,0,1).finished(),*this);
 
             std::vector<std::shared_ptr<LatticePlaneBase>> temp;
             if(enableBasalSlipSystems)

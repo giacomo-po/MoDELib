@@ -57,11 +57,10 @@ namespace model
 
     void PeriodicDipoleGenerator::generateDensity(MicrostructureGenerator& mg)
     {
-        
+        std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
         const double targetPeriodicDipoleDensity(this->parser.readScalar<double>("targetPeriodicDipoleDensity",true));
         if(targetPeriodicDipoleDensity>0.0)
         {
-            std::cout<<magentaBoldColor<<"Generating periodic dipole density"<<defaultColor<<std::endl;
             std::mt19937 generator;
             double density=0.0;
             while(density<targetPeriodicDipoleDensity)

@@ -53,9 +53,10 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLinks(new QCheckBox(this))
+        /* init */,sliderLinksRadius(new QSlider(this))
         /* init */,showZeroLinks(new QCheckBox(this))
         /* init */,linksColorBox(new QComboBox(this))
-        /* init */,tubeRadius(5.0)
+//        /* init */,tubeRadius(1.0)
         /* init */,clr(ColorScheme::colorBurgers)
         /* init */,polyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,polyDataBnd(vtkSmartPointer<vtkPolyData>::New())
@@ -72,6 +73,12 @@ namespace model
         {
             showLinks->setChecked(true);
             showLinks->setText("links");
+            sliderLinksRadius->setEnabled(true);
+            sliderLinksRadius->setMinimum(0);
+            sliderLinksRadius->setMaximum(50);
+            sliderLinksRadius->setValue(5);
+            sliderLinksRadius->setOrientation(Qt::Horizontal);
+
             
             showZeroLinks->setChecked(false);
             showZeroLinks->setText("0-Burgers links");
@@ -82,6 +89,7 @@ namespace model
             linksColorBox->addItem("glissile/sessile");
 
             mainLayout->addWidget(showLinks,0,0,1,1);
+            mainLayout->addWidget(sliderLinksRadius,0,1,1,1);
             mainLayout->addWidget(linksColorBox,1,0,1,1);
             mainLayout->addWidget(showZeroLinks,2,0,1,1);
 
@@ -89,9 +97,11 @@ namespace model
 
             connect(showLinks,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showZeroLinks,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(sliderLinksRadius,SIGNAL(valueChanged(int)), this, SLOT(modify()));
+
 
             tubeFilter->SetInputData(polyData);
-            tubeFilter->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilter->SetRadius(5.0); // this must be a function similar to setColor
 //            if(scaleRadiusByBurgers)
 //            {
 //                tubeFilter->SetVaryRadiusToVaryRadiusByAbsoluteScalar();
@@ -106,7 +116,7 @@ namespace model
             
             // Boundary segments
             tubeFilterBnd->SetInputData(polyDataBnd);
-            tubeFilterBnd->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilterBnd->SetRadius(5.0); // this must be a function similar to setColor
             tubeFilterBnd->SetNumberOfSides(10);
             tubeFilterBnd->Update();
             tubeMapperBnd->SetInputConnection(tubeFilterBnd->GetOutputPort());
@@ -116,7 +126,7 @@ namespace model
             
             // Zero-Burgers Segments
             tubeFilter0->SetInputData(polyData0);
-            tubeFilter0->SetRadius(tubeRadius); // this must be a function similar to setColor
+            tubeFilter0->SetRadius(5.0); // this must be a function similar to setColor
             tubeFilter0->SetNumberOfSides(10);
             tubeFilter0->Update();
             tubeMapper0->SetInputConnection(tubeFilter0->GetOutputPort());
@@ -195,7 +205,7 @@ namespace model
                                     colors->InsertNextTypedTuple(lineClr);
                                 }
 
-                                radii->InsertNextValue(burgersNorm*tubeRadius);
+                                radii->InsertNextValue(burgersNorm*sliderLinksRadius->value());
                             }
                         }
                         else
@@ -238,10 +248,14 @@ namespace model
         /**********************************************************************/
         void NetworkLinkActor::modify()
         {
-            
+            sliderLinksRadius->setEnabled(showLinks->isChecked());
             tubeActor->SetVisibility(showLinks->isChecked());
             linksColorBox->setEnabled(showLinks->isChecked());
             tubeActor0->SetVisibility(showZeroLinks->isChecked());
+            tubeFilter->SetRadius(sliderLinksRadius->value()); // this must be a function similar to setColor
+            tubeFilterBnd->SetRadius(sliderLinksRadius->value()); // this must be a function similar to setColor
+            tubeFilter0->SetRadius(sliderLinksRadius->value()); // this must be a function similar to setColor
+
 
 //            labelActor->SetVisibility(showLinks->isChecked());
 //            velocityActor->SetVisibility(showLinks->isChecked());

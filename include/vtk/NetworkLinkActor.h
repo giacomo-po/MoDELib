@@ -60,10 +60,12 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showLinks;
+        QSlider* sliderLinksRadius;
+
         QCheckBox* showZeroLinks;
         QComboBox* linksColorBox;
 
-        double tubeRadius;
+//        double tubeRadius;
         ColorScheme clr;
 
 
