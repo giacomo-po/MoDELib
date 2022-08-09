@@ -37,7 +37,8 @@
 namespace model
 {
 
-    class VTKsegments : public std::vector<StressStraight<3>>
+    class VTKsegments : public std::vector<Eigen::Matrix<double,3,1>>
+    /*               */,public std::vector<StressStraight<3>>
     /*               */,public std::vector<DislocationQuadraturePoint<3,0>>
     {
 
@@ -48,14 +49,19 @@ namespace model
         typedef typename SplineSegmentBaseType::MatrixNcoeffDim MatrixNcoeffDim;
         typedef typename SplineSegmentBaseType::VectorDim VectorDim;
         typedef typename SplineSegmentBaseType::MatrixDim MatrixDim;
+        typedef Eigen::Matrix<int,dim,1> VectorDimI;
 
 //        typedef Eigen::Matrix<double,3,1> VectorDim;
         typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
 
         
-        void updateQuadraturePoints();
+        void updateQuadraturePoints(const std::string& vtkFilePrefix);
 
+//        VectorDimI getPbcFlags(const std::string& filename) const;
         
+        MatrixDim cellMatrix;
+        VectorDimI pbcFlags;
+        std::vector<VectorDim> periodicShifts;
         
     public:
         
@@ -65,8 +71,14 @@ namespace model
         TextFileParser perser;
         const PolycrystallineMaterialBase material;
         const double quadPerLength;
+//        const VectorDimI pbcFlags;
         
-        void readVTK(const std::string& vtkFile);
+        
+        void writeVTK(const std::string& vtkFilePrefix) const;
+        void readVTK(const std::string& vtkFilePrefix);
+        
+        const std::vector<VectorDim>& nodes() const;
+        std::vector<VectorDim>& nodes();
         const std::vector<StressStraight<3>>& segments() const;
         std::vector<StressStraight<3>>& segments();
         const std::vector<DislocationQuadraturePoint<3,0>>& quadraturePoints() const;

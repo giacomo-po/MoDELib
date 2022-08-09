@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 {
     
     const std::string folderName(argc>1? std::string(argv[1]) : "./");
-    const std::string vtkFile(argc>2? std::string(argv[2]) : "dxa_ovito_0.vtk");
+    const std::string vtkFile(argc>2? std::string(argv[2]) : "dxa_ovito_0");
 
     VTKsegments vs(folderName);
     vs.readVTK(vtkFile);

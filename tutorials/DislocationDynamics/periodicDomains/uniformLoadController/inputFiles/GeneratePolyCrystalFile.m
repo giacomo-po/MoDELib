@@ -4,7 +4,7 @@ close all
 
 format long
 
-alignToSlipSystem0=0;
+alignToSlipSystem0=1;
 lattice='fcc';
 
 if(alignToSlipSystem0)
@@ -41,7 +41,7 @@ g=0.0;
 Fs=1000*eye(3);
 %Fs=diag([1000 1000 4000]);
 
-F12=[1 g 0;
+F12=[1 0.3 0;
     0 1 0;
     0 0 1];
 

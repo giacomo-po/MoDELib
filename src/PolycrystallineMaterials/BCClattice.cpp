@@ -96,7 +96,7 @@ namespace model
             const std::shared_ptr<DislocationMobilityBase> mobility110(new DislocationMobilityBCC(material));
 
             typedef Eigen::Matrix<double,dim,1> VectorDimD;
-            const double d110(this->reciprocalLatticeDirection((VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
+            const double d110(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
 
             std::vector<std::shared_ptr<SlipSystem>> temp;
             for(const auto& planeBase : plN)

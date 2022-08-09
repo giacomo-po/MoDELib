@@ -25,6 +25,12 @@ namespace model
         
     }
 
+//    typename VTKsegments::VectorDimI VTKsegments::getPbcFlags(const std::string& filename) const
+//    {
+//
+//    }
+
+
     const std::vector<DislocationQuadraturePoint<3,0>>& VTKsegments::quadraturePoints() const
     {
         return *this;
@@ -45,8 +51,130 @@ namespace model
         return *this;
     }
 
-    void VTKsegments::updateQuadraturePoints()
+const std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes() const
+{
+    return *this;
+}
+
+std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes()
+{
+    return *this;
+}
+
+
+    void VTKsegments::writeVTK(const std::string& vtkFilePrefix) const
     {
+        const std::string quadFileName(vtkFilePrefix+"_quadrature.vtk");
+        std::ofstream quadFile(quadFileName);
+        quadFile<<"# vtk DataFile Version 3.0\n";
+        quadFile<<"# Dislocation lines converted from MoDELib file\n";
+        quadFile<<"ASCII\n";
+        quadFile<<"DATASET UNSTRUCTURED_GRID\n";
+        quadFile<<"POINTS "+std::to_string(quadraturePoints().size()+nodes().size())+" double\n";
+
+        for(const auto& node : nodes())
+        {// write all nodes positions
+            quadFile<<std::setprecision(15)<<std::scientific<<node.transpose()*material.b_SI*1.0e10<<"\n";
+        }
+        
+        for(const auto& qp : quadraturePoints())
+        {// write all nodes positions
+            quadFile<<std::setprecision(15)<<std::scientific<<qp.r.transpose()*material.b_SI*1.0e10<<"\n";
+        }
+        
+        
+        // Create map of quadraturePoints by segments
+        std::map<std::pair<size_t,size_t>,std::set<size_t>> qPointMap;
+        for(size_t q=0;q<quadraturePoints().size();++q)
+        {
+            const auto& qp(quadraturePoints()[q]);
+            const std::pair<size_t,size_t> key(std::make_pair(qp.sourceID,qp.sinkID));
+            qPointMap[key].insert(q);
+        }
+        
+        if(qPointMap.size()!=segments().size())
+        {
+            std::cout<<"qPointMap.size()="<<qPointMap.size()<<std::endl;
+            std::cout<<"segments().size()="<<segments().size()<<std::endl;
+            throw std::runtime_error("qPointMap.size()!=segments().size()");
+        }
+        
+        quadFile<<"\nCELLS "+std::to_string(qPointMap.size())+" "+std::to_string(quadraturePoints().size()+3*qPointMap.size())+"\n";
+        for(const auto& pair : qPointMap)
+        {
+            quadFile<<pair.second.size()+2<<" "<<pair.first.first<<" ";
+            for(const auto& q : pair.second)
+            {
+                quadFile<<q+nodes().size()<<" ";
+            }
+            quadFile<<pair.first.second<<"\n";
+
+        }
+        
+    }
+
+
+    void VTKsegments::updateQuadraturePoints(const std::string& vtkFilePrefix)
+    {
+        
+        VectorDimI pbcFlags;
+        const std::string caFileName(vtkFilePrefix+".ca");
+        std::ifstream caFile(caFileName); //access vtk file
+        
+        
+        
+        if(caFile.is_open())
+        {
+            
+            std::string line;
+            while (std::getline(caFile, line)) //begin parsing vtk file for lines
+            {
+                if(line.find("SIMULATION_CELL_MATRIX")!=std::string::npos) //if POINTS is read, read npos
+                {
+                    for(int d=0;d<dim;++d)
+                    {
+                        std::getline(caFile, line);
+                        std::stringstream ss(line);//store lines of vtk file in ss
+                        ss>>cellMatrix(d,0)>>cellMatrix(d,1)>>cellMatrix(d,2);//store nodal positions to x,y,z
+                    }
+                    std::cout<<"SIMULATION_CELL_MATRIX=\n"<<cellMatrix<<std::endl;
+                }
+                
+                if(line.find("PBC_FLAGS")!=std::string::npos) //if POINTS is read, read npos
+                {
+                    std::string temp;
+                    std::stringstream ss(line);//store lines of vtk file in ss
+                    ss>>temp;
+                    ss>>pbcFlags(0)>>pbcFlags(1)>>pbcFlags(2);
+                    std::cout<<"PBC_FLAGS="<<pbcFlags.transpose()<<std::endl;
+
+                }
+                
+            }
+            
+            periodicShifts.clear();
+            for(int i=-pbcFlags(0);i<pbcFlags(0)+1;++i)
+            {
+                for(int j=-pbcFlags(1);j<pbcFlags(1)+1;++j)
+                {
+                    for(int k=-pbcFlags(2);k<pbcFlags(2)+1;++k)
+                    {
+                        periodicShifts.push_back( i*cellMatrix.row(0)*1.0e-10/material.b_SI
+                                                 +j*cellMatrix.row(1)*1.0e-10/material.b_SI
+                                                 +k*cellMatrix.row(2)*1.0e-10/material.b_SI);
+                    }
+                }
+            }
+            std::cout<<"periodicShifts.size()="<<periodicShifts.size()<<std::endl;
+        }
+        else
+        {
+            throw std::runtime_error("Cannot open file "+ caFileName);
+        }
+        
+        
+        
+        
     #ifdef _OPENMP
         const size_t nThreads = omp_get_max_threads();
     #else
@@ -63,23 +191,29 @@ namespace model
             auto& qPoint(quadraturePoints()[q]);
             for(const auto& seg : segments())
             {
-                qPoint.stress+=seg.stress(qPoint.r);
+                for(const auto& shift : periodicShifts)
+                {
+                    qPoint.stress+=seg.stress(qPoint.r+shift);
+                }
             }
         }
         std::cout<<magentaColor<<std::setprecision(3)<<std::scientific<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]."<<defaultColor<<std::endl;
-
+    
+        writeVTK(vtkFilePrefix);
     }
 
-    void VTKsegments::readVTK(const std::string& vtkFileName)
+    void VTKsegments::readVTK(const std::string& vtkFilePrefix)
     {
+        nodes().clear();
         segments().clear();
         quadraturePoints().clear();
         
+        const std::string vtkFileName(vtkFilePrefix+".vtk");
         std::ifstream vtkFile(vtkFileName); //access vtk file
         
         if(vtkFile.is_open())
         {
-            std::vector<VectorDim> rawPoints;
+//            std::vector<VectorDim> rawPoints;
             std::vector<std::vector<size_t>> cells;
             std::vector<VectorDim> rawBurgers;
             const auto sfCoeffs(SplineSegmentBase<3,0>::sfCoeffs(0.0)); // shape function coefficients for linear segments
@@ -109,7 +243,7 @@ namespace model
                             std::getline(vtkFile, line); //access lines of vtk file
                             std::stringstream ss(line);//store lines of vtk file in ss
                             ss>>x>>y>>z;//store nodal positions to x,y,z
-                            rawPoints.push_back((VectorDim()<<x,y,z).finished()*1.0e-10/material.b_SI);//construct rawPoints  [<x_1,x_2,x_3>,loopNo]
+                            nodes().push_back((VectorDim()<<x,y,z).finished()*1.0e-10/material.b_SI);//construct nodes()  [<x_1,x_2,x_3>,loopNo]
                         }
                     }
                     else
@@ -180,8 +314,8 @@ namespace model
                     {
                         const size_t sourceID(cells[k][n]);
                         const size_t   sinkID(cells[k][n+1]);
-                        const VectorDim& sourceP(rawPoints[sourceID]);
-                        const VectorDim& sinkP(rawPoints[sinkID]);
+                        const VectorDim& sourceP(nodes()[sourceID]);
+                        const VectorDim& sinkP(nodes()[sinkID]);
                         
                         segments().emplace_back(material,sourceP,sinkP,Burgers);
                         const VectorDim chord(sinkP-sourceP);
@@ -212,7 +346,7 @@ namespace model
             std::cout<<"Cannot open "<<vtkFileName<<std::endl;
         }
         
-        updateQuadraturePoints();
+        updateQuadraturePoints(vtkFilePrefix);
         
     }
 
