@@ -82,7 +82,6 @@ std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes()
             quadFile<<std::setprecision(15)<<std::scientific<<qp.r.transpose()*material.b_SI*1.0e10<<"\n";
         }
         
-        
         // Create map of quadraturePoints by segments
         std::map<std::pair<size_t,size_t>,std::set<size_t>> qPointMap;
         for(size_t q=0;q<quadraturePoints().size();++q)
@@ -108,7 +107,6 @@ std::vector<typename VTKsegments::VectorDim>& VTKsegments::nodes()
                 quadFile<<q+nodes().size()<<" ";
             }
             quadFile<<pair.first.second<<"\n";
-
         }
         
     }

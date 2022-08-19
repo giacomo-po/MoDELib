@@ -439,6 +439,8 @@ namespace model
     template <int dim, short unsigned int corder>
     void DislocationLoop<dim,corder>::updateSlipSystem()
     {
+        VerboseDislocationLoop(3,"DislocationLoop "<<this->tag()<<std::endl;);
+
         const SlipSystem* const oldSlipSystem(_slipSystem.get());
         if(glidePlane)
         {// a glide plane exists
@@ -476,6 +478,10 @@ namespace model
         {
             VerboseDislocationLoop(3,"_slipSystem.s= "<<_slipSystem->s.cartesian().transpose()<<std::endl;);
             VerboseDislocationLoop(3,"_slipSystem.unitNormal= "<<_slipSystem->unitNormal.transpose()<<std::endl;);
+        }
+        else
+        {
+            VerboseDislocationLoop(3,"slipSystem NOT FOUND"<<std::endl;);
         }
     }
     

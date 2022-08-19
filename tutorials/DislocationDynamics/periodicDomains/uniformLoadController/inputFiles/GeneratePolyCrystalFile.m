@@ -5,21 +5,23 @@ close all
 format long
 
 alignToSlipSystem0=1;
-lattice='fcc';
+lattice='bcc';
 
 if(alignToSlipSystem0)
 switch lattice
     case 'bcc'
-        s=[5.773502691896258e-01  5.773502691896258e-01 -5.773502691896258e-01];
-        n=[8.660254037844385e-01 0.000000000000000e+00 8.660254037844385e-01];
-        n=n/norm(n);
+        s=[1 1 -1];
+        n=[1 0 1];
     case 'fcc'
-        s=[ 0.000000000000000e+00 7.071067811865475e-01 7.071067811865475e-01];
-        n=[-7.071067811865476e-01  7.071067811865476e-01 -7.071067811865476e-01];
+        s=[0 1 1];
+        n=[-1 1 -1];
         n=n/norm(n);
     otherwise
 end
-    C2G1=[s;cross(n,s);n]
+        s=s/norm(s);
+        n=n/norm(n);
+        C2G1=[s;cross(n,s);n]
+%         C2G1=[s;n;cross(s,n)]
     else
     C2G1=eye(3)
 end
@@ -39,9 +41,9 @@ A=C2G1*A;
 g=0.0;
 
 Fs=1000*eye(3);
-%Fs=diag([1000 1000 4000]);
+%Fs=diag([800 300 600]);
 
-F12=[1 0.3 0;
+F12=[1 0 0;
     0 1 0;
     0 0 1];
 
@@ -56,6 +58,8 @@ F23=[1 0 0;
 F=F12*F23*F31
 
 Ba=F*Fs;
+
+
 Ma=inv(A)*Ba
 M=round(Ma)
 B=A*M
