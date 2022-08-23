@@ -5,7 +5,7 @@ close all
 format long
 
 alignToSlipSystem0=1;
-lattice='bcc';
+lattice='fcc';
 
 if(alignToSlipSystem0)
 switch lattice
@@ -21,7 +21,6 @@ end
         s=s/norm(s);
         n=n/norm(n);
         C2G1=[s;cross(n,s);n]
-%         C2G1=[s;n;cross(s,n)]
     else
     C2G1=eye(3)
 end
@@ -40,8 +39,8 @@ A=C2G1*A;
 
 g=0.0;
 
-Fs=1000*eye(3);
-%Fs=diag([800 300 600]);
+%Fs=1000*eye(3);
+Fs=diag([800 300 600]);
 
 F12=[1 0 0;
     0 1 0;

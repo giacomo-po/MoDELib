@@ -55,17 +55,17 @@ namespace model
             PointType cp1, cp2, s, e, inputPolygon[N], newPolygon[N];
             
             // copy subject polygon to new polygon and set its size
-            for(int i = 0; i < subjectPolygon.size(); i++)
+            for(size_t i = 0; i < subjectPolygon.size(); i++)
             {
                 newPolygon[i] = subjectPolygon[i];
             }
             
-            int newPolygonSize = subjectPolygon.size();
+            size_t newPolygonSize = subjectPolygon.size();
             
-            for(int j = 0; j < clipPolygon.size(); j++)
+            for(size_t j = 0; j < clipPolygon.size(); j++)
             {
                 // copy new polygon to input polygon & set counter to 0
-                for(int k = 0; k < newPolygonSize; k++)
+                for(size_t k = 0; k < newPolygonSize; k++)
                 {
                     inputPolygon[k] = newPolygon[k];
                 }
@@ -75,7 +75,7 @@ namespace model
                 cp1 = clipPolygon[j];
                 cp2 = clipPolygon[(j + 1) % clipPolygon.size()];
                 
-                for(int i = 0; i < newPolygonSize; i++)
+                for(size_t i = 0; i < newPolygonSize; i++)
                 {
                     // get subject polygon edge
                     s = inputPolygon[i];

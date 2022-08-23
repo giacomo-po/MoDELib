@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_GlidePlaneActor_h_
-#define model_GlidePlaneActor_h_
+#ifndef model_QuadratureActor_h_
+#define model_QuadratureActor_h_
 
 
 #include <deque>
@@ -18,6 +18,8 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QComboBox>
+#include <QGroupBox>
+#include <QVBoxLayout>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -50,7 +52,7 @@
 
 namespace model
 {
-    struct GlidePlaneActor : public QWidget
+    struct QuadratureActor : public QWidget
     {
         
         Q_OBJECT
@@ -63,24 +65,29 @@ namespace model
 
 
         QGridLayout* mainLayout;
-        QCheckBox* showGlidePlanes;
-        QCheckBox* showGlidePlanesNoise;
-        QComboBox* glidePlanesNoiseBox;
-        
-        vtkSmartPointer<vtkPolyData> glidePlanePolydata;
-        vtkSmartPointer<vtkPolyDataMapper> glidePlaneMapper;
-        vtkSmartPointer<vtkActor> glidePlaneActor;
-        
-        std::vector<vtkSmartPointer<vtkDataSetMapper>> noiseMappers;
-        std::vector<vtkSmartPointer<vtkActor>> noiseActors;
 
+        QGroupBox* pkBox;
+        QLineEdit* pkScaleEdit;
 
-        GlidePlaneFactory<3> glidePlaneFactory;
-        GlidePlaneNoise planeNoise;
+        QGroupBox* velocityBox;
+        QLineEdit* velocityScaleEdit;
+
+        
+        vtkSmartPointer<vtkPolyData> pkPolydata;
+        vtkSmartPointer<vtkGlyph3D> pkGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> pkMapper;
+        vtkSmartPointer<vtkActor> pkActor;
+
+        
+        vtkSmartPointer<vtkPolyData> velocityPolydata;
+        vtkSmartPointer<vtkGlyph3D> velocityGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> velocityMapper;
+        vtkSmartPointer<vtkActor> velocityActor;
+
         
         public:
                         
-        GlidePlaneActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const Polycrystal<3>& poly,const DDtraitsIO& traitsIO);
+        QuadratureActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const Polycrystal<3>& poly,const DDtraitsIO& traitsIO);
         void updateConfiguration(const DDauxIO<3>& auxIO);
         
         

@@ -28,7 +28,11 @@ namespace model
         /* init */,unitNormal(n.normalized())
         /* init */,L2G(getL2G(unitNormal))
         {
-            assert(n.norm()>FLT_EPSILON && "Plane must have non-zero normal");
+            if(n.norm()<FLT_EPSILON)
+            {
+                std::cout<<"Plane: n="<<n.transpose()<<std::endl;
+                throw std::runtime_error("Plane must have non-zero normal");
+            }
         }
         
         /**********************************************************************/
@@ -61,11 +65,11 @@ namespace model
             const VectorDim pointLocal(L2G.transpose()*(point-P));
             if(fabs(pointLocal(2))>FLT_EPSILON)
             {
-                std::cout<<"point"<<point.transpose()<<std::endl;
-                std::cout<<"P"<<P.transpose()<<std::endl;
+                std::cout<<"point="<<point.transpose()<<std::endl;
+                std::cout<<"P="<<P.transpose()<<std::endl;
                 std::cout<<"L2G=\n"<<L2G<<std::endl;
-                std::cout<<"pointLocal"<<pointLocal.transpose()<<std::endl;
-                assert(false && "local point has non-zero z-coordinate");
+                std::cout<<"pointLocal="<<pointLocal.transpose()<<std::endl;
+                throw std::runtime_error("Local point has non-zero z-coordinate");
             }
             return pointLocal.template segment<2>(0);
         }
@@ -110,7 +114,7 @@ namespace model
                     }
                     else
                     {
-                        assert(false && "CANNOT FIND VECTOR ORTHOGONAL TO z");
+                        throw std::runtime_error("CANNOT FIND VECTOR ORTHOGONAL TO z");
                     }
                 }
             }

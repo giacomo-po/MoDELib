@@ -56,8 +56,10 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLoops(new QCheckBox(this))
-        /* init */,showSlippedArea(new QCheckBox(this))
+        /* init */,slippedAreaBox(new QGroupBox(tr("&Slip Area")))
+//        /* init */,showSlippedArea(new QCheckBox(this))
         /* init */,sliderSlippedArea(new QSlider(this))
+//        /* init */,colorSlippedArea(new QColorDialog(slippedAreaBox))
         /* init */,loopPolyData(vtkSmartPointer<vtkPolyData>::New())
         /* init */,loopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,loopActor(vtkSmartPointer<vtkActor>::New())
@@ -70,24 +72,54 @@ namespace model
             showLoops->setChecked(false);
             showLoops->setText("Loops");
             
-            showSlippedArea->setChecked(false);
-            showSlippedArea->setText("SlippedArea");
-            sliderSlippedArea->setEnabled(false);
+            slippedAreaBox->setCheckable(true);
+            slippedAreaBox->setChecked(false);
+            
+
+
+
+//            showSlippedArea->setChecked(false);
+//            showSlippedArea->setText("SlippedArea");
+//            sliderSlippedArea->setEnabled(false);
             sliderSlippedArea->setMinimum(0);
             sliderSlippedArea->setMaximum(10);
             sliderSlippedArea->setValue(5);
             sliderSlippedArea->setOrientation(Qt::Horizontal);
 
+//            colorSlippedArea->setWindowFlags(Qt::Widget );
+            
+            QVBoxLayout *slippedAreaLayout = new QVBoxLayout();
+            slippedAreaLayout->addWidget(sliderSlippedArea);
+//            slippedAreaLayout->addWidget(colorSlippedArea);
+            slippedAreaBox->setLayout(slippedAreaLayout);
+
+                /* a few options that we must set for it to work nicely */
+//            colorSlippedArea->setOptions(
+//                            /* do not use native dialog */
+//                            QColorDialog::DontUseNativeDialog
+//                            /* you don't need to set it, but if you don't set this
+//                                the "OK" and "Cancel" buttons will show up, I don't
+//                                think you'd want that. */
+////                            | QColorDialog::NoButtons
+//                );
+            
+//            QGroupBox *groupBox = new QGroupBox(tr("&Push Buttons"));
+//                groupBox->setCheckable(true);
+//                groupBox->setChecked(true);
 
 
             mainLayout->addWidget(showLoops,0,0,1,1);
-            mainLayout->addWidget(showSlippedArea,1,0,1,1);
-            mainLayout->addWidget(sliderSlippedArea,1,1,1,1);
+            mainLayout->addWidget(slippedAreaBox,1,0,1,1);
+//            mainLayout->addWidget(sliderSlippedArea,1,1,1,1);
+//            mainLayout->addWidget(colorSlippedArea,1,2,1,1);
+
             
             this->setLayout(mainLayout);
 
             connect(showLoops,SIGNAL(stateChanged(int)), this, SLOT(modify()));
-            connect(showSlippedArea,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+//            connect(slippedAreaBox,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(slippedAreaBox,SIGNAL(toggled(bool)), this, SLOT(modify()));
+
             connect(sliderSlippedArea,SIGNAL(valueChanged(int)), this, SLOT(modify()));
 
             loopMapper->SetInputData(loopPolyData);
@@ -235,8 +267,8 @@ namespace model
         {
             
             loopActor->SetVisibility(showLoops->isChecked());
-            areaActor->SetVisibility(showSlippedArea->isChecked());
-            sliderSlippedArea->setEnabled(showSlippedArea->isChecked());
+            areaActor->SetVisibility(slippedAreaBox->isChecked());
+//            sliderSlippedArea->setEnabled(slippedAreaBox->isChecked());
             areaActor->GetProperty()->SetOpacity(sliderSlippedArea->value()/10.0);
             
             renderWindow->Render();

@@ -30,4 +30,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/GlidePlaneActor.cpp
 	${MoDELibRootDir}/include/vtk/ChartActor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ChartActor.cpp
+	${MoDELibRootDir}/include/vtk/QuadratureActor.h
+	${CMAKE_CURRENT_SOURCE_DIR}/QuadratureActor.cpp
 	)

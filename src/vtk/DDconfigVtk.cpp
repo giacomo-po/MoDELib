@@ -29,6 +29,7 @@ namespace model
         /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
         /* init */,inclusions(new InclusionActor(renWin,ren))
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
+        /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -42,6 +43,7 @@ namespace model
             tabWidget->addTab(loops, tr(std::string("Loops").c_str()));
             tabWidget->addTab(inclusions, tr(std::string("Inclusions").c_str()));
             tabWidget->addTab(glidePlanes, tr(std::string("GlidePlanes").c_str()));
+            tabWidget->addTab(quadrature, tr(std::string("Quadrature").c_str()));
 
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);
@@ -132,6 +134,7 @@ namespace model
                 loops->updateConfiguration(*this,nodes->nodePolyData);
                 inclusions->updateConfiguration(*this);
                 glidePlanes->updateConfiguration(*this);
+                quadrature->updateConfiguration(*this);
                 return true;
             }
             catch(const std::exception& e)

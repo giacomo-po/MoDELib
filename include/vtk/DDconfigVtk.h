@@ -30,6 +30,8 @@
 #include <NetworkLoopActor.h>
 #include <InclusionActor.h>
 #include <GlidePlaneActor.h>
+#include <QuadratureActor.h>
+
 
 //#include <DislocationLoopActor.h>
 
@@ -48,6 +50,7 @@ namespace model
         NetworkLoopActor* loops;
         InclusionActor* inclusions;
         GlidePlaneActor* glidePlanes;
+        QuadratureActor* quadrature;
 //        DislocationLoopActor loops;
         private slots:
         bool updateConfiguration();

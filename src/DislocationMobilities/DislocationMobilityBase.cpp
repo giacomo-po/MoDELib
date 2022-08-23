@@ -18,8 +18,8 @@ namespace model
     
  
         /**********************************************************************/
-        StochasticForceGenerator::StochasticForceGenerator():
-        			 stochasticForceSeed(TextFileParser("inputFiles/DD.txt").readScalar<int>("stochasticForceSeed",true))
+        StochasticForceGenerator::StochasticForceGenerator(const DDtraitsIO& traitsIO):
+        			 stochasticForceSeed(TextFileParser(traitsIO.ddFile).readScalar<int>("stochasticForceSeed",true))
         			, seed(stochasticForceSeed<0?std::chrono::system_clock::now().time_since_epoch().count():stochasticForceSeed)
         {
          

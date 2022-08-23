@@ -17,6 +17,9 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QSlider>
+#include <QColorDialog>
+#include <QGroupBox>
+#include <QVBoxLayout>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -58,8 +61,11 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showLoops;
-        QCheckBox* showSlippedArea;
+        
+        QGroupBox* slippedAreaBox;
+//        QCheckBox* showSlippedArea;
         QSlider* sliderSlippedArea;
+//        QColorDialog* colorSlippedArea;
 
 //        double tubeRadius;
 //        ColorScheme clr;

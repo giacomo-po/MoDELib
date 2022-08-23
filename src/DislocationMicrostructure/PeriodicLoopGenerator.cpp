@@ -74,7 +74,7 @@ namespace model
             const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(center));
             GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
             std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
-            const VectorDimD P0(grain.singleCrystal->snapToLattice(center).cartesian());
+            const VectorDimD P0(glidePlane->referencePlane->snapToPlane(center));
             
             std::vector<VectorDimD> loopNodePos;
             for(size_t k=0;k< sides;++k)
@@ -83,20 +83,11 @@ namespace model
             }
             
             
-            std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
-            
-            
-            
-            //                                insertJunctionLoop(mg,uniqueNetworkNodeMap,loopNodePos,glidePlane,
-            //                                                   slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-            //                                                   P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-            
+//            std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
+
             mg.insertJunctionLoop(loopNodePos,glidePlane,
                                slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-                                  glidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-
-            
-            
+                                  P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
         }
         else
         {
