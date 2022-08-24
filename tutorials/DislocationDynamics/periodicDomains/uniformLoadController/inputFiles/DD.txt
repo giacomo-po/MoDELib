@@ -24,9 +24,7 @@ surfaceNucleationModel=0;
 
 ######################################
 # Settings for simulationType=2 (PERIODIC)
-periodicImages_x=1;
-periodicImages_y=1;
-periodicImages_z=1;
+periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 
 ######################################
 quadPerLength=0.1;

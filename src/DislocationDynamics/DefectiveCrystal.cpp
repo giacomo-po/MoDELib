@@ -41,9 +41,6 @@ namespace model
                 {
                     std::cout<<"Unknown externalLoadController name "<<params.externalLoadControllerName<<"No controller applied."<<std::endl;
                     return std::unique_ptr<ExternalLoadControllerBase<DefectiveCrystal<_dim,corder>::dim>>(nullptr);
-//
-//                    exit(EXIT_FAILURE);
-//                    return nullptr;
                 }
             }
             
@@ -57,32 +54,47 @@ namespace model
         {
             // Set up periodic shifts
             std::vector<VectorDim> temp;
+            temp.push_back(VectorDim::Zero());
             if(params.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
             {
-                const VectorDim meshDimensions(m.xMax()-m.xMin());
-                std::cout<<"meshDimensions="<<meshDimensions.transpose()<<std::endl;
-                for(int i=-params.periodicImages_x;i<=params.periodicImages_x;++i)
+                const auto shiftVectors(m.periodicShifts());
+                std::cout<<"Box periodicity vectors ("<<shiftVectors.size()<<"):"<<std::endl;
+                for(const auto& shift : shiftVectors)
                 {
-                    for(int j=-params.periodicImages_y;j<=params.periodicImages_y;++j)
-                    {
-                        for(int k=-params.periodicImages_z;k<=params.periodicImages_z;++k)
-                        {
-                            const Eigen::Array<int,DefectiveCrystal<_dim,corder>::dim,1> cellID((Eigen::Array<int,DefectiveCrystal<_dim,corder>::dim,1>()<<i,j,k).finished());
-                            temp.push_back((meshDimensions.array()*cellID.template cast<double>()).matrix());
+                    std::cout<<shift.transpose()<<std::endl;
+                }
+                
+                if(shiftVectors.size()!=params.periodicImageSize.size())
+                {
+                    std::cout<<"shiftVectors.size()="<<shiftVectors.size()<<std::endl;
+                    std::cout<<"periodicImageSize.size()="<<params.periodicImageSize.size()<<std::endl;
+                    throw std::runtime_error("shiftVectors.size() must equal periodicImageSize.size()");
+                }
+                
+                
+                for(size_t k=0;k<shiftVectors.size();++k)
+                {
+                    const auto shiftVector(shiftVectors[k]);
+                    const int imageSize(std::abs(params.periodicImageSize[k]));
+                    std::vector<VectorDim> newTemp;
+                    for(const auto& v:temp)
+                    {// grab existing shift vectors
+                        for(int i=-imageSize;i<=imageSize;++i)
+                        {// add current shift times corresponding image size
+                            newTemp.push_back(v+i*shiftVector);
                         }
                     }
+                    temp.swap(newTemp);
                 }
             }
-            else
-            {
-                temp.push_back(VectorDim::Zero());
-            }
+
+
+
             
-            std::cout<<"periodic shift vectors:"<<std::endl;
+            std::cout<<"Image shift vectors ("<<temp.size()<<"):"<<std::endl;
             for(const auto& shift : temp)
             {
                 std::cout<<shift.transpose()<<std::endl;
-                
             }
             
             return temp;

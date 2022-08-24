@@ -46,9 +46,11 @@ namespace model
     /*                  */,public std::map<std::pair<size_t,size_t>,MeshRegionBoundary<_dim>> // MeshRegionBoundary container
     //    /*                  */,public std::deque<SimplicialMeshFace<_dim>> // MeshRegionBoundary container
     {
+     
+        typedef Eigen::Matrix<double,_dim,1> VectorDim;
         
-        Eigen::Matrix<double,_dim,1> _xMin;
-        Eigen::Matrix<double,_dim,1> _xMax;        
+        VectorDim _xMin;
+        VectorDim _xMax;
         
         double vol0;
         
@@ -85,6 +87,9 @@ namespace model
         void updateRegionBoundaries();
         
         void identifyParallelFaces(const std::set<int>&);
+        
+        std::vector<VectorDim> periodicShifts() const;
+
         
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID);
         

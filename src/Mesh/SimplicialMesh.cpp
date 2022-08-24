@@ -259,6 +259,44 @@ namespace model
             region.second->identifyParallelFaces(periodicFaceIDs);
         }
     }
+
+
+
+    template<int dim>
+    std::vector<typename SimplicialMesh<dim>::VectorDim> SimplicialMesh<dim>::periodicShifts() const
+    {
+        std::map<size_t,const PlanarMeshFace<dim>* const> periodicMeshFaces;
+        for(const auto& region : this->regions())
+        {
+            for(const auto& face : region.second->faces())
+            {
+                if(face.second->periodicFacePair.second)
+                {// face is a periodic face
+                    if(   periodicMeshFaces.find(face.second->sID)==periodicMeshFaces.end()
+                       && periodicMeshFaces.find(face.second->periodicFacePair.second->sID)==periodicMeshFaces.end())
+                    {// neither faces has been added
+                        periodicMeshFaces.emplace(face.second->sID,face.second.get());
+                    }
+                }
+            }
+        }
+        
+        std::vector<typename SimplicialMesh<dim>::VectorDim> temp;
+        const typename SimplicialMesh<dim>::VectorDim meshSize(xMax()-xMin());
+        for(const auto& face : periodicMeshFaces)
+        {
+            if(meshSize.dot(face.second->periodicFacePair.first)>0.0)
+            {
+                temp.push_back(face.second->periodicFacePair.first);
+            }
+            else
+            {
+                temp.push_back(-1.0*face.second->periodicFacePair.first);
+            }
+        }
+        return temp;
+    }
+
     
     /**********************************************************************/
     template<int dim>

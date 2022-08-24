@@ -71,6 +71,7 @@ namespace model
         /* init */,showClipPlane(new QCheckBox(this))
         /* init */,sliderClipPlane(new QSlider(this))
         /* init */,showAxes(new QCheckBox(this))
+        /* init */,showPeriodicityVectors(new QCheckBox(this))
         ///* init */,sliderAxes(new QSlider(this))
 //        /* init */,showRegionBoundariesLabel(new QLabel("show grain boundaries"))
         /* init */,renderWindow(renderWindow_in)
@@ -97,6 +98,11 @@ namespace model
         /* init */,clipMapper(vtkSmartPointer<vtkDataSetMapper>::New())
         /* init */,clipActor(vtkSmartPointer<vtkActor>::New())
         /* init */,cubeAxesActor(vtkSmartPointer<vtkCubeAxesActor>::New())
+        /* init */,periodicityPolydata(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,periodicityGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
+        /* init */,periodicityMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+        /* init */,periodicityActor(vtkSmartPointer<vtkActor>::New())
+
 //        /* init */,axes(vtkSmartPointer<vtkAxesActor>::New())
 //        /* init */,axesWidget(vtkSmartPointer<vtkOrientationMarkerWidget>::New())
 //        /* init */,myCallback(vtkSmartPointer<FieldActorCallback>::New())
@@ -105,28 +111,57 @@ namespace model
         {
 
             showFaceBoundaries->setChecked(true);
-            showFaceBoundaries->setText("face edges");
+            showFaceBoundaries->setText("Face Edges");
             faceActor->SetVisibility(true);
             showMesh->setChecked(false);
-            showMesh->setText("mesh");
+            showMesh->setText("Mesh");
             actor->SetVisibility(false);
 //            showGrainColors->setChecked(false);
 //            showGrainColors->setText("grain colors");
 //            gbMapper->SetScalarVisibility(false);
             showRegionBoundaries->setChecked(false);
-            showRegionBoundaries->setText("grain boundaries");
+            showRegionBoundaries->setText("Grain Boundaries");
             sliderRegionBoundaries->setEnabled(false);
             gbActor->SetVisibility(false);
 
-            showClipPlane->setText("clip plane");
+            showClipPlane->setText("Clip Plane");
             showClipPlane->setChecked(false);
             sliderClipPlane->setEnabled(false);
             clipActor->SetVisibility(false);
             
-            showAxes->setText("axes");
+            showAxes->setText("Axes");
             showAxes->setChecked(false);
             showAxes->setEnabled(true);
             cubeAxesActor->SetVisibility(false);
+            
+            showPeriodicityVectors->setText("Periodicity Vectors");
+            periodicityGlyphs->SetInputData(periodicityPolydata);
+            periodicityGlyphs->SetSourceConnection(vtkSmartPointer<vtkArrowSource>::New()->GetOutputPort());
+            periodicityGlyphs->ScalingOn();
+            periodicityGlyphs->SetScaleModeToScaleByVector();
+            periodicityGlyphs->OrientOn();
+            periodicityGlyphs->ClampingOff();
+            periodicityGlyphs->SetVectorModeToUseVector();
+            periodicityGlyphs->SetIndexModeToOff();
+            periodicityMapper->SetInputConnection(periodicityGlyphs->GetOutputPort());
+            periodicityMapper->ScalarVisibilityOff();
+            periodicityActor->SetMapper(periodicityMapper);
+            periodicityActor->GetProperty()->SetColor(1.0, 1.0, 0.0); //(R,G,B)
+            periodicityActor->SetVisibility(false);
+            renderer->AddActor(periodicityActor);
+            
+            vtkSmartPointer<vtkPoints> periodicityPoints = vtkSmartPointer<vtkPoints>::New();
+            vtkSmartPointer<vtkDoubleArray> periodicityVectors(vtkSmartPointer<vtkDoubleArray>::New());
+            periodicityVectors->SetNumberOfComponents(3);
+            for(const auto& pShift : mesh.periodicShifts())
+            {
+                periodicityPoints->InsertNextPoint(mesh.xMin().data());
+                periodicityVectors->InsertNextTuple(pShift.data());
+            }
+            periodicityPolydata->SetPoints(periodicityPoints);
+            periodicityPolydata->GetPointData()->SetVectors(periodicityVectors);
+            periodicityPolydata->Modified();
+
             
 //            axesWidget->SetOrientationMarker( axes );
 ////            axesWidget->SetOutlineColor( 0.9300, 0.5700, 0.1300 );
@@ -153,6 +188,7 @@ namespace model
             mainLayout->addWidget(showClipPlane,3,0,1,1);
             mainLayout->addWidget(sliderClipPlane,3,1,1,2);
             mainLayout->addWidget(showAxes,4,0,1,1);
+            mainLayout->addWidget(showPeriodicityVectors,5,0,1,1);
             sliderRegionBoundaries->setOrientation(Qt::Horizontal);
             sliderRegionBoundaries->setMinimum(0);
             sliderRegionBoundaries->setMaximum(10);
@@ -176,7 +212,9 @@ namespace model
             connect(sliderRegionBoundaries,SIGNAL(valueChanged(int)), this, SLOT(modify()));
             connect(sliderClipPlane,SIGNAL(valueChanged(int)), this, SLOT(modify()));
             connect(showAxes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showPeriodicityVectors,SIGNAL(stateChanged(int)), this, SLOT(modify()));
 
+            
              
             
             
@@ -485,6 +523,8 @@ namespace model
 
             cubeAxesActor->SetVisibility(showAxes->isChecked());
 
+            periodicityActor->SetVisibility(showPeriodicityVectors->isChecked());
+            
             renderWindow->Render();
         }
 

@@ -62,6 +62,9 @@
 #include <vtkAxesActor.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkCubeAxesActor.h>
+#include <vtkGlyph3D.h>
+#include <vtkArrowSource.h>
+#include <vtkDoubleArray.h>
 
 #include <TextFileParser.h>
 
@@ -128,6 +131,8 @@ namespace model
         QCheckBox* showAxes;
  //       QSlider* sliderAxes;
 
+        QCheckBox* showPeriodicityVectors;
+
         
         vtkSmartPointer<vtkGenericOpenGLRenderWindow> renderWindow;
         vtkRenderer* const renderer;
@@ -164,6 +169,11 @@ namespace model
         vtkSmartPointer<vtkCubeAxesActor> cubeAxesActor;
 //        vtkSmartPointer<vtkAxesActor> axes;
 //        vtkSmartPointer<vtkOrientationMarkerWidget> axesWidget;
+
+        vtkSmartPointer<vtkPolyData> periodicityPolydata;
+        vtkSmartPointer<vtkGlyph3D> periodicityGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> periodicityMapper;
+        vtkSmartPointer<vtkActor> periodicityActor;
 
 
 //        vtkSmartPointer<FieldActorCallback> myCallback;
