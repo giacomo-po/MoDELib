@@ -68,6 +68,8 @@ outputPeriodicConfiguration=1;
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=5.0;
+useLineTension=0;
+alphaLineTension=1.0;
 
 ######################################
 # NETWORK REMESHING
@@ -76,8 +78,8 @@ coreSize=5.0;
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
-Lmin=0.05;
-Lmax=0.2;
+Lmin=0.02;
+Lmax=0.08;
 nodeRemoveAngleDeg=60;
 relativeAreaThreshold=0.001;
 
@@ -90,12 +92,9 @@ maxJunctionIterations=1;
 collisionTol=5;
 mergeGlissileJunctions=0;
 
-######################################
-# BOUNDARY MESH
-surfaceAttractionDistance=20;
 
 ######################################
-# Enable/disable cross-slip
+# CROSS SLIP
 crossSlipModel=0;
 crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
 
@@ -103,17 +102,10 @@ crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below 
 # GRAIN-BOUNDARY MODEL
 grainBoundaryTransmissionModel=0;
 
-######################################
-parametrizationExponent=0.5;
 
-#####################################
-useLineTension=0;
-alphaLineTension=1.0;
 #####################################
 # DEBUGGING
 computeDDinteractions=1;
-
-#
 verboseLoopNetwork=0;
 verboseDislocationNetwork=0;
 verboseDislocationLoop=0;

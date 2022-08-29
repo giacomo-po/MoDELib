@@ -57,6 +57,8 @@ namespace model
         QGridLayout* mainLayout;
         QCheckBox* showNodes;
         QCheckBox* showNodeLabels;
+        QCheckBox* showSpecificNodeLabel;
+        QLineEdit* showSpecificNodeLabelEdit;
         QCheckBox* showVelocities;
         QLineEdit* velocityScaleEdit;
 
@@ -77,11 +79,11 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> velocityMapper;
         vtkSmartPointer<vtkActor> velocityActor;
         
-        vtkSmartPointer<vtkPolyData> singleNodeLabelPolyData;
-        vtkSmartPointer<vtkLabeledDataMapper> singleNodeLabelMapper;
-        vtkSmartPointer<vtkActor2D> singleNodeLabelActor;
+        vtkSmartPointer<vtkPolyData> specificNodeLabelPolyData;
+        vtkSmartPointer<vtkLabeledDataMapper> specificNodeLabelMapper;
+        vtkSmartPointer<vtkActor2D> specificNodeLabelActor;
         
-        size_t singleNodeID;
+//        size_t singleNodeID;
         unsigned char nodeClr[4][3];
         
         NetworkNodeActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);

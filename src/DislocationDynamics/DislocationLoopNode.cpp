@@ -846,8 +846,9 @@ namespace model
             {
                 if (this->networkNode->loopNodes().size() == 1)
                 {
-                    if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax &&
-                        isGeometricallyRemovable(Lmin, relAreaTh))
+                    if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax
+//                    if (((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax || pPrev->periodicPlanePatch()!=pNext->periodicPlanePatch())
+                        && isGeometricallyRemovable(Lmin, relAreaTh))
                     {
                         return std::make_pair(true,this->sID);
                     }

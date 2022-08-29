@@ -50,6 +50,8 @@ namespace model
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showNodes(new QCheckBox(this))
         /* init */,showNodeLabels(new QCheckBox(this))
+        /* init */,showSpecificNodeLabel(new QCheckBox(this))
+        /* init */,showSpecificNodeLabelEdit(new QLineEdit("0"))
         /* init */,showVelocities(new QCheckBox(this))
         /* init */,velocityScaleEdit(new QLineEdit("1"))
         /* init */,nodePolyData(vtkSmartPointer<vtkPolyData>::New())
@@ -63,10 +65,10 @@ namespace model
         /* init */,velocityGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
         /* init */,velocityMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,velocityActor(vtkSmartPointer<vtkActor>::New())
-        /* init */,singleNodeLabelPolyData(vtkSmartPointer<vtkPolyData>::New())
-        /* init */,singleNodeLabelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New())
-        /* init */,singleNodeLabelActor(vtkSmartPointer<vtkActor2D>::New())
-        /* init */,singleNodeID(0)
+        /* init */,specificNodeLabelPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,specificNodeLabelMapper(vtkSmartPointer<vtkLabeledDataMapper>::New())
+        /* init */,specificNodeLabelActor(vtkSmartPointer<vtkActor2D>::New())
+//        /* init */,singleNodeID(0)
         /* init */,nodeClr{{100,100,100},{0,255,255},{255,0,255},{1,1,1}}
         {
             
@@ -74,6 +76,10 @@ namespace model
             showNodes->setChecked(false);
             nodeActor->SetVisibility(false);
 
+            showSpecificNodeLabel->setText("selected nodes");
+            showSpecificNodeLabel->setChecked(false);
+            specificNodeLabelActor->SetVisibility(false);
+            
             showNodeLabels->setText("node labels");
             showNodeLabels->setChecked(false);
             labelActor->SetVisibility(false);
@@ -86,14 +92,18 @@ namespace model
 
             mainLayout->addWidget(showNodes,0,0,1,1);
             mainLayout->addWidget(showNodeLabels,1,0,1,1);
-            mainLayout->addWidget(showVelocities,2,0,1,1);
-            mainLayout->addWidget(velocityScaleEdit,2,1,1,1);
+            mainLayout->addWidget(showSpecificNodeLabel,2,0,1,1);
+            mainLayout->addWidget(showSpecificNodeLabelEdit,2,1,1,1);
+            mainLayout->addWidget(showVelocities,3,0,1,1);
+            mainLayout->addWidget(velocityScaleEdit,3,1,1,1);
             this->setLayout(mainLayout);
 
             connect(showNodes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showNodeLabels,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showVelocities,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(velocityScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
+            connect(showSpecificNodeLabel,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(showSpecificNodeLabelEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
 
             
             nodeGlyphs->SetInputData(nodePolyData);
@@ -129,18 +139,18 @@ namespace model
             velocityActor->GetProperty()->SetColor(1.0, 0.0, 1.0); //(R,G,B)
             
             // Single node Label
-            singleNodeLabelMapper->SetInputData(singleNodeLabelPolyData);
-            singleNodeLabelMapper->SetLabelModeToLabelScalars();
-            singleNodeLabelMapper->SetLabelFormat("%1.0f");
-            singleNodeLabelMapper->GetLabelTextProperty()->SetFontSize(20);
-            singleNodeLabelActor->SetMapper(singleNodeLabelMapper);
-            singleNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
-            singleNodeLabelActor->VisibilityOff();
+           specificNodeLabelMapper->SetInputData(specificNodeLabelPolyData);
+           specificNodeLabelMapper->SetLabelModeToLabelScalars();
+           specificNodeLabelMapper->SetLabelFormat("%1.0f");
+           specificNodeLabelMapper->GetLabelTextProperty()->SetFontSize(20);
+           specificNodeLabelActor->SetMapper(specificNodeLabelMapper);
+           specificNodeLabelActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
+//           specificNodeLabelActor->VisibilityOff();
             
             renderer->AddActor(nodeActor);
             renderer->AddActor(velocityActor);
             renderer->AddActor(labelActor);
-            renderer->AddActor(singleNodeLabelActor);
+            renderer->AddActor(specificNodeLabelActor);
 
         }
         
@@ -160,26 +170,61 @@ namespace model
             nodeLabels->SetNumberOfComponents(1);
             nodeLabels->SetName("node IDs");
             
-            vtkSmartPointer<vtkPoints> singleNodePoint(vtkSmartPointer<vtkPoints>::New());
-            vtkSmartPointer<vtkDoubleArray> singleNodenodeLabels(vtkSmartPointer<vtkDoubleArray>::New());
+            vtkSmartPointer<vtkPoints> specificNodePoints(vtkSmartPointer<vtkPoints>::New());
+            vtkSmartPointer<vtkDoubleArray> specificNodeLabels(vtkSmartPointer<vtkDoubleArray>::New());
+            specificNodeLabels->SetNumberOfComponents(1);
+
 
             vtkSmartPointer<vtkDoubleArray> velocityVectors(vtkSmartPointer<vtkDoubleArray>::New());
             velocityVectors->SetNumberOfComponents(3);
             velocityVectors->SetName("nodeVelocity");
+            
+            std::set<size_t> singleNodes;
+            if(showSpecificNodeLabel->isChecked())
+            {
+                try
+                {
+                    std::stringstream ss(showSpecificNodeLabelEdit->text() .toStdString());
+                    size_t val;
+                    while(ss>>val)
+                    {
+                        singleNodes.insert(val);
+                    }
+                }
+                catch(std::exception& e)
+                {
+                    showSpecificNodeLabel->setText(QString::fromStdString(e.what()));
+                }
+
+            }
+            
+//            std::cout<<"Single nodes:"<<std::endl;
+//            for(const auto& sn : singleNodes)
+//            {
+//                std::cout<<sn<<std::endl;
+//            }
 
             for(const auto& node : configIO.nodes())
             {
+                    if(singleNodes.find(node.sID)!=singleNodes.end())
+                    {// current node is among selected
+                        specificNodePoints->InsertNextPoint(node.P.data());
+                        specificNodeLabels->InsertNextTuple1(node.sID);
+                    }
+
+
+                    
                 nodePoints->InsertNextPoint(node.P.data());
                 nodeLabels->InsertNextTuple1(node.sID);
                 velocityVectors->InsertNextTuple(node.V.data()); // arrow vector
                 nodeColors->InsertNextTypedTuple(node.meshLocation>2? this->nodeClr[3] : this->nodeClr[node.meshLocation]);
 
-                // Single node
-                if(node.sID==singleNodeID)
-                {
-                    singleNodePoint->InsertNextPoint(node.P.data());
-                    singleNodenodeLabels->InsertNextTuple1(node.sID);
-                }
+//                // Single node
+//                if(node.sID==singleNodeID)
+//                {
+//                    singleNodePoint->InsertNextPoint(node.P.data());
+//                    singleNodenodeLabels->InsertNextTuple1(node.sID);
+//                }
             }
 
             nodePolyData->SetPoints(nodePoints);
@@ -190,9 +235,9 @@ namespace model
             labelPolyData->GetPointData()->SetScalars(nodeLabels);
             labelPolyData->Modified();
             
-            singleNodeLabelPolyData->SetPoints(singleNodePoint);
-            singleNodeLabelPolyData->GetPointData()->SetScalars(singleNodenodeLabels);
-            singleNodeLabelPolyData->Modified();
+            specificNodeLabelPolyData->SetPoints(specificNodePoints);
+            specificNodeLabelPolyData->GetPointData()->SetScalars(specificNodeLabels);
+            specificNodeLabelPolyData->Modified();
             
             velocityPolyData->SetPoints(nodePoints);
             velocityPolyData->GetPointData()->SetVectors(velocityVectors);
@@ -206,6 +251,7 @@ namespace model
             
             nodeActor->SetVisibility(showNodes->isChecked());
             labelActor->SetVisibility(showNodeLabels->isChecked());
+            specificNodeLabelActor->SetVisibility(showSpecificNodeLabel->isChecked());
             velocityActor->SetVisibility(showVelocities->isChecked());
             velocityScaleEdit->setEnabled(showVelocities->isChecked());
             const double vScaling(std::atof(velocityScaleEdit->text() .toStdString().c_str()));

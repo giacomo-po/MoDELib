@@ -56,7 +56,7 @@ namespace model
     /* init */,outputLoopLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLoopLength",true))
     /* init */,outputSegmentPairDistances(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputSegmentPairDistances",true))
     /* init */,computeElasticEnergyPerLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeElasticEnergyPerLength",true))
-    /* init */,surfaceAttractionDistance(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("surfaceAttractionDistance",true))
+//    /* init */,surfaceAttractionDistance(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("surfaceAttractionDistance",true))
     /* init */,useLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("useLineTension",true))
     /* init */,alphaLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("alphaLineTension",true))
     /* init */,use_velocityFilter(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("use_velocityFilter",true))

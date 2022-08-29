@@ -88,7 +88,7 @@ namespace model
             std::ifstream fFile(traitsIO.fFile);
             if(fFile)
             {
-                float temp;
+                double temp(0.0);
                 while (std::getline(fFile, line))
                 {
                     if(!line.empty())
@@ -114,8 +114,8 @@ namespace model
             this->setLayout(mainLayout);
 
             connect(showChart,SIGNAL(stateChanged(int)), this, SLOT(modify()));
-            connect(xAxisLog,SIGNAL(stateChanged(int)), this, SLOT(modify()));
-            connect(yAxisLog,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(xAxisLog, SIGNAL(stateChanged(int)), this, SLOT(modify()));
+            connect(yAxisLog, SIGNAL(stateChanged(int)), this, SLOT(modify()));
 
             connect(xComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(modify()));
             connect(yComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(modify()));

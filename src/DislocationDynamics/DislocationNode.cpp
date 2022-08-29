@@ -232,12 +232,9 @@ namespace model
         return true;
     }
     
-    // template <int dim, short unsigned int corder>
     template <int dim, short unsigned int corder>
     bool DislocationNode<dim,corder>::set_P(const typename DislocationNode<dim,corder>::VectorDim& newP)
     {
-        // std::cout<<" Current position "<<this->get_P().transpose()<<std::endl;
-        // std::cout<<" New position "<<newP.transpose()<<std::endl;
         VerboseDislocationNode(1, "  Setting P for Network Node " << this->tag() << std::endl;);
 
         if((SplineNodeType::get_P()-newP).norm()>FLT_EPSILON)   //Check with the base classs
@@ -466,6 +463,7 @@ namespace model
         }
         return _outNormal;
     }
+
     template <int dim, short unsigned int corder>
     typename DislocationNode<dim, corder>::VectorDim DislocationNode<dim, corder>::snapToGlidePlanesinPeriodic(const VectorDim &P)
     {
@@ -525,6 +523,7 @@ namespace model
         }
         }
     }
+
     template <int dim, short unsigned int corder>
     typename DislocationNode<dim, corder>::GrainContainerType DislocationNode<dim, corder>::grains() const
     {

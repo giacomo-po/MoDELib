@@ -163,7 +163,7 @@ namespace model
         bool outputLoopLength;
         bool outputSegmentPairDistances;
         const bool computeElasticEnergyPerLength;
-        double surfaceAttractionDistance;
+//        double surfaceAttractionDistance;
         bool useLineTension;
         double alphaLineTension;
         std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
