@@ -75,7 +75,7 @@ namespace model
             showLinks->setText("links");
             sliderLinksRadius->setEnabled(true);
             sliderLinksRadius->setMinimum(0);
-            sliderLinksRadius->setMaximum(50);
+            sliderLinksRadius->setMaximum(30);
             sliderLinksRadius->setValue(5);
             sliderLinksRadius->setOrientation(Qt::Horizontal);
 

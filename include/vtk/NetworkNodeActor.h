@@ -17,6 +17,8 @@
 #include <QGridLayout>
 #include <QCheckBox>
 #include <QLineEdit>
+#include <QSlider>
+
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkVersion.h>
@@ -56,6 +58,7 @@ namespace model
 
         QGridLayout* mainLayout;
         QCheckBox* showNodes;
+        QSlider* sliderNodeRadius;
         QCheckBox* showNodeLabels;
         QCheckBox* showSpecificNodeLabel;
         QLineEdit* showSpecificNodeLabelEdit;

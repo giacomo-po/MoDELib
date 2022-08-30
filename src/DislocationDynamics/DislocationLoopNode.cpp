@@ -844,8 +844,11 @@ namespace model
             // {
             if (pPrev && pNext)
             {
+                VerboseDislocationLoopNode(2, "  Has pPrev and pNext" << std::endl;);
+
                 if (this->networkNode->loopNodes().size() == 1)
                 {
+                    VerboseDislocationLoopNode(2, "  Has 1 loop nodes" << std::endl;);
                     if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax
 //                    if (((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax || pPrev->periodicPlanePatch()!=pNext->periodicPlanePatch())
                         && isGeometricallyRemovable(Lmin, relAreaTh))
@@ -872,14 +875,17 @@ namespace model
                 }
                 else if (this->networkNode->loopNodes().size() >= 2)
                 {
+                    VerboseDislocationLoopNode(2, "  Has 2 loop nodes" << std::endl;);
                     const auto prevTwin(this->prev.second->twinnedLink());
                     const auto nextTwin(this->next.second->twinnedLink());
 
                     if (prevTwin && nextTwin)
                     {
+                        VerboseDislocationLoopNode(2, "  Has prevTwin and nextTwin" << std::endl;);
 
                         if (prevTwin->loop == nextTwin->loop && (prevTwin->periodicPlanePatch() == nextTwin->periodicPlanePatch()))
                        {
+                           VerboseDislocationLoopNode(2, "  Same patches" << std::endl;);
                             //Check based on neighbors of the networkNode
                             //Here the other node will be inserted
                             size_t prevtwinID((prevTwin->source->networkNode==this->networkNode)? prevTwin->source->sID : prevTwin->sink->sID);
@@ -888,6 +894,7 @@ namespace model
 
                             if (prevtwinID==nexttwinID)
                             {
+                                VerboseDislocationLoopNode(2, "  Same IDs" << std::endl;);
                                 return std::make_pair(true,prevtwinID);
                             }
                             else
@@ -903,29 +910,34 @@ namespace model
                                 std::cout << " PrevTwin periodicPrev " << ((prevTwin->source->networkNode == this->networkNode) ? prevTwin->source->periodicPrev()->tag() : prevTwin->sink->periodicPrev()->tag()) << std::endl;
                                 std::cout << " NextTwin periodicNext " << ((nextTwin->source->networkNode == this->networkNode) ? nextTwin->source->periodicNext()->tag() : nextTwin->sink->periodicNext()->tag()) << std::endl;
 
-                                assert(false && "LoopNode mismatch in the removal of the nodes 0B nodes");
+                                throw std::runtime_error("LoopNode mismatch in the removal of the nodes 0B nodes");
+                                
+//                                assert(false && "LoopNode mismatch in the removal of the nodes 0B nodes");
                                 return std::make_pair(false,0);
                             }
                             
                         }
-                        
                         else
                         {
+                            VerboseDislocationLoopNode(2, "  Different patches" << std::endl;);
                             return std::make_pair(false, 0);
                         }
                     }
                     else
                     {
+                        VerboseDislocationLoopNode(2, "  No prevTwin or nextTwin" << std::endl;);
                         return std::make_pair(false,0);
                     }
                 }
                 else
                 {
+                    VerboseDislocationLoopNode(2, "this->networkNode->loopNodes().size()="<<this->networkNode->loopNodes().size()<< std::endl;);
                     return std::make_pair(false,0);
                 }
             }
             else
             {
+                VerboseDislocationLoopNode(2, "  No pPrev or pNext" << std::endl;);
                 return std::make_pair(false,0);
             }
 

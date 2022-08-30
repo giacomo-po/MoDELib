@@ -624,11 +624,9 @@ namespace model
         {
             const auto sharedLNptr(ln.second.lock());
             if (sharedLNptr->periodicPlaneEdge.first)
-            {
-                //Node on a boundary
+            {//Node on a boundary
                 if (sharedLNptr->networkNode->loopNodes().size()>1)
-                {
-                    //junction node
+                {//junction node
                     const auto loopsThis (sharedLNptr->networkNode->loopIDs());
                     
                     const LoopNodeType *pPrev(sharedLNptr->periodicPrev());
@@ -691,10 +689,10 @@ namespace model
                 }
             }
             else
-            {
+            {//Node not on a boundary
                 // Grab all nodes where a juncton is moving out of the boundary
                 if (sharedLNptr->networkNode->loopNodes().size()>1)
-                {
+                {// a junction node
                     if (sharedLNptr->boundaryNext().size()==0 && sharedLNptr->periodicNext()->networkNode->loopNodes().size()>1)
                     {
                         //A junction node...
@@ -1327,6 +1325,8 @@ namespace model
         junctionsMaker.formJunctions(3.0*networkRemesher.Lmin);
         //Calling remesh again so that any other topological changes created by junctions whihc are otherwise removable can be removed
         //        //! 13- Node redistribution
+//        this->io().output(runID);
+
         networkRemesher.remesh(runID);
         //        updateVirtualBoundaryLoops();
         

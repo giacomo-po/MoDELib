@@ -639,7 +639,7 @@ namespace model
                 }
             }
             else
-            {
+            {// junction node is an existing node
                 if (!Nclose->isBoundaryNode())
                 {
                     VerboseJunctions(4, "JunctionNode case f" << std::endl;);

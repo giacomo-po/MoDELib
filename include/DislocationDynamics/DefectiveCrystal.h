@@ -14,11 +14,6 @@
 #include <vector>
 #include <memory>
 
-//#ifndef ExternalLoadControllerFile
-//#define ExternalLoadControllerFile <model/DislocationDynamics/ExternalLoadControllers/DummyExternalLoadController.h>
-//#endif
-//#include ExternalLoadControllerFile
-
 #include <DDtimeIntegrator.h>
 #include <DefectiveCrystalParameters.h>
 #include <DislocationDynamicsModule.h>
@@ -44,9 +39,6 @@ namespace model
         
         DefectiveCrystalParameters simulationParameters;
         
-        //        long int runID;
-        
-        
         const std::set<int> periodicFaceIDs;
         const SimplicialMesh<dim> mesh;
         const std::vector<VectorDim> periodicShifts;
@@ -57,41 +49,23 @@ namespace model
         const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
         
         
-        /**********************************************************************/
+        
         static std::unique_ptr<ExternalLoadControllerBase<dim>> getExternalLoadController(const DefectiveCrystalParameters& params,
                                                                                           const DefectiveCrystalType& dc,
                                                                                           const long int& rID);
-        
-        /**********************************************************************/
-        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,
-                                                        const DefectiveCrystalParameters& params);
-        
-        
-        
-        /**********************************************************************/
+                
+        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,const DefectiveCrystalParameters& params);
         void updateLoadControllers(const long int& runID, const bool& isClimbStep);
         
     public:
         
-        
-        /**********************************************************************/
         DefectiveCrystal(const std::string& folderName) ;
-        /**********************************************************************/
         void singleGlideStep();;
-//
-//        /**********************************************************************/
         void runGlideSteps();
-//
-        /**********************************************************************/
         MatrixDim plasticDistortion() const;
-
-        /**********************************************************************/
         MatrixDim plasticDistortionRate() const;
-        /**********************************************************************/
         MatrixDim plasticStrainRate() const;
-        /**********************************************************************/
         double getMaxVelocity() const;
-//
     };
 }
 #endif

@@ -44,7 +44,7 @@ namespace model
                 remeshByExpansion();
                 contract0chordSegments();
                 remove0AreaLoopAcrossBnd();
-                contractBoundaryNodes(); //Added by Yash
+//                contractBoundaryNodes(); //Added by Yash
             }
         }
     }

@@ -49,6 +49,7 @@ namespace model
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showNodes(new QCheckBox(this))
+        /* init */,sliderNodeRadius(new QSlider(this))
         /* init */,showNodeLabels(new QCheckBox(this))
         /* init */,showSpecificNodeLabel(new QCheckBox(this))
         /* init */,showSpecificNodeLabelEdit(new QLineEdit("0"))
@@ -72,9 +73,17 @@ namespace model
         /* init */,nodeClr{{100,100,100},{0,255,255},{255,0,255},{1,1,1}}
         {
             
+            const int initialRadius(12);
+            
             showNodes->setText("nodes");
             showNodes->setChecked(false);
             nodeActor->SetVisibility(false);
+            sliderNodeRadius->setEnabled(false);
+            sliderNodeRadius->setMinimum(0);
+            sliderNodeRadius->setMaximum(30);
+            sliderNodeRadius->setValue(initialRadius);
+            sliderNodeRadius->setOrientation(Qt::Horizontal);
+
 
             showSpecificNodeLabel->setText("selected nodes");
             showSpecificNodeLabel->setChecked(false);
@@ -91,6 +100,7 @@ namespace model
 
 
             mainLayout->addWidget(showNodes,0,0,1,1);
+            mainLayout->addWidget(sliderNodeRadius,0,1,1,1);
             mainLayout->addWidget(showNodeLabels,1,0,1,1);
             mainLayout->addWidget(showSpecificNodeLabel,2,0,1,1);
             mainLayout->addWidget(showSpecificNodeLabelEdit,2,1,1,1);
@@ -104,13 +114,14 @@ namespace model
             connect(velocityScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
             connect(showSpecificNodeLabel,SIGNAL(stateChanged(int)), this, SLOT(modify()));
             connect(showSpecificNodeLabelEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
+            connect(sliderNodeRadius,SIGNAL(valueChanged(int)), this, SLOT(modify()));
 
             
             nodeGlyphs->SetInputData(nodePolyData);
             nodeGlyphs->SetSourceConnection(vtkSmartPointer<vtkSphereSource>::New()->GetOutputPort());
             nodeGlyphs->ScalingOn();
             nodeGlyphs->SetScaleModeToScaleByVector();
-            nodeGlyphs->SetScaleFactor(2.0*10*1.2);
+            nodeGlyphs->SetScaleFactor(initialRadius);
             nodeGlyphs->SetColorModeToColorByScalar();
             nodeGlyphs->Update();
             nodeMapper->SetInputConnection(nodeGlyphs->GetOutputPort());
@@ -249,6 +260,8 @@ namespace model
         void NetworkNodeActor::modify()
         {
             
+            nodeGlyphs->SetScaleFactor(sliderNodeRadius->value());
+            sliderNodeRadius->setEnabled(showNodes->isChecked());
             nodeActor->SetVisibility(showNodes->isChecked());
             labelActor->SetVisibility(showNodeLabels->isChecked());
             specificNodeLabelActor->SetVisibility(showSpecificNodeLabel->isChecked());
