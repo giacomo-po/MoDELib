@@ -34,6 +34,11 @@ SlipSystem::SlipSystem(const LatticePlaneBase& n_in,
     /* init */ n(n_in)
     /* init */,s(slip_in)
     /* init */,unitNormal(n.cartesian().normalized())
+    /* init */,unitSlip(s.cartesian().normalized())
+    /* init */,unitTensorSN(unitSlip*unitNormal.transpose())
+    /* init */,unitTensorSNsym(unitTensorSN+unitTensorSN.transpose())
+    /* init */,unitTensorOrthSN(unitNormal.cross(unitSlip)*unitNormal.transpose())
+    /* init */,unitTensorOrthSNsym(unitTensorOrthSN+unitTensorOrthSN.transpose())
     /* init */,mobility(mobility_in)
     /* init */,gammaSurface(gammaSurface_in)
     {

@@ -71,6 +71,7 @@
 #include <BVPsolver.h>
 #include <ExternalLoadControllerBase.h>
 #include <GlidePlaneModule.h>
+#include <GlidePlaneNoise.h>
 
 #include <DislocationNodeContraction.h>
 #include <EshelbyInclusion.h>
@@ -137,6 +138,7 @@ namespace model
         const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim> glidePlaneFactory;
         std::shared_ptr<PeriodicGlidePlaneFactory<dim>> periodicGlidePlaneFactory;
+        std::shared_ptr<GlidePlaneNoise> planeNoise;
 //        const std::unique_ptr<PeriodicDislocationLoopFactory<DislocationNetworkType>> periodicDislocationLoopFactory;
         const std::unique_ptr<BVPsolver<dim,2>>& bvpSolver;
         const std::unique_ptr<ExternalLoadControllerBase<dim>>& externalLoadController;

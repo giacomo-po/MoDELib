@@ -27,7 +27,7 @@ surfaceNucleationModel=0;
 periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 
 ######################################
-quadPerLength=0.1;
+quadPerLength=1.0;
 
 ######################################
 # TIME STEP
@@ -36,7 +36,7 @@ timeIntegrationMethod=1; # 0 for constant time integration
 capMaxVelocity=0;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=5;
-use_velocityFilter=1;
+use_velocityFilter=0;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
@@ -77,7 +77,7 @@ alphaLineTension=1.0;
 # remeshFrequency = 0 redistribution is disabled (not recommended)
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
-remeshFrequency=1;
+remeshFrequency=0;
 Lmin=0.02;
 Lmax=0.08;
 nodeRemoveAngleDeg=60;

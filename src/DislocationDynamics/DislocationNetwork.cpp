@@ -31,6 +31,7 @@ namespace model
     /* init */,poly(_poly)
     /* init */,glidePlaneFactory(poly)
     /* init */,periodicGlidePlaneFactory(simulationParameters.isPeriodicSimulation()? new PeriodicGlidePlaneFactory<dim>(poly, glidePlaneFactory) : nullptr)
+    /* init */,planeNoise((TextFileParser(simulationParameters.traitsIO.noiseFile).readScalar<int>("solidSolutionNoiseMode") || TextFileParser(simulationParameters.traitsIO.noiseFile).readScalar<int>("stackingFaultNoiseMode"))? new GlidePlaneNoise(simulationParameters.traitsIO,poly) : nullptr)
     /* init */,bvpSolver(_bvpSolver)
     /* init */,externalLoadController(_externalLoadController)
     /* init */,periodicShifts(_periodicShifts)

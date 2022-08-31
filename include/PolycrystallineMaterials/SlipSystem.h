@@ -29,6 +29,11 @@ namespace model
         const LatticePlaneBase& n;
         const RationalLatticeDirection<3>  s;
         const Eigen::Matrix<double,3,1>  unitNormal;
+        const Eigen::Matrix<double,3,1>  unitSlip;
+        const Eigen::Matrix<double,3,3>  unitTensorSN;
+        const Eigen::Matrix<double,3,3>  unitTensorSNsym;
+        const Eigen::Matrix<double,3,3>  unitTensorOrthSN;
+        const Eigen::Matrix<double,3,3>  unitTensorOrthSNsym;
         const std::shared_ptr<DislocationMobilityBase> mobility;
         const std::shared_ptr<GammaSurface> gammaSurface;
         

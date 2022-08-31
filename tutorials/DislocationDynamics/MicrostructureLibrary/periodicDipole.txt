@@ -1,9 +1,9 @@
 type=PeriodicDipole;
 style=individual;
 tag=pdl0;
-periodicDipoleSlipSystemIDs=0 2 -1; # each value in the vector is the slipSystem ID os a dipole
+periodicDipoleSlipSystemIDs=0 -1 -1; # each value in the vector is the slipSystem ID os a dipole
 periodicDipoleExitFaceIDs=1 0 5; #  each value in the vector is the ID of the face from which the dipole enters/exits
-periodicDipolePoints=500 500 500
-		   500 500 500
-		   300 600 200; # each row in the matrix is a the "center" of the dipole 
-periodicDipoleHeights=400 400 300; # each value in the vector is the height of the dipole in number of slip planes
+periodicDipolePoints=50 50 500
+		   50 50 30
+		   30 60 20; # each row in the matrix is a the "center" of the dipole 
+periodicDipoleHeights=6000 40 30; # each value in the vector is the height of the dipole in number of slip planes

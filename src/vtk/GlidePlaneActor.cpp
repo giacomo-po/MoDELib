@@ -206,7 +206,7 @@ namespace model
                     noiseMappers.push_back(vtkSmartPointer<vtkDataSetMapper>::New());
                     noiseMappers.back()->SetInputData(glidePlaneNoiseGrid);
                     noiseMappers.back()->SetScalarModeToUsePointFieldData();
-                    noiseMappers.back()->SelectColorArray(1);
+                    noiseMappers.back()->SelectColorArray(glidePlanesNoiseBox->currentIndex());
                     noiseMappers.back()->SetLookupTable(glidePlaneNoiseLut);
                     noiseMappers.back()->SetScalarRange(noiseValMin, noiseValMax);
                     noiseMappers.back()->ScalarVisibilityOn();
