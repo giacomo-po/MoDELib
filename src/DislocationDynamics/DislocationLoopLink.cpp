@@ -38,35 +38,42 @@ namespace model
             return false;
         }
         
-        if (this->source->periodicPlaneEdge.first && this->sink->periodicPlaneEdge.first)
+        if (   this->source->periodicPlaneEdge.first
+            && this->sink->periodicPlaneEdge.first
+            && this->source->periodicPlanePatch()!=this->sink->periodicPlanePatch())
         {
-            // bool temp((this->source->loop()->sID==this->sink->loop()->sID));
-            // if (temp)
-            // {
-            // std::cout<<"Checking Twin"<<std::endl;
-            // std::cout<<this->source->periodicPlaneEdge->twin->tag()<<"=>= " <<this->sink->periodicPlaneEdge->tag()<<std::endl;
-            // std::cout<<this->sink->periodicPlaneEdge->twin->tag()<<"=>= " <<this->source->periodicPlaneEdge->tag()<<std::endl;
-            // std::cout<<" Case A"<<std::flush;
-            if (this->source->periodicPlaneEdge.first->twin && this->sink->periodicPlaneEdge.first->twin)
-            {
-                // std::cout<<".1"<<std::endl;
-                // temp *= ((this->source->periodicPlaneEdge->twin == this->sink->periodicPlaneEdge.get()) &&
-                //          (this->sink->periodicPlaneEdge->twin == this->source->periodicPlaneEdge.get()));
-                const bool firstEdgeMatch((this->source->periodicPlaneEdge.first->twin == this->sink->periodicPlaneEdge.first.get()) &&
-                                          (this->sink->periodicPlaneEdge.first->twin == this->source->periodicPlaneEdge.first.get()));
-                if (firstEdgeMatch && this->source->periodicPlaneEdge.second && this->sink->periodicPlaneEdge.second)
-                {
-                    if (this->source->periodicPlaneEdge.second->twin && this->sink->periodicPlaneEdge.second->twin)
-                    {
-                        const bool secondEdgeMatch((this->source->periodicPlaneEdge.second->twin == this->sink->periodicPlaneEdge.second.get()) &&
-                                                   (this->sink->periodicPlaneEdge.second->twin == this->source->periodicPlaneEdge.second.get()));
-                        assert(secondEdgeMatch && "Second edge must match provided first edge match for network link creation");
-                    }
-                }
-
-                return !firstEdgeMatch;
-            }
+            return false;
         }
+        
+//        if (this->source->periodicPlaneEdge.first && this->sink->periodicPlaneEdge.first)
+//        {
+//            // bool temp((this->source->loop()->sID==this->sink->loop()->sID));
+//            // if (temp)
+//            // {
+//            // std::cout<<"Checking Twin"<<std::endl;
+//            // std::cout<<this->source->periodicPlaneEdge->twin->tag()<<"=>= " <<this->sink->periodicPlaneEdge->tag()<<std::endl;
+//            // std::cout<<this->sink->periodicPlaneEdge->twin->tag()<<"=>= " <<this->source->periodicPlaneEdge->tag()<<std::endl;
+//            // std::cout<<" Case A"<<std::flush;
+//            if (this->source->periodicPlaneEdge.first->twin && this->sink->periodicPlaneEdge.first->twin)
+//            {
+//                // std::cout<<".1"<<std::endl;
+//                // temp *= ((this->source->periodicPlaneEdge->twin == this->sink->periodicPlaneEdge.get()) &&
+//                //          (this->sink->periodicPlaneEdge->twin == this->source->periodicPlaneEdge.get()));
+//                const bool firstEdgeMatch((this->source->periodicPlaneEdge.first->twin == this->sink->periodicPlaneEdge.first.get()) &&
+//                                          (this->sink->periodicPlaneEdge.first->twin == this->source->periodicPlaneEdge.first.get()));
+//                if (firstEdgeMatch && this->source->periodicPlaneEdge.second && this->sink->periodicPlaneEdge.second)
+//                {
+//                    if (this->source->periodicPlaneEdge.second->twin && this->sink->periodicPlaneEdge.second->twin)
+//                    {
+//                        const bool secondEdgeMatch((this->source->periodicPlaneEdge.second->twin == this->sink->periodicPlaneEdge.second.get()) &&
+//                                                   (this->sink->periodicPlaneEdge.second->twin == this->source->periodicPlaneEdge.second.get()));
+//                        assert(secondEdgeMatch && "Second edge must match provided first edge match for network link creation");
+//                    }
+//                }
+//
+//                return !firstEdgeMatch;
+//            }
+//        }
         return true;
     }
 

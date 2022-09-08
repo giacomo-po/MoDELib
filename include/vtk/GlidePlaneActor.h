@@ -60,23 +60,24 @@ namespace model
         private:
         vtkGenericOpenGLRenderWindow* const renderWindow;
         vtkRenderer* const renderer;
-
+        const Polycrystal<3>& poly;
 
         QGridLayout* mainLayout;
         QCheckBox* showGlidePlanes;
         QCheckBox* showGlidePlanesNoise;
         QComboBox* glidePlanesNoiseBox;
-        
+        QComboBox* slipSystemNoiseBox;
+
         vtkSmartPointer<vtkPolyData> glidePlanePolydata;
         vtkSmartPointer<vtkPolyDataMapper> glidePlaneMapper;
         vtkSmartPointer<vtkActor> glidePlaneActor;
         
-        std::vector<vtkSmartPointer<vtkDataSetMapper>> noiseMappers;
-        std::vector<vtkSmartPointer<vtkActor>> noiseActors;
+        std::map<size_t,std::vector<vtkSmartPointer<vtkDataSetMapper>>> noiseMappers;
+        std::map<size_t,std::vector<vtkSmartPointer<vtkActor>>> noiseActors;
 
 
         GlidePlaneFactory<3> glidePlaneFactory;
-        GlidePlaneNoise planeNoise;
+//        GlidePlaneNoise planeNoise;
         
         public:
                         

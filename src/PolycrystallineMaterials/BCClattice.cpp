@@ -95,6 +95,12 @@ namespace model
           */
             const std::shared_ptr<DislocationMobilityBase> mobility110(new DislocationMobilityBCC(material));
 
+            
+            const int solidSolutionNoiseMode(TextFileParser(polyFile).readScalar<int>("solidSolutionNoiseMode",true));
+            const int stackingFaultNoiseMode(TextFileParser(polyFile).readScalar<int>("stackingFaultNoiseMode",true));
+            std::shared_ptr<GlidePlaneNoise> planeNoise((solidSolutionNoiseMode||stackingFaultNoiseMode)? new GlidePlaneNoise(polyFile,material) : nullptr);
+
+            
             typedef Eigen::Matrix<double,dim,1> VectorDimD;
             const double d110(this->reciprocalLatticeDirection(this->C2G*(VectorDimD()<<1.0,1.0,0.0).finished()).planeSpacing());
 
@@ -105,10 +111,10 @@ namespace model
                 {// a {110} plane
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
-                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase, a3,mobility110,nullptr));
-                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),mobility110,nullptr));
+                    temp.emplace_back(new SlipSystem(*planeBase, a1,mobility110,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),mobility110,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(*planeBase, a3,mobility110,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),mobility110,nullptr,planeNoise));
                 }
             }
 

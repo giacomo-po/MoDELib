@@ -18,51 +18,49 @@
 //#include <RationalLatticeDirection.h>
 #include <DislocationMobilityBase.h>
 #include <GammaSurface.h>
+#include <GlidePlaneNoise.h>
 
 namespace model
 {
-    
-    
+
+
     struct SlipSystem : public StaticID<SlipSystem>
     {
         
+        typedef Eigen::Matrix<double,3,1> VectorDim;
+        typedef Eigen::Matrix<double,3,3> MatrixDim;
+        
         const LatticePlaneBase& n;
         const RationalLatticeDirection<3>  s;
-        const Eigen::Matrix<double,3,1>  unitNormal;
-        const Eigen::Matrix<double,3,1>  unitSlip;
-        const Eigen::Matrix<double,3,3>  unitTensorSN;
-        const Eigen::Matrix<double,3,3>  unitTensorSNsym;
-        const Eigen::Matrix<double,3,3>  unitTensorOrthSN;
-        const Eigen::Matrix<double,3,3>  unitTensorOrthSNsym;
+        const VectorDim unitNormal;
+        const VectorDim unitSlip;
+        const VectorDim unitSlipFull;
+        const MatrixDim G2Lfull;
         const std::shared_ptr<DislocationMobilityBase> mobility;
         const std::shared_ptr<GammaSurface> gammaSurface;
-        
-        
-//        SlipSystem(const LatticeVector<3>& a1,
-//                   const LatticeVector<3>& a2,
-//                   const LatticeVector<3>& slip_in,
-//                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-//                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
-//
-//        SlipSystem(const LatticeVector<3>& a1,
-//                   const LatticeVector<3>& a2,
-//                   const RationalLatticeDirection<3>& slip_in,
-//                   const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-//                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
-        
+        const std::shared_ptr<GlidePlaneNoise> planeNoise;
+                
         SlipSystem(const LatticePlaneBase& n_in,
                    const LatticeVector<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
+                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
+                   const std::shared_ptr<GlidePlaneNoise>& planeNoise_in);
         
         SlipSystem(const LatticePlaneBase& n_in,
                    const RationalLatticeDirection<3>& slip_in,
                    const std::shared_ptr<DislocationMobilityBase>& mobility_in,
-                   const std::shared_ptr<GammaSurface>& gammaSurface_in);
+                   const std::shared_ptr<GammaSurface>& gammaSurface_in,
+                   const std::shared_ptr<GlidePlaneNoise>& planeNoise_in);
         
         bool isPartial() const;
         bool isSameAs(const RationalLatticeDirection<3>& s1,const ReciprocalLatticeDirection<3>& n1);
         double misfitEnergy(const Eigen::Matrix<double,3,1>& b);
+        
+        
+        Eigen::Matrix<double,2,1> globalToLocal(const VectorDim& x) const;
+        VectorDim localToGlobal(const Eigen::Matrix<double,2,1>& x) const;
+        std::tuple<Eigen::Matrix<double,3,3>,double,double> gridInterp(const VectorDim& x, const bool Debugflag = false);
+//        std::tuple<Eigen::Matrix<double,3,3>,double,double> gridInterp(const Eigen::Matrix<double,2,1>& localPos, const bool Debugflag = false);
         
     };
 

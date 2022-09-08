@@ -504,22 +504,25 @@ namespace model
                 
                 
                 // Add noise contribution
-                if(parentSegment.network().planeNoise)
-                {
+//                if(parentSegment.network().planeNoise)
+//                {
                     if(parentSegment.slipSystem() && parentSegment.glidePlanes().size()==1)
                     {
                         const auto& glidePlane(**parentSegment.glidePlanes().begin());
                         const auto& slipSystem(*parentSegment.slipSystem());
-                        const MatrixDim ns(slipSystem.unitNormal*slipSystem.unitSlip.transpose());
-                        const MatrixDim nsOrt(slipSystem.unitNormal*slipSystem.unitNormal.cross(slipSystem.unitSlip).transpose());
-
-                        for (auto& qPoint : quadraturePoints())
+                        if(slipSystem.planeNoise)
                         {
-                            const Eigen::Array<double,3,1> noiseVal(parentSegment.network().planeNoise->gridInterp(qPoint.r, glidePlane));
-                            qPoint.stress += noiseVal(1)*slipSystem.unitTensorSNsym+noiseVal(2)*slipSystem.unitTensorOrthSNsym;
+//                            const MatrixDim ns(slipSystem.unitNormal*slipSystem.unitSlip.transpose());
+//                            const MatrixDim nsOrt(slipSystem.unitNormal*slipSystem.unitNormal.cross(slipSystem.unitSlip).transpose());
+//
+//                            for (auto& qPoint : quadraturePoints())
+//                            {
+//                                const Eigen::Array<double,3,1> noiseVal(parentSegment.network().planeNoise->gridInterp(qPoint.r, glidePlane,slipSystem));
+//                                qPoint.stress += noiseVal(1)*slipSystem.unitTensorSNsym+noiseVal(2)*slipSystem.unitTensorOrthSNsym;
+//                            }
                         }
                     }
-                }
+//                }
                 
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())

@@ -43,6 +43,7 @@ namespace model
         renderWindow->AddRenderer(renderer);
         openglWidget->setRenderWindow(renderWindow);
 
+        
         tabWidget->addTab(ddConfigVtk, tr(std::string("Config").c_str()));
         tabWidget->addTab(meshActor, tr(std::string("Mesh").c_str()));
         tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));

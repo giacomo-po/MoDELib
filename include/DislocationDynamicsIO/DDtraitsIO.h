@@ -31,7 +31,7 @@ namespace model
         const std::string materialFile;
         const std::string microstructureFile;
         const std::string meshFile;
-        const std::string noiseFile;
+//        const std::string noiseFile;
 
         /**********************************************************************/
         DDtraitsIO(const std::string& folderName) :
@@ -47,7 +47,7 @@ namespace model
         /* init */,materialFile(inputFilesFolder+"/"+TextFileParser(polyFile).readString("materialFile",false))
         /* init */,microstructureFile(inputFilesFolder+"/initialMicrostructure.txt")
         /* init */,meshFile(inputFilesFolder+"/"+TextFileParser(polyFile).readString("meshFile",false))
-        /* init */,noiseFile(inputFilesFolder+"/noise.txt")
+//        /* init */,noiseFile(inputFilesFolder+"/noise.txt")
         {
             std::cout<<"simulationFolder="<<simulationFolder<<std::endl;
             std::cout<<"inputFilesFolder="<<inputFilesFolder<<std::endl;
@@ -61,7 +61,7 @@ namespace model
             std::cout<<"materialFile="<<materialFile<<std::endl;
             std::cout<<"microstructureFile="<<microstructureFile<<std::endl;
             std::cout<<"meshFile="<<meshFile<<std::endl;
-            std::cout<<"noiseFile="<<noiseFile<<std::endl;
+//            std::cout<<"noiseFile="<<noiseFile<<std::endl;
         }
         
         

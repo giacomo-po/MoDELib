@@ -40,7 +40,7 @@ A=C2G1*A;
 g=0.0;
 
 %Fs=1000*eye(3);
-Fs=diag([100 100 10000]*0.85);
+Fs=diag([1000 1000 1000]);
 
 F12=[1 g 0;
     0 1 0;
@@ -99,7 +99,19 @@ fprintf(fID,'periodicFaceIDs=');
 fprintf(fID,'%d ',[0 1 2 3 4 5]);
 fprintf(fID,';\n ');
 
+fprintf(fID,'\n#################\n');
+fprintf(fID,'# GlidePlaneNoise\n');
+fprintf(fID,'gridSize=');
+fprintf(fID,'%d ',[256 256]);
+fprintf(fID,'; # size of grid on the glide plane\n ');
+fprintf(fID,'gridSpacing_SI=');
+fprintf(fID,'%d ',[1 1]*1e-10);
+fprintf(fID,'; # [m] spacing of grid on the glide plane\n ');
 
- 
+fprintf(fID,'solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise\n');
+fprintf(fID,'solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;\n');
+fprintf(fID,'solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;\n');
+fprintf(fID,'stackingFaultNoiseMode=0; # 0=no noise\n');
+
 
 

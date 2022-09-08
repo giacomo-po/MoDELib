@@ -3,7 +3,7 @@ gridSize=256 256 1; # size of grid on the glide plane
 gridSpacing_SI=1e-10 1e-10 1e-10; # [m] of grid on the glide plane
 
 
-solidSolutionNoiseMode=1; # 0=no noise, 1= read noise, 2=compute noise
+solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise
 solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
 solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk; 
 

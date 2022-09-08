@@ -114,6 +114,8 @@ namespace model
           * the slip systems of the Hexagonal lattice
           */
             
+            
+            
             std::vector<std::shared_ptr<SlipSystem>> temp;
             
                 FINISH THIS

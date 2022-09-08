@@ -47,7 +47,6 @@
 #include <MeshPlane.h>
 #include <Polycrystal.h>
 #include <GlidePlaneFactory.h>
-#include <GlidePlaneNoise.h>
 
 
 namespace model

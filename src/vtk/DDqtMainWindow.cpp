@@ -37,6 +37,7 @@ namespace model
         try
         {
             tabWidget->addTab(new DDqtVTKwidget(this), tr(std::string("Viewer "+std::to_string(viewerCount)).c_str()));
+            tabWidget->setTabsClosable(true);
             viewerCount++;
         }
         catch(const std::exception& e)

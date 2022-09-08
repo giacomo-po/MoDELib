@@ -22,9 +22,11 @@
 #include <boost/math/special_functions/bessel.hpp>
 #endif
 
-#include <DDtraitsIO.h>
+//#include <DDtraitsIO.h>
 #include <PolycrystallineMaterialBase.h>
 #include <TerminalColors.h>
+//#include <SlipSystem.h>
+//#include <GlidePlane.h>
 
 namespace model
 {
@@ -33,8 +35,8 @@ namespace model
     {
         typedef double REAL_SCALAR;
         typedef std::complex<double> COMPLEX;
-        typedef Eigen::Matrix<int,1,3> GridSizeType;
-        typedef Eigen::Matrix<double,1,3> GridSpacingType;
+        typedef Eigen::Array<int,2,1> GridSizeType;
+        typedef Eigen::Array<double,2,1> GridSpacingType;
     };
 
     template <int N>
@@ -123,8 +125,8 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         char line[200];
 //        double temp;
 //        int Nr_in;
-        char *dum;
-        int flag;
+//        char *dum;
+//        int flag;
         FILE *InFile=fopen(fname,"r");
         
         if (InFile == NULL)
@@ -135,12 +137,17 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         
         for(int i=0;i<5;i++)
         {
-            dum=fgets(line, 200, InFile);
+//            char *dum=
+            fgets(line, 200, InFile);
         }
-        flag=fscanf(InFile, "%s %lf %lf %lf\n", line, &(DX), &(DY), &(DZ));
+//        int flag=
+        fscanf(InFile, "%s %lf %lf %lf\n", line, &(DX), &(DY), &(DZ));
 //        dum=fgets(line, 200, InFile);
-        flag=fscanf(InFile, "%s %d %d %d\n", line, &(NX), &(NY), &(NZ));
-        return std::make_pair((GridSizeType()<<NX,NY,NZ).finished(),(GridSpacingType()<<DX,DY,DZ).finished());
+//        flag=
+        fscanf(InFile, "%s %d %d %d\n", line, &(NX), &(NY), &(NZ));
+//        return std::make_pair((GridSizeType()<<NX,NY,NZ).finished(),(GridSpacingType()<<DX,DY,DZ).finished());
+        return std::make_pair((GridSizeType()<<NX,NY).finished(),(GridSpacingType()<<DX,DY).finished());
+
     }
     
     
@@ -149,8 +156,8 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
     {
         char line[200];
         double temp;
-        char *dum;
-        int flag;
+//        char *dum;
+//        int flag;
         FILE *InFile=fopen(fname,"r");
         
         if (InFile == NULL)
@@ -161,14 +168,16 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         
         for(int i=0;i<10;i++)
         {
-            dum=fgets(line, 200, InFile);
+//            char *dum=
+            fgets(line, 200, InFile);
         }
         
         if(LittleEndian()) // if machine works with LittleEndian
         {
             for(int ind=0;ind<Nr;ind++)
             {
-                flag = fread(&temp, sizeof(double), 1, InFile);
+//                int flag =
+                fread(&temp, sizeof(double), 1, InFile);
                 Noise[ind] = REAL_SCALAR(ReverseDouble(temp));
             }
         }
@@ -176,28 +185,29 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         {
             for(int ind=0;ind<Nr;ind++)
             {
-                flag = fread(&temp, sizeof(double), 1, InFile);
+//                int flag =
+                fread(&temp, sizeof(double), 1, InFile);
                 Noise[ind] = MSS*REAL_SCALAR(temp);
             }
         }
     }
     
-    SolidSolutionNoiseReader(const DDtraitsIO& traitsIO,const PolycrystallineMaterialBase& mat,
+    SolidSolutionNoiseReader(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
                              const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A)
     {
         std::cout<<"Reading SolidSolutionNoise files"<<std::endl;
 //        NoiseContainerType Noise;
         
-        const std::string fileName_xz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("solidSolutionNoiseFile_xz",true));
+        const std::string fileName_xz(TextFileParser(noiseFile).readString("solidSolutionNoiseFile_xz",true));
         const auto gridSize_xz(Read_dimensions(fileName_xz.c_str()));
-        const std::string fileName_yz(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("solidSolutionNoiseFile_yz",true));
+        const std::string fileName_yz(TextFileParser(noiseFile).readString("solidSolutionNoiseFile_yz",true));
         const auto gridSize_yz(Read_dimensions(fileName_yz.c_str()));
-        const double MSSS_SI(TextFileParser(traitsIO.materialFile).readScalar<double>("MSSS_SI",true));
+        const double MSSS_SI(TextFileParser(mat.materialFile).readScalar<double>("MSSS_SI",true));
         const double MSS(std::sqrt(MSSS_SI)/mat.mu);
 
-        if((gridSize_xz.first-gridSize_yz.first).squaredNorm()==0 && (gridSize_xz.first-_gridSize).squaredNorm()==0)
+        if((gridSize_xz.first-gridSize_yz.first).matrix().squaredNorm()==0 && (gridSize_xz.first-_gridSize).matrix().squaredNorm()==0)
         {
-            if((gridSize_xz.second-gridSize_yz.second).squaredNorm()==0.0 && (gridSize_xz.second-_gridSpacing_A).squaredNorm()==0.0)
+            if((gridSize_xz.second-gridSize_yz.second).matrix().squaredNorm()==0.0 && (gridSize_xz.second-_gridSpacing_A).matrix().squaredNorm()==0.0)
             {
                 const size_t Nr(gridSize_xz.first.array().prod());
                 // allocate noises
@@ -265,7 +275,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
 
     public:
         
-        SolidSolutionNoise(const DDtraitsIO& traitsIO,const PolycrystallineMaterialBase& mat,
+        SolidSolutionNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
                            const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A, const int& solidSolutionNoiseMode) :
         /* init */ gridSize(_gridSize)
         /* init */,gridSpacing_A(_gridSpacing_A)
@@ -276,7 +286,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
                 case 1:
                 {// read noise
                     std::cout<<greenBoldColor<<"Reading SolidSolutionNoise"<<defaultColor<<std::endl;
-                    noiseVector()=(SolidSolutionNoiseReader(traitsIO,mat,gridSize,gridSpacing_A));
+                    noiseVector()=(SolidSolutionNoiseReader(noiseFile,mat,gridSize,gridSpacing_A));
                     break;
                 }
                     
@@ -602,7 +612,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
 
 
         
-        StackingFaultNoise(const DDtraitsIO& traitsIO,
+        StackingFaultNoise(const std::string&, // noiseFile
                            const PolycrystallineMaterialBase& mat,
                            const NoiseTraitsBase::GridSizeType& gridSize,
                            const NoiseTraitsBase::GridSpacingType& gridSpacing_SI)
@@ -611,8 +621,8 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
             std::cout<<greenBoldColor<<"Creating StackingFaultNoise"<<defaultColor<<std::endl;
             
 //            const std::string noiseFileName(traitsIO.inputFilesFolder+"/"+TextFileParser(traitsIO.noiseFile).readString("stackingFaultNoiseFile"));
-            const double isfEnergyDensityMEAN(TextFileParser(traitsIO.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
-            const double isfEnergyDensitySTD(TextFileParser(traitsIO.materialFile).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1))/(mat.mu_SI*mat.b_SI));
+            const double isfEnergyDensityMEAN(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
+            const double isfEnergyDensitySTD(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1))/(mat.mu_SI*mat.b_SI));
                         
             std::normal_distribution<double> distribution (isfEnergyDensityMEAN,isfEnergyDensitySTD);
 
@@ -661,165 +671,149 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         const std::shared_ptr<StackingFaultNoise> stackingFault;
                 
         
-        GlidePlaneNoise(const DDtraitsIO& traitsIO,const PolycrystallineMaterialBase& mat) :
-        /* init */ gridSize(TextFileParser(traitsIO.noiseFile).readMatrix<int,1,3>("gridSize",true))
-        /* init */,gridSpacing_SI(TextFileParser(traitsIO.noiseFile).readMatrix<double,1,3>("gridSpacing_SI",true))
+        GlidePlaneNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat) :
+        /* init */ gridSize(TextFileParser(noiseFile).readMatrix<int,1,2>("gridSize",true))
+        /* init */,gridSpacing_SI(TextFileParser(noiseFile).readMatrix<double,1,2>("gridSpacing_SI",true))
         /* init */,gridSpacing(gridSpacing_SI/mat.b_SI)
-        /* init */,solidSolutionNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("solidSolutionNoiseMode"))
-        /* init */,stackingFaultNoiseMode(TextFileParser(traitsIO.noiseFile).readScalar<int>("stackingFaultNoiseMode"))
-        /* init */,solidSolution(solidSolutionNoiseMode? new SolidSolutionNoise(traitsIO,mat,gridSize,gridSpacing_SI*1.0e10,solidSolutionNoiseMode) : nullptr)
-        /* init */,stackingFault(stackingFaultNoiseMode? new StackingFaultNoise(traitsIO,mat,gridSize,gridSpacing_SI) : nullptr)
+        /* init */,solidSolutionNoiseMode(TextFileParser(noiseFile).readScalar<int>("solidSolutionNoiseMode"))
+        /* init */,stackingFaultNoiseMode(TextFileParser(noiseFile).readScalar<int>("stackingFaultNoiseMode"))
+        /* init */,solidSolution(solidSolutionNoiseMode? new SolidSolutionNoise(noiseFile,mat,gridSize,gridSpacing_SI*1.0e10,solidSolutionNoiseMode) : nullptr)
+        /* init */,stackingFault(stackingFaultNoiseMode? new StackingFaultNoise(noiseFile,mat,gridSize,gridSpacing_SI) : nullptr)
         {
             
         }
-                
-        Eigen::Array<double,3,1> gridInterp(const VectorDim& x, const GlidePlane<3>& plane, const bool Debugflag = false)
+        
+        Eigen::Array<int,2,1> gridIndex(const Eigen::Matrix<double,2,1>& localPos) const
+        {
+            return (localPos.array()/gridSpacing).ceil().template cast<int>();
+        }
+        
+        Eigen::Array<int,2,1> periodicGridIndex(const Eigen::Array<int,2,1>& gi) const
+        {
+            const Eigen::Array<  double,2,1> gd(gi.template cast<double>());
+            return gi-(gd/gridSize.template cast<double>()).floor().template cast<int>()*gridSize;
+        }
+        
+        Eigen::Array<int,2,1> periodicGridIndex(const Eigen::Matrix<double,2,1>& localPos) const
+        {
+            const Eigen::Array<int,2,1> gi(gridIndex(localPos));
+            return periodicGridIndex(gi);
+        }
+        
+        int linearIndex(const int& i,const int& j) const
+        {
+            return gridSize(1)*i+j;
+        }
+        
+        Eigen::Matrix<double,2,1> gridPos(const Eigen::Array<int,2,1>& gridIdx) const
+        {
+            return (gridIdx.template cast<double>()*gridSpacing).matrix();
+        }
+        
+        std::tuple<double,double,double> gridInterp(const Eigen::Matrix<double,2,1>& localPos, const bool Debugflag)
         {   // Added by Hyunsoo (hyunsol@g.clemson.edu)
+                                    
+                /* ************ used parameters ****************
+                 <x0,y1>(w2),Ind2     <x1,y1>(w3),Ind3
+                 *------------------*
+                 |   s2   |   s3     |
+                 |        |(localPos)|
+                 |________+_________ |
+                 |        |          |
+                 |        |          |
+                 |   s0   |   s1     |
+                 *------------------*
+                 <x0,y0>(w0),Ind0     <x1,y0>(w1),Ind1
+                 ______________________________________________
+                 localPos(0), localPos(1) : gauss points (x_g, y_g)
+                 x0,x1,y0,y1 : node coordinates
+                 Ind0,Ind1,Ind2,Ind3 : local node indices
+                 s0,s1,s2,s3 : fraction of areas
+                 w0,w1,w2,w3 : weight
+                 */
+                
+                // Get the indices of the grid that contains the gauss point
+                // grid_num_x, grid_num_y always find "Ind3" indices due to the usage of "ceil" function)
+        //        const int global_num_x = ceil( localPos(0)/gridSpacing(0) ); // Mesh (grid) index, x/dx, grid_num_x is equivalent to "i" in GlidePlaneActor.cpp
+        //        const int global_num_y = ceil( localPos(1)/gridSpacing(1) ); // Mesh (grid) index, y/dx, grid_num_y is equivalent to "j" in GlidePlaneActor.cpp
+                
+        //        const int grid_num_x = global_num_x-std::floor((global_num_x*1.0) /gridSize(0)) * gridSize(0); // periodic condition (0 != 255) & (0 = 256), ex) 256 - (256.0/256 * 256) = 0
+        //        const int grid_num_y = global_num_y-std::floor((global_num_y*1.0) /gridSize(1)) * gridSize(1); // periodic condition (0 != 255) & (0 = 256)
 
-            std::set<double> xbnd; // ordered by default
-            std::set<double> ybnd;
+                const auto global_num(gridIndex(localPos));
+                const int& global_num_x(global_num(0));
+                const int& global_num_y(global_num(1));
+                const auto grid_num(periodicGridIndex(global_num));
+                const int& grid_num_x(grid_num(0));
+                const int& grid_num_y(grid_num(1));
+                
+                // if the periodic condition algorithm fails and finds the grid points outside of the plane, it stops the program
+                if (grid_num_x > gridSize(0)-1 || grid_num_y > gridSize(1)-1 || grid_num_x < 0 || grid_num_y < 0)
+                {
+                    throw std::runtime_error("grid index is out of range!");
+                }
+                // By default, the previous_x is the grid point located right before the grid point that is found.
+                const int previous_x = (grid_num_x-1) >= 0 ? grid_num_x-1 : gridSize(0) - 1; // periodic condition (0 != 255) & (-1 = 255), if previous_x = -1, then previous_x = 255
+                const int previous_y = (grid_num_y-1) >= 0 ? grid_num_y-1 : gridSize(1) - 1;
 
-            for(const auto& seg: plane.meshIntersections)
-            { 
-                const Eigen::Matrix<double,2,1> localP0(plane.localPosition(seg->P0));
-                xbnd.insert(localP0(0)); // collected all the x and y values
-                ybnd.insert(localP0(1));
-            }
-            //const Eigen::Matrix<double,2,1> gridCorner(*xbnd.begin(),*ybnd.begin());
-            const Eigen::Matrix<double,2,1> gridCorner((Eigen::Matrix<double,2,1>()<<*xbnd.begin(), *ybnd.begin()).finished());
-            // Get the gauss point (local position, 2D);
-            const Eigen::Matrix<double,2,1> localPos(plane.localPosition(x)-gridCorner);
+                
+                // Convert the local indices to global indices;
+        //        const int Ind3 = gridSize(1)*gridSize(2)*grid_num_x+gridSize(2)*grid_num_y; // (i = 0 ~ 255, gridSize = 1 ~ 256), so i = grid_num_x =
+        //        const int Ind2 = gridSize(1)*gridSize(2)*previous_x+gridSize(2)*grid_num_y;
+        //        const int Ind1 = gridSize(1)*gridSize(2)*grid_num_x+gridSize(2)*previous_y;
+        //        const int Ind0 = gridSize(1)*gridSize(2)*previous_x+gridSize(2)*previous_y;     // gridsSize(1)*gridSize(2) -> decalre variable
+                
+                const int Ind3 = linearIndex(grid_num_x,grid_num_y); // (i = 0 ~ 255, gridSize = 1 ~ 256), so i = grid_num_x =
+                const int Ind2 = linearIndex(previous_x,grid_num_y);
+                const int Ind1 = linearIndex(grid_num_x,previous_y);
+                const int Ind0 = linearIndex(previous_x,previous_y);     // gridsSize(1)*gridSize(2) -> decalre variable
 
-            // Stop the program if the gauss point is outside of the box for whatever reason
-            //assert( localPos(0) > gridSize(0)*gridSpacing(0) || localPos(1) > gridSize(1)*gridSpacing(1) );
 
-            /* ************ used parameters ****************
-              <x0,y1>(w2),Ind2     <x1,y1>(w3),Ind3
-               *------------------*
-               |   s2   |   s3     |
-               |        |(localPos)|
-               |________+_________ |
-               |        |          |      
-               |        |          |
-               |   s0   |   s1     |
-               *------------------* 
-              <x0,y0>(w0),Ind0     <x1,y0>(w1),Ind1
-             ______________________________________________
-             localPos(0), localPos(1) : gauss points (x_g, y_g)
-             x0,x1,y0,y1 : node coordinates
-             Ind0,Ind1,Ind2,Ind3 : local node indices
-             s0,s1,s2,s3 : fraction of areas
-             w0,w1,w2,w3 : weight   
-             */
-
-            // Get the indices of the grid that contains the gauss point
-            // grid_num_x, grid_num_y always find "Ind3" indices due to the usage of "ceil" function)
-            int grid_num_x = ceil( localPos(0)/gridSpacing(0) ); // Mesh (grid) index, x/dx, grid_num_x is equivalent to "i" in GlidePlaneActor.cpp
-            int grid_num_y = ceil( localPos(1)/gridSpacing(1) ); // Mesh (grid) index, y/dx, grid_num_y is equivalent to "j" in GlidePlaneActor.cpp
-
-            //auto  plane.meshIntersections ; returns a vectors of segments
-
-            grid_num_x -= std::floor((grid_num_x*1.0) /gridSize(0)) * (gridSize(0)-1); // periodic condition (0 = 255), ex) 256 - (256.0/256 * (256-1)) = 1
-            grid_num_y -= std::floor((grid_num_y*1.0) /gridSize(1)) * (gridSize(1)-1); // periodic condition (0 = 255)
-
-            int previous_x = grid_num_x-1;  // By default, the previous_x is the grid point located right next to the grid point that is found.
-            int previous_y = grid_num_y-1;
-
-            previous_x -= std::floor( (previous_x*1.0) /gridSize(0) ) * (gridSize(0)-1);
-            previous_y -= std::floor( (previous_y*1.0) /gridSize(1) )  * (gridSize(1)-1); 
-
-            //int previous_x;
-            //int previous_y;
-            //switch (grid_num_x)
-            //{
-            //    case 0: previous_x = gridSize(0)-2; // periodic condition, if the gauss point is exactly on the first grid point, find the index of the node nessary for the interpolation from the other side
-            //        break;
-            //    case 256: previous_x = 0; // periodic condition, if the gauss point is outside of the grid box, find the the index of the node nessary for the interpolation from the other side
-            //              grid_num_x = 1; // 0 = 255
-            //        break;
-            //    default: previous_x = grid_num_x-1; // By default, the previous_x is the grid point located right next to the grid point that is found.
-            //}
-
-            //switch (grid_num_y)
-            //{
-            //    case 0: previous_y = gridSize(1)-2; // periodic condition, if the grid point is at 1, find the previous y point from the other side
-            //        break;
-            //    case 256: previous_y = 0; 
-            //              grid_num_y = 1; // 0 = 255
-            //        break;
-            //    default: previous_y = grid_num_y-1; // By default, the previous_y is the grid point located right next to the grid point that is found.
-            //}
-
-            // Convert the local indices to global indices;
-            const int Ind3 = gridSize(1)*gridSize(2)*grid_num_x+gridSize(2)*grid_num_y; // (i = 0 ~ 255, gridSize = 1 ~ 256), so i = grid_num_x = 
-            const int Ind2 = gridSize(1)*gridSize(2)*previous_x+gridSize(2)*grid_num_y;
-            const int Ind1 = gridSize(1)*gridSize(2)*grid_num_x+gridSize(2)*previous_y;
-            const int Ind0 = gridSize(1)*gridSize(2)*previous_x+gridSize(2)*previous_y;     // gridsSize(1)*gridSize(2) -> decalre variable     
-
-            // calculate the cooridnates of each node that was found from the previous steps (Ind0, Ind1, Ind2, Ind3)
-            const Eigen::Array<double,2,1> x1y1( (Eigen::Array<double,2,1>()<<grid_num_x*gridSpacing(0), grid_num_y*gridSpacing(1)).finished() ); // copy the matrix
-            const Eigen::Array<double,2,1> x1y0( (Eigen::Array<double,2,1>()<<grid_num_x*gridSpacing(0), (grid_num_y-1)*gridSpacing(1)).finished() );  // since it is periodic, it will give us correct area
-            const Eigen::Array<double,2,1> x0y1( (Eigen::Array<double,2,1>()<<(grid_num_x-1)*gridSpacing(0), grid_num_y*gridSpacing(1)).finished() ); 
-            const Eigen::Array<double,2,1> x0y0( (Eigen::Array<double,2,1>()<<(grid_num_x-1)*gridSpacing(0), (grid_num_y-1)*gridSpacing(1)).finished() ); 
-
-            // calculate the fraction areas and store the area values in a vector (s0, s1, s2, s3)
-            const Eigen::Array<double,4,1> fracArea( (Eigen::Array<double,4,1>()<< 
-                                                        std::abs((localPos(0)-x0y0(0))*(localPos(1)-x0y0(1))), std::abs((localPos(0)-x1y0(0))*(localPos(1)-x1y0(1))),  // (localpos.array() - x0y0).prod()
-                                                        std::abs((localPos(0)-x0y1(0))*(localPos(1)-x0y1(1))), std::abs((localPos(0)-x1y1(0))*(localPos(1)-x1y1(1)))).finished() ); 
-
-            // get the weight; w0, w1, w2, w3
-            const double totalArea = gridSpacing(0)*gridSpacing(1);
-            const Eigen::Matrix<double,4,1> weight( (Eigen::Matrix<double,4,1>()<<fracArea(3)/totalArea, fracArea(2)/totalArea, fracArea(1)/totalArea, fracArea(0)/totalArea).finished() ); 
-            
-            double effsfNoise = 0.0;
-            // Call stacking fault noise
-            Eigen::Matrix<double,4,1> sfNoise(Eigen::Matrix<double,4,1>::Zero());
-            if(this->stackingFault)
-            {
-                sfNoise = ( (Eigen::Matrix<double,4,1>()<< this->stackingFault->operator[](Ind0), this->stackingFault->operator[](Ind1),
-                                                                                        this->stackingFault->operator[](Ind2), this->stackingFault->operator[](Ind3)).finished() ); 
-                effsfNoise = weight.dot(sfNoise);  //weight(0)*sfNoise(0) + weight(1)*sfNoise(1) + weight(2)*sfNoise(2) + weight(3)*sfNoise(3); 
-            }
-    
-            // Call solid solution noise
-            double effsolNoiseXZ = 0.0;
-            double effsolNoiseYZ = 0.0;
-            if(this->solidSolution)
-            {
-                const Eigen::Matrix<double,4,1> solNoiseXZ( (Eigen::Matrix<double,4,1>()<< this->solidSolution->operator[](Ind0)(0), this->solidSolution->operator[](Ind1)(0), 
-                                                                                           this->solidSolution->operator[](Ind2)(0), this->solidSolution->operator[](Ind3)(0)).finished() );
-                const Eigen::Matrix<double,4,1> solNoiseYZ( (Eigen::Matrix<double,4,1>()<< this->solidSolution->operator[](Ind0)(1), this->solidSolution->operator[](Ind1)(1), 
-                                                                                           this->solidSolution->operator[](Ind2)(1), this->solidSolution->operator[](Ind3)(1)).finished() );
-                effsolNoiseXZ = weight.dot(solNoiseXZ);
-                effsolNoiseYZ = weight.dot(solNoiseYZ);
-            }
-          
-            
-            // store all the calculated noises in one matrix
-            const Eigen::Array<double,3,1> effNoiseAll(  (Eigen::Array<double,3,1>()<< effsfNoise, effsolNoiseXZ, effsolNoiseYZ).finished() );
+                const Eigen::Array<double,2,1> x1y1( (Eigen::Array<double,2,1>()<<global_num_x*gridSpacing(0), global_num_y*gridSpacing(1)).finished() ); // copy the matrix
+                const Eigen::Array<double,2,1> x1y0( (Eigen::Array<double,2,1>()<<global_num_x*gridSpacing(0), (global_num_y-1)*gridSpacing(1)).finished() );  // since it is periodic, it will give us correct area
+                const Eigen::Array<double,2,1> x0y1( (Eigen::Array<double,2,1>()<<(global_num_x-1)*gridSpacing(0), global_num_y*gridSpacing(1)).finished() );
+                const Eigen::Array<double,2,1> x0y0( (Eigen::Array<double,2,1>()<<(global_num_x-1)*gridSpacing(0), (global_num_y-1)*gridSpacing(1)).finished() );
+                
+                // calculate the fraction areas and store the area values in a vector (s0, s1, s2, s3)
+                const Eigen::Array<double,4,1> fracArea( (Eigen::Array<double,4,1>()<<
+                                                          std::abs((localPos(0)-x0y0(0))*(localPos(1)-x0y0(1))), std::abs((localPos(0)-x1y0(0))*(localPos(1)-x1y0(1))),  // (localpos.array() - x0y0).prod()
+                                                          std::abs((localPos(0)-x0y1(0))*(localPos(1)-x0y1(1))), std::abs((localPos(0)-x1y1(0))*(localPos(1)-x1y1(1)))).finished() );
+                
+                // get the weight; w0, w1, w2, w3
+                const double totalArea = gridSpacing(0)*gridSpacing(1);
+                const Eigen::Matrix<double,4,1> weight( (Eigen::Matrix<double,4,1>()<<fracArea(3)/totalArea, fracArea(2)/totalArea, fracArea(1)/totalArea, fracArea(0)/totalArea).finished() );
+                
+                const Eigen::Matrix<double,4,1> sfNoise(stackingFault? (Eigen::Matrix<double,4,1>()<< stackingFault->operator[](Ind0), stackingFault->operator[](Ind1),
+                                                                                    stackingFault->operator[](Ind2), stackingFault->operator[](Ind3)).finished() : Eigen::Matrix<double,4,1>::Zero());
+                const double effsfNoise(weight.dot(sfNoise));  //weight(0)*sfNoise(0) + weight(1)*sfNoise(1) + weight(2)*sfNoise(2) + weight(3)*sfNoise(3);
+                
+                const Eigen::Matrix<double,4,1> solNoiseXZ(solidSolution? (Eigen::Matrix<double,4,1>()<< solidSolution->operator[](Ind0)(0), solidSolution->operator[](Ind1)(0),
+                                                                                       solidSolution->operator[](Ind2)(0), solidSolution->operator[](Ind3)(0)).finished() : Eigen::Matrix<double,4,1>::Zero());
+                const Eigen::Matrix<double,4,1> solNoiseYZ(solidSolution? (Eigen::Matrix<double,4,1>()<< solidSolution->operator[](Ind0)(1), solidSolution->operator[](Ind1)(1),
+                                                                                       solidSolution->operator[](Ind2)(1), solidSolution->operator[](Ind3)(1)).finished() : Eigen::Matrix<double,4,1>::Zero());
+                const double effsolNoiseXZ(weight.dot(solNoiseXZ));
+                const double effsolNoiseYZ(weight.dot(solNoiseYZ));
 
             if (Debugflag)
             {
                 std::cout << "grid_num_x = " << grid_num_x << std::endl
-                          << "grid_num_y = " << grid_num_y << std::endl
-                          << "previous_x = "  << previous_x << std::endl
-                          << "previous_y = "  << previous_y << std::endl
-                          << "Ind0 = " << Ind0 << std::endl 
-                          << "Ind1 = " << Ind1 << std::endl 
-                          << "Ind2 = " << Ind2 << std::endl
-                          << "Ind3 = " << Ind3 << std::endl
-                          << "x0y0 = " << x0y0.transpose() << std::endl 
-                          << "x1y0 = " << x1y0.transpose() << std::endl
-                          << "x0y1 = " << x0y1.transpose() << std::endl 
-                          << "x1y1 = " << x1y1.transpose() << std::endl
-                          << "fracArea = " << fracArea.transpose() << std::endl
-                          << "weight = " << weight.transpose() << std::endl 
-                          << "sfNoise = " << sfNoise.transpose() << std::endl;
+                << "grid_num_y = " << grid_num_y << std::endl
+                << "previous_x = "  << previous_x << std::endl
+                << "previous_y = "  << previous_y << std::endl
+                << "Ind0 = " << Ind0 << std::endl
+                << "Ind1 = " << Ind1 << std::endl
+                << "Ind2 = " << Ind2 << std::endl
+                << "Ind3 = " << Ind3 << std::endl
+                << "x0y0 = " << x0y0.transpose() << std::endl
+                << "x1y0 = " << x1y0.transpose() << std::endl
+                << "x0y1 = " << x0y1.transpose() << std::endl
+                << "x1y1 = " << x1y1.transpose() << std::endl
+                << "fracArea = " << fracArea.transpose() << std::endl
+                << "weight = " << weight.transpose() << std::endl;
+                //                              << "sfNoise = " << sfNoise.transpose() << std::endl;
             }
-            // return calculated noises
-            return effNoiseAll;
-
- 
+            
+                return std::make_tuple(effsolNoiseXZ,effsolNoiseYZ,effsfNoise);
         }
         
         
