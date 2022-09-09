@@ -15,6 +15,7 @@
 #include <vtkStructuredGridAppend.h>
 
 #include <GlidePlaneActor.h>
+#include <Polygon2D.h>
 
 namespace model
 {
@@ -28,10 +29,15 @@ namespace model
     /* init */,showGlidePlanesNoise(new QCheckBox(this))
     /* init */,glidePlanesNoiseBox(new QComboBox(this))
     /* init */,slipSystemNoiseBox(new QComboBox(this))
+    /* init */,ssNoiseMin(new QLineEdit("0.0"))
+    /* init */,ssNoiseMax(new QLineEdit("0.0"))
+    /* init */,sfNoiseMin(new QLineEdit("0.0"))
+    /* init */,sfNoiseMax(new QLineEdit("0.0"))
     /* init */,glidePlanePolydata(vtkSmartPointer<vtkPolyData>::New())
     /* init */,glidePlaneMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
     /* init */,glidePlaneActor(vtkSmartPointer<vtkActor>::New())
     /* init */,glidePlaneFactory(poly)
+    /* init */,noiseLimits(Eigen::Array<double,2,2>::Zero())
 //    /* init */,planeNoise(traitsIO.polyFile,poly)
     {
         
@@ -42,19 +48,10 @@ namespace model
         showGlidePlanesNoise->setChecked(false);
         showGlidePlanesNoise->setText("show GlidePlanesNoise");
         glidePlanesNoiseBox->setEnabled(false);
-//        if(planeNoise->solidSolution)
-//        {
-//            glidePlanesNoiseBox->addItem("solidSolution stress_xz");
-//            glidePlanesNoiseBox->addItem("solidSolution stress_yz");
-            glidePlanesNoiseBox->addItem("RSS");
+        slipSystemNoiseBox->setEnabled(false);
 
-//        }
-//        if(planeNoise->stackingFault)
-//        {
+            glidePlanesNoiseBox->addItem("RSS");
             glidePlanesNoiseBox->addItem("ISF energy");
-//        }
-//        if(planeNoise->solidSolution || planeNoise->stackingFault)
-//        {
             const auto& grain(poly.grains.begin()->second);
             
             int k=0;
@@ -63,19 +60,27 @@ namespace model
                 slipSystemNoiseBox->addItem(QString::fromStdString("slipSystem "+ std::to_string(k)));
                 k++;
             }
-//        }
         
         mainLayout->addWidget(showGlidePlanes,0,0,1,1);
         mainLayout->addWidget(showGlidePlanesNoise,1,0,1,1);
         mainLayout->addWidget(glidePlanesNoiseBox,1,1,1,1);
         mainLayout->addWidget(slipSystemNoiseBox,2,1,1,1);
-        
+        mainLayout->addWidget(ssNoiseMin,3,0,1,1);
+        mainLayout->addWidget(ssNoiseMax,3,1,1,1);
+        mainLayout->addWidget(sfNoiseMin,4,0,1,1);
+        mainLayout->addWidget(sfNoiseMax,4,1,1,1);
+
         
         this->setLayout(mainLayout);
         connect(showGlidePlanes,SIGNAL(stateChanged(int)), this, SLOT(modify()));
         connect(showGlidePlanesNoise,SIGNAL(stateChanged(int)), this, SLOT(modify()));
         connect(glidePlanesNoiseBox,SIGNAL(currentIndexChanged(int)), this, SLOT(modify()));
-        
+        connect(slipSystemNoiseBox,SIGNAL(currentIndexChanged(int)), this, SLOT(modify()));
+        connect(ssNoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ssNoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(sfNoiseMin,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(sfNoiseMax,SIGNAL(returnPressed()), this, SLOT(modify()));
+
         
         
         glidePlaneMapper->SetInputData(glidePlanePolydata);
@@ -111,8 +116,14 @@ namespace model
         
         
         size_t pointIDs(0);
-        double noiseValMin(std::numeric_limits<double>::max());
-        double noiseValMax(std::numeric_limits<double>::min());
+//        double noiseSSMin(std::numeric_limits<double>::max());
+//        double noiseSSMax(std::numeric_limits<double>::min());
+//        double noiseSSMin(std::numeric_limits<double>::max());
+//        double noiseSSMax(std::numeric_limits<double>::min());
+
+        noiseLimits<<std::numeric_limits<double>::max(),std::numeric_limits<double>::min(),
+        /*         */std::numeric_limits<double>::max(),std::numeric_limits<double>::min();
+        
         for(const auto& gpIO : auxIO.glidePlanes())
         {
             // Plot GlidePlaneBoundary
@@ -123,13 +134,9 @@ namespace model
                 
                 for(const auto& mshInt : glidePlane->meshIntersections)
                 {
-                    glidePlanePoints->InsertNextPoint(mshInt->P0(0),
-                                                      mshInt->P0(1),
-                                                      mshInt->P0(2));
+                    glidePlanePoints->InsertNextPoint(mshInt->P0.data());
                     
-                    glidePlanePoints->InsertNextPoint(mshInt->P1(0),
-                                                      mshInt->P1(1),
-                                                      mshInt->P1(2));
+                    glidePlanePoints->InsertNextPoint(mshInt->P1.data());
                     
                     vtkSmartPointer<vtkLine> line(vtkSmartPointer<vtkLine>::New());
                     line->GetPointIds()->SetId(0, pointIDs); // the second 0 is the index of the Origin in linesPolyData's points
@@ -147,110 +154,115 @@ namespace model
                     {
                         if(slipSystem->planeNoise->solidSolution || slipSystem->planeNoise->stackingFault)
                         {
-                            if(glidePlane->n.dot(slipSystem->s.dir)==0)
+                            if(glidePlane->n.cross(slipSystem->n).squaredNorm()==0)
                             {// glide plane includes slip system
-//                                vtkNew<vtkPoints> glidePlaneNoisePoints;
-//
-//                                vtkNew<vtkDoubleArray> glidePlaneNoisePointsValuesXZ;
-//                                vtkNew<vtkDoubleArray> glidePlaneNoisePointsValuesYZ;
-//                                if(slipSystem->planeNoise->solidSolution)
-//                                {
-//                                    glidePlaneNoisePointsValuesXZ->SetNumberOfValues(slipSystem->planeNoise->gridSize.array().prod());
-//                                    //                    glidePlaneNoisePointsValuesXZ->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
-//
-//                                    glidePlaneNoisePointsValuesYZ->SetNumberOfValues(slipSystem->planeNoise->gridSize.array().prod());
-//                                    //                    glidePlaneNoisePointsValuesYZ->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
-//                                }
-//
-                                vtkNew<vtkDoubleArray> ssNoise; // solid solution
-                                if(slipSystem->planeNoise->solidSolution)
+                                
+                                std::set<double> xPos;
+                                std::set<double> yPos;
+                                std::vector<Eigen::Array<double,2,1>> bndPoly;
+                                for(const auto& meshInt : glidePlane->meshIntersections)
                                 {
-                                    ssNoise->SetNumberOfValues(slipSystem->planeNoise->gridSize.array().prod());
-                                    ssNoise->SetName(glidePlanesNoiseBox->itemText(0).toStdString().c_str());
+                                    const auto localPos(slipSystem->globalToLocal(meshInt->P0-glidePlane->P));
+                                    bndPoly.push_back(localPos);
+                                    xPos.insert(localPos(0));
+                                    yPos.insert(localPos(1));
                                 }
+                                
+                                const Eigen::Array<double,2,1> lCorner(*xPos. begin(),*yPos. begin());
+                                const Eigen::Array<double,2,1> hCorner(*xPos.rbegin(),*yPos.rbegin());
+
+                                const Eigen::Array<int,2,1> lIdx(slipSystem->planeNoise->posToIdx(lCorner).first);
+                                const Eigen::Array<int,2,1> hIdx(slipSystem->planeNoise->posToIdx(hCorner).second);
+                                
+                                const int Nx(hIdx(0)-lIdx(0)+1);
+                                const int Ny(hIdx(1)-lIdx(1)+1);
+                                
+                                vtkNew<vtkPoints> glidePlaneNoisePoints;
+                                glidePlaneNoisePoints->SetNumberOfPoints(Nx*Ny);
+                                
+                                vtkNew<vtkDoubleArray> glidePlaneSSNoise;
+                                glidePlaneSSNoise->SetNumberOfValues(Nx*Ny);
+
+                                vtkNew<vtkDoubleArray> glidePlaneSFNoise;
+                                glidePlaneSFNoise->SetNumberOfValues(Nx*Ny);
 
                                 
-                                vtkNew<vtkDoubleArray> sfNoise; // stacking-fault noise
-                                if(slipSystem->planeNoise->stackingFault)
+                                for(int i=0;i<Nx;++i)
                                 {
-                                    sfNoise->SetNumberOfValues(slipSystem->planeNoise->gridSize.array().prod());
-                                    sfNoise->SetName(glidePlanesNoiseBox->itemText(1).toStdString().c_str());
-                                }
-//
-//
-//
-//
-//                                for (int k = 0; k < slipSystem->planeNoise->gridSize(2); k++)
-//                                {
-//                                    for (int j = 0; j < slipSystem->planeNoise->gridSize(1); j++)
-//                                    {
-//                                        for (int i = 0; i < slipSystem->planeNoise->gridSize(0); i++)
-//                                        {
-//
-//                                            const double x(i*slipSystem->planeNoise->gridSpacing(0));
-//                                            const double y(j*slipSystem->planeNoise->gridSpacing(1));
-//
-//                                            const Eigen::Matrix<double,2,1> localPos((Eigen::Matrix<double,2,1>()<<x,y).finished());
-//                                            const Eigen::Matrix<double,3,1> globalPos(slipSystem->localToGlobal(localPos)+glidePlane->P);
-//
-//                                            glidePlaneNoisePoints->InsertNextPoint(globalPos(0), globalPos(1), globalPos(2));
-//
-////                                            const auto ind = slipSystem->planeNoise->gridSize(1)*slipSystem->planeNoise->gridSize(2)*i + j*slipSystem->planeNoise->gridSize(2) + k;
-//
-//                                            const auto noiseVal(slipSystem->gridInterp(localPos));
-//                                            
-//                                            if(slipSystem->planeNoise->solidSolution)
-//                                            {
-////                                                const auto& noiseVal(slipSystem->planeNoise->solidSolution->operator[](ind));
-//                                                glidePlaneNoisePointsValuesXZ->SetValue(ind, noiseVal(0));
-//                                                glidePlaneNoisePointsValuesYZ->SetValue(ind, noiseVal(1));
-//                                                noiseValMin=std::min(noiseValMin,std::min(noiseVal(0),noiseVal(1)));
-//                                                noiseValMax=std::max(noiseValMax,std::max(noiseVal(0),noiseVal(1)));
-//                                            }
-//
-//                                            if(slipSystem->planeNoise->stackingFault)
-//                                            {
-//                                                const auto& noiseVal(slipSystem->planeNoise->stackingFault->operator[](ind));
-//                                                sfNoise->SetValue(ind, noiseVal);
-//                                                noiseValMin=std::min(noiseValMin,noiseVal);
-//                                                noiseValMax=std::max(noiseValMax,noiseVal);
-//                                            }
-//
-//
+                                    const int gridi(i+lIdx(0));
+                                    
+                                    for(int j=0;j<Ny;++j)
+                                    {
+                                        const int gridj(j+lIdx(1));
+//                                        const int storageIdx = Ny*i + j;
+                                        const int storageIdx = Nx*j + i;
+
+                                        const Eigen::Array<int,2,1> idx(gridi,gridj);
+                                        const Eigen::Array<double,2,1> localPos(slipSystem->planeNoise->idxToPos(idx));
+
+                                        const Eigen::Array<double,3,1> globalPos(slipSystem->localToGlobal(localPos.matrix())+glidePlane->P);
+                                        glidePlaneNoisePoints->SetPoint(storageIdx,globalPos.data());
+                                        
+                                        const auto noiseVal(slipSystem->gridVal(idx));
+                                        glidePlaneSSNoise->SetValue(storageIdx,std::get<1>(noiseVal));
+                                        glidePlaneSFNoise->SetValue(storageIdx,std::get<2>(noiseVal));
+                                        noiseLimits<<std::min(noiseLimits(0,0),std::get<1>(noiseVal)),std::max(noiseLimits(0,1),std::get<1>(noiseVal)),
+                                        /*         */std::min(noiseLimits(1,0),std::get<2>(noiseVal)),std::max(noiseLimits(1,1),std::get<2>(noiseVal));
+
+                                        
+//                                        if(Polygon2D::windingNumber(localPos,bndPoly)!=0)
+//                                        {// point inside
+//                                            const auto noiseVal(slipSystem->gridVal(idx));
+//                                            glidePlaneSSNoise->SetValue(storageIdx,std::get<1>(noiseVal));
+//                                            glidePlaneSFNoise->SetValue(storageIdx,std::get<2>(noiseVal));
+//                                            noiseLimits<<std::min(noiseLimits(0,0),std::get<1>(noiseVal)),std::max(noiseLimits(0,1),std::get<1>(noiseVal)),
+//                                            /*         */std::min(noiseLimits(1,0),std::get<2>(noiseVal)),std::max(noiseLimits(1,1),std::get<2>(noiseVal));
 //                                        }
-//                                    }
-//                                }
-//                                vtkNew<vtkStructuredGrid> glidePlaneNoiseGrid;
-//                                glidePlaneNoiseGrid->SetDimensions(slipSystem->planeNoise->gridSize(0),slipSystem->planeNoise->gridSize(1),slipSystem->planeNoise->gridSize(2));
-//                                glidePlaneNoiseGrid->SetPoints(glidePlaneNoisePoints);
-//                                if(slipSystem->planeNoise->solidSolution)
-//                                {
-//                                    glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesXZ);
-//                                    glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneNoisePointsValuesYZ);
-//                                }
-//                                if(slipSystem->planeNoise->stackingFault)
-//                                {
-//                                    glidePlaneNoiseGrid->GetPointData()->AddArray(sfNoise);
-//                                }
-//
-//
-//
-//
-//                                vtkNew<vtkLookupTable> glidePlaneNoiseLut;
-//                                glidePlaneNoiseLut->SetNumberOfTableValues(slipSystem->planeNoise->gridSize.array().prod());
-//                                glidePlaneNoiseLut->Build();
-//
-//                                noiseMappers.push_back(vtkSmartPointer<vtkDataSetMapper>::New());
-//                                noiseMappers.back()->SetInputData(glidePlaneNoiseGrid);
-//                                noiseMappers.back()->SetScalarModeToUsePointFieldData();
-//                                noiseMappers.back()->SelectColorArray(glidePlanesNoiseBox->currentIndex());
-//                                noiseMappers.back()->SetLookupTable(glidePlaneNoiseLut);
-//                                noiseMappers.back()->SetScalarRange(noiseValMin, noiseValMax);
-//                                noiseMappers.back()->ScalarVisibilityOn();
-//                                noiseActors.push_back(vtkSmartPointer<vtkActor>::New());
-//                                noiseActors.back()->SetMapper(noiseMappers.back());
-//                                noiseActors.back()->SetVisibility(showGlidePlanesNoise->isChecked());
-//                                renderer->AddActor( noiseActors.back());
+//                                        else
+//                                        {
+////                                            glidePlaneSSNoise->SetValue(storageIdx,1.0/0.0);
+////                                            glidePlaneSFNoise->SetValue(storageIdx,1.0/0.0);
+//                                        }
+                                        
+
+                                        
+                                        
+                                    }
+                                }
+                                
+//                                ssNoiseMin->setText(QString::fromStdString(std::to_string(noiseLimits(0,0))));
+//                                ssNoiseMax->setText(QString::fromStdString(std::to_string(noiseLimits(0,1))));
+//                                sfNoiseMin->setText(QString::fromStdString(std::to_string(noiseLimits(1,0))));
+//                                sfNoiseMax->setText(QString::fromStdString(std::to_string(noiseLimits(1,1))));
+
+                                ssNoiseMin->setText(QString::number(noiseLimits(0,0)));
+                                ssNoiseMax->setText(QString::number(noiseLimits(0,1)));
+                                sfNoiseMin->setText(QString::number(noiseLimits(1,0)));
+                                sfNoiseMax->setText(QString::number(noiseLimits(1,1)));
+
+                                
+                                vtkNew<vtkStructuredGrid> glidePlaneNoiseGrid;
+                                glidePlaneNoiseGrid->SetDimensions(Nx,Ny,1);
+                                glidePlaneNoiseGrid->SetPoints(glidePlaneNoisePoints);
+                                glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneSSNoise);
+                                glidePlaneNoiseGrid->GetPointData()->AddArray(glidePlaneSFNoise);
+
+                                vtkNew<vtkLookupTable> glidePlaneNoiseLut;
+                                glidePlaneNoiseLut->SetNumberOfTableValues(Nx*Ny);
+                                glidePlaneNoiseLut->Build();
+
+                                noiseMappers[slipSystemID].push_back(vtkSmartPointer<vtkDataSetMapper>::New());
+                                noiseMappers[slipSystemID].back()->SetInputData(glidePlaneNoiseGrid);
+                                noiseMappers[slipSystemID].back()->SetScalarModeToUsePointFieldData();
+                                noiseMappers[slipSystemID].back()->SelectColorArray(glidePlanesNoiseBox->currentIndex());
+                                noiseMappers[slipSystemID].back()->SetLookupTable(glidePlaneNoiseLut);
+                                noiseMappers[slipSystemID].back()->SetScalarRange(noiseLimits(glidePlanesNoiseBox->currentIndex(),0), noiseLimits(glidePlanesNoiseBox->currentIndex(),1));
+                                noiseMappers[slipSystemID].back()->ScalarVisibilityOn();
+                                noiseActors[slipSystemID].push_back(vtkSmartPointer<vtkActor>::New());
+                                noiseActors[slipSystemID].back()->SetMapper(noiseMappers[slipSystemID].back());
+                                noiseActors[slipSystemID].back()->SetVisibility(showGlidePlanesNoise->isChecked() && slipSystemNoiseBox->currentIndex()==slipSystemID);
+                                renderer->AddActor( noiseActors[slipSystemID].back());
+
                             }
                         }
                     }
@@ -272,19 +284,40 @@ namespace model
     {
         glidePlaneActor->SetVisibility(showGlidePlanes->isChecked());
         
-        const size_t slipSystemID(slipSystemNoiseBox->currentIndex());
         glidePlanesNoiseBox->setEnabled(showGlidePlanesNoise->isChecked());
-        for(const auto& mapper : noiseMappers[slipSystemID])
+        slipSystemNoiseBox->setEnabled(showGlidePlanesNoise->isChecked());
+
+        // Select solidSolution or stacking-fault noise
+        for(const auto& mapperPair : noiseMappers)
         {
-            mapper->SelectColorArray(glidePlanesNoiseBox->currentIndex());
+            for(const auto& mapper : mapperPair.second)
+            {
+                mapper->SelectColorArray(glidePlanesNoiseBox->currentIndex());
+                
+                switch (glidePlanesNoiseBox->currentIndex())
+                {
+                    case 0:
+                        mapper->SetScalarRange(ssNoiseMin->text().toDouble(), ssNoiseMax->text().toDouble());
+                        break;
+                        
+                    case 1:
+                        mapper->SetScalarRange(sfNoiseMin->text().toDouble(), sfNoiseMax->text().toDouble());
+                        break;
+                        
+                    default:
+                        break;
+                }
+                
+
+            }
         }
         
-        
+        const size_t slipSystemID(slipSystemNoiseBox->currentIndex());
         for(const auto& actorPair : noiseActors)
         {
             for(const auto& actor : actorPair.second)
             {
-                actor->SetVisibility(showGlidePlanesNoise->isChecked());
+                actor->SetVisibility(actorPair.first==slipSystemID && showGlidePlanesNoise->isChecked());
             }
         }
         

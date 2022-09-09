@@ -67,6 +67,12 @@ namespace model
         QCheckBox* showGlidePlanesNoise;
         QComboBox* glidePlanesNoiseBox;
         QComboBox* slipSystemNoiseBox;
+        
+        QLineEdit* ssNoiseMin;
+        QLineEdit* ssNoiseMax;
+        QLineEdit* sfNoiseMin;
+        QLineEdit* sfNoiseMax;
+
 
         vtkSmartPointer<vtkPolyData> glidePlanePolydata;
         vtkSmartPointer<vtkPolyDataMapper> glidePlaneMapper;
@@ -79,6 +85,9 @@ namespace model
         GlidePlaneFactory<3> glidePlaneFactory;
 //        GlidePlaneNoise planeNoise;
         
+        Eigen::Array<double,2,2> noiseLimits;
+//        Eigen::Array<double,2,1> sfNoiseLimits;
+
         public:
                         
         GlidePlaneActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const Polycrystal<3>& poly,const DDtraitsIO& traitsIO);

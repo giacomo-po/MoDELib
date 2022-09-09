@@ -503,26 +503,19 @@ namespace model
                 computeMatrixStackingFaultForces(parentSegment);
                 
                 
-                // Add noise contribution
-//                if(parentSegment.network().planeNoise)
-//                {
                     if(parentSegment.slipSystem() && parentSegment.glidePlanes().size()==1)
                     {
                         const auto& glidePlane(**parentSegment.glidePlanes().begin());
                         const auto& slipSystem(*parentSegment.slipSystem());
                         if(slipSystem.planeNoise)
                         {
-//                            const MatrixDim ns(slipSystem.unitNormal*slipSystem.unitSlip.transpose());
-//                            const MatrixDim nsOrt(slipSystem.unitNormal*slipSystem.unitNormal.cross(slipSystem.unitSlip).transpose());
-//
-//                            for (auto& qPoint : quadraturePoints())
-//                            {
-//                                const Eigen::Array<double,3,1> noiseVal(parentSegment.network().planeNoise->gridInterp(qPoint.r, glidePlane,slipSystem));
-//                                qPoint.stress += noiseVal(1)*slipSystem.unitTensorSNsym+noiseVal(2)*slipSystem.unitTensorOrthSNsym;
-//                            }
+                            for (auto& qPoint : quadraturePoints())
+                            {
+                                const auto noiseVal(slipSystem.gridInterp(qPoint.r-glidePlane.P));
+                                qPoint.stress += std::get<0>(noiseVal);
+                            }
                         }
                     }
-//                }
                 
                 // Add other stress contributions, and compute PK force
                 for (auto& qPoint : quadraturePoints())

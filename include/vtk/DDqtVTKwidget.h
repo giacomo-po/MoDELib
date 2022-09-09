@@ -11,6 +11,7 @@
 
 #include <QGridLayout>
 
+
 #include <QVTKOpenGLStereoWidget.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderer.h>

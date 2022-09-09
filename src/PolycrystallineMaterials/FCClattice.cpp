@@ -133,12 +133,26 @@ namespace model
                     std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*planeBase,waveVectors,f,rotSymm,mirSymm));
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+
+                    const auto b1(a1);
+                    const auto b2(a3-a1);
+                    const auto b3(a3*(-1));
+
+
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+
+                    
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
+//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                 }
             }
         }
@@ -151,12 +165,25 @@ namespace model
                 {// a {111} plane
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
-                    temp.emplace_back(new SlipSystem(*planeBase, a1,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase, a3,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a1-a3,fccMobility,nullptr,planeNoise));
-                    temp.emplace_back(new SlipSystem(*planeBase,a3-a1,fccMobility,nullptr,planeNoise));
+                    
+                    const auto b1(a1);
+                    const auto b2(a3-a1);
+                    const auto b3(a3*(-1));
+
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), b1,fccMobility,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2),b1*(-1),fccMobility,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), b2,fccMobility,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3),b2*(-1),fccMobility,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3,fccMobility,nullptr,planeNoise));
+                    temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3*(-1),fccMobility,nullptr,planeNoise));
+
+                    
+//                    temp.emplace_back(new SlipSystem(*planeBase, a1,fccMobility,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),fccMobility,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase, a3,fccMobility,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),fccMobility,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a1-a3,fccMobility,nullptr,planeNoise));
+//                    temp.emplace_back(new SlipSystem(*planeBase,a3-a1,fccMobility,nullptr,planeNoise));
                 }
             }
         }
