@@ -210,6 +210,7 @@ namespace model
                                         /*         */std::min(noiseLimits(1,0),std::get<2>(noiseVal)),std::max(noiseLimits(1,1),std::get<2>(noiseVal));
 
                                         
+                                        
 //                                        if(Polygon2D::windingNumber(localPos,bndPoly)!=0)
 //                                        {// point inside
 //                                            const auto noiseVal(slipSystem->gridVal(idx));

@@ -182,7 +182,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
             {
 //                int flag =
                 fread(&temp, sizeof(double), 1, InFile);
-                Noise[ind] = REAL_SCALAR(ReverseDouble(temp));
+                Noise[ind] = MSS*REAL_SCALAR(ReverseDouble(temp));
             }
         }
         else // if machine works with BigEndian
@@ -209,7 +209,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         const std::string fileName_yz(std::filesystem::path(noiseFile).parent_path().string()+"/"+TextFileParser(noiseFile).readString("solidSolutionNoiseFile_yz",true));
         const auto gridSize_yz(Read_dimensions(fileName_yz.c_str()));
         const double MSSS_SI(TextFileParser(mat.materialFile).readScalar<double>("MSSS_SI",true));
-        const double MSS(std::sqrt(MSSS_SI)/mat.mu);
+        const double MSS(std::sqrt(MSSS_SI)/mat.mu_SI);
 
         if((gridSize_xz.first-gridSize_yz.first).matrix().squaredNorm()==0 && (gridSize_xz.first-_gridSize).matrix().squaredNorm()==0)
         {
