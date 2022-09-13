@@ -128,10 +128,10 @@ namespace model
 
         }
         
-        if(this->glidePlanes().size()>=dim)
-        {
-            velocity.setZero();
-        }
+//        if(this->glidePlanes().size()>=dim)
+//        {
+//            velocity.setZero(); NO! Not valid for bcc
+//        }
         
         if(velocity.squaredNorm()>FLT_EPSILON)
         {
