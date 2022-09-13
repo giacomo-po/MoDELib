@@ -72,10 +72,13 @@ namespace model
         vtkSmartPointer<vtkContextActor> chartActor;
 //        vtkPlot* points;
         vtkSmartPointer<vtkTable> table;
+        vtkSmartPointer<vtkTable> currentTable;
         vtkSmartPointer<vtkNamedColors> colors;
 
         ChartActor(const DDtraitsIO& traitsIO,vtkSmartPointer<vtkGenericOpenGLRenderWindow>,vtkRenderer* const renderer_in);
         
+        void updateConfiguration(const size_t& frameID);
+
         
     };
     

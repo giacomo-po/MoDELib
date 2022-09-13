@@ -39,6 +39,7 @@ namespace model
         /* init */,chartActor(vtkSmartPointer<vtkContextActor>::New())
 //        /* init */,points(chart->AddPlot(vtkChart::LINE))
         /* init */,table(vtkSmartPointer<vtkTable>::New())
+        /* init */,currentTable(vtkSmartPointer<vtkTable>::New())
         /* init */,colors(vtkSmartPointer<vtkNamedColors>::New())
         {
 
@@ -125,60 +126,52 @@ namespace model
             renderer->AddActor(chartActor);
             chartScene->SetRenderer(renderer);
             
-            // Create a table with some points in it.
-//            vtkNew<vtkNamedColors> colors;
 
-
-//            vtkNew<vtkFloatArray> arrX;
-//            arrX->SetName("X Axis");
-//            table->AddColumn(arrX);
-//
-//              vtkNew<vtkFloatArray> arrC;
-//              arrC->SetName("Cosine");
-//              table->AddColumn(arrC);
-//
-//              vtkNew<vtkFloatArray> arrS;
-//              arrS->SetName("Sine");
-//              table->AddColumn(arrS);
-//
-//              vtkNew<vtkFloatArray> arrT;
-//              arrT->SetName("Tan");
-//              table->AddColumn(arrT);
-//
-//              // Test charting with a few more points...
-//              int numPoints = 69;
-//              float inc = 7.5 / (numPoints - 1.0);
-//              table->SetNumberOfRows(numPoints);
-//              for (int i = 0; i < numPoints; ++i)
-//              {
-//                table->SetValue(i, 0, i * inc);
-//                table->SetValue(i, 1, cos(i * inc) + 0.0);
-//                table->SetValue(i, 2, sin(i * inc) + 0.0);
-//                table->SetValue(i, 3, tan(i * inc) + 0.5);
-//              }
 
               // Add multiple line plots, setting the colors etc
             if(table->GetNumberOfRows()>0 && table->GetNumberOfColumns()>0)
             {
                 vtkPlot* points = chart->AddPlot(vtkChart::LINE);
                 points->SetInputData(table, 0, 0);
-              vtkColor3d color3d = colors->GetColor3d("black");
+                vtkColor3d color3d = colors->GetColor3d("black");
                 points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
                 points->SetWidth(1.0);
             }
-//              dynamic_cast<vtkPlotPoints*>(points)->SetMarkerStyle(vtkPlotPoints::CROSS);
-//              points = chart->AddPlot(vtkChart::POINTS);
-//              points->SetInputData(table, 0, 2);
-//              points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-//              points->SetWidth(1.0);
-//              dynamic_cast<vtkPlotPoints*>(points)->SetMarkerStyle(vtkPlotPoints::PLUS);
-//              points = chart->AddPlot(vtkChart::POINTS);
-//              points->SetInputData(table, 0, 3);
-//              points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-//              points->SetWidth(1.0);
             
         }
         
+    void ChartActor::updateConfiguration(const size_t& frameID)
+    {
+//        vtkNew<vtkTable> currentTable;
+//        std::cout<<"table->GetNumberOfRows()="<<table->GetNumberOfRows()<<std::endl;
+//        std::cout<<"currentTable->GetNumberOfRows()="<<currentTable->GetNumberOfRows()<<std::endl;
+
+        currentTable->Initialize();
+        
+//        std::cout<<"table->GetNumberOfRows()="<<table->GetNumberOfRows()<<std::endl;
+//        std::cout<<"currentTable->GetNumberOfRows()="<<currentTable->GetNumberOfRows()<<std::endl;
+
+        
+        for(size_t k=0;k<table->GetNumberOfColumns();++k)
+        {
+            vtkNew<vtkFloatArray> farr;
+            farr->SetName(table->GetColumnName(k));
+            currentTable->AddColumn(farr);
+        }
+        
+        for(size_t k=0;k<table->GetNumberOfRows();++k)
+        {
+            if(table->GetValue(k,0)<=frameID)
+            {
+                const auto row=currentTable->InsertNextBlankRow(table->GetNumberOfColumns());
+                for(int col=0;col<table->GetNumberOfColumns();++col)
+                {
+                    currentTable->SetValue(row, col, table->GetValue(row,col));
+                }
+            }
+        }
+        currentTable->Modified();
+    }
 
         
  
@@ -203,18 +196,33 @@ namespace model
 
             if(xComboBox->count() && yComboBox->count())
             {
-                if(table->GetNumberOfRows()>xComboBox->currentIndex() && table->GetNumberOfColumns()>yComboBox->currentIndex())
+                if(   table->GetNumberOfColumns()>xComboBox->currentIndex()
+                   && table->GetNumberOfColumns()>yComboBox->currentIndex()
+//                   && table->GetNumberOfRows()>2
+                   )
                 {
                     vtkPlot* points = chart->AddPlot(vtkChart::LINE);
                     points->SetInputData(table, xComboBox->currentIndex(), yComboBox->currentIndex());
-                                        
-                    vtkColor3d color3d = colors->GetColor3d("magenta");
-                    points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-                    points->SetWidth(3.0);
-                    chart->RecalculateBounds();
-                    chart->Modified();
-
+                    vtkColor3d color3d1 = colors->GetColor3d("black");
+                    points->SetColor(color3d1.GetRed(), color3d1.GetGreen(), color3d1.GetBlue());
+                    points->SetWidth(2.0);
                 }
+                
+                if(   currentTable->GetNumberOfColumns()>xComboBox->currentIndex()
+                   && currentTable->GetNumberOfColumns()>yComboBox->currentIndex()
+//                   && currentTable->GetNumberOfRows()>2
+                   )
+                {
+                    vtkPlot* currentPoints = chart->AddPlot(vtkChart::LINE);
+                    currentPoints->SetInputData(currentTable, xComboBox->currentIndex(), yComboBox->currentIndex());
+                    vtkColor3d color3d2 = colors->GetColor3d("magenta");
+                    currentPoints->SetColor(color3d2.GetRed(), color3d2.GetGreen(), color3d2.GetBlue());
+                    currentPoints->SetWidth(3.0);
+                }
+                
+                chart->RecalculateBounds();
+                chart->Modified();
+
             }
             
             chartActor->SetVisibility(showChart->isChecked());

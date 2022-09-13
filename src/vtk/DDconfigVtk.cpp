@@ -30,6 +30,7 @@ namespace model
         /* init */,inclusions(new InclusionActor(renWin,ren))
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
+        /* init */,chartActor(new ChartActor(traitsIO,renderWindow,ren))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -44,6 +45,7 @@ namespace model
             tabWidget->addTab(inclusions, tr(std::string("Inclusions").c_str()));
             tabWidget->addTab(glidePlanes, tr(std::string("GlidePlanes").c_str()));
             tabWidget->addTab(quadrature, tr(std::string("Quadrature").c_str()));
+            tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));
 
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);
@@ -135,6 +137,7 @@ namespace model
                 inclusions->updateConfiguration(*this);
                 glidePlanes->updateConfiguration(*this);
                 quadrature->updateConfiguration(*this);
+                chartActor->updateConfiguration(frameID);
                 return true;
             }
             catch(const std::exception& e)

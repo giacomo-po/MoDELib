@@ -31,6 +31,7 @@
 #include <InclusionActor.h>
 #include <GlidePlaneActor.h>
 #include <QuadratureActor.h>
+#include <ChartActor.h>
 
 
 //#include <DislocationLoopActor.h>
@@ -51,6 +52,8 @@ namespace model
         InclusionActor* inclusions;
         GlidePlaneActor* glidePlanes;
         QuadratureActor* quadrature;
+        ChartActor* chartActor;
+
 //        DislocationLoopActor loops;
         private slots:
         bool updateConfiguration();

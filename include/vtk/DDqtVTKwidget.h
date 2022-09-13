@@ -20,7 +20,7 @@
 #include <SimplicialMesh.h>
 #include <Polycrystal.h>
 
-#include <ChartActor.h>
+//#include <ChartActor.h>
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
 #include <DDtraitsIO.h>
@@ -63,7 +63,7 @@ public:
     PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
-    ChartActor* chartActor;
+//    ChartActor* chartActor;
     
     
     DDqtVTKwidget(QWidget *parent);
