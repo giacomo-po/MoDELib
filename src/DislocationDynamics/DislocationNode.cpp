@@ -14,7 +14,7 @@
 #define model_DislocationNode_cpp_
 
 #include <DislocationNode.h>
-
+#include <PlanesIntersection.h>
 
 namespace model
 {
@@ -444,6 +444,7 @@ namespace model
     {
         return isOnExternalBoundary() || isOnInternalBoundary();
     }
+
     template <int dim, short unsigned int corder>
     typename DislocationNode<dim,corder>::VectorDim DislocationNode<dim,corder>::bndNormal() const
     {
@@ -465,63 +466,102 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
-    typename DislocationNode<dim, corder>::VectorDim DislocationNode<dim, corder>::snapToGlidePlanesinPeriodic(const VectorDim &P)
+    typename DislocationNode<dim, corder>::VectorDim DislocationNode<dim, corder>::snapToGlidePlanesinPeriodic(const VectorDim &x) const
     {
         GlidePlaneContainerType gps(glidePlanes());
-        switch (gps.size())
+        if(gps.size())
         {
-        case 0:
-        {
-            assert(sessileLoops().size()==this->loops().size() && "All loops must be sessile");
-            return P;
-            break;
-        }
-        case 1:
-        {
-            return (*gps.begin())->snapToPlane(P);
-            break;
-        }
-        case 2:
-        {
-            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
-            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-            return ppi.P + (P - ppi.P).dot(ppi.d) * ppi.d;
-            break;
-        }
-        case 3:
-        {
-            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
-            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-            const auto iterP(++gps.begin());
-            const PlaneLineIntersection<dim> pli((*iterP)->P, (*iterP)->unitNormal, ppi.P, ppi.d);
-            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
-            return pli.P;
-            break;
-        }
-        default:
-        {
-            const auto iterPlane1(gps.begin());
-            const auto iterPlane2(++gps.begin());
-            auto iterPlane3(++(++gps.begin()));
+            Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> N(Eigen::Matrix<double,dim,Eigen::Dynamic>::Zero(dim,gps.size()));
+            Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> P(Eigen::Matrix<double,dim,Eigen::Dynamic>::Zero(dim,gps.size()));
 
-            const PlanePlaneIntersection<dim> ppi(**iterPlane1, **iterPlane2);
-            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
-            const PlaneLineIntersection<dim> pli((*iterPlane3)->P, (*iterPlane3)->unitNormal, ppi.P, ppi.d);
-            const VectorDim snappedPos(pli.P);
-            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
-            
-            while (++iterPlane3 != gps.end())
+            int k=0;
+            for(const auto& plane : gps)
             {
-                if (!(*iterPlane3)->contains(snappedPos))
-                {
-                    std::cout << " Glide Plane " << (*iterPlane3)->P.transpose() << " " << (*iterPlane3)->unitNormal.transpose() << std::endl;
-                    assert(false && "Plane must contain the position for glide plane size >=3");
-                }
+                N.col(k)=plane->unitNormal;
+                P.col(k)=plane->P;
+                ++k;
             }
-            return snappedPos;
-            break;
+
+            PlanesIntersection<dim> pInt(N,P);
+            const std::pair<bool,VectorDim> snapped(pInt.snap(x));
+            if(snapped.first)
+            {
+                return snapped.second;
+            }
+            else
+            {
+                throw std::runtime_error("Cannot snap, glidePlanes dont intersect.");
+                return snapped.second;
+            }
         }
+        else
+        {
+            if(sessileLoops().size()==this->loops().size())
+            {
+                return x;
+            }
+            else
+            {
+                throw std::runtime_error("All loops must be sessile if there are no glide planes.");
+                return x;
+            }
         }
+        
+//
+//        switch (gps.size())
+//        {
+//        case 0:
+//        {
+//            assert(sessileLoops().size()==this->loops().size() && "All loops must be sessile");
+//            return P;
+//            break;
+//        }
+//        case 1:
+//        {
+//            return (*gps.begin())->snapToPlane(P);
+//            break;
+//        }
+//        case 2:
+//        {
+//            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
+//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+//            return ppi.P + (P - ppi.P).dot(ppi.d) * ppi.d;
+//            break;
+//        }
+//        case 3:
+//        {
+//            const PlanePlaneIntersection<dim> ppi(**gps.begin(), **gps.rbegin());
+//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+//            const auto iterP(++gps.begin());
+//            const PlaneLineIntersection<dim> pli((*iterP)->P, (*iterP)->unitNormal, ppi.P, ppi.d);
+//            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+//            return pli.P;
+//            break;
+//        }
+//        default:
+//        {
+//            const auto iterPlane1(gps.begin());
+//            const auto iterPlane2(++gps.begin());
+//            auto iterPlane3(++(++gps.begin()));
+//
+//            const PlanePlaneIntersection<dim> ppi(**iterPlane1, **iterPlane2);
+//            assert(ppi.type == PlanePlaneIntersection<dim>::INCIDENT && "Intersection must be incident");
+//            const PlaneLineIntersection<dim> pli((*iterPlane3)->P, (*iterPlane3)->unitNormal, ppi.P, ppi.d);
+//            const VectorDim snappedPos(pli.P);
+//            assert(pli.type == PlaneLineIntersection<dim>::INCIDENT && "Plane line intersection must be incident");
+//
+//            while (++iterPlane3 != gps.end())
+//            {
+//                if (!(*iterPlane3)->contains(snappedPos))
+//                {
+//                    std::cout << " Glide Plane " << (*iterPlane3)->P.transpose() << " " << (*iterPlane3)->unitNormal.transpose() << std::endl;
+//                    assert(false && "Plane must contain the position for glide plane size >=3");
+//                }
+//            }
+//            return snappedPos;
+//            break;
+//        }
+//        }
     }
 
     template <int dim, short unsigned int corder>

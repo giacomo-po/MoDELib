@@ -27,7 +27,7 @@ surfaceNucleationModel=0;
 periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 
 ######################################
-quadPerLength=1;
+quadPerLength=0.1;
 
 ######################################
 # TIME STEP
@@ -35,7 +35,7 @@ quadPerLength=1;
 timeIntegrationMethod=1; # 0 for constant time integration 
 capMaxVelocity=0;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
-dxMax=0.1;
+dxMax=10;
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;

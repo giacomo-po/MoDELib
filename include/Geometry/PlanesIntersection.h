@@ -9,9 +9,12 @@
 #ifndef model_PlanesIntersection_H_
 #define model_PlanesIntersection_H_
 
-//#include <Eigen/LU>
+#include <cfloat>
+#include <vector>
+#include <Eigen/Dense>
 #include <Eigen/SVD>
-#include <Plane.h>
+
+//#include <Plane.h>
 
 namespace model
 {
@@ -20,45 +23,67 @@ namespace model
     struct PlanesIntersection
     {
         
-        typedef Plane<dim>::VectorDim VectorDim;
-        typedef Eigen::JacobiSVD<MatrixXd, ComputeThinU | ComputeThinV> SVDsolverType;
-//        typedef Eigen::BDCSVD   <MatrixXd, ComputeThinU | ComputeThinV> SVDsolverType;
+        typedef Eigen::Matrix<double,Eigen::Dynamic,Eigen::Dynamic> MatrixDimDynamic;
+        typedef Eigen::Matrix<double,dim,1> VectorDim;
+        typedef Eigen::JacobiSVD<MatrixDimDynamic> SVDsolverType;
 
-        
-        
-        static Eigen::MatrixXd getN(const std:vector<const Plane<dim>* const>& planes)
-        {
-            Eigen::MatrixXd N(Eigen::MatrixXd::Zero(dim,planes.size()));
-            for(int c=0;c<planes.size();++c)
-            {
-                N.col(c)=planes[c].unitNormal;
-            }
-            return N;
-        }
-        
-        const Eigen::MatrixXd N;
+        const std::pair<MatrixDimDynamic,MatrixDimDynamic> NP;
         const SVDsolverType svd;
-
-//        const size_t rank; // note: rank(N)=rank(N^T*N)
         
-        PlanesIntersection(const std:vector<const Plane<dim>* const>& planes, const double& tol=FLT_EPSILON) :
-        /* init */ N(getN(planes))
-        /* init */ svd(N)
-//        /* init */ rank(N.fullPivLu().setThreshold(tol).rank())
-        {
-            
+        
+        PlanesIntersection(const MatrixDimDynamic& N, const MatrixDimDynamic& P, const double& tol=FLT_EPSILON) :
+        /* init */ NP(std::make_pair(N,P))
+        /* init */,svd(SVDsolverType().setThreshold(tol).compute(NP.first,Eigen::ComputeThinU | Eigen::ComputeThinV))
+        {// Ax=b
+
         }
         
-        VectorDim snap(const VectorDim& x) const
-        {
-            const size_t N(planes.size());
-            Eigen::MatrixXd A(Eigen::MatrixXd::Identity(N,N));
-            for(size_t i=0;i<N;++i)
+        std::pair<bool,VectorDim> snap(const VectorDim& x) const
+        {/*!\param [in] x point to be snapped to the intersection between the planes
+          * \returns a pair where pair.first is true if snapping was successful, and pair.second is the position of the snapped point
+          *
+          * The snapped point y minimizes the distance from x constrained to y belonging to the planes.
+          * Using lgrange multipliers, the solution is y=x-N*lam, where lam is a vector of Lagrance multipliers
+          * solving N^T*N *lam = b, and b_k = n_k*(x-P_k), where n_k and P_k are the normal and origin of the k0th plane.
+          * We solve this using svd, hence we get the "best solution", which may not actually satisfy the contraints if the planes are not intersecting.
+          * Hence we check that the solution actually belongs to the intersectoin between the planes before returning it.
+          */
+
+            Eigen::Matrix<double,Eigen::Dynamic,1> b(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(NP.first.cols(),1));
+            Eigen::Matrix<double,Eigen::Dynamic,1> b1(Eigen::Matrix<double,Eigen::Dynamic,1>::Zero(NP.first.cols(),1));
+            for(int k=0;k<NP.first.cols();++k)
             {
-                for(size_t j=i+1;j<N;++j)
+                b(k)=NP.first.col(k).dot(x-NP.second.col(k));
+                b1(k)=NP.first.col(k).dot(NP.second.col(k));
+            }
+            
+            const int r(svd.rank());
+            const Eigen::MatrixXd Vr(svd.matrixV().block(0,0,NP.first.cols(),r));
+            const Eigen::VectorXd Sinv2(svd.singularValues().segment(0,r).array().pow(-2).matrix());
+            const Eigen::VectorXd lam(Vr*Sinv2.asDiagonal()*Vr.transpose()*b);
+            const VectorDim y(x-NP.first*lam);
+                        
+            const double b1norm2(b1.squaredNorm());
+            if(b1norm2>svd.threshold())
+            {
+                if((NP.first.transpose()*y-b1).squaredNorm()/b1norm2<svd.threshold())
+                {// y belongs to planes
+                    return std::make_pair(true,y);
+                }
+                else
                 {
-                    A(i,j)=planes[i].unitNormaldot(planes[j]);
-                    A(j,i)=A(i,j);
+                    return std::make_pair(false,y);
+                }
+            }
+            else
+            {
+                if((NP.first.transpose()*y-b1).squaredNorm()<svd.threshold())
+                {// y belongs to planes
+                    return std::make_pair(true,y);
+                }
+                else
+                {
+                    return std::make_pair(false,y);
                 }
             }
         }

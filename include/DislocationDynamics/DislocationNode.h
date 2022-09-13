@@ -107,7 +107,7 @@ namespace model
        
        
          /**********************************************************************/
-        VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P);
+        VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P) const;
         
         /**********************************************************************/
         GrainContainerType grains() const;
