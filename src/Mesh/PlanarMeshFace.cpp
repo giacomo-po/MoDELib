@@ -74,7 +74,10 @@ namespace model
         
         for(const auto& simplex : *this)
         {// Make sure all simplices belong to face
-            assert(fabs((c-simplex->center()).dot(n))<FLT_EPSILON);
+            if(fabs((c-simplex->center()).dot(n))>FLT_EPSILON)
+            {
+                throw std::runtime_error("simplex does not belong to PlanarMeshFace.");
+            }
         }
         
         // Compute ConvexHull of vertices

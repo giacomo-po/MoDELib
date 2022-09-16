@@ -18,6 +18,7 @@
 #include <QLabel>
 #include <QWidget>
 #include <QComboBox>
+#include <QPushButton>
 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <vtkRenderer.h>
@@ -53,12 +54,16 @@ namespace model
     private slots:
         
         void modify();
+        void reload();
+        void updatePlots();
 
         
     public:
         
+        const DDtraitsIO& traitsIO;
         QGridLayout* mainLayout;
         QCheckBox* showChart;
+        QPushButton* chartUpdate;
         QComboBox* xComboBox;
         QComboBox* yComboBox;
         QCheckBox* xAxisLog;
@@ -74,8 +79,11 @@ namespace model
         vtkSmartPointer<vtkTable> table;
         vtkSmartPointer<vtkTable> currentTable;
         vtkSmartPointer<vtkNamedColors> colors;
+        
+        vtkPlot* points;
+        vtkPlot* currentPoints;
 
-        ChartActor(const DDtraitsIO& traitsIO,vtkSmartPointer<vtkGenericOpenGLRenderWindow>,vtkRenderer* const renderer_in);
+        ChartActor(const DDtraitsIO& traitsIO_in,vtkSmartPointer<vtkGenericOpenGLRenderWindow>,vtkRenderer* const renderer_in);
         
         void updateConfiguration(const size_t& frameID);
 

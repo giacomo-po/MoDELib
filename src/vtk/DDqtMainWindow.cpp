@@ -28,6 +28,10 @@ namespace model
         QMenu* viewertMenu=menuBar()->addMenu(tr("&Viewer"));
         viewertMenu->addAction(newViewerAction);
         connect(newViewerAction, &QAction::triggered, this, &DDqtMainWindow::newViewerTab);
+//        connect(tabWidget->tabBar(), &QTabBar::tabCloseRequested, tabWidget->tabBar(), &QTabBar::removeTab);
+
+        tabWidget->setTabsClosable(true);
+
         
         setCentralWidget(tabWidget);
     }
@@ -37,7 +41,6 @@ namespace model
         try
         {
             tabWidget->addTab(new DDqtVTKwidget(this), tr(std::string("Viewer "+std::to_string(viewerCount)).c_str()));
-            tabWidget->setTabsClosable(true);
             viewerCount++;
         }
         catch(const std::exception& e)

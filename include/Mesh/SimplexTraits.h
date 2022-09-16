@@ -9,6 +9,7 @@
 #ifndef  model_SimplexTraits_H_
 #define  model_SimplexTraits_H_
 
+#include <iostream>
 #include <memory> // shared_ptr
 #include <array> // std::array
 #include <set>
@@ -33,12 +34,24 @@ namespace model
         
         SimplexID(const std::set<size_t>& set)
         {
-            assert(set.size()==nVertices);
-            int k(0);
-            for (const size_t& m : set)
+            if(set.size()==nVertices)
             {
-                this->operator[](k)=m;
-                ++k;
+                int k(0);
+                for (const size_t& m : set)
+                {
+                    this->operator[](k)=m;
+                    ++k;
+                }
+            }
+            else
+            {
+                std::cout<<"set= ";
+                for (const size_t& m : set)
+                {
+                    std::cout<<m<<" ";
+                }
+                std::cout<<std::endl;
+                throw std::runtime_error("Cannot create SimplexID from this set.");
             }
         }
         
@@ -93,8 +106,10 @@ namespace model
             std::set<size_t> set;
             for (int k=0;k<nVertices;++k)
             {
-                const bool couldInsert(set.insert(vIN(k)).second);
-                assert(couldInsert && "VERTEX IDs ARE NOT UNIQUE.");
+                set.insert(vIN(k));
+//
+//                const bool couldInsert(set.insert(vIN(k)).second);
+//                assert(couldInsert && "VERTEX IDs ARE NOT UNIQUE.");
             }
             return SimplexIDType(set);
         }

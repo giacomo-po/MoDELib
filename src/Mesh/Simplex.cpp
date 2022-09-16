@@ -504,6 +504,11 @@ namespace model
 //    template class Simplex<2,1>;
 //    template class Simplex<2,2>;
     
+//    template struct BarycentricTraits<1>;
+//    template struct BarycentricTraits<2>;
+//    template struct BarycentricTraits<3>;
+
+
     template class Simplex<3,0>;
     template class Simplex<3,1>;
     template class Simplex<3,2>;

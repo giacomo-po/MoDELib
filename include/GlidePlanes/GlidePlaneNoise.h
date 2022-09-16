@@ -12,7 +12,6 @@
 
 #include <cmath>
 #include <random>
-
 #include <Eigen/Dense>
 
 
@@ -22,13 +21,8 @@
 #include <boost/math/special_functions/bessel.hpp>
 #endif
 
-//#include <DDtraitsIO.h>
 #include <PolycrystallineMaterialBase.h>
-#include <TerminalColors.h>
 #include <UniformPeriodicGrid.h>
-#include <filesystem>
-//#include <SlipSystem.h>
-//#include <GlidePlane.h>
 
 namespace model
 {
@@ -75,183 +69,20 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
     
     
     
-    static int LittleEndian()
-    {
-        int num = 1;
-        if(*(char *)&num == 1)
-        {
-            return 1;       //little endian
-        }
-        else
-        {
-            return 0;       // big endian
-        }
-    }
+    static int LittleEndian();
     
-    static float ReverseFloat( const float inFloat )
-    {
-        float retVal;
-        char *FloatToConvert = ( char* ) & inFloat;
-        char *returnFloat = ( char* ) & retVal;
-        
-        // swap the bytes into a temporary buffer
-        returnFloat[0] = FloatToConvert[3];
-        returnFloat[1] = FloatToConvert[2];
-        returnFloat[2] = FloatToConvert[1];
-        returnFloat[3] = FloatToConvert[0];
-        
-        return retVal;
-    }
+    static float ReverseFloat( const float inFloat );
     
-    static double ReverseDouble( const double inDouble )
-    {
-        double retVal;
-        char *DoubleToConvert = ( char* ) & inDouble;
-        char *returnDouble = ( char* ) & retVal;
-        
-        // swap the bytes into a temporary buffer
-        returnDouble[0] = DoubleToConvert[7];
-        returnDouble[1] = DoubleToConvert[6];
-        returnDouble[2] = DoubleToConvert[5];
-        returnDouble[3] = DoubleToConvert[4];
-        returnDouble[4] = DoubleToConvert[3];
-        returnDouble[5] = DoubleToConvert[2];
-        returnDouble[6] = DoubleToConvert[1];
-        returnDouble[7] = DoubleToConvert[0];
-        
-        return retVal;
-    }
+    static double ReverseDouble( const double inDouble );
     
-    static std::pair<GridSizeType,GridSpacingType> Read_dimensions(const char *fname)
-    {
-        int NX, NY, NZ;
-        double DX, DY, DZ;
-        char line[200];
-//        double temp;
-//        int Nr_in;
-//        char *dum;
-//        int flag;
-        FILE *InFile=fopen(fname,"r");
-        
-        if (InFile == NULL)
-        {
-            fprintf(stderr, "Can't open noise file %s\n",fname);
-            exit(1);
-        }
-        
-        for(int i=0;i<5;i++)
-        {
-//            char *dum=
-            fgets(line, 200, InFile);
-        }
-//        int flag=
-        fscanf(InFile, "%s %lf %lf %lf\n", line, &(DX), &(DY), &(DZ));
-//        dum=fgets(line, 200, InFile);
-//        flag=
-        fscanf(InFile, "%s %d %d %d\n", line, &(NX), &(NY), &(NZ));
-//        return std::make_pair((GridSizeType()<<NX,NY,NZ).finished(),(GridSpacingType()<<DX,DY,DZ).finished());
-        return std::make_pair((GridSizeType()<<NX,NY).finished(),(GridSpacingType()<<DX,DY).finished());
-
-    }
+    static std::pair<GridSizeType,GridSpacingType> Read_dimensions(const char *fname);
     
     
     
-    static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr,const double& MSS)
-    {
-        char line[200];
-        double temp;
-//        char *dum;
-//        int flag;
-        FILE *InFile=fopen(fname,"r");
-        
-        if (InFile == NULL)
-        {
-            fprintf(stderr, "Can't open noise file %s\n",fname);
-            exit(1);
-        }
-        
-        for(int i=0;i<10;i++)
-        {
-//            char *dum=
-            fgets(line, 200, InFile);
-        }
-        
-        if(LittleEndian()) // if machine works with LittleEndian
-        {
-            for(int ind=0;ind<Nr;ind++)
-            {
-//                int flag =
-                fread(&temp, sizeof(double), 1, InFile);
-                Noise[ind] = MSS*REAL_SCALAR(ReverseDouble(temp));
-            }
-        }
-        else // if machine works with BigEndian
-        {
-            for(int ind=0;ind<Nr;ind++)
-            {
-//                int flag =
-                fread(&temp, sizeof(double), 1, InFile);
-                Noise[ind] = MSS*REAL_SCALAR(temp);
-            }
-        }
-    }
+    static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr,const double& MSS);
     
     SolidSolutionNoiseReader(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
-                             const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A)
-    {
-        std::cout<<"Reading SolidSolutionNoise files"<<std::endl;
-//        NoiseContainerType Noise;
-        
-        
-        
-        const std::string fileName_xz(std::filesystem::path(noiseFile).parent_path().string()+"/"+TextFileParser(noiseFile).readString("solidSolutionNoiseFile_xz",true));
-        const auto gridSize_xz(Read_dimensions(fileName_xz.c_str()));
-        const std::string fileName_yz(std::filesystem::path(noiseFile).parent_path().string()+"/"+TextFileParser(noiseFile).readString("solidSolutionNoiseFile_yz",true));
-        const auto gridSize_yz(Read_dimensions(fileName_yz.c_str()));
-        const double MSSS_SI(TextFileParser(mat.materialFile).readScalar<double>("MSSS_SI",true));
-        const double MSS(std::sqrt(MSSS_SI)/mat.mu_SI);
-
-        if((gridSize_xz.first-gridSize_yz.first).matrix().squaredNorm()==0 && (gridSize_xz.first-_gridSize).matrix().squaredNorm()==0)
-        {
-            if((gridSize_xz.second-gridSize_yz.second).matrix().squaredNorm()==0.0 && (gridSize_xz.second-_gridSpacing_A).matrix().squaredNorm()==0.0)
-            {
-                const size_t Nr(gridSize_xz.first.array().prod());
-                // allocate noises
-                REAL_SCALAR *Noise_xz = (REAL_SCALAR *) malloc(sizeof(REAL_SCALAR)*Nr);
-                // read noise vtk file
-                Read_noise_vtk(fileName_xz.c_str(), Noise_xz, Nr,MSS);
-                
-                // allocate noises
-                REAL_SCALAR *Noise_yz = (REAL_SCALAR *) malloc(sizeof(REAL_SCALAR)*Nr);
-                // read noise vtk file
-                Read_noise_vtk(fileName_yz.c_str(), Noise_yz, Nr,MSS);
-                
-                this->resize(Nr);
-                for(size_t k=0;k<Nr;++k)
-                {
-                    this->operator[](k)<<Noise_xz[k],Noise_yz[k];
-                }
-            }
-            else
-            {
-                std::cout<<"gridSpacing in "<<fileName_xz<<std::endl;
-                std::cout<<gridSize_xz.second<<std::endl;
-                std::cout<<"gridSpacing in "<<fileName_yz<<std::endl;
-                std::cout<<gridSize_yz.second<<std::endl;
-                std::cout<<"input gridSpacing_A = "<<_gridSpacing_A<<std::endl;
-                throw std::runtime_error("gridSpacing mismatch.");
-            }
-        }
-        else
-        {
-            std::cout<<"gridSize in "<<fileName_xz<<std::endl;
-            std::cout<<gridSize_xz.first<<std::endl;
-            std::cout<<"gridSize in "<<fileName_yz<<std::endl;
-            std::cout<<gridSize_yz.first<<std::endl;
-            std::cout<<"input gridSize = "<<_gridSize<<std::endl;
-            throw std::runtime_error("gridSize mismatch.");
-        }
-    }
+                             const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A);
     
     
 };
@@ -266,15 +97,9 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         typedef typename NoiseTraits<2>::NoiseContainerType NoiseContainerType;
         
         
-        const NoiseContainerType& noiseVector() const
-        {
-            return *this;
-        }
+        const NoiseContainerType& noiseVector() const;
         
-        NoiseContainerType& noiseVector()
-        {
-            return *this;
-        }
+        NoiseContainerType& noiseVector();
         
         const GridSizeType gridSize;
         const GridSpacingType gridSpacing_A;
@@ -282,50 +107,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
     public:
         
         SolidSolutionNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
-                           const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A, const int& solidSolutionNoiseMode) :
-        /* init */ gridSize(_gridSize)
-        /* init */,gridSpacing_A(_gridSpacing_A)
-        {
-            
-            switch (solidSolutionNoiseMode)
-            {
-                case 1:
-                {// read noise
-                    std::cout<<greenBoldColor<<"Reading SolidSolutionNoise"<<defaultColor<<std::endl;
-                    noiseVector()=(SolidSolutionNoiseReader(noiseFile,mat,gridSize,gridSpacing_A));
-                    break;
-                }
-                    
-                case 2:
-                {// compute noise
-                    std::cout<<greenBoldColor<<"Computing SolidSolutionNoise"<<defaultColor<<std::endl;
-                    break;
-                }
-                    
-                default:
-                    break;
-            }
-            
-            
-            NoiseType ave(NoiseType::Zero());
-            for(const auto& valArr: noiseVector())
-            {
-                ave+=valArr;
-            }
-            ave/=noiseVector().size();
-            
-            NoiseType var(NoiseType::Zero());
-            for(const auto& valArr: noiseVector())
-            {
-                var+= ((valArr-ave).array()*(valArr-ave).array()).matrix();
-            }
-            var/=noiseVector().size();
-            
-            std::cout<<"gridSize= "<<gridSize<<std::endl;
-            std::cout<<"gridSpacing_A= "<<gridSpacing_A<<std::endl;
-            std::cout<<"noiseAverage="<<ave<<std::endl;
-            std::cout<<"noiseVariance="<<var<<std::endl;
-        }
+                           const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A, const int& solidSolutionNoiseMode);
         
     };
 
@@ -620,44 +402,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         StackingFaultNoise(const std::string&, // noiseFile
                            const PolycrystallineMaterialBase& mat,
                            const NoiseTraitsBase::GridSizeType& gridSize,
-                           const NoiseTraitsBase::GridSpacingType& gridSpacing_SI)
-        {
-            
-            std::cout<<greenBoldColor<<"Creating StackingFaultNoise"<<defaultColor<<std::endl;
-            
-            const double isfEnergyDensityMEAN(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
-            const double isfEnergyDensitySTD(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1))/(mat.mu_SI*mat.b_SI));
-                        
-            std::normal_distribution<double> distribution (isfEnergyDensityMEAN,isfEnergyDensitySTD);
-
-            const size_t N(gridSize.array().prod());
-            this->reserve(N);
-            for(size_t k=0;k<N;++k)
-            {// J/m^2 = N/m = Pa*m
-                this->push_back(distribution(generator)-isfEnergyDensityMEAN);
-//                this->push_back(distribution(generator));
-            }
-            
-            NoiseType ave(0.0);
-            for(const auto& valArr: *this)
-            {
-                ave+=valArr;
-            }
-            ave/=this->size();
-            
-            NoiseType var(0.0);
-            for(const auto& valArr: *this)
-            {
-                var+= (valArr-ave)*(valArr-ave);
-            }
-            var/=this->size();
-            
-            std::cout<<"gridSize= "<<gridSize<<std::endl;
-            std::cout<<"gridSpacing_SI= "<<gridSpacing_SI<<std::endl;
-            std::cout<<"noiseAverage="<<ave<<std::endl;
-            std::cout<<"noiseVariance="<<var<<std::endl;
-            
-        }
+                           const NoiseTraitsBase::GridSpacingType& gridSpacing_SI);
         
     };
 
@@ -675,65 +420,13 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         const std::shared_ptr<StackingFaultNoise> stackingFault;
                 
         
-        GlidePlaneNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat) :
-        /* init */ UniformPeriodicGrid<2>(TextFileParser(noiseFile).readMatrix<int,1,2>("gridSize",true),TextFileParser(noiseFile).readMatrix<double,1,2>("gridSpacing_SI",true)/mat.b_SI)
-        /* init */,solidSolutionNoiseMode(TextFileParser(noiseFile).readScalar<int>("solidSolutionNoiseMode"))
-        /* init */,stackingFaultNoiseMode(TextFileParser(noiseFile).readScalar<int>("stackingFaultNoiseMode"))
-        /* init */,solidSolution(solidSolutionNoiseMode? new SolidSolutionNoise(noiseFile,mat,gridSize,this->gridSpacing*mat.b_SI*1.0e10,solidSolutionNoiseMode) : nullptr)
-        /* init */,stackingFault(stackingFaultNoiseMode? new StackingFaultNoise(noiseFile,mat,gridSize,this->gridSpacing*mat.b_SI) : nullptr)
-        {
-            
-        }
+        GlidePlaneNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat);
         
-        int storageIndex(const int& i,const int& j) const
-        {/*!\param[in] localPos the  position vector on the grid
-          * \returns The grid index periodically wrapped within the gridSize bounds
-          */
-            return this->gridSize(1)*i+j;
-        }
+        int storageIndex(const int& i,const int& j) const;
                 
-        std::tuple<double,double,double> gridInterp(const Eigen::Matrix<double,2,1>& localPos) const
-        {   // Added by Hyunsoo (hyunsol@g.clemson.edu)
-                                    
-            const auto idxAndWeights(this->posToPeriodicCornerIdxAndWeights(localPos));
-            double effsolNoiseXZ(0.0);
-            double effsolNoiseYZ(0.0);
-            double effsfNoise(0.0);
-            for(size_t p=0;p<idxAndWeights.first.size();++p)
-            {
-                const int storageID(storageIndex(idxAndWeights.first[p](0),idxAndWeights.first[p](1)));
-                if(solidSolution)
-                {
-                    effsolNoiseXZ+=solidSolution->operator[](storageID)(0)*idxAndWeights.second[p];
-                    effsolNoiseYZ+=solidSolution->operator[](storageID)(1)*idxAndWeights.second[p];
-                }
-                if(stackingFault)
-                {
-                    effsfNoise+=stackingFault->operator[](storageID)*idxAndWeights.second[p];
-                }
-            }
-
-                return std::make_tuple(effsolNoiseXZ,effsolNoiseYZ,effsfNoise);
-        }
+        std::tuple<double,double,double> gridInterp(const Eigen::Matrix<double,2,1>& localPos) const;
         
-        std::tuple<double,double,double> gridVal(const Eigen::Array<int,2,1>& idx) const
-        {   // Added by Hyunsoo (hyunsol@g.clemson.edu)
-            const Eigen::Array<int,2,1> pidx(this->idxToPeriodicIdx(idx));
-            const int storageID(storageIndex(pidx(0),pidx(1)));
-            double effsolNoiseXZ(0.0);
-            double effsolNoiseYZ(0.0);
-            double effsfNoise(0.0);
-            if(solidSolution)
-            {
-                effsolNoiseXZ=solidSolution->operator[](storageID)(0);
-                effsolNoiseYZ=solidSolution->operator[](storageID)(1);
-            }
-            if(stackingFault)
-            {
-                effsfNoise=stackingFault->operator[](storageID);
-            }
-            return std::make_tuple(effsolNoiseXZ,effsolNoiseYZ,effsfNoise);
-        }
+        std::tuple<double,double,double> gridVal(const Eigen::Array<int,2,1>& idx) const;
         
         
     };

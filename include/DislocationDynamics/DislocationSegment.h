@@ -35,7 +35,6 @@ namespace model
     template <int dim, short unsigned int corder>
     class DislocationSegment : public NetworkLink<DislocationSegment<dim,corder>>
     /*                      */,public SplineSegment<dim,corder>
-    // /*                      */,public ConfinedDislocationObject<dim>
     /*                      */,public DislocationQuadraturePointContainer<dim,corder>
     {
         
@@ -112,59 +111,16 @@ namespace model
         void addToGlobalAssembly(std::deque<Eigen::Triplet<double> >& kqqT,Eigen::VectorXd& FQ) const;
         void updateQuadraturePointsSeg();
         int velocityGroup(const double &maxVelocity, const std::set<int> &subcyclingBins) const;
-        /**********************************************************************/
         GlidePlaneContainerType glidePlanes() const;
-        /**********************************************************************/
         PlanarMeshFaceContainerType meshFaces() const;
-        /**********************************************************************/
         bool isOnExternalBoundary() const;
-        
-
-        /**********************************************************************/
         bool isOnInternalBoundary() const;
-        
-
-        // /**********************************************************************/
         bool isOnBoundary() const;
-        
-
-        /**********************************************************************/
         VectorDim bndNormal() const;
-        /**********************************************************************/
         GrainContainerType grains() const;
-        /**********************************************************************/
         std::vector<std::pair<const GlidePlane<dim> *const, const GlidePlane<dim> *const>> parallelAndCoincidentGlidePlanes(const GlidePlaneContainerType &other) const;
-        
-        /**********************************************************************/
-        VectorDim snapToGlidePlanes(const VectorDim &P);
+        VectorDim snapToGlidePlanes(const VectorDim &P) const;
         
     };
-//    {
-//        typedef typename TypeTraits<DislocationSegment<dim,corder>>::NodeType NodeType;
-//        typedef PlanarDislocationSegment<DislocationSegment<dim,corder>> PlanarDislocationSegmentType;
-//        static constexpr int Ncoeff=PlanarDislocationSegmentType::Ncoeff;
-//        static constexpr int pOrder=PlanarDislocationSegmentType::pOrder;
-//        typedef typename PlanarDislocationSegmentType::VectorDim VectorDim;
-//        typedef typename PlanarDislocationSegmentType::MatrixDim MatrixDim;
-//        typedef DislocationParticle<dim> DislocationParticleType;
-//
-//#ifdef _MODEL_GREATWHITE_
-//#include <DislocationSegmentGreatWhite.h>
-//#endif
-//
-//        /**********************************************************************/
-//        DislocationSegment(const std::shared_ptr<NodeType>& nI,
-//                           const std::shared_ptr<NodeType>& nJ) :
-//        /* init */ PlanarDislocationSegmentType(nI,nJ)
-//        {
-//
-//        }
-//
-//        /**********************************************************************/
-//        const MatrixDim& midPointStress() const __attribute__ ((deprecated))
-//        {/*!\returns The stress matrix for the centre point over this segment.*/
-//            return this->quadraturePoints().size()? quadraturePoint(this->quadraturePoints().size()/2).stress : MatrixDim::Zero();
-//        }
-//    };
 }
 #endif
