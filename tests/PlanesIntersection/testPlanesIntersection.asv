@@ -4,18 +4,37 @@ clear all
 addpath('../../matlab')
 
 dim=3;
-numPlanes=2;
+numPlanes=3;
+tol=1e-7;
 forceDegenerate=0;
 
 N=rand(dim,numPlanes);
 P=rand(dim,numPlanes);
+
+N=[ 5.773502691896257e-01 -5.773502691896257e-01  5.773502691896257e-01
+ 5.773502691896257e-01  5.773502691896257e-01 -5.773502691896257e-01
+-5.773502691896257e-01  5.773502691896257e-01  5.773502691896257e-01];
+
+P=[ 2.045895620233077e+02 -3.323401871576773e+02  3.379970414071697e+02
+ 2.045895620233077e+02  3.323401871576773e+02 -3.379970414071697e+02
+-2.045895620233077e+02  3.323401871576773e+02  3.379970414071697e+02];
+
+%N(1:3,1:3)=[1 cos(120*pi/180)  cos(240*pi/180)
+%   0 sin(120*pi/180) sin(240*pi/180)
+%   0 0 0];
+
+%P(1:3,1:3)=0;
+%return
+
+%P=[zeros(size(N)) rand(3,1)];
 
 if forceDegenerate
 N(:,end)=N(:,1);
 P(:,end)=P(:,1);
 end
 
-x=rand(dim,1);
+%x=rand(dim,1);
+x=[8.138799051457162e+02 8.053946237714779e+02 1.005505842847271e+03]';
 
 inputFileName=[pwd '/build/inputFile.txt'];
 outputFileName=[pwd '/build/outputFile.txt'];
@@ -32,7 +51,7 @@ fclose(fID)
 system(['build/test ' inputFileName ' ' outputFileName])
 outData=load(outputFileName)
 success=outData(1);
-snappedPoint=outData(1);
+snappedPoint=outData(2:end);
 
 
 %return
@@ -44,39 +63,30 @@ theta=[0:100]/100*2*pi;
 figure(1)
 hold on
 for k=1:numPlanes
-    plotCircle3(P(:,k),N(:,k),10,theta);
+    plotCircle3(P(:,k),N(:,k),1000,theta,tol);
 end
 
+
 %% Sep up solution in MATLAB FOR COMPARISON
-%A=N'*N;
 b=zeros(numPlanes,1);
 for k=1:numPlanes
 b(k)=dot(N(:,k),(x-P(:,k)));
 end
 
-%[U,S,V] = reducedSVD(A,1e-7);
-[U,S,V] = reducedSVD(N,1e-7);
-
-
-%lam=V*diag(1./diag(S))*U'*b;
+[U,S,V] = reducedSVD(N,tol);
 lam=V*diag(1./diag(S).^2)*V'*b;
-
-
 x1=x-N*lam;
-% for k=1:numPlanes 
-%     x1=x1-lam(k)*N(:,k);
-% end
 
-plot3(x1(1),x1(2),x1(3),'og')
-plot3(x(1),x(2),x(3),'sm')
-plot3(data(1),x(2),x(3),'sm')
+plot3(x(1),x(2),x(3),'sm') % point to snap
+plot3(x1(1),x1(2),x1(3),'og') % point snapped (MATLAB)
+plot3(snappedPoint(1),snappedPoint(2),snappedPoint(3),'xk') % point snapped (c++)
 
 
-for k=1:numPlanes 
-    plot3([x(1) x1(1)],[x(2) x1(2)],[x(3) x1(3)])
-end
+% %for k=1:numPlanes 
+% %    plot3([x(1) x1(1)],[x(2) x1(2)],[x(3) x1(3)])
+% %end
 
-axis image
+axis equal
 
 function printMatrix(fID,name,m)
 fprintf(fID,[name '=']);
@@ -98,17 +108,17 @@ Sr=S([1:r],[1:r]);
 Vr=V(:,[1:r]);
 end
 
-function plotCircle3(P,n,r,theta)
+function plotCircle3(P,n,r,theta,tol)
 n=n/norm(n);
 b=cross(n,rand(size(n)));
 
-while norm(b) < 1e-7
+while norm(b) < tol
 b=cross(n,rand(size(n)));
 end
 b=b/norm(b);
 x=zeros(size(P,1),length(theta));
 for(t=1:length(theta))
-    x(:,t)=P+angleAxis(n,theta(t))*b;
+    x(:,t)=P+angleAxis(n,theta(t))*b*r;
 end
     plot3(x(1,:),x(2,:),x(3,:))
 end

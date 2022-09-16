@@ -4,8 +4,8 @@ close all
 
 format long
 
-alignToSlipSystem0=0;
-lattice='fcc';
+alignToSlipSystem0=1;
+lattice='bcc';
 
 if(alignToSlipSystem0)
 switch lattice
@@ -20,8 +20,8 @@ switch lattice
 end
         s=s/norm(s);
         n=n/norm(n);
-        %C2G1=[s;cross(n,s);n]
-        C2G1=[s;n;cross(s,n)]
+        C2G1=[s;cross(n,s);n]
+                C2G1=[s;cross(n,s);n]
 
     else
     C2G1=eye(3)

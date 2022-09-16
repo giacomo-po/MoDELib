@@ -38,11 +38,12 @@ namespace model
        template <int dim, short unsigned int corder>
     void DislocationSegment<dim, corder>::updateSlipSystem()
     {
-        if (this->grains().size() == 0)
-        {
-             _slipSystem=nullptr;
-        }
-        else if (this->grains().size() == 1)
+//        if (this->grains().size() == 0)
+//        {
+//             _slipSystem=nullptr;
+//        }
+        const auto grs(this->grains());
+        if (grs.size() == 1)
         {
             std::set<std::shared_ptr<SlipSystem>> ssSet;
 
@@ -53,26 +54,78 @@ namespace model
                     ssSet.insert(loopLink->loop->slipSystem());
                 }
             }
+            
+            switch (ssSet.size())
+            {
+                case 0:
+                {
+                    _slipSystem = nullptr;
+                    break;
+                }
+                    
+                case 1:
+                {
+                    _slipSystem = *ssSet.begin();
+                    break;
+                }
+                    
+                default:
+                {
+                    _slipSystem = nullptr;
 
-            if (ssSet.size() == 1)
-            { // a unique slip system found. TO DO. This fails for planar glissile junctions, since the two loop links have different slip systems but the resultant is glissile on a third slip system.
-                _slipSystem = *ssSet.begin();
+                    const auto gps(glidePlanes());
+                    if(gps.size()==1)
+                    {//Possible planar glissile junction, we'll pick the first slip system that has the same burgers
+                        for(const auto& gpss : (*gps.begin())->slipSystems())
+                        {
+                            if((gpss->s.cartesian()-burgers()).norm()<FLT_EPSILON)
+                            {
+                                _slipSystem=gpss;
+                                break;
+                            }
+                        }
+                    }
+                    break;
+                }
             }
-            else
-            { // ssSet.size()==0
-                _slipSystem = nullptr;
-            }
+
+//            if (ssSet.size() == 1)
+//            { // a unique slip system found.
+//                _slipSystem = *ssSet.begin();
+//            }
+//            else
+//            { // ssSet.size()==0.
+//                _slipSystem = nullptr;
+//
+//                const auto gps(glidePlanes());
+//                if(gps.size()==1)
+//                {//Planar glissile junction, we'll pick the first slip system that has the same flow
+//                    for(const auto& gpss : (*gps.begin())->slipSystems())
+//                    {
+//
+//                    }
+//                }
+//                else
+//                {
+//                    _slipSystem = nullptr;
+//                }
+//            }
         }
         else
         {
-            assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
+//            assert(false && "FINISH THIS FOR MULTIPLE GRAINS");
             _slipSystem = nullptr;
         }
-
+        
+        VerboseDislocationSegment(3, "_slipSystem.s= " << _slipSystem->s.cartesian().transpose() << std::endl;);
         if (_slipSystem)
         {
-            VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->s.cartesian().transpose() << std::endl;);
-            VerboseDislocationSegment(3, "_slipSystem= " << _slipSystem->unitNormal.transpose() << std::endl;);
+
+            VerboseDislocationSegment(3, "_slipSystem.s= " << _slipSystem->s.cartesian().transpose() << std::endl;);
+            VerboseDislocationSegment(3, "_slipSystem.n= " << _slipSystem->unitNormal.transpose() << std::endl;);
+        }
+        else
+        {
         }
     }
 
@@ -562,7 +615,7 @@ namespace model
                 ++k;
             }
 
-            PlanesIntersection<dim> pInt(N,P);
+            PlanesIntersection<dim> pInt(N,P,FLT_EPSILON);
             const std::pair<bool,VectorDim> snapped(pInt.snap(x));
             if(snapped.first)
             {

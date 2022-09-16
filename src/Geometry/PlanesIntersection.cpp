@@ -9,6 +9,7 @@
 #ifndef model_PlanesIntersection_cpp_
 #define model_PlanesIntersection_cpp_
 
+#include <iostream>
 #include <PlanesIntersection.h>
 
 //#include <Plane.h>
@@ -23,7 +24,6 @@ namespace model
         /* init */ NP(std::make_pair(N,P))
         /* init */,svd(SVDsolverType().setThreshold(tol).compute(NP.first,Eigen::ComputeThinU | Eigen::ComputeThinV))
         {// Ax=b
-
         }
         
         template<int dim>

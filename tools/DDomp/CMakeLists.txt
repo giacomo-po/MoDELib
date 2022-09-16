@@ -6,7 +6,7 @@ option(BUILD_AS_LIB "ON to build as a static library" OFF)
 set(EigenRootDir "/usr/local/include")
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 message("CMAKE_SYSTEM_NAME IS: ${CMAKE_SYSTEM_NAME}")

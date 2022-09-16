@@ -63,7 +63,7 @@ namespace model
         }
         
         const int grainID(found.second->region->regionID);
-        assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
+        assert(mg.poly.grains.size()==1 && "Periodic dislocations only supported for single crystals");
         const auto& grain(mg.poly.grain(grainID));
         
         if(rSS>=0 && rSS<int(grain.singleCrystal->slipSystems().size()))

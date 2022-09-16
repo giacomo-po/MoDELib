@@ -219,8 +219,9 @@ namespace model
     template <int dim, short unsigned int corder>
     bool DislocationNode<dim,corder>::trySet_P(const typename DislocationNode<dim,corder>::VectorDim& newP)
     {
-        VerboseDislocationNode(1, " Try  Setting P for Network Node " << this->tag() << std::endl;);
+        VerboseDislocationNode(1, " Try  Setting P for Network Node " << this->tag()<<" to"<<newP.transpose()<< std::endl;);
         const VectorDim snappedPosition(this->snapToGlidePlanesinPeriodic(newP));
+        VerboseDislocationNode(2, " snappedPosition= " << snappedPosition.transpose()<< std::endl;);
         if((this->get_P()-snappedPosition).norm()>FLT_EPSILON)
         {
             for (auto &loopNode : this->loopNodes())
@@ -481,8 +482,8 @@ namespace model
                 P.col(k)=plane->P;
                 ++k;
             }
+            PlanesIntersection<dim> pInt(N,P,FLT_EPSILON);
 
-            PlanesIntersection<dim> pInt(N,P);
             const std::pair<bool,VectorDim> snapped(pInt.snap(x));
             if(snapped.first)
             {
