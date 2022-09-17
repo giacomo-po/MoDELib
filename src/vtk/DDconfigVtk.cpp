@@ -15,15 +15,22 @@
 #include <DDconfigVtk.h>
 #include <SimplicialMesh.h>
 
+//#include <QSize>
+//#include <QPixmap>
+#include <QImage>
+
 namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
+        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO_in,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
+                                 QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
                                  const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf) :
-        /* init */ DDconfigIO<3>(traitsIO.evlFolder,"")
-        /* init */,DDauxIO<3>(traitsIO.auxFolder,"")
+        /* init */ DDconfigIO<3>(traitsIO_in.evlFolder,"")
+        /* init */,DDauxIO<3>(traitsIO_in.auxFolder,"")
         /* init */,renderWindow(renWin)
+        /* init */,qvtkGLwidget(qvtkGLwidget_in)
+        /* init */,traitsIO(traitsIO_in)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren))
         /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
@@ -36,6 +43,7 @@ namespace model
         /* init */,plusFrameButton(new QPushButton(">"))
         /* init */,minusFrameButton(new QPushButton("<"))
         /* init */,frameIncrementEdit(new QLineEdit("1"))
+        /* init */,saveImage(new QCheckBox(this))
         /* init */,tabWidget(new QTabWidget())
         {
             
@@ -46,18 +54,24 @@ namespace model
             tabWidget->addTab(glidePlanes, tr(std::string("GlidePlanes").c_str()));
             tabWidget->addTab(quadrature, tr(std::string("Quadrature").c_str()));
             tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));
+            
+            saveImage->setText("save PNG");
+
 
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);
             mainLayout->addWidget(plusFrameButton,0,2,1,1);
             mainLayout->addWidget(frameIncrementEdit,0,3,1,1);
+            mainLayout->addWidget(saveImage,1,0,1,1);
 
-            mainLayout->addWidget(tabWidget,1,0,1,4);
+
+            mainLayout->addWidget(tabWidget,2,0,1,4);
 //            controlsBox->setLayout(mainLayout);
             this->setLayout(mainLayout);
 
             
             updateConfiguration(0);
+            
             
             connect(frameIDedit,SIGNAL(returnPressed()), this, SLOT(updateConfiguration()));
             connect(plusFrameButton,SIGNAL(pressed()), this, SLOT(nextConfiguration()));
@@ -138,6 +152,15 @@ namespace model
                 glidePlanes->updateConfiguration(*this);
                 quadrature->updateConfiguration(*this);
                 chartActor->updateConfiguration(frameID);
+                
+                if(saveImage->isChecked())
+                {
+                    QImage img=qvtkGLwidget->grabFramebuffer();
+                    img.save(QString::fromStdString(traitsIO.evlFolder+"/img_"+std::to_string(frameID)+".png"), "PNG", -1);
+
+                }
+
+                
                 return true;
             }
             catch(const std::exception& e)

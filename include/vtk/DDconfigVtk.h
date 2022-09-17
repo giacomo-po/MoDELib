@@ -17,6 +17,7 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QVTKOpenGLStereoWidget.h>
 
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
@@ -32,7 +33,7 @@
 #include <GlidePlaneActor.h>
 #include <QuadratureActor.h>
 #include <ChartActor.h>
-
+#include <QCheckBox>
 
 //#include <DislocationLoopActor.h>
 
@@ -46,6 +47,8 @@ namespace model
         Q_OBJECT
         
         vtkGenericOpenGLRenderWindow* const renderWindow;
+        QVTKOpenGLStereoWidget* const qvtkGLwidget;
+        const DDtraitsIO& traitsIO;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
         NetworkLoopActor* loops;
@@ -67,13 +70,13 @@ namespace model
         QPushButton* plusFrameButton;
         QPushButton* minusFrameButton;
         QLineEdit* frameIncrementEdit;
-
+        QCheckBox* saveImage;
         QTabWidget* tabWidget;
 
 
         
         /**********************************************************************/
-        DDconfigVtk(const DDtraitsIO& traitsIO,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren,
+        DDconfigVtk(const DDtraitsIO& traitsIO_in,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren, QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
                     const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf);
         bool updateConfiguration(const size_t& frameID);
 
