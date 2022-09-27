@@ -22,7 +22,7 @@ namespace model
     
     template<int dim>
     SecondPhase<dim>::SecondPhase(const std::string& _name,
-                                  const std::map<const LatticePlaneBase*,std::shared_ptr<GammaSurface>>& _gsMap) :
+                                  const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>>& _gsMap) :
     /* init */ name(_name)
     /* init */,gsMap(_gsMap)
     {
@@ -30,6 +30,31 @@ namespace model
         std::cout<<greenBoldColor<<"Creating SecondPhase "<<name<<defaultColor<<std::endl;
         
     }
+
+    template<int dim>
+    double SecondPhase<dim>::misfitEnergy(const Eigen::Matrix<double,dim,1>& s,const std::shared_ptr<SlipSystem>& ss) const
+    {
+        
+//        std::cout<<"inPlane="<<n<<std::endl;
+//
+//        std::cout<<"planes"<<std::endl;
+//        for(const auto& pair : gsMap)
+//        {
+//            std::cout<<pair.first<<std::endl;
+//        }
+        
+        const auto gammaIter(gsMap.find(ss));
+        if(gammaIter!=gsMap.end())
+        {
+            return gammaIter->second->operator()(s);
+        }
+        else
+        {
+            return 0.0;
+        }
+
+    }
+
     
 template struct SecondPhase<3>;
 }

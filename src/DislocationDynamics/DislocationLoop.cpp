@@ -216,6 +216,26 @@ namespace model
         return wn;
     }
 
+template <int dim, short unsigned int corder>
+int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane)
+{/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
+  
+  */
+    int wn(0);
+    for(const auto& pair : _patches)
+    {
+        if(pair.first->glidePlane)
+        {
+            if(pair.first->glidePlane==ptPlane)
+            {
+                //const auto localPt(pair.first->glidePlane->localPosition(pt));
+                wn+=Polygon2D::windingNumber(localPt,pair.second);
+            }
+        }
+    }
+    return wn;
+}
+
 
     template <int dim, short unsigned int corder>
     DislocationLoop<dim,corder>::~DislocationLoop()

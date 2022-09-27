@@ -28,11 +28,13 @@ namespace model
     {
         
         const std::string name;
-        const std::map<const LatticePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
+        const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>> gsMap;
                 
         SecondPhase(const std::string&,
-                    const std::map<const LatticePlaneBase*,std::shared_ptr<GammaSurface>>&);
+                    const std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>>&);
         
+        
+        double misfitEnergy(const Eigen::Matrix<double,dim,1>& s,const std::shared_ptr<SlipSystem>& ss) const;
         
     };
 

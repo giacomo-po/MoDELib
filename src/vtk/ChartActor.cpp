@@ -20,6 +20,7 @@
 #include <vtkAxis.h>
 
 #include <ChartActor.h>
+#include <vtkTextProperty.h>
 
 
 namespace model
@@ -39,7 +40,6 @@ namespace model
         /* init */,chart(vtkSmartPointer<vtkChartXY>::New())
         /* init */,chartScene(vtkSmartPointer<vtkContextScene>::New())
         /* init */,chartActor(vtkSmartPointer<vtkContextActor>::New())
-//        /* init */,points(chart->AddPlot(vtkChart::LINE))
         /* init */,table(vtkSmartPointer<vtkTable>::New())
         /* init */,currentTable(vtkSmartPointer<vtkTable>::New())
         /* init */,colors(vtkSmartPointer<vtkNamedColors>::New())
@@ -64,11 +64,11 @@ namespace model
             
             vtkColor3d color3d1 = colors->GetColor3d("black");
             points->SetColor(color3d1.GetRed(), color3d1.GetGreen(), color3d1.GetBlue());
-            points->SetWidth(2.0);
+            points->SetWidth(5.0);
 
             vtkColor3d color3d2 = colors->GetColor3d("magenta");
             currentPoints->SetColor(color3d2.GetRed(), color3d2.GetGreen(), color3d2.GetBlue());
-            currentPoints->SetWidth(3.0);
+            currentPoints->SetWidth(5.0);
 
             std::ifstream flabFile(traitsIO.flabFile);
             if(flabFile)
@@ -96,54 +96,6 @@ namespace model
             {
                 std::cout<<"Unable to read "<<traitsIO.flabFile<<std::endl;
             }
-            
-
-//            xComboBox->setText("x-axis");
-//            yComboBox->setText("y-axis");
-//            vtkNew<vtkTable> table;
-
-//            std::ifstream flabFile(traitsIO.flabFile);
-//            std::string line;
-//            if(flabFile)
-//            {
-//                while (std::getline(flabFile, line))
-//                {
-//                    if(!line.empty())
-//                    {
-//                        xComboBox->addItem(QString::fromStdString(line));
-//                        yComboBox->addItem(QString::fromStdString(line));
-//
-//                        vtkNew<vtkFloatArray> farr;
-//                        farr->SetName(line.c_str());
-//                        table->AddColumn(farr);
-//                    }
-//                }
-//            }
-//
-//            // 200064
-//
-//            // https://stackoverflow.com/questions/116038/how-do-i-read-an-entire-file-into-a-stdstring-in-c/40903508#40903508
-//
-//            const int cols(xComboBox->count());
-//
-//            std::ifstream fFile(traitsIO.fFile);
-//            if(fFile)
-//            {
-//                double temp(0.0);
-//                while (std::getline(fFile, line))
-//                {
-//                    if(!line.empty())
-//                    {
-//                        const auto row=table->InsertNextBlankRow(cols);
-//                        std::stringstream ss(line);
-//                        for(int col=0;col<cols;++col)
-//                        {
-//                            ss >> temp;
-//                            table->SetValue(row, col, temp);
-//                        }
-//                    }
-//                }
-//            }
 
             mainLayout->addWidget(showChart,0,0,1,1);
             mainLayout->addWidget(chartUpdate,0,1,1,1);
@@ -167,39 +119,16 @@ namespace model
             renderer->AddActor(chartActor);
             chartScene->SetRenderer(renderer);
             
-            
-//            points = chart->AddPlot(vtkChart::LINE);
-//            currentPoints = chart->AddPlot(vtkChart::LINE);
-
-
-
-              // Add multiple line plots, setting the colors etc
-//            if(table->GetNumberOfRows()>0 && table->GetNumberOfColumns()>0)
-//            {
-//                vtkPlot* points = chart->AddPlot(vtkChart::LINE);
-//                points->SetInputData(table, 0, 0);
-//                vtkColor3d color3d = colors->GetColor3d("black");
-//                points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-//                points->SetWidth(1.0);
-//            }
-            
- //           reload();
         }
         
     void ChartActor::reload()
     {
-//        std::cout<<"reloading chart ..."<<std::endl;
-//        std::cout<<"A ..."<<std::endl;
-
         table->Initialize();
-//        std::cout<<"B ..."<<std::endl;
 
         const int cols(xComboBox->count());
-//        std::cout<<"cols="<<cols<<std::endl;
 
         for(int c=0;c<cols;++c)
         {
-//            std::cout<<"c="<<c<<std::endl;
             vtkNew<vtkFloatArray> farr;
             farr->SetName(xComboBox->itemText(c).toStdString().c_str());
             table->AddColumn(farr);
@@ -233,33 +162,12 @@ namespace model
             std::cout<<"Unable to read "<<traitsIO.fFile<<std::endl;
         }
 
-
-        
         table->Modified();
         updatePlots();
-
-//        modify();
-        
-        // Add multiple line plots, setting the colors etc
-//      if(table->GetNumberOfRows()>0 && table->GetNumberOfColumns()>0)
-//      {
-//          vtkPlot* points = chart->AddPlot(vtkChart::LINE);
-//          points->SetInputData(table, 0, 0);
-//          vtkColor3d color3d = colors->GetColor3d("black");
-//          points->SetColor(color3d.GetRed(), color3d.GetGreen(), color3d.GetBlue());
-//          points->SetWidth(1.0);
-//      }
-        
-
-        
     }
 
     void ChartActor::updateConfiguration(const size_t& frameID)
     {
-//        vtkNew<vtkTable> currentTable;
-//        std::cout<<"table->GetNumberOfRows()="<<table->GetNumberOfRows()<<std::endl;
-//        std::cout<<"currentTable->GetNumberOfRows()="<<currentTable->GetNumberOfRows()<<std::endl;
-
         
         if(frameID==0)
         {
@@ -271,10 +179,6 @@ namespace model
 
         
         currentTable->Initialize();
-        
-//        std::cout<<"table->GetNumberOfRows()="<<table->GetNumberOfRows()<<std::endl;
-//        std::cout<<"currentTable->GetNumberOfRows()="<<currentTable->GetNumberOfRows()<<std::endl;
-
         
         for(size_t k=0;k<table->GetNumberOfColumns();++k)
         {
@@ -305,27 +209,15 @@ void ChartActor::updatePlots()
     if(xComboBox->count() && yComboBox->count())
     {
         if(   table->GetNumberOfColumns()>xComboBox->currentIndex()
-           && table->GetNumberOfColumns()>yComboBox->currentIndex()
-//                   && table->GetNumberOfRows()>2
-           )
+           && table->GetNumberOfColumns()>yComboBox->currentIndex())
         {
-//                    vtkPlot* points = chart->AddPlot(vtkChart::LINE);
             points->SetInputData(table, xComboBox->currentIndex(), yComboBox->currentIndex());
-//                    vtkColor3d color3d1 = colors->GetColor3d("black");
-//                    points->SetColor(color3d1.GetRed(), color3d1.GetGreen(), color3d1.GetBlue());
-//                    points->SetWidth(2.0);
         }
         
         if(   currentTable->GetNumberOfColumns()>xComboBox->currentIndex()
-           && currentTable->GetNumberOfColumns()>yComboBox->currentIndex()
-//                   && currentTable->GetNumberOfRows()>2
-           )
+           && currentTable->GetNumberOfColumns()>yComboBox->currentIndex())
         {
-//                    vtkPlot* currentPoints = chart->AddPlot(vtkChart::LINE);
             currentPoints->SetInputData(currentTable, xComboBox->currentIndex(), yComboBox->currentIndex());
-//                    vtkColor3d color3d2 = colors->GetColor3d("magenta");
-//                    currentPoints->SetColor(color3d2.GetRed(), color3d2.GetGreen(), color3d2.GetBlue());
-//                    currentPoints->SetWidth(3.0);
         }
         
         chart->RecalculateBounds();
@@ -354,6 +246,16 @@ void ChartActor::updatePlots()
 
             chart->GetAxis(0)->SetGridVisible(false);
             chart->GetAxis(1)->SetGridVisible(false);
+
+            chart->GetAxis(0)->SetNumberOfTicks(10);
+            chart->GetAxis(1)->SetNumberOfTicks(10);
+
+            chart->GetAxis(0)->GetLabelProperties()->SetFontSize(16);
+            chart->GetAxis(1)->GetLabelProperties()->SetFontSize(16);
+
+            chart->GetAxis(0)->GetTitleProperties()->SetFontSize(16);
+            chart->GetAxis(1)->GetTitleProperties()->SetFontSize(16);
+            
             
             updatePlots();
 

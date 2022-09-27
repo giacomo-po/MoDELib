@@ -99,7 +99,7 @@ namespace model
                           << M1 << std::endl;
                 std::cout << "rank=" << svd.rank() << std::endl;
                 std::cout << "cond=" << cond << std::endl;
-                assert(cond < 1.0e3 && "Bad condition number");
+                throw std::runtime_error("Bad condition number");
             }
             const Eigen::VectorXd x(M1.lu().solve(V));
 
@@ -117,7 +117,7 @@ namespace model
             std::cout << "M1=\n"
                       << M1 << std::endl;
             std::cout << "M1 has size " << M1.rows() << "x" << M1.cols() << ",and rank=" << svd.rank() << std::endl;
-            assert(false && "M1 MUST BE SQUARE AND FULL RANK");
+            throw std::runtime_error("M1 MUST BE SQUARE AND FULL RANK");
             return Eigen::MatrixXd::Zero(1, 1);
         }
     }

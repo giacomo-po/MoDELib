@@ -57,7 +57,7 @@ namespace model
 //        static void addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems);
         
         
-        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const;
+//        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const;
 
         
         /**********************************************************************/

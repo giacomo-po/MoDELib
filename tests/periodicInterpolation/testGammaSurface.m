@@ -25,7 +25,7 @@ switch structure
     case 'gamma'
         
         cellScale=1;
-        A=[1 0.5;
+        A=[1 -0.5;
             0 sqrt(3)/2];
         rotSymm=3;
         mirSymm=[];
@@ -36,7 +36,7 @@ switch structure
         
         waveVec=[0  0
             0  1
-            1  -1
+            1  1
             ]/cellScale;
         
         
@@ -48,7 +48,7 @@ switch structure
         
         printMatrixToFile(fid,waveVec,'waveVecInt');
         
-        cutDirs={A(:,1),A(:,2) A(:,1)+A(:,2)};
+        cutDirs={A(:,1),A(:,1)+A(:,2),2*A(:,1)+A(:,2) };
         cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
         cutDirsStyles={'m-', 'k--', 'k-.'};
         x1Lab='a/2\langle110\rangle';
@@ -58,7 +58,7 @@ switch structure
     case 'gammaPrime'
         cellScale=2;
 
-        A=[1 0.5;
+        A=[1 -0.5;
             0 sqrt(3)/2];
         rotSymm=3;
         mirSymm=[];
@@ -79,7 +79,7 @@ switch structure
         
         waveVec=[0  0
             0  1
-            1  -1
+            1  1
             2 0
             ]/cellScale;
         
@@ -87,10 +87,12 @@ switch structure
         
         printMatrixToFile(fid,waveVec,'waveVecInt');
         
-        cutDirs={A(:,1),A(:,2) A(:,1)+A(:,2)};
+%        cutDirs={A(:,1),A(:,2) A(:,1)+A(:,2)};
+                cutDirs={A(:,1),A(:,1)+A(:,2),2*A(:,1)+A(:,2) };
+
         cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
         cutDirsStyles={'k-', 'm--', 'k.-'};
-        cutDirs={A(:,1),A(:,2) A(:,1)+A(:,2)};
+%        cutDirs={A(:,1),A(:,2) A(:,1)+A(:,2)};
         cutDirsLabels={'a_1', 'a_2', 'a_1+a_2'};
         cutDirsStyles={'m-', 'k--', 'k-.'};
         x1Lab='a/2\langle110\rangle';
@@ -367,8 +369,8 @@ plot3(f(:,1),f(:,2),f(:,1)*0+fMax+1,'om','Linewidth',2)
 
 fid=fopen('build/points.txt','w');
 np=400;
-printMatrixToFile(fid,cellScale*[0:np-1]'/(np-1)*(A(1,1)+A(1,2)),'x');
-printMatrixToFile(fid,cellScale*[0:np-1]'/(np-1)*(A(2,1)+A(2,2)),'y');
+printMatrixToFile(fid,cellScale*[0:np-1]'/(np-1)*(abs(A(1,1))+abs(A(1,2))),'x');
+printMatrixToFile(fid,cellScale*[0:np-1]'/(np-1)*(abs(A(2,1))+abs(A(2,2))),'y');
 fclose(fid)
 
 system(['build/test build ' num2str(rotSymm) ' 1'])
@@ -406,7 +408,7 @@ plot3(f(:,1),f(:,2),f(:,1)*0+fMax+2,'ok','Linewidth',2)
 %set(gca,'FontSize',fontSize)
 %print(['build/' structure '_gammaSurface'], '-depsc');
 
-return
+%return
 %% Plot cuts of GammaSurface
 np=100;
 figure(2)
@@ -418,7 +420,7 @@ for c=1:size(cutDirs,2)
     pts=[[0;0]];
     rc=[0];
     for k=1:size(cutDirs{c},2)
-        dx=cpts(:,k+1)-cpts(:,k);
+        dx=(cpts(:,k+1)-cpts(:,k))*cellScale;
         if length(rc)==0
             rc=norm(dx)*[1:np-1]/(np-1);
             pts=[dx*[1:np-1]/(np-1)];

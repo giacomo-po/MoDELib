@@ -4,7 +4,7 @@ close all
 
 format long
 
-alignToSlipSystem0=0;
+alignToSlipSystem0=1;
 lattice='fcc';
 
 if(alignToSlipSystem0)
@@ -20,8 +20,8 @@ switch lattice
 end
         s=s/norm(s);
         n=n/norm(n);
-        %C2G1=[s;cross(n,s);n]
-        C2G1=[s;n;cross(s,n)]
+        C2G1=[s;cross(n,s);n]
+        %C2G1=[s;n;cross(s,n)]
 
     else
     C2G1=eye(3)
@@ -34,6 +34,8 @@ switch lattice
     case 'fcc'
         A=1/sqrt(2)*[0 1 1;1 0 1;1 1 0]; % fcc
         material='AlMg15';
+%        material='Al';
+        material='Ni';
     otherwise
 end
 A=C2G1*A;
@@ -42,7 +44,7 @@ A=C2G1*A;
 g=0.0;
 
 %Fs=1000*eye(3);
-Fs=diag([1000 1100 1900]);
+Fs=diag([1000 1000 1000]);
 
 F12=[1 g 0;
     0 1 0;

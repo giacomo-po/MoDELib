@@ -51,7 +51,7 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=100;
+outputFrequency=10;
 outputBinary=0;
 outputGlidePlanes=1;
 computeElasticEnergyPerLength=0;

@@ -66,7 +66,11 @@ namespace model
     double GammaSurface::operator()(const VectorDim& b)
     {
         const VectorDim bL(G2L*b);
-        assert(std::fabs(bL(dim-1))<FLT_EPSILON && "SLIP VECTOR NOT ON GAMMA-SURFACE PLANE");
+        if(std::fabs(bL(dim-1))>FLT_EPSILON)
+        {
+            throw std::runtime_error("SLIP VECTOR NOT ON GAMMA-SURFACE PLANE");
+        }
+//        assert(std::fabs(bL(dim-1))<FLT_EPSILON && "SLIP VECTOR NOT ON GAMMA-SURFACE PLANE");
         return PeriodicLatticeInterpolant<2>::operator()(bL.segment<lowerDim>(0));
     }
 

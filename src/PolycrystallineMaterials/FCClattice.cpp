@@ -83,7 +83,7 @@ namespace model
 
     std::vector<std::shared_ptr<SlipSystem>> FCClattice<3>::getSlipSystems(const PolycrystallineMaterialBase& material,
                                                                            const std::string& polyFile,
-                                                                           const PlaneNormalContainerType& plN)
+                                                                           const PlaneNormalContainerType& plN) const
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip systems of the Hexagonal lattice
       */
@@ -116,7 +116,8 @@ namespace model
             
             const Eigen::Matrix<double,3,2> waveVectors((Eigen::Matrix<double,3,2>()<<0.0, 0.0,
                                                          /*                        */ 0.0, 1.0,
-                                                         /*                        */ 1.0,-1.0
+//                                                         /*                        */ 1.0,-1.0
+                                                         /*                        */ 1.0,1.0
                                                          ).finished());
             
             const Eigen::Matrix<double,4,3> f((Eigen::Matrix<double,4,3>()<<0.00,0.0, 0.0,
@@ -194,7 +195,7 @@ namespace model
 
 
     std::vector<std::shared_ptr<SecondPhase<3>>> FCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
-                                                                                const PlaneNormalContainerType& plN)
+                                                                                const SlipSystemContainerType& slipSystems) const
     {
         
         const std::vector<std::string> spNames(TextFileParser(material.materialFile).readArray<std::string>("secondPhases",true));
@@ -212,7 +213,8 @@ namespace model
                 
                 const Eigen::Matrix<double,4,2> waveVectors111(0.5*(Eigen::Matrix<double,4,2>()<<0.0, 0.0,
                                                                     /*                        */ 0.0, 1.0,
-                                                                    /*                        */ 1.0,-1.0,
+//                                                                    /*                        */ 1.0,-1.0,
+                                                                    /*                        */ 1.0,1.0,
                                                                     /*                        */ 2.0, 0.0).finished()); // the factor 0.5 accounts for the fact that A_L12=2*A_fcc
                 const Eigen::Matrix<double,6,3> f111((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0,
                                                       /*                        */ 0.50,sqrt(3.0)/6.0, CESF,
@@ -223,13 +225,13 @@ namespace model
                 const int rotSymm111(3);
                 const std::vector<Eigen::Matrix<double,2,1>> mirSymm111;
                 
-                std::map<const LatticePlaneBase*,std::shared_ptr<GammaSurface>> gsMap;
-                for(const auto& n : plN)
+                std::map<std::shared_ptr<SlipSystem>,std::shared_ptr<GammaSurface>> gsMap;
+                for(const auto& ss : slipSystems)
                 {
-                    if(std::abs(n->planeSpacing()-sqrt(6.0)/3)<FLT_EPSILON)
+                    if(std::abs(ss->n.planeSpacing()-sqrt(6.0)/3)<FLT_EPSILON)
                     {// a 111 plane
-                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*n,waveVectors111,f111,rotSymm111,mirSymm111));
-                        gsMap.emplace(n.get(),gammaSurface);
+                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(ss->n,waveVectors111,f111,rotSymm111,mirSymm111));
+                        gsMap.emplace(ss,gammaSurface);
                     }
                 }
                 temp.emplace_back(new SecondPhase<3>("L12",gsMap));

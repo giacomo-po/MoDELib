@@ -249,27 +249,27 @@ namespace model
                 
             }
             
-            if (DN.bvpSolver && DN.outputFEMsolution )
-            {
-                if(!(runID%DN.bvpSolver->stepsBetweenBVPupdates))
-                {// Output displacement and stress on external mesh faces
-//                    const auto t0=std::chrono::system_clock::now();
-//                    model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
-//                    model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
-//                    model::SequentialOutputFile<'U',true> u_file;
-//                    std::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
-//                    u_file<<DN.bvpSolver->displacement().onBoundary();
-//                    std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//
-//                    const auto t1=std::chrono::system_clock::now();
-//                    model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
-//                    model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
-//                    model::SequentialOutputFile<'S',true> s_file;
-//                    std::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
-//                    s_file<<DN.bvpSolver->stress().onBoundary();
-//                    std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
-                }
-            }
+//            if (DN.bvpSolver && DN.outputFEMsolution )
+//            {
+//                if(!(runID%DN.bvpSolver->stepsBetweenBVPupdates))
+//                {// Output displacement and stress on external mesh faces
+////                    const auto t0=std::chrono::system_clock::now();
+////                    model::SequentialOutputFile<'U',1>::set_count(runID); // Vertices_file;
+////                    model::SequentialOutputFile<'U',1>::set_increment(DN.outputFrequency); // Vertices_file;
+////                    model::SequentialOutputFile<'U',true> u_file;
+////                    std::cout<<"		writing to U/U_"<<u_file.sID<<".txt"<<std::flush;
+////                    u_file<<DN.bvpSolver->displacement().onBoundary();
+////                    std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+////
+////                    const auto t1=std::chrono::system_clock::now();
+////                    model::SequentialOutputFile<'S',1>::set_count(runID); // Vertices_file;
+////                    model::SequentialOutputFile<'S',1>::set_increment(DN.outputFrequency); // Vertices_file;
+////                    model::SequentialOutputFile<'S',true> s_file;
+////                    std::cout<<"		writing to S/S_"<<s_file.sID<<".txt"<<std::flush;
+////                    s_file<<DN.bvpSolver->stress().onBoundary();
+////                    std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t1)).count()<<" sec]"<<defaultColor<<std::endl;
+//                }
+//            }
             
 
             
@@ -301,7 +301,7 @@ namespace model
             
             
             const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
-            f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" ";
+            f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" "<<pD.trace()<<" "<<pD.norm()<<" ";
             if(runID==0)
             {
                 F_labels<<"betaP_11\n";
@@ -312,13 +312,16 @@ namespace model
                 F_labels<<"betaP_23\n";
                 F_labels<<"betaP_31\n";
                 F_labels<<"betaP_32\n";
-                F_labels<<"betaP_33"<<std::endl;
+                F_labels<<"betaP_33\n";
+                F_labels<<"tr(betaP)\n";
+                F_labels<<"norm(betaP)"<<std::endl;
+
             }
             
             if(DN.outputPlasticDistortionRate)
             {
                 const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
-                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" ";
+                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" "<<pDR.trace()<<" "<<pDR.norm()<<" ";
                 if(runID==0)
                 {
                     F_labels<<"dotBetaP_11 [cs/b]\n";
@@ -329,7 +332,9 @@ namespace model
                     F_labels<<"dotBetaP_23 [cs/b]\n";
                     F_labels<<"dotBetaP_31 [cs/b]\n";
                     F_labels<<"dotBetaP_32 [cs/b]\n";
-                    F_labels<<"dotBetaP_33 [cs/b]"<<std::endl;
+                    F_labels<<"dotBetaP_33 [cs/b]\n";
+                    F_labels<<"tr(dotBetaP) [cs/b]\n";
+                    F_labels<<"norm(dotBetaP) [cs/b]"<<std::endl;
                 }
             }
             
