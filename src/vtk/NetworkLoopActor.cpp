@@ -64,6 +64,7 @@ namespace model
         /* init */,loopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,loopActor(vtkSmartPointer<vtkActor>::New())
         /* init */,areaPolyData(vtkSmartPointer<vtkPolyData>::New())
+        /* init */,areaTriangleFilter(vtkSmartPointer<vtkTriangleFilter>::New())
         /* init */,areaMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,areaActor(vtkSmartPointer<vtkActor>::New())
         /* init */,poly(poly_in)
@@ -127,7 +128,12 @@ namespace model
             loopActor->GetProperty()->SetColor(0.0, 0.0, 1.0); //(R,G,B)
             loopActor->SetVisibility(false);
 
-            areaMapper->SetInputData(areaPolyData);
+            areaTriangleFilter->SetInputData(areaPolyData);
+//            filter->SetInputData(polygonPolyData);
+//            areaTriangleFilter->Update();
+
+//            areaMapper->SetInputData(areaPolyData);
+            areaMapper->SetInputData(areaTriangleFilter->GetOutput());
             areaActor->SetMapper(areaMapper);
             areaActor->GetProperty()->SetColor(0.0, 1.0, 1.0); //(R,G,B)
             areaActor->SetVisibility(false);
@@ -257,7 +263,7 @@ namespace model
 
             areaPolyData->SetPoints(areaPoints);
             areaPolyData->SetPolys(areaPolygons);
-            
+            areaTriangleFilter->Update();
 
             std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
         }

@@ -555,10 +555,10 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
         std::cout <<"Computing stacking fault forces at quadrature points (" << nThreads << " threads) " << std::flush;
         const double eps=1.0e-2;
         
-//#ifdef _OPENMP
-//#pragma omp parallel for
-//#endif
-        for (size_t k = 0; k < this->loops().size(); ++k) // THERE COULD BE A WRITING RACE HERE SINCE DIFFERENT LOOPS MAY TRY TO SUM TO THE SAME GAUSS POINT
+#ifdef _OPENMP
+#pragma omp parallel for // THERE COULD BE A WRITING RACE HERE SINCE DIFFERENT LOOPS MAY TRY TO SUM TO THE SAME GAUSS POINT
+#endif
+        for (size_t k = 0; k < this->loops().size(); ++k)
         {
             auto loopIter(this->loops().begin());
             std::advance(loopIter, k);

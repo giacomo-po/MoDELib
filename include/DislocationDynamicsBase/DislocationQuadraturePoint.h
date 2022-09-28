@@ -351,95 +351,95 @@ namespace model
             return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
         }
         
-        template<typename LinkType>
-        void computeMatrixStackingFaultForces(const LinkType& parentSegment)
-        {
-            const double eps=1.0e-2;
-            MatrixDim temp(MatrixDim::Zero());
-            if(parentSegment.isGlissile())
-            {// slipSystem must exist
-                assert(parentSegment.glidePlanes().size()==1);
-                const auto& glidePlane(*parentSegment.glidePlanes().begin());
-                for(const auto& loopLink : parentSegment.loopLinks())
-                {
-                    
-                    const auto& slipSystem();
-                    
-                    if(loopLink->loop->slipSystem())
-                    {// gamma surface must exist to perform force calculation
-                        if(loopLink->loop->slipSystem()->gammaSurface)
-                        {// gamma surface must exist to perform force calculation
-                            VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(loopLink->loop->rightHandedUnitNormal()));
-                            const double outDirNorm(outDir.norm());
-                            if(outDirNorm>FLT_EPSILON)
-                            {
-                                outDir/=outDirNorm;
-                                std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
-                                for(const auto& otherLoop: parentSegment.network().loops())
-                                {
-                    
-                                    const auto& otherSlipSystem(otherLoop.second.lock()->slipSystem());
-                                    const bool otherSlipSystemIsPartial(otherSlipSystem? otherSlipSystem->isPartial() : false);
-                                    
-                                    
-                                    if(otherLoop.second.lock()->slipSystem() && glidePlane==otherLoop.second.lock()->glidePlane.get())
-                                    {
-                                        if(otherLoop.second.lock()->slipSystem()->isPartial())
-                                        {// only partial dislocations will contribute to a change in gamma surface
-                                            const double nRdotnR(loopLink->loop->rightHandedUnitNormal().dot(otherLoop.second.lock()->rightHandedUnitNormal()));
-                                            if(std::fabs(nRdotnR)>FLT_EPSILON)
-                                            {
-                                                std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
-                                                for(const auto& otherLoopLink : otherLoop.second.lock()->linkSequence())
-                                                {
-                                                    otherLocalNodes.push_back((loopLink->loop->slipSystem()->gammaSurface->G2L*(otherLoopLink->source->get_P()-glidePlane->P)).template segment<dim-1>(0));
-                                                }
-                                                
-                                                for(size_t q=0;q<quadraturePoints().size();++q)
-                                                {
-                                                    const auto& qPoint(quadraturePoints()[q]);
-                                                    const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-                                                    const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-                                                    
-                                                    const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
-                                                    const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
-                                                    qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
-                                                    qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
-                                                    
-                                                    //                                                        if(nRdotnR>FLT_EPSILON)
-                                                    //                                                        {// same rightHandedUnitNormal
-                                                    //                                                            qPointSlip[q].first +=wn1*otherLoop.second.lock()->burgers();
-                                                    //                                                            qPointSlip[q].second+=wn2*otherLoop.second.lock()->burgers();
-                                                    //                                                        }
-                                                    //                                                        else
-                                                    //                                                        {// opposite rightHandedUnitNormal
-                                                    //                                                            qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers();
-                                                    //                                                            qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers();
-                                                    //                                                        }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                
-                                for(size_t q=0;q<quadraturePoints().size();++q)
-                                {
-                                    if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-                                    {
-                                        const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-                                        const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-                                        quadraturePoints()[q].stackingFaultForce+= -(gamma2-gamma1)*outDir; // * fact
-                                    }
-                                }
-                                
-                            }
-                            
-                        }
-                    }
-                }
-            }
-        }
+//        template<typename LinkType>
+//        void computeMatrixStackingFaultForces(const LinkType& parentSegment)
+//        {
+//            const double eps=1.0e-2;
+//            MatrixDim temp(MatrixDim::Zero());
+//            if(parentSegment.isGlissile())
+//            {// slipSystem must exist
+//                assert(parentSegment.glidePlanes().size()==1);
+//                const auto& glidePlane(*parentSegment.glidePlanes().begin());
+//                for(const auto& loopLink : parentSegment.loopLinks())
+//                {
+//                    
+//                    const auto& slipSystem();
+//                    
+//                    if(loopLink->loop->slipSystem())
+//                    {// gamma surface must exist to perform force calculation
+//                        if(loopLink->loop->slipSystem()->gammaSurface)
+//                        {// gamma surface must exist to perform force calculation
+//                            VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(loopLink->loop->rightHandedUnitNormal()));
+//                            const double outDirNorm(outDir.norm());
+//                            if(outDirNorm>FLT_EPSILON)
+//                            {
+//                                outDir/=outDirNorm;
+//                                std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
+//                                for(const auto& otherLoop: parentSegment.network().loops())
+//                                {
+//                    
+//                                    const auto& otherSlipSystem(otherLoop.second.lock()->slipSystem());
+//                                    const bool otherSlipSystemIsPartial(otherSlipSystem? otherSlipSystem->isPartial() : false);
+//                                    
+//                                    
+//                                    if(otherLoop.second.lock()->slipSystem() && glidePlane==otherLoop.second.lock()->glidePlane.get())
+//                                    {
+//                                        if(otherLoop.second.lock()->slipSystem()->isPartial())
+//                                        {// only partial dislocations will contribute to a change in gamma surface
+//                                            const double nRdotnR(loopLink->loop->rightHandedUnitNormal().dot(otherLoop.second.lock()->rightHandedUnitNormal()));
+//                                            if(std::fabs(nRdotnR)>FLT_EPSILON)
+//                                            {
+//                                                std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
+//                                                for(const auto& otherLoopLink : otherLoop.second.lock()->linkSequence())
+//                                                {
+//                                                    otherLocalNodes.push_back((loopLink->loop->slipSystem()->gammaSurface->G2L*(otherLoopLink->source->get_P()-glidePlane->P)).template segment<dim-1>(0));
+//                                                }
+//                                                
+//                                                for(size_t q=0;q<quadraturePoints().size();++q)
+//                                                {
+//                                                    const auto& qPoint(quadraturePoints()[q]);
+//                                                    const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir-glidePlane->P)).template segment<dim-1>(0));
+//                                                    const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir-glidePlane->P)).template segment<dim-1>(0));
+//                                                    
+//                                                    const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
+//                                                    const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
+//                                                    qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
+//                                                    qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
+//                                                    
+//                                                    //                                                        if(nRdotnR>FLT_EPSILON)
+//                                                    //                                                        {// same rightHandedUnitNormal
+//                                                    //                                                            qPointSlip[q].first +=wn1*otherLoop.second.lock()->burgers();
+//                                                    //                                                            qPointSlip[q].second+=wn2*otherLoop.second.lock()->burgers();
+//                                                    //                                                        }
+//                                                    //                                                        else
+//                                                    //                                                        {// opposite rightHandedUnitNormal
+//                                                    //                                                            qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers();
+//                                                    //                                                            qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers();
+//                                                    //                                                        }
+//                                                }
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                                
+//                                
+//                                for(size_t q=0;q<quadraturePoints().size();++q)
+//                                {
+//                                    if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
+//                                    {
+//                                        const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
+//                                        const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
+//                                        quadraturePoints()[q].stackingFaultForce+= -(gamma2-gamma1)*outDir; // * fact
+//                                    }
+//                                }
+//                                
+//                            }
+//                            
+//                        }
+//                    }
+//                }
+//            }
+//        }
         
     public:
         
