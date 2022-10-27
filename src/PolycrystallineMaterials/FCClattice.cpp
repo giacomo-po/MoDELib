@@ -131,29 +131,20 @@ namespace model
             {
                 if(std::fabs(planeBase->planeSpacing()-d111)<FLT_EPSILON)
                 {// a {111} plane
-                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*planeBase,waveVectors,f,rotSymm,mirSymm));
                     const auto& a1(planeBase->primitiveVectors.first);
                     const auto& a3(planeBase->primitiveVectors.second);
 
                     const auto b1(a1);
                     const auto b2(a3-a1);
                     const auto b3(a3*(-1));
-
-
+//                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(*planeBase,waveVectors,f,rotSymm,mirSymm));
+                    std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors,f,rotSymm,mirSymm));
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b1,b2), RationalLatticeDirection<3>(Rational(1,3),b1-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b2,b3), RationalLatticeDirection<3>(Rational(1,3),b2-b3),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b2),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1), RationalLatticeDirection<3>(Rational(1,3),b3-b1),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-
-                    
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),  (a1+a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a1*2-a3)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(+1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
-//                    temp.emplace_back(new SlipSystem(*planeBase, RationalLatticeDirection<3>(Rational(1,3),(a3*2-a1)*(-1)),fccMobility,gammaSurface,planeNoise));               // is (-1, 1,-1) in cartesian
                 }
             }
         }
@@ -178,13 +169,6 @@ namespace model
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3,fccMobility,nullptr,planeNoise));
                     temp.emplace_back(new SlipSystem(LatticePlaneBase(b3,b1),b3*(-1),fccMobility,nullptr,planeNoise));
 
-                    
-//                    temp.emplace_back(new SlipSystem(*planeBase, a1,fccMobility,nullptr,planeNoise));
-//                    temp.emplace_back(new SlipSystem(*planeBase,a1*(-1),fccMobility,nullptr,planeNoise));
-//                    temp.emplace_back(new SlipSystem(*planeBase, a3,fccMobility,nullptr,planeNoise));
-//                    temp.emplace_back(new SlipSystem(*planeBase,a3*(-1),fccMobility,nullptr,planeNoise));
-//                    temp.emplace_back(new SlipSystem(*planeBase,a1-a3,fccMobility,nullptr,planeNoise));
-//                    temp.emplace_back(new SlipSystem(*planeBase,a3-a1,fccMobility,nullptr,planeNoise));
                 }
             }
         }
@@ -230,7 +214,11 @@ namespace model
                 {
                     if(std::abs(ss->n.planeSpacing()-sqrt(6.0)/3)<FLT_EPSILON)
                     {// a 111 plane
-                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(ss->n,waveVectors111,f111,rotSymm111,mirSymm111));
+                        const auto& b1(ss->n.primitiveVectors.first);
+                        const auto& b2(ss->n.primitiveVectors.second);
+//                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(ss->n,waveVectors111,f111,rotSymm111,mirSymm111));
+                        std::shared_ptr<GammaSurface> gammaSurface(new GammaSurface(b1,b2,waveVectors111,f111,rotSymm111,mirSymm111));
+
                         gsMap.emplace(ss,gammaSurface);
                     }
                 }

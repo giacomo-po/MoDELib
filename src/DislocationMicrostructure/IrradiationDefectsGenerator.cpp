@@ -260,21 +260,21 @@ void IrradiationDefectsGenerator::generateIndividualFCC(MicrostructureGenerator&
 
         if(int(sftPlaneIDs.size())!=sftBasePoints.rows())
         {
-            std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
             std::cout<<"sftBasePoints.rows()="<<sftBasePoints.rows()<<std::endl;
             throw std::runtime_error("You must provide one point for each SFT. Each point is a row of the matrix sftBasePoints.");
         }
         
         if(sftPlaneIDs.size()!=sftSizes.size())
         {
-            std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
             std::cout<<"sftSizes.size()="<<sftSizes.size()<<std::endl;
             throw std::runtime_error("You must provide one size for each SFT. Each size is an element of the vector sftSizes.");
         }
         
         if(sftPlaneIDs.size()!=sftIsInverted.size())
         {
-            std::cout<<"sftPlaneIDs()="<<sftPlaneIDs.size()<<std::endl;
+            std::cout<<"sftPlaneIDs.size()="<<sftPlaneIDs.size()<<std::endl;
             std::cout<<"sftIsInverted()="<<sftSizes.size()<<std::endl;
             throw std::runtime_error("You must provide one boolean value of sftIsInverted for each SFT. Each value is an element of the vector sftIsInverted.");
         }

@@ -4,8 +4,8 @@ clc
 fontSize=16;
 
 %% Select structure
-structure='gamma';
-%structure='gammaPrime';
+%structure='gamma';
+structure='gammaPrime';
 %structure='hcpBasal';
 %structure='hcpBasalEAM';
 %structure='hcpPrismatic';
@@ -69,11 +69,11 @@ switch structure
 %         CISF=230;
 %         SESF=75;
         
-         CESF=1350;
-         SISF=74;
-         APB=162;
-        SESF=1800;
-        CISF=191;
+         CESF=270;
+         SISF=10;
+         APB=175;
+        SESF=75;
+        CISF=230;
 
 
 
@@ -89,11 +89,11 @@ switch structure
 figure(1)
 hold on
 textH=1.5*max([CESF,SISF,APB,SESF,CISF]);
-text(0.5, sqrt(3)/6,textH, 'CESF','Color','b','FontSize',16)
-text(1, sqrt(3)/3,textH, 'SISF','Color','b','FontSize',16)
-text(1.5, sqrt(3)/2,textH, 'APB','Color','b','FontSize',16)
-text(2, 2*sqrt(3)/3,textH, 'SESF','Color','b','FontSize',16)
-text(2.5, 5*sqrt(3)/6,textH,'CISF','Color','b','FontSize',16)
+text(0.5, sqrt(3)/6,textH, 'CESF','Color','w','FontSize',16)
+text(1, sqrt(3)/3,textH, 'SISF','Color','w','FontSize',16)
+text(1.5, sqrt(3)/2,textH, 'APB','Color','w','FontSize',16)
+text(2, 2*sqrt(3)/3,textH, 'SESF','Color','w','FontSize',16)
+text(2.5, 5*sqrt(3)/6,textH,'CISF','Color','w','FontSize',16)
 
         waveVec=[0  0
             0  1
@@ -401,9 +401,7 @@ G=reshape(data(:,3),np,np);
 fMax=max(data(:,3));
 
 %return
-%surf(X,Y,G,'edgecolor','none')
-contour(X,Y,G,30)
-
+surf(X,Y,G,'edgecolor','none')
 xlabel(x1Lab)
 ylabel(y1Lab)
 yticks([0:0.25:1]*y1TicksFactor*0.9999) % *0.999 makes sure upper limit is included
