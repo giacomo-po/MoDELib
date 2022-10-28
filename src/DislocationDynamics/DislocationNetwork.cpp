@@ -585,8 +585,11 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
                                         for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
                                         {
                                             const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-                                            qPointSlip[q].first -=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r + eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-                                            qPointSlip[q].second-=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r - eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+//                                            qPointSlip[q].first -=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r + eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+//                                            qPointSlip[q].second-=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r - eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+                                            qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+                                            qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+
                                         }
                                     }
                                 }

@@ -1,5 +1,5 @@
 materialFile=../../../MaterialsLibrary/Ni.txt; 
-enablePartials=0; 
+enablePartials=1; 
 absoluteTemperature = 300; # [K] simulation temperature 
 meshFile=../../../MeshLibrary/unitCube.msh; 
 C2G1=0.000000000000000 0.707106781186547 0.707106781186547 
