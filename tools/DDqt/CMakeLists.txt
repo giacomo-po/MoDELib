@@ -41,6 +41,8 @@ include_directories(${MoDELibRootDir}/include/vtk/)
 include_directories(${MoDELibRootDir}/include/PolycrystallineMaterials/)
 include_directories(${MoDELibRootDir}/include/Lattices/)
 include_directories(${MoDELibRootDir}/include/GlidePlanes/)
+include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
+
 
 add_subdirectory(${MoDELibRootDir}/src/Geometry Geometry)
 add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)

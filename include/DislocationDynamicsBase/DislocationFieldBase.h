@@ -10,6 +10,7 @@
 #define _model_DislocationFieldBase_h_
 
 #include <Eigen/Dense>
+#include <TextFileParser.h>
 
 namespace model
 {

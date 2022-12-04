@@ -525,7 +525,11 @@ namespace model
     void PeriodicPatchBoundary<dim>::removeUntwinnedEdge(const PeriodicPlaneEdge<dim>* link)
     {
         const size_t erased(untwinnedEdges().erase(link));
-        assert(erased==1 && "COULD NOT ERASE LINK FROM BOUNDARYLINKS");
+        if(erased!=1)
+        {
+            throw std::runtime_error("COULD NOT ERASE LINK FROM BOUNDARYLINKS");
+        }
+//        assert(erased==1 && "COULD NOT ERASE LINK FROM BOUNDARYLINKS");
     }
 
     template<int dim>
@@ -653,8 +657,9 @@ namespace model
                 //                    }
                 //                }
                 
+                throw std::runtime_error("could not find link in untwinnedEdges 2");
                 
-                assert(erased==1 && "could not find link in untwinnedEdges 2");
+//                assert(erased==1 && "could not find link in untwinnedEdges 2");
             }
             if(temp.back()->sink->sID==temp.front()->source->sID)
             {

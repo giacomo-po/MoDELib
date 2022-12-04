@@ -124,7 +124,7 @@ namespace model
         
 
     std::vector<std::shared_ptr<SecondPhase<3>>> BCClattice<3>::getSecondPhases(const PolycrystallineMaterialBase& material,
-                                                                                const PlaneNormalContainerType& plN)
+                                                                                const PlaneNormalContainerType&)
     {
         
         const std::vector<std::string> spNames(TextFileParser(material.materialFile).readArray<std::string>("secondPhases",true));

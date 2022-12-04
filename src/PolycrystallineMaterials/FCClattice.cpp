@@ -201,11 +201,11 @@ namespace model
                                                                     /*                        */ 1.0,1.0,
                                                                     /*                        */ 2.0, 0.0).finished()); // the factor 0.5 accounts for the fact that A_L12=2*A_fcc
                 const Eigen::Matrix<double,6,3> f111((Eigen::Matrix<double,6,3>()<<0.00,0.0, 0.0,
-                                                      /*                        */ 0.50,sqrt(3.0)/6.0, CESF,
-                                                      /*                        */ 1.00,sqrt(3.0)/3.0,SISF,
+                                                      /*                        */ 0.50,sqrt(3.0)/6.0, CISF,
+                                                      /*                        */ 1.00,sqrt(3.0)/3.0,SESF,
                                                       /*                        */ 1.50,sqrt(3.0)/2.0, APB,
-                                                      /*                        */ 2.00,2.0*sqrt(3.0)/3.0, SESF,
-                                                      /*                        */ 2.50,5.0*sqrt(3.0)/6.0, CISF).finished());
+                                                      /*                        */ 2.00,2.0*sqrt(3.0)/3.0, SISF,
+                                                      /*                        */ 2.50,5.0*sqrt(3.0)/6.0, CESF).finished());
                 const int rotSymm111(3);
                 const std::vector<Eigen::Matrix<double,2,1>> mirSymm111;
                 

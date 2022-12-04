@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.1.0)
 project(DDomp VERSION 1.0.0 LANGUAGES CXX)
 
 option(BUILD_AS_LIB "ON to build as a static library" OFF)
+option(USE_NOISE_GENERATOR "Use fftw to generate the noise" ON)
 
 set(EigenRootDir "/usr/local/include")
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
@@ -22,6 +23,20 @@ if(BUILD_AS_LIB)
 	add_library(DDomp STATIC)
 else()
 	add_executable(DDomp DDomp.cpp)
+endif()
+
+if(USE_NOISE_GENERATOR)
+	find_library(FFTW3_LIBRARIES fftw3)
+	message(STATUS "FFTW3_INCLUDE_DIRS: ${FFTW3_INCLUDE_DIRS}")
+	message(STATUS "FFTW3_LIBRARY_DIRS: ${FFTW3_LIBRARY_DIRS}")
+	set(CMAKE_PREFIX_PATH ${FFTW3_LIBRARY_DIRS})
+
+#	set(FFTWDir "/opt/homebrew/Cellar/fftw/3.3.10/include")
+#	set(BOOSTDir "/opt/homebrew/Cellar/boost/1.78.0_1/include/")
+#	set(FFTWLIB "/opt/homebrew/Cellar/fftw/3.3.10/lib")
+	include_directories(${FFTW3_INCLUDE_DIRS})
+	include_directories(${BOOSTDir})
+	add_definitions(-D _MODEL_GLIDE_PLANE_NOISE_GENERATOR_)
 endif()
 
 
@@ -55,4 +70,6 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 
-
+if(USE_NOISE_GENERATOR)
+	target_link_libraries(${PROJECT_NAME} ${FFTW3_LIBRARIES})
+endif()

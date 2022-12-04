@@ -62,7 +62,11 @@ namespace model
             
             const bool success1=events()[std::min(xStart,xEnd)].first.emplace(line.key,&line).second;     // line starts at xStart
             const bool success2=events()[std::max(xStart,xEnd)].second.emplace(line.key,&line).second;    // line ends at xEnd
-            assert(success1==success2);
+            if(success1!=success2)
+            {
+                throw std::runtime_error("SweepPlane segment insertion error.");
+            }
+//            assert(success1==success2);
         }
         
         /**********************************************************************/
@@ -84,13 +88,21 @@ namespace model
                         
                     }
                     const bool success=activeSegments.emplace(startingSegment.first,startingSegment.second).second;
-                    assert(success);
+                    if(!success)
+                    {
+                        throw std::runtime_error("SweepPlane::computeIntersectionPairs() cannot add segment.");
+                    }
+//                    assert(success);
                 }
                 
                 for(const auto& endingSegment : event.second.second)
                 {
                     const size_t nErased=activeSegments.erase(endingSegment.first);
-                    assert(nErased==1);
+                    if(nErased!=1)
+                    {
+                        throw std::runtime_error("SweepPlane::computeIntersectionPairs() cannot erase segment.");
+                    }
+//                    assert(nErased==1);
                 }
             }
             

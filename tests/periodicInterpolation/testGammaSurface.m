@@ -4,8 +4,8 @@ clc
 fontSize=16;
 
 %% Select structure
-structure='gamma';
-%structure='gammaPrime';
+%structure='gamma';
+structure='gammaPrime';
 %structure='hcpBasal';
 %structure='hcpBasalEAM';
 %structure='hcpPrismatic';
@@ -79,21 +79,21 @@ switch structure
 
         
         f=[0 0 0;
-            0.5 sqrt(3)/6 CESF;
-            1 sqrt(3)/3 SISF;
+            0.5 sqrt(3)/6 CISF;
+            1 sqrt(3)/3 SESF;
             1.5 sqrt(3)/2 APB;
-            2 2*sqrt(3)/3 SESF;
-            2.5 5*sqrt(3)/6 CISF;
+            2 2*sqrt(3)/3 SISF;
+            2.5 5*sqrt(3)/6 CESF;
             ]; %  6 conditions
         
 figure(1)
 hold on
 textH=1.5*max([CESF,SISF,APB,SESF,CISF]);
-text(0.5, sqrt(3)/6,textH, 'CESF','Color','b','FontSize',16)
-text(1, sqrt(3)/3,textH, 'SISF','Color','b','FontSize',16)
+text(0.5, sqrt(3)/6,textH, 'CISF','Color','b','FontSize',16)
+text(1, sqrt(3)/3,textH, 'SESF','Color','b','FontSize',16)
 text(1.5, sqrt(3)/2,textH, 'APB','Color','b','FontSize',16)
-text(2, 2*sqrt(3)/3,textH, 'SESF','Color','b','FontSize',16)
-text(2.5, 5*sqrt(3)/6,textH,'CISF','Color','b','FontSize',16)
+text(2, 2*sqrt(3)/3,textH, 'SISF','Color','b','FontSize',16)
+text(2.5, 5*sqrt(3)/6,textH,'CESF','Color','b','FontSize',16)
 
         waveVec=[0  0
             0  1

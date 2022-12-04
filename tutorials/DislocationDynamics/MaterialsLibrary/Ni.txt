@@ -26,8 +26,8 @@ D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
 
 # Second Phases
 secondPhases=L12;
-APB_SI=175e-3; # [J/m^2] APB energy density
-SISF_SI=10e-3; # [J/m^2] SISF energy density
-CESF_SI=270e-3; # [J/m^2] CESF energy density
-CISF_SI=230e-3; # [J/m^2] CISF energy density
-SESF_SI=75e-3; # [J/m^2] SESF energy density
+APB_SI=162e-3; # [J/m^2] APB energy density
+SISF_SI=74e-3; # [J/m^2] SISF energy density
+CESF_SI=1350e-3; # [J/m^2] CESF energy density
+CISF_SI=191e-3; # [J/m^2] CISF energy density
+SESF_SI=1800e-3; # [J/m^2] SESF energy density

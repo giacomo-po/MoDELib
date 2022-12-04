@@ -21,6 +21,7 @@
 #include <boost/math/special_functions/bessel.hpp>
 #endif
 
+#include <DislocationFieldBase.h>
 #include <PolycrystallineMaterialBase.h>
 #include <UniformPeriodicGrid.h>
 
@@ -57,35 +58,33 @@ namespace model
         typedef std::vector<NoiseType> NoiseContainerType;
     };
 
-struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
-{
-    
-    typedef typename NoiseTraitsBase::REAL_SCALAR REAL_SCALAR;
-    typedef typename NoiseTraitsBase::COMPLEX COMPLEX;
-    typedef typename NoiseTraitsBase::GridSizeType GridSizeType;
-    typedef typename NoiseTraitsBase::GridSpacingType GridSpacingType;
-    typedef typename NoiseTraits<2>::NoiseType NoiseType;
-    typedef typename NoiseTraits<2>::NoiseContainerType NoiseContainerType;
-    
-    
-    
-    static int LittleEndian();
-    
-    static float ReverseFloat( const float inFloat );
-    
-    static double ReverseDouble( const double inDouble );
-    
-    static std::pair<GridSizeType,GridSpacingType> Read_dimensions(const char *fname);
-    
-    
-    
-    static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr,const double& MSS);
-    
-    SolidSolutionNoiseReader(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
-                             const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A);
-    
-    
-};
+    struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
+    {
+        
+        typedef typename NoiseTraitsBase::REAL_SCALAR REAL_SCALAR;
+        typedef typename NoiseTraitsBase::COMPLEX COMPLEX;
+        typedef typename NoiseTraitsBase::GridSizeType GridSizeType;
+        typedef typename NoiseTraitsBase::GridSpacingType GridSpacingType;
+        typedef typename NoiseTraits<2>::NoiseType NoiseType;
+        typedef typename NoiseTraits<2>::NoiseContainerType NoiseContainerType;
+        
+        
+        
+        static int LittleEndian();
+        
+        static float ReverseFloat( const float inFloat );
+        
+        static double ReverseDouble( const double inDouble );
+        
+        static std::pair<GridSizeType,GridSpacingType> Read_dimensions(const char *fname);
+        
+        static void Read_noise_vtk(const char *fname, REAL_SCALAR *Noise, int Nr,const double& MSS);
+        
+        SolidSolutionNoiseReader(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
+                                 const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A);
+        
+        
+    };
 
     class SolidSolutionNoise : public NoiseTraits<2>::NoiseContainerType
     {
@@ -100,290 +99,64 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
         const NoiseContainerType& noiseVector() const;
         
         NoiseContainerType& noiseVector();
+
+    public:
         
         const GridSizeType gridSize;
         const GridSpacingType gridSpacing_A;
-
-    public:
         
         SolidSolutionNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
                            const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A, const int& solidSolutionNoiseMode);
         
     };
 
-//    struct SolidSolutionNoiseGenerator
-//    {
-//
-//        //    int mod(int a, int b)
-//        //    {
-//        //        int r = a % b;
-//        //        return r < 0 ? r + b : r;
-//        //    }
-//
-//        typedef typename NoiseTraits<2>::REAL_SCALAR REAL_SCALAR;
-//        typedef typename NoiseTraits<2>::COMPLEX COMPLEX;
-//        typedef typename NoiseTraits<2>::GridSizeType GridSizeType;
-//        typedef typename NoiseTraits<2>::NoiseType NoiseType;
-//        typedef typename NoiseTraits<2>::NoiseContainerType NoiseContainerType;
-//
-//        int NX, NY, NZ;
-//        REAL_SCALAR DX, DY, DZ;
-//        REAL_SCALAR a;
-//        REAL_SCALAR a_cai;
-//        int seed;
-//        //    int flag;
-//        REAL_SCALAR LX, LY, LZ;
-//        REAL_SCALAR DV;
-//        int NR;
-//        int NK;
-//        REAL_SCALAR Norm;
-//
-//        SolidSolutionNoiseGenerator() :
-//        /*init*/ NX(256)     // dimension along x
-//        /*init*/,NY(256)     // dimension along y
-//        /*init*/,NZ(64)      // dimension along z
-//        /*init*/,DX(1.0)     // grid spacing [AA]
-//        /*init*/,DY(1.0)     // grid spacing [AA]
-//        /*init*/,DZ(1.0)     // grid spacing [AA]
-//        /*init*/,a(1.0)      // spreading length for stresses [AA]
-//        /*init*/,a_cai(3.0)  // spreading length for non-singular dislocaion theory [AA]
-//        /*init*/,seed(1234)  // random seed
-//        /*init*/,LX(NX*DX)
-//        /*init*/,LY(NY*DY)
-//        /*init*/,LZ(NZ*DZ)
-//        /*init*/,DV(DX*DY*DZ)
-//        /*init*/,NR(NX*NY*NZ)
-//        /*init*/,NK(NX*NY*(NZ/2+1))
-//        /*init*/,Norm(1./REAL_SCALAR(NR))
-//        {
-//
-//        }
-//
-//    #ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
-//
-//        // Cai doubly-convoluted spreading function in Fourier space
-//        REAL_SCALAR Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a) const
-//        {
-//            REAL_SCALAR k = sqrt(kx*kx + ky*ky + kz*kz);
-//            if(k>0)
-//            {
-//                return a*k*sqrt(0.5*boost::math::cyl_bessel_k(2,a*k));
-//            }
-//            else
-//            {
-//                return 1.;
-//            }
-//
-//        }
-//
-//
-//        // Cai spreading function
-//        REAL_SCALAR W_Cai(REAL_SCALAR r2, REAL_SCALAR a) const
-//        {
-//            return 15.*a*a*a*a/(8.*M_PI*pow(r2+a*a,7./2.));
-//        }
-//
-//        REAL_SCALAR W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) const
-//        {
-//            return 0.3425*W_Cai(r2,0.9038*a) + 0.6575*W_Cai(r2,0.5451*a);
-//        }
-//
-//        // normalized auto-correlation function in Fourier space for sigma_xy
-//        REAL_SCALAR S_xy_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const
-//        {
-//            REAL_SCALAR k2 = kx*kx + ky*ky + kz*kz;
-//            return 120.*M_PI*sqrt(M_PI)*a*a*a/(LX*LY*LZ)*(kx*kx*ky*ky)/(k2*k2)*exp(-a*a*k2);
-//        }
-//
-//        // normalized auto-correlation function in Fourier space for sigma_xz
-//        REAL_SCALAR S_xz_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const
-//        {
-//            REAL_SCALAR k2 = kx*kx + ky*ky + kz*kz;
-//            return 120.*M_PI*sqrt(M_PI)*a*a*a/(LX*LY*LZ)*(kx*kx*kz*kz)/(k2*k2)*exp(-a*a*k2);
-//        }
-//
-//        // normalized auto-correlation function in Fourier space for sigma_yz
-//        REAL_SCALAR S_yz_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const
-//        {
-//            REAL_SCALAR k2 = kx*kx + ky*ky + kz*kz;
-//            return 120.*M_PI*sqrt(M_PI)*a*a*a/(LX*LY*LZ)*(ky*ky*kz*kz)/(k2*k2)*exp(-a*a*k2);
-//        }
-//
-//        SolidSolutionNoise getNoiseBase() const
-//        {
-//            GridSizeType gridSize;
-//            NoiseContainerType noise;
-//
-//            std::cout<<"Computing SolidSolutionNoise"<<std::endl;
-//            int ind = 0;
-//            REAL_SCALAR kx,ky,kz;
-//
-//            // read input command line
-//
-//            //        char* fname_out_yz = argv[10];  // name of the output vtk
-//            //        char* fname_out_xz = argv[11];  // name of the output vtk
-//
-//            REAL_SCALAR var, std;
-//
-//
-//
-//            REAL_SCALAR *Rr_yz;          // pointer of the REAL_SCALAR space data
-//            COMPLEX *Rk_yz;       // pointer of the fourier space data
-//
-//            REAL_SCALAR *Rr_xz;          // pointer of the REAL_SCALAR space data
-//            COMPLEX *Rk_xz;       // pointer of the fourier space data
-//
-//            fftw_plan plan_R_yz_r2c, plan_R_yz_c2r;  // fft plan
-//            fftw_plan plan_R_xz_r2c, plan_R_xz_c2r;  // fft plan
-//
-//            //    REAL_SCALAR *Sig_xz;
-//            //    REAL_SCALAR *Sig_yz;
-//
-//            // allocate
-//            Rr_yz = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*NR);
-//            Rk_yz = (COMPLEX*) fftw_malloc(sizeof(COMPLEX)*NK);
-//            Rr_xz = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*NR);
-//            Rk_xz = (COMPLEX*) fftw_malloc(sizeof(COMPLEX)*NK);
-//
-//
-//            //    Sig_xy = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*NR);
-//            //    Sig_xz = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*NR);
-//            //    Sig_yz = (REAL_SCALAR*) fftw_malloc(sizeof(REAL_SCALAR)*NR);
-//
-//            // prepare plans
-//            //    plan_W_r2c = fftw_plan_dft_r2c_3d(NX, NY, NZ, Wr, reinterpret_cast<fftw_complex*>(Wk), FFTW_ESTIMATE);
-//            //    plan_W_c2r = fftw_plan_dft_c2r_3d(NX, NY, NZ, reinterpret_cast<fftw_complex*>(Wk), Wr, FFTW_ESTIMATE);
-//            plan_R_yz_r2c = fftw_plan_dft_r2c_3d(NX, NY, NZ, Rr_yz, reinterpret_cast<fftw_complex*>(Rk_yz), FFTW_ESTIMATE);
-//            plan_R_yz_c2r = fftw_plan_dft_c2r_3d(NX, NY, NZ, reinterpret_cast<fftw_complex*>(Rk_yz), Rr_yz, FFTW_ESTIMATE);
-//            plan_R_xz_r2c = fftw_plan_dft_r2c_3d(NX, NY, NZ, Rr_xz, reinterpret_cast<fftw_complex*>(Rk_xz), FFTW_ESTIMATE);
-//            plan_R_xz_c2r = fftw_plan_dft_c2r_3d(NX, NY, NZ, reinterpret_cast<fftw_complex*>(Rk_xz), Rr_xz, FFTW_ESTIMATE);
-//
-//
-//
-//            // define the noise in Fourier space based on the auto-correlation function [Geslin et al. JPMS 2021]
-//            REAL_SCALAR Nk_yz, Mk_yz;
-//            REAL_SCALAR Nk_xz, Mk_xz;
-//
-//            std::default_random_engine generator(seed);
-//            std::normal_distribution<REAL_SCALAR> distribution(0.0,1.0);
-//
-//
-//            /////////////////////////////////////////////////////
-//            // generate yz and xz correlated component //
-//            /////////////////////////////////////////////////////
-//            for(int i=0; i<NX; i++)
-//            {
-//                for(int j=0; j<NY; j++)
-//                {
-//                    for(int k=0; k<(NZ/2+1); k++)
-//                    {
-//                        ind = NY*(NZ/2+1)*i + j*(NZ/2+1) + k;
-//
-//                        kx = 2.*M_PI/LX*REAL_SCALAR(i);
-//                        if(i>NX/2)
-//                        {
-//                            kx = 2.*M_PI/LX*REAL_SCALAR(i-NX);
-//                        }
-//
-//                        ky = 2*M_PI/LY*REAL_SCALAR(j);
-//                        if(j>NY/2)
-//                        {
-//                            ky = 2.*M_PI/LY*REAL_SCALAR(j-NY);
-//                        }
-//
-//                        kz = 2.*M_PI/LZ*REAL_SCALAR(k);
-//
-//                        // random numbers
-//                        Nk_yz = distribution(generator);
-//                        Mk_yz = distribution(generator);
-//                        if(kx*ky>=0)
-//                        {
-//                            Nk_xz = Nk_yz;
-//                            Mk_xz = Mk_yz;
-//                        }
-//                        else
-//                        {
-//                            Nk_xz = -Nk_yz;
-//                            Mk_xz = -Mk_yz;
-//                        }
-//
-//                        //                if(strcmp(comp,"corr")==0)
-//                        //                {
-//                        if(k==0) // /!\ special case for k=0 and k==NZ/2 because of folding of C2R Fourier transform
-//                        {
-//                            Rk_yz[ind] = sqrt(S_yz_k(kx,ky,kz))*(Nk_yz+Mk_yz*COMPLEX(0.0,1.0));
-//                            Rk_xz[ind] = sqrt(S_xz_k(kx,ky,kz))*(Nk_xz+Mk_xz*COMPLEX(0.0,1.0));
-//                        }
-//                        else if(k==NZ/2)
-//                        {
-//                            Rk_yz[ind] = sqrt(S_yz_k(kx,ky,kz))*(Nk_yz+Mk_yz*COMPLEX(0.0,1.0));
-//                            Rk_xz[ind] = sqrt(S_xz_k(kx,ky,kz))*(Nk_xz+Mk_xz*COMPLEX(0.0,1.0));
-//                        }
-//                        else
-//                        {
-//                            Rk_yz[ind] = sqrt(S_yz_k(kx,ky,kz)/2.)*(Nk_yz+Mk_yz*COMPLEX(0.0,1.0));
-//                            Rk_xz[ind] = sqrt(S_xz_k(kx,ky,kz)/2.)*(Nk_xz+Mk_xz*COMPLEX(0.0,1.0));
-//                        }
-//
-//                        if(a_cai>0)
-//                        {
-//                            Rk_yz[ind] = Rk_yz[ind]*Wk_Cai(kx, ky, kz, a_cai);
-//                            Rk_xz[ind] = Rk_xz[ind]*Wk_Cai(kx, ky, kz, a_cai);
-//                        }
-//                        //                }
-//                    }
-//                }
-//            }
-//            Rk_yz[0] = 0;
-//            Rk_xz[0] = 0;
-//
-//
-//            // FFT back to REAL_SCALAR space
-//            fftw_execute(plan_R_yz_c2r);
-//            fftw_execute(plan_R_xz_c2r);
-//
-//            gridSize[0]=NX;
-//            gridSize[1]=NY;
-//            gridSize[2]=NZ;
-//
-//            noise.reserve(NR);
-//            for(int i=0;i<NX;i++)
-//            {
-//                for(int j=0;j<NY;j++)
-//                {
-//                    for(int k=0;k<NZ;k++)
-//                    {
-//                        ind = NY*NZ*i + j*NZ + k;
-//                        //                    noise.push_back(std::array<double,2>{SolidSolutionNoise::ReverseDouble(double(Rr_xz[ind])),SolidSolutionNoise::ReverseDouble(double(Rr_yz[ind]))});
-//                        noise.push_back((NoiseType()<<Rr_xz[ind],Rr_yz[ind]).finished());
-//
-//                        //                    std::cout<<noise.back()[0]<<" "<<noise.back()[1]<<std::endl;
-//                        //                    temp=ReverseDouble(double(F[ind]));
-//                        //                    fwrite(&temp, sizeof(double), 1, OutFile);
-//                    }
-//                }
-//            }
-//            //        for(size_t k=0;k<NR;++k)
-//            //        {
-//            //            noise.push_back(std::array<double,2>{Rr_xz[k],Rr_yz[k]});
-//            //        }
-//
-//            return SolidSolutionNoise(gridSize,noise);
-//        }
-//    #else
-//
-//        SolidSolutionNoise getNoiseBase() const
-//        {
-//            GridSizeType gridSize;
-//            NoiseContainerType  noise;
-//            return SolidSolutionNoise(gridSize,noise);
-//        }
-//    #endif
-//
-//
-//
-//
-//    };
+    struct SolidSolutionNoiseGenerator: public NoiseTraits<2>::NoiseContainerType
+    {
+
+        typedef typename NoiseTraits<2>::REAL_SCALAR REAL_SCALAR;
+        typedef typename NoiseTraits<2>::COMPLEX COMPLEX;
+        typedef typename NoiseTraits<2>::GridSizeType GridSizeType;
+        typedef typename NoiseTraitsBase::GridSpacingType GridSpacingType;
+        typedef typename NoiseTraits<2>::NoiseType NoiseType;
+        typedef typename NoiseTraits<2>::NoiseContainerType NoiseContainerType;
+        
+        int NX, NY, NZ;
+        REAL_SCALAR DX, DY, DZ;
+        REAL_SCALAR a;
+        REAL_SCALAR a_cai;
+        int seed;
+        //    int flag;
+        REAL_SCALAR LX, LY, LZ;
+        REAL_SCALAR DV;
+        int NR;
+        int NK;
+        REAL_SCALAR Norm;
+
+        SolidSolutionNoiseGenerator(const std::string& noiseFile,const PolycrystallineMaterialBase& mat,
+                                    const GridSizeType& _gridSize, const GridSpacingType& _gridSpacing_A);
+        
+        
+#ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
+        // Cai doubly-convoluted spreading function in Fourier space
+        REAL_SCALAR Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a) const;
+
+        // Cai spreading function
+        REAL_SCALAR W_Cai(REAL_SCALAR r2, REAL_SCALAR a) const;
+
+        REAL_SCALAR W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) const;
+        // normalized auto-correlation function in Fourier space for sigma_xy
+        REAL_SCALAR S_xy_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const;
+
+        // normalized auto-correlation function in Fourier space for sigma_xz
+        REAL_SCALAR S_xz_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const;
+
+        // normalized auto-correlation function in Fourier space for sigma_yz
+        REAL_SCALAR S_yz_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const;
+#endif
+        
+        void Write_field_slice(REAL_SCALAR *F, const char *fname);
+        
+    };
 
 
 
@@ -412,6 +185,7 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
     struct GlidePlaneNoise : public UniformPeriodicGrid<2>
     {
         typedef typename Eigen::Matrix<double,3,1> VectorDim;
+        typedef typename NoiseTraitsBase::GridSizeType GridSizeType;
 
         const int solidSolutionNoiseMode;
         const int stackingFaultNoiseMode;
@@ -421,6 +195,8 @@ struct SolidSolutionNoiseReader : public NoiseTraits<2>::NoiseContainerType
                 
         
         GlidePlaneNoise(const std::string& noiseFile,const PolycrystallineMaterialBase& mat);
+        
+        GridSizeType rowAndColIndices(const int& storageIndex) const;
         
         int storageIndex(const int& i,const int& j) const;
                 

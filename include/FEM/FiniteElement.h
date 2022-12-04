@@ -118,13 +118,21 @@ namespace model
                 for(int n=0;n<ElementType::nodesPerElement;++n)
                 {
                     auto temp1=temp.first->second.node(n).emplace(&temp.first->second);
-                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
+                    if(!temp1.second)
+                    {
+                        throw std::runtime_error("UNABLE TO INSERT ELEMENT IN NODE.");
+                    }
+//                    assert(temp1.second && "UNABLE TO INSERT ELEMENT IN NODE.");
                 }
             }
             
             if(std::is_same<ElementType,LagrangeElement<ElementType::dim,ElementType::order>>::value)
             {
-                assert((mesh2femIDmap().size()==mesh.template observer<0>().size()) && "mesh2femIDmap has wrong size.");
+                if(mesh2femIDmap().size()!=mesh.template observer<0>().size())
+                {
+                    throw std::runtime_error("mesh2femIDmap has wrong size.");
+                }
+//                assert((mesh2femIDmap().size()==mesh.template observer<0>().size()) && "mesh2femIDmap has wrong size.");
             
             }
             

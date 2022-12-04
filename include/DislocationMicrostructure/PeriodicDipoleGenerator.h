@@ -49,7 +49,7 @@ namespace model
 class PeriodicDipoleGenerator : public MicrostructureGeneratorBase
 {
     
-    static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int dipoleHeight);
+    static void generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int& dipoleHeight,const int& dipoleNodes,const double& glideStep);
     
     
 //    static void insertJunctionLoop(MicrostructureGenerator& mg,

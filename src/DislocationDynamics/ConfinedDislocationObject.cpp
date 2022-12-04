@@ -660,7 +660,11 @@ namespace model
                 
                 for(const auto& pos : posCointainer)
                 {// A face must include all positions
-                    assert(face->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
+                    if(!face->asPlane().contains(pos))
+                    {
+                        throw std::runtime_error("FACE MUS CONTAIN POSITION");
+                    }
+//                    assert(face->asPlane().contains(pos) && "FACE MUS CONTAIN POSITION");
                 }
                 
                 updateBoundingBoxWithMeshFace(*face);

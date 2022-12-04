@@ -105,9 +105,12 @@ namespace model
         ~Loop()
         {
             VerboseLoop(1,"Destroying Loop "<<tag()<<std::endl);
-
+if(loopLinks().size()!=0)
+{
+    throw std::runtime_error("Loop "+tag()+" not empty.");
+}
             
-            assert(loopLinks().size()==0 && "DESTROYING NON-EMPTY LOOP.");
+//            assert(loopLinks().size()==0 && "DESTROYING NON-EMPTY LOOP.");
             
 //            _loopNetwork->removeLoop(this->p_derived());
 //            LoopObserverType::removeLoop(this->p_derived());
@@ -189,7 +192,11 @@ namespace model
         {
             VerboseLoop(2,"Loop "<<tag()<<" removeLoopLink "<<pL->tag()<<std::endl);
             const size_t erased=loopLinks().erase(pL);
-            assert(erased==1 && "Could not erase from linkMap");
+            if(erased!=1)
+            {
+                throw std::runtime_error("Cannot remove link "+pL->tag()+" from loop "+tag());
+            }
+//            assert(erased==1 && "Could not erase from linkMap");
         }
 
         
