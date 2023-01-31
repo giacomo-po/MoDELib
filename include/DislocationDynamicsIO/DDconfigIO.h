@@ -24,6 +24,7 @@
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
 #include <EshelbyInclusionIO.h>
+//#include <DislocationDynamicsModule.h>
 //#include <DislocationNetwork.h>
 //#include <PeriodicLoopIO.h>
 

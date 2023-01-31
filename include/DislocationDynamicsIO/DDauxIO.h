@@ -19,6 +19,7 @@
 #include <GlidePlaneIO.h>
 #include <GlidePlaneModule.h>
 #include <DislocationQuadraturePointIO.h>
+//#include <DislocationDynamicsModule.h>
 //#include <PeriodicLoopLinkIO.h>
 //#include <PeriodicLoopNodeIO.h>
 #include <MeshNodeIO.h>

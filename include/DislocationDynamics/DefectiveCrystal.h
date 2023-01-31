@@ -46,7 +46,7 @@ namespace model
         const std::unique_ptr<DislocationNetworkType> DN;
         const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;
-        const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
+        std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
         
         
         

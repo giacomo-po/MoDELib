@@ -4,7 +4,12 @@ include_directories(${MoDELibRootDir}/include/Quadrature/)
 include_directories(${MoDELibRootDir}/include/ParticleInteraction/)
 include_directories(${MoDELibRootDir}/include/SpaceDecomposition/)
 include_directories(${MoDELibRootDir}/include/DiscreteCrackMechanics/)
+#include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
+#include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 include_directories(${MoDELibRootDir}/include/DislocationDynamics/)
+#include_directories(${MoDELibRootDir}/include/DislocationDynamics/Polycrystals/)
+#include_directories(${MoDELibRootDir}/include/DislocationDynamics/ElasticFields/)
+#include_directories(${MoDELibRootDir}/include/DislocationDynamics/Visualization/)
 
 target_sources(${PROJECT_NAME} PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLocalReference.cpp

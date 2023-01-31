@@ -39,7 +39,7 @@ namespace model
 //        const int periodicImages_y;
 //        const int periodicImages_z;
         const std::vector<int> periodicImageSize;
-        const long int Nsteps;
+        long int Nsteps;
         const int timeIntegrationMethod;
         const int useSubCycling;
         const std::set<int> subcyclingBins; 
