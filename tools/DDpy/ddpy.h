@@ -7,23 +7,25 @@
 #include <string>
 #include <tuple>
 #include <list>
+#include <map>
 #include <stdlib.h> // EXIT_SUCCESS, EXIT_FAILURE
 
 #include <pybind11/pybind11.h>
 //#include <pybind11/smart_holder.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
 
 #include <Polycrystal.h>
 //#include <SimplicialMesh.h>
 //#include <DDconfigIO.h>
 //#include <Grain.h>
 #include <DefectiveCrystal.h>
+#include <MicrostructureGenerator.h>
+#include <MicrostructureGeneratorBase.h>
 //#include <DislocationSegment.h>
 //#include <DislocationDynamicsModule.h>
 #include <UniformExternalLoadController.h>
-#include <MicrostructureGenerator.h>
-#include <MicrostructureGeneratorBase.h>
 #include <IDreader.h>
-#include <VTKsegments.h>
 #include <string>
 #include <Eigen/Core>
 
@@ -40,10 +42,8 @@ class MicrostructureGeneratorInterface : public model::MicrostructureGenerator
             const std::string& folderName
             ) : MicrostructureGenerator( folderName)
       {}
-   //std::vector<double> printDisplacements();
 };
 
-//template< std::string folderName>
 class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
 {
    private:
@@ -60,6 +60,7 @@ class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
    {
       return this->simulationParameters.runID;
    }
+
    void setCurrentStep( const long int& currentStep)
    {
       this->simulationParameters.runID = currentStep;
@@ -86,26 +87,43 @@ class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
       return this->simulationParameters.Nsteps;
    }
 
-   void printSlipSystemNormals()
+   //std::map< size_t, VectorDim> printSlipSystemNormals()
+   //std::map< std::pair<size_t,size_t>, model::ReciprocalLatticeVector<3>>
+   // printSlipSystemNormals()
+   //std::map< std::pair<size_t,size_t>, VectorDim> printSlipSystemNormals()
+   std::list<std::tuple< size_t, size_t, VectorDim>> printSlipSystemNormals()
+   //std::map< std::pair<size_t,size_t>, std::string> printSlipSystemNormals()
    {
       size_t grainCount = 0;
       size_t slipSystemCount = 0;
+      //std::map< std::pair<size_t,size_t>, model::ReciprocalLatticeVector<3>> normals;
+      //std::map< std::pair<size_t,size_t>, VectorDim> normals;
+      std::list<std::tuple< size_t, size_t, VectorDim>> normals;
+      //std::map< std::pair<size_t,size_t>, std::string> normals;
+      // ((grain number, slip system number), plane normal)
       for ( const auto& grain : this->poly.grains)
       {
-         ++grainCount;
          std::cout << "grain " << grainCount << std::endl;
-         for ( const auto& nn : grain.second.singleCrystal->planeNormals())
-         {
-            ++slipSystemCount;
-            std::cout << "slip system " << slipSystemCount 
-               << " planeNormal: " << std::endl
-               << " (" << nn->row(0) 
-               << ", " << nn->row(1) 
-               << ", " << nn->row(2) 
+         for ( const auto& ss : grain.second.singleCrystal->slipSystems())
+         { // loop over slip system
+            std::cout << "slip system " << slipSystemCount
+               << " plane normal:" << std::endl
+               << " (" << std::endl << ss->unitNormal
                << ")" << std::endl;
+            normals.push_back(
+                  std::tuple( grainCount, slipSystemCount, ss->unitNormal)
+                  );
+            ++slipSystemCount;
          }
+         ++grainCount;
       }
-      return;
+      for ( const auto& nn : normals)
+      {
+         std::cout << "grain " << std::get<0>( nn)
+            << " slip system " << std::get<1>( nn)
+            << std::endl << std::get<2>( nn) << std::endl;
+      }
+      return normals;
    }
 
    void printSlipSystemBurgersVectors()
@@ -119,31 +137,23 @@ class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
          for ( const auto& ss : grain.second.singleCrystal->slipSystems())
          { // loop over slip system
             ++slipSystemCount;
-            std::cout << "slip system " << slipSystemCount 
+            std::cout << "slip system " << slipSystemCount
                << " burgers vector:" << std::endl
-               << " (" << ss->s.cartesian().row(0) 
-               << ", " << ss->s.cartesian().row(1) 
-               << ", " << ss->s.cartesian().row(2) 
+               << " (" << std::endl << ss->unitSlip
                << ")" << std::endl;
          }
       }
    }
 
-   //std::tuple<double> printResolvedShearStress();
+   std::list<std::tuple< size_t, size_t, double>>
+      getResolvedShearStresses();
+   std::list<std::tuple< size_t, size_t, double>>
+      getResolvedShearStrains();
+   std::list<std::tuple< size_t, size_t, double>>
+      getPlasticStrains();
 
-   //void ddpy::setCurrentStep( size_t currentStep)
-}; // class DefectiveCrystalInterface 
-
-//class DDsegments
-//{
-//   public:
-//      DDsegments( const std::string& folderName)
-//
-//      {
-//         VTKsegments vs( folderName);
-//         vs.readVTK( vtkFile);
-//      }
-//}; // class DDsegments
+   void generateMicrostructure();
+}; // class DefectiveCrystalInterface
 
 } // namespace ddpy
 

@@ -41,9 +41,15 @@ PYBIND11_MODULE( ddpy, m) {
       .def("printSlipSystemBurgersVectors",
             &ddpy::DefectiveCrystalInterface::printSlipSystemBurgersVectors
           )
-      //.def("printResolvedShearStress",
-      //      &ddpy::DefectiveCrystalInterface::printResolvedShearStress
-      //    )
+      .def("getResolvedShearStresses",
+            &ddpy::DefectiveCrystalInterface::getResolvedShearStresses
+          )
+      .def("getResolvedShearStrains",
+            &ddpy::DefectiveCrystalInterface::getResolvedShearStrains
+          )
+      .def("getPlasticStrains",
+            &ddpy::DefectiveCrystalInterface::getPlasticStrains
+          )
       ;
    py::class_<ddpy::MicrostructureGeneratorInterface>( m, "MicrostructureGeneratorInterface")
       .def( py::init([](const std::string& folderName){ // lambda function that returns an instantiation
@@ -56,175 +62,128 @@ PYBIND11_MODULE( ddpy, m) {
       ;
 } //  PYBIND11_MODULE
 
-//std::tuple<double>
-//ddpy::DefectiveCrystalInterface::printResolvedShearStress()
-//   {
-//      size_t grainCount = 0;
-//      size_t slipSystemCount = 0;
-//      //Eigen::Matrix< double, 3, 3> stress; 
-//      MatrixDim stress;
-//      MatrixDim strain;
-//      std::list<double> rss;
-//      if ( this->externalLoadController != NULL) 
-//      {
-//         stress = this->externalLoadController->ExternalStress;
-//      }
-//      else
-//      {
-//         std::cout << "error: printResolvedShearStress(), "
-//           << " this->externalLoadController == NULL" << std::endl;
-//         return std::make_tuple(rss);
-//      }
-//      for ( const auto& grain : this->poly.grains)
-//      {
-//         ++grainCount;
-//         rss.clear();
-//         std::cout << "grain " << grainCount << std::endl;
-//         for ( const auto& ss : grain.second.singleCrystal->slipSystems())
-//         { // loop over slip system
-//            ++slipSystemCount;
-//            std::cout << "slip system " << slipSystemCount 
-//               << " planeNormal: " << std::endl
-//               << ss->unitNormal << std::endl
-//               << " burgers vector: " << std::endl
-//               << ss->s.cartesian() << std::endl;
-//
-//            std::cout << "stress: " << std::endl << stress << std::endl;
-//            std::cout << "stress * planeNormal: " << std::endl
-//               << stress * (ss->unitNormal) << std::endl;
-//            std::cout << "rss: "
-//               <<  (stress * (ss->unitNormal)).dot(ss->s.cartesian())
-//               << std::endl;
-//            rss.push_back(
-//                  (stress * (ss->unitNormal)).dot(ss->s.cartesian()));
-//         } // loop over slip system
-//         return std::make_tuple(rss);
-//      }
-//      return;
-//   }
+std::list<std::tuple< size_t, size_t, double>>
+ddpy::DefectiveCrystalInterface::getResolvedShearStresses()
+{
+   size_t grainCount = 0;
+   size_t slipSystemCount = 0;
+   //Eigen::Matrix< double, 3, 3> stress;
+   MatrixDim stress;
+   std::list<std::tuple<size_t,size_t,double>> rss;
+   if ( this->externalLoadController != NULL)
+   {
+      stress = this->externalLoadController->stress( VectorDim::Zero());
+   }
+   else
+   {
+      std::cout << "error: getResolvedShearStresses(), "
+        << " this->externalLoadController == NULL" << std::endl;
+      return rss;
+   }
 
-//   //////model::Grain<3> myGrain = DC.poly.grain( 1);
-//   //////return myGrain.slipSystems().size();
-//   ////Eigen::Matrix<double,3,1> nn;
-//   ////std::cout << "number of grains: " 
-//   ////   << DC.poly.grains.size() << std::endl;
-//   ////std::cout << "number of slip systems: " 
-//   ////   << DC.poly.grain( 1).singleCrystal->slipSystems().size() << std::endl;
-//   ////Eigen::Matrix<double,3,1> bb;
-//   //////Eigen::Matrix<double,3,1> bbTemp;
-//   ////Eigen::Matrix< double, 3, 3> stress; 
-//   //////std::vector<double> rss;
-//   ////double rss=0.0;
-//   ////Eigen::Matrix< double, 3, 1> 
-//   ////   position( Eigen::Matrix< double, 3, 1>::Zero());
-//
-//   ////for ( size_t ssIdx=0; ssIdx < DC.poly.grain( 1).singleCrystal->slipSystems().size();
-//   ////      ++ssIdx)
-//   ////{
-//   ////   bb = DC.poly.grain( 1).singleCrystal->slipSystems()[ssIdx]->s.cartesian();
-//   ////   nn = DC.poly.grain( 1).singleCrystal->slipSystems()[ssIdx]->unitNormal;
-//   ////   std::cout << "slip system: " << ssIdx << std::endl; // debug
-//   ////   std::cout << "  Burgers b : " << bb[0] << ", " << bb[1] << ", " << bb[2] << std::endl; // debug
-//   ////   std::cout << "  slip plane normal n : " << nn[0] << ", " << nn[1] << ", " << nn[2] << std::endl; // debug
-//
-//   ////   if ( DC.DN->externalLoadController != NULL)
-//   ////      stress = DC.DN->externalLoadController->stress( position);
-//   ////   else
-//   ////   {
-//   ////      std::cout << "DC.DN->externalLoadConstroller is null" << std::endl; // debug
-//   ////      continue;
-//   ////   }
-//
-//   ////   // TODO: calculate (sigma * nn) dot b/|b|
-//   ////   rss = ( stress * nn).dot( bb);  
-//   ////   std::cout << "  resolved shear stress: " << rss << std::endl;
-//   ////}
-//
-//
-//
-//   //// read step beginStep
-//   ////DC.simulationParameters.runID = beginStep;
-//   //////  time step delta t is accessible from DN.simulationParameters.dt
-//   ////std::cout << "dt : " << DC.simulationParameters.dt << std::endl;
-//   ////std::cout << "runID : " << DC.simulationParameters.runID << std::endl;
-//   ////std::cout << "stress tensor: " << std::endl
-//   ////   << " " << stress(0,0) 
-//   ////   << " " << stress(0,1) 
-//   ////   << " " << stress(0,2) << std::endl
-//   ////   << " " << stress(1,0) 
-//   ////   << " " << stress(1,1) 
-//   ////   << " " << stress(1,2) << std::endl
-//   ////   << " " << stress(2,0) 
-//   ////   << " " << stress(2,1) 
-//   ////   << " " << stress(2,2) << std::endl;
-//
-//   ////std::cout << "n[1] : " << nn[1] << std::endl;
-//   ////std::cout << "setting Nsteps to " << runSteps << std::endl;
-//   ////DC.simulationParameters.Nsteps = runSteps;
-//   ////std::cout << "running " << DC.simulationParameters.Nsteps
-//   ////   << " steps" << std::endl;
-//   //DC.runGlideSteps();
-//   //std::cout << "finished running " << runSteps << " steps" << std::endl;
-//   //return 0;
-//   ////return myGrain.slipSystems()[0].s.cartesian().normalized;
-//}
-//
-////double get_something_from_modelib( const size_t& timeStep)
-////{
-////   std::string folderName = "evl";
-////   std::string suffix;
-////   Eigen::Matrix<double, 3, 3> rotationMatrix;
-////   rotationMatrix( 0, 0) = 1.0;
-////   rotationMatrix( 0, 1) = 0.0;
-////   rotationMatrix( 0, 2) = 0.0;
-////   rotationMatrix( 1, 0) = 0.0;
-////   rotationMatrix( 1, 1) = 1.0;
-////   rotationMatrix( 1, 2) = 0.0;
-////   rotationMatrix( 2, 0) = 0.0;
-////   rotationMatrix( 2, 0) = 0.0;
-////   rotationMatrix( 2, 1) = 0.0;
-////   rotationMatrix( 2, 2) = 1.0;
-////
-////   Eigen::Matrix<double, 3, 1> displacement;
-////
-////   // model::SingleCrystal
-////   // TODO: something that instantiates a PolyCrystal and DDconfigIO
-////   std::string polycrystalFilePath = "inputFiles/polycrystal.txt";
-////   std::string meshFileName = "MeshLibrary/small_block_structured1_fine_scaled_2order.msh";
-////   // TODO: read periodicFaceIDs from polycrystal.txt
-////   std::set<int> periodicFaceIDs( {0, 1, 2, 3, 4, 5});
-////   
-////   //model::SimplicialMesh<3> mesh;
-////   model::SimplicialMesh<3> mesh( polycrystalFilePath, rotationMatrix, 
-////         displacement, periodicFaceIDs);
-////   mesh.readMesh( meshFileName, rotationMatrix, displacement, periodicFaceIDs);
-////   model::Polycrystal<3> polyCrystal( polycrystalFilePath, mesh);
-////   model::DDconfigIO<3> modelibReader( folderName, suffix);
-////   std::cout << "reading time step " << timeStep << std::endl; // debug
-////   modelibReader.read( timeStep); // read in simulated step 1
-////   //model::Grain<3> myGrain = polyCrystal.grains().at( timeStep);
-////   //model::Grain<3> myGrain = polyCrystal.grain( 1);
-////   //model::Grain<3> myGrain = polyCrystal.grain( timeStep);
-////   //size_t grainSize = polyCrystal.grain( timeStep)
-////   //size_t ssSize = polyCrystal.grain( timeStep).slipSystems().size();
-////   size_t grainsSize = polyCrystal.grains.size();
-////   //myGrain.s
-////   
-////   return grainsSize; // arbitrary return value because I'm just messing around
-////   //return myGrain.slipSlipSystems().size();
-////}
-//
+   for ( const auto& grain : this->poly.grains)
+   {
+      rss.clear();
+      std::cout << "grain " << grainCount << std::endl;
+      for ( const auto& ss : grain.second.singleCrystal->slipSystems())
+      { // loop over slip system
+         //std::cout << "rss " << slipSystemCount << ": "
+         //   <<  (stress * (ss->unitNormal)).dot(ss->unitSlip)
+         //   << std::endl;
+         rss.push_back(
+                  std::tuple(
+                     grainCount,
+                     slipSystemCount,
+                     (stress * (ss->unitNormal)).dot(ss->unitSlip)
+                     )
+               );
 
-   //py::object world = py::cast("World"); // explicit conversion to py object
-   //m.attr("what") = world;
+         ++slipSystemCount;
+      } // loop over slip system
+      ++grainCount;
+   }
 
-   // notes:
-   //  instantiate a class Polycrystal, providing a container of 
-   //  SlipSystems
-   //  SlipSystem.unitNormal provides \hat{n} normal to the slip plane
-   //  SlipSystem.s is a lattice vector in units of lattice spacing
-   //  SlipSystem.s.cartesian() returns a unit vector parallel to the
-   //   slip system's Burger's vector
-   //  resolved shear stress would then be ((total stress tensor)*(slip system unit normal \hat{n}))*(SlipSystem.s.cartesian())
-//}
+   for ( const auto& itr : rss)
+   {
+      std::cout << "(grain,slipSystem,stress): " << "("
+         << std::get<0>(itr) << ","
+         << std::get<1>(itr) << ","
+         << std::get<2>(itr) << ")" << std::endl;
+   }
+
+   return rss;
+}
+
+std::list<std::tuple< size_t, size_t, double>>
+ddpy::DefectiveCrystalInterface::getResolvedShearStrains()
+{
+   size_t grainCount = 0;
+   size_t slipSystemCount = 0;
+   MatrixDim strain;
+   std::list<std::tuple<size_t,size_t,double>> rss;
+   if ( this->externalLoadController != NULL)
+   {
+      strain = this->externalLoadController->strain( VectorDim::Zero());
+   }
+   else
+   {
+      std::cout << "error: getResolvedShearStrains(), "
+        << " this->externalLoadController == NULL" << std::endl;
+      return rss;
+   }
+   for ( const auto& grain : this->poly.grains)
+   {
+      rss.clear();
+      for ( const auto& ss : grain.second.singleCrystal->slipSystems())
+      { // loop over slip system
+         rss.push_back(
+                  std::tuple(
+                     grainCount,
+                     slipSystemCount,
+                     (strain * (ss->unitNormal)).dot(ss->unitSlip)
+                     )
+               );
+         ++slipSystemCount;
+      } // loop over slip system
+      ++grainCount;
+   }
+   for ( const auto& itr : rss)
+   {
+      std::cout << "(grain,slipSystem,strain): " << "("
+         << std::get<0>(itr) << ","
+         << std::get<1>(itr) << ","
+         << std::get<2>(itr) << ")" << std::endl;
+   }
+   return rss;
+}
+
+std::list<std::tuple< size_t, size_t, double>>
+ddpy::DefectiveCrystalInterface::getPlasticStrains()
+{
+   std::list<std::tuple< size_t, size_t, double>> plasticStrains;
+   std::map<std::pair<int,int>,double> sspd(
+         this->DN->slipSystemPlasticDistortion());
+   // [[grain ID, slip system ID], strain value in that slip system]
+
+   //std::cout << "sspd.size: " << sspd.size() << std::endl;
+
+   // copy into list of tuples to be returned
+   for (const auto& itr : sspd)
+   {
+       plasticStrains.push_back(
+             std::tuple( itr.first.first, itr.first.second, itr.second)
+             );
+   }
+
+   for ( const auto& itr : plasticStrains)
+   {
+      std::cout << "(grain,slipSystem,strain): " << "("
+         << std::get<0>(itr) << ","
+         << std::get<1>(itr) << ","
+         << std::get<2>(itr) << ")" << std::endl;
+   }
+
+   return plasticStrains;
+}
+
 #endif

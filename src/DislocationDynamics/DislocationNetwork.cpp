@@ -340,6 +340,35 @@ typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder
 }
 
 template <int dim, short unsigned int corder>
+std::map<std::pair<int,int>,double> DislocationNetwork<dim,corder>::slipSystemPlasticDistortion() const
+{ //return map grainID, slipsystem id of that grain, and value is the strain in that slip system
+   std::map<std::pair<int,int>,double> temp;
+    for(const auto& weakloop : this->loops())
+    {
+       const auto loop(weakloop.second.lock());
+       if(loop->slipSystem())
+       {
+          //projection of loop plastic distortion onto it's slip system
+          const double val =
+             loop->slipSystem()->unitSlip.transpose() *loop->plasticDistortion() *loop->slipSystem()->unitNormal;
+         const std::pair<int,int> key(std::make_pair(loop->grain.grainID,loop->slipSystem()->sID));
+         auto iter(temp.find(key));
+         if(iter!=temp.end())
+         {
+               iter->second += val;
+         }
+         else
+         {// iter not found
+            temp.emplace(key,val);
+         }
+       }
+    }
+    return temp;
+}
+
+
+
+template <int dim, short unsigned int corder>
 typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticDistortionRate() const
 {
     MatrixDim temp(MatrixDim::Zero());

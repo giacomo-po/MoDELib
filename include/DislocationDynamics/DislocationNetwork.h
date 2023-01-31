@@ -184,6 +184,7 @@ namespace model
         MatrixDim plasticDistortionRate() const;
         MatrixDim plasticDistortion() const;
         MatrixDim plasticStrainRate() const;
+        std::map<std::pair<int,int>,double> slipSystemPlasticDistortion() const;
         void updateGeometry();//
         DislocationNetworkIOType& io();
         const DislocationNetworkIOType& io() const;
