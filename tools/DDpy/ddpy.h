@@ -20,13 +20,29 @@
 //#include <DislocationSegment.h>
 //#include <DislocationDynamicsModule.h>
 #include <UniformExternalLoadController.h>
+#include <MicrostructureGenerator.h>
+#include <MicrostructureGeneratorBase.h>
 #include <IDreader.h>
 #include <VTKsegments.h>
 #include <string>
 #include <Eigen/Core>
 
-namespace model2py
+namespace ddpy
 {
+class MicrostructureGeneratorInterface : public model::MicrostructureGenerator
+{
+   private:
+      //typedef model::DefectiveCrystal<3,0> DefectiveCrystalType;
+      //typedef Eigen::Matrix<double,3,1> VectorDim;
+      //typedef Eigen::Matrix<double,3,3> MatrixDim;
+   public:
+      MicrostructureGeneratorInterface(
+            const std::string& folderName
+            ) : MicrostructureGenerator( folderName)
+      {}
+   //std::vector<double> printDisplacements();
+};
+
 //template< std::string folderName>
 class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
 {
@@ -115,7 +131,7 @@ class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
 
    //std::tuple<double> printResolvedShearStress();
 
-   //void model2py::setCurrentStep( size_t currentStep)
+   //void ddpy::setCurrentStep( size_t currentStep)
 }; // class DefectiveCrystalInterface 
 
 //class DDsegments
@@ -129,6 +145,6 @@ class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
 //      }
 //}; // class DDsegments
 
-} // namespace model2py
+} // namespace ddpy
 
 #endif

@@ -1,14 +1,14 @@
 #!/usr/bin/python3
 
-import modelib2py
+import ddpy
 
 folderName = "./"
 print("instantiating MicrostructureGeneratorInterface")
-MG = modelib2py.MicrostructureGeneratorInterface( folderName)
+MG = ddpy.MicrostructureGeneratorInterface( folderName)
 print("instantiated MicrostructureGeneratorInterface")
 
 #print("instantiating DefectiveCrystalInterface")
-#DC = modelib2py.DefectiveCrystalInterface(folderName) # crashes?
+#DC = ddpy.DefectiveCrystalInterface(folderName) # crashes?
 #print("instantiated DefectiveCrystalInterface")
 #print(f"currentStep: {DC.getCurrentStep()}")
 #print(f"setCurrentStep(0)")

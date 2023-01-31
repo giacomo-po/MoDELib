@@ -4,51 +4,60 @@
 
 #include <ddpy.h>
 
-//model2py::DefectiveCrystalInterface::DefectiveCrystalInterface( const std::string& folderName) : model::DefectiveCrystal<3,0>( folderName) {}
+//ddpy::DefectiveCrystalInterface::DefectiveCrystalInterface( const std::string& folderName) : model::DefectiveCrystal<3,0>( folderName) {}
 
-PYBIND11_MODULE( modelib2py, m) {
+PYBIND11_MODULE( ddpy, m) {
    namespace py = pybind11;
    m.doc() = "TODO: revise m.doc() in src/modelib2py.cpp";
    //py::class_<model::DefectiveCrystal<3,0>>( m, "DefectiveCrystal")
    //   .def( py::init([](){
    //            return std::unique_ptr<model::DefectiveCrystal<3,0>>( new model::DefectiveCrystal<3,0>(std::string("./")));
    //            }))
-   py::class_<model2py::DefectiveCrystalInterface>( m, "DefectiveCrystalInterface")
+   py::class_<ddpy::DefectiveCrystalInterface>( m, "DefectiveCrystalInterface")
       .def( py::init([](const std::string& folderName){ // lambda function that returns an instantiation
-               return std::unique_ptr< model2py::DefectiveCrystalInterface>(
-                     new model2py::DefectiveCrystalInterface( folderName)
+               return std::unique_ptr< ddpy::DefectiveCrystalInterface>(
+                     new ddpy::DefectiveCrystalInterface( folderName)
                      );
                }), py::arg("folderPath"))
       .def("getCurrentStep",
-            &model2py::DefectiveCrystalInterface::getCurrentStep)
+            &ddpy::DefectiveCrystalInterface::getCurrentStep)
       .def("setCurrentStep",
-            &model2py::DefectiveCrystalInterface::setCurrentStep,
+            &ddpy::DefectiveCrystalInterface::setCurrentStep,
             py::arg("currentStep")
           )
       .def("getEndingStep",
-            &model2py::DefectiveCrystalInterface::getEndingStep
+            &ddpy::DefectiveCrystalInterface::getEndingStep
           )
       .def("setEndingStep",
-            &model2py::DefectiveCrystalInterface::setEndingStep,
+            &ddpy::DefectiveCrystalInterface::setEndingStep,
             py::arg("endingStep")
           )
       .def("runGlideSteps",
-            &model2py::DefectiveCrystalInterface::runGlideSteps
+            &ddpy::DefectiveCrystalInterface::runGlideSteps
           )
       .def("printSlipSystemNormals",
-            &model2py::DefectiveCrystalInterface::printSlipSystemNormals
+            &ddpy::DefectiveCrystalInterface::printSlipSystemNormals
           )
       .def("printSlipSystemBurgersVectors",
-            &model2py::DefectiveCrystalInterface::printSlipSystemBurgersVectors
+            &ddpy::DefectiveCrystalInterface::printSlipSystemBurgersVectors
           )
       //.def("printResolvedShearStress",
-      //      &model2py::DefectiveCrystalInterface::printResolvedShearStress
+      //      &ddpy::DefectiveCrystalInterface::printResolvedShearStress
       //    )
       ;
-}
+   py::class_<ddpy::MicrostructureGeneratorInterface>( m, "MicrostructureGeneratorInterface")
+      .def( py::init([](const std::string& folderName){ // lambda function that returns an instantiation
+               return std::unique_ptr< ddpy::MicrostructureGeneratorInterface>(
+                     new ddpy::MicrostructureGeneratorInterface( folderName)
+                     );
+               }), py::arg("folderPath"))
+      // TODO: expose any other class members to pybind here
+      //.def("printDisplacements", &ddpy::DefectiveCrystalInterface::printDisplacements)
+      ;
+} //  PYBIND11_MODULE
 
 //std::tuple<double>
-//model2py::DefectiveCrystalInterface::printResolvedShearStress()
+//ddpy::DefectiveCrystalInterface::printResolvedShearStress()
 //   {
 //      size_t grainCount = 0;
 //      size_t slipSystemCount = 0;
