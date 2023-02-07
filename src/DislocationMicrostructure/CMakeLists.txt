@@ -1,6 +1,7 @@
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/DislocationMobilities)
 include_directories(${MoDELibRootDir}/include/DislocationDynamicsIO)
+include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase)
 include_directories(${MoDELibRootDir}/include/DislocationMicrostructure/)
 
 target_sources(${PROJECT_NAME} PRIVATE 

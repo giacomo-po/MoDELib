@@ -279,6 +279,12 @@ namespace model
         {
             return enable? ExternalStress : MatrixDim::Zero();
         }
+
+        /*************************************************************************/
+        MatrixDim strain(const VectorDim&) const override
+        {
+            return enable? ExternalStrain : MatrixDim::Zero();
+        }
         
         /*************************************************************************/
         void update(const long int& runID) override

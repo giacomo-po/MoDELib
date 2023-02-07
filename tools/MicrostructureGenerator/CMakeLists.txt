@@ -2,7 +2,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(microstructureGenerator VERSION 1.0.0 LANGUAGES CXX)
 
-set(EigenRootDir "/usr/local/include")
+find_package(Eigen3 REQUIRED NAMES Eigen3)
+list(APPEND MG_LINK_LIBRARIES_LIST Eigen3::Eigen)
+include_directories(Eigen3::Eigen)
 set(MoDELibRootDir "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 set(CMAKE_BUILD_TYPE Release)
@@ -17,10 +19,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -Ofast")
 
+#set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # creates compile_commands.json
+#set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 
-include_directories(${EigenRootDir})
 include_directories(${MoDELibRootDir}/include/Utilities/)
 include_directories(${MoDELibRootDir}/include/IO/)
 include_directories(${MoDELibRootDir}/include/Math/)
@@ -42,6 +45,8 @@ add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
 add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
 add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
+add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsBase DDDBase)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 
 add_subdirectory(${MoDELibRootDir}/src/DislocationMicrostructure Microstructure)
+target_link_libraries(${PROJECT_NAME} ${MG_LINK_LIBRARIES_LIST})

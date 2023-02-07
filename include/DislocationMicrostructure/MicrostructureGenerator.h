@@ -43,40 +43,32 @@
 #include <Plane.h>
 #include <MicrostructureGeneratorBase.h>
 
-
 namespace model
 {
-
-    
-
     class MicrostructureGenerator : public std::map<std::string,MicrostructureGeneratorBase* const>
     {
         constexpr static int dim=MicrostructureGeneratorBase::dim;
         typedef typename  MicrostructureGeneratorBase::VectorDimD VectorDimD;
-//        typedef typename  MicrostructureGeneratorBase::VectorDimI VectorDimI;
         typedef typename  MicrostructureGeneratorBase::DislocationLoopType DislocationLoopType;
 
 
-        DDtraitsIO traitsIO;
+        const DDtraitsIO& traitsIO;
         DDconfigIO<3> configIO;
         DDauxIO<dim> auxIO;
 
     public:
         
-//        const TextFileParser parser;
         const bool outputBinary;
-//        const int meshID;
-        const std::set<int> periodicFaceIDs;
-//        const std::string meshFilename;
-        const SimplicialMesh<dim> mesh;
+        const std::set<int>& periodicFaceIDs;
+        const SimplicialMesh<dim>& mesh;
         const double minSize;
         const double maxSize;
-        const Polycrystal<dim> poly;
+        const Polycrystal<dim>& poly;
         GlidePlaneFactory<dim> glidePlaneFactory;
         PeriodicGlidePlaneFactory<dim> periodicGlidePlaneFactory;
         std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap;
         
-        MicrostructureGenerator(const std::string& folderName);
+        MicrostructureGenerator( const DislocationDynamicsBase<3>&);
         
         const DDconfigIO<3>& config() const;
         const DDauxIO<3>& aux() const;

@@ -129,17 +129,14 @@ namespace model
         
         /**********************************************************************/
         template <int _dim, short unsigned int corder>
-        DefectiveCrystal<_dim,corder>::DefectiveCrystal(const std::string& folderName) :
-        /* init */ simulationParameters(folderName)
-        /* init */,periodicFaceIDs(TextFileParser(simulationParameters.traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
-        /* init */,mesh(simulationParameters.traitsIO.meshFile,
-                        TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("A",3,3,true),
-                        TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+        DefectiveCrystal<_dim,corder>::DefectiveCrystal( DislocationDynamicsBase<3>& ddBase) :
+        /* init */ simulationParameters( ddBase.simulationParameters)
+        /* init */,periodicFaceIDs( ddBase.periodicFaceIDs)
+        /* init */,mesh( ddBase.mesh)
         /* init */,periodicShifts(getPeriodicShifts(mesh,simulationParameters))
-        /* init */,poly(simulationParameters.traitsIO.polyFile,mesh)
+        /* init */,poly( ddBase.poly)
         /* init */,DN(simulationParameters.useDislocations? new DislocationNetworkType(simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID) : nullptr)
         /* init */,CS(simulationParameters.useCracks? new CrackSystemType() : nullptr)
-        //        /* init */,DN(argc,argv,simulationParameters,mesh,poly,bvpSolver,externalLoadController,periodicShifts,simulationParameters.runID)
         /* init */,bvpSolver(simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM? new BVPsolverType(mesh,*DN) : nullptr)
         /* init */,externalLoadController(getExternalLoadController(simulationParameters,*this,simulationParameters.runID))
         {

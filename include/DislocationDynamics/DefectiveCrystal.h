@@ -16,7 +16,7 @@
 
 #include <DDtimeIntegrator.h>
 #include <DefectiveCrystalParameters.h>
-#include <DislocationDynamicsModule.h>
+#include <DislocationDynamicsBase.h>
 #include <CrackSystem.h>
 #include <UniformExternalLoadController.h>
 
@@ -28,6 +28,7 @@ namespace model
     {
         
     public:
+        DefectiveCrystal( DislocationDynamicsBase<3>&);
         static constexpr int dim=_dim; // make dim available outside class
         typedef DefectiveCrystal<dim,corder> DefectiveCrystalType;
         typedef DislocationNetwork<dim,corder> DislocationNetworkType;
@@ -37,16 +38,16 @@ namespace model
         typedef BVPsolver<dim,2> BVPsolverType;
         typedef typename BVPsolverType::ElementType ElementType;
         
-        DefectiveCrystalParameters simulationParameters;
+        DefectiveCrystalParameters& simulationParameters;
         
-        const std::set<int> periodicFaceIDs;
-        const SimplicialMesh<dim> mesh;
+        const std::set<int>& periodicFaceIDs;
+        const SimplicialMesh<dim>& mesh;
         const std::vector<VectorDim> periodicShifts;
-        const Polycrystal<dim> poly;
+        const Polycrystal<dim>& poly;
         const std::unique_ptr<DislocationNetworkType> DN;
         const std::unique_ptr<CrackSystemType> CS;
         const std::unique_ptr<BVPsolverType> bvpSolver;
-        const std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
+        std::unique_ptr<ExternalLoadControllerBase<dim>> externalLoadController;
         
         
         
@@ -57,9 +58,7 @@ namespace model
         static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,const DefectiveCrystalParameters& params);
         void updateLoadControllers(const long int& runID, const bool& isClimbStep);
         
-    public:
         
-        DefectiveCrystal(const std::string& folderName) ;
         void singleGlideStep();;
         void runGlideSteps();
         MatrixDim plasticDistortion() const;
