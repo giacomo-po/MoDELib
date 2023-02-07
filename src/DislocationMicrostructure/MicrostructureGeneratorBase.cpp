@@ -20,22 +20,22 @@
 
 namespace model
 {
-
     PeriodicPlanePatch<3>* PolyPoint::periodicPlanePatch() const
     {
         return nullptr;
     }
 
-    MicrostructureGeneratorBase::MicrostructureGeneratorBase(const std::string& fileName):
-    /* init */ microstructureFileName(fileName)
-    /* init */,parser(microstructureFileName)
+    MicrostructureGeneratorBase::MicrostructureGeneratorBase(
+          const std::string& fileName
+          //const DislocationDynamicsBase<3>& ddBase
+          ):
+    /* init */ microstructureFileName( fileName) //ddBase.ddFolderName)
+    /* init */,parser( microstructureFileName)
     /* init */,type(parser.readString("type",false))
     /* init */,style(parser.readString("style",false))
     /* init */,tag(parser.readString("tag",false))
     {
-        std::cout<<greenColor<<tag<<" -> "<<type<<" "<<style<<defaultColor<<" ("<<fileName<<")"<<std::endl;
+        std::cout<<greenColor<<tag<<" -> "<<type<<" "<<style<<defaultColor<<" ("<<microstructureFileName<<")"<<std::endl;
     }
-
-
 }
 #endif

@@ -25,23 +25,23 @@ namespace model
 {
 
     /**********************************************************************/
-    MicrostructureGenerator::MicrostructureGenerator(const std::string& folderName) :
-    /* init*/ traitsIO(folderName)
-    /* init*/,configIO(traitsIO.evlFolder)
-    /* init*/,auxIO(traitsIO.auxFolder)
-    /* init*/,outputBinary(TextFileParser(traitsIO.ddFile).readScalar<int>("outputBinary",true))
-    /* init */,periodicFaceIDs(TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
-//    /* init */,meshFilename(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true))
-    /* init */,mesh(traitsIO.meshFile,TextFileParser(traitsIO.polyFile).readMatrix<double>("A",3,3,true),
-                    TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+    MicrostructureGenerator::MicrostructureGenerator(
+         const DislocationDynamicsBase<3>& ddBase) :
+    /* init*/ traitsIO( ddBase.simulationParameters.traitsIO) // moved to DislocationDynamicsBase::simulationParameters.traitsIO
+    /* init */,configIO( traitsIO.evlFolder)
+    /* init */,auxIO( traitsIO.auxFolder)
+    /* init */,outputBinary(TextFileParser( traitsIO.ddFile).readScalar<int>("outputBinary",true))
+    /* init */,periodicFaceIDs(TextFileParser( ddBase.simulationParameters.traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
+    /* init */,mesh( ddBase.mesh)
+    //                TextFileParser(simulationParameters.traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
     /* init*/,minSize(0.1*std::min(mesh.xMax(0)-mesh.xMin(0),std::min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
     /* init*/,maxSize(std::max(mesh.xMax(0)-mesh.xMin(0),std::max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-    /* init*/,poly(traitsIO.polyFile,mesh)
+    /* init*/,poly( ddBase.poly)
     /* init*/,glidePlaneFactory(poly)
     /* init*/,periodicGlidePlaneFactory(poly, glidePlaneFactory)
     {
         
-        std::cout<<greenBoldColor<<"Generating microstructure for "<<folderName<<defaultColor<<std::endl;
+        std::cout<<greenBoldColor<<"Generating microstructure for "<< traitsIO.simulationFolder <<defaultColor<<std::endl;
         
         
         // Some sanity checks
@@ -252,7 +252,7 @@ bool MicrostructureGenerator::allPointsInGrain(const std::vector<VectorDimD>& po
     bool temp=true;
     for(const auto& point : points)
     {
-        temp*=mesh.searchRegion(grainID,point).first;
+        temp *= mesh.searchRegion(grainID,point).first;
         if(!temp)
         {
             break;

@@ -15,6 +15,7 @@ int main(int argc, char** argv)
     
     const std::string folderName(argc>1? std::string(argv[1]) : "./");
     
-    MicrostructureGenerator mg(folderName);
+    DislocationDynamicsBase<3> ddBase( folderName);
+    MicrostructureGenerator mg( ddBase);
     return 0;
 }

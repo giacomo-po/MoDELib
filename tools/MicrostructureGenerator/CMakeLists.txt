@@ -19,6 +19,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -march=native -Ofast")
 
+#set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # creates compile_commands.json
+#set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 add_executable(microstructureGenerator microstructureGenerator.cpp)
 
@@ -43,6 +45,7 @@ add_subdirectory(${MoDELibRootDir}/src/Mesh Mesh)
 add_subdirectory(${MoDELibRootDir}/src/GlidePlanes GlidePlanes)
 add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
+add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsBase DDDBase)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
 
 add_subdirectory(${MoDELibRootDir}/src/DislocationMicrostructure Microstructure)

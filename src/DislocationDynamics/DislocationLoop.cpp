@@ -2,7 +2,7 @@
  *
  * Copyright (C) 2011 by Giacomo Po <gpo@ucla.edu>.
  *
- * model is distributed without any warranty under the 
+ * model is distributed without any warranty under the
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
@@ -41,7 +41,7 @@ namespace model
     template <int dim, short unsigned int corder>
     void DislocationLoop<dim,corder>::crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const
     {
-        
+
         std::deque<std::deque<std::pair<const LoopLinkType*,int>>> csBranches;
         //std::cout<<"Loop "<<this->tag()<<std::endl;
         if(this->network().crossSlipModel)
@@ -51,7 +51,7 @@ namespace model
             {
                 //std::cout<<"Link "<<link->tag()<<std::endl;
 
-                
+
                 if(link->hasNetworkLink())
                 {
                     const auto isCSLink(this->network().crossSlipModel->isCrossSlipLink(*link->networkLink()));
@@ -101,7 +101,7 @@ namespace model
                             //std::cout<<"E"<<std::endl;
                     }
                 }
-                
+
             }
             if(!currentBranch.empty())
             {// close and store branch if not empty
@@ -109,7 +109,7 @@ namespace model
                 currentBranch.clear();
                 //std::cout<<"F"<<std::endl;
             }
-            
+
             //std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
             if(csBranches.size()>1)
             {// Inserted two or more branches. Merge last and first branch if possible
@@ -121,7 +121,7 @@ namespace model
                     {
                         csBranches[0].push_front(*rIter);
                     }
-                    
+
 //                    for(const auto& pair : csBranches.front())
 //                    {
 //                        csBranches.back().push_back(pair);
@@ -129,7 +129,7 @@ namespace model
                     csBranches.pop_back();
                 }
             }
-            
+
             //std::cout<<"Adding csNodes"<<std::endl;
             for(const auto& branch : csBranches)
             {
@@ -175,10 +175,10 @@ namespace model
                     }
                 }
             }
-            
+
 //            //std::cout<<"Loop "<<this->tag()<<", csBranches.size()="<<csBranches.size()<<std::endl;
 
-            
+
 //            //std::cout<<"Loop "<<this->tag()<<": csBranches.size()="<<csBranches.size()<<std::endl;
 //            for(const auto& brach : csBranches)
 //            {
@@ -187,19 +187,19 @@ namespace model
 //                    //std::cout<<pair.first->tag()<<std::endl;
 //                }
 //            }
-            
-        }
-        
-        
 
-        
-        
+        }
+
+
+
+
+
     }
 
     template <int dim, short unsigned int corder>
     int DislocationLoop<dim,corder>::windingNumber(const VectorDim& pt)
     {/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
-      
+
       */
         int wn(0);
         for(const auto& pair : _patches)
@@ -219,7 +219,7 @@ namespace model
 template <int dim, short unsigned int corder>
 int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,1>& localPt,const std::shared_ptr<GlidePlane<dim>>& ptPlane)
 {/*!\param[in] pts,vector of positions about which to compute the winding number of this loop
-  
+
   */
     int wn(0);
     for(const auto& pair : _patches)
@@ -243,19 +243,19 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         VerboseDislocationLoop(1,"Destroying DislocationLoop "<<this->sID<<std::endl;);
 
     }
-    
+
     template <int dim, short unsigned int corder>
     std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder>>::LoopType> DislocationLoop<dim,corder>::clone() const
     {
         return std::shared_ptr<typename TypeTraits<DislocationLoop<dim,corder>>::LoopType>(new DislocationLoop(this->p_network(),burgers(),glidePlane));
     }
-    
+
     template <int dim, short unsigned int corder>
     void DislocationLoop<dim,corder>::initFromFile(const std::string& fileName)
     {
         verboseDislocationLoop=TextFileParser(fileName).readScalar<int>("verboseDislocationLoop",true);
     }
-    
+
     template <int dim, short unsigned int corder>
     const double& DislocationLoop<dim,corder>::slippedArea() const
     {
@@ -267,25 +267,25 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
     {
         return _slippedAreaRate;
     }
-    
+
     template <int dim, short unsigned int corder>
     const typename DislocationLoop<dim,corder>::VectorDim& DislocationLoop<dim,corder>::rightHandedUnitNormal() const
     {
         return _rightHandedUnitNormal;
     }
-    
+
     template <int dim, short unsigned int corder>
     const typename DislocationLoop<dim,corder>::ReciprocalLatticeDirectionType& DislocationLoop<dim,corder>::rightHandedNormal() const
     {
         return _rightHandedNormal;
     }
-    
+
     template <int dim, short unsigned int corder>
     bool DislocationLoop<dim,corder>::isVirtualBoundaryLoop() const
     {
         return loopType==DislocationLoopIO<dim>::VIRTUALLOOP;
     }
-    
+
     template <int dim, short unsigned int corder>
     double DislocationLoop<dim,corder>::planarSolidAngle(const VectorDim& x,
                                    const VectorDim& planePoint,
@@ -329,14 +329,14 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         }
         return temp;
     }
-    
+
     template <int dim, short unsigned int corder>
     template <typename T>
     int DislocationLoop<dim,corder>::sgn(const T& val)
     {
         return (val > T(0)) - (val < T(0));
     }
-    
+
     template <int dim, short unsigned int corder>
     double DislocationLoop<dim,corder>::solidAngle(const VectorDim& x) const
     {
@@ -345,19 +345,39 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         {
             if(_slippedArea>FLT_EPSILON)
             {// a right-handed normal for the loop can be determined
-                std::vector<std::pair<VectorDim,VectorDim>> segments;
-                for(const auto& loopLink : this->loopLinks())
+
+                for(const auto& pair : _patches)
                 {
-                    segments.emplace_back(loopLink->source->get_P(),loopLink->sink->get_P());
+                  const auto patchGlidePlane(pair.first->patchBoundary->referencePlane);
+                  std::vector<std::pair<VectorDim,VectorDim>> segments;
+                  for(size_t k=0;k<pair.second.size();++k)
+                  {
+                     const size_t k1(k+1==pair.second.size()? 0 : k+1);
+                     segments.emplace_back(
+                        patchGlidePlane->globalPosition(pair.second[k]),
+                        patchGlidePlane->globalPosition(pair.second[k1])
+                        );
+                     // coordinates of the polygon:
+                     //  (patchGlidePlane->globalPosition(pair.second[k]),
+                     //   patchGlidePlane->globalPosition(pair.second[k1])
+                  }
+                  temp += planarSolidAngle(x,patchGlidePlane->P,rightHandedUnitNormal(),segments);
                 }
-                temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
+
+
+//                std::vector<std::pair<VectorDim,VectorDim>> segments;
+//                for(const auto& loopLink : this->loopLinks())
+//                {
+//                    segments.emplace_back(loopLink->source->get_P(),loopLink->sink->get_P());
+//                }
+//                temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
             }
         }
         else
         {
             const auto linkSeq(this->linkSequence());
             assert(linkSeq.size()==4);
-            
+
             std::vector<std::pair<VectorDim,VectorDim>> triangle0;
             triangle0.emplace_back(linkSeq[0]->source->get_P(),linkSeq[0]->sink->get_P());
             triangle0.emplace_back(linkSeq[1]->source->get_P(),linkSeq[1]->sink->get_P());
@@ -373,7 +393,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
             {
                 temp+=planarSolidAngle(x,planePoint0,rhN0/rhN0norm,triangle0);
             }
-            
+
             std::vector<std::pair<VectorDim,VectorDim>> triangle1;
             triangle1.emplace_back(linkSeq[2]->source->get_P(),linkSeq[2]->sink->get_P());
             triangle1.emplace_back(linkSeq[3]->source->get_P(),linkSeq[3]->sink->get_P());
@@ -392,8 +412,9 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         }
         return temp;
     }
-    
+
     template <int dim, short unsigned int corder>
+    //std::tuple<double,double,double,double> DislocationLoop<dim,corder>::loopLength() const
     std::tuple<double,double,double> DislocationLoop<dim,corder>::loopLength() const
     {
         double freeLength=0.0;
@@ -420,7 +441,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
                 }
             }
         }
-        return std::make_tuple(freeLength,junctionLength,boundaryLength);
+        return std::make_tuple(freeLength,junctionLength,boundaryLength);//,slippedArea());
     }
 
     template <int dim, short unsigned int corder>
@@ -435,7 +456,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         }
         return std::shared_ptr<SlipSystem>(nullptr);
     }
-    
+
     template <int dim, short unsigned int corder>
     typename DislocationLoop<dim,corder>::MatrixDim DislocationLoop<dim,corder>::plasticDistortion() const
     {
@@ -449,13 +470,13 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
     {
         return -burgers()*nAR.transpose()/this->network().mesh.volume();
     }
-    
+
     template <int dim, short unsigned int corder>
     typename DislocationLoop<dim,corder>::VectorDim DislocationLoop<dim,corder>::burgers() const
     {
         return this->flow().cartesian();
     }
-    
+
     template <int dim, short unsigned int corder>
     void DislocationLoop<dim,corder>::updateSlipSystem()
     {
@@ -483,7 +504,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         {// no glide plane
             _slipSystem=nullptr;
         }
-        
+
         if(_slipSystem.get()!=oldSlipSystem)
         {
             for(const auto& link : this->loopLinks())
@@ -504,13 +525,13 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
             VerboseDislocationLoop(3,"slipSystem NOT FOUND"<<std::endl;);
         }
     }
-    
+
     template <int dim, short unsigned int corder>
     const std::shared_ptr<SlipSystem>&  DislocationLoop<dim,corder>::slipSystem() const
     {
         return _slipSystem;
     }
-    
+
     template <int dim, short unsigned int corder>
     void DislocationLoop<dim,corder>::updateGeometry()
     {
@@ -566,7 +587,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
             }
         }
         updateSlipSystem();
-        
+
         // Update patches
         if(periodicGlidePlane)
         {
@@ -585,7 +606,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
                     localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(link->source->get_P()));
                 }
             }
-            
+
             const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
             for(const auto& patch : loopPatches)
             {
@@ -609,8 +630,9 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
 
     template <int dim, short unsigned int corder>
     int DislocationLoop<dim,corder>::verboseDislocationLoop=0;
-    
+
     template class DislocationLoop<3,0>;
 
 }
 #endif
+

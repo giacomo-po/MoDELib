@@ -22,6 +22,7 @@
 #include <DefectiveCrystal.h>
 #include <MicrostructureGenerator.h>
 #include <MicrostructureGeneratorBase.h>
+#include <DislocationDynamicsBase.h>
 //#include <DislocationSegment.h>
 //#include <DislocationDynamicsModule.h>
 #include <UniformExternalLoadController.h>
@@ -31,129 +32,128 @@
 
 namespace ddpy
 {
-class MicrostructureGeneratorInterface : public model::MicrostructureGenerator
-{
-   private:
-      //typedef model::DefectiveCrystal<3,0> DefectiveCrystalType;
-      //typedef Eigen::Matrix<double,3,1> VectorDim;
-      //typedef Eigen::Matrix<double,3,3> MatrixDim;
-   public:
-      MicrostructureGeneratorInterface(
-            const std::string& folderName
-            ) : MicrostructureGenerator( folderName)
-      {}
-};
-
-class DefectiveCrystalInterface : public model::DefectiveCrystal<3,0>
+class DDInterface
 {
    private:
       typedef model::DefectiveCrystal<3,0> DefectiveCrystalType;
+      std::string folderPath;
+      model::DislocationDynamicsBase<3> ddBase;
+      DefectiveCrystalType DC;
+   public:
       typedef Eigen::Matrix<double,3,1> VectorDim;
       typedef Eigen::Matrix<double,3,3> MatrixDim;
-   public:
-   DefectiveCrystalInterface(
-         const std::string& folderName
-         ) : DefectiveCrystalType( folderName)
-   {}
+      DDInterface( const std::string& folderName):
+          folderPath( folderName)
+          ,ddBase( model::DislocationDynamicsBase<3>(folderPath))
+          ,DC( ddBase)
+      {};
 
-   size_t getCurrentStep()
-   {
-      return this->simulationParameters.runID;
-   }
+      std::list<std::tuple< size_t, size_t, double>>
+         getResolvedShearStresses();
+      std::list<std::tuple< size_t, size_t, double>>
+         getResolvedShearStrains();
+      std::list<std::tuple< size_t, size_t, double>>
+         getPlasticStrains();
+      ////std::list<std::tuple< size_t, size_t, Eigen::Matrix<double,3,1>>>
+      //std::map< std::pair<size_t,size_t>, VectorDim>
+      //   getSlipSystemNormals() const;
+      //std::list<std::tuple< size_t, size_t, Eigen::Matrix<double,3,1>>>
+      //std::map< std::pair<size_t,size_t>, Eigen::Matrix<double,3,1> >
+      //py::dict 
+      //   getSlipSystemBurgersVectors() const;
 
-   void setCurrentStep( const long int& currentStep)
-   {
-      this->simulationParameters.runID = currentStep;
-      this->externalLoadController = getExternalLoadController(
-               simulationParameters, *this, currentStep
-               );
-      this->simulationParameters.manageRestart(); // TODO: is this necessary or better than ^^^?
-   }
-
-   void setEndingStep( const long int& endingStep)
-   {
-      if ( endingStep <= this->simulationParameters.Nsteps)
+      std::string getFolderPath(){ return folderPath;}
+      void setEndingStep( const long int& endingStep)
       {
-         std::cout << "Warning: assigning endingStep=" << endingStep
-            << " <= currentStep:" << this->simulationParameters.Nsteps
-            << std::endl;
+         //if ( DC == NULL)
+         //{
+         //   std::cout << "Error: cannot assign ending step until "
+         //      << "DefectiveCrystal is instantiated" << std::endl;
+         //   return;
+         //}
+         if ( endingStep <= DC.simulationParameters.Nsteps)
+         {
+            std::cout << "Warning: assigning endingStep=" << endingStep
+               << " <= currentStep:" << DC.simulationParameters.Nsteps
+               << std::endl;
+         }
+         DC.simulationParameters.Nsteps = endingStep;
+         return;
       }
-      this->simulationParameters.Nsteps = endingStep;
-      return;
-   }
 
-   long int getEndingStep()
-   {
-      return this->simulationParameters.Nsteps;
-   }
-
-   //std::map< size_t, VectorDim> printSlipSystemNormals()
-   //std::map< std::pair<size_t,size_t>, model::ReciprocalLatticeVector<3>>
-   // printSlipSystemNormals()
-   //std::map< std::pair<size_t,size_t>, VectorDim> printSlipSystemNormals()
-   std::list<std::tuple< size_t, size_t, VectorDim>> printSlipSystemNormals()
-   //std::map< std::pair<size_t,size_t>, std::string> printSlipSystemNormals()
-   {
-      size_t grainCount = 0;
-      size_t slipSystemCount = 0;
-      //std::map< std::pair<size_t,size_t>, model::ReciprocalLatticeVector<3>> normals;
-      //std::map< std::pair<size_t,size_t>, VectorDim> normals;
-      std::list<std::tuple< size_t, size_t, VectorDim>> normals;
-      //std::map< std::pair<size_t,size_t>, std::string> normals;
-      // ((grain number, slip system number), plane normal)
-      for ( const auto& grain : this->poly.grains)
+      size_t getCurrentStep()
       {
-         std::cout << "grain " << grainCount << std::endl;
-         for ( const auto& ss : grain.second.singleCrystal->slipSystems())
-         { // loop over slip system
-            std::cout << "slip system " << slipSystemCount
-               << " plane normal:" << std::endl
-               << " (" << std::endl << ss->unitNormal
-               << ")" << std::endl;
-            normals.push_back(
-                  std::tuple( grainCount, slipSystemCount, ss->unitNormal)
+         //if ( DC == NULL)
+         //{
+         //   std::cout << "Error: cannot getCurrentStep until "
+         //      << "DefectiveCrystal is instantiated" << std::endl;
+         //   return 0;
+         //}
+         return DC.simulationParameters.runID;
+      }
+
+      void setCurrentStep( const long int& step)
+      {
+         //if ( DC == NULL)
+         //{
+         //   std::cout << "Error: cannot setCurrentStep until "
+         //      << "DefectiveCrystal is instantiated" << std::endl;
+         //   return;
+         //}
+
+         DC.simulationParameters.runID = step;
+         DC.externalLoadController = DC.getExternalLoadController(
+                  DC.simulationParameters, DC, step
                   );
-            ++slipSystemCount;
-         }
-         ++grainCount;
+         DC.simulationParameters.manageRestart();
+         return;
       }
-      for ( const auto& nn : normals)
+
+      void runGlideSteps( size_t Nsteps)
       {
-         std::cout << "grain " << std::get<0>( nn)
-            << " slip system " << std::get<1>( nn)
-            << std::endl << std::get<2>( nn) << std::endl;
+         //if ( DC == NULL)
+         //{
+         //   DC = new DefectiveCrystalType( ddBase);
+         //}
+         setEndingStep( getCurrentStep() + Nsteps);
+         DC.runGlideSteps();
+         return;
       }
-      return normals;
-   }
 
-   void printSlipSystemBurgersVectors()
-   {
-      size_t grainCount = 0;
-      size_t slipSystemCount = 0;
-      for ( const auto& grain : this->poly.grains)
-      {
-         ++grainCount;
-         std::cout << "grain " << grainCount << std::endl;
-         for ( const auto& ss : grain.second.singleCrystal->slipSystems())
-         { // loop over slip system
-            ++slipSystemCount;
-            std::cout << "slip system " << slipSystemCount
-               << " burgers vector:" << std::endl
-               << " (" << std::endl << ss->unitSlip
-               << ")" << std::endl;
-         }
-      }
-   }
+      //void regenerate()
+      //{
+      //   //if ( DC != NULL)
+      //   //{
+      //   //   std::cout << "new configuration evl/evl_0.txt generated, "
+      //   //      << "but I won't guarantee that the new DefectiveCrystal"
+      //   //      << " will load the 0'th timestep if others are present"
+      //   //      << " in " << folderPath << "/evl/ and "
+      //   //      << folderPath << "/F/" << std::endl;
+      //   //   //std::cout << "Instantiating DefectiveCrystal with new "
+      //   //   //   << "configuration" << std::endl;
+      //   //   delete DC;
+      //   //}
+      //   //DefectiveCrystalType::~DefectiveCrystal( DC);
+      //   DC.~DefectiveCrystal();
+      //   model::StaticID<model::
+      //      >::set_count(0);
+      //   model::MicrostructureGenerator mg( ddBase);
+      //   DefectiveCrystalType DC( ddBase);
+      //   // TODO: set the time step of DC to 0
+      //   return;
+      //}
+};
 
-   std::list<std::tuple< size_t, size_t, double>>
-      getResolvedShearStresses();
-   std::list<std::tuple< size_t, size_t, double>>
-      getResolvedShearStrains();
-   std::list<std::tuple< size_t, size_t, double>>
-      getPlasticStrains();
+//   //std::map< size_t, VectorDim> printSlipSystemNormals()
+//   //std::map< std::pair<size_t,size_t>, model::ReciprocalLatticeVector<3>>
+//   // printSlipSystemNormals()
+//   //std::map< std::pair<size_t,size_t>, VectorDim> printSlipSystemNormals()
+//   //std::map< std::pair<size_t,size_t>, std::string> printSlipSystemNormals()
 
-   void generateMicrostructure();
-}; // class DefectiveCrystalInterface
+
+
+//   void generateMicrostructure();
+//}; // class DefectiveCrystalInterface
 
 } // namespace ddpy
 

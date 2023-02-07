@@ -107,6 +107,7 @@ add_subdirectory(${MoDELibRootDir}/src/DislocationMobilities DDDmobilities)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsIO DDDIO)
 add_subdirectory(${MoDELibRootDir}/src/DislocationMicrostructure DDDmicrostructure)
 add_subdirectory(${MoDELibRootDir}/src/PolycrystallineMaterials PolyMaterials)
+add_subdirectory(${MoDELibRootDir}/src/DislocationDynamicsBase DDDBase)
 add_subdirectory(${MoDELibRootDir}/src/DislocationDynamics DDD)
 #add_subdirectory(${MoDELibRootDir}/src/vtk VTK)
 
