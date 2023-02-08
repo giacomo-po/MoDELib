@@ -16,6 +16,7 @@
 #include <MicrostructureGenerator.h>
 #include <PeriodicDipoleGenerator.h>
 #include <PeriodicLoopGenerator.h>
+#include <PrismaticLoopGenerator.h>
 #include <InclusionsGenerator.h>
 #include <IrradiationDefectsGenerator.h>
 
@@ -68,6 +69,10 @@ namespace model
             {
                 success=this->emplace(tag,new PeriodicLoopGenerator(microstructureFileName)).second;
             }
+            else if(microstructureType=="PrismaticLoop")
+            {
+                success=this->emplace(tag,new PrismaticLoopGenerator(microstructureFileName)).second;
+            }
             else if(microstructureType=="Inclusions")
             {
                 success=this->emplace(tag,new InclusionsGenerator(microstructureFileName)).second;
@@ -107,24 +112,7 @@ namespace model
             }
         }
         
-        // Call individual generators
-        //            addStraightDislocations();
-        //            addFrankReadSources();
-        //            addSingleArmDislocations();
-        //            addPrismaticLoops();
-        //            addIndividualStraightDislocations();
-        //            addFrankLoops();
-        //            addNonPlanarLoops();
-        //            // addPeriodicLoops();
-        //            addStatisticallyHomegeneousPeriodicLoops();
-        //    addIndividualPeriodicStraighDislocation();
-        //            addStatisticallyHomegeneousPlanarDipolarLoops();
-        //            addPeriodicJunctionLoops();
-        //            addIrradiationLoops();
-        //            addStackingFaultTetrahedra();
-        //            addEshelbyInclusions();
-        writeConfigFiles(0);
-        
+        writeConfigFiles(0);        
     }
 
     const DDconfigIO<3>& MicrostructureGenerator::config() const

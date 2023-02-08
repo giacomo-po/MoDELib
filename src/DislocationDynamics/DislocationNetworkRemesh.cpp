@@ -379,37 +379,51 @@ namespace model
        //            for (typename NetworkLinkContainerType::const_iterator linkIter=DN.linkBegin();linkIter!=DN.linkEnd();++linkIter)
        for (const auto& linkIter : DN.networkLinks())
        {
+           const auto link(linkIter.second.lock());
            if(!linkIter.second.lock()->hasZeroBurgers())
            {
-               VectorDim chord(linkIter.second.lock()->chord()); // this is sink->get_P() - source->get_P()
-               const double chordLength(chord.norm());
             //    if (!linkIter.second.lock()->source->isBoundaryNode() && !linkIter.second.lock()->sink->isBoundaryNode() && !linkIter.second.lock()->hasZeroBurgers())
-               if (!linkIter.second.lock()->source->isBoundaryNode() && !linkIter.second.lock()->sink->isBoundaryNode() )
+               if (!link->source->isBoundaryNode() && !link->sink->isBoundaryNode() )
                {
+//                   VectorDim chord(linkIter.second.lock()->chord()); // this is sink->get_P() - source->get_P()
+//                   const double chordLength(chord.norm());
+
                 //    if (chordLength <= FLT_EPSILON && (linkIter.second.lock()->source->get_V() - linkIter.second.lock()->sink->get_V()).squaredNorm() < FLT_EPSILON)
                 //Removing the second condition is important (both the nodes may not have the same velocity due to complex network formation)
                 //If the two nodes are not connected to any other links then this may be true otherwise it is not
-                if (chordLength <= FLT_EPSILON)
+                if (link->chordLength() <= FLT_EPSILON)
                 { // toBeContracted part
-                    toBeContracted.insert(std::make_pair(chordLength, std::make_pair(linkIter.second.lock()->source->sID, linkIter.second.lock()->sink->sID)));
+                    toBeContracted.insert(std::make_pair(link->chordLength(), std::make_pair(link->source->sID, link->sink->sID)));
                 }
                 else
                 {
-                    const VectorDim velChange(linkIter.second.lock()->sink->get_V() - linkIter.second.lock()->source->get_V());
-                    const double velChangeNorm(velChange.norm());
-                    if (velChangeNorm > FLT_EPSILON)
+                    const auto sourcePlanes(link->source->glidePlanes());
+                    const auto   sinkPlanes(link->sink->glidePlanes());
+
+                    if(sourcePlanes.size()==dim-1 && sourcePlanes==sinkPlanes)
                     {
-                        const double dotPTemp((chord / chordLength).dot(velChange / velChangeNorm));
-                        // std::cout<<"For "<<linkIter.second.lock()->tag()<<"dotP Temp is "<<dotPTemp<<"=>"<<((velChangeNorm * DN.simulationParameters.dt) >= chordLength)<<std::endl;
-                        // if (fabs(dotPTemp + 1) < FLT_EPSILON)
-                        if (dotPTemp  > FLT_EPSILON)
+                        if((link->chordLengthSquared()+link->chord().dot(link->sink->get_V() - link->source->get_V())* DN.simulationParameters.dt)<FLT_EPSILON)
                         {
-                            if ((velChangeNorm * DN.simulationParameters.dt) >= chordLength)
-                            {
-                                toBeContracted.insert(std::make_pair(chordLength, std::make_pair(linkIter.second.lock()->source->sID, linkIter.second.lock()->sink->sID)));
-                            }
+                            toBeContracted.insert(std::make_pair(link->chordLength(), std::make_pair(link->source->sID, link->sink->sID)));
                         }
                     }
+                    
+                    
+//                    const VectorDim velChange(linkIter.second.lock()->sink->get_V() - linkIter.second.lock()->source->get_V());
+//                    const double velChangeNorm(velChange.norm());
+//                    if (velChangeNorm > FLT_EPSILON)
+//                    {
+//                        const double dotPTemp((chord / chordLength).dot(velChange / velChangeNorm));
+//                        // std::cout<<"For "<<linkIter.second.lock()->tag()<<"dotP Temp is "<<dotPTemp<<"=>"<<((velChangeNorm * DN.simulationParameters.dt) >= chordLength)<<std::endl;
+//                        // if (fabs(dotPTemp + 1) < FLT_EPSILON)
+//                        if (dotPTemp  > FLT_EPSILON)
+//                        {
+//                            if ((velChangeNorm * DN.simulationParameters.dt) >= chordLength)
+//                            {
+//                                toBeContracted.insert(std::make_pair(chordLength, std::make_pair(linkIter.second.lock()->source->sID, linkIter.second.lock()->sink->sID)));
+//                            }
+//                        }
+//                    }
                 }
                }
            }
@@ -449,7 +463,10 @@ namespace model
                    }
                }
                
+               std::cout<<"Contracting "<<Lij->tag()<<std::endl;
                Ncontracted+=DN.contract(Lij->source,Lij->sink);
+
+               std::cout<<"Managing bnd nodes "<<std::endl;
 
                for (const size_t &nodeID : bndLoopNodes)
                {

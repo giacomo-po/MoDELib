@@ -56,6 +56,7 @@ namespace model
         MatrixDim stress;
         VectorDim pkForce;
         VectorDim stackingFaultForce;
+        VectorDim lineTensionForce;
         VectorDim glideVelocity;
         double elasticEnergyPerLength;
         int inclusionID;
@@ -81,6 +82,7 @@ namespace model
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         /* init */,inclusionID(-1)
@@ -112,6 +114,7 @@ namespace model
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         /* init */,inclusionID(-1)
@@ -133,6 +136,7 @@ namespace model
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         /* init */,inclusionID(-1)
@@ -283,8 +287,43 @@ namespace model
         void updateForcesAndVelocities(const LinkType& parentSegment)
         {
             pkForce=(stress*parentSegment.burgers()).cross(rl);
-            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce,stress,rl,dL,inclusionID);
+//            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce+lineTensionForce,stress,rl,dL,inclusionID);
+            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce+lineTensionForce,stress+forceToStress(stackingFaultForce+lineTensionForce,parentSegment),rl,dL,inclusionID);
         }
+        
+        template<typename LinkType>
+        MatrixDim forceToStress(const VectorDim& force,const LinkType& parentSegment) const
+        {
+            // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
+            const double burgersNorm(parentSegment.burgers().norm());
+            if(burgersNorm>FLT_EPSILON)
+            {
+                const double resolvedtensionStress (force.norm()/burgersNorm);
+                const VectorDim unitBurgers(parentSegment.burgers()/burgersNorm);
+                const MatrixDim tensionStress(resolvedtensionStress*(unitBurgers*parentSegment.glidePlaneNormal().transpose() + parentSegment.glidePlaneNormal()*unitBurgers.transpose()));
+                const VectorDim eqPKForce ((tensionStress*parentSegment.burgers()).cross(rl));
+                const double eqForceNorm(eqPKForce.norm());
+                if (eqForceNorm>FLT_EPSILON)
+                {
+                    if (eqPKForce.dot(force) > 0.0)
+                    {
+                        return tensionStress;
+                    }
+                    else
+                    {
+                        return -tensionStress;
+                    }
+                }
+            }
+            return MatrixDim::Zero();
+
+//            else
+//            {
+//                return MatrixDim::Zero();
+//            }
+        }
+        
+        
     };
     
     template<int dim,int corder>
@@ -590,60 +629,63 @@ namespace model
                             assert(ll->source->periodicPrev()!=nullptr && "PeriodicPrev must exist from network link for line tension contribution");
                             assert(ll->sink->periodicNext()!=nullptr && "PeriodicNext must exist from network link for line tension contribution");
                             
-                            CatmullRomSplineSegment<dim> cmSeg(ll->source->periodicPrev()->get_P(),ll->source->get_P(),ll->sink->get_P(),
-                            ll->sink->periodicNext()->get_P());
+                            const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()-ll->source->periodicPrev()->periodicPlanePatch()->shift+ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift : ll->source->periodicPrev()->get_P());
+                            const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()-ll->  sink->periodicNext()->periodicPlanePatch()->shift+ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift : ll->  sink->periodicNext()->get_P());
+                            CatmullRomSplineSegment<dim> cmSeg(prevNodePos,ll->source->get_P(),ll->sink->get_P(),nextNodePos);
                             const double alpha (parentSegment.network().alphaLineTension); 
                             const double paramUTemp ((qPoint.r-parentSegment.source->get_P()).norm()/parentSegment.chordLength());
                             const double paramU (ll->source->networkNode==parentSegment.source ? paramUTemp : 1.0-paramUTemp);
-                            const double kappa (cmSeg.get_kappa(paramU));
+//                            const double kappa (cmSeg.get_kappa(paramU));
+//                            const VectorDim curv(cmSeg.get_rll(paramU));
                             const VectorDim llunitTangent(cmSeg.get_rl(paramU));
                             // const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.Nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
-                            const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.nu*0.0*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
+                            const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
                             const VectorDim qPointForceVector (qPointEnergyDensity * cmSeg.get_rll(paramU));
-                            // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
-                            const double resolvedtensionStress (qPointForceVector.norm()/ll->loop->burgers().squaredNorm()); //this is wrong (Discuss this with Dr. Po)
-                            const VectorDim unitBurgers(ll->loop->burgers().normalized());
-                            const MatrixDim tensionStress(resolvedtensionStress*(unitBurgers*ll->loop->rightHandedUnitNormal().transpose() + ll->loop->rightHandedUnitNormal()*unitBurgers.transpose()));
-                            const VectorDim eqPKForce ((ll->loop->burgers().transpose()*tensionStress).cross(cmSeg.get_rl(paramU)));
-                            // std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
-                            // std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
-                            const double eqForceNorm(eqPKForce.norm());
-                            if (eqForceNorm>FLT_EPSILON)
-                            {
-                                if (eqPKForce.dot(qPointForceVector) > 0.0)
-                                {
-                                    qPoint.stress += tensionStress;
-                                }
-                                else
-                                {
-                                    qPoint.stress -= tensionStress;
-                                }
-                                // if ((eqPKForce-qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased tolerance
-                                // {
-                                //     qPoint.stress += tensionStress;
-                                // }
-                                // else if ((eqPKForce+qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased Tolerance
-                                // {
-                                //     qPoint.stress -= tensionStress;
-                                // }
-                                // else
-                                // {
-                                //     std::cout<<" parentSegemtn "<<parentSegment.tag()<<std::endl;
-                                //     std::cout<<std::scientific<<std::setprecision(15)<<" paramU "<<paramU<<std::endl;
-                                //     std::cout<<" curvature "<<cmSeg.get_rll(paramU).transpose()<<std::endl;
-                                //     std::cout<<" qPointEnergyDensity "<<qPointEnergyDensity<<std::endl;
-                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
-                                //     std::cout<<" resolvedtensionStress "<<resolvedtensionStress<<std::endl;
-                                //     std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
-                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
-                                //     std::cout<<" tensionStress "<<tensionStress<<std::endl;
-                                //     std::cout<<" (eqPKForce-qPointForceVector).norm() "<<((eqPKForce-qPointForceVector).norm())<<std::endl;
-                                //     std::cout<<" (eqPKForc+qPointForceVector).norm() "<<((eqPKForce+qPointForceVector).norm())<<std::endl;
-                                //     std::cout<<" (eqPKForce-qPointForceVector).norm()/eqForceNorm "<<((eqPKForce-qPointForceVector).norm()/eqForceNorm)<<std::endl;
-                                //     std::cout<<" (eqPKForc+qPointForceVector).norm()/eqForceNorm "<<((eqPKForce+qPointForceVector).norm()/eqForceNorm)<<std::endl;
-                                //     assert(false && "Quadrature point force not the same for line tension calculation");
-                                // }
-                            }
+                            qPoint.lineTensionForce+=qPointForceVector;
+//                            // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
+//                            const double resolvedtensionStress (qPointForceVector.norm()/ll->loop->burgers().squaredNorm()); //this is wrong (Discuss this with Dr. Po)
+//                            const VectorDim unitBurgers(ll->loop->burgers().normalized());
+//                            const MatrixDim tensionStress(resolvedtensionStress*(unitBurgers*ll->loop->rightHandedUnitNormal().transpose() + ll->loop->rightHandedUnitNormal()*unitBurgers.transpose()));
+//                            const VectorDim eqPKForce ((ll->loop->burgers().transpose()*tensionStress).cross(cmSeg.get_rl(paramU)));
+//                            // std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+//                            // std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
+//                            const double eqForceNorm(eqPKForce.norm());
+//                            if (eqForceNorm>FLT_EPSILON)
+//                            {
+//                                if (eqPKForce.dot(qPointForceVector) > 0.0)
+//                                {
+//                                    qPoint.stress += tensionStress;
+//                                }
+//                                else
+//                                {
+//                                    qPoint.stress -= tensionStress;
+//                                }
+//                                // if ((eqPKForce-qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased tolerance
+//                                // {
+//                                //     qPoint.stress += tensionStress;
+//                                // }
+//                                // else if ((eqPKForce+qPointForceVector).norm()/eqForceNorm<100.0*FLT_EPSILON) //Increased Tolerance
+//                                // {
+//                                //     qPoint.stress -= tensionStress;
+//                                // }
+//                                // else
+//                                // {
+//                                //     std::cout<<" parentSegemtn "<<parentSegment.tag()<<std::endl;
+//                                //     std::cout<<std::scientific<<std::setprecision(15)<<" paramU "<<paramU<<std::endl;
+//                                //     std::cout<<" curvature "<<cmSeg.get_rll(paramU).transpose()<<std::endl;
+//                                //     std::cout<<" qPointEnergyDensity "<<qPointEnergyDensity<<std::endl;
+//                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+//                                //     std::cout<<" resolvedtensionStress "<<resolvedtensionStress<<std::endl;
+//                                //     std::cout<<" eqPKForce "<<eqPKForce.transpose()<<std::endl;
+//                                //     std::cout<<" qPointForceVector "<<qPointForceVector.transpose()<<std::endl;
+//                                //     std::cout<<" tensionStress "<<tensionStress<<std::endl;
+//                                //     std::cout<<" (eqPKForce-qPointForceVector).norm() "<<((eqPKForce-qPointForceVector).norm())<<std::endl;
+//                                //     std::cout<<" (eqPKForc+qPointForceVector).norm() "<<((eqPKForce+qPointForceVector).norm())<<std::endl;
+//                                //     std::cout<<" (eqPKForce-qPointForceVector).norm()/eqForceNorm "<<((eqPKForce-qPointForceVector).norm()/eqForceNorm)<<std::endl;
+//                                //     std::cout<<" (eqPKForc+qPointForceVector).norm()/eqForceNorm "<<((eqPKForce+qPointForceVector).norm()/eqForceNorm)<<std::endl;
+//                                //     assert(false && "Quadrature point force not the same for line tension calculation");
+//                                // }
+//                            }
                         }
                     }
 

@@ -5,7 +5,7 @@ close all
 format long
 
 alignToSlipSystem0=1;
-lattice='fcc';
+lattice='bcc';
 
 if(alignToSlipSystem0)
 switch lattice

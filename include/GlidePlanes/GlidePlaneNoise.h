@@ -138,12 +138,12 @@ namespace model
         
 #ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
         // Cai doubly-convoluted spreading function in Fourier space
-        REAL_SCALAR Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a) const;
+        static REAL_SCALAR Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a) ;
 
         // Cai spreading function
-        REAL_SCALAR W_Cai(REAL_SCALAR r2, REAL_SCALAR a) const;
-
-        REAL_SCALAR W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) const;
+        static REAL_SCALAR W_Cai(REAL_SCALAR r2, REAL_SCALAR a) ;
+ 
+        static REAL_SCALAR W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) ;
         // normalized auto-correlation function in Fourier space for sigma_xy
         REAL_SCALAR S_xy_k(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz) const;
 

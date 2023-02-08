@@ -345,12 +345,27 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
         {
             if(_slippedArea>FLT_EPSILON)
             {// a right-handed normal for the loop can be determined
-                std::vector<std::pair<VectorDim,VectorDim>> segments;
-                for(const auto& loopLink : this->loopLinks())
+                
+                for(const auto& pair : _patches)
                 {
-                    segments.emplace_back(loopLink->source->get_P(),loopLink->sink->get_P());
+                    const auto patchGlidePlane(pair.first->patchBoundary->referencePlane);
+                    std::vector<std::pair<VectorDim,VectorDim>> segments;
+                        for(size_t k=0;k<pair.second.size();++k)
+                                    {
+                                        const size_t k1(k+1==pair.second.size()? 0 : k+1);
+                                       segments.emplace_back(patchGlidePlane->globalPosition(pair.second[k]),patchGlidePlane->globalPosition(pair.second[k1]));
+                                    }
+                    temp+=planarSolidAngle(x,patchGlidePlane->P,rightHandedUnitNormal(),segments);
+
                 }
-                temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
+                
+                
+//                std::vector<std::pair<VectorDim,VectorDim>> segments;
+//                for(const auto& loopLink : this->loopLinks())
+//                {
+//                    segments.emplace_back(loopLink->source->get_P(),loopLink->sink->get_P());
+//                }
+//                temp+=planarSolidAngle(x,glidePlane->P,rightHandedUnitNormal(),segments);
             }
         }
         else
@@ -394,7 +409,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
     }
     
     template <int dim, short unsigned int corder>
-    std::tuple<double,double,double> DislocationLoop<dim,corder>::loopLength() const
+    std::tuple<double,double,double,double> DislocationLoop<dim,corder>::loopLength() const
     {
         double freeLength=0.0;
         double boundaryLength=0.0;
@@ -420,7 +435,7 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
                 }
             }
         }
-        return std::make_tuple(freeLength,junctionLength,boundaryLength);
+        return std::make_tuple(freeLength,junctionLength,boundaryLength,slippedArea());
     }
 
     template <int dim, short unsigned int corder>

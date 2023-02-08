@@ -27,6 +27,8 @@ namespace model
     /* init */,pkScaleEdit(new QLineEdit("10000"))
     /* init */,sfBox(new QGroupBox(tr("&stacking fault forces")))
     /* init */,sfScaleEdit(new QLineEdit("10000"))
+    /* init */,ltBox(new QGroupBox(tr("&line tension forces")))
+    /* init */,ltScaleEdit(new QLineEdit("10000"))
     /* init */,velocityBox(new QGroupBox(tr("&velocities")))
     /* init */,velocityScaleEdit(new QLineEdit("100"))
     /* init */,pkPolydata(vtkSmartPointer<vtkPolyData>::New())
@@ -37,6 +39,10 @@ namespace model
     /* init */,sfGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
     /* init */,sfMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
     /* init */,sfActor(vtkSmartPointer<vtkActor>::New())
+    /* init */,ltPolydata(vtkSmartPointer<vtkPolyData>::New())
+    /* init */,ltGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
+    /* init */,ltMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
+    /* init */,ltActor(vtkSmartPointer<vtkActor>::New())
     /* init */,velocityPolydata(vtkSmartPointer<vtkPolyData>::New())
     /* init */,velocityGlyphs(vtkSmartPointer<vtkGlyph3D>::New())
     /* init */,velocityMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
@@ -57,6 +63,14 @@ namespace model
         sfLayout->addWidget(sfScaleEdit);
         sfBox->setLayout(sfLayout);
 
+    ltBox->setCheckable(true);
+    ltBox->setChecked(false);
+    ltActor->SetVisibility(false);
+    QVBoxLayout *ltLayout = new QVBoxLayout();
+    ltLayout->addWidget(ltScaleEdit);
+    ltBox->setLayout(ltLayout);
+
+    
         velocityBox->setCheckable(true);
         velocityBox->setChecked(false);
         velocityActor->SetVisibility(false);
@@ -67,7 +81,8 @@ namespace model
         
         mainLayout->addWidget(pkBox,0,0,1,1);
         mainLayout->addWidget(sfBox,1,0,1,1);
-        mainLayout->addWidget(velocityBox,2,0,1,1);
+        mainLayout->addWidget(ltBox,2,0,1,1);
+        mainLayout->addWidget(velocityBox,3,0,1,1);
 
         
         this->setLayout(mainLayout);
@@ -76,6 +91,8 @@ namespace model
         connect(pkScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
         connect(sfBox,SIGNAL(toggled(bool)), this, SLOT(modify()));
         connect(sfScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
+        connect(ltBox,SIGNAL(toggled(bool)), this, SLOT(modify()));
+        connect(ltScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
         connect(velocityBox,SIGNAL(toggled(bool)), this, SLOT(modify()));
         connect(velocityScaleEdit,SIGNAL(returnPressed()), this, SLOT(modify()));
 
@@ -108,6 +125,22 @@ namespace model
         sfActor->GetProperty()->SetColor(0.0, 1.0, 0.0); //(R,G,B)
         renderer->AddActor(sfActor);
 
+    ltGlyphs->SetInputData(ltPolydata);
+    ltGlyphs->SetSourceConnection(vtkSmartPointer<vtkArrowSource>::New()->GetOutputPort());
+    ltGlyphs->ScalingOn();
+    ltGlyphs->SetScaleModeToScaleByVector();
+    ltGlyphs->OrientOn();
+    ltGlyphs->ClampingOff();
+    ltGlyphs->SetVectorModeToUseVector();
+    ltGlyphs->SetIndexModeToOff();
+    ltMapper->SetInputConnection(ltGlyphs->GetOutputPort());
+    ltMapper->ScalarVisibilityOff();
+    ltActor->SetMapper(ltMapper);
+    ltActor->GetProperty()->SetColor(1.0, 0.0, 0.0); //(R,G,B)
+    renderer->AddActor(ltActor);
+
+    
+    
         velocityGlyphs->SetInputData(velocityPolydata);
         velocityGlyphs->SetSourceConnection(vtkSmartPointer<vtkArrowSource>::New()->GetOutputPort());
         velocityGlyphs->ScalingOn();
@@ -137,6 +170,10 @@ namespace model
 
         vtkSmartPointer<vtkDoubleArray> sfForces(vtkSmartPointer<vtkDoubleArray>::New());
         sfForces->SetNumberOfComponents(3);
+
+        vtkSmartPointer<vtkDoubleArray> ltForces(vtkSmartPointer<vtkDoubleArray>::New());
+        ltForces->SetNumberOfComponents(3);
+
         
         vtkSmartPointer<vtkDoubleArray> velocities(vtkSmartPointer<vtkDoubleArray>::New());
         velocities->SetNumberOfComponents(3);
@@ -146,6 +183,7 @@ namespace model
             nodePoints->InsertNextPoint(qp.r.data());
             pkForces->InsertNextTuple(qp.pkForce.data()); // arrow vector
             sfForces->InsertNextTuple(qp.stackingFaultForce.data()); // arrow vector
+            ltForces->InsertNextTuple(qp.lineTensionForce.data()); // arrow vector
             velocities->InsertNextTuple(qp.glideVelocity.data()); // arrow vector
         }
         
@@ -157,6 +195,11 @@ namespace model
         sfPolydata->GetPointData()->SetVectors(sfForces);
         sfPolydata->Modified();
 
+        ltPolydata->SetPoints(nodePoints);
+        ltPolydata->GetPointData()->SetVectors(ltForces);
+        ltPolydata->Modified();
+
+        
         velocityPolydata->SetPoints(nodePoints);
         velocityPolydata->GetPointData()->SetVectors(velocities);
         velocityPolydata->Modified();
@@ -173,7 +216,11 @@ namespace model
         sfActor->SetVisibility(sfBox->isChecked());
         const double sfScaling(std::atof(sfScaleEdit->text() .toStdString().c_str()));
         sfGlyphs->SetScaleFactor(sfScaling);
-        
+
+        ltActor->SetVisibility(ltBox->isChecked());
+        const double ltScaling(std::atof(ltScaleEdit->text() .toStdString().c_str()));
+        ltGlyphs->SetScaleFactor(ltScaling);
+
         velocityActor->SetVisibility(velocityBox->isChecked());
         const double velocityScaling(std::atof(velocityScaleEdit->text() .toStdString().c_str()));
         velocityGlyphs->SetScaleFactor(velocityScaling);

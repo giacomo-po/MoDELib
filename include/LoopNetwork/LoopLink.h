@@ -114,6 +114,21 @@ namespace model
             return _networkLink;
         }
         
+        Derived* twin() const
+        {
+            if(networkLink())
+            {
+                for(const auto& link : networkLink()->loopLinks())
+                {
+                    if(link->loop==loop && link!=this)
+                    {
+                        return link;
+                    }
+                }
+            }
+            return nullptr;
+        }
+        
         std::shared_ptr<NetworkLinkType> getNetworkLink()
         {
             if(this->derived().hasNetworkLink())

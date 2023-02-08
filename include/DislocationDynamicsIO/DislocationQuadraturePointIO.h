@@ -31,6 +31,7 @@ namespace model
         MatrixDim stress;
         VectorDim pkForce;
         VectorDim stackingFaultForce;
+        VectorDim lineTensionForce;
         VectorDim glideVelocity;
         double elasticEnergyPerLength;
         
@@ -45,6 +46,7 @@ namespace model
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         {
@@ -62,6 +64,7 @@ namespace model
         /* init */,stress(qPoint.stress)
         /* init */,pkForce(qPoint.pkForce)
         /* init */,stackingFaultForce(qPoint.stackingFaultForce)
+        /* init */,lineTensionForce(qPoint.lineTensionForce)
         /* init */,glideVelocity(qPoint.glideVelocity)
         /* init */,elasticEnergyPerLength(qPoint.elasticEnergyPerLength)
         {
@@ -79,6 +82,7 @@ namespace model
         /* init */,stress(MatrixDim::Zero())
         /* init */,pkForce(VectorDim::Zero())
         /* init */,stackingFaultForce(VectorDim::Zero())
+        /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
         {
@@ -112,6 +116,10 @@ namespace model
             }
             for(int d=0;d<dim;++d)
             {
+                ss>>lineTensionForce(d);
+            }
+            for(int d=0;d<dim;++d)
+            {
                 ss>>glideVelocity(d);
             }
             ss>>elasticEnergyPerLength;
@@ -136,6 +144,7 @@ namespace model
             }
             os  << ds.pkForce.transpose()<<"\t"
             /**/<< ds.stackingFaultForce.transpose()<<"\t"
+            /**/<< ds.lineTensionForce.transpose()<<"\t"
             /**/<< ds.glideVelocity.transpose()<<"\t"
             /**/<< ds.elasticEnergyPerLength;
             return os;

@@ -7,7 +7,7 @@ import numpy as np
 sys.path.insert(0, '../../../../python')
 from readEVL import *
 
-def getValueInFile(fileName,variable):
+def getStringInFile(fileName,variable):
     with open(fileName) as f:
         datafile = f.readlines()
     found = False  # This isn't really necessary
@@ -17,8 +17,11 @@ def getValueInFile(fileName,variable):
             # found = True # Not necessary
             foundEqual=line.find('=');
             foundSemiCol=line.find(';');
-            return float(line[foundEqual+1:foundSemiCol])
+            return line[foundEqual+1:foundSemiCol]
     return 'Not Found'  # Because you finished the search without finding
+
+def getValueInFile(fileName,variable):
+    return float(getStringInFile(fileName,variable))
 
 def readFfile(folder):
     F=np.loadtxt(folder +'/F_0.txt');
@@ -38,7 +41,7 @@ def getFarray(F,Flabels,label):
 
 
 # main code
-materialFile='../../MaterialsLibrary/Al.txt'
+materialFile='inputFiles/'+getStringInFile('inputFiles/polycrystal.txt','materialFile')
 mu_SI=getValueInFile(materialFile,'mu0_SI')
 print(mu_SI)
 rho_SI=getValueInFile(materialFile,'rho_SI');    #[kg/m^3]
@@ -53,7 +56,7 @@ t_dd2SI=b_SI/v_dd2SI;
 #omega=1.0/np.sqrt(2.0)*b_SI**3;
 #kb_eV=8.617e-5; # eV/K
 #kb_SI=1.38e-23; # J/K
-T=getValueInFile('inputFiles/DD.txt','absoluteTemperature')
+T=getValueInFile('inputFiles/polycrystal.txt','absoluteTemperature')
 
 #eDotNH=D0v/d**2*np.exp(-(Ufv+Umv)/kb_eV/T)*(np.exp(sigma*omega/kb_SI/T)-1)
 #eDotNH=D0v/d**2*np.exp(-(Ufv+Umv)/kb_eV/T)*(np.sinh(sigma*omega/kb_SI/T))
@@ -61,19 +64,19 @@ T=getValueInFile('inputFiles/DD.txt','absoluteTemperature')
 F,Flabels=readFfile('./F')
 runID=getFarray(F,Flabels,'runID')
 time=getFarray(F,Flabels,'time [b/cs]')*t_dd2SI
-normBp=getFarray(F,Flabels,'norm(dotBetaP) [cs/b]')
-s33=getFarray(F,Flabels,'s_33 [mu]')
+trbetaP=getFarray(F,Flabels,'tr(betaP)')
+#s33=getFarray(F,Flabels,'s_33 [mu]')
 
 fig1 = plt.figure()
 ax11=plt.subplot(2,1,1)
-ax11.plot(time, -s33*mu_SI,label='\sigma_{33}')
+ax11.plot(time, trbetaP,label='tr(betaP)')
 #ax11.plot(time, eDotNH*time*100,label='NH')
 ax11.grid()
 
-ax12=plt.subplot(2,1,2)
-ax12.plot(time, normBp*100,label='Great White')
+#ax12=plt.subplot(2,1,2)
+#ax12.plot(time, normBp*100,label='Great White')
 
-ax12.grid()
+#ax12.grid()
 
 #ax11.grid()
 #ax11.legend()
@@ -82,7 +85,7 @@ ax12.grid()
 #plt.xlabel('time [sec]')
 #plt.ylabel('loop radius [$\AA$]')
 plt.xlabel('time [sec]')
-plt.ylabel('norm(dotBetaP) [cs/b]')
+plt.ylabel('tr(betaP) [cs/b]')
 plt.show()
 #fig1.savefig("fig1.pdf", bbox_inches='tight')
 

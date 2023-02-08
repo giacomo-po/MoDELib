@@ -33,7 +33,7 @@ namespace model
          int loopType;
 //         long int periodicLoopID;          // sID
 //            VectorDim periodicShift;
-         std::tuple<double,double,double> loopLength;
+         std::tuple<double,double,double,double> loopLength;
         
         /**********************************************************************/
         template<typename DislocationLoopType>
@@ -46,7 +46,7 @@ namespace model
         /* init */,loopType(dL.loopType)
 //        /* init */,periodicLoopID(dL.periodicLoop? dL.periodicLoop->sID : -1)
 //        /* init */,periodicShift(dL.periodicShift)
-        /* init */,loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0))
+        /* init */,loopLength(dL.network().outputLoopLength? dL.loopLength() : std::make_tuple(0.0,0.0,0.0,0.0))
         {
             
         }
@@ -69,7 +69,7 @@ namespace model
         /* init */,loopType(loopType_in)
 //        /* init */,periodicLoopID(periodicLoopID_in)
 //        /* init */,periodicShift(periodicShift_in)
-        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0,0.0))
         {
             
         }
@@ -84,7 +84,7 @@ namespace model
         /* init */,loopType(0)
 //        /* init */,periodicLoopID(-1)
 //        /* init */,periodicShift(VectorDim::Zero())
-        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0,0.0))
         {
             
         }
@@ -99,7 +99,7 @@ namespace model
         /* init */,loopType(0)
 //        /* init */,periodicLoopID(-1)
 //        /* init */,periodicShift(VectorDim::Zero())
-        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0))
+        /* init */,loopLength(std::make_tuple(0.0,0.0,0.0,0.0))
         {
             ss>>sID;
             for(int d=0;d<dim;++d)
@@ -121,9 +121,9 @@ namespace model
 //            {
 //                ss>>periodicShift(d);
 //            }
-            double l1,l2,l3;
-            ss>>l1>>l2>>l3;
-            loopLength=std::make_tuple(l1,l2,l3);
+            double l1,l2,l3,A;
+            ss>>l1>>l2>>l3>>A;
+            loopLength=std::make_tuple(l1,l2,l3,A);
         }
         
         /**********************************************************************/
@@ -138,7 +138,7 @@ namespace model
             /**/<< ds.loopType<<"\t"
 //            /**/<< ds.periodicLoopID<<"\t"
 //            /**/<< ds.periodicShift.transpose()<<"\t"
-            /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength);
+            /**/<< std::get<0>(ds.loopLength)<<"\t"<< std::get<1>(ds.loopLength)<<"\t"<< std::get<2>(ds.loopLength)<<"\t"<< std::get<3>(ds.loopLength);
             return os;
         }
         

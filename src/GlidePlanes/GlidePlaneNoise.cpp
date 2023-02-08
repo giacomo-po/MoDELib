@@ -257,7 +257,8 @@ namespace model
     /*init*/,DY(_gridSpacing_A(1))     // grid spacing [AA]
     /*init*/,DZ(_gridSpacing_A(1))     // grid spacing [AA]
     /*init*/,a(TextFileParser(noiseFile).readScalar<double>("spreadLstress_A",true))      // spreading length for stresses [AA]
-    /*init*/,a_cai(DislocationFieldBase<3>::a*mat.b_SI*1e10)  // spreading length for non-singular dislocaion theory [AA]
+    /*init*/,a_cai(TextFileParser(noiseFile).readScalar<double>("a_cai_A",true))
+    ///*init*/,a_cai(DislocationFieldBase<3>::a*mat.b_SI*1e10)  // spreading length for non-singular dislocaion theory [AA]
     /*init*/,seed(TextFileParser(noiseFile).readScalar<double>("seed",true))  // random seed
     /*init*/,LX(NX*DX)
     /*init*/,LY(NY*DY)
@@ -267,6 +268,8 @@ namespace model
     /*init*/,NK(NX*NY*(NZ/2+1))
     /*init*/,Norm(1./REAL_SCALAR(NR))
     {
+	std::cout << "a_cai = " << a_cai << std::endl;
+	std::cout << "a = " << a << std::endl;
         const double MSSS_SI(TextFileParser(mat.materialFile).readScalar<double>("MSSS_SI",true));
         const double MSS(std::sqrt(MSSS_SI)/mat.mu_SI);
         
@@ -404,7 +407,7 @@ namespace model
 
 #ifdef _MODEL_GLIDE_PLANE_NOISE_GENERATOR_
     // Cai doubly-convoluted spreading function in Fourier space
-    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a) const
+    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::Wk_Cai(REAL_SCALAR kx, REAL_SCALAR ky, REAL_SCALAR kz, REAL_SCALAR a)
     {
         REAL_SCALAR k = sqrt(kx*kx + ky*ky + kz*kz);
         if(k>0)
@@ -419,12 +422,12 @@ namespace model
     }
 
     // Cai spreading function
-    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::W_Cai(REAL_SCALAR r2, REAL_SCALAR a) const
+    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::W_Cai(REAL_SCALAR r2, REAL_SCALAR a) 
     {
         return 15.*a*a*a*a/(8.*M_PI*pow(r2+a*a,7./2.));
     }
 
-    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) const
+    typename SolidSolutionNoiseGenerator::REAL_SCALAR SolidSolutionNoiseGenerator::W_t_Cai(REAL_SCALAR r2, REAL_SCALAR a) 
     {
         return 0.3425*W_Cai(r2,0.9038*a) + 0.6575*W_Cai(r2,0.5451*a);
     }
@@ -551,10 +554,10 @@ namespace model
             const auto rowsNorm1(rowsAvr1.norm());
             const auto colsNorm1(colsAvr1.norm());
             
-            std::cout<<"rowsNorm0= "<<rowsNorm0<<std::endl;
-            std::cout<<"colsNorm0= "<<colsNorm0<<std::endl;
-            std::cout<<"rowsNorm1= "<<rowsNorm1<<std::endl;
-            std::cout<<"colsNorm1= "<<colsNorm1<<std::endl;
+            std::cout<<"rowsNorm0= "<<rowsNorm0<< " ,rowsAvr0.size= " <<rowsAvr0.size() << std::endl;
+            std::cout<<"colsNorm0= "<<colsNorm0<< " ,colsAvr0.size= " <<colsAvr0.size() << std::endl;
+            std::cout<<"rowsNorm1= "<<rowsNorm1<< " ,rowsAvr1.size= " <<rowsAvr1.size() << std::endl;
+            std::cout<<"colsNorm1= "<<colsNorm1<< " ,colsAvr1.size= " <<colsAvr1.size() << std::endl;
         }
     }
 

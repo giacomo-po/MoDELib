@@ -71,6 +71,9 @@ namespace model
         QGroupBox* sfBox;
         QLineEdit* sfScaleEdit;
 
+        QGroupBox* ltBox;
+        QLineEdit* ltScaleEdit;
+
         
         QGroupBox* velocityBox;
         QLineEdit* velocityScaleEdit;
@@ -86,6 +89,12 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> sfMapper;
         vtkSmartPointer<vtkActor> sfActor;
 
+        vtkSmartPointer<vtkPolyData> ltPolydata;
+        vtkSmartPointer<vtkGlyph3D> ltGlyphs;
+        vtkSmartPointer<vtkPolyDataMapper> ltMapper;
+        vtkSmartPointer<vtkActor> ltActor;
+
+        
         vtkSmartPointer<vtkPolyData> velocityPolydata;
         vtkSmartPointer<vtkGlyph3D> velocityGlyphs;
         vtkSmartPointer<vtkPolyDataMapper> velocityMapper;
