@@ -711,7 +711,7 @@ namespace model
             
             if(    !parentSegment.hasZeroBurgers()
                &&  !parentSegment.isBoundarySegment()
-               &&  (!parentSegment.isSessile() || isClimbStep)
+               &&  (!parentSegment.isSessile() || isClimbStep || parentSegment.network().computeElasticEnergyPerLength)
                &&  !parentSegment.isVirtualBoundarySegment())
             {
                 const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());

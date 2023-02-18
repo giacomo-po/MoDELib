@@ -41,6 +41,8 @@ namespace model
     {
         renderer->SetBackground(1,1,1);
         renderWindow->AddRenderer(renderer);
+        renderWindow->SetMultiSamples(4);
+        
         openglWidget->setRenderWindow(renderWindow);
 
         
