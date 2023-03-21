@@ -12,7 +12,7 @@
 #include <numbers>
 
 #include <DislocationNetwork.h>
-
+//#include <PolyhedronInclusionNodes.h>
 
 namespace model
 {
@@ -225,23 +225,118 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
     
     
     
-    for(const auto& inclusion : evl.eshelbyInclusions())
+    for(const auto& inclusion : evl.sphericalInclusions())
     {
-        std::cout<<"Creating EshelbyInclusion "<<inclusion.inclusionID<<std::endl;
+        std::cout<<"Creating spherical inclusion "<<inclusion.inclusionID<<std::endl;
         const std::pair<bool,const Simplex<dim,dim>*> searchPair(mesh.search(inclusion.C));
         if(searchPair.first)
         {
             
             const auto& grain(poly.grain(searchPair.second->region->regionID));
+            if(inclusion.phaseID<grain.singleCrystal->secondPhases().size())
+            {
             const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
-            EshelbyInclusion<dim>::set_count(inclusion.inclusionID);
-            eshelbyInclusions().emplace(std::piecewise_construct,
-                                        std::make_tuple(inclusion.inclusionID),
-                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase) );
+            EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
+            
+            
+            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+            
+            eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
+            }
+            else
+            {
+                throw std::runtime_error("phaseID does not exist in grain.");
+            }
+            
+//            eshelbyInclusions().emplace(std::piecewise_construct,
+//                                        std::make_tuple(inclusion.inclusionID),
+//                                        std::make_tuple(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase) );
             
         }
     }
     
+    for(const auto& piNode : evl.polyhedronInclusionNodes())
+    {
+        polyhedronInclusionNodes().emplace(piNode.nodeID,piNode);
+    }
+    
+    std::map<size_t,std::map<size_t,std::vector<size_t>>> faceMap;
+    for(const auto& edge : evl.polyhedronInclusionEdges())
+    {
+        const size_t& iID(edge.inclusionID);
+        const size_t& fID(edge.faceID);
+        const size_t& sourceID(edge.sourceID);
+        faceMap[iID][fID].push_back(sourceID);
+    }
+
+    
+    for(const auto& inclusion : evl.polyhedronInclusions())
+    {
+        std::cout<<"Creating polyhedron inclusion "<<inclusion.inclusionID<<std::endl;
+
+        const auto faceIter(faceMap.find(inclusion.inclusionID));
+        if(faceIter!=faceMap.end())
+        {
+            const auto& faces(faceIter->second);
+            std::cout<<"    #faces= "<<faces.size()<<std::endl;
+            std::set<const PolyhedronInclusionNodeIO<dim>*> uniquePolyNodes;
+            for(const auto& pair : faces)
+            {
+                for(const auto& nodeID : pair.second)
+                {
+                    uniquePolyNodes.emplace(&polyhedronInclusionNodes().at(nodeID));
+                }
+            }
+            std::cout<<"    #nodes= "<<uniquePolyNodes.size()<<std::endl;
+            if(uniquePolyNodes.size()>=dim+1)
+            {
+                // Find grain
+                std::set<size_t> grainIDs;
+                for(const auto& nodePtr : uniquePolyNodes)
+                {
+                    const std::pair<bool,const Simplex<dim,dim>*> searchPair(mesh.search(nodePtr->P));
+                    if(searchPair.first)
+                    {
+                        grainIDs.insert(searchPair.second->region->regionID);
+                    }
+                    else
+                    {
+                        throw std::runtime_error("inclusion node outside mesh");
+                    }
+                }
+                
+                // Add inclusion
+                if(grainIDs.size()==1)
+                {
+                    const auto& grain(poly.grain(*grainIDs.begin()));
+                    if(inclusion.phaseID<grain.singleCrystal->secondPhases().size())
+                    {
+                    const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
+                    EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
+                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+                    eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
+                    }
+                    else
+                    {
+                        throw std::runtime_error("phaseID does not exist in grain.");
+                    }
+                }
+                else
+                {
+                    throw std::runtime_error("inclusion across grain boundaries");
+                }
+            }
+            else
+            {
+                throw std::runtime_error("inclusion does not have enough nodes");
+            }
+        }
+        else
+        {
+            throw std::runtime_error("inclusionID not found in faceMap");
+        }
+    }
+        
 }
 
 /**********************************************************************/
@@ -257,6 +352,17 @@ typename DislocationNetwork<dim,corder>::EshelbyInclusionContainerType& Dislocat
     return *this;
 }
 
+template <int dim, short unsigned int corder>
+const typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& DislocationNetwork<dim,corder>::polyhedronInclusionNodes() const
+{
+    return *this;
+}
+
+template <int dim, short unsigned int corder>
+typename DislocationNetwork<dim,corder>::PolyhedronInclusionNodeContainerType& DislocationNetwork<dim,corder>::polyhedronInclusionNodes()
+{
+    return *this;
+}
 
 /**********************************************************************/
 //    template <int dim, short unsigned int corder>
@@ -630,12 +736,22 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
 
                                         const double gamma1(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
                                         const double gamma2(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-                                        qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
+
+                                        double gammaNoise(0.0);
+                                        if(fieldLoop->slipSystem()->planeNoise)
+                                        {
+                                            if(loopLink->networkLink()->glidePlanes().size()==1)
+                                            {
+                                                const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
+                                                gammaNoise=std::get<2>(fieldLoop->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
+                                            }
+                                        }
+                                        qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
                                     }
                                     else
                                     {// qPoint is inside an inclusion, we use the inclusion gamma-surface
 
-                                        const auto& secondPhase(eshelbyInclusions().at(qPoint.inclusionID).secondPhase);
+                                        const auto& secondPhase(eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
                                         if(secondPhase)
                                         {
                                                 const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,fieldLoop->slipSystem()));  // outer point

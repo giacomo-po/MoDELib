@@ -7,8 +7,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_EshelbyInclusion_H_
-#define model_EshelbyInclusion_H_
+#ifndef model_EshelbyInclusionBase_H_
+#define model_EshelbyInclusionBase_H_
 
 #ifndef _MODEL_NON_SINGULAR_DD_
 #define _MODEL_NON_SINGULAR_DD_ 1
@@ -27,7 +27,7 @@ namespace model
     
     
     template <int dim>
-    class EshelbyInclusion : public StaticID<EshelbyInclusion<dim>>
+    class EshelbyInclusionBase : public StaticID<EshelbyInclusionBase<dim>>
     {
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
@@ -38,13 +38,13 @@ namespace model
         const double mobilityReduction;
         const int phaseID;
         const std::shared_ptr<SecondPhase<dim>> secondPhase;
-        const double L;
-        const double M;
+//        const double L;
+//        const double M;
 //        const double K;
 
-        VectorDim C;
-        double a;
-        double a2;
+//        VectorDim C;
+//        double a;
+//        double a2;
         MatrixDim eT;
         double eTNorm;
         MatrixDim pT;
@@ -61,8 +61,7 @@ namespace model
 
         
         /**********************************************************************/
-        EshelbyInclusion(const VectorDim& _C,
-                         const double& _a,
+        EshelbyInclusionBase(
                          const MatrixDim& _eT,
                          const double& _nu,
                          const double& _mu,
@@ -71,13 +70,13 @@ namespace model
                          const std::shared_ptr<SecondPhase<dim>>& sph);
   
         
-        bool contains(const VectorDim& x) const;
-        MatrixDim stress(const VectorDim& x) const;
+        virtual bool contains(const VectorDim& x) const =0 ;
+        virtual MatrixDim stress(const VectorDim& x) const =0;
         
     };
     
     
 //    template <int dim>
-//    std::map<const GammaSurface*,GammaSurface> EshelbyInclusion<dim>::gammaSurfaceMap;
+//    std::map<const GammaSurface*,GammaSurface> EshelbyInclusionBase<dim>::gammaSurfaceMap;
 }
 #endif

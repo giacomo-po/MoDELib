@@ -21,7 +21,10 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationNetworkRemesh.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationCrossSlip.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/CrossSlipModels.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/EshelbyInclusion.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/EshelbyInclusionBase.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/SphericalInclusion.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/PolyhedronInclusion.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/ExternalLoadControllerBase.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/SimplexBndNormal.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationQuadraturePoint.cpp
 		)

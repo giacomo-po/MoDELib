@@ -492,16 +492,16 @@ namespace model
         
         std::cout<<greenBoldColor<<"Creating StackingFaultNoise"<<defaultColor<<std::endl;
         
-        const double isfEnergyDensityMEAN(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
+//        const double isfEnergyDensityMEAN(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensityMEAN_SI",true)/(mat.mu_SI*mat.b_SI));
         const double isfEnergyDensitySTD(TextFileParser(mat.materialFile).readScalar<double>("isfEnergyDensitySTD_SI",true)/std::sqrt(gridSpacing_SI(0)*gridSpacing_SI(1))/(mat.mu_SI*mat.b_SI));
         
-        std::normal_distribution<double> distribution (isfEnergyDensityMEAN,isfEnergyDensitySTD);
+        std::normal_distribution<double> distribution (0.0,isfEnergyDensitySTD);
         
         const size_t N(gridSize.array().prod());
         this->reserve(N);
         for(size_t k=0;k<N;++k)
         {// J/m^2 = N/m = Pa*m
-            this->push_back(distribution(generator)-isfEnergyDensityMEAN);
+            this->push_back(distribution(generator));
             //                this->push_back(distribution(generator));
         }
         

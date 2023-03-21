@@ -18,6 +18,7 @@
 #include <regex>
 #include <vector>
 #include <set>
+#include <map>
 #include <regex>
 #include <Eigen/Dense>
 
@@ -328,6 +329,129 @@ public:
         return tempS;
     }
     
+    template<typename KeyType,typename Scalar>
+    std::tuple<bool,bool,KeyType,std::vector<Scalar>,std::string> splitMapLine(const std::string& line) const
+    {
+        std::tuple<bool,bool,KeyType,std::vector<Scalar>,std::string> temp(std::make_tuple(false,false,KeyType(),std::vector<Scalar>(),std::string()));
+        
+        const size_t foundCol=line.find(":");
+        const size_t foundSemiCol=line.find(";");
+        const size_t foundPound=line.find("#");
+
+        if(foundCol!=std::string::npos
+           && (foundPound==std::string::npos || foundPound>foundSemiCol))
+        {
+            std::get<0>(temp)=true; // valid line
+            std::get<1>(temp)=(foundPound!=std::string::npos); // has semicolumn
+            std::get<2>(temp)=StringToScalar<KeyType>::toScalar(removeSpaces(line.substr(0,foundCol)));
+
+            const std::string valStr(foundSemiCol==std::string::npos? line.substr(foundCol+1,line.size()-foundCol-1) : line.substr(foundCol+1,foundSemiCol-foundCol-1));
+            Scalar tempVal;
+            std::stringstream ss(valStr);
+            while (ss >> tempVal)
+            {
+                std::get<3>(temp).push_back(tempVal);
+            }
+            if(foundPound!=std::string::npos)
+            {
+                std::get<4>(temp)=line.substr(foundPound+1,line.size()-foundPound-1);
+            }
+        }
+        return temp;
+    }
+    
+    /**********************************************************************/
+    template<typename KeyType,typename Scalar>
+    std::map<KeyType,std::vector<Scalar>> readArrayMap(const std::string& key,const bool&verbose=false)
+    {
+//        this->seekg (0, this->beg); // reset the position of the next character at beginning for each read
+        this->clear();
+        this->seekg(0);
+
+        std::string line;
+//        std::string lines;
+//        std::string comment;
+//        std::vector<Scalar> array;
+        bool success=false;
+        std::map<KeyType,std::vector<Scalar>> temp;
+
+        while (std::getline(*this, line) || !success)
+        {
+
+            const size_t foundKey=line.find(key);
+            const size_t foundEqual=line.find("=");
+
+            const std::string keyRead(removeSpaces(line.substr(0,foundEqual)));
+
+            if(keyRead==key
+               && foundKey!=std::string::npos
+               && foundEqual!=std::string::npos
+               && foundKey<foundEqual)
+            {
+                
+                success=true;
+//                size_t foundSemiCol=line.find(";");
+//                size_t foundPound=line.find("#");
+
+//                if(
+////                   && (foundPound==std::string::npos || foundPound>foundSemiCol)
+//                   )
+//                {
+                    
+                    auto tup(splitMapLine<KeyType,Scalar>(line.substr(foundEqual+1,line.size()-foundEqual-1)));
+                if(std::get<0>(tup))
+                {// valid line
+                    temp.emplace(std::get<2>(tup),std::get<3>(tup));
+                }
+                
+                if(std::get<1>(tup))
+                {// semi column found
+                    break;
+                }
+                else
+                {// read following lines
+                    while(std::getline(*this, line))
+                    {
+                        tup=splitMapLine<KeyType,Scalar>(line);
+                        
+                        if(std::get<0>(tup))
+                        {// valid line
+                            temp.emplace(std::get<2>(tup),std::get<3>(tup));
+                        }
+                        
+                        if(std::get<1>(tup))
+                        {// semi column found
+                            break;
+                        }
+                    }
+                }
+                
+            }
+        }
+
+        if(!success)
+        {
+            throw std::runtime_error("File "+fileName+" does not cointain line with format "+key+"=...;");
+        }
+
+        if(verbose)
+        {
+            std::cout<<cyanColor<<key<<"="<<std::endl;
+            for(const auto& pair : temp)
+            {
+                std::cout<<pair.first<<" : ";
+                for(const auto& val : pair.second)
+                {
+                    std::cout<<val<<" ";
+                }
+                std::cout<<std::endl;
+            }
+//            std::cout<<"; "<<comment<<defaultColor<<std::endl;
+
+        }
+
+        return temp;
+    }
     
     /**********************************************************************/
     template<typename Scalar>

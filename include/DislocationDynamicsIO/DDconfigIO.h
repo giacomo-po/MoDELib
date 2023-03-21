@@ -23,7 +23,12 @@
 #include <DislocationLoopLinkIO.h>
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
-#include <EshelbyInclusionIO.h>
+#include <SphericalInclusionIO.h>
+#include <PolyhedronInclusionEdgeIO.h>
+#include <PolyhedronInclusionNodeIO.h>
+#include <PolyhedronInclusionIO.h>
+
+
 //#include <DislocationNetwork.h>
 //#include <PeriodicLoopIO.h>
 
@@ -40,7 +45,10 @@ namespace model
     /*              */,private std::vector<DislocationLoopIO<dim> >
     /*              */,private std::vector<DislocationLoopNodeIO<dim> >
     /*              */,private std::vector<DislocationLoopLinkIO<dim> >
-    /*              */,private std::vector<EshelbyInclusionIO<dim>>
+    /*              */,private std::vector<SphericalInclusionIO<dim>>
+    /*              */,private std::vector<PolyhedronInclusionIO<dim>>
+    /*              */,private std::vector<PolyhedronInclusionNodeIO<dim>>
+    /*              */,private std::vector<PolyhedronInclusionEdgeIO>
     {
         
         
@@ -64,8 +72,14 @@ namespace model
         std::vector<DislocationLoopIO<dim> >& loops();
         const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const;
         std::vector<DislocationLoopLinkIO<dim> >& loopLinks();
-        const std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions() const;
-        std::vector<EshelbyInclusionIO<dim> >& eshelbyInclusions();
+        const std::vector<SphericalInclusionIO<dim> >& sphericalInclusions() const;
+        std::vector<SphericalInclusionIO<dim> >& sphericalInclusions();
+        const std::vector<PolyhedronInclusionIO<dim> >& polyhedronInclusions() const;
+        std::vector<PolyhedronInclusionIO<dim> >& polyhedronInclusions();
+        const std::vector<PolyhedronInclusionNodeIO<dim> >& polyhedronInclusionNodes() const;
+        std::vector<PolyhedronInclusionNodeIO<dim> >& polyhedronInclusionNodes();
+        const std::vector<PolyhedronInclusionEdgeIO>& polyhedronInclusionEdges() const;
+        std::vector<PolyhedronInclusionEdgeIO>& polyhedronInclusionEdges();
         const std::map<size_t,const size_t>& nodeMap() const;
         std::map<size_t,const size_t>& nodeMap();
         const std::map<size_t,const size_t>& loopNodeMap() const;

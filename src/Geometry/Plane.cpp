@@ -43,6 +43,18 @@ namespace model
 //            return PP0<FLT_EPSILON? true : (fabs((P0-P).dot(unitNormal))<FLT_EPSILON*PP0);
             return fabs((P0-P).dot(unitNormal))<FLT_EPSILON;
         }
+
+template <int dim>
+bool Plane<dim>::isAbove(const VectorDim& P0) const
+{//!\returns true if the plane is above point P0.
+    return (P0-P).dot(unitNormal)<0.0;
+}
+
+template <int dim>
+bool Plane<dim>::isBelow(const VectorDim& P0) const
+{//!\returns true if the plane is below point P0.
+    return (P0-P).dot(unitNormal)>0.0;
+}
         
         /**********************************************************************/
         template <int dim>

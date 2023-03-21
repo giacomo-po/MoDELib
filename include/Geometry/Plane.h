@@ -36,7 +36,13 @@ namespace model
         
         /**********************************************************************/
         bool contains(const VectorDim& P0) const;
-        
+
+        /**********************************************************************/
+        bool isAbove(const VectorDim& P0) const;
+
+        /**********************************************************************/
+        bool isBelow(const VectorDim& P0) const;
+
         /**********************************************************************/
         VectorDim snapToPlane(const VectorDim& P0) const;
         

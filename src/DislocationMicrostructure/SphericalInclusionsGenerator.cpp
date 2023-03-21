@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_InclusionsGenerator_cpp_
-#define model_InclusionsGenerator_cpp_
+#ifndef model_SphericalInclusionsGenerator_cpp_
+#define model_SphericalInclusionsGenerator_cpp_
 
 
 #include <chrono>
@@ -41,13 +41,13 @@
 #include <MeshModule.h>
 #include <Plane.h>
 #include <MicrostructureGenerator.h>
-#include <InclusionsGenerator.h>
+#include <SphericalInclusionsGenerator.h>
 #include <PlaneLineIntersection.h>
 
 namespace model
 {
 
-    InclusionsGenerator::InclusionsGenerator(const std::string& fileName) :
+    SphericalInclusionsGenerator::SphericalInclusionsGenerator(const std::string& fileName) :
     /* init */ MicrostructureGeneratorBase(fileName)
     /* init */,allowOverlap(false)
     {
@@ -60,9 +60,9 @@ namespace model
 //    }
 
 
-    void InclusionsGenerator::generateDensity(MicrostructureGenerator& mg)
+    void SphericalInclusionsGenerator::generateDensity(MicrostructureGenerator& mg)
     {
-        std::cout<<magentaBoldColor<<"Generating inclusions density"<<defaultColor<<std::endl;
+        std::cout<<magentaBoldColor<<"Generating spherical inclusions density"<<defaultColor<<std::endl;
         const double targetInclusionDensity(this->parser.readScalar<double>("targetDensity",true));
         if(targetInclusionDensity>0)
         {
@@ -122,11 +122,11 @@ namespace model
         }
     }
 
-    void InclusionsGenerator::generateIndividual(MicrostructureGenerator& mg)
+    void SphericalInclusionsGenerator::generateIndividual(MicrostructureGenerator& mg)
     {
         const std::vector<double> inclusionRadii_SI(this->parser.readArray<double>("inclusionRadii_SI",true));
         
-        std::cout<<magentaBoldColor<<"Generating individual inclusions"<<defaultColor<<std::endl;
+        std::cout<<magentaBoldColor<<"Generating sperical individual inclusions"<<defaultColor<<std::endl;
         if(inclusionRadii_SI.size())
         {
 //            const std::vector<int> periodicDipoleExitFaceIDs(this->parser.readArray<int>("periodicDipoleExitFaceIDs",true));
@@ -163,7 +163,7 @@ namespace model
         
     }
 
-    bool InclusionsGenerator::generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type)
+    bool SphericalInclusionsGenerator::generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type)
     {
         
         Eigen::Matrix<double,dim,dim> eT(Eigen::Map<const Eigen::Matrix<double,dim,dim>>(eTrow.data(),dim,dim).transpose());
@@ -183,7 +183,7 @@ namespace model
             else
             {
                 bool isOutside(true);
-                for(const auto& incl : mg.config().eshelbyInclusions())
+                for(const auto& incl : mg.config().sphericalInclusions())
                 {
                     isOutside=(isOutside && ((C-incl.C).norm()>R+incl.a));
                 }

@@ -32,7 +32,7 @@
 #include <vtkFloatArray.h>
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
-
+#include <vtkDataSetMapper.h>
 
 #include <DDconfigIO.h>
 
@@ -72,6 +72,10 @@ namespace model
         vtkSmartPointer<vtkActor> actor;
         vtkSmartPointer<vtkLookupTable> lookUpColors;
         
+        vtkSmartPointer<vtkDataSetMapper> polyhedronMapper;
+        vtkSmartPointer<vtkActor> polyhedronActor;
+        
+//        vtkSmartPointer<vtkPoints> polyhedronPoints;
         
     public:
         InclusionActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);

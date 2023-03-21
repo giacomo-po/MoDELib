@@ -1,7 +1,7 @@
 type=PeriodicDipole;
 style=individual;
 tag=pdl0;
-periodicDipoleSlipSystemIDs=0 1 -1; # each value in the vector is the slipSystem ID os a dipole
+periodicDipoleSlipSystemIDs=0 -1 -1; # each value in the vector is the slipSystem ID os a dipole
 periodicDipoleExitFaceIDs=1 1 5; #  each value in the vector is the ID of the face from which the dipole enters/exits
 periodicDipoleNodes=0 0 0;
 periodicDipolePoints=500 500 100

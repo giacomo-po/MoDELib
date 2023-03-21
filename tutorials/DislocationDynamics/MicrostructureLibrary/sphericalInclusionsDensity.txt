@@ -1,7 +1,7 @@
 # This files generates a density of inclusions with random position and diameter. 
 # The random diameter d is generated from a 3-parameters log-normal distribution with probability
 # p(d)=A/(S*d*sqrt(2*pi))*exp(-(ln(d/M))^2/(2*S^2))
-type=Inclusions;
+type=SphericalInclusions;
 style=density; 
 tag=incd0;
 targetDensity=1e22; [1/m^3] number density of inclusions

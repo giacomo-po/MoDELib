@@ -6,8 +6,8 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef model_InclusionsGenerator_H_
-#define model_InclusionsGenerator_H_
+#ifndef model_SphericalInclusionsGenerator_H_
+#define model_SphericalInclusionsGenerator_H_
 
 
 #include <chrono>
@@ -46,7 +46,7 @@
 namespace model
 {
 
-class InclusionsGenerator : public MicrostructureGeneratorBase
+class SphericalInclusionsGenerator : public MicrostructureGeneratorBase
 {
     
     bool generateSingle(MicrostructureGenerator& mg,const VectorDimD& C,const double& R, const Eigen::Matrix<double,1,dim*dim>& eT, const double& vrc,const int&type);
@@ -57,7 +57,7 @@ public:
     
     const bool allowOverlap;
     
-    InclusionsGenerator(const std::string& fileName);
+    SphericalInclusionsGenerator(const std::string& fileName);
     
 //    void generate(MicrostructureGenerator& mg) override;
     void generateIndividual(MicrostructureGenerator& mg) override;

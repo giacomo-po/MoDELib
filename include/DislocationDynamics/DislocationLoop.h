@@ -48,6 +48,7 @@ namespace model
 
         const std::shared_ptr<GlidePlaneType> glidePlane;
         const std::shared_ptr<PeriodicGlidePlaneType> periodicGlidePlane;
+        DislocationLoopPatches<_dim> _patches;
         const GrainType& grain;
         const int loopType;
 
@@ -62,7 +63,7 @@ namespace model
         VectorDim _rightHandedUnitNormal;
         ReciprocalLatticeDirectionType _rightHandedNormal;
         std::shared_ptr<SlipSystem> _slipSystem;
-        std::map<std::shared_ptr<PeriodicPlanePatch<_dim>>,std::vector<Eigen::Matrix<double,_dim-1,1>>> _patches;
+//        std::map<std::shared_ptr<PeriodicPlanePatch<_dim>>,std::vector<Eigen::Matrix<double,_dim-1,1>>> _patches;
         
     public:
         

@@ -68,7 +68,7 @@ outputPeriodicConfiguration=0;
 # DISLOCATION ELASTIC FIELDS
 # The dislocation core width, used in the non-singular expression of the dislocation stress field
 coreSize=2.0;
-useLineTension=0;
+useLineTension=1;
 alphaLineTension=1.0;
 
 ######################################
@@ -78,8 +78,8 @@ alphaLineTension=1.0;
 # remeshFrequency = n redistribution every n steps (recommended)
 # Note that Lmax and Lmin are relative to box size if use_boundary =1
 remeshFrequency=1;
-Lmin=0.05;
-Lmax=0.2;
+Lmin=0.025;
+Lmax=0.1;
 nodeRemoveAngleDeg=60;
 relativeAreaThreshold=0.001;
 

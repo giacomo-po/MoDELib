@@ -31,7 +31,8 @@
 #include <DDconfigIO.h>
 #include <DDauxIO.h>
 
-#include <EshelbyInclusion.h>
+#include <SphericalInclusion.h>
+#include <PolyhedronInclusion.h>
 //#include <DisplacementPoint.h>
 #include <FEMnodeEvaluation.h>
 
@@ -115,11 +116,38 @@ namespace model
                 temp.nodes().emplace_back(*node.second.lock());
             }
             
+            for(const auto& node : DN.polyhedronInclusionNodes())
+            {
+                temp.polyhedronInclusionNodes().emplace_back(node.second);
+            }
+            
             // Store Eshelby Inclusions
             for(const auto& ei : DN.eshelbyInclusions())
             {
-                temp.eshelbyInclusions().emplace_back(ei.second);
+                
+                auto* sphericalDerived = dynamic_cast<SphericalInclusion<dim>*>(ei.second.get());
+                if (sphericalDerived)
+                {
+                    temp.sphericalInclusions().emplace_back(*sphericalDerived);
+                }
+                
+                auto* polyhedronDerived = dynamic_cast<PolyhedronInclusion<dim>*>(ei.second.get());
+                if (polyhedronDerived)
+                {
+                    temp.polyhedronInclusions().emplace_back(*polyhedronDerived);
+                    for(const auto face : polyhedronDerived->faces)
+                    {
+                        for(size_t k=0;k<face.second.size();++k)
+                        {
+                            const size_t k1(k<face.second.size()-1? k+1 : 0);
+                            temp.polyhedronInclusionEdges().emplace_back(polyhedronDerived->sID,face.first,face.second[k],face.second[k1]);
+                        }
+                    }
+                }
             }
+            
+
+            
             
             return temp;
         }
@@ -194,23 +222,7 @@ namespace model
             configIO().write(runID,DN.outputBinary);
             auxIO().write(runID,DN.outputBinary);
 
-            if(DN.computeElasticEnergyPerLength)
-            {
-                double eE(0.0);
-                for(const auto& linkIter : DN.networkLinks())
-                {// Collect LoopLinks by loop IDs
-                    const auto link(linkIter.second.lock());
-                    for(const auto& qPoint : link->quadraturePoints())
-                    {
-                        eE+=qPoint.elasticEnergyPerLength*qPoint.dL;
-                    }
-                }
-                f_file<<eE<<" ";
-                if(runID==0)
-                {
-                    F_labels<<"elastic energy [mu b^3]\n";
-                }
-            }
+ 
             
             if(DN.outputSegmentPairDistances)
             {
@@ -348,6 +360,24 @@ namespace model
                     F_labels<<"sessile length [b]\n";
                     F_labels<<"boundary length [b]\n";
                     F_labels<<"grain boundary length [b]"<<std::endl;
+                }
+            }
+            
+            if(DN.computeElasticEnergyPerLength)
+            {
+                double eE(0.0);
+                for(const auto& linkIter : DN.networkLinks())
+                {// Collect LoopLinks by loop IDs
+                    const auto link(linkIter.second.lock());
+                    for(const auto& qPoint : link->quadraturePoints())
+                    {
+                        eE+=qPoint.elasticEnergyPerLength*qPoint.dL;
+                    }
+                }
+                f_file<<eE<<" ";
+                if(runID==0)
+                {
+                    F_labels<<"elastic energy [mu b^3]\n";
                 }
             }
             

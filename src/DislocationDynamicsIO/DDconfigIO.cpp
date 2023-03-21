@@ -23,7 +23,11 @@
 #include <DislocationLoopLinkIO.h>
 #include <DislocationNodeIO.h>
 #include <DislocationSegmentIO.h>
-#include <EshelbyInclusionIO.h>
+#include <SphericalInclusionIO.h>
+#include <PolyhedronInclusionIO.h>
+#include <PolyhedronInclusionEdgeIO.h>
+#include <PolyhedronInclusionNodeIO.h>
+
 //#include <DislocationNetwork.h>
 //#include <PeriodicLoopIO.h>
 
@@ -119,16 +123,57 @@ namespace model
     }
 
     template <int dim>
-    const std::vector<EshelbyInclusionIO<dim>>& DDconfigIO<dim>::eshelbyInclusions() const
+    const std::vector<SphericalInclusionIO<dim>>& DDconfigIO<dim>::sphericalInclusions() const
     {
         return *this;
     }
 
     template <int dim>
-    std::vector<EshelbyInclusionIO<dim>>& DDconfigIO<dim>::eshelbyInclusions()
+    std::vector<SphericalInclusionIO<dim>>& DDconfigIO<dim>::sphericalInclusions()
     {
         return *this;
     }
+
+template <int dim>
+const std::vector<PolyhedronInclusionIO<dim> >& DDconfigIO<dim>::polyhedronInclusions() const
+{
+    return *this;
+}
+
+template <int dim>
+std::vector<PolyhedronInclusionIO<dim> >& DDconfigIO<dim>::polyhedronInclusions()
+{
+    return *this;
+}
+
+
+template <int dim>
+const std::vector<PolyhedronInclusionNodeIO<dim> >& DDconfigIO<dim>::polyhedronInclusionNodes() const
+{
+    return *this;
+}
+
+template <int dim>
+std::vector<PolyhedronInclusionNodeIO<dim> >& DDconfigIO<dim>::polyhedronInclusionNodes()
+{
+    return *this;
+}
+
+
+template <int dim>
+const std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdges() const
+{
+    return *this;
+}
+
+
+template <int dim>
+std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdges()
+{
+    return *this;
+}
+
+
 
 
     template <int dim>
@@ -299,8 +344,11 @@ namespace model
         file<<loops().size()<<"\n";
         file<<loopLinks().size()<<"\n";
         file<<loopNodes().size()<<"\n";
-        file<<eshelbyInclusions().size()<<"\n";
-        
+        file<<sphericalInclusions().size()<<"\n";
+        file<<polyhedronInclusions().size()<<"\n";
+        file<<polyhedronInclusionNodes().size()<<"\n";
+        file<<polyhedronInclusionEdges().size()<<"\n";
+
         // Write Nodes
         for(const auto& node : nodes())
         {
@@ -325,9 +373,27 @@ namespace model
         }
         
         // Eshelby inclusions
-        for(const auto& ei : eshelbyInclusions())
+        for(const auto& ei : sphericalInclusions())
         {
             file<<ei<<"\n";
+        }
+        
+        // polyhedronInclusions
+        for(const auto& pi : polyhedronInclusions())
+        {
+            file<<pi<<"\n";
+        }
+        
+        // polyhedronInclusionsNodes
+        for(const auto& pin : polyhedronInclusionNodes())
+        {
+            file<<pin<<"\n";
+        }
+        
+        // polyhedronInclusionsEdges
+        for(const auto& pie : polyhedronInclusionEdges())
+        {
+            file<<pie<<"\n";
         }
     }
 
@@ -346,14 +412,21 @@ namespace model
             const size_t nL(loops().size());
             const size_t nE(loopLinks().size());
             const size_t nLN(loopNodes().size());
-            const size_t nEI(eshelbyInclusions().size());
-            
+            const size_t nEI(sphericalInclusions().size());
+            const size_t nPI(polyhedronInclusions().size());
+            const size_t nPIn(polyhedronInclusionNodes().size());
+            const size_t nPIe(polyhedronInclusionEdges().size());
+
             binWrite(file,nV);
             binWrite(file,nL);
             binWrite(file,nE);
             binWrite(file,nLN);
             binWrite(file,nEI);
-            
+            binWrite(file,nPI);
+            binWrite(file,nPIn);
+            binWrite(file,nPIe);
+
+
             // Write Nodes
             for(const auto& node : nodes())
             {
@@ -378,12 +451,29 @@ namespace model
                 binWrite(file,loopNode);
             }
             
-            // Write EshelbyInclusions
-            for(const auto& ei : eshelbyInclusions())
+            // Write SphericalInclusions
+            for(const auto& ei : sphericalInclusions())
             {
                 binWrite(file,ei);
             }
             
+            // polyhedronInclusions
+            for(const auto& pi : polyhedronInclusions())
+            {
+                binWrite(file,pi);
+            }
+            
+            // polyhedronInclusionsNodes
+            for(const auto& pin : polyhedronInclusionNodes())
+            {
+                binWrite(file,pin);
+            }
+            
+            // polyhedronInclusionsEdges
+            for(const auto& pie : polyhedronInclusionEdges())
+            {
+                binWrite(file,pie);
+            }
             
             file.close();
             std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
@@ -427,7 +517,10 @@ namespace model
         loops().clear();
         loopLinks().clear();
         loopNodes().clear();
-        eshelbyInclusions().clear();
+        sphericalInclusions().clear();
+        polyhedronInclusions().clear();
+        polyhedronInclusionNodes().clear();
+        polyhedronInclusionEdges().clear();
         nodeMap().clear();
         loopNodeMap().clear();
         loopMap().clear();
@@ -452,7 +545,13 @@ namespace model
             infile.read (reinterpret_cast<char*>(&sizeLN), 1*sizeof(sizeLN));
             size_t sizeEI;
             infile.read (reinterpret_cast<char*>(&sizeEI), 1*sizeof(sizeEI));
-            
+            size_t sizePI;
+            infile.read (reinterpret_cast<char*>(&sizePI), 1*sizeof(sizePI));
+            size_t sizePIn;
+            infile.read (reinterpret_cast<char*>(&sizePIn), 1*sizeof(sizePIn));
+            size_t sizePIe;
+            infile.read (reinterpret_cast<char*>(&sizePIe), 1*sizeof(sizePIe));
+
             // Read vertices
             nodes().resize(sizeV);
             infile.read (reinterpret_cast<char*>(nodes().data()),nodes().size()*sizeof(DislocationNodeIO<dim>));
@@ -466,9 +565,15 @@ namespace model
             loopNodes().resize(sizeLN);
             infile.read (reinterpret_cast<char*>(loopNodes().data()),loopNodes().size()*sizeof(DislocationLoopNodeIO<dim>));
             // Read Eshlby Inclusions
-            eshelbyInclusions().resize(sizeEI);
-            infile.read (reinterpret_cast<char*>(eshelbyInclusions().data()),eshelbyInclusions().size()*sizeof(EshelbyInclusionIO<dim>));
-            
+            sphericalInclusions().resize(sizeEI);
+            infile.read (reinterpret_cast<char*>(sphericalInclusions().data()),sphericalInclusions().size()*sizeof(SphericalInclusionIO<dim>));
+            polyhedronInclusions().resize(sizePI);
+            infile.read (reinterpret_cast<char*>(polyhedronInclusions().data()),polyhedronInclusions().size()*sizeof(PolyhedronInclusionIO<dim>));
+            polyhedronInclusionNodes().resize(sizePIn);
+            infile.read (reinterpret_cast<char*>(polyhedronInclusionNodes().data()),polyhedronInclusionNodes().size()*sizeof(PolyhedronInclusionNodeIO<dim>));
+            polyhedronInclusionEdges().resize(sizePIe);
+            infile.read (reinterpret_cast<char*>(polyhedronInclusionEdges().data()),polyhedronInclusionEdges().size()*sizeof(PolyhedronInclusionEdgeIO));
+
             
             infile.close();
             make_maps();
@@ -477,8 +582,11 @@ namespace model
             std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
             std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
             std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
-            std::cout<<"  "<<eshelbyInclusions().size()<<" eshelbyInclusions "<<std::endl;
-            
+            std::cout<<"  "<<sphericalInclusions().size()<<" SphericalInclusions "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusions().size()<<" polyhedronInclusions "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusionNodes().size()<<" polyhedronInclusionNodes "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusionEdges().size()<<" polyhedronInclusionEdges "<<std::endl;
+
         }
         else
         {
@@ -511,7 +619,10 @@ namespace model
             std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
             std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
             std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
-            std::cout<<"  "<<eshelbyInclusions().size()<<" eshelbyInclusions "<<std::endl;
+            std::cout<<"  "<<sphericalInclusions().size()<<" SphericalInclusions "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusions().size()<<" polyhedronInclusions "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusionNodes().size()<<" polyhedronInclusionNodes "<<std::endl;
+            std::cout<<"  "<<polyhedronInclusionEdges().size()<<" polyhedronInclusionEdges "<<std::endl;
         }
         else
         {
@@ -531,7 +642,10 @@ namespace model
         loops().clear();
         loopLinks().clear();
         loopNodes().clear();
-        eshelbyInclusions().clear();
+        sphericalInclusions().clear();
+        polyhedronInclusions().clear();
+        polyhedronInclusionNodes().clear();
+        polyhedronInclusionEdges().clear();
         nodeMap().clear();
         loopNodeMap().clear();
         loopMap().clear();
@@ -541,6 +655,9 @@ namespace model
         size_t sizeE;
         size_t sizeLN;
         size_t sizeEI;
+        size_t sizePI;
+        size_t sizePIn;
+        size_t sizePIe;
         
         std::string line;
         std::stringstream ss;
@@ -573,6 +690,24 @@ namespace model
         std::getline(infile, line);
         ss<<line;
         ss >> sizeEI;
+        ss.str("");
+        ss.clear();
+        
+        std::getline(infile, line);
+        ss<<line;
+        ss >> sizePI;
+        ss.str("");
+        ss.clear();
+        
+        std::getline(infile, line);
+        ss<<line;
+        ss >> sizePIn;
+        ss.str("");
+        ss.clear();
+        
+        std::getline(infile, line);
+        ss<<line;
+        ss >> sizePIe;
         ss.str("");
         ss.clear();
         
@@ -616,12 +751,42 @@ namespace model
             ss.clear();
         }
         
-        eshelbyInclusions().clear();
+        sphericalInclusions().clear();
         for(size_t k=0; k<sizeEI; ++k)
         {
             std::getline(infile, line);
             ss<<line;
-            eshelbyInclusions().emplace_back(ss);
+            sphericalInclusions().emplace_back(ss);
+            ss.str("");
+            ss.clear();
+        }
+        
+        polyhedronInclusions().clear();
+        for(size_t k=0; k<sizePI; ++k)
+        {
+            std::getline(infile, line);
+            ss<<line;
+            polyhedronInclusions().emplace_back(ss);
+            ss.str("");
+            ss.clear();
+        }
+        
+        polyhedronInclusionNodes().clear();
+        for(size_t k=0; k<sizePIn; ++k)
+        {
+            std::getline(infile, line);
+            ss<<line;
+            polyhedronInclusionNodes().emplace_back(ss);
+            ss.str("");
+            ss.clear();
+        }
+        
+        polyhedronInclusionEdges().clear();
+        for(size_t k=0; k<sizePIe; ++k)
+        {
+            std::getline(infile, line);
+            ss<<line;
+            polyhedronInclusionEdges().emplace_back(ss);
             ss.str("");
             ss.clear();
         }

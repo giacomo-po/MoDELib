@@ -1,8 +1,8 @@
-type=Inclusions;
+type=SphericalInclusions;
 style=individual;
 tag=incl0;
 inclusionRadii_SI=3e-8;
-inclusionsCenters=700 500 700;
+inclusionsCenters=700 500 500;
 inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
 inclusionVelocityReductionFactors=1;
 phaseIDs=0; # ID of secondPhase 

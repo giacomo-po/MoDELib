@@ -28,7 +28,9 @@
 #include <vtkActor.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkLookupTable.h>
-
+#include <vtkPolyhedron.h>
+#include <vtkIdList.h>
+//#include <vtkXMLUnstructuredGridWriter.h>
 #include <InclusionActor.h>
 
 
@@ -55,7 +57,7 @@ namespace model
             colors->SetName("colors");
 
             
-            for(const auto& inclusion : configIO.eshelbyInclusions())
+            for(const auto& inclusion : configIO.sphericalInclusions())
             {
                 points->InsertNextPoint(inclusion.C(0), inclusion.C(1), inclusion.C(2));
                 diameters->InsertNextValue(2.0*inclusion.a);  // origin of arrow
@@ -66,7 +68,44 @@ namespace model
             grid->GetPointData()->AddArray(diameters);
             grid->GetPointData()->SetActiveScalars("diameters"); // to set radius first
             grid->GetPointData()->AddArray(colors);
-
+            
+            
+            vtkNew<vtkUnstructuredGrid> ugrid;
+            vtkNew<vtkPoints> polyhedronPoints;
+            vtkIdType polyhedronPointsIDs[configIO.polyhedronInclusionNodes().size()];
+            long long k=0;
+            for(const auto& node : configIO.polyhedronInclusionNodes())
+            {
+                polyhedronPoints->InsertNextPoint(node.P.data());
+                polyhedronPointsIDs[k]=k;
+                k++;
+            }
+            ugrid->SetPoints(polyhedronPoints);
+            
+            std::map<size_t,std::map<size_t,std::vector<size_t>>> faces;
+            for(const auto& edge : configIO.polyhedronInclusionEdges())
+            {
+                const size_t& iID(edge.inclusionID);
+                const size_t& fID(edge.faceID);
+                const size_t& sourceID(edge.sourceID);
+                faces[iID][fID].push_back(sourceID);
+            }
+            
+            for(const auto& pair1 : faces)
+            {
+                vtkNew<vtkIdList> faces;
+                for(const auto& pair2 : pair1.second)
+                {
+                    faces->InsertNextId(pair2.second.size());
+                    for(const auto& nID : pair2.second)
+                    {
+                        faces->InsertNextId(nID);
+                    }
+                }
+                ugrid->InsertNextCell(VTK_POLYHEDRON, configIO.polyhedronInclusionNodes().size(), polyhedronPointsIDs, pair1.second.size(), faces->GetPointer(0));
+            }
+            
+            polyhedronMapper->SetInputData(ugrid);
             std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 
         }
@@ -86,6 +125,8 @@ namespace model
         /* init */,mapper(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,actor(vtkSmartPointer<vtkActor>::New())
         /* init */,lookUpColors(vtkSmartPointer<vtkLookupTable>::New())
+        /* init */,polyhedronMapper(vtkSmartPointer<vtkDataSetMapper>::New())
+        /* init */,polyhedronActor(vtkSmartPointer<vtkActor>::New())
         {
             showInclusions->setChecked(true);
             showInclusions->setText("show inclusions");
@@ -131,10 +172,17 @@ namespace model
             // Set up actor
             actor->SetMapper(mapper);
             
+            polyhedronActor->SetMapper(polyhedronMapper);
+            polyhedronActor->GetProperty()->SetColor(0.5,0.5,0.5); // Give some color to the mesh. (1,1,1) is white
+            polyhedronActor->GetProperty()->SetOpacity(0.4); // Give some color to the mesh. (1,1,1) is white
+
+            //actor->GetProperty()->SetColor(colors->GetColor3d("Silver").GetData());
             
             // Add actor to renderer
             renderer->AddActor(actor);
-            
+            renderer->AddActor(polyhedronActor);
+
+
             
         }
         

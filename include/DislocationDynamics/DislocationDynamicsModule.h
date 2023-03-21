@@ -73,6 +73,7 @@
 #include <FiniteLineSegment.h>
 #include <LineLineIntersection.h>
 #include <PlanePlaneIntersection.h>
+#include <DislocationLoopPatches.h>
 
 
 namespace model

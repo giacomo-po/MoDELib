@@ -73,7 +73,10 @@
 #include <GlidePlaneModule.h>
 
 #include <DislocationNodeContraction.h>
-#include <EshelbyInclusion.h>
+#include <EshelbyInclusionBase.h>
+#include <SphericalInclusion.h>
+#include <PolyhedronInclusion.h>
+
 #include <DDconfigIO.h>
 #include <DislocationGlideSolver.h>
 #include <CrossSlipModels.h>
@@ -104,7 +107,9 @@ namespace model
 {
     template <int dim, short unsigned int corder>
     class DislocationNetwork :public LoopNetwork<DislocationNetwork<dim,corder> >
-    /*                     */,public std::map<size_t,EshelbyInclusion<dim>>
+    /*                     */,public std::map<size_t,std::shared_ptr<EshelbyInclusionBase<dim>>>
+    /*                     */,public std::map<size_t,PolyhedronInclusionNodeIO<dim>>
+
     {
         
     public:
@@ -121,7 +126,8 @@ namespace model
         typedef typename TraitsType::VectorLowerDim VectorLowerDim;
         typedef typename TraitsType::MatrixDim MatrixDim;
         typedef DislocationNetworkIO<LoopNetworkType> DislocationNetworkIOType;
-        typedef std::map<size_t,EshelbyInclusion<dim>> EshelbyInclusionContainerType;
+        typedef std::map<size_t,std::shared_ptr<EshelbyInclusionBase<dim>>> EshelbyInclusionContainerType;
+        typedef std::map<size_t,PolyhedronInclusionNodeIO<dim>> PolyhedronInclusionNodeContainerType;
         typedef BVPsolver<dim,2> BvpSolverType;
         typedef typename BvpSolverType::FiniteElementType FiniteElementType;
         typedef typename FiniteElementType::ElementType ElementType;
@@ -191,6 +197,8 @@ namespace model
         std::tuple<double,double,double,double> networkLength() const;
         const EshelbyInclusionContainerType& eshelbyInclusions() const;
         EshelbyInclusionContainerType& eshelbyInclusions();
+        const PolyhedronInclusionNodeContainerType& polyhedronInclusionNodes() const;
+        PolyhedronInclusionNodeContainerType& polyhedronInclusionNodes();
         VectorDim displacement(const VectorDim& x) const;
         void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const;
         MatrixDim stress(const VectorDim& x) const;

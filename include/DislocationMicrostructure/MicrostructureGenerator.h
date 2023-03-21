@@ -85,6 +85,10 @@ namespace model
         std::vector<size_t> insertLoopLinks(const size_t& loopID,const std::vector<size_t>& loopNodeIDs);
         size_t insertNetworkNode(const VectorDimD& networkNodePos);
         size_t insertInclusion(const VectorDimD& pos,const double& R, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
+
+        size_t insertInclusion(const std::vector<VectorDimD>& nodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
+
+
         void writeConfigFiles(const size_t& fileID);
         
         void insertJunctionLoop(const std::vector<VectorDimD>& loopNodePos,
