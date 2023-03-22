@@ -39,11 +39,11 @@ namespace model
         typedef Eigen::Matrix<double,Ncoeff,Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double,Ncoeff,dim> MatrixNcoeffDim;
         typedef DislocationSegment<dim,corder> LinkType;
-//         typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
-//         typedef QuadPowDynamic<pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
+        typedef   QuadratureDynamic<1,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadratureDynamicType;
+        typedef QuadPowDynamic<pOrder,UniformOpen,1,2,3,4,5,6,7,8,16,32,64,128,256,512,1024> QuadPowDynamicType;
 
-        typedef   QuadratureDynamic<1,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadratureDynamicType;
-        typedef QuadPowDynamic<pOrder,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadPowDynamicType;
+//        typedef   QuadratureDynamic<1,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadratureDynamicType; // this causes some line wiggles
+//        typedef QuadPowDynamic<pOrder,NonUniformOpen,3,5,7,9,11,13,15,17,19,21,23,25,27,29> QuadPowDynamicType; // this causes some line wiggles
 
         const size_t sourceID;
         const size_t sinkID;

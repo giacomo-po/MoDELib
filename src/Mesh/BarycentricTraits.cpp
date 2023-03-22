@@ -44,8 +44,7 @@ namespace model
 
     
     template<short int dim>
-    Eigen::Matrix<double,dim+1,1> BarycentricTraits<dim>::face2domainBary(const Eigen::Matrix<double,dim,1>& b1,
-                                                                          /*                                                */ const int& boundaryFace)
+    Eigen::Matrix<double,dim+1,1> BarycentricTraits<dim>::face2domainBary(const Eigen::Matrix<double,dim,1>& b1,const int& boundaryFace)
     {
         // Transform to barycentric coordinate on the volume, adding a zero on the boundaryFace-face
         Eigen::Matrix<double,dim+1,1> bary;
