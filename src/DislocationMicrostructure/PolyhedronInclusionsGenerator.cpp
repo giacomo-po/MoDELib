@@ -194,6 +194,7 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
         Eigen::Matrix<double,dim,dim> eT(Eigen::Map<const Eigen::Matrix<double,dim,dim>>(eTrow.data(),dim,dim).transpose());
 
         mg.insertInclusion(polyNodes,faceMap, eT, vrc,type);
+        return true;
         
 //        if(   mg.mesh.search(C+VectorDimD::UnitX()*R).first
 //           && mg.mesh.search(C-VectorDimD::UnitX()*R).first
