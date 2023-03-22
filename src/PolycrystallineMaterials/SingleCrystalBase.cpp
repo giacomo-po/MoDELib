@@ -141,6 +141,8 @@ namespace model
         
     }
 
+template<int dim>
+SingleCrystalBase<dim>::~SingleCrystalBase(){}
 //    template<int dim>
 //    const typename SingleCrystalBase<dim>::LatticeType& SingleCrystalBase<dim>::lattice() const
 //    {

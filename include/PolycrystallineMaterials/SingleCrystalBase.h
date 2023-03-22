@@ -40,7 +40,8 @@ namespace model
 
         SingleCrystalBase(const MatrixDim& A,
                           const MatrixDim& C2G);
-                
+        
+        virtual ~SingleCrystalBase();
         virtual const PlaneNormalContainerType& planeNormals() const =0;
         virtual const SlipSystemContainerType& slipSystems() const =0;
         virtual const SecondPhaseContainerType& secondPhases() const =0;

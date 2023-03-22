@@ -145,17 +145,17 @@ namespace model
 
 
     // Declare static data member
-    template<short int dim>
-    const typename BarycentricTraits<dim>::MatrixHigherDimD BarycentricTraits<dim>::L2X=BarycentricTraits<dim>::get_L2X();
-
-    template<short int dim>
-    const typename BarycentricTraits<dim>::MatrixHigherDimD BarycentricTraits<dim>::X2L=BarycentricTraits<dim>::get_X2L();
-
-    template<short int dim>
-    const typename BarycentricTraits<dim>::MatrixHigherDimDimD BarycentricTraits<dim>::dLdX=BarycentricTraits<dim>::X2L. template block<dim+1,dim>(0,0);
-
-    template<short int dim>
-    const typename BarycentricTraits<dim>::MatrixDimHigherDimD BarycentricTraits<dim>::NdA=BarycentricTraits<dim>::get_NdA();
+//    template<short int dim>
+//    const typename BarycentricTraits<dim>::MatrixHigherDimD BarycentricTraits<dim>::L2X=BarycentricTraits<dim>::get_L2X();
+//
+//    template<short int dim>
+//    const typename BarycentricTraits<dim>::MatrixHigherDimD BarycentricTraits<dim>::X2L=BarycentricTraits<dim>::get_X2L();
+//
+//    template<short int dim>
+//    const typename BarycentricTraits<dim>::MatrixHigherDimDimD BarycentricTraits<dim>::dLdX=BarycentricTraits<dim>::X2L. template block<dim+1,dim>(0,0);
+//
+//    template<short int dim>
+//    const typename BarycentricTraits<dim>::MatrixDimHigherDimD BarycentricTraits<dim>::NdA=BarycentricTraits<dim>::get_NdA();
 
     template struct BarycentricTraits<1>;
     template struct BarycentricTraits<2>;

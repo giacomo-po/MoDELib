@@ -24,43 +24,33 @@ namespace model {
 	struct BarycentricTraits
     {
         static_assert(dim>0,"dim must be > 0");
-
         
         typedef Eigen::Matrix<double,dim,dim> MatrixDimD;
         typedef Eigen::Matrix<double,dim+1,dim+1> MatrixHigherDimD;
         typedef Eigen::Matrix<double,dim+1,dim> MatrixHigherDimDimD;
         typedef Eigen::Matrix<double,dim,dim+1> MatrixDimHigherDimD;
-
         typedef Eigen::Matrix<double,dim  ,1> VectorDimD;
         typedef Eigen::Matrix<double,dim+1,1> VectorHigherDimD;
 
-        static const MatrixHigherDimD L2X;
-        static const MatrixHigherDimD X2L;
-        static const MatrixHigherDimDimD dLdX;
-        static const MatrixDimHigherDimD NdA;
-        
-        /**********************************************************************/
-        static VectorHigherDimD x2l(const VectorDimD& X);
-        
-        /**********************************************************************/
-        static VectorHigherDimD x2l(const double& X);
-        
-        /**********************************************************************/
-        static VectorDimD l2x(const VectorHigherDimD& L);
-
-        /**********************************************************************/
-        static Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,const int& boundaryFace);
-        
     private:
         
-        /**********************************************************************/
         static MatrixHigherDimD get_L2X();
-        
-        /**********************************************************************/
         static MatrixHigherDimD get_X2L();
-        
-        /**********************************************************************/
         static MatrixDimHigherDimD get_NdA();
+
+    public:
+        
+        inline static const MatrixHigherDimD L2X=get_L2X();
+        inline static const MatrixHigherDimD X2L=get_X2L();
+        inline static const MatrixHigherDimDimD dLdX=X2L. template block<dim+1,dim>(0,0);
+        inline static const MatrixDimHigherDimD NdA=get_NdA();
+        
+        
+        static VectorHigherDimD x2l(const VectorDimD& X);
+        static VectorHigherDimD x2l(const double& X);
+        static VectorDimD l2x(const VectorHigherDimD& L);
+        static Eigen::Matrix<double,dim+1,1> face2domainBary(const Eigen::Matrix<double,dim,1>& b1,const int& boundaryFace);
+        
         
 	};
     

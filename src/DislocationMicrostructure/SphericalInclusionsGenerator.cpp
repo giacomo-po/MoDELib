@@ -177,7 +177,7 @@ namespace model
         {
             if(allowOverlap)
             {
-                const size_t inclusionID(mg.insertInclusion(C,R,eT,vrc,type));
+                mg.insertInclusion(C,R,eT,vrc,type);
                 return true;
             }
             else
@@ -189,7 +189,7 @@ namespace model
                 }
                 if(isOutside)
                 {
-                    const size_t inclusionID(mg.insertInclusion(C,R,eT,vrc,type));
+                    mg.insertInclusion(C,R,eT,vrc,type);
                     return true;
                 }
                 else

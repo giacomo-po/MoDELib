@@ -90,15 +90,22 @@ namespace model
     /* init */ regionID(rID)
     {
         const bool success=regionObserver.emplace(regionID,this).second;
-        assert(success && "COULD NOT INSERT MeshRegion in MeshRegionObserver.");
+        if(!success)
+        {
+            throw std::runtime_error("Cannot insert MeshRegion in MeshRegionObserver.");
+        }
     }
     
     /**********************************************************************/
     template<int dim>
     MeshRegion<dim>::~MeshRegion()
     {
-        const size_t n=regionObserver.erase(regionID);
-        assert(n==1 && "COULD NOT ERASE MeshRegion in MeshRegionObserver.");
+        regionObserver.erase(regionID);
+//        const size_t n=regionObserver.erase(regionID);
+//        if(n!=1)
+//        {
+//            throw std::runtime_error("Cannot erase MeshRegion from MeshRegionObserver.");
+//        }
     }
     
     /**********************************************************************/
