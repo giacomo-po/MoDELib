@@ -93,7 +93,7 @@ namespace model
         NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,
                          const Polycrystal<3>& poly_in,
                          PeriodicGlidePlaneFactory<3>& pgf);
-        void updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData);
+        void updateConfiguration(const DDconfigIO<3>& configIO);
 //        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
         
     };

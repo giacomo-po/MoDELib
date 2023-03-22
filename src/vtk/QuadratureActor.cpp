@@ -19,7 +19,7 @@
 namespace model
 {
 
-    QuadratureActor::QuadratureActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>& poly,const DDtraitsIO& traitsIO) :
+    QuadratureActor::QuadratureActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>&,const DDtraitsIO&) :
     /* init */ renderWindow(renWin)
     /* init */,renderer(ren)
     /* init */,mainLayout(new QGridLayout(this))

@@ -180,14 +180,14 @@ namespace model
         
         currentTable->Initialize();
         
-        for(size_t k=0;k<table->GetNumberOfColumns();++k)
+        for(long long k=0;k<table->GetNumberOfColumns();++k)
         {
             vtkNew<vtkFloatArray> farr;
             farr->SetName(table->GetColumnName(k));
             currentTable->AddColumn(farr);
         }
         
-        for(size_t k=0;k<table->GetNumberOfRows();++k)
+        for(long long k=0;k<table->GetNumberOfRows();++k)
         {
             if(table->GetValue(k,0)<=frameID)
             {

@@ -150,7 +150,7 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 
 
 /**********************************************************************/
-void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData)
+void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
 {
     std::cout<<"Updating loops..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();

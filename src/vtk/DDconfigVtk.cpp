@@ -147,7 +147,7 @@ namespace model
                 auxIO().read(frameID);
                 nodes->updateConfiguration(*this);
                 segments->updateConfiguration(*this,nodes->nodePolyData);
-                loops->updateConfiguration(*this,nodes->nodePolyData);
+                loops->updateConfiguration(*this);
                 inclusions->updateConfiguration(*this);
                 glidePlanes->updateConfiguration(*this);
                 quadrature->updateConfiguration(*this);

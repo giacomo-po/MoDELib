@@ -23,7 +23,7 @@
 namespace model
 {
 
-    GlidePlaneActor::GlidePlaneActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>& poly_in,const DDtraitsIO& traitsIO) :
+    GlidePlaneActor::GlidePlaneActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,const Polycrystal<3>& poly_in,const DDtraitsIO& ) :
     /* init */ renderWindow(renWin)
     /* init */,renderer(ren)
     /* init */,poly(poly_in)
@@ -56,13 +56,11 @@ namespace model
             glidePlanesNoiseBox->addItem("RSS");
             glidePlanesNoiseBox->addItem("ISF energy");
             const auto& grain(poly.grains.begin()->second);
-            
-            int k=0;
-            for(const auto& ss : grain.singleCrystal->slipSystems())
-            {
-                slipSystemNoiseBox->addItem(QString::fromStdString("slipSystem "+ std::to_string(k)));
-                k++;
-            }
+                    
+        for(size_t k=0; k<grain.singleCrystal->slipSystems().size();++k)
+        {
+            slipSystemNoiseBox->addItem(QString::fromStdString("slipSystem "+ std::to_string(k)));
+        }
         
         mainLayout->addWidget(showGlidePlanes,0,0,1,1);
         mainLayout->addWidget(showGlidePlanesNoise,1,0,1,1);
@@ -272,7 +270,7 @@ namespace model
                                 noiseMappers[slipSystemID].back()->ScalarVisibilityOn();
                                 noiseActors[slipSystemID].push_back(vtkSmartPointer<vtkActor>::New());
                                 noiseActors[slipSystemID].back()->SetMapper(noiseMappers[slipSystemID].back());
-                                noiseActors[slipSystemID].back()->SetVisibility(showGlidePlanesNoise->isChecked() && slipSystemNoiseBox->currentIndex()==slipSystemID);
+                                noiseActors[slipSystemID].back()->SetVisibility(showGlidePlanesNoise->isChecked() && slipSystemNoiseBox->currentIndex()==int(slipSystemID));
                                 renderer->AddActor( noiseActors[slipSystemID].back());
 
                             }
