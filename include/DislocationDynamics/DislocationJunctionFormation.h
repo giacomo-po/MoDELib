@@ -565,10 +565,9 @@ namespace model
         //     Yash's version(Working)
         std::pair<std::shared_ptr<NetworkNodeType>, bool> junctionNode(const double &t,
                                                                        const VectorDim &x,
-                                                                       const std::shared_ptr<NetworkLinkType> &L,
-                                                                       const KeyType &key)
+                                                                       const std::shared_ptr<NetworkLinkType> &L)
         {
-            VerboseJunctions(4, "JunctionNode for segment: " << key.first << "->" << key.second << " @ " << t << std::endl;);
+//            VerboseJunctions(4, "JunctionNode for segment: " << key.first << "->" << key.second << " @ " << t << std::endl;);
 
             auto Nclose = t < 0.5 ? L->source : L->sink;
             auto Nfar = t >= 0.5 ? L->source : L->sink;
@@ -684,8 +683,10 @@ namespace model
                                          /*                   */ <<key2.first<<"->"<<key2.second<<", "
                                          /*                   */ <<"dMin="<<ssd.dMin<<", "
                                          /*                   */ <<"@ ("<<t<<","<<u<<"), "<<std::flush);
-                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Ni(junctionNode(t,ssd.x0,L1,key1));
-                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Nj(junctionNode(u,ssd.x1,L2,key2));
+                        VerboseJunctions(4, "JunctionNode for segment: " << key1.first << "->" << key1.second << " @ " << t << std::endl;);
+                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Ni(junctionNode(t,ssd.x0,L1));
+                        VerboseJunctions(4, "JunctionNode for segment: " << key2.first << "->" << key2.second << " @ " << u << std::endl;);
+                        std::pair<std::shared_ptr<NetworkNodeType>,bool> Nj(junctionNode(u,ssd.x1,L2));
 
                         if (Ni.first && Nj.first)
                         {

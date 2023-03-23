@@ -241,7 +241,10 @@ namespace model
                     pN=&*nodeContainer.rbegin(); // grab node pointer
 
                     const bool success(nodeFinder.insert(std::make_pair(P,pN)).second); // insert pointer in nodeFinder
-                    assert(success && "NODE NOT INSERTED");
+                    if(!success)
+                    {
+                        throw std::runtime_error("NODE NOT INSERTED");
+                    }
                     
                     size_t maxID=0;
                     const double maxVal(baryNodalCoordinates.row(n).maxCoeff(&maxID));

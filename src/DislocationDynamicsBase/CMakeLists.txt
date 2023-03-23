@@ -8,5 +8,10 @@ include_directories(${MoDELibRootDir}/include/DislocationDynamicsBase/)
 
 target_sources(${PROJECT_NAME} PRIVATE 
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationLoopPatches.cpp
-#		${CMAKE_CURRENT_SOURCE_DIR}/DislocationQuadraturePoint.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationFieldBase.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/EshelbyInclusionBase.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/SphericalInclusion.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/PolyhedronInclusion.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/StraightDislocationSegment.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/StressStraight.cpp
 		)

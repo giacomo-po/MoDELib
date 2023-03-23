@@ -140,9 +140,10 @@ namespace model
 
             if (source==sink)
             {
-                std::cout<<" Source and Sinks are equal for the node "<<source->sID<<std::endl;
+                throw std::runtime_error(" Source and Sinks are equal for the node "+std::to_string(source->sID));
+//                std::cout<<" Source and Sinks are equal for the node "<<source->sID<<std::endl;
             }
-            assert(source!=sink && "Source and Sink cannot be same for a network link");
+  //          assert(source!=sink && "Source and Sink cannot be same for a network link");
             source->addToNeighborhood(this->p_derived());
             sink->addToNeighborhood(this->p_derived());
 
@@ -233,14 +234,20 @@ namespace model
         void addLoopLink(LoopLinkType* const pL)
         {
             const bool success=loopLinks().insert(pL).second;
-            assert(success && "Could not insert LoopLink in NetworkLink");
+            if(!success)
+            {
+                throw std::runtime_error("Could not insert LoopLink in NetworkLink");
+            }
         }
         
         /**********************************************************************/
         void removeLoopLink(LoopLinkType* const pL)
         {
             const size_t erased=loopLinks().erase(pL);
-            assert(erased==1 && "Could not erase LoopLink from NetworkLink");
+            if(erased!=1)
+            {
+                throw std::runtime_error("Could not erase LoopLink from NetworkLink");
+            }
         }
         
         /**********************************************************************/

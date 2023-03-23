@@ -6,41 +6,36 @@
  * GNU General Public License (GPL) v2 <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _model_DislocationFieldBase_h_
-#define _model_DislocationFieldBase_h_
+#ifndef _model_DislocationFieldBase_cpp_
+#define _model_DislocationFieldBase_cpp_
 
-#include <Eigen/Dense>
+#include <DislocationFieldBase.h>
+#include <TextFileParser.h>
 
 namespace model
 {
     
     
-    template<int dim>
-    struct DislocationFieldBase
-    {
         
-        //! Dislocation core size
-        inline static  double a=1;
-        
-        //! Dislocation core size squared
-        inline static  double a2=1;
-        
-        //! dim x dim identity matrix
-        inline static const Eigen::Matrix<double,dim,dim> I=Eigen::Matrix<double,dim,dim>::Identity();
-        static void initFromFile(const std::string& fileName);
-        
-        
-    };
+        template<int dim>
+        void DislocationFieldBase<dim>::initFromFile(const std::string& fileName)
+        {
+            
+            a=TextFileParser(fileName).readScalar<double>("coreSize",true);
+            assert(a>0.0 && "coreSize MUST BE > 0.");
+            a2=a*a;
+        }
+
     
-    
+template struct DislocationFieldBase<3>;
     //! Dislocation core size
 //    template<int dim>
 //    double DislocationFieldBase<dim>::a=1.0;
-//
+//    
 //    //! Dislocation core size squared
 //    template<int dim>
 //    double DislocationFieldBase<dim>::a2=1.0;
-//
+//    
 //    //! Identity matrix
 //    template<int dim>
 //    const Eigen::Matrix<double,dim,dim> DislocationFieldBase<dim>::I=Eigen::Matrix<double,dim,dim>::Identity();

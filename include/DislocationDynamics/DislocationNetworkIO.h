@@ -135,7 +135,7 @@ namespace model
                 if (polyhedronDerived)
                 {
                     temp.polyhedronInclusions().emplace_back(*polyhedronDerived);
-                    for(const auto face : polyhedronDerived->faces)
+                    for(const auto& face : polyhedronDerived->faces)
                     {
                         for(size_t k=0;k<face.second.size();++k)
                         {

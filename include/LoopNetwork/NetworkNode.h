@@ -190,13 +190,21 @@ namespace model
         void addLoopNode(LoopNodeType* const pN)
         {
             const bool success(loopNodes().insert(pN).second);
-            assert(success && "Duplicate LoopNode could not be added");
+            if(!success)
+            {
+                throw std::runtime_error("Duplicate LoopNode could not be added");
+            }
+//            assert(success && "Duplicate LoopNode could not be added");
         }
         
         void removeLoopNode(LoopNodeType* const pN)
         {
             const size_t erased(loopNodes().erase(pN));
-            assert(erased==1 && "LoopNode could not be erased");
+            if(erased!=1)
+            {
+                throw std::runtime_error("LoopNode could not be erased");
+            }
+//            assert(erased==1 && "LoopNode could not be erased");
         }
         
         bool isContractableTo(const std::shared_ptr<Derived>&) const
@@ -253,17 +261,27 @@ namespace model
                 //     std::cout<<std::get<0>(neigh.second)->tag()<<"=>"<<std::get<1>(neigh.second)->tag()<<std::endl;
                 // }
                 const bool success=neighbors().emplace(pL->sink->sID,temp).second;
-                assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
+                if(!success)
+                {
+                    throw std::runtime_error("CANNOT INSERT IN NEIGHBORHOOD.");
+                }
+//                assert(success && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else if (pL->sink->sID==this->sID)
             {// this vertex is the sink of edge *pL, so source of *pL is the neighbor
                 const NeighborType temp(pL->source.get(),pL);
                 const bool success=neighbors().emplace(pL->source->sID,temp).second;
-                assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
+                if(!success)
+                {
+                    throw std::runtime_error("CANNOT INSERT IN NEIGHBORHOOD.");
+                }
+//                assert(success  && "CANNOT INSERT IN NEIGHBORHOOD.");
             }
             else
             {
-                assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
+                throw std::runtime_error("CANNOT INSERT NON-INCIDENT EDGE");
+//
+//                assert(0 && "CANNOT INSERT NON-INCIDENT EDGE");
             }
         }
         
@@ -274,17 +292,27 @@ namespace model
             {
                 const size_t key=pL->sink->sID;
                 const int success=neighbors().erase(key);
-                assert(success==1);
+                if(success!=1)
+                {
+                    throw std::runtime_error("CANNOT REMOVE FROM NEIGHBORHOOD.");
+                }
+//                assert(success==1);
             }
             else if (pL->sink->sID==this->sID)
             {
                 const size_t key=pL->source->sID;
                 const int success=neighbors().erase(key);
-                assert(success==1);
+                if(success!=1)
+                {
+                    throw std::runtime_error("CANNOT REMOVE FROM NEIGHBORHOOD.");
+                }
+//                assert(success==1);
             }
             else
             {
-                assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
+                throw std::runtime_error("CANNOT REMOVE FROM NEIGHBORHOOD.");
+//
+//                assert(0 && "CANNOT REMOVE FROM NEIGHBORS");
             }
         }
         

@@ -233,7 +233,7 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
         {
             
             const auto& grain(poly.grain(searchPair.second->region->regionID));
-            if(inclusion.phaseID<grain.singleCrystal->secondPhases().size())
+            if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
             {
             const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
             EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
@@ -309,7 +309,7 @@ void DislocationNetwork<dim,corder>::setConfiguration(const DDconfigIO<dim>& evl
                 if(grainIDs.size()==1)
                 {
                     const auto& grain(poly.grain(*grainIDs.begin()));
-                    if(inclusion.phaseID<grain.singleCrystal->secondPhases().size())
+                    if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                     {
                     const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
                     EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);

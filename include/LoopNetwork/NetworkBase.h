@@ -48,8 +48,9 @@ namespace model
         /**********************************************************************/
         ~NetworkBase()
         {
-            size_t erased(weakPtrContainer->erase(key));
-            assert(erased==1 && "Could not erase key");
+            weakPtrContainer->erase(key);
+//            size_t erased(weakPtrContainer->erase(key));
+//            assert(erased==1 && "Could not erase key");
         }
         
         

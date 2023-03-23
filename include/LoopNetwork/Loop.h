@@ -44,26 +44,20 @@ namespace model
         typedef typename TypeTraits<Derived>::LoopNetworkType LoopNetworkType;
         typedef NetworkBase<Derived,size_t> NetworkBaseType;
         typedef typename TypeTraits<Derived>::LoopNodeType LoopNodeType;
-//        typedef typename TypeTraits<Derived>::LinkType LinkType;
         typedef typename TypeTraits<Derived>::LoopLinkType LoopLinkType;
         typedef std::set<LoopLinkType*> LoopLinkContainerType;
         typedef std::deque<const LoopLinkType*> LoopLinkSequenceType;
         typedef std::deque<std::pair<std::shared_ptr<LoopNodeType>,std::shared_ptr<LoopNodeType>>> LoopNodeSequenceType;
-//        typedef LoopObserver<Derived> LoopObserverType;
         typedef typename TypeTraits<LoopLinkType>::FlowType FlowType;
         
     private:
         
-//        LoopLinkSequenceType linkSeq;
-//        LoopNetworkType* const _loopNetwork;
         FlowType _flow;
 
     public:
         
         static int verboseLevel;
 
-
-//        const LoopNetworkType& loopNetwork;
 
         /**********************************************************************/
         Loop(LoopNetworkType* const loopNetwork_in,
@@ -105,10 +99,10 @@ namespace model
         ~Loop()
         {
             VerboseLoop(1,"Destroying Loop "<<tag()<<std::endl);
-if(loopLinks().size()!=0)
-{
-    throw std::runtime_error("Loop "+tag()+" not empty.");
-}
+//if(loopLinks().size()!=0)
+//{
+//    throw std::runtime_error("Loop "+tag()+" not empty.");
+//}
             
 //            assert(loopLinks().size()==0 && "DESTROYING NON-EMPTY LOOP.");
             

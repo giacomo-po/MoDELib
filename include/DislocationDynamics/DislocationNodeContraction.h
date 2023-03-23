@@ -570,7 +570,11 @@ namespace model
                 // std::cout<<"Na and Nb are "<<nA->tag()<<"=>"<<nB->tag()<<std::endl;
                 assert(nB->isMovableTo(nA->get_P()));
                 bool movedB(nB->trySet_P(nA->get_P()));
-                assert(movedB);
+                if(!movedB)
+                {
+                    throw std::runtime_error("Node B could not be moved to position.");
+                }
+//                assert(movedB);
             }
             switch (DN.simulationParameters.simulationType)
             {
