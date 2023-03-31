@@ -102,7 +102,7 @@ typename MeshBoundarySegment<dim>::VectorDim MeshBoundarySegment<dim>::periodicS
                                                              const std::shared_ptr<PlanarMeshFace<dim>>& face)
     {
         PlanePlaneIntersection<dim> ppi(plane,face->asPlane());
-        
+                
         if(ppi.type==PlanePlaneIntersection<dim>::INCIDENT)
         {// plane and mesh-face are incident
             

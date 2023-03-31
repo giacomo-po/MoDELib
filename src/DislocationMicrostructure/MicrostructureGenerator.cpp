@@ -241,17 +241,17 @@ size_t MicrostructureGenerator::insertInclusion(const std::vector<VectorDimD>& p
     void MicrostructureGenerator::writeConfigFiles(const size_t& fileID)
     {
         
-        const int outputGlidePlanes(TextFileParser(traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
+//        const int outputGlidePlanes(TextFileParser(traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
 
         
-        if(outputGlidePlanes)
-        {
-            for(const auto& loop : configIO.loops())
-            {
-                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
-                auxIO.glidePlanes().emplace_back(loopPlaneKey);
-            }
-        }
+//        if(outputGlidePlanes)
+//        {
+//            for(const auto& loop : configIO.loops())
+//            {
+//                GlidePlaneKey<dim> loopPlaneKey(loop.P, poly.grain(loop.grainID).singleCrystal->reciprocalLatticeDirection(loop.N));
+//                auxIO.glidePlanes().emplace_back(loopPlaneKey);
+//            }
+//        }
                 
         if(outputBinary)
         {

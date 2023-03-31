@@ -159,7 +159,7 @@ namespace model
         bool computeDDinteractions;
         int  outputFrequency;
         bool outputBinary;
-        bool outputGlidePlanes;
+//        bool outputGlidePlanes;
         bool outputMeshDisplacement;
         bool outputFEMsolution;
         bool outputDislocationLength;

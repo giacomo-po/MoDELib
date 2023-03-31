@@ -42,6 +42,7 @@
 #include <IDreader.h>
 #include <PlanarPolygon.h>
 #include <DDauxIO.h>
+#include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <Polycrystal.h>
 #include <GlidePlaneFactory.h>
@@ -91,8 +92,9 @@ namespace model
         public:
                         
         GlidePlaneActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const Polycrystal<3>& poly,const DDtraitsIO& traitsIO);
-        void updateConfiguration(const DDauxIO<3>& auxIO);
-        
+//        void updateConfiguration(const DDauxIO<3>& auxIO);
+        void updateConfiguration(const DDconfigIO<3>& configIO);
+
         
     };
     

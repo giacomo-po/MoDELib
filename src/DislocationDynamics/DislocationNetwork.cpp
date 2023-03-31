@@ -46,7 +46,7 @@ DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParamet
 /* init */,computeDDinteractions(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
 /* init */,outputFrequency(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
 /* init */,outputBinary(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
-/* init */,outputGlidePlanes(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true))
+///* init */,outputGlidePlanes(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true))
 /* init */,outputMeshDisplacement(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputMeshDisplacement",true))
 /* init */,outputFEMsolution(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFEMsolution",true))
 /* init */,outputDislocationLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputDislocationLength",true))

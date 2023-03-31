@@ -40,7 +40,7 @@ namespace model
         
         if(temp.size()<3)
         {
-            throw std::runtime_error("MeshPlane: Sorting MeshIntersections FAILED");
+            throw std::runtime_error("MeshPlane: Sorting MeshIntersections failed. temp.size()="+std::to_string(temp.size()));
         }
         
         for(const auto& seg : temp)
@@ -56,6 +56,7 @@ namespace model
     template <int dim>
     BoundingMeshSegments<dim> MeshPlane<dim>::sortMeshIntersections(const BoundingMeshSegments<dim>& mshInt) const
     {
+        
         // Compute midpoints of each segment and center of polygon
         VectorLowerDim center(VectorLowerDim::Zero());
         //            std::deque<VectorLowerDim> midPoints;

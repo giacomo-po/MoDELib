@@ -42,17 +42,17 @@ namespace model
             return *this;
         }
         
-        template<int dim>
-        const std::vector<GlidePlaneIO<dim>>& DDauxIO<dim>::glidePlanes() const
-        {
-            return *this;
-        }
-        
-        template<int dim>
-        std::vector<GlidePlaneIO<dim>>& DDauxIO<dim>::glidePlanes()
-        {
-            return *this;
-        }
+//        template<int dim>
+//        const std::vector<GlidePlaneIO<dim>>& DDauxIO<dim>::glidePlanes() const
+//        {
+//            return *this;
+//        }
+//
+//        template<int dim>
+//        std::vector<GlidePlaneIO<dim>>& DDauxIO<dim>::glidePlanes()
+//        {
+//            return *this;
+//        }
         
         template<int dim>
         const std::vector<PeriodicPlanePatchIO<dim>>& DDauxIO<dim>::periodicGlidePlanePatches() const
@@ -103,7 +103,7 @@ namespace model
                 // Write header
                 file<<meshNodes().size()<<"\n";
                 file<<quadraturePoints().size()<<"\n";
-                file<<glidePlanes().size()<<"\n";
+//                file<<glidePlanes().size()<<"\n";
                 file<<periodicGlidePlanePatches().size()<<"\n";
 //                file<<periodicLoopNodes().size()<<"\n";
 //                file<<periodicLoopLinks().size()<<"\n";
@@ -117,10 +117,10 @@ namespace model
                 {
                     file<<qPoint<<"\n";
                 }
-                for(const auto& gpBnd : glidePlanes())
-                {
-                    file<<gpBnd<<"\n";
-                }
+//                for(const auto& gpBnd : glidePlanes())
+//                {
+//                    file<<gpBnd<<"\n";
+//                }
                 for(const auto& patch : periodicGlidePlanePatches())
                 {
                     file<<patch<<"\n";
@@ -148,7 +148,7 @@ namespace model
                 // Write header
                 binWrite(file,meshNodes().size());
                 binWrite(file,quadraturePoints().size());
-                binWrite(file,glidePlanes().size());
+//                binWrite(file,glidePlanes().size());
                 binWrite(file,periodicGlidePlanePatches().size());
 
                 // Write body
@@ -160,10 +160,10 @@ namespace model
                 {
                     binWrite(file,qPoint);
                 }
-                for(const auto& gpb : glidePlanes())
-                {
-                    binWrite(file,gpb);
-                }
+//                for(const auto& gpb : glidePlanes())
+//                {
+//                    binWrite(file,gpb);
+//                }
                 for(const auto& patch : periodicGlidePlanePatches())
                 {
                     binWrite(file,patch);
@@ -195,8 +195,8 @@ namespace model
                 infile.read (reinterpret_cast<char*>(&sizeMP), 1*sizeof(sizeMP));
                 size_t sizeQP;
                 infile.read (reinterpret_cast<char*>(&sizeQP), 1*sizeof(sizeQP));
-                size_t sizeGP;
-                infile.read (reinterpret_cast<char*>(&sizeGP), 1*sizeof(sizeGP));
+//                size_t sizeGP;
+//                infile.read (reinterpret_cast<char*>(&sizeGP), 1*sizeof(sizeGP));
                 size_t sizePPP;
                 infile.read (reinterpret_cast<char*>(&sizePPP), 1*sizeof(sizePPP));
 
@@ -205,8 +205,8 @@ namespace model
                 infile.read (reinterpret_cast<char*>(meshNodes().data()),meshNodes().size()*sizeof(MeshNodeIO<dim>));
                 quadraturePoints().resize(sizeQP);
                 infile.read (reinterpret_cast<char*>(quadraturePoints().data()),quadraturePoints().size()*sizeof(DislocationQuadraturePointIO<dim>));
-                glidePlanes().resize(sizeGP);
-                infile.read (reinterpret_cast<char*>(glidePlanes().data()),glidePlanes().size()*sizeof(GlidePlaneIO<dim>));
+//                glidePlanes().resize(sizeGP);
+//                infile.read (reinterpret_cast<char*>(glidePlanes().data()),glidePlanes().size()*sizeof(GlidePlaneIO<dim>));
                 periodicGlidePlanePatches().resize(sizePPP);
                 infile.read (reinterpret_cast<char*>(periodicGlidePlanePatches().data()),periodicGlidePlanePatches().size()*sizeof(PeriodicPlanePatchIO<dim>));
 
@@ -249,12 +249,12 @@ namespace model
                 ss.str("");
                 ss.clear();
                 
-                size_t sizeGP;
-                std::getline(infile, line);
-                ss<<line;
-                ss >> sizeGP;
-                ss.str("");
-                ss.clear();
+//                size_t sizeGP;
+//                std::getline(infile, line);
+//                ss<<line;
+//                ss >> sizeGP;
+//                ss.str("");
+//                ss.clear();
 
                 size_t sizePPP;
                 std::getline(infile, line);
@@ -285,16 +285,16 @@ namespace model
                     ss.clear();
                 }
                 
-                glidePlanes().clear();
-                glidePlanes().reserve(sizeGP);
-                for(size_t k=0;k<sizeGP;++k)
-                {
-                    std::getline(infile, line);
-                    ss<<line;
-                    glidePlanes().emplace_back(ss);
-                    ss.str("");
-                    ss.clear();
-                }
+//                glidePlanes().clear();
+//                glidePlanes().reserve(sizeGP);
+//                for(size_t k=0;k<sizeGP;++k)
+//                {
+//                    std::getline(infile, line);
+//                    ss<<line;
+//                    glidePlanes().emplace_back(ss);
+//                    ss.str("");
+//                    ss.clear();
+//                }
                 
                 periodicGlidePlanePatches().clear();
                 periodicGlidePlanePatches().reserve(sizePPP);
@@ -323,7 +323,7 @@ namespace model
         {
             std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
             std::cout<<"  "<<meshNodes().size()<<" meshNodes "<<std::endl;
-            std::cout<<"  "<<glidePlanes().size()<<" glidePlanes "<<std::endl;
+//            std::cout<<"  "<<glidePlanes().size()<<" glidePlanes "<<std::endl;
             std::cout<<"  "<<periodicGlidePlanePatches().size()<<" periodicPlanePatches"<<std::endl;
             std::cout<<"  "<<quadraturePoints().size()<<" quadraturePoints"<<std::endl;
         }

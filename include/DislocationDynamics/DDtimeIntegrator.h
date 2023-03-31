@@ -84,10 +84,10 @@ namespace model
                     //            std::cout<<"computing vMax for nodes: ";
                     for (const auto &nodeIter : DN.networkNodes())
                     {
-                        if ( //   !nodeIter.second->isBoundaryNode()
+                        if (    !nodeIter.second.lock()->isBoundaryNode()
                             //&& !nodeIter.second->isConnectedToBoundaryNodes()
                             //&&
-                            nodeIter.second.lock()->glidePlanes().size() < 3
+                            && nodeIter.second.lock()->glidePlanes().size() < 3
                             //                   && !nodeIter.second->isOscillating()
                         )
                         {

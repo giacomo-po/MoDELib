@@ -420,6 +420,7 @@ namespace model
             if (face->regionIDs.first == face->regionIDs.second)
             {
                 _isOnExternalBoundary = true;
+                break;
             }
         }
 
@@ -435,6 +436,7 @@ namespace model
             if (face->regionIDs.first != face->regionIDs.second)
             {
                 _isOnInternalBoundary = true;
+                break;
             }
         }
         return _isOnInternalBoundary;

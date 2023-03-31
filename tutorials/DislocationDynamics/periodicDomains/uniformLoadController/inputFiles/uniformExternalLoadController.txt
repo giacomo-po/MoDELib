@@ -3,13 +3,13 @@
 enable=1;
 relaxSteps=0;
 
-ExternalStress0 = 0.0 0.0 0.001
+ExternalStress0 = 0.0 0.0 0.0
 		 0.0 0.0 0.0
-		 0.001 0.0 0.0;
+		 0.0 0.0 0.0;
 
-ExternalStressRate = 0.0 0.0 1.0e-8
+ExternalStressRate = 0.0 0.0 0.0
 		     0.0 0.0 0.0
-		     1.0e-8 0.0 0.0;
+		     0.0 0.0 0.0;
 
 ExternalStrain0 = 0.0 0.0 0.0
 		  0.0 0.0 0.0

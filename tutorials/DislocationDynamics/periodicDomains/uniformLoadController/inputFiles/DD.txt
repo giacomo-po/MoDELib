@@ -36,7 +36,7 @@ timeIntegrationMethod=1; # 0 for constant time integration
 capMaxVelocity=0;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=10;
-use_velocityFilter=1;
+use_velocityFilter=0;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
@@ -51,9 +51,8 @@ ddSolverType=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=1;
 outputBinary=0;
-outputGlidePlanes=1;
 computeElasticEnergyPerLength=1;
 outputMeshDisplacement=0;
 outputFEMsolution=0;

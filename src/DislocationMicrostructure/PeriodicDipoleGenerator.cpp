@@ -171,185 +171,189 @@ namespace model
 
     void PeriodicDipoleGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& dipolePoint,const int& exitFaceID,const int& dipoleHeight,const int& dipoleNodes, const double& glideStep)
     {
-        std::pair<bool,const Simplex<dim,dim>*> found(mg.mesh.search(dipolePoint));
-        if(!found.first)
-        {
-            std::cout<<"Point "<<dipolePoint.transpose()<<" is outside mesh. EXITING."<<std::endl;
-            exit(EXIT_FAILURE);
-        }
         
-        const int grainID(found.second->region->regionID);
-        assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
-        const auto& grain(mg.poly.grain(grainID));
         
-        if(rSS>=0 && rSS<int(grain.singleCrystal->slipSystems().size()))
+        if(rSS>=0)
         {
-            const auto periodicFaceIter(grain.region.faces().find(exitFaceID));
-            if(periodicFaceIter!=grain.region.faces().end())
+            std::pair<bool,const Simplex<dim,dim>*> found(mg.mesh.search(dipolePoint));
+            if(!found.first)
             {
-                const auto periodicFaceA(periodicFaceIter->second);
-                const auto periodicFaceB(periodicFaceA->periodicFacePair.second);
+                std::cout<<"Point "<<dipolePoint.transpose()<<" is outside mesh. EXITING."<<std::endl;
+                exit(EXIT_FAILURE);
+            }
+            
+            const int grainID(found.second->region->regionID);
+            assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
+            const auto& grain(mg.poly.grain(grainID));
 
-                if(periodicFaceB!=nullptr)
+            if(rSS<int(grain.singleCrystal->slipSystems().size()))
+            {
+                const auto periodicFaceIter(grain.region.faces().find(exitFaceID));
+                if(periodicFaceIter!=grain.region.faces().end())
                 {
+                    const auto periodicFaceA(periodicFaceIter->second);
+                    const auto periodicFaceB(periodicFaceA->periodicFacePair.second);
 
-                    const auto& faceAshift(periodicFaceA->periodicFacePair.first);
-                    const auto faceAlatticeShift(grain.singleCrystal->latticeVector(faceAshift));
-                    
-                    const auto& slipSystem(*grain.singleCrystal->slipSystems()[rSS]);
-                    
-                    if(slipSystem.n.dot(faceAlatticeShift)==0)
+                    if(periodicFaceB!=nullptr)
                     {
 
-                        //                        const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(slipSystem.n,dipolePoint);
+                        const auto& faceAshift(periodicFaceA->periodicFacePair.first);
+                        const auto faceAlatticeShift(grain.singleCrystal->latticeVector(faceAshift));
                         
-                        const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(dipolePoint));
-                        GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
-                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
-                        //                        const VectorDimD P0(glidePlane->snapToPlane(dipolePoint));
-                        const VectorDimD P0(grain.singleCrystal->snapToLattice(dipolePoint).cartesian());
+                        const auto& slipSystem(*grain.singleCrystal->slipSystems()[rSS]);
                         
-                        PlaneLineIntersection<3> pliA(periodicFaceA->center(),periodicFaceA->outNormal(),P0,faceAshift);
-                        PlaneLineIntersection<3> pliB(periodicFaceB->center(),periodicFaceB->outNormal(),P0,faceAshift);
-                        
-                        if(pliA.type==PlaneLineIntersection<3>::INCIDENT && pliB.type==PlaneLineIntersection<3>::INCIDENT)
+                        if(slipSystem.n.dot(faceAlatticeShift)==0)
                         {
-                            const VectorDimD AB(pliB.P-pliA.P);
-                            if((AB-faceAshift).norm()<FLT_EPSILON)
+
+                            //                        const std::pair<bool,long int> heightPair=LatticePlane::computeHeight(slipSystem.n,dipolePoint);
+                            
+                            const VectorDimD planePoint(dipolePoint-0.5*dipoleHeight*slipSystem.n.interplaneVector());
+                            const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(planePoint));
+                            GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
+                            std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
+                            //                        const VectorDimD P0(glidePlane->snapToPlane(dipolePoint));
+                            const VectorDimD P0(grain.singleCrystal->snapToLattice(planePoint).cartesian());
+                            
+                            PlaneLineIntersection<3> pliA(periodicFaceA->center(),periodicFaceA->outNormal(),P0,faceAshift);
+                            PlaneLineIntersection<3> pliB(periodicFaceB->center(),periodicFaceB->outNormal(),P0,faceAshift);
+                            
+                            if(pliA.type==PlaneLineIntersection<3>::INCIDENT && pliB.type==PlaneLineIntersection<3>::INCIDENT)
                             {
-
-                                GlidePlaneKey<3> parallelGlidePlaneKey(planeIndex+dipoleHeight, slipSystem.n);
-                                std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
-
-                                GlidePlaneKey<3> prismaticPlaneKey(P0, grain.singleCrystal->reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
-                                std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.periodicGlidePlaneFactory.get(prismaticPlaneKey));
-
-                                if(parallelglidePlane && prismaticGlidePlane)
+                                const VectorDimD AB(pliB.P-pliA.P);
+                                if((AB-faceAshift).norm()<FLT_EPSILON)
                                 {
 
-                                    
-                                    std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
-                                    // The prismatic loop
-                                    const int nShift(2);
-                                    const VectorDimD lShift(nShift*AB);
-                                    const VectorDimD rShift(lShift+AB);
-                                    const VectorDimD startPoint(0.5*(pliB.P+pliA.P));
-                                    std::vector<VectorDimD> prismaticNodePos;
-                                    prismaticNodePos.push_back(startPoint+lShift); //HERE ADD N*AB
-                                    prismaticNodePos.push_back(startPoint+rShift);
-                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(startPoint+rShift));
-                                    prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(startPoint+lShift));
-                                    
-                                    const VectorDimD lineP0 = 0.5*(startPoint+lShift+parallelglidePlane->referencePlane->snapToPlane(startPoint+lShift));
-                                    const VectorDimD lineP1 = 0.5*(startPoint+rShift+parallelglidePlane->referencePlane->snapToPlane(startPoint+rShift));
-                                    
+                                    GlidePlaneKey<3> parallelGlidePlaneKey(planeIndex+dipoleHeight, slipSystem.n);
+                                    std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
 
-                                    
-//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,prismaticNodePos,prismaticGlidePlane,
-//                                                       slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
-//                                                       P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                                    
-                                    mg.insertJunctionLoop(prismaticNodePos,prismaticGlidePlane,
-                                                       slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
-                                                       P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
-                                    
-                                    
-                                    
-                                    const int halfNodeNumber(dipoleNodes/2);
-                                    if(halfNodeNumber < 0)
+                                    GlidePlaneKey<3> prismaticPlaneKey(P0, grain.singleCrystal->reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
+                                    std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.periodicGlidePlaneFactory.get(prismaticPlaneKey));
+
+                                    if(parallelglidePlane && prismaticGlidePlane)
                                     {
-                                        throw std::runtime_error("dipoleNodes="+std::to_string(halfNodeNumber)+"is smaller than 0");
-                                    }
-                                    const double halfDipoleLength(AB.norm()*0.5);
-                                    const VectorDimD dipoleDir(AB/AB.norm());
-                                    const VectorDimD shiftNodeLength(halfDipoleLength/(1.0*(halfNodeNumber+1))*dipoleDir);
-                                    
-                                    // First glide loop
-//                                    const double glideStep=50.0;
-                                    std::vector<VectorDimD> firstNodePos;
-                                    firstNodePos.push_back(startPoint+lShift);
-                                    firstNodePos.push_back(startPoint+rShift);
-                                    firstNodePos.push_back(startPoint+rShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                    for(int k=1; k<=halfNodeNumber; k++)
-                                    { // Add nodes on rigth arm
-                                        firstNodePos.push_back(startPoint+rShift-k*shiftNodeLength+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                    }
-                                    for(int k=halfNodeNumber; k>0; k--)
-                                    { // Add nodes on left arm
-                                        firstNodePos.push_back(startPoint+lShift+k*shiftNodeLength+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                    }
-                                    firstNodePos.push_back(startPoint+lShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
-                                    
-//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,firstNodePos,glidePlane,
-//                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-//                                                       P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-                                    
-                                    mg.insertJunctionLoop(firstNodePos,glidePlane,
-                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
-                                                       P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+
+                                        
+                                        std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap; // networkNodePosition->networkNodeID
+                                        // The prismatic loop
+                                        const int nShift(2);
+                                        const VectorDimD lShift(nShift*AB);
+                                        const VectorDimD rShift(lShift+AB);
+                                        const VectorDimD startPoint(0.5*(pliB.P+pliA.P));
+                                        std::vector<VectorDimD> prismaticNodePos;
+                                        prismaticNodePos.push_back(startPoint+lShift); //HERE ADD N*AB
+                                        prismaticNodePos.push_back(startPoint+rShift);
+                                        prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(startPoint+rShift));
+                                        prismaticNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(startPoint+lShift));
+                                        
+                                        const VectorDimD lineP0 = 0.5*(startPoint+lShift+parallelglidePlane->referencePlane->snapToPlane(startPoint+lShift));
+                                        const VectorDimD lineP1 = 0.5*(startPoint+rShift+parallelglidePlane->referencePlane->snapToPlane(startPoint+rShift));
+                                        
+
+                                        
+    //                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,prismaticNodePos,prismaticGlidePlane,
+    //                                                       slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
+    //                                                       P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                        
+                                        mg.insertJunctionLoop(prismaticNodePos,prismaticGlidePlane,
+                                                           slipSystem.s.cartesian(),prismaticGlidePlane->referencePlane->unitNormal,
+                                                           P0,grainID,DislocationLoopIO<dim>::SESSILELOOP);
+                                        
+                                        
+                                        
+                                        const int halfNodeNumber(dipoleNodes/2);
+                                        if(halfNodeNumber < 0)
+                                        {
+                                            throw std::runtime_error("dipoleNodes="+std::to_string(halfNodeNumber)+"is smaller than 0");
+                                        }
+                                        const double halfDipoleLength(AB.norm()*0.5);
+                                        const VectorDimD dipoleDir(AB/AB.norm());
+                                        const VectorDimD shiftNodeLength(halfDipoleLength/(1.0*(halfNodeNumber+1))*dipoleDir);
+                                        
+                                        // First glide loop
+    //                                    const double glideStep=50.0;
+                                        std::vector<VectorDimD> firstNodePos;
+                                        firstNodePos.push_back(startPoint+lShift);
+                                        firstNodePos.push_back(startPoint+rShift);
+                                        firstNodePos.push_back(startPoint+rShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                        for(int k=1; k<=halfNodeNumber; k++)
+                                        { // Add nodes on rigth arm
+                                            firstNodePos.push_back(startPoint+rShift-k*shiftNodeLength+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                        }
+                                        for(int k=halfNodeNumber; k>0; k--)
+                                        { // Add nodes on left arm
+                                            firstNodePos.push_back(startPoint+lShift+k*shiftNodeLength+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                        }
+                                        firstNodePos.push_back(startPoint+lShift+glideStep*prismaticGlidePlane->referencePlane->unitNormal);
+                                        
+    //                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,firstNodePos,glidePlane,
+    //                                                       -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
+    //                                                       P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                        
+                                        mg.insertJunctionLoop(firstNodePos,glidePlane,
+                                                           -slipSystem.s.cartesian(),glidePlane->referencePlane->unitNormal,
+                                                           P0,grainID,DislocationLoopIO<dim>::GLISSILELOOP);
 
 
-                                    FiniteLineSegment<dim> mirrowLine(lineP0,lineP1);
-                                    
-                                    // Second glide loop
-                                    std::vector<VectorDimD> secondNodePos;
-                                    for(const auto& pos : firstNodePos)
+                                        FiniteLineSegment<dim> mirrowLine(lineP0,lineP1);
+                                        
+                                        // Second glide loop
+                                        std::vector<VectorDimD> secondNodePos;
+                                        for(const auto& pos : firstNodePos)
+                                        {
+                                            VectorDimD c=mirrowLine.snapToInfiniteLine(pos);
+                                            secondNodePos.push_back(2.0*c-pos);
+    //                                        secondNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(pos));
+                                        }
+                                        
+
+    //                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,secondNodePos,parallelglidePlane,
+    //                                                       slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
+    //                                                       parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                        
+                                        mg.insertJunctionLoop(secondNodePos,parallelglidePlane,
+                                                           slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
+                                                           parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
+                                    }
+                                    else
                                     {
-                                        VectorDimD c=mirrowLine.snapToInfiniteLine(pos);
-                                        secondNodePos.push_back(2.0*c-pos);
-//                                        secondNodePos.push_back(parallelglidePlane->referencePlane->snapToPlane(pos));
+                                        std::cout<<"Cannot create glide planes"<<std::endl;
                                     }
-                                    
-
-//                                    insertJunctionLoop(mg,uniqueNetworkNodeMap,secondNodePos,parallelglidePlane,
-//                                                       slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
-//                                                       parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
-                                    
-                                    mg.insertJunctionLoop(secondNodePos,parallelglidePlane,
-                                                       slipSystem.s.cartesian(),parallelglidePlane->referencePlane->unitNormal,
-                                                       parallelglidePlane->referencePlane->snapToPlane(P0),grainID,DislocationLoopIO<dim>::GLISSILELOOP);
                                 }
                                 else
                                 {
-                                    std::cout<<"Cannot create glide planes"<<std::endl;
+                                    throw std::runtime_error("periodic line intersection with faces is not the face shift vector");
                                 }
                             }
                             else
                             {
-                                throw std::runtime_error("periodic line intersection with faces is not the face shift vector");
+                                throw std::runtime_error("periodic line direction does not form an incident intersecitn with periodic faces");
                             }
                         }
                         else
                         {
-                            throw std::runtime_error("periodic line direction does not form an incident intersecitn with periodic faces");
+                            throw std::runtime_error("planeNormal of slipSystem "+std::to_string(rSS)+" is not othogonal to facelatticeShift "+std::to_string(exitFaceID));
                         }
                     }
                     else
                     {
-                        throw std::runtime_error("planeNormal of slipSystem "+std::to_string(rSS)+" is not othogonal to faceNormal "+std::to_string(exitFaceID));
+                        throw std::runtime_error("Mesh face "+std::to_string(exitFaceID)+" is not a periodic face.");
                     }
                 }
                 else
                 {
-                    throw std::runtime_error("Mesh face "+std::to_string(exitFaceID)+" is not a periodic face.");
+                    throw std::runtime_error("Mesh face "+std::to_string(exitFaceID)+" not found.");
                 }
-            }
-            else
-            {
-                throw std::runtime_error("Mesh face "+std::to_string(exitFaceID)+" not found.");
-            }
-        }
-        else
-        {
-            if(rSS<0)
-            {
-                std::cout<<"Skipping slip system "<<rSS<<std::endl;
             }
             else
             {
                 throw std::runtime_error("slipSystem "+std::to_string(rSS)+" not found, skipping.");
             }
         }
+        else
+        {
+            std::cout<<"Skipping slip system "<<rSS<<std::endl;
+        }
+        
     }
 
 }

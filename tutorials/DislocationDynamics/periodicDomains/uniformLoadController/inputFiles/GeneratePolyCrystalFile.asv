@@ -41,11 +41,10 @@ end
 A=C2G1*A;
 
 
-g=1/sqrt(3);
-%g=0.2;
+g=0.0;
 
 %Fs=1000*eye(3);
-Fs=diag([400 400 800]);
+Fs=diag([1000 1000 1000]);
 
 F12=[1 g 0;
     0 1 0;
@@ -117,10 +116,6 @@ fprintf(fID,'solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute no
 fprintf(fID,'solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;\n');
 fprintf(fID,'solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;\n');
 fprintf(fID,'stackingFaultNoiseMode=0; # 0=no noise\n');
-fprintf(fID,'spreadLstress_A=1; # add comment\n');
-fprintf(fID,'a_cai_A=1; # add comment\n');
-fprintf(fID,'seed=0; # add comment\n');
-
 
 
 

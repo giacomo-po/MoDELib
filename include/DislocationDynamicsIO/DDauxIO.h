@@ -15,7 +15,7 @@
 #include <cfloat>      // std::ifstream
 #include <DDbaseIO.h>
 #include <PeriodicGlidePlane.h>
-#include <GlidePlaneIO.h>
+//#include <GlidePlaneIO.h>
 #include <GlidePlaneModule.h>
 #include <DislocationQuadraturePointIO.h>
 #include <MeshNodeIO.h>
@@ -27,7 +27,7 @@ namespace model
     template <int dim>
     struct DDauxIO : public DDbaseIO
     /*            */,private std::vector<MeshNodeIO<dim>>
-    /*            */,private std::vector<GlidePlaneIO<dim>>
+//    /*            */,private std::vector<GlidePlaneIO<dim>>
     /*            */,private std::vector<PeriodicPlanePatchIO<dim>>
     /*            */,private std::vector<DislocationQuadraturePointIO<dim>>
     {
@@ -38,8 +38,8 @@ namespace model
         void addPeriodicGlidePlane(const PeriodicGlidePlane<dim>& pgp);
         const std::vector<MeshNodeIO<dim>>& meshNodes() const;
         std::vector<MeshNodeIO<dim>>& meshNodes();
-        const std::vector<GlidePlaneIO<dim>>& glidePlanes() const;
-        std::vector<GlidePlaneIO<dim>>& glidePlanes();
+//        const std::vector<GlidePlaneIO<dim>>& glidePlanes() const;
+//        std::vector<GlidePlaneIO<dim>>& glidePlanes();
         const std::vector<PeriodicPlanePatchIO<dim>>& periodicGlidePlanePatches() const;
         std::vector<PeriodicPlanePatchIO<dim>>& periodicGlidePlanePatches();
         const std::vector<DislocationQuadraturePointIO<dim>>& quadraturePoints() const;
