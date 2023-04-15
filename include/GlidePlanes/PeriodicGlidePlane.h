@@ -155,7 +155,7 @@ namespace model
         void addMeshIntersections(const BoundingMeshSegments<dim>&);
         const PeriodicPlaneEdgeContainerType& edges() const;
         std::shared_ptr<PeriodicPlaneEdge<dim>> edgeOnFaces(const std::set<const PlanarMeshFace<dim>*>& faces) const;
-        int contains(const VectorLowerDim& test);
+        int contains(const VectorLowerDim& test) const;
     };
     
     
@@ -342,214 +342,222 @@ if (polyPoints.size())
         currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
         const auto startPoint(polyPoints[k]);
         const auto endPoint(k == polyPoints.size() - 1 ? polyPoints[0] : polyPoints[k + 1]);
-        while (true)
+        if(startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
         {
-            std::map<const PeriodicPlanePatch<dim> *, std::vector<std::pair<const VectorLowerDim, const PeriodicPlaneEdge<dim> *const>>> crossdEdges;
-
-            for (const auto &bndEdge : patchBoundary.untwinnedEdges())
-            { // loop over outer boundaries and holes
-                SegmentSegmentDistance<dim - 1> ssd(startPoint.first, endPoint.first, *bndEdge->source, *bndEdge->sink);
-                // std::cout << " Determining intersection between " << startPoint.second->tag() << " and " << endPoint.second->tag()<<" dMin "<<ssd.dMin <<" den is "<< std::flush;
-                // const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
-                // const double maxAngleAlignment(cos(1.0e-4 * M_PI / 180.0)); // Alignment angle is fixed to 10 degrees
-
-                if (ssd.isIntersecting(FLT_EPSILON))
-                { // intersection with current boundary found
-                    // std::cout << std::setprecision(15) << " Intersection found " << ssd.t << " " << ssd.u << std::endl;
-                    crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
-                }
-                //Changed to allow for the intersection of the near parallel segment with the boundary
-                // else
-                // {
-                //     if (startPoint.second && endPoint.second)
-                //     {
-                //         // Check the alignment of the links with the bndEdge Source
-                //         //                        std::cout<<"Coming here to check for 3D intersection"<<std::endl;
-                //         const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
-                //         // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
-                //         // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
-
-                //         if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
-                //         {
-                //             //The value of 1000 is determined by trial and error
-                //             //Determine the patches of startPoint and endPoint
-                //             if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
-                //             {
-                //                 //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
-                //                 //This is only valid with the if for the alignment angle and the ssd.dMin
-                //                 crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
-                //             }
-                //         }
-                //     }
-                // }
-                
-            }
-
-            if (crossdEdges.size() == 0)
-            { // No untwinned edges have been crossed, break and move to next pair of polyPoints
-                ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
-                // edgeMaps.emplace(VectorDim::Zero(),std::make_pair(-1,-1));
-                //                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
-                break;
-            }
-            else
+            while (true)
             {
-                for (const auto &pair : crossdEdges)
-                { // loop over crossed patches
-                    //VectorDim shift(pair.first->shift);
-                    //                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
-                    assert((pair.second.size()>0 && pair.second.size()<=2) && "At max two periodic plane edges can be intersected (2D geometry constraint)");
+                std::map<const PeriodicPlanePatch<dim> *, std::vector<std::pair<const VectorLowerDim, const PeriodicPlaneEdge<dim> *const>>> crossdEdges;
 
-                    // if (pair.second.size()==2)
+                for (const auto &bndEdge : patchBoundary.untwinnedEdges())
+                { // loop over outer boundaries and holes
+                    SegmentSegmentDistance<dim - 1> ssd(startPoint.first, endPoint.first, *bndEdge->source, *bndEdge->sink);
+                    // std::cout << " Determining intersection between " << startPoint.second->tag() << " and " << endPoint.second->tag()<<" dMin "<<ssd.dMin <<" den is "<< std::flush;
+                    // const double alignemntAngle(((endPoint.first - startPoint.first).normalized()).dot((*bndEdge->sink - *bndEdge->source).normalized()));
+                    // const double maxAngleAlignment(cos(1.0e-4 * M_PI / 180.0)); // Alignment angle is fixed to 10 degrees
+
+                    if (ssd.isIntersecting(FLT_EPSILON))
+                    { // intersection with current boundary found
+                        // std::cout << std::setprecision(15) << " Intersection found " << ssd.t << " " << ssd.u << std::endl;
+                        crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+                    }
+                    //Changed to allow for the intersection of the near parallel segment with the boundary
+                    // else
                     // {
-                    //     std::cout<<" Two intersection case "<<std::endl;
-                    //     std::cout<<" First "<<pair.second.begin()->first.transpose()<<std::endl;
-                    //     std::cout<<" second "<<pair.second.rbegin()->first.transpose()<<std::endl;
-                    //     std::cout<<" difference "<<(pair.second.begin()->first-pair.second.rbegin()->first).norm()<<std::endl;
-                    //     std::cout<<" difference "<<((pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)<<std::endl;
+                    //     if (startPoint.second && endPoint.second)
+                    //     {
+                    //         // Check the alignment of the links with the bndEdge Source
+                    //         //                        std::cout<<"Coming here to check for 3D intersection"<<std::endl;
+                    //         const double maxAngleAlignment(cos(5.0 * M_PI / 180.0)); //Alignment angle is fixed to 10 degrees
+                    //         // std::cout<<" Alignemnt Angle =>maxAngleAlignment"<<alignemntAngle<<" "<<maxAngleAlignment<<" for nodes "<<startPoint.second->tag()
+                    //         // <<"=>"<<endPoint.second->tag()<<" ssdDmin "<<ssd.dMin<<std::endl;
+
+                    //         if (fabs(alignemntAngle) > maxAngleAlignment && ssd.dMin < 1000*FLT_EPSILON) //If very close to the boundary and aligned only then check in 3D
+                    //         {
+                    //             //The value of 1000 is determined by trial and error
+                    //             //Determine the patches of startPoint and endPoint
+                    //             if (startPoint.second->periodicPlanePatch() != endPoint.second->periodicPlanePatch())
+                    //             {
+                    //                 //The two loop nodes belong to different patches, a node is needed to be inserted on the edge
+                    //                 //This is only valid with the if for the alignment angle and the ssd.dMin
+                    //                 crossdEdges[bndEdge->patch].emplace_back(0.5 * (ssd.x0 + ssd.x1), bndEdge);
+                    //             }
+                    //         }
+                    //     }
                     // }
                     
-                    if (pair.second.size()==2 && (pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)
-                    {
-                        // pair.second.size() cannot be 4 even for diagonally opposite ends since we are looping over the untwineed edges for the intersection.
-                        //Need to check that two subsequen links are at the same 2D position
+                }
 
-                        //The two intersection points are the same... Insert at diagonally opposite end
+                if (crossdEdges.size() == 0)
+                { // No untwinned edges have been crossed, break and move to next pair of polyPoints
+                    ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
+                    // edgeMaps.emplace(VectorDim::Zero(),std::make_pair(-1,-1));
+                    //                    printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+                    break;
+                }
+                else
+                {
+                    for (const auto &pair : crossdEdges)
+                    { // loop over crossed patches
+                        //VectorDim shift(pair.first->shift);
+                        //                        std::cout<<"crossed patches="<<crossdEdges.size()<<std::endl;
+                        assert((pair.second.size()>0 && pair.second.size()<=2) && "At max two periodic plane edges can be intersected (2D geometry constraint)");
 
-                        // std::cout<<"Coming in two intersection case "<<std::endl;
-                        assert((pair.second.begin()->second!=pair.second.rbegin()->second) && "Two intersection must be different");
-                        ppi.emplace_back(pair.second.begin()->first, pair.first->shift, std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID), nullptr);
-                        const auto edgeSetIter1 (edgeMaps.find(pair.first->shift));
-                        edgeVector.push_back(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
+                        // if (pair.second.size()==2)
+                        // {
+                        //     std::cout<<" Two intersection case "<<std::endl;
+                        //     std::cout<<" First "<<pair.second.begin()->first.transpose()<<std::endl;
+                        //     std::cout<<" second "<<pair.second.rbegin()->first.transpose()<<std::endl;
+                        //     std::cout<<" difference "<<(pair.second.begin()->first-pair.second.rbegin()->first).norm()<<std::endl;
+                        //     std::cout<<" difference "<<((pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)<<std::endl;
+                        // }
                         
-                        if (edgeSetIter1==edgeMaps.end())
+                        if (pair.second.size()==2 && (pair.second.begin()->first-pair.second.rbegin()->first).norm()<FLT_EPSILON)
                         {
-                            std::set<std::pair<short int,short  int>> edgeSet;
-                            edgeSet.insert(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
-                            // edgeMaps.emplace(std::piecewise_construct,
-                            //                 std::forward_as_tuple(pair.first->shift),
-                            //                 std::forward_as_tuple(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
-                            edgeMaps.emplace(pair.first->shift,edgeSet);
-                        }
-                        else
-                        {
-                            edgeSetIter1->second.insert(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
-                        }
+                            // pair.second.size() cannot be 4 even for diagonally opposite ends since we are looping over the untwineed edges for the intersection.
+                            //Need to check that two subsequen links are at the same 2D position
 
-                        const VectorDim localShift(pair.first->shift + pair.second.begin()->second->deltaShift+pair.second.rbegin()->second->deltaShift);
-                        //here three patches are needed to be inserted... two at periodically opposite faces and one at diagonally opposite faces
-                        lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.begin()->second->deltaShift);
-                        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-                        lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.rbegin()->second->deltaShift);
-                        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-                        lastPatch = patchBoundary.patches().getFromKey(localShift);
-                        currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-                        assert(pair.second.begin()->second->twin); //Now the twin for both the edges must exist
-                        assert(pair.second.rbegin()->second->twin);
-                        assert((pair.second.begin()->second->twin!=pair.second.rbegin()->second->twin) && "Two intersection must be different after twinned link");
-                        //Insert a new node at the twinned edge of the current pair of edges
-                        //Need to determine the correct edgeIDs
-                        short int beginTwinEdgeID(-1);
-                        short rbeginTwinEdgeID(-1);
-                        //We need to get the edgeID corresponding to the diagonally opposite patch
-                        if (pair.second.begin()->second==pair.second.rbegin()->second->prev)
-                        {
-                            assert(pair.second.begin()->second->twin->prev->twin && "A twin in the diagonally opposite patch must exist");
-                            assert(pair.second.rbegin()->second->twin->next->twin && "A twin in the diagonally opposite patch must exist");
-                            beginTwinEdgeID=pair.second.begin()->second->twin->prev->twin->edgeID;
-                            rbeginTwinEdgeID=pair.second.rbegin()->second->twin->next->twin->edgeID;
-                        }
-                        else if (pair.second.begin()->second==pair.second.rbegin()->second->next)
-                        {
-                            assert(pair.second.begin()->second->twin->next->twin && "A twin in the diagonally opposite patch must exist");
-                            assert(pair.second.rbegin()->second->twin->prev->twin && "A twin in the diagonally opposite patch must exist");
+                            //The two intersection points are the same... Insert at diagonally opposite end
 
-                            beginTwinEdgeID=pair.second.begin()->second->twin->next->twin->edgeID;
-                            rbeginTwinEdgeID=pair.second.rbegin()->second->twin->prev->twin->edgeID;
-                        }
-                        else
-                        {
-                            assert(false && "Edges must be consecutive");
-                        }
-                        
-                        assert(beginTwinEdgeID!=-1 && "A twin ID must exist");
-                        assert(rbeginTwinEdgeID!=-1 && "A twin ID must exist");
-
-                        ppi.emplace_back(pair.second.begin()->first, localShift, std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID), nullptr);
-                        edgeVector.push_back(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
-
-                        const auto edgeSetIter2 (edgeMaps.find(localShift));
-                        if (edgeSetIter2==edgeMaps.end())
-                        {
-                            std::set<std::pair<short int,short  int>> edgeSet;
-                            edgeSet.insert(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
-                            // edgeMaps.emplace(std::piecewise_construct,
-                            //                 std::forward_as_tuple(localShift),
-                            //                 std::forward_as_tuple(pair.second.begin()->second->twin->edgeID, pair.second.rbegin()->second->twin->edgeID));
-                            edgeMaps.emplace(localShift,edgeSet);
-                        }
-                        else
-                        {
-                            edgeSetIter2->second.insert(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
-                        }
-                    }
-                    else
-                    {
-                        for (const auto &edge : pair.second)
-                        { // loop over crossed edges
-                            ppi.emplace_back(edge.first, pair.first->shift, std::make_pair(edge.second->edgeID,-1), nullptr);
-                            edgeVector.push_back(std::make_pair(edge.second->edgeID,-1));
-
-                            const auto edgeSetIter1(edgeMaps.find(pair.first->shift));
-                            if (edgeSetIter1 == edgeMaps.end())
+                            // std::cout<<"Coming in two intersection case "<<std::endl;
+                            assert((pair.second.begin()->second!=pair.second.rbegin()->second) && "Two intersection must be different");
+                            ppi.emplace_back(pair.second.begin()->first, pair.first->shift, std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID), nullptr);
+                            const auto edgeSetIter1 (edgeMaps.find(pair.first->shift));
+                            edgeVector.push_back(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
+                            
+                            if (edgeSetIter1==edgeMaps.end())
                             {
                                 std::set<std::pair<short int,short  int>> edgeSet;
-                                edgeSet.insert(std::make_pair(edge.second->edgeID,-1));
+                                edgeSet.insert(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
                                 // edgeMaps.emplace(std::piecewise_construct,
-                                //             std::forward_as_tuple(pair.first->shift),
-                                //             std::forward_as_tuple(edge.second->edgeID,-1));
-                                edgeMaps.emplace(pair.first->shift, edgeSet);
+                                //                 std::forward_as_tuple(pair.first->shift),
+                                //                 std::forward_as_tuple(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
+                                edgeMaps.emplace(pair.first->shift,edgeSet);
                             }
                             else
                             {
-                                edgeSetIter1->second.insert(std::make_pair(edge.second->edgeID,-1));
+                                edgeSetIter1->second.insert(std::make_pair(pair.second.begin()->second->edgeID, pair.second.rbegin()->second->edgeID));
                             }
-                            //  shift += edge.second->deltaShift;
-                            const VectorDim localShift(pair.first->shift + edge.second->deltaShift);
-                            // Insert patches corresponding to the individual intersections as well
+
+                            const VectorDim localShift(pair.first->shift + pair.second.begin()->second->deltaShift+pair.second.rbegin()->second->deltaShift);
+                            //here three patches are needed to be inserted... two at periodically opposite faces and one at diagonally opposite faces
+                            lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.begin()->second->deltaShift);
+                            currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                            lastPatch = patchBoundary.patches().getFromKey(pair.first->shift + pair.second.rbegin()->second->deltaShift);
+                            currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
                             lastPatch = patchBoundary.patches().getFromKey(localShift);
                             currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
-                            assert(edge.second->twin);
-                            ppi.emplace_back(edge.first, edge.second->twin->patch->shift, std::make_pair(edge.second->twin->edgeID,-1), nullptr);
-                            edgeVector.push_back(std::make_pair(edge.second->twin->edgeID,-1));
-
-                            const auto edgeSetIter2(edgeMaps.find(edge.second->twin->patch->shift));
-                            if (edgeSetIter2 == edgeMaps.end())
+                            assert(pair.second.begin()->second->twin); //Now the twin for both the edges must exist
+                            assert(pair.second.rbegin()->second->twin);
+                            assert((pair.second.begin()->second->twin!=pair.second.rbegin()->second->twin) && "Two intersection must be different after twinned link");
+                            //Insert a new node at the twinned edge of the current pair of edges
+                            //Need to determine the correct edgeIDs
+                            short int beginTwinEdgeID(-1);
+                            short rbeginTwinEdgeID(-1);
+                            //We need to get the edgeID corresponding to the diagonally opposite patch
+                            if (pair.second.begin()->second==pair.second.rbegin()->second->prev)
                             {
-                                std::set<std::pair<short int,short  int>> edgeSet;
-                                edgeSet.insert(std::make_pair(edge.second->twin->edgeID,-1));
-                                // edgeMaps.emplace(std::piecewise_construct,
-                                //             std::forward_as_tuple(edge.second->twin->patch->shift),
-                                //             std::forward_as_tuple(edge.second->twin->edgeID,-1));
-                                // edgeMaps.emplace(edge.second->twin->patch->shift, std::make_pair(edge.second->twin->edgeID,-1));
-                                edgeMaps.emplace(edge.second->twin->patch->shift, edgeSet);
+                                assert(pair.second.begin()->second->twin->prev->twin && "A twin in the diagonally opposite patch must exist");
+                                assert(pair.second.rbegin()->second->twin->next->twin && "A twin in the diagonally opposite patch must exist");
+                                beginTwinEdgeID=pair.second.begin()->second->twin->prev->twin->edgeID;
+                                rbeginTwinEdgeID=pair.second.rbegin()->second->twin->next->twin->edgeID;
+                            }
+                            else if (pair.second.begin()->second==pair.second.rbegin()->second->next)
+                            {
+                                assert(pair.second.begin()->second->twin->next->twin && "A twin in the diagonally opposite patch must exist");
+                                assert(pair.second.rbegin()->second->twin->prev->twin && "A twin in the diagonally opposite patch must exist");
+
+                                beginTwinEdgeID=pair.second.begin()->second->twin->next->twin->edgeID;
+                                rbeginTwinEdgeID=pair.second.rbegin()->second->twin->prev->twin->edgeID;
                             }
                             else
                             {
-                                edgeSetIter2->second.insert(std::make_pair(edge.second->twin->edgeID,-1));
+                                assert(false && "Edges must be consecutive");
+                            }
+                            
+                            assert(beginTwinEdgeID!=-1 && "A twin ID must exist");
+                            assert(rbeginTwinEdgeID!=-1 && "A twin ID must exist");
+
+                            ppi.emplace_back(pair.second.begin()->first, localShift, std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID), nullptr);
+                            edgeVector.push_back(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
+
+                            const auto edgeSetIter2 (edgeMaps.find(localShift));
+                            if (edgeSetIter2==edgeMaps.end())
+                            {
+                                std::set<std::pair<short int,short  int>> edgeSet;
+                                edgeSet.insert(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
+                                // edgeMaps.emplace(std::piecewise_construct,
+                                //                 std::forward_as_tuple(localShift),
+                                //                 std::forward_as_tuple(pair.second.begin()->second->twin->edgeID, pair.second.rbegin()->second->twin->edgeID));
+                                edgeMaps.emplace(localShift,edgeSet);
+                            }
+                            else
+                            {
+                                edgeSetIter2->second.insert(std::make_pair(beginTwinEdgeID, rbeginTwinEdgeID));
+                            }
+                        }
+                        else
+                        {
+                            for (const auto &edge : pair.second)
+                            { // loop over crossed edges
+                                ppi.emplace_back(edge.first, pair.first->shift, std::make_pair(edge.second->edgeID,-1), nullptr);
+                                edgeVector.push_back(std::make_pair(edge.second->edgeID,-1));
+
+                                const auto edgeSetIter1(edgeMaps.find(pair.first->shift));
+                                if (edgeSetIter1 == edgeMaps.end())
+                                {
+                                    std::set<std::pair<short int,short  int>> edgeSet;
+                                    edgeSet.insert(std::make_pair(edge.second->edgeID,-1));
+                                    // edgeMaps.emplace(std::piecewise_construct,
+                                    //             std::forward_as_tuple(pair.first->shift),
+                                    //             std::forward_as_tuple(edge.second->edgeID,-1));
+                                    edgeMaps.emplace(pair.first->shift, edgeSet);
+                                }
+                                else
+                                {
+                                    edgeSetIter1->second.insert(std::make_pair(edge.second->edgeID,-1));
+                                }
+                                //  shift += edge.second->deltaShift;
+                                const VectorDim localShift(pair.first->shift + edge.second->deltaShift);
+                                // Insert patches corresponding to the individual intersections as well
+                                lastPatch = patchBoundary.patches().getFromKey(localShift);
+                                currentPatches.push_back(lastPatch); // keep patches alive durin current line segment search
+                                assert(edge.second->twin);
+                                ppi.emplace_back(edge.first, edge.second->twin->patch->shift, std::make_pair(edge.second->twin->edgeID,-1), nullptr);
+                                edgeVector.push_back(std::make_pair(edge.second->twin->edgeID,-1));
+
+                                const auto edgeSetIter2(edgeMaps.find(edge.second->twin->patch->shift));
+                                if (edgeSetIter2 == edgeMaps.end())
+                                {
+                                    std::set<std::pair<short int,short  int>> edgeSet;
+                                    edgeSet.insert(std::make_pair(edge.second->twin->edgeID,-1));
+                                    // edgeMaps.emplace(std::piecewise_construct,
+                                    //             std::forward_as_tuple(edge.second->twin->patch->shift),
+                                    //             std::forward_as_tuple(edge.second->twin->edgeID,-1));
+                                    // edgeMaps.emplace(edge.second->twin->patch->shift, std::make_pair(edge.second->twin->edgeID,-1));
+                                    edgeMaps.emplace(edge.second->twin->patch->shift, edgeSet);
+                                }
+                                else
+                                {
+                                    edgeSetIter2->second.insert(std::make_pair(edge.second->twin->edgeID,-1));
+                                }
                             }
                         }
                     }
-                }
-                if (lastPatch->contains(endPoint.first))
-                {
-                    ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
-                    // edgeMaps.emplace(VectorDim::Zero(), std::make_pair(-1, -1));
-                    //                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
-                    break;
+                    if (lastPatch->contains(endPoint.first))
+                    {
+                        ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
+                        // edgeMaps.emplace(VectorDim::Zero(), std::make_pair(-1, -1));
+                        //                        printIntersections(ppi,currentPatches,lastPatch,removeMe,patchBoundary.untwinnedEdges());
+                        break;
+                    }
                 }
             }
         }
+        else
+        {
+            ppi.emplace_back(endPoint.first, lastPatch->shift, std::make_pair(-1,-1), endPoint.second);
+        }
+
         //Here populate the ppiPPedges
         size_t crossCount=0;
         for (const auto& ppiIter : ppi )

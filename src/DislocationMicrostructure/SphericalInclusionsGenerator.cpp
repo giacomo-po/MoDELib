@@ -49,7 +49,8 @@ namespace model
 
     SphericalInclusionsGenerator::SphericalInclusionsGenerator(const std::string& fileName) :
     /* init */ MicrostructureGeneratorBase(fileName)
-    /* init */,allowOverlap(false)
+    /* init */,allowOverlap(this->parser.readScalar<int>("allowOverlap",true))
+    /* init */,allowOutside(this->parser.readScalar<int>("allowOutside",true))
     {
         
     }
@@ -126,7 +127,7 @@ namespace model
     {
         const std::vector<double> inclusionRadii_SI(this->parser.readArray<double>("inclusionRadii_SI",true));
         
-        std::cout<<magentaBoldColor<<"Generating sperical individual inclusions"<<defaultColor<<std::endl;
+        std::cout<<magentaBoldColor<<"Generating individual sperical inclusions"<<defaultColor<<std::endl;
         if(inclusionRadii_SI.size())
         {
 //            const std::vector<int> periodicDipoleExitFaceIDs(this->parser.readArray<int>("periodicDipoleExitFaceIDs",true));
@@ -168,12 +169,19 @@ namespace model
         
         Eigen::Matrix<double,dim,dim> eT(Eigen::Map<const Eigen::Matrix<double,dim,dim>>(eTrow.data(),dim,dim).transpose());
 
-        if(   mg.mesh.search(C+VectorDimD::UnitX()*R).first
-           && mg.mesh.search(C-VectorDimD::UnitX()*R).first
-           && mg.mesh.search(C+VectorDimD::UnitY()*R).first
-           && mg.mesh.search(C-VectorDimD::UnitY()*R).first
-           && mg.mesh.search(C+VectorDimD::UnitZ()*R).first
-           && mg.mesh.search(C-VectorDimD::UnitZ()*R).first)
+        
+        bool isInside(allowOutside);
+        if(!isInside)
+        {
+            isInside=(   mg.mesh.search(C+VectorDimD::UnitX()*R).first
+                      && mg.mesh.search(C-VectorDimD::UnitX()*R).first
+                      && mg.mesh.search(C+VectorDimD::UnitY()*R).first
+                      && mg.mesh.search(C-VectorDimD::UnitY()*R).first
+                      && mg.mesh.search(C+VectorDimD::UnitZ()*R).first
+                      && mg.mesh.search(C-VectorDimD::UnitZ()*R).first);
+        }
+        
+        if(isInside)
         {
             if(allowOverlap)
             {
@@ -182,12 +190,12 @@ namespace model
             }
             else
             {
-                bool isOutside(true);
+                bool isOutsidePrecipitates(true);
                 for(const auto& incl : mg.config().sphericalInclusions())
                 {
-                    isOutside=(isOutside && ((C-incl.C).norm()>R+incl.a));
+                    isOutsidePrecipitates=(isOutsidePrecipitates && ((C-incl.C).norm()>R+incl.a));
                 }
-                if(isOutside)
+                if(isOutsidePrecipitates)
                 {
                     mg.insertInclusion(C,R,eT,vrc,type);
                     return true;
@@ -200,6 +208,7 @@ namespace model
         }
         else
         {
+            std::cout<<"Inclusion outside mesh"<<std::endl;
             return false;
         }
         

@@ -56,6 +56,8 @@ class SphericalInclusionsGenerator : public MicrostructureGeneratorBase
 public:
     
     const bool allowOverlap;
+    const bool allowOutside;
+
     
     SphericalInclusionsGenerator(const std::string& fileName);
     

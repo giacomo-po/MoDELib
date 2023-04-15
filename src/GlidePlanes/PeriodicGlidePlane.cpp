@@ -450,7 +450,7 @@ namespace model
     }
 
     template<int dim>
-    int PeriodicPlanePatch<dim>::contains(const VectorLowerDim& test)
+    int PeriodicPlanePatch<dim>::contains(const VectorLowerDim& test) const
     {
         //                const auto& outerBoundary(outerBoundaries()[0]);
         size_t i, j, c = 0;

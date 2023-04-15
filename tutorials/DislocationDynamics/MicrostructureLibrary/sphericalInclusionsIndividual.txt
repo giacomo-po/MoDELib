@@ -1,6 +1,8 @@
 type=SphericalInclusions;
 style=individual;
 tag=incl0;
+allowOverlap=0;
+allowOutside=1;
 inclusionRadii_SI=3e-8;
 inclusionsCenters=700 500 500;
 inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;

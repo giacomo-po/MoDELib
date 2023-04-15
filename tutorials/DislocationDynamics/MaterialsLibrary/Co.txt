@@ -1,11 +1,11 @@
-materialName=Ni;
+materialName=Co;
 crystalStructure=FCC;
-b_SI=0.2482e-9; # [m] 		Burgers vector magnitude 
-mu0_SI=98.8e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
+b_SI=0.2447e-9; # [m] 		Burgers vector magnitude 
+mu0_SI=111.4e9;	# [Pa] 		temperature-independent shear modulus coeff in mu=mu0+mu1*T
 mu1_SI=0.0;		# [Pa/K] 	temperature-dependent shear modulus coeff in mu=mu0+mu1*T
-nu=0.287;		# [-]		Poisson's ratio
+nu=0.278;		# [-]		Poisson's ratio
 rho_SI=8908.0;	# [kg/m^3]	mass density
-Tm=1728;		# [K]		melting temperature
+Tm=1766;		# [K]		melting temperature
 
 # Mobility parameters
 B0e_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for edge  dislocations			
@@ -14,9 +14,9 @@ B0s_SI=0.0;			# [Pa*s]	temperature-independent drag coefficient for screw disloc
 B1s_SI=6.4e-08;	# [Pa*s]	temperature-dependent drag coefficient for screw dislocations
 
 # Gamma-surface
-ISF_SI= 157e-3; # [J/m^2]	intrinsic stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
-USF_SI= 290e-3; # [J/m^2]	 unstable stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
-MSF_SI=1100e-3; # [J/m^2]	 maximum stacking fault energy (??)
+ISF_SI= 166e-3; # [J/m^2]	intrinsic stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
+USF_SI= 500e-3; # [J/m^2]	 unstable stacking fault energy (Wu et al., Applied Surface Science 256, 2010)
+MSF_SI=1450e-3; # [J/m^2]	 maximum stacking fault energy (??)
 
 # Vacancy diffusion
 dOmegav=0;	# [-]	Relative vacancy relaxation volume
@@ -26,8 +26,8 @@ D0v_SI=0;	    # [m^2/s]	vacancy diffusion coefficient
 
 # Second Phases
 secondPhases=L12;
-APB_SI=162e-3; # [J/m^2] APB energy density
-SISF_SI=74e-3; # [J/m^2] SISF energy density
-CESF_SI=1350e-3; # [J/m^2] CESF energy density
-CISF_SI=191e-3; # [J/m^2] CISF energy density
-SESF_SI=1800e-3; # [J/m^2] SESF energy density
+APB_SI=425e-3; # [J/m^2] APB energy density
+SISF_SI=167e-3; # [J/m^2] SISF energy density
+CESF_SI=1950e-3; # [J/m^2] CESF energy density
+CISF_SI=388e-3; # [J/m^2] CISF energy density
+SESF_SI= 2400e-3; # [J/m^2] SESF energy density
