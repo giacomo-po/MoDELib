@@ -146,7 +146,7 @@ namespace model
         loopNodePosTemp.emplace_back(pos, &dummyPolyPoints.back());
     }
     
-    const auto ppi(periodicPlane->polygonPatchIntersection(loopNodePosTemp));
+    const auto ppi(periodicPlane->polygonPatchIntersection(loopNodePosTemp,true));
     const size_t loopID(insertLoop(b,unitNormal,P0,grainID,loopType));
     std::vector<size_t> loopNodeIDs;
     for(const auto &tup : ppi)

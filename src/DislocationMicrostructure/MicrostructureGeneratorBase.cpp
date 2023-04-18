@@ -21,8 +21,8 @@
 namespace model
 {
 
-    PeriodicPlanePatch<3>* PolyPoint::periodicPlanePatch() const
-    {
+    std::shared_ptr<PeriodicPlanePatch<3>> PolyPoint::periodicPlanePatch() const
+    {        
         return nullptr;
     }
 

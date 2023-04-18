@@ -4,6 +4,8 @@
 type=SphericalInclusions;
 style=density; 
 tag=incd0;
+allowOverlap=0;
+allowOutside=0;
 targetDensity=1e22; [1/m^3] number density of inclusions
 diameterLognormalDistribution_M=3.11e-8; #[m] of log-normal diameter M
 diameterLognormalDistribution_S=0.38; #[-] of log-normal distribution parameter S
