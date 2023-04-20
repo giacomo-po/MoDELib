@@ -584,8 +584,16 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
                     assert(ll->source->periodicPrev()!=nullptr && "PeriodicPrev must exist from network link for line tension contribution");
                     assert(ll->sink->periodicNext()!=nullptr && "PeriodicNext must exist from network link for line tension contribution");
                     
-                    const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()-ll->source->periodicPrev()->periodicPlanePatch()->shift+ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift : ll->source->periodicPrev()->get_P());
-                    const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()-ll->  sink->periodicNext()->periodicPlanePatch()->shift+ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift : ll->  sink->periodicNext()->get_P());
+                    const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()
+//                                                -ll->source->periodicPrev()->periodicPlanePatch()->shift
+                                                -ll->source->periodicPlanePatch()->shift
+                                                +ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift
+                                                : ll->source->periodicPrev()->get_P());
+                    const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()
+//                                                -ll->  sink->periodicNext()->periodicPlanePatch()->shift
+                                                -ll->  sink->periodicPlanePatch()->shift
+                                                +ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift
+                                                : ll->  sink->periodicNext()->get_P());
                     CatmullRomSplineSegment<dim> cmSeg(prevNodePos,ll->source->get_P(),ll->sink->get_P(),nextNodePos);
                     const double alpha (parentSegment.network().alphaLineTension);
                     const double paramUTemp ((qPoint.r-parentSegment.source->get_P()).norm()/parentSegment.chordLength());
