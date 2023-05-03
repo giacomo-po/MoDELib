@@ -61,6 +61,7 @@ namespace model
         VectorDim lineTensionForce;
         VectorDim glideVelocity;
         double elasticEnergyPerLength;
+        double coreEnergyPerLength;
         int inclusionID;
         
         DislocationQuadraturePoint(const LinkType& parentSegment,

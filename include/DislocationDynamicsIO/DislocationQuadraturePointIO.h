@@ -34,7 +34,8 @@ namespace model
         VectorDim lineTensionForce;
         VectorDim glideVelocity;
         double elasticEnergyPerLength;
-        
+        double coreEnergyPerLength;
+
         /**********************************************************************/
         DislocationQuadraturePointIO() :
         /* init */ sourceID(0)
@@ -49,6 +50,7 @@ namespace model
         /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
+        /* init */,coreEnergyPerLength(0.0)
         {
         }
         
@@ -67,6 +69,7 @@ namespace model
         /* init */,lineTensionForce(qPoint.lineTensionForce)
         /* init */,glideVelocity(qPoint.glideVelocity)
         /* init */,elasticEnergyPerLength(qPoint.elasticEnergyPerLength)
+        /* init */,coreEnergyPerLength(qPoint.coreEnergyPerLength)
         {
             
         }
@@ -85,6 +88,7 @@ namespace model
         /* init */,lineTensionForce(VectorDim::Zero())
         /* init */,glideVelocity(VectorDim::Zero())
         /* init */,elasticEnergyPerLength(0.0)
+        /* init */,coreEnergyPerLength(0.0)
         {
             
             ss>>sourceID;
@@ -123,6 +127,7 @@ namespace model
                 ss>>glideVelocity(d);
             }
             ss>>elasticEnergyPerLength;
+            ss>>coreEnergyPerLength;
 
         }
         
@@ -146,7 +151,8 @@ namespace model
             /**/<< ds.stackingFaultForce.transpose()<<"\t"
             /**/<< ds.lineTensionForce.transpose()<<"\t"
             /**/<< ds.glideVelocity.transpose()<<"\t"
-            /**/<< ds.elasticEnergyPerLength;
+            /**/<< ds.elasticEnergyPerLength<<"\t"
+            /**/<< ds.coreEnergyPerLength;
             return os;
         }
         

@@ -180,41 +180,21 @@ namespace model
                 /*                    */<< ", loopNodes="<<DN->loopNodes().size()
                 /*                    */<< ", loopSegments="<<DN->loopLinks().size()
                 /*                    */<< ", loops="<<DN->loops().size();
-//                /*                    */<< ", components="<<DN->components().size();
             }
             std::cout<< defaultColor<<std::endl;
 
             if(DN)
             {
-                // for (const auto& netNode : DN->networkNodes())
-                // {
-                //     std::cout<<std::scientific<<std::setprecision(7)<<"networkNode sID"<<netNode.second.lock()->sID<<"-->"<<netNode.second.lock()->get_P().transpose()<<
-                //     "-->"<<netNode.second.lock()->get_V().transpose()<<"-->"<<netNode.second.lock()->velocityReduction()<<std::endl;
-                // }
                 DislocationNode<dim,corder>::totalCappedNodes=0;
                 DN->updateGeometry();
-                // DN->io().output(simulationParameters.runID);
-
                 updateLoadControllers(simulationParameters.runID, false);
                 const double maxVelocity(getMaxVelocity());
                 DN->assembleAndSolveGlide(simulationParameters.runID, maxVelocity);
                 simulationParameters.dt=DN->timeIntegrator.getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
-                // output
                 DN->io().output(simulationParameters.runID);
-
-//                DislocationCrossSlip<DislocationNetworkType> crossSlip(*DN);
-                // move
-//                DN->dummyMove(simulationParameters.runID);
                 DN->storeSingleGlideStepDiscreteEvents(simulationParameters.runID);
-
                 DN->moveGlide(simulationParameters.dt);
-//                crossSlip.execute();
-                // DN->io().output(simulationParameters.runID);
-
-
-                // manage discrete topological events
                 DN->executeSingleGlideStepDiscreteEvents(simulationParameters.runID);
-                // DN->io().output(simulationParameters.runID);
                 if (true)
                 {
                     std::cout<<redBoldColor<<"( "<<(DislocationNode<dim,corder>::totalCappedNodes)<<" total nodes capped "<<defaultColor<<std::endl;
@@ -236,6 +216,10 @@ namespace model
             {
                 std::cout<<std::endl; // leave a blank line
                 singleGlideStep();
+            }
+            if(DN)
+            {
+                DN->updateGeometry();
             }
             std::cout<<greenBoldColor<<std::setprecision(3)<<std::scientific<<simulationParameters.Nsteps<< " simulation steps completed in "<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" [sec]"<<defaultColor<<std::endl;
         }

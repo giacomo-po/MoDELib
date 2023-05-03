@@ -43,11 +43,7 @@ namespace model
     
     template <int dim>
     class Polycrystal : public  PolycrystallineMaterialBase
-//    /*               */,private std::map<size_t,Grain<dim>>
-//    /*               */,private std::map<std::pair<size_t,size_t>,GrainBoundary<dim>>
-//    /*               */,public  std::vector<StressStraight<dim> >
     {
-//        typedef PolycrystallineMaterial<dim,Isotropic> MaterialType;
         typedef SimplicialMesh<dim> SimplicialMeshType;
         typedef MeshRegion<dim> MeshRegionType;
         typedef MeshRegionObserver<MeshRegionType> MeshRegionObserverType;
