@@ -32,4 +32,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 	${CMAKE_CURRENT_SOURCE_DIR}/ChartActor.cpp
 	${MoDELibRootDir}/include/vtk/QuadratureActor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/QuadratureActor.cpp
+	${MoDELibRootDir}/include/vtk/DDFieldWidget.h
+	${CMAKE_CURRENT_SOURCE_DIR}/DDFieldWidget.cpp
 	)

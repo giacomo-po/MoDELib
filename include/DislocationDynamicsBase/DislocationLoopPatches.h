@@ -40,6 +40,7 @@ namespace model
         void update(const std::vector<VectorDim>& linkShifts, const std::vector<VectorDim>& nodePos);
         const  LocalPatchPositionType&  localPatches() const;
         const GlobalPatchPositionType& globalPatches() const;
+        const VectorDim orientedArea() const;
 
 	};	
 	

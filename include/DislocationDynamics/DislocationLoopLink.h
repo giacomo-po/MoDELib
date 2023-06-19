@@ -11,6 +11,7 @@
 #define model_DislocationLoopLink_h_
 
 #include <DislocationDynamicsModule.h>
+#include <CatmullRomSplineSegment.h>
 
 //#include <LatticeVector.h>
 //#include <LatticePlaneBase.h>
@@ -47,7 +48,8 @@ namespace model
         typedef typename TraitsType::NetworkNodeType NetworkNodeType;
         typedef typename TraitsType::NetworkLinkType NetworkLinkType;
         typedef typename TraitsType::FlowType FlowType;
-      
+        typedef typename TraitsType::VectorDim VectorDim;
+
         static int verboseDislocationLoopLink;
 
         
@@ -57,7 +59,8 @@ namespace model
         
         bool hasNetworkLink() const;
         std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
-
+        CatmullRomSplineSegment<dim> spline() const;
+        
         const LoopLinkType * twinnedLink() const ;
         static void initFromFile(const std::string&);
         

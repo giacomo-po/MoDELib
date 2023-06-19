@@ -81,6 +81,26 @@ const typename DislocationLoopPatches<dim>::GlobalPatchPositionType& Dislocation
     return *this;
 }
 
+template <int dim>
+const typename DislocationLoopPatches<dim>::VectorDim DislocationLoopPatches<dim>::orientedArea() const
+{
+    VectorDim nA(VectorDim::Zero());
+    for(const auto& patch : globalPatches())
+    {
+        
+        const VectorDim& Ps(patch.second[0]);
+        for(size_t k0=0;k0<patch.second.size();++k0)
+        {
+            const size_t k1(k0+1<patch.second.size()? k0+1 : 0);
+            const VectorDim& P0(patch.second[k0]);
+            const VectorDim& P1(patch.second[k1]);
+            nA+= 0.5*(P0-Ps).cross(P1-P0);
+        }
+    }
+    
+    return nA;
+}
+
 
 template struct DislocationLoopPatches<3>;
 

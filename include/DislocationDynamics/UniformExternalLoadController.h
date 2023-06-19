@@ -62,8 +62,8 @@ namespace model
         
     public:
         /**************************************************************************/
-        template <typename DislocationNetworkType>
-        UniformExternalLoadController(const DislocationNetworkType& _DN,const long int& runID) :
+//        template <typename DislocationNetworkType>
+        UniformExternalLoadController(const DefectiveCrystalType& _DN,const long int& runID) :
         //        /* init list */ this->inputFileName("./externalLoadControl/UniformExternalLoadController.txt")
         /* init list */ ExternalLoadControllerBase<DefectiveCrystalType::dim>(_DN.simulationParameters.traitsIO.simulationFolder+"/inputFiles/uniformExternalLoadController.txt")
         /* init list */,DN(_DN)
@@ -126,6 +126,7 @@ namespace model
             //strainmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness).inverse()*machinestiffness;
             stressmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness*Cinv).inverse();
             strainmultimachinestiffness=(Eigen::Matrix<double,voigtSize,voigtSize>::Identity()+machinestiffness*Cinv).inverse()*machinestiffness;
+                       
             /*    for (size_t i=0;i<voigtSize;i++)
              {
              double alpha=MachineStiffnessRatio.row(i)[0];
@@ -197,6 +198,7 @@ namespace model
                         //MatrixDim S_strain(straininducedStress(dstrain,lambda));
                         MatrixDim S_stress(ExternalStress0+ExternalStressRate*last_update_time);
                         ExternalStress=stressconsidermachinestiffness(dstrain,S_stress);
+                        ExternalStrain=elasticstrain(ExternalStress,nu_use)+plasticStrain;
                     }
                     else
                     {
@@ -214,38 +216,55 @@ namespace model
                 //MatrixDim S_strain(straininducedStress(dstrain,lambda));
                 MatrixDim S_stress(ExternalStress0+ExternalStressRate*last_update_time);
                 ExternalStress=stressconsidermachinestiffness(dstrain,S_stress);
+                ExternalStrain=elasticstrain(ExternalStress,nu_use)+plasticStrain;
                 std::cout<<"UniformExternalLoadControllerController: F/F_0.txt cannot be opened."<<std::endl;
             }
             std::cout<<"Initial ExternalStress=\n"<<ExternalStress<<std::endl;
+            std::cout<<"Initial ExternalStrain=\n"<<ExternalStrain<<std::endl;
         }
         
         
         
         /**************************************************************************/
-        MatrixDim v2m(const Eigen::Matrix<double,voigtSize,1>& voigtvector)
+        MatrixDim v2m(const Eigen::Matrix<double,voigtSize,1>& voigtvector, const bool& is_strain) const
         {
             //from voigt to matrix format
             MatrixDim temp(MatrixDim::Zero());
             for (size_t i=0;i<voigtSize;i++)
             {
-                temp.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]]=voigtvector[i];
-                temp.row(voigtorder.row(i)[1])[voigtorder.row(i)[0]]=voigtvector[i];
+                if(is_strain && voigtorder.row(i)[0] != voigtorder.row(i)[1])
+                {
+                    temp.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]]=0.5*voigtvector[i];
+                    temp.row(voigtorder.row(i)[1])[voigtorder.row(i)[0]]=0.5*voigtvector[i];
+                }
+                else
+                {
+                    temp.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]]=voigtvector[i];
+                    temp.row(voigtorder.row(i)[1])[voigtorder.row(i)[0]]=voigtvector[i];
+                }
             }
-            return (temp);
+            return temp;
         }
         /**************************************************************************/
-        Eigen::Matrix<double,voigtSize,1> m2v(const MatrixDim& input_matrix)
+        Eigen::Matrix<double,voigtSize,1> m2v(const MatrixDim& input_matrix, const bool& is_strain) const
         {
             //from matrix to voigt format
             Eigen::Matrix<double,voigtSize,1> temp(Eigen::Matrix<double,voigtSize,1>::Zero());
             for (size_t i=0;i<voigtSize;i++)
             {
-                temp.row(i)[0]=input_matrix.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]];
+                if(is_strain && voigtorder.row(i)[0] != voigtorder.row(i)[1])
+                {
+                    temp.row(i)[0]=2.0*input_matrix.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]];
+                }
+                else
+                {
+                    temp.row(i)[0]=input_matrix.row(voigtorder.row(i)[0])[voigtorder.row(i)[1]];
+                }
             }
-            return (temp);
+            return temp;
         }
         /**************************************************************************/
-        MatrixDim stressconsidermachinestiffness(const MatrixDim& S_strain,const MatrixDim& S_stress)
+        MatrixDim stressconsidermachinestiffness(const MatrixDim& S_strain,const MatrixDim& S_stress) const
         {/*!For stress updating,
              * \f[
              * \dot{\sigma}=\frac{\alpha}{1+\alpha} C::(\dot{\epsilon}-\dot{\epsilon}^p)+ \frac{1}{1+\alpha} \dot{\sigma}
@@ -253,7 +272,7 @@ namespace model
              * \alpha=MachineStiffnessRatio, which is the stiffness ratio between machine stiffness and sample stiffness.
              * More details see <Physical Review Letters 117, 155502, 2016>.
              */
-            return (v2m(strainmultimachinestiffness*m2v(S_strain)+stressmultimachinestiffness*m2v(S_stress)));
+            return v2m(strainmultimachinestiffness*m2v(S_strain,true)+stressmultimachinestiffness*m2v(S_stress,false),false);
             
         }
         /**************************************************************************/

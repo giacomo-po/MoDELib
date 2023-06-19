@@ -66,11 +66,11 @@ namespace model
         typedef std::set<const PlanarMeshFaceType *> PlanarMeshFaceContainerType;
         typedef typename DislocationQuadraturePoint<dim,corder>::QuadratureDynamicType QuadratureDynamicType;
         
-        std::map<size_t,
-        /*    */ std::pair<VectorNcoeff,VectorDim>,
-        /*    */ std::less<size_t>
-        /*    */ > h2posMap;
-        Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
+//        std::map<size_t,
+//        /*    */ std::pair<VectorNcoeff,VectorDim>,
+//        /*    */ std::less<size_t>
+//        /*    */ > h2posMap;
+//        Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg;
         MatrixNdof Kqq; //! Segment Stiffness Matrix
         VectorNdof Fq; //! Segment Nodal Force Vector
         VectorDim Burgers; //! The Burgers vector
@@ -102,7 +102,7 @@ namespace model
         void updateGeometry();
         const std::shared_ptr<SlipSystem>& slipSystem() const;
         bool hasZeroBurgers() const;
-        bool isVirtualBoundarySegment() const;
+//        bool isVirtualBoundarySegment() const;
         bool isGlissile() const;        
         bool isSessile() const;
         void assembleGlide(const bool&);

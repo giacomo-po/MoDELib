@@ -294,7 +294,7 @@ namespace model
             {
                 const auto sharedLink(link.second.lock());
                 
-                if(   (!sharedLink->hasZeroBurgers() && !sharedLink->isVirtualBoundarySegment())
+                if(   (!sharedLink->hasZeroBurgers() )
                    //                   || (link.second->isBoundarySegment() && DN.useVirtualExternalLoops))
                    || sharedLink->isBoundarySegment() )
                     
@@ -846,15 +846,18 @@ namespace model
                 const auto link(linkIter.second.lock());
 
                 //    if (link->isSessile() && link->loopLinks().size() > 1) // a junction
-                if (link->loopLinks().size() > 1) // a junction
+                if (   link->loopLinks().size() > 1 // a junction
+                    && link->chordLength() > dx
+                    && link->isSessile()
+                    )
                 {
                     //    const VectorDim chord(link->sink->get_P() - link->source->get_P());
                     //    const double chordNorm(chord.norm());
                     // const double dx_updated((DN.simulationParameters.isPeriodicSimulation() && link.second->isConnectedtoBoundaryNodes()) ? 10 * dx : dx);
 
-                    if (fabs(link->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
-                        && link->chordLength() > dx)
-                    {
+//                    if (fabs(link->burgers().norm() - 1.0) < FLT_EPSILON // a non-zero link with minimum Burgers
+//                        && link->chordLength() > dx)
+//                    {
 
                         //    const VectorDim unitChord(chord / chordNorm);
                         const VectorDim unitChord(link->chord() / link->chordLength());
@@ -878,7 +881,7 @@ namespace model
                                 }
                             }
                         }
-                    }
+//                    }
                 }
             }
 

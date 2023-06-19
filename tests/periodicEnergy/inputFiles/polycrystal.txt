@@ -1,0 +1,28 @@
+materialFile=../../../tutorials/DislocationDynamics/MaterialsLibrary/W.txt; 
+enablePartials=0; 
+absoluteTemperature = 300; # [K] simulation temperature 
+meshFile=../../../tutorials/DislocationDynamics/MeshLibrary/unitCube.msh; 
+C2G1=0.577350269189626 0.577350269189626 -0.577350269189626 
+ -0.408248290463863 0.816496580927726 0.408248290463863 
+ 0.707106781186547 0.000000000000000 0.707106781186547 ;
+ 
+ 
+ A=1000.000000000000227 0.000000000000000 0.000000000000000 
+ 0.000000000000000 2828.427124746190202 0.000000000000222 
+ 0.000000000000000 0.000000000000000 3265.986323710904344 ;
+ 
+ 
+ x0=0.000000000000000 0.000000000000000 0.000000000000000 ;
+ periodicFaceIDs=0 1 2 3 4 5 ;
+ 
+#################
+# GlidePlaneNoise
+gridSize=256 256 ; # size of grid on the glide plane
+ gridSpacing_SI=1.000000e-10 1.000000e-10 ; # [m] spacing of grid on the glide plane
+ solidSolutionNoiseMode=0; # 0=no noise, 1= read noise, 2=compute noise
+solidSolutionNoiseFile_xz=../../../NoiseLibrary/noise_xz.vtk;
+solidSolutionNoiseFile_yz=../../../NoiseLibrary/noise_yz.vtk;
+stackingFaultNoiseMode=0; # 0=no noise
+spreadLstress_A=1; # add comment
+a_cai_A=1; # add comment
+seed=0; # add comment

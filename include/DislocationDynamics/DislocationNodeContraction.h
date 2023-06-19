@@ -576,24 +576,24 @@ namespace model
                 }
 //                assert(movedB);
             }
-            switch (DN.simulationParameters.simulationType)
-            {
-                case DefectiveCrystalParameters::FINITE_FEM:
-                {
-                    if(nB->virtualBoundaryNode())
-                    {
-                        assert(nA->virtualBoundaryNode());
-                        DN.contractNetworkNodes(nA->virtualBoundaryNode(),nB->virtualBoundaryNode());
-                    }
-                    break;
-                }
-                    
-//                case DefectiveCrystalParameters::PERIODIC:
+//            switch (DN.simulationParameters.simulationType)
+//            {
+//                case DefectiveCrystalParameters::FINITE_FEM:
 //                {
-//                 // FINISH HERE
+//                    if(nB->virtualBoundaryNode())
+//                    {
+//                        assert(nA->virtualBoundaryNode());
+//                        DN.contractNetworkNodes(nA->virtualBoundaryNode(),nB->virtualBoundaryNode());
+//                    }
 //                    break;
 //                }
-            }
+//                    
+////                case DefectiveCrystalParameters::PERIODIC:
+////                {
+////                 // FINISH HERE
+////                    break;
+////                }
+//            }
 
             auto bndNodesToContract(contractBoundary(nA,nB));
 

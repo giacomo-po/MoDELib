@@ -11,6 +11,10 @@
 
 #include <algorithm>
 #include <QString>
+#include <QApplication>
+#include <QFuture>
+#include <QtCore>
+#include <QtConcurrent/QtConcurrentRun>
 
 #include <DDconfigVtk.h>
 #include <SimplicialMesh.h>
@@ -41,6 +45,7 @@ namespace model
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
+        /* init */,playFrameButton(new QPushButton(">>"))
         /* init */,minusFrameButton(new QPushButton("<"))
         /* init */,frameIncrementEdit(new QLineEdit("1"))
         /* init */,saveImage(new QCheckBox(this))
@@ -61,11 +66,12 @@ namespace model
             mainLayout->addWidget(frameIDedit,0,0,1,1);
             mainLayout->addWidget(minusFrameButton,0,1,1,1);
             mainLayout->addWidget(plusFrameButton,0,2,1,1);
-            mainLayout->addWidget(frameIncrementEdit,0,3,1,1);
+            mainLayout->addWidget(playFrameButton,0,3,1,1);
+            mainLayout->addWidget(frameIncrementEdit,0,4,1,1);
             mainLayout->addWidget(saveImage,1,0,1,1);
 
 
-            mainLayout->addWidget(tabWidget,2,0,1,4);
+            mainLayout->addWidget(tabWidget,2,0,1,5);
 //            controlsBox->setLayout(mainLayout);
             this->setLayout(mainLayout);
 
@@ -76,7 +82,8 @@ namespace model
             connect(frameIDedit,SIGNAL(returnPressed()), this, SLOT(updateConfiguration()));
             connect(plusFrameButton,SIGNAL(pressed()), this, SLOT(nextConfiguration()));
             connect(minusFrameButton,SIGNAL(pressed()), this, SLOT(prevConfiguration()));
-            
+            connect(playFrameButton,SIGNAL(pressed()), this, SLOT(playConfigurations()));
+
 
 //            connect(frameIDedit,SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(updateConfiguration()));
         }
@@ -101,28 +108,49 @@ namespace model
             return *this;
         }
 
-        void DDconfigVtk::nextConfiguration()
+        void DDconfigVtk::playConfigurations()
+        {
+//            bool updated(true);
+//            while (updated)
+//            {
+//                updated=nextConfiguration();
+////                QFuture<bool> future = QtConcurrent::run(&DDconfigVtk::nextConfiguration,this);
+////                QFuture<bool> future = QtConcurrent::run(nextConfiguration);
+////                future.waitForFinished();
+////                updated=future.result();
+////                QApplication::processEvents();
+////                std::chrono::seconds dura( 1);
+////                std::this_thread::sleep_for( dura );
+////                pause(1);
+//            }
+        }
+
+        bool DDconfigVtk::nextConfiguration()
         {
             const long int currentFrameID(std::atoi(frameIDedit->text() .toStdString().c_str()));
             const long int currentIncrement(std::atoi(frameIncrementEdit->text() .toStdString().c_str()));
             const long int nextFrameID(std::max((long int)0,currentFrameID+currentIncrement));
             frameIDedit->setText(QString::fromStdString(std::to_string(nextFrameID)));
-            if(!updateConfiguration())
+            const bool updated(updateConfiguration());
+            if(!updated)
             {
                 frameIDedit->setText(QString::fromStdString(std::to_string(currentFrameID)));
             }
+            return updated;
         }
 
-        void DDconfigVtk::prevConfiguration()
+        bool DDconfigVtk::prevConfiguration()
         {
             const long int currentFrameID(std::atoi(frameIDedit->text() .toStdString().c_str()));
             const long int currentIncrement(std::atoi(frameIncrementEdit->text() .toStdString().c_str()));
             const long int nextFrameID(std::max((long int)0,currentFrameID-currentIncrement));
             frameIDedit->setText(QString::fromStdString(std::to_string(nextFrameID)));
-            if(!updateConfiguration())
+            const bool updated(updateConfiguration());
+            if(!updated)
             {
                 frameIDedit->setText(QString::fromStdString(std::to_string(currentFrameID)));
             }
+            return updated;
         }
 
         bool DDconfigVtk::updateConfiguration()
@@ -153,14 +181,13 @@ namespace model
                 quadrature->updateConfiguration(*this);
                 chartActor->updateConfiguration(frameID);
                 
+
+                
                 if(saveImage->isChecked())
                 {
                     QImage img=qvtkGLwidget->grabFramebuffer();
                     img.save(QString::fromStdString(traitsIO.evlFolder+"/img_"+std::to_string(frameID)+".png"), "PNG", -1);
-
                 }
-
-                
                 return true;
             }
             catch(const std::exception& e)

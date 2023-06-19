@@ -57,9 +57,6 @@ namespace model
                     
                 case 1: //Adaptive time stepper
                 {
-                    //! Compute and store DislocaitonNode velocities
-                    //            DN.assembleAndSolve(runID,straightSegmentsDeq);
-
                     /*! Computes the time step size \f$dt\f$ for the current simulation step,
                 *  based on maximum nodal velocity \f$v_{max}\f$.
                 *
@@ -74,72 +71,22 @@ namespace model
                 *  where \f$c_s\f$ is the shear velocity and \f$f=0.1\f$ is a constant.
                 */
 
-                    //			double vmax(0.0);
-                    //            int vMaxID=-1;
                     double vmax = 0.0;
-                    //            int nVmean=0;
-                    //            double vmean=0.0;
-                    //            double dt_mean=0.0;
-
-                    //            std::cout<<"computing vMax for nodes: ";
                     for (const auto &nodeIter : DN.networkNodes())
                     {
                         if (    !nodeIter.second.lock()->isBoundaryNode()
-                            //&& !nodeIter.second->isConnectedToBoundaryNodes()
-                            //&&
                             && nodeIter.second.lock()->glidePlanes().size() < 3
-                            //                   && !nodeIter.second->isOscillating()
                         )
                         {
-                            //                    std::cout<<nodeIter.second->sID<<" ";
                             const double vNorm(nodeIter.second.lock()->get_V().norm());
-                            //                    vmean +=vNorm;
-                            //                    nVmean++;
                             if (vNorm > vmax)
                             {
                                 vmax = vNorm;
-                                //                        vMaxID=nodeIter.first;
                             }
                         }
                     }
-                    //            std::cout<<std::endl;
-                    //            vmean/=nVmean;
-
-                    //            double dt(dxMax/vmax);
-                    //            if(dt<dtMin)
-                    //            {
-                    //                return dtMin;
-                    //            }
-                    //            else if(dt>dtMax)
-                    //            {
-                    //                return dtMax;
-                    //            }
-                    //            else
-                    //            {
-                    //                return dt;
-                    //            }
-
-                    dt_temp = vmax > DN.poly.cs * shearWaveSpeedFraction ? dxMax / vmax : dxMax / (DN.poly.cs * shearWaveSpeedFraction);
-
-                    //            if (vmax > DN.poly.cs*shearWaveSpeedFraction)
-                    //            {
-                    //                DN.set_dt(dxMax/vmax,vmax);
-                    //            }
-                    //            else
-                    //            {
-                    //                DN.set_dt(dxMax/(DN.poly.cs*shearWaveSpeedFraction),vmax);
-                    //            }
-                    //
-                    //            if (vmean > DN.poly.cs*shearWaveSpeedFraction)
-                    //            {
-                    //                dt_mean=dxMax/vmean;
-                    //            }
-                    //            else
-                    //            {
-                    //                dt_mean=dxMax/(DN.poly.cs*shearWaveSpeedFraction);
-                    //            }
-
-                    //            model::cout<<std::setprecision(3)<<std::scientific<<" dt="<<DN.dt;
+                    const double Av(vmax+DN.poly.cs*std::exp(-vmax/(DN.poly.cs * shearWaveSpeedFraction)));
+                    dt_temp = std::ceil(dxMax / Av); // ceil to truncate accumulation of floating point errors
                     break;
                 }
 

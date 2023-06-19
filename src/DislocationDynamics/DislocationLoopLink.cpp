@@ -85,7 +85,21 @@ namespace model
         
     }
 
-    
+template <int dim, short unsigned int corder>
+CatmullRomSplineSegment<dim> DislocationLoopLink<dim,corder>::spline() const
+{
+    const VectorDim prevNodePos(this->prev->twin()? this->prev->twin()->source->periodicPrev()->get_P()
+                                -this->source->periodicPlanePatch()->shift
+                                +this->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift
+                                : this->source->periodicPrev()->get_P());
+    const VectorDim nextNodePos(this->next->twin()? this->next->twin()->  sink->periodicNext()->get_P()
+                                -this->  sink->periodicPlanePatch()->shift
+                                +this->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift
+                                : this->  sink->periodicNext()->get_P());
+    return CatmullRomSplineSegment<dim>(prevNodePos,this->source->get_P(),this->sink->get_P(),nextNodePos);
+}
+
+
     template <int dim, short unsigned int corder>
     void DislocationLoopLink<dim,corder>::initFromFile(const std::string& fileName)
     {

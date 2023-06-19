@@ -49,14 +49,14 @@ DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParamet
 ///* init */,outputGlidePlanes(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true))
 /* init */,outputMeshDisplacement(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputMeshDisplacement",true))
 /* init */,outputFEMsolution(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFEMsolution",true))
-/* init */,outputDislocationLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputDislocationLength",true))
-/* init */,outputPlasticDistortionRate(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputPlasticDistortionRate",true))
+///* init */,outputDislocationLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputDislocationLength",true))
+///* init */,outputPlasticDistortionRate(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputPlasticDistortionRate",true))
 /* init */,outputQuadraturePoints(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputQuadraturePoints",true))
 /* init */,outputLinkingNumbers(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLinkingNumbers",true))
 /* init */,outputLoopLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLoopLength",true))
 /* init */,outputSegmentPairDistances(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputSegmentPairDistances",true))
 /* init */,computeElasticEnergyPerLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeElasticEnergyPerLength",true))
-/* init */,useLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("useLineTension",true))
+///* init */,useLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("useLineTension",true))
 /* init */,alphaLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("alphaLineTension",true))
 /* init */,use_velocityFilter(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("use_velocityFilter",true))
 /* init */,velocityReductionFactor(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("velocityReductionFactor",true))
@@ -642,8 +642,18 @@ void DislocationNetwork<dim,corder>::stress(std::deque<FEMfaceEvaluation<Element
 }
 
 /**********************************************************************/
+
 template <int dim, short unsigned int corder>
-void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runID, const double &maxVelocity)
+void DislocationNetwork<dim, corder>::solveGlide(const long int &runID)
+{
+//    const auto t0 = std::chrono::system_clock::now();
+//    std::cout <<"Solving glide "<< std::flush;
+    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
+//    std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t0)).count() << " sec]." << defaultColor << std::endl;
+}
+
+template <int dim, short unsigned int corder>
+void DislocationNetwork<dim, corder>::assembleGlide(const long int &runID, const double &maxVelocity)
 { /*! Performs the following operatons:
    */
 #ifdef _OPENMP
@@ -681,8 +691,7 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
         
         const auto t1 = std::chrono::system_clock::now();
         std::cout <<"Computing stacking fault forces at quadrature points (" << nThreads << " threads) " << std::flush;
-        const double eps=1.0e-2;
-        
+//        const double eps=1.0e-2;
 #ifdef _OPENMP
 #pragma omp parallel for // THERE COULD BE A WRITING RACE HERE SINCE DIFFERENT LOOPS MAY TRY TO SUM TO THE SAME GAUSS POINT
 #endif
@@ -691,80 +700,79 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
             auto loopIter(this->loops().begin());
             std::advance(loopIter, k);
             const auto& fieldLoop(loopIter->second.lock());
-            if(fieldLoop->slipSystem() && fieldLoop->glidePlane)
-            {
-                for(const auto& loopLink : fieldLoop->loopLinks())
-                {
-                    if(loopLink->networkLink())
-                    {
-                        
-                        VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(fieldLoop->rightHandedUnitNormal()));
-                        const double outDirNorm(outDir.norm());
-                        if(outDirNorm>FLT_EPSILON)
-                        {
-                            outDir/=outDirNorm;
-                            std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
-                            
-                            for(const auto& weakSourceLoop : this->loops())
-                            {
-                                const auto sourceLoop(weakSourceLoop.second.lock());
-                                if(sourceLoop->slipSystem())
-                                {
-                                    if(fieldLoop->slipSystem()->n==sourceLoop->slipSystem()->n)
-                                    {// same glide plane family
-                                        
-                                        for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-                                        {
-                                            const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-//                                            qPointSlip[q].first -=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r + eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-//                                            qPointSlip[q].second-=sourceLoop->windingNumber(fieldLoop->glidePlane->localPosition(qPoint.r - eps*outDir),fieldLoop->glidePlane)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-                                            qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-                                            qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
-
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
-                            {
-                                if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-                                {
-                                    auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
-                                    if(qPoint.inclusionID<0)
-                                    {// qPoint is not inside an inclusion, we use the matrix gamma-surface
-
-                                        const double gamma1(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-                                        const double gamma2(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-
-                                        double gammaNoise(0.0);
-                                        if(fieldLoop->slipSystem()->planeNoise)
-                                        {
-                                            if(loopLink->networkLink()->glidePlanes().size()==1)
-                                            {
-                                                const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
-                                                gammaNoise=std::get<2>(fieldLoop->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
-                                            }
-                                        }
-                                        qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
-                                    }
-                                    else
-                                    {// qPoint is inside an inclusion, we use the inclusion gamma-surface
-
-                                        const auto& secondPhase(eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
-                                        if(secondPhase)
-                                        {
-                                                const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,fieldLoop->slipSystem()));  // outer point
-                                                const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,fieldLoop->slipSystem())); // inner point
-                                            qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            fieldLoop->computeStackingFaultForces();
+//            if(fieldLoop->slipSystem() && fieldLoop->glidePlane)
+//            {
+//                for(const auto& loopLink : fieldLoop->loopLinks())
+//                {
+//                    if(loopLink->networkLink())
+//                    {
+//
+//                        VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(fieldLoop->rightHandedUnitNormal()));
+//                        const double outDirNorm(outDir.norm());
+//                        if(outDirNorm>FLT_EPSILON)
+//                        {
+//                            outDir/=outDirNorm;
+//                            std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
+//
+//                            for(const auto& weakSourceLoop : this->loops())
+//                            {
+//                                const auto sourceLoop(weakSourceLoop.second.lock());
+//                                if(sourceLoop->slipSystem())
+//                                {
+//                                    if(fieldLoop->slipSystem()->n==sourceLoop->slipSystem()->n)
+//                                    {// same glide plane family
+//
+//                                        for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+//                                        {
+//                                            const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+//                                            qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+//                                            qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+//
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+//                            for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+//                            {
+//                                if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
+//                                {
+//                                    auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+//                                    if(qPoint.inclusionID<0)
+//                                    {// qPoint is not inside an inclusion, we use the matrix gamma-surface
+//
+//                                        const double gamma1(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
+//                                        const double gamma2(fieldLoop->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
+//
+//                                        double gammaNoise(0.0);
+//                                        if(fieldLoop->slipSystem()->planeNoise)
+//                                        {
+//                                            if(loopLink->networkLink()->glidePlanes().size()==1)
+//                                            {
+//                                                const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
+//                                                gammaNoise=std::get<2>(fieldLoop->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
+//                                            }
+//                                        }
+//                                        qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
+//                                    }
+//                                    else
+//                                    {// qPoint is inside an inclusion, we use the inclusion gamma-surface
+//
+//                                        const auto& secondPhase(eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
+//                                        if(secondPhase)
+//                                        {
+//                                                const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,fieldLoop->slipSystem()));  // outer point
+//                                                const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,fieldLoop->slipSystem())); // inner point
+//                                            qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
         }
         std::cout << magentaColor << std::setprecision(3) << std::scientific << " [" << (std::chrono::duration<double>(std::chrono::system_clock::now() - t1)).count() << " sec]." << defaultColor << std::endl;
         
@@ -812,7 +820,7 @@ void DislocationNetwork<dim, corder>::assembleAndSolveGlide(const long int &runI
     
     //! -3 Loop over DislocationSubNetworks, assemble subnetwork stiffness matrix and force vector, and solve
     //        std::cout <<"Assembling and solving " << std::flush;
-    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
+//    DislocationGlideSolver<LoopNetworkType>(*this).solve(runID);
     if(simulationParameters.useSubCycling)
     {
         std::cout <<"Velocity bins for segments " << velocityBinMap.size() << std::endl;
@@ -932,14 +940,18 @@ void DislocationNetwork<dim,corder>::updateBoundaryNodes()
      */
     if (danglingBoundaryLoopNodes.size())
     {
-        std::cout << "Removing bnd Nodes" << std::endl;
+ //       std::cout << "Removing bnd Nodes" << std::endl;
+        VerboseDislocationNetwork(1, "Removing bnd Nodes"<< std::endl;);
+
         for (const auto &node : danglingBoundaryLoopNodes)
         {
             this->removeLoopNode(node->sID);
         }
     }
     
-    std::cout << "Inserting new boundary nodes" << std::endl;
+//    std::cout << "Inserting new boundary nodes" << std::endl;
+    VerboseDislocationNetwork(1, "Inserting new boundary nodes"<< std::endl;);
+
     /*!Step 3. Create a map of new boundary NetworkNode to be inserted
      *       key = tuple<souceNetNode,
      *                sinkNetNode,
@@ -1466,7 +1478,7 @@ void DislocationNetwork<dim,corder>::storeSingleGlideStepDiscreteEvents(const lo
 {
     
     crossSlipMaker.findCrossSlipSegments();
-    
+    crossSlipMaker.execute(); // this is now performed before moving, since internally it computes forces and velocities on the new segments
     
 }
 
@@ -1475,7 +1487,7 @@ template <int dim, short unsigned int corder>
 void DislocationNetwork<dim,corder>::executeSingleGlideStepDiscreteEvents(const long int& runID)
 {
     
-    crossSlipMaker.execute();
+//    crossSlipMaker.execute();
     //        //! 13- Node redistribution
     networkRemesher.remesh(runID);
     //        //! 12- Form Junctions

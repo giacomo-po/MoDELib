@@ -242,7 +242,7 @@ namespace model
       * - all loops containing this segment are glissile
       */
         //            bool temp(this->glidePlanes().size()==1 && !hasZeroBurgers() && !isVirtualBoundarySegment());
-        bool temp(this->glidePlanes().size()==1 && !isVirtualBoundarySegment());
+        bool temp(this->glidePlanes().size()==1);
         if(temp)
         {
             for(const auto& loopLink : this->loopLinks())
@@ -256,7 +256,7 @@ namespace model
     template <int dim, short unsigned int corder>
     bool DislocationSegment<dim,corder>::isSessile() const
     {
-        return !isVirtualBoundarySegment() && !isGlissile();
+        return !isGlissile();
     }
     
     /******************************************************************/
@@ -286,30 +286,30 @@ namespace model
         {
             return MeshLocation::onRegionBoundary;
         }
-        else if(isVirtualBoundarySegment())
-        {
-            return MeshLocation::outsideMesh;
-        }
+//        else if(isVirtualBoundarySegment())
+//        {
+//            return MeshLocation::outsideMesh;
+//        }
         else
         {
             return MeshLocation::insideMesh;
         }
     }
     
-    template <int dim, short unsigned int corder>
-    bool DislocationSegment<dim,corder>::isVirtualBoundarySegment() const
-    {//!\returns true if all loops of this segment are virtualBoundaryLoops
-        bool temp(true);
-        for(const auto& loopLink : this->loopLinks())
-        {
-            temp= (temp && loopLink->loop->isVirtualBoundaryLoop());
-            if(!temp)
-            {
-                break;
-            }
-        }
-        return temp;
-    }
+//    template <int dim, short unsigned int corder>
+//    bool DislocationSegment<dim,corder>::isVirtualBoundarySegment() const
+//    {//!\returns true if all loops of this segment are virtualBoundaryLoops
+//        bool temp(true);
+//        for(const auto& loopLink : this->loopLinks())
+//        {
+//            temp= (temp && loopLink->loop->isVirtualBoundaryLoop());
+//            if(!temp)
+//            {
+//                break;
+//            }
+//        }
+//        return temp;
+//    }
     
     template <int dim, short unsigned int corder>
     bool DislocationSegment<dim,corder>::hasZeroBurgers() const
@@ -351,6 +351,40 @@ namespace model
       */
         if(!hasZeroBurgers())
         {
+//            h2posMap.clear();
+            std::map<size_t,
+            /*    */ std::pair<VectorNcoeff,VectorDim>,
+            /*    */ std::less<size_t>
+            /*    */ > h2posMap;
+  
+            switch (corder)
+            {
+                case 0:
+                {
+                    h2posMap.emplace(this->source->networkID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),this->source->get_P()));
+                    h2posMap.emplace(this->  sink->networkID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),this->  sink->get_P()));
+                    break;
+                }
+                    
+                default:
+                {
+                    assert(0 && "IMPLEMENT THIS CASE FOR CURVED SEGMENTS");
+                    break;
+                }
+            }
+            //        h2posMap=this->hermite2posMap();
+            Eigen::Matrix<double, Ndof, Eigen::Dynamic> Mseg(Eigen::Matrix<double, Ndof, Eigen::Dynamic>::Zero(Ncoeff*dim,h2posMap.size()*dim));
+//            Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+            size_t c=0;
+            for(const auto& pair : h2posMap)
+            {
+                for(int r=0;r<Ncoeff;++r)
+                {
+                    Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+                }
+                c++;
+            }
+            
             const Eigen::MatrixXd tempKqq(Mseg.transpose()*Kqq*Mseg); // Create the temporaty stiffness matrix and push into triplets
             size_t localI=0;
             for(const auto& pairI : h2posMap)
@@ -409,33 +443,33 @@ namespace model
         }
         Fq= this->quadraturePoints().size()? this->nodalVelocityVector(*this) : VectorNdof::Zero();
         Kqq=this->nodalVelocityMatrix(*this);
-        h2posMap.clear();
-        switch (corder)
-        {
-            case 0:
-            {
-                h2posMap.emplace(this->source->networkID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),this->source->get_P()));
-                h2posMap.emplace(this->  sink->networkID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),this->  sink->get_P()));
-                break;
-            }
-                
-            default:
-            {
-                assert(0 && "IMPLEMENT THIS CASE FOR CURVED SEGMENTS");
-                break;
-            }
-        }
-        //        h2posMap=this->hermite2posMap();
-        Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
-        size_t c=0;
-        for(const auto& pair : h2posMap)
-        {
-            for(int r=0;r<Ncoeff;++r)
-            {
-                Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
-            }
-            c++;
-        }
+//        h2posMap.clear();
+//        switch (corder)
+//        {
+//            case 0:
+//            {
+//                h2posMap.emplace(this->source->networkID(),std::make_pair((VectorNcoeff()<<1.0,0.0).finished(),this->source->get_P()));
+//                h2posMap.emplace(this->  sink->networkID(),std::make_pair((VectorNcoeff()<<0.0,1.0).finished(),this->  sink->get_P()));
+//                break;
+//            }
+//
+//            default:
+//            {
+//                assert(0 && "IMPLEMENT THIS CASE FOR CURVED SEGMENTS");
+//                break;
+//            }
+//        }
+//        //        h2posMap=this->hermite2posMap();
+//        Mseg.setZero(Ncoeff*dim,h2posMap.size()*dim);
+//        size_t c=0;
+//        for(const auto& pair : h2posMap)
+//        {
+//            for(int r=0;r<Ncoeff;++r)
+//            {
+//                Mseg.template block<dim,dim>(r*dim,c*dim)=pair.second.first(r)*MatrixDim::Identity();
+//            }
+//            c++;
+//        }
     }
 
     template <int dim, short unsigned int corder>

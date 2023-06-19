@@ -212,7 +212,7 @@ namespace model
                             GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
                             std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
                             //                        const VectorDimD P0(glidePlane->snapToPlane(dipolePoint));
-                            const VectorDimD P0(grain.singleCrystal->snapToLattice(planePoint).cartesian());
+                            const VectorDimD P0(grain.singleCrystal->snapToLattice(planePoint).cartesian()); // WARNING: this may shift the point compared to the input.
                             
                             PlaneLineIntersection<3> pliA(periodicFaceA->center(),periodicFaceA->outNormal(),P0,faceAshift);
                             PlaneLineIntersection<3> pliB(periodicFaceB->center(),periodicFaceB->outNormal(),P0,faceAshift);

@@ -21,6 +21,7 @@
 #include <Polycrystal.h>
 
 //#include <ChartActor.h>
+#include <DDFieldWidget.h>
 #include <SimplicialMeshActor.h>
 #include <DDconfigVtk.h>
 #include <DDtraitsIO.h>
@@ -63,6 +64,7 @@ public:
     PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
+    DDFieldWidget* ddField;
 //    ChartActor* chartActor;
     
     

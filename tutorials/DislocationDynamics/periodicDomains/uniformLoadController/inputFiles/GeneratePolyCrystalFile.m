@@ -4,8 +4,8 @@ close all
 
 format long
 
-alignToSlipSystem0=1;
-lattice='fcc';
+alignToSlipSystem0=0;
+lattice='bcc';
 
 if(alignToSlipSystem0)
 switch lattice
@@ -39,34 +39,28 @@ switch lattice
     otherwise
 end
 A=C2G1*A;
+invA=inv(A);
 
+% Find unit cell vectors along global axes
+for i=1:3
+Bi=invA(:,i);
+Bi=Bi/max(abs(Bi));
+[N,D] = rat(Bi,0.1);
+Nr=N./D*prod(D);
+g=gcd(gcd(Nr(1),Nr(2)),Nr(3));
+Nr=Nr/g;
+L(:,i)=A*Nr;
+Ln(i)=norm(L(:,i));
+end
 
-g=1/sqrt(3);
-%g=0.2;
+scaling=4000;
+T=round(scaling*diag(1./Ln))
 
-%Fs=1000*eye(3);
-Fs=diag([400 400 800]);
+%T=[1000 0 0
+%    0 500 0
+%    0 0 1000]; % integer combinations of L columns
 
-F12=[1 g 0;
-    0 1 0;
-    0 0 1];
-
-F31=[1 0 0;
-    0 1 0;
-    0 0 1];
-
-F23=[1 0 0;
-    0 1 0;
-    0 0 1];
-
-F=F12*F23*F31
-
-Ba=F*Fs;
-
-
-Ma=inv(A)*Ba
-M=round(Ma)
-B=A*M
+B=L*T % box
 
 x0=[0 0 0];
 

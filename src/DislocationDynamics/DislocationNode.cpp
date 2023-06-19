@@ -31,8 +31,8 @@ namespace model
     /* init */,velocity(V)
     /* init */,vOld(velocity)
     /* init */,velocityReductionCoeff(vrc)
-    /* init */,virtualNode(nullptr)
-    /* init */,masterNode(nullptr)
+//    /* init */,virtualNode(nullptr)
+//    /* init */,masterNode(nullptr)
     {
         VerboseDislocationNode(1, "  Creating Network Node " << this->tag() <<" @ "<<this->get_P().transpose() << std::endl;);
     }
@@ -90,7 +90,8 @@ namespace model
                 std::cout<<"face of barymin is "<<temp.second->child(faceID).xID<<std::endl;
                 std::cout<<"face of barymin is boundary Simplex? "<<temp.second->child(faceID).isBoundarySimplex()<<std::endl;
                 std::cout<<"face of barymin is region-boundary Simplex? "<<temp.second->child(faceID).isRegionBoundarySimplex()<<std::endl;
-                assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
+                throw std::runtime_error("DISLOCATION NODE OUTSIDE MESH.");
+//                assert(0 && "DISLOCATION NODE OUTSIDE MESH.");
             }
         }
         return temp.second;
@@ -159,6 +160,7 @@ namespace model
     template <int dim, short unsigned int corder>
     void DislocationNode<dim,corder>::set_V(const VectorDim& vNew)
     {
+                
         vOld=velocity; // store current value of velocity before updating
         
         velocity=vNew;
@@ -295,8 +297,8 @@ namespace model
       */
         MeshLocation temp = MeshLocation::outsideMesh;
 
-        if(!isVirtualBoundaryNode())
-        {
+//        if(!isVirtualBoundaryNode())
+//        {
             if(isBoundaryNode())
             {
                 temp=MeshLocation::onMeshBoundary;
@@ -312,15 +314,15 @@ namespace model
                     temp=MeshLocation::insideMesh;
                 }
             }
-        }
+//        }
         return temp;
     }
     
-    template <int dim, short unsigned int corder>
-    const std::shared_ptr<typename DislocationNode<dim,corder>::NetworkNodeType>& DislocationNode<dim,corder>::virtualBoundaryNode() const
-    {
-        return virtualNode;
-    }
+//    template <int dim, short unsigned int corder>
+//    const std::shared_ptr<typename DislocationNode<dim,corder>::NetworkNodeType>& DislocationNode<dim,corder>::virtualBoundaryNode() const
+//    {
+//        return virtualNode;
+//    }
     
     template <int dim, short unsigned int corder>
     typename DislocationNode<dim,corder>::VectorDim DislocationNode<dim,corder>::invariantDirectionOfMotion() const
@@ -362,12 +364,12 @@ namespace model
         return p_Simplex;
     }
     
-    template <int dim, short unsigned int corder>
-    bool DislocationNode<dim,corder>::isVirtualBoundaryNode() const
-    {
-        return masterNode && this->meshFaces().size()==0;
-//        return false;
-    }
+//    template <int dim, short unsigned int corder>
+//    bool DislocationNode<dim,corder>::isVirtualBoundaryNode() const
+//    {
+//        return masterNode && this->meshFaces().size()==0;
+////        return false;
+//    }
     
 
 

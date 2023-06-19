@@ -26,20 +26,20 @@ namespace model
         
         DDbaseIO(const std::string& outFolderName_in,
                  const std::string& fileNamePrefix_in,
-                 const std::string& outFolderSuffix_in="") :
-        /* init */ outFolderName(outFolderName_in)
-        /* init */,fileNamePrefix(fileNamePrefix_in)
-        /* init */,outFolderSuffix(outFolderSuffix_in)
-        {}
+                 const std::string& outFolderSuffix_in="");
         
-        /**********************************************************************/
+        std::string getBinFilename(const size_t& runID);
+        std::string getTxtFilename(const size_t& runID);
+        std::string getTxtSegmentFilename(const size_t& runID);
+        bool isBinGood(const size_t& frameID);
+        bool isTxtGood(const size_t& frameID);
+        
         template<typename T>
         static void binWrite(std::ofstream& of,const T& o)
         {
             of.write((char *) &o, (sizeof o));
         }
-        
-        /**********************************************************************/
+                
         template<typename T>
         static void binRead(std::ifstream& file,
                             T*& memblock,
@@ -49,38 +49,6 @@ namespace model
             file.read (reinterpret_cast<char*>(memblock), arraySize*sizeof (T));
         }
         
-        /**********************************************************************/
-        std::string getBinFilename(const size_t& runID)
-        {
-            return outFolderName+outFolderSuffix+"/"+fileNamePrefix+"_"+std::to_string(runID)+".bin";
-        }
-        
-        /**********************************************************************/
-        std::string getTxtFilename(const size_t& runID)
-        {
-            return outFolderName+outFolderSuffix+"/"+fileNamePrefix+"_"+std::to_string(runID)+".txt";
-        }
-        
-        /**********************************************************************/
-        std::string getTxtSegmentFilename(const size_t& runID)
-        {
-            return outFolderName+outFolderSuffix+"/"+"segments"+std::to_string(runID)+".txt";
-        }
-        
-        /**********************************************************************/
-        bool isBinGood(const size_t& frameID)
-        {
-            return std::ifstream(getBinFilename(frameID).c_str(), std::ios::in|std::ios::binary).good();
-
-        }
-
-        /**********************************************************************/
-        bool isTxtGood(const size_t& frameID)
-        {
-            return std::ifstream(getTxtFilename(frameID).c_str(), std::ios::in).good();
-            
-        }
-
     };
     
 }

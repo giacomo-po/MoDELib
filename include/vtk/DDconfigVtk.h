@@ -24,7 +24,6 @@
 
 #include <DDconfigIO.h>
 #include <DDauxIO.h>
-//#include <DDconfigVtkBase.h>
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
 #include <NetworkLinkActor.h>
@@ -34,8 +33,6 @@
 #include <QuadratureActor.h>
 #include <ChartActor.h>
 #include <QCheckBox>
-
-//#include <DislocationLoopActor.h>
 
 namespace model
 {
@@ -57,29 +54,30 @@ namespace model
         QuadratureActor* quadrature;
         ChartActor* chartActor;
 
-//        DislocationLoopActor loops;
         private slots:
         bool updateConfiguration();
-        void nextConfiguration();
-        void prevConfiguration();
+        bool nextConfiguration();
+        bool prevConfiguration();
+        void playConfigurations();
 
         public:
         
         QGridLayout* mainLayout;
         QLineEdit* frameIDedit;
         QPushButton* plusFrameButton;
+        QPushButton* playFrameButton;
         QPushButton* minusFrameButton;
         QLineEdit* frameIncrementEdit;
         QCheckBox* saveImage;
         QTabWidget* tabWidget;
 
-
-        
-        /**********************************************************************/
-        DDconfigVtk(const DDtraitsIO& traitsIO_in,vtkGenericOpenGLRenderWindow* const, vtkRenderer* const ren, QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
-                    const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf);
+        DDconfigVtk(const DDtraitsIO& traitsIO_in,
+                    vtkGenericOpenGLRenderWindow* const,
+                    vtkRenderer* const ren,
+                    QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
+                    const Polycrystal<3>& poly,
+                    PeriodicGlidePlaneFactory<3>& pgpf);
         bool updateConfiguration(const size_t& frameID);
-
         void modify();
         const DDconfigIO<3>& configIO() const;
         DDconfigIO<3>& configIO();

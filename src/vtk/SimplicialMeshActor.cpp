@@ -320,7 +320,7 @@ namespace model
             facePolydata->SetPoints(facePts);
             faceMapper->SetInputData(facePolydata);
             faceActor->SetMapper ( faceMapper );
-            faceActor->GetProperty()->SetLineWidth(2.0);
+            faceActor->GetProperty()->SetLineWidth(5.0);
             faceActor->GetProperty()->SetColor(0.0,0.0,0.0); // Give some color to the mesh. (1,1,1) is white
             faceActor->GetProperty()->SetOpacity(0.5); //Make the mesh have some transparency.
             

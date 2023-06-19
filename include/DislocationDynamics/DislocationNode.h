@@ -29,7 +29,6 @@ namespace model
     template <int dim, short unsigned int corder>
     class DislocationNode : public NetworkNode<DislocationNode<dim,corder>>
     /*                   */,public SplineNode<DislocationNode<dim,corder>,dim,corder,Hermite>
-    // /*                   */,public ConfinedDislocationObject<dim>
     {
         
         public:
@@ -58,8 +57,8 @@ namespace model
         VectorDim velocity;
         VectorDim vOld;         //! The previous velocity vector of *this PlanarDislocationNode
         double velocityReductionCoeff;
-        std::shared_ptr<NetworkNodeType> virtualNode;
-        NetworkNodeType* const masterNode;
+//        std::shared_ptr<NetworkNodeType> virtualNode;
+//        NetworkNodeType* const masterNode;
         static int totalCappedNodes; //gives the fraction of the capped velocities
         
         DislocationNode(LoopNetworkType* const,const VectorDim&,const VectorDim&,const double&);
@@ -69,7 +68,7 @@ namespace model
         const Simplex<dim,dim>* includingSimplex() const;
         bool isMovableTo(const VectorDim&) const;
         const double& velocityReduction() const;
-        bool isVirtualBoundaryNode() const __attribute__ ((deprecated));
+//        bool isVirtualBoundaryNode() const __attribute__ ((deprecated));
         bool isBoundaryNode() const;
         bool isGrainBoundaryNode() const;
         void updateGeometry();
@@ -77,42 +76,19 @@ namespace model
         bool trySet_P(const VectorDim&);
         const VectorDim& get_V() const;
         std::set<LoopType*> sessileLoops() const;
-        // const VectorDim& get_P() const;
         MeshLocation meshLocation() const;
         void set_V(const VectorDim& vNew);
         void projectVelocity();
         VectorDim invariantDirectionOfMotion() const;
-        const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
-        /**********************************************************************/
+//        const std::shared_ptr<NetworkNodeType>& virtualBoundaryNode() const;
         GlidePlaneContainerType glidePlanes() const;
-        
-
-        /**********************************************************************/
         PlanarMeshFaceContainerType meshFaces() const;
-        
-        /**********************************************************************/
         bool isOnExternalBoundary() const;
-        
-
-        /**********************************************************************/
         bool isOnInternalBoundary() const;
-        
-
-        // /**********************************************************************/
         bool isOnBoundary() const;
-        
-
-        /**********************************************************************/
         VectorDim bndNormal() const;
-       
-       
-         /**********************************************************************/
         VectorDim snapToGlidePlanesinPeriodic(const VectorDim& P) const;
-        
-        /**********************************************************************/
         GrainContainerType grains() const;
-        
-
     };
     
 }

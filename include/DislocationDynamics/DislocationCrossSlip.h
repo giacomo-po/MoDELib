@@ -32,6 +32,7 @@ namespace model
         typedef typename TraitsType::NetworkNodeType NetworkNodeType;
         typedef typename TraitsType::LoopNodeType LoopNodeType;
         typedef typename TraitsType::LoopLinkType LoopLinkType;
+        typedef typename TraitsType::LoopType LoopType;
         typedef typename TraitsType::VectorDim VectorDim;
         typedef std::tuple<std::shared_ptr<NetworkNodeType>,std::shared_ptr<NetworkNodeType>,size_t,size_t> CrossSlipTupleType;
         typedef std::deque<CrossSlipTupleType> CrossSlipContainerType;

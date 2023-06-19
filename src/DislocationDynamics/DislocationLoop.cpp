@@ -41,6 +41,86 @@ DislocationLoop<dim,corder>::DislocationLoop(LoopNetworkType* const net,
 }
 
 template <int dim, short unsigned int corder>
+void DislocationLoop<dim,corder>::computeStackingFaultForces()
+{
+    if(this->slipSystem() && this->glidePlane)
+    {
+        const double eps=1.0e-2;
+
+        for(const auto& loopLink : this->loopLinks())
+        {
+            if(loopLink->networkLink())
+            {
+                
+                VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(this->rightHandedUnitNormal()));
+                const double outDirNorm(outDir.norm());
+                if(outDirNorm>FLT_EPSILON)
+                {
+                    outDir/=outDirNorm;
+                    std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(loopLink->networkLink()->quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated slip vectors (outside,inside) for each qPoint
+                    
+                    for(const auto& weakSourceLoop : this->network().loops())
+                    {
+                        const auto sourceLoop(weakSourceLoop.second.lock());
+                        if(sourceLoop->slipSystem())
+                        {
+                            if(this->slipSystem()->n==sourceLoop->slipSystem()->n)
+                            {// same glide plane family
+                                
+                                for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+                                {
+                                    const auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+                                    qPointSlip[q].first -=sourceLoop->windingNumber(qPoint.r + eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+                                    qPointSlip[q].second-=sourceLoop->windingNumber(qPoint.r - eps*outDir)*sourceLoop->burgers(); // slip vector is negative the burgers vector
+
+                                }
+                            }
+                        }
+                    }
+                    
+                    for(size_t q=0;q<loopLink->networkLink()->quadraturePoints().size();++q)
+                    {
+                        if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
+                        {
+                            auto& qPoint(loopLink->networkLink()->quadraturePoints()[q]);
+                            if(qPoint.inclusionID<0)
+                            {// qPoint is not inside an inclusion, we use the matrix gamma-surface
+
+                                const double gamma1(this->slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
+                                const double gamma2(this->slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
+
+                                double gammaNoise(0.0);
+                                if(this->slipSystem()->planeNoise)
+                                {
+                                    if(loopLink->networkLink()->glidePlanes().size()==1)
+                                    {
+                                        const auto& glidePlane(**loopLink->networkLink()->glidePlanes().begin());
+                                        gammaNoise=std::get<2>(this->slipSystem()->gridInterp(qPoint.r-glidePlane.P));
+                                    }
+                                }
+                                qPoint.stackingFaultForce+= -(gamma2-gamma1+gammaNoise)*outDir;
+                            }
+                            else
+                            {// qPoint is inside an inclusion, we use the inclusion gamma-surface
+
+                                const auto& secondPhase(this->network().eshelbyInclusions().at(qPoint.inclusionID)->secondPhase);
+                                if(secondPhase)
+                                {
+                                        const double gamma1(secondPhase->misfitEnergy(qPointSlip[q].first ,this->slipSystem()));  // outer point
+                                        const double gamma2(secondPhase->misfitEnergy(qPointSlip[q].second,this->slipSystem())); // inner point
+                                    qPoint.stackingFaultForce+= -(gamma2-gamma1)*outDir;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+template <int dim, short unsigned int corder>
 void DislocationLoop<dim,corder>::crossSlipBranches(std::deque<std::pair<std::deque<std::shared_ptr<LoopNodeType>>,int>>& csNodes) const
 {
     
@@ -239,11 +319,18 @@ int DislocationLoop<dim,corder>::windingNumber(const Eigen::Matrix<double,dim-1,
 }
 
 
+
 template <int dim, short unsigned int corder>
 DislocationLoop<dim,corder>::~DislocationLoop()
 {
     VerboseDislocationLoop(1,"Destroying DislocationLoop "<<this->sID<<std::endl;);
     
+}
+
+template <int dim, short unsigned int corder>
+const DislocationLoopPatches<dim>& DislocationLoop<dim,corder>::patches() const
+{
+    return _patches;
 }
 
 template <int dim, short unsigned int corder>
@@ -590,7 +677,8 @@ void DislocationLoop<dim,corder>::updateGeometry()
         std::vector<VectorDim> linkShifts;
         std::vector<VectorDim> globalNodePos;
 
-        for(const auto& link : this->linkSequence())
+        const auto linkSeq(this->linkSequence());
+        for(const auto& link : linkSeq)
         {// Collect patches of the loop
             if(link->periodicPlanePatch())
             {
@@ -603,6 +691,34 @@ void DislocationLoop<dim,corder>::updateGeometry()
             }
         }
         _patches.update(linkShifts,globalNodePos);
+        
+//        std::shared_ptr<PeriodicPlanePatch<dim>> _barycentricPatch;
+//        VectorDim barycenter(VectorDim::Zero());
+//        size_t barycenterCunter(0);
+//        for(const auto& loopLink : linkSeq)
+//        {
+//            if(!loopLink->source->periodicPlaneEdge.first && !loopLink->source->periodicPlaneEdge.second)
+//            {
+//                barycenter+=loopLink->source->get_P();
+//                barycenterCunter++;
+//            }
+//        }
+//        if(barycenterCunter>0)
+//        {
+//            barycenter/=barycenterCunter;
+//        }
+//        const VectorDim oldPatchShift(_barycentricPatch? _barycentricPatch->shift : VectorDim::Zero());
+//        const auto pLocalNew(periodicGlidePlane->referencePlane->localPosition(barycenter));
+//        _barycentricPatch=periodicGlidePlane->getPatch(periodicGlidePlane->findPatch(pLocalNew,oldPatchShift));
+//        _barycentricNodes.clear();
+//        for(const auto& loopLink : linkSeq)
+//        {
+//            if(!loopLink->source->periodicPlaneEdge.first && !loopLink->source->periodicPlaneEdge.second)
+//            {
+//                _barycentricNodes.push_back(loopLink->source->get_P()+_barycentricPatch->shift);
+//            }
+//        }
+        
     }
     
     // Update patches
@@ -644,6 +760,12 @@ void DislocationLoop<dim,corder>::updateGeometry()
 //        }
 //    }
 }
+
+//template <int dim, short unsigned int corder>
+//const std::vector<typename DislocationLoop<dim,corder>::VectorDim>& DislocationLoop<dim,corder>::barycentricNodes() const
+//{
+//    return _barycentricNodes;
+//}
 
 template <int dim, short unsigned int corder>
 int DislocationLoop<dim,corder>::verboseDislocationLoop=0;

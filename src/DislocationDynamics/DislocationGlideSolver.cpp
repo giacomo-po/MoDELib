@@ -273,8 +273,7 @@ namespace model
                 correctedJPosition.emplace(ntempsnID, ntempsnID - constrainedI);
             }
         }
-
-
+        
         for (const auto &netNode : DN.networkNodes())
         {
             const size_t ntempj(netNode.second.lock()->networkID()); //Global position in the constraint matrix (j)
@@ -332,7 +331,13 @@ namespace model
                 unconstrainedNodes++;
             }
         }
-        assert((constrainedI-(DN.networkNodes().size()-unconstrainedNodes))==0);
+        
+        if((constrainedI-(DN.networkNodes().size()-unconstrainedNodes))!=0)
+        {
+            throw std::runtime_error("Constraining nodes failed.");
+        }
+        
+//        assert((constrainedI-(DN.networkNodes().size()-unconstrainedNodes))==0);
         return unconstrainedNodes;
     }
 
@@ -353,13 +358,12 @@ namespace model
             {
                 TripletContainerType zT;
 
-               size_t nUnconstrained = assembleConstraintsforPeriodicSimulationsNULL(zT);
-                // size_t nUnconstrained=DN.networkNodes().size();
+               const size_t nUnconstrained = assembleConstraintsforPeriodicSimulationsNULL(zT);
+                
                 SparseMatrixType K(Ndof, Ndof);
                 K.setFromTriplets(kqqT.begin(), kqqT.end());
                 SparseMatrixType Z(Ndof, dim * nUnconstrained);
                 Z.setFromTriplets(zT.begin(), zT.end());
-                // std::cout<<"Set up sparse matrix "<<std::endl;
 
                 SparseMatrixType kqqZ(Z.transpose() * K * Z);
 
@@ -381,6 +385,7 @@ namespace model
                         }
                     }
                 }
+                                
                 SparseMatrixType kqq(nUnconstrained * dim, nUnconstrained * dim);
                 kqq.setFromTriplets(lumpedTriplets.begin(), lumpedTriplets.end());
                 Eigen::VectorXd Fqz(Z.transpose() * Fq);
@@ -404,8 +409,8 @@ namespace model
                         }
                     }
                 }
-                storeNodeSolution((Z * x).segment(0, Ndof));
 
+                storeNodeSolution((Z * x).segment(0, Ndof));
             }
             else
             {

@@ -162,15 +162,15 @@ namespace model
 //        bool outputGlidePlanes;
         bool outputMeshDisplacement;
         bool outputFEMsolution;
-        bool outputDislocationLength;
-        bool outputPlasticDistortionRate;
+//        bool outputDislocationLength;
+//        bool outputPlasticDistortionRate;
         bool outputQuadraturePoints;
         bool outputLinkingNumbers;
         bool outputLoopLength;
         bool outputSegmentPairDistances;
         const bool computeElasticEnergyPerLength;
 //        double surfaceAttractionDistance;
-        bool useLineTension;
+//        bool useLineTension;
         double alphaLineTension;
         std::set<const LoopNodeType*> danglingBoundaryLoopNodes;
         const bool use_velocityFilter;
@@ -203,7 +203,8 @@ namespace model
         void displacement(std::vector<FEMnodeEvaluation<ElementType,dim,1>>& fieldPoints) const;
         MatrixDim stress(const VectorDim& x) const;
         void stress(std::deque<FEMfaceEvaluation<ElementType,dim,dim>>& fieldPoints) const;
-        void assembleAndSolveGlide(const long int& runID, const double& maxVelocity);
+        void assembleGlide(const long int& runID, const double& maxVelocity);
+        void solveGlide(const long int& runID);
         void moveGlide(const double & dt_in);
         void storeSingleGlideStepDiscreteEvents(const long int& runID);
         void executeSingleGlideStepDiscreteEvents(const long int& runID);

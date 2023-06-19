@@ -1,0 +1,100 @@
+######################################
+# GENERAL SETTINGS
+simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
+useDislocations=1;
+useCracks=0;
+Nsteps=1;		# total number of simulation steps
+startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
+
+######################################
+# Settings for simulationType=0 (finite sample without FEM)
+externalLoadControllerName=UniformExternalLoadController;
+
+######################################
+# Settings for simulationType=1 (finite sample with FEM)
+stepsBetweenBVPupdates = 1;
+virtualSegmentDistance=500;
+use_directSolver_FEM=1;
+solverTolerance=1.0e-7;
+# Surface nucleation model (0=no nucleation)
+surfaceNucleationModel=0;
+
+######################################
+# Settings for simulationType=2 (PERIODIC)
+periodicImageSize= 1 1 1; # number of images for each periodic shift vector
+
+######################################
+# TIME STEP
+# Maximum nodal displacement per time step (this controls time step size) 
+timeIntegrationMethod=1; # 0 for constant time integration 
+capMaxVelocity=0;
+timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
+dxMax=10;
+use_velocityFilter=0;
+velocityReductionFactor=0.75;
+use_stochasticForce=0;
+stochasticForceSeed=-1;
+useSubCycling=0;
+subcyclingBins=1 2 3 4 5 10;
+
+######################################
+# DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
+# 0=lumped solver (fast but approximate. K is lumped into a diagonal matrix)
+# 1=iterative solver (CG), 
+# 2=direct solver (LLT)
+ddSolverType=0;
+
+######################################
+# DISLOCATION ELASTIC FIELDS
+quadPerLength=0.1; # number of quadrature points per unit length
+coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
+alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
+
+######################################
+# NETWORK REMESHING
+remeshFrequency=1; # Enable/disable node redistribution 
+Lmin=0.025; # min segment length (in fraction of box size)
+Lmax=0.1; # max segment length (in fraction of box size)
+relativeAreaThreshold=0.001;
+
+######################################
+# DISLOCATION JUNCTIONS
+maxJunctionIterations=1; # Enable/disable the use of dislocation junction formation
+
+######################################
+# CROSS SLIP
+crossSlipModel=0; # 0=no cross-slip, 1=deterministic, 2= thermally-activated
+crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
+
+######################################
+# GRAIN-BOUNDARY MODEL
+grainBoundaryTransmissionModel=0;
+
+######################################
+# OUTPUT
+# Options for output files:
+outputFrequency=1;
+outputBinary=0;
+computeElasticEnergyPerLength=1;
+outputMeshDisplacement=0;
+outputFEMsolution=0;
+outputQuadraturePoints=1;
+outputLinkingNumbers=0;
+outputLoopLength=0;
+
+#####################################
+# DEBUGGING
+computeDDinteractions=1;
+verboseLoopNetwork=0;
+verboseDislocationNetwork=0;
+verboseDislocationLoop=0;
+verboseDislocationLoopNode=0;
+verboseDislocationLoopLink=0;
+verboseDislocationNode=0;
+verboseDislocationSegment=0;
+verboseJunctions=0;
+verboseRemesh=0;
+verboseNodeContraction=0;
+verboseCrossSlip=0;
+outputSegmentPairDistances=0;
+outputDislocationStiffnessAndForce=0;

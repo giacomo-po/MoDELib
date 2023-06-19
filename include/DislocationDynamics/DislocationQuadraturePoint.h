@@ -86,7 +86,7 @@ namespace model
         
  
         void updateForcesAndVelocities(const LinkType& parentSegment);
-        MatrixDim forceToStress(const VectorDim& force,const LinkType& parentSegment) const;
+        MatrixDim forceToStress(const VectorDim& force,const VectorDim& unitTangent,const LinkType& parentSegment) const;
         
     };
     
@@ -115,7 +115,8 @@ namespace model
         VectorDim pkKernel(const int& k) const;
         MatrixDim stressKernel(const int& k) const;
         VectorDim glideVelocityKernel(const int& k) const;
-        
+        void updateForcesAndVelocitiesKernel(const LinkType& parentSegment,const StraightDislocationSegment<dim>& ss,const double& L0,const VectorDim& c);
+
     public:
         
         void updateForcesAndVelocities(const LinkType& parentSegment,

@@ -1,14 +1,11 @@
 ######################################
 # GENERAL SETTINGS
-# Simulation type 
 simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
 Nsteps=100000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
-######################################
-useSubCycling=0;
-subcyclingBins=1 2 3 4 5 10;
+
 ######################################
 # Settings for simulationType=0 (finite sample without FEM)
 externalLoadControllerName=UniformExternalLoadController;
@@ -27,19 +24,18 @@ surfaceNucleationModel=0;
 periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 
 ######################################
-quadPerLength=0.1;
-
-######################################
-# TIME STEP
+# TIME STEPPING
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=1; # 0 for constant time integration 
 capMaxVelocity=0;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=10;
-use_velocityFilter=0;
+use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
+useSubCycling=1;
+subcyclingBins=1 2 3 4 5 10 20;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -49,58 +45,42 @@ stochasticForceSeed=-1;
 ddSolverType=0;
 
 ######################################
-# OUTPUT
-# Options for output files:
-outputFrequency=1;
-outputBinary=0;
-computeElasticEnergyPerLength=0;
-outputMeshDisplacement=0;
-outputFEMsolution=0;
-outputPlasticDistortionRate=1;
-outputDislocationLength=1;
-outputQuadraturePoints=1;
-outputLinkingNumbers=0;
-outputLoopLength=0;
-outputPeriodicConfiguration=0;
-
-######################################
 # DISLOCATION ELASTIC FIELDS
-# The dislocation core width, used in the non-singular expression of the dislocation stress field
-coreSize=2.0;
-useLineTension=1;
-alphaLineTension=1.0;
+quadPerLength=0.1; # number of quadrature points per unit length
+coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
+alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
 
 ######################################
 # NETWORK REMESHING
-# Enable/disable node redistribution 
-# remeshFrequency = 0 redistribution is disabled (not recommended)
-# remeshFrequency = n redistribution every n steps (recommended)
-# Note that Lmax and Lmin are relative to box size if use_boundary =1
-remeshFrequency=1;
-Lmin=0.025;
-Lmax=0.1;
-nodeRemoveAngleDeg=60;
+remeshFrequency=1; # Enable/disable node redistribution 
+Lmin=0.025; # min segment length (in fraction of box size)
+Lmax=0.1; # max segment length (in fraction of box size)
 relativeAreaThreshold=0.001;
-
 
 ######################################
 # DISLOCATION JUNCTIONS
-# Enable/disable the use of dislocation junction formation
-maxJunctionIterations=1;
-# Tolerance used in detecting collisions between dislocation segments in different planes
-collisionTol=5;
-mergeGlissileJunctions=0;
-
+maxJunctionIterations=1; # Enable/disable the use of dislocation junction formation
 
 ######################################
 # CROSS SLIP
-crossSlipModel=0;
+crossSlipModel=0; # 0=no cross-slip, 1=deterministic, 2= thermally-activated
 crossSlipAngle_deg=2.0; # [deg] angle between tangent and Burgers vector, below which a segment is considered to be a screw segment
 
 ######################################
 # GRAIN-BOUNDARY MODEL
 grainBoundaryTransmissionModel=0;
 
+######################################
+# OUTPUT
+# Options for output files:
+outputFrequency=10;
+outputBinary=0;
+computeElasticEnergyPerLength=0;
+outputMeshDisplacement=0;
+outputFEMsolution=0;
+outputQuadraturePoints=0;
+outputLinkingNumbers=0;
+outputLoopLength=0;
 
 #####################################
 # DEBUGGING
@@ -112,7 +92,6 @@ verboseDislocationLoopNode=0;
 verboseDislocationLoopLink=0;
 verboseDislocationNode=0;
 verboseDislocationSegment=0;
-
 verboseJunctions=0;
 verboseRemesh=0;
 verboseNodeContraction=0;

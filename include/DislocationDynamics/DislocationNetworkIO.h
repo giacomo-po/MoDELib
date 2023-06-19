@@ -305,7 +305,6 @@ namespace model
                 F_labels<<"dt [b/cs]"<<std::endl;
             }
             
-            
             const Eigen::Matrix<double,dim,dim>& pD(DN.plasticDistortion());
             f_file<<pD.row(0)<<" "<<pD.row(1)<<" "<<pD.row(2)<<" "<<pD.trace()<<" "<<pD.norm()<<" ";
             if(runID==0)
@@ -321,40 +320,34 @@ namespace model
                 F_labels<<"betaP_33\n";
                 F_labels<<"tr(betaP)\n";
                 F_labels<<"norm(betaP)"<<std::endl;
-
             }
             
-            if(DN.outputPlasticDistortionRate)
+            const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
+            f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" "<<pDR.trace()<<" "<<pDR.norm()<<" ";
+            if(runID==0)
             {
-                const Eigen::Matrix<double,dim,dim>& pDR(DN.plasticDistortionRate());
-                f_file<<pDR.row(0)<<" "<<pDR.row(1)<<" "<<pDR.row(2)<<" "<<pDR.trace()<<" "<<pDR.norm()<<" ";
-                if(runID==0)
-                {
-                    F_labels<<"dotBetaP_11 [cs/b]\n";
-                    F_labels<<"dotBetaP_12 [cs/b]\n";
-                    F_labels<<"dotBetaP_13 [cs/b]\n";
-                    F_labels<<"dotBetaP_21 [cs/b]\n";
-                    F_labels<<"dotBetaP_22 [cs/b]\n";
-                    F_labels<<"dotBetaP_23 [cs/b]\n";
-                    F_labels<<"dotBetaP_31 [cs/b]\n";
-                    F_labels<<"dotBetaP_32 [cs/b]\n";
-                    F_labels<<"dotBetaP_33 [cs/b]\n";
-                    F_labels<<"tr(dotBetaP) [cs/b]\n";
-                    F_labels<<"norm(dotBetaP) [cs/b]"<<std::endl;
-                }
+                F_labels<<"dotBetaP_11 [cs/b]\n";
+                F_labels<<"dotBetaP_12 [cs/b]\n";
+                F_labels<<"dotBetaP_13 [cs/b]\n";
+                F_labels<<"dotBetaP_21 [cs/b]\n";
+                F_labels<<"dotBetaP_22 [cs/b]\n";
+                F_labels<<"dotBetaP_23 [cs/b]\n";
+                F_labels<<"dotBetaP_31 [cs/b]\n";
+                F_labels<<"dotBetaP_32 [cs/b]\n";
+                F_labels<<"dotBetaP_33 [cs/b]\n";
+                F_labels<<"tr(dotBetaP) [cs/b]\n";
+                F_labels<<"norm(dotBetaP) [cs/b]"<<std::endl;
             }
             
-            if(DN.outputDislocationLength)
+            const std::tuple<double,double,double,double> length(DN.networkLength());
+            const double densityFactor(1.0/DN.mesh.volume()/std::pow(DN.poly.b_SI,2));
+            f_file<<std::get<0>(length)*densityFactor<<" "<<std::get<1>(length)*densityFactor<<" "<<std::get<2>(length)*densityFactor<<" "<<std::get<3>(length)*densityFactor<<" ";
+            if(runID==0)
             {
-                const std::tuple<double,double,double,double> length=DN.networkLength();
-                f_file<<std::get<0>(length)<<" "<<std::get<1>(length)<<" "<<std::get<2>(length)<<" "<<std::get<3>(length)<<" ";
-                if(runID==0)
-                {
-                    F_labels<<"glissile length [b]\n";
-                    F_labels<<"sessile length [b]\n";
-                    F_labels<<"boundary length [b]\n";
-                    F_labels<<"grain boundary length [b]"<<std::endl;
-                }
+                F_labels<<"glissile density [m^-2]\n";
+                F_labels<<"sessile density [m^-2]\n";
+                F_labels<<"boundary density [m^-2]\n";
+                F_labels<<"grain boundary density [m^-2]"<<std::endl;
             }
             
             if(DN.computeElasticEnergyPerLength)

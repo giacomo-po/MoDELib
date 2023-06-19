@@ -74,7 +74,8 @@ namespace model
         for (const auto &loopNode : DN.loopNodes())
         {
             //                std::cout<<"node "<<node.second->sID<<" "<<node.second->isSimpleBoundaryNode()<<" "<<node.second->isSimpleGrainBoundaryNode()<<std::endl;
-            if (!loopNode.second.lock()->networkNode->masterNode && removedLoopNodes.find(loopNode.second.lock().get())==removedLoopNodes.end())
+//            if (!loopNode.second.lock()->networkNode->masterNode && removedLoopNodes.find(loopNode.second.lock().get())==removedLoopNodes.end())
+            if (removedLoopNodes.find(loopNode.second.lock().get())==removedLoopNodes.end())
             {
                 
                 const auto isRemovableLoopNode(loopNode.second.lock()->isRemovable(Lmin, relativeAreaThreshold));
@@ -218,7 +219,7 @@ namespace model
         {
             const auto sharedLink(linkIter.second.lock());
             
-            if (!sharedLink->hasZeroBurgers() && !sharedLink->isSessile() && !sharedLink->isBoundarySegment() && !sharedLink->isGrainBoundarySegment() && !sharedLink->isVirtualBoundarySegment())
+            if (!sharedLink->hasZeroBurgers() && !sharedLink->isSessile() && !sharedLink->isBoundarySegment() && !sharedLink->isGrainBoundarySegment())
             {
                 const VectorDim chord(sharedLink->chord()); // this is sink->get_P() - source->get_P()
                 const double chordLength(chord.norm());

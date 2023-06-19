@@ -1,6 +1,6 @@
 type=PrismaticLoop;
 style=density;
 tag= prld0;
-targetDensity=5e15; # [m^-2] dislocation density
-radiusDistributionMean=5e-09; [m] mean of loop radii
+targetDensity=2e13; # [m^-2] dislocation density
+radiusDistributionMean=5e-07; [m] mean of loop radii
 radiusDistributionStd=0e-8; [m] std of loop radii

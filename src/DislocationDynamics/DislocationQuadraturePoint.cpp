@@ -144,7 +144,7 @@ typename DislocationQuadraturePoint<dim,corder>::MatrixDimNdof DislocationQuadra
 //        template<typename LinkType>
 template<int dim,int corder>
 typename DislocationQuadraturePoint<dim,corder>::VectorDim  DislocationQuadraturePoint<dim,corder>::getGlideVelocity(const LinkType& parentSegment,
-                                                                                                                     const VectorDim& r,
+                                                                                                                     const VectorDim& , // position x
                                                                                                                      const VectorDim& fPK,
                                                                                                                      const MatrixDim& S,
                                                                                                                      const VectorDim& rl,
@@ -176,7 +176,9 @@ typename DislocationQuadraturePoint<dim,corder>::VectorDim  DislocationQuadratur
         
         VectorDim glideForce = fPK-fPK.dot(n)*n;
         double glideForceNorm(glideForce.norm());
-        
+//        std::cout<<"fPK="<<fPK.transpose()<<std::endl;
+//        std::cout<<"glideForceNorm="<<glideForceNorm<<std::endl;
+
         if(glideForceNorm<FLT_EPSILON && parentSegment.network().stochasticForceGenerator)
         {
             glideForce=parentSegment.chord().cross(n);
@@ -190,6 +192,7 @@ typename DislocationQuadraturePoint<dim,corder>::VectorDim  DislocationQuadratur
         VectorDim vv=VectorDim::Zero();
         if(glideForceNorm>FLT_EPSILON)
         {
+//            std::cout<<"a"<<std::endl;
             
             //                    double v =parentSegment.network().poly.mobility->velocity(S,b,t,n,
             double v =parentSegment.slipSystem()->mobility->velocity(S,b,t,n,
@@ -257,14 +260,45 @@ typename DislocationQuadraturePoint<dim,corder>::VectorDim  DislocationQuadratur
 template<int dim,int corder>
 void DislocationQuadraturePoint<dim,corder>::updateForcesAndVelocities(const LinkType& parentSegment)
 {
-    pkForce=(stress*parentSegment.burgers()).cross(rl);
-    //            glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce+lineTensionForce,stress,rl,dL,inclusionID);
-    glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce+lineTensionForce,stress+forceToStress(stackingFaultForce+lineTensionForce,parentSegment),rl,dL,inclusionID);
+ 
+    const bool useSplineTangents(false);
+    if(parentSegment.loopLinks().size()==1 && useSplineTangents)
+    {
+        const auto ll(*parentSegment.loopLinks().begin());
+        const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()
+                                    -ll->source->periodicPlanePatch()->shift
+                                    +ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift
+                                    : ll->source->periodicPrev()->get_P());
+        const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()
+                                    -ll->  sink->periodicPlanePatch()->shift
+                                    +ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift
+                                    : ll->  sink->periodicNext()->get_P());
+        
+        
+        const VectorDim node0(ll->source->networkNode==parentSegment.source? prevNodePos : nextNodePos);
+        const VectorDim node1(ll->source->networkNode==parentSegment.source? ll->source->get_P() : ll->sink->get_P());
+        const VectorDim node2(ll->source->networkNode==parentSegment.source? ll->sink->get_P() : ll->source->get_P());
+        const VectorDim node3(ll->source->networkNode==parentSegment.source? nextNodePos : prevNodePos);
+
+        CatmullRomSplineSegment<dim> cmSeg(node0,node1,node2,node3);
+        const double paramU(QuadratureDynamicType::abscissa(parentSegment.quadraturePoints().size(),qID));
+        const VectorDim llunitTangent(cmSeg.get_rl(paramU));
+
+        pkForce=(stress*parentSegment.burgers()).cross(llunitTangent);
+        const MatrixDim totalStress(stress+forceToStress(stackingFaultForce+lineTensionForce,llunitTangent,parentSegment));
+        const VectorDim totalForce(pkForce+stackingFaultForce+lineTensionForce);
+        glideVelocity=getGlideVelocity(parentSegment,r,totalForce,totalStress,llunitTangent,dL,inclusionID);
+    }
+    else
+    {
+        pkForce=(stress*parentSegment.burgers()).cross(rl);
+        glideVelocity=getGlideVelocity(parentSegment,r,pkForce+stackingFaultForce+lineTensionForce,stress+forceToStress(stackingFaultForce+lineTensionForce,rl,parentSegment),rl,dL,inclusionID);
+    }
 }
 
 //        template<typename LinkType>
 template<int dim,int corder>
-typename DislocationQuadraturePoint<dim,corder>::MatrixDim DislocationQuadraturePoint<dim,corder>::forceToStress(const VectorDim& force,const LinkType& parentSegment) const
+typename DislocationQuadraturePoint<dim,corder>::MatrixDim DislocationQuadraturePoint<dim,corder>::forceToStress(const VectorDim& force,const VectorDim& unitTangent,const LinkType& parentSegment) const
 {
     // std::cout<<" Curvature norm "<<cmSeg.get_rll(paramU).norm()<<std::endl;
     const double burgersNorm(parentSegment.burgers().norm());
@@ -273,7 +307,7 @@ typename DislocationQuadraturePoint<dim,corder>::MatrixDim DislocationQuadrature
         const double resolvedtensionStress (force.norm()/burgersNorm);
         const VectorDim unitBurgers(parentSegment.burgers()/burgersNorm);
         const MatrixDim tensionStress(resolvedtensionStress*(unitBurgers*parentSegment.glidePlaneNormal().transpose() + parentSegment.glidePlaneNormal()*unitBurgers.transpose()));
-        const VectorDim eqPKForce ((tensionStress*parentSegment.burgers()).cross(rl));
+        const VectorDim eqPKForce ((tensionStress*parentSegment.burgers()).cross(unitTangent));
         const double eqForceNorm(eqPKForce.norm());
         if (eqForceNorm>FLT_EPSILON)
         {
@@ -343,107 +377,72 @@ typename DislocationQuadraturePointContainer<dim,corder>::MatrixDim DislocationQ
     return quadraturePoint(k).stress*quadraturePoint(k).j;
 }
 
-
 template<int dim,int corder>
 typename DislocationQuadraturePointContainer<dim,corder>::VectorDim DislocationQuadraturePointContainer<dim,corder>::glideVelocityKernel(const int& k) const
 {
     return quadraturePoint(k).glideVelocity*this->quadraturePoint(k).j;
 }
 
-//        template<typename LinkType>
-//        void computeMatrixStackingFaultForces(const LinkType& parentSegment)
-//        {
-//            const double eps=1.0e-2;
-//            MatrixDim temp(MatrixDim::Zero());
-//            if(parentSegment.isGlissile())
-//            {// slipSystem must exist
-//                assert(parentSegment.glidePlanes().size()==1);
-//                const auto& glidePlane(*parentSegment.glidePlanes().begin());
-//                for(const auto& loopLink : parentSegment.loopLinks())
+template<int dim,int corder>
+void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocitiesKernel(const LinkType& parentSegment,
+                                                                                      const StraightDislocationSegment<dim>& ss,
+                                                                                      const double& L0,
+                                                                                      const VectorDim& c)
+{
+    for(const auto& shift : parentSegment.network().periodicShifts)
+    {
+        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+                                        parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
+        
+        //                        const double dr(ssd.dMin/(L0+ss.length));
+        const double dr(ssd.dMin/(L0));
+        
+        if(dr<10.0)
+        {// full interaction
+            for (auto& qPoint : quadraturePoints())
+            {
+                qPoint.stress += ss.stress(qPoint.r+shift);
+            }
+        }
+        else if(dr<100.0)
+        {// 2pt interpolation
+            const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()+shift));
+            const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()+shift));
+            for (auto& qPoint : quadraturePoints())
+            {
+                const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
+                qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+            }
+        }
+        else
+        {// 1pt interpolation
+            const MatrixDim stressC(ss.stress(c+shift));
+            for (auto& qPoint : quadraturePoints())
+            {
+                qPoint.stress += stressC;
+            }
+        }
+    }
+    
+    if(parentSegment.network().computeElasticEnergyPerLength)
+    {
+        for(const auto& shift : parentSegment.network().periodicShifts)
+        {
+            for (auto& qPoint : quadraturePoints())
+            {
+//                std::cout<<parentSegment.tag()<<std::endl;
+//                if(   parentSegment.source->sID==9
+//                   && parentSegment.sink->sID==10
+//                   && qPoint.qID==0)
 //                {
-//                    
-//                    const auto& slipSystem();
-//                    
-//                    if(loopLink->loop->slipSystem())
-//                    {// gamma surface must exist to perform force calculation
-//                        if(loopLink->loop->slipSystem()->gammaSurface)
-//                        {// gamma surface must exist to perform force calculation
-//                            VectorDim outDir((loopLink->sink->get_P() - loopLink->source->get_P()).cross(loopLink->loop->rightHandedUnitNormal()));
-//                            const double outDirNorm(outDir.norm());
-//                            if(outDirNorm>FLT_EPSILON)
-//                            {
-//                                outDir/=outDirNorm;
-//                                std::vector<std::pair<VectorDim,VectorDim>> qPointSlip(quadraturePoints().size(),std::make_pair(VectorDim::Zero(),VectorDim::Zero())); // accumulated b1 and b2 for each qPoint
-//                                for(const auto& otherLoop: parentSegment.network().loops())
-//                                {
-//                    
-//                                    const auto& otherSlipSystem(otherLoop.second.lock()->slipSystem());
-//                                    const bool otherSlipSystemIsPartial(otherSlipSystem? otherSlipSystem->isPartial() : false);
-//                                    
-//                                    
-//                                    if(otherLoop.second.lock()->slipSystem() && glidePlane==otherLoop.second.lock()->glidePlane.get())
-//                                    {
-//                                        if(otherLoop.second.lock()->slipSystem()->isPartial())
-//                                        {// only partial dislocations will contribute to a change in gamma surface
-//                                            const double nRdotnR(loopLink->loop->rightHandedUnitNormal().dot(otherLoop.second.lock()->rightHandedUnitNormal()));
-//                                            if(std::fabs(nRdotnR)>FLT_EPSILON)
-//                                            {
-//                                                std::vector<Eigen::Matrix<double,dim-1,1>> otherLocalNodes; // local position of other loop on parentSegment's loop
-//                                                for(const auto& otherLoopLink : otherLoop.second.lock()->linkSequence())
-//                                                {
-//                                                    otherLocalNodes.push_back((loopLink->loop->slipSystem()->gammaSurface->G2L*(otherLoopLink->source->get_P()-glidePlane->P)).template segment<dim-1>(0));
-//                                                }
-//                                                
-//                                                for(size_t q=0;q<quadraturePoints().size();++q)
-//                                                {
-//                                                    const auto& qPoint(quadraturePoints()[q]);
-//                                                    const Eigen::Matrix<double,dim-1,1> x1((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r + eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-//                                                    const Eigen::Matrix<double,dim-1,1> x2((loopLink->loop->slipSystem()->gammaSurface->G2L*(qPoint.r - eps*outDir-glidePlane->P)).template segment<dim-1>(0));
-//                                                    
-//                                                    const int wn1(Polygon2D::windingNumber(x1,otherLocalNodes));
-//                                                    const int wn2(Polygon2D::windingNumber(x2,otherLocalNodes));
-//                                                    qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
-//                                                    qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers(); // slip vector is negative the burgers vector
-//                                                    
-//                                                    //                                                        if(nRdotnR>FLT_EPSILON)
-//                                                    //                                                        {// same rightHandedUnitNormal
-//                                                    //                                                            qPointSlip[q].first +=wn1*otherLoop.second.lock()->burgers();
-//                                                    //                                                            qPointSlip[q].second+=wn2*otherLoop.second.lock()->burgers();
-//                                                    //                                                        }
-//                                                    //                                                        else
-//                                                    //                                                        {// opposite rightHandedUnitNormal
-//                                                    //                                                            qPointSlip[q].first -=wn1*otherLoop.second.lock()->burgers();
-//                                                    //                                                            qPointSlip[q].second-=wn2*otherLoop.second.lock()->burgers();
-//                                                    //                                                        }
-//                                                }
-//                                            }
-//                                        }
-//                                    }
-//                                }
-//                                
-//                                
-//                                for(size_t q=0;q<quadraturePoints().size();++q)
-//                                {
-//                                    if((qPointSlip[q].first-qPointSlip[q].second).squaredNorm()>FLT_EPSILON)
-//                                    {
-//                                        const double gamma1(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].first));  // outer point
-//                                        const double gamma2(parentSegment.slipSystem()->misfitEnergy(qPointSlip[q].second)); // inner point
-//                                        quadraturePoints()[q].stackingFaultForce+= -(gamma2-gamma1)*outDir; // * fact
-//                                    }
-//                                }
-//                                
-//                            }
-//                            
-//                        }
-//                    }
+//                    std::cout<<(ss.P0-shift).transpose()<<" "<<(ss.P1-shift).transpose()<<std::endl;
 //                }
-//            }
-//        }
+                qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
+            }
+        }
+    }
+}
 
-
-
-
-//        template<typename LinkType>
 template<int dim,int corder>
 void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(const LinkType& parentSegment,
                                                                                 const double&,
@@ -452,69 +451,98 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
     // updateQuadraturePoints(parentSegment,quadPerLength,isClimbStep);
     
     
+    const bool useLoopBasedKernels(false);
+    
     if(this->size())
     {
         if(parentSegment.network().computeDDinteractions)
         {
             const double L0(parentSegment.chord().norm());
             const VectorDim c(0.5*(parentSegment.source->get_P()+parentSegment.sink->get_P()));
-            for(const auto& link : parentSegment.network().networkLinks())
+            if(useLoopBasedKernels)
             {
-                if(   !link.second.lock()->hasZeroBurgers()
-                   && !(link.second.lock()->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-                   //                           && !(link.second.lock()->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
-                   )
+                for(const auto& loop : parentSegment.network().loops())
                 {
-                    
-                    const StraightDislocationSegment<dim>& ss(link.second.lock()->straight);
-                    
-                    
-                    for(const auto& shift : parentSegment.network().periodicShifts)
+                    for(const auto& patch : loop.second.lock()->patches().globalPatches())
                     {
-                        SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
-                                                        parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
-                        
-                        //                        const double dr(ssd.dMin/(L0+ss.length));
-                        const double dr(ssd.dMin/(L0));
-                        
-                        if(dr<10.0)
-                        {// full interaction
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                qPoint.stress += ss.stress(qPoint.r+shift);
-                            }
-                        }
-                        else if(dr<100.0)
-                        {// 2pt interpolation
-                            const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()+shift));
-                            const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()+shift));
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
-                                qPoint.stress += (1.0-u)*stressSource+u*stressSink;
-                            }
-                        }
-                        else
-                        {// 1pt interpolation
-                            const MatrixDim stressC(ss.stress(c+shift));
-                            for (auto& qPoint : quadraturePoints())
-                            {
-                                qPoint.stress += stressC;
-                            }
-                        }
-                    }
-                    
-                    if(parentSegment.network().computeElasticEnergyPerLength)
-                    {
-                        for(const auto& shift : parentSegment.network().periodicShifts)
+                        for(size_t k0=0;k0<patch.second.size();++k0)
                         {
-                            for (auto& qPoint : quadraturePoints())
+                            const size_t k1(k0+1<patch.second.size()? k0+1 : 0);
+                            const VectorDim& P0(patch.second[k0]);
+                            const VectorDim& P1(patch.second[k1]);
+                            const VectorDim chord(P1-P0);
+                            const double chordLength(chord.norm());
+                            if(chordLength>FLT_EPSILON)
                             {
-                                qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
+                                const VectorDim tangent(chord/chordLength);
+//                                const StraightDislocationSegment<dim> ss(parentSegment.network().poly,P0-patch.first->shift,P1-patch.first->shift,loop.second.lock()->burgers(),chordLength,tangent);
+                                const StraightDislocationSegment<dim> ss(parentSegment.network().poly,P0,P1,loop.second.lock()->burgers(),chordLength,tangent);
+                                updateForcesAndVelocitiesKernel(parentSegment,ss,L0,c);
                             }
                         }
                     }
-                    
+                }
+            }
+            else
+            {
+                for(const auto& link : parentSegment.network().networkLinks())
+                {
+                    if(   !link.second.lock()->hasZeroBurgers()
+                       && !(link.second.lock()->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
+                       //                           && !(link.second.lock()->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                       )
+                    {
+                        
+                        const StraightDislocationSegment<dim>& ss(link.second.lock()->straight);
+                        
+                        updateForcesAndVelocitiesKernel(parentSegment,ss,L0,c);
+
+//                        for(const auto& shift : parentSegment.network().periodicShifts)
+//                        {
+//                            SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
+//                                                            parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
+//
+//                            //                        const double dr(ssd.dMin/(L0+ss.length));
+//                            const double dr(ssd.dMin/(L0));
+//
+//                            if(dr<10.0)
+//                            {// full interaction
+//                                for (auto& qPoint : quadraturePoints())
+//                                {
+//                                    qPoint.stress += ss.stress(qPoint.r+shift);
+//                                }
+//                            }
+//                            else if(dr<100.0)
+//                            {// 2pt interpolation
+//                                const MatrixDim stressSource(ss.stress(parentSegment.source->get_P()+shift));
+//                                const MatrixDim stressSink(ss.stress(parentSegment.sink->get_P()+shift));
+//                                for (auto& qPoint : quadraturePoints())
+//                                {
+//                                    const double u(QuadratureDynamicType::abscissa(this->size(),qPoint.qID));
+//                                    qPoint.stress += (1.0-u)*stressSource+u*stressSink;
+//                                }
+//                            }
+//                            else
+//                            {// 1pt interpolation
+//                                const MatrixDim stressC(ss.stress(c+shift));
+//                                for (auto& qPoint : quadraturePoints())
+//                                {
+//                                    qPoint.stress += stressC;
+//                                }
+//                            }
+//                        }
+//
+//                        if(parentSegment.network().computeElasticEnergyPerLength)
+//                        {
+//                            for(const auto& shift : parentSegment.network().periodicShifts)
+//                            {
+//                                for (auto& qPoint : quadraturePoints())
+//                                {
+//                                    qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
+//                                }
+//                            }
+//                        }
+                    }
                 }
             }
         }
@@ -567,34 +595,38 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
             }
             
             //Add line tension contribution
-            if (parentSegment.network().useLineTension && !parentSegment.hasZeroBurgers() && parentSegment.chordLength()>FLT_EPSILON)
+            if (parentSegment.network().alphaLineTension>0.0 && !parentSegment.hasZeroBurgers() && parentSegment.chordLength()>FLT_EPSILON)
             {
                 //Add the line tension contribution due to only non -zero segments
                 for (const auto &ll : parentSegment.loopLinks())
                 {
-                    // To discuss what would happen for links connected to boundary??
-                    //  parameter may be same or opposite to the segment
                     
-                    assert(ll->source->periodicPrev()!=nullptr && "PeriodicPrev must exist from network link for line tension contribution");
-                    assert(ll->sink->periodicNext()!=nullptr && "PeriodicNext must exist from network link for line tension contribution");
-                    
-                    const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()
-                                                -ll->source->periodicPlanePatch()->shift
-                                                +ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift
-                                                : ll->source->periodicPrev()->get_P());
-                    const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()
-                                                -ll->  sink->periodicPlanePatch()->shift
-                                                +ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift
-                                                : ll->  sink->periodicNext()->get_P());
-                    CatmullRomSplineSegment<dim> cmSeg(prevNodePos,ll->source->get_P(),ll->sink->get_P(),nextNodePos);
-                    const double alpha (parentSegment.network().alphaLineTension);
-                    const double paramUTemp ((qPoint.r-parentSegment.source->get_P()).norm()/parentSegment.chordLength());
+//                    assert(ll->source->periodicPrev()!=nullptr && "PeriodicPrev must exist from network link for line tension contribution");
+//                    assert(ll->sink->periodicNext()!=nullptr && "PeriodicNext must exist from network link for line tension contribution");
+//
+//                    const VectorDim prevNodePos(ll->prev->twin()? ll->prev->twin()->source->periodicPrev()->get_P()
+//                                                -ll->source->periodicPlanePatch()->shift
+//                                                +ll->prev->twin()->source->periodicPrev()->periodicPlanePatch()->shift
+//                                                : ll->source->periodicPrev()->get_P());
+//                    const VectorDim nextNodePos(ll->next->twin()? ll->next->twin()->  sink->periodicNext()->get_P()
+//                                                -ll->  sink->periodicPlanePatch()->shift
+//                                                +ll->next->twin()->  sink->periodicNext()->periodicPlanePatch()->shift
+//                                                : ll->  sink->periodicNext()->get_P());
+//                    CatmullRomSplineSegment<dim> spline(prevNodePos,ll->source->get_P(),ll->sink->get_P(),nextNodePos);
+//                    const double paramUTemp ((qPoint.r-parentSegment.source->get_P()).norm()/parentSegment.chordLength());
+                    const double paramUTemp(QuadratureDynamicType::abscissa(parentSegment.quadraturePoints().size(),qPoint.qID));
                     const double paramU (ll->source->networkNode==parentSegment.source ? paramUTemp : 1.0-paramUTemp);
-                    const VectorDim llunitTangent(cmSeg.get_rl(paramU));
-                    const double qPointEnergyDensity (alpha * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
-                    const VectorDim qPointForceVector (qPointEnergyDensity * cmSeg.get_rll(paramU));
+                    const auto spline(ll->spline());
+                    const VectorDim llunitTangent(spline.get_rl(paramU));
+                    const double qPointEnergyDensity (parentSegment.network().alphaLineTension * parentSegment.network().poly.C2 * (ll->loop->burgers().squaredNorm()-parentSegment.network().poly.nu*(std::pow(llunitTangent.dot(ll->loop->burgers()),2))));
                     qPoint.coreEnergyPerLength+=qPointEnergyDensity;
-                    qPoint.lineTensionForce+=qPointForceVector;
+
+                    const VectorDim rll(spline.get_rll(paramU));
+                    if(!std::isnan(rll.squaredNorm()))
+                    {// curvature can be nan for straight lines
+                        const VectorDim qPointForceVector (qPointEnergyDensity * rll);
+                        qPoint.lineTensionForce+=qPointForceVector;
+                    }
                 }
             }
             
@@ -618,7 +650,8 @@ void DislocationQuadraturePointContainer<dim,corder>::updateQuadraturePoints(con
     if(    !parentSegment.hasZeroBurgers()
        &&  !parentSegment.isBoundarySegment()
        &&  (!parentSegment.isSessile() || isClimbStep || parentSegment.network().computeElasticEnergyPerLength)
-       &&  !parentSegment.isVirtualBoundarySegment())
+//       &&  !parentSegment.isVirtualBoundarySegment()
+       )
     {
         const int order=QuadPowDynamicType::lowerOrder(quadPerLength*parentSegment.chord().norm());
         const MatrixNcoeff  SFCH(parentSegment.sfCoeffs());
