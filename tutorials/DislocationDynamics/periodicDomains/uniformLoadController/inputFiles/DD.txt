@@ -29,13 +29,14 @@ periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 timeIntegrationMethod=1; # 0 for constant time integration 
 capMaxVelocity=0;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
-dxMax=10;
+dxMax=10; # max modal step for timeIntegrationMethod=1
+dpdMax=1e-7; # max plastic distortion step for timeIntegrationMethod=2
 use_velocityFilter=1;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
 useSubCycling=1;
-subcyclingBins=1 2 3 4 5 10 20;
+subcyclingBins=1 2 5 10 50 100;
 
 ######################################
 # DD weak form solver for K*V=F, where F are nodal forces and V the nodal velocities
@@ -46,15 +47,15 @@ ddSolverType=0;
 
 ######################################
 # DISLOCATION ELASTIC FIELDS
-quadPerLength=0.1; # number of quadrature points per unit length
+quadPerLength=0.1; # number of quadrature points per unit length (in Burgers vector units)
 coreSize=2.0; # The dislocation core width, used in the non-singular expression of the dislocation stress field
 alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
 
 ######################################
 # NETWORK REMESHING
 remeshFrequency=1; # Enable/disable node redistribution 
-Lmin=0.025; # min segment length (in fraction of box size)
-Lmax=0.1; # max segment length (in fraction of box size)
+Lmin=100; # min segment length (in Burgers vector units)
+Lmax=400; # max segment length (in Burgers vector units)
 relativeAreaThreshold=0.001;
 
 ######################################
@@ -73,7 +74,7 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=10;
+outputFrequency=100;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;

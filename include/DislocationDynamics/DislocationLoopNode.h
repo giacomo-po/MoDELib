@@ -109,11 +109,11 @@ namespace model
         void set_P(const VectorDim&);
         void set_P(const VectorLowerDim&);
         std::shared_ptr<PeriodicPlanePatch<dim>> periodicPlanePatch() const;
-        std::pair<bool,size_t> isRemovable(const double& Lmin, const double& relAreaTh);
+        std::pair<bool,size_t> isRemovable(const double& Lmin,const double& Lmax, const double& relAreaTh);
         // std::pair<bool,std::set<size_t>> isRemovable(const double& Lmin, const double& relAreaTh);
         bool isMovableTo(const VectorDim&) const;
         bool isContractableTo(const LoopNodeType* const other) const;
-        bool isGeometricallyRemovable(const double&, const double& );
+        bool isGeometricallyRemovable(const double& Lmin,const double& Lmax, const double& relAreaTh);
         static void initFromFile(const std::string&);
 
     };

@@ -42,7 +42,7 @@ namespace model
         void contractBoundaryNodes(); //This function contracts boundary nodes if they are at the same position and share atleast one same neightbors
         void contract0chordSegments();
         void remove0AreaLoopAcrossBnd();
-        static double minMeshSize(const SimplicialMesh<dim> &mesh);
+//        static double minMeshSize(const SimplicialMesh<dim> &mesh);
     };
     
 } // namespace model

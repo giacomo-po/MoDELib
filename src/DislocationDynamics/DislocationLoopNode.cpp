@@ -597,47 +597,53 @@ namespace model
     }
 
     template <int dim, short unsigned int corder>
-    bool DislocationLoopNode<dim,corder>::isGeometricallyRemovable(const double &Lmin,const double& relAreaTh)
+    bool DislocationLoopNode<dim,corder>::isGeometricallyRemovable(const double &Lmin,const double &Lmax,const double& relAreaTh)
     {
         const auto pPrev(periodicPrev());
         const auto pNext(periodicNext());
-        const double deltaArea(0.5 * (this->get_P() - pPrev->get_P()).cross(pNext->get_P() - this->get_P()).norm());
-
-        // VectorDim vectorArea(VectorDim::Zero());
-        // if (this->loop()->loopLinks().size())
-        // {
-        //     const VectorDim P0((*this->loop()->loopLinks().begin())->source->get_P());
-        //     for (const auto &loopLink : this->loop()->loopLinks())
-        //     {
-        //         vectorArea += 0.5 * (loopLink->source->get_P() - P0).cross(loopLink->sink->get_P() - loopLink->source->get_P());
-        //     }
-        // }
-
-        // const double loopArea(vectorArea.norm());
-        const double loopArea(this->loop()->slippedArea());
-        const double loopAreaRate(this->loop()->slippedAreaRate());
-        // std::cout<<" For loop node "<<this->tag()<<" with "<<this->loop()->loopLinks().size()<<" loopLinks. loop area is "<<std::setprecision(15)<<loopArea<<std::endl;
-        if (loopArea > std::pow(Lmin, 2))
+        if((pNext->get_P()-pPrev->get_P()).norm()<0.95*Lmax)
         {
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " loopArea= " << loopArea << std::endl;);
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " deltaArea= " << deltaArea << std::endl;);
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " relAreaTh= " << relAreaTh << std::endl;);
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " removable? " << (deltaArea / loopArea < relAreaTh) << std::endl;);
+            const double deltaArea(0.5 * (this->get_P() - pPrev->get_P()).cross(pNext->get_P() - this->get_P()).norm());
 
-            return deltaArea / loopArea < relAreaTh;
-        }
-        else if (loopArea > FLT_EPSILON && loopAreaRate<-FLT_EPSILON)
-        {
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " removable (small loop)" << std::endl;);
-            return true;
+            // VectorDim vectorArea(VectorDim::Zero());
+            // if (this->loop()->loopLinks().size())
+            // {
+            //     const VectorDim P0((*this->loop()->loopLinks().begin())->source->get_P());
+            //     for (const auto &loopLink : this->loop()->loopLinks())
+            //     {
+            //         vectorArea += 0.5 * (loopLink->source->get_P() - P0).cross(loopLink->sink->get_P() - loopLink->source->get_P());
+            //     }
+            // }
+
+            // const double loopArea(vectorArea.norm());
+            const double loopArea(this->loop()->slippedArea());
+            const double loopAreaRate(this->loop()->slippedAreaRate());
+            // std::cout<<" For loop node "<<this->tag()<<" with "<<this->loop()->loopLinks().size()<<" loopLinks. loop area is "<<std::setprecision(15)<<loopArea<<std::endl;
+            if (loopArea > std::pow(Lmin, 2))
+            {
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " loopArea= " << loopArea << std::endl;);
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " deltaArea= " << deltaArea << std::endl;);
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " relAreaTh= " << relAreaTh << std::endl;);
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " removable? " << (deltaArea / loopArea < relAreaTh) << std::endl;);
+
+                return deltaArea / loopArea < relAreaTh;
+            }
+            else if (loopArea > FLT_EPSILON && loopAreaRate<-FLT_EPSILON)
+            {
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " removable (small loop)" << std::endl;);
+                return true;
+            }
+            else
+            {
+                VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " NOT removable (zero area loop)" << std::endl;);
+                return false;
+            }
         }
         else
         {
-            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " NOT removable (zero area loop)" << std::endl;);
+            VerboseDislocationLoopNode(2, "  DislocationLoopNode " << this->tag() << " NOT removable (short segment)" << std::endl;);
             return false;
         }
-        
-
     }
     
 //Updated Version for allowing for the removal of twinned loopNode only (This version has worked very well (Reached 1% strain with both FR source and circular loops))
@@ -800,7 +806,7 @@ namespace model
 
     //Version which can classiy the boundary nodes as well...
     template <int dim, short unsigned int corder>
-    std::pair<bool,size_t> DislocationLoopNode<dim, corder>::isRemovable(const double &Lmin, const double &relAreaTh)
+    std::pair<bool,size_t> DislocationLoopNode<dim, corder>::isRemovable(const double &Lmin,const double &Lmax, const double &relAreaTh)
     {
        //The pair will be populated as follows:
         //If the node is removable and it does not have a twin the pair will contain the same node
@@ -851,14 +857,14 @@ namespace model
                     VerboseDislocationLoopNode(2, "  Has 1 loop nodes" << std::endl;);
                     if ((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax
 //                    if (((pPrev->get_P() - pNext->get_P()).norm() < this->network().networkRemesher.Lmax || pPrev->periodicPlanePatch()!=pNext->periodicPlanePatch())
-                        && isGeometricallyRemovable(Lmin, relAreaTh))
+                        && isGeometricallyRemovable(Lmin, Lmax,relAreaTh))
                     {
                         return std::make_pair(true,this->sID);
                     }
                     else if (this->networkNode->isOnExternalBoundary())
                     {
                         //This means that an internal node is exactly on the the boundary based on the geometrically removable condition, the node can be removed
-                        if (isGeometricallyRemovable(Lmin, relAreaTh))
+                        if (isGeometricallyRemovable(Lmin, Lmax, relAreaTh))
                         {
                             return std::make_pair(true,this->sID);
                         }

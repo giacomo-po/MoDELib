@@ -85,9 +85,10 @@ namespace model
             tubeActor0->SetVisibility(false);
 
             linksColorBox->addItem("Burgers vector");
-            linksColorBox->addItem("Plane normal");
+            linksColorBox->addItem("plane normal");
             linksColorBox->addItem("glissile/sessile");
-
+            linksColorBox->addItem("edge/screw");
+            
             mainLayout->addWidget(showLinks,0,0,1,1);
             mainLayout->addWidget(sliderLinksRadius,0,1,1,1);
             mainLayout->addWidget(linksColorBox,1,0,1,1);
@@ -341,11 +342,25 @@ Eigen::Matrix<int,3,1> NetworkLinkActor::computeColor(const VectorDim& burgers, 
     
     VectorDim clrVector(VectorDim::Zero());
     
-    switch (clr)
+    
+    
+    switch (linksColorBox->currentIndex())
     {
             
+        default:
+        {
+            clrVector = burgers.normalized();
+            //                    flipColor(colorVector);
+            break;
+        }
+
+        case 1:
+        {
+            clrVector=planeNormal;
+            break;
+        }
             
-        case colorSessile:
+        case 2:
         {
             const bool isSessile= planeNormal.squaredNorm()<FLT_EPSILON || fabs(burgers.dot(planeNormal))>FLT_EPSILON;
             clrVector(0)= isSessile? 1.0 : 0.1;
@@ -354,27 +369,52 @@ Eigen::Matrix<int,3,1> NetworkLinkActor::computeColor(const VectorDim& burgers, 
             break;
         }
             
-        case colorNormal:
-        {
-            clrVector=planeNormal;
-            break;
-        }
-            
-        case colorEdgeScrew:
+        case 3:
         {
             const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/std::numbers::pi;
             //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
             //                            colorVector << rgb.r, rgb.g, rgb.b;
-            clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1-u);
+            clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1.0-u);
             break;
         }
             //                    break;
             
-        default:
-            clrVector = burgers.normalized();
-            //                    flipColor(colorVector);
-            break;
     }
+
+//    switch (clr)
+//    {
+//
+//
+//        case colorSessile:
+//        {
+//            const bool isSessile= planeNormal.squaredNorm()<FLT_EPSILON || fabs(burgers.dot(planeNormal))>FLT_EPSILON;
+//            clrVector(0)= isSessile? 1.0 : 0.1;
+//            clrVector(1)= isSessile? 0.5 : 0.4;
+//            clrVector(2)= isSessile? 0.0 : 0.9;
+//            break;
+//        }
+//
+//        case colorNormal:
+//        {
+//            clrVector=planeNormal;
+//            break;
+//        }
+//
+//        case colorEdgeScrew:
+//        {
+//            const float u = acos(std::fabs(chord.normalized().dot(burgers.normalized())))*2.0/std::numbers::pi;
+//            //                            RGBcolor rgb(RGBmap::getColor(std::fabs(tubeTangents.col(k).normalized().dot(burgers.normalized())),0,1));
+//            //                            colorVector << rgb.r, rgb.g, rgb.b;
+//            clrVector=(VectorDim()<<1.0,0.647,0.0).finished()*u+VectorDim::UnitZ()*(1-u);
+//            break;
+//        }
+//            //                    break;
+//
+//        default:
+//            clrVector = burgers.normalized();
+//            //                    flipColor(colorVector);
+//            break;
+//    }
     
     return vector2Clr(clrVector);
     

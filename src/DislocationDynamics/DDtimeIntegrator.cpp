@@ -16,12 +16,13 @@ namespace model
 {
 
     /******************************************************************/
-    DDtimeIntegrator<0>::DDtimeIntegrator(const std::string& fileName):
+    DDtimeIntegrator::DDtimeIntegrator(const std::string& fileName):
     /*                  init                    */  dxMax(TextFileParser(fileName).readScalar<double>("dxMax", true))
-    /*                  init                    */, shearWaveSpeedFraction(1.0e-3)
+    /*                  init                    */, shearWaveSpeedFraction(1.0e-5)
     /*                  init                    */, timeIntegrationMethod(TextFileParser(fileName).readScalar<int>("timeIntegrationMethod", true))
     /*                  init                    */, dtMax(TextFileParser(fileName).readScalar<double>("timeStep", true))
-    {
+    /*                  init                    */, dpdMax(TextFileParser(fileName).readScalar<double>("dpdMax", true))
+{
 
         if (dxMax < FLT_EPSILON)
         {
@@ -35,7 +36,7 @@ namespace model
 
     }
     
-    template struct DDtimeIntegrator<0>;
+//    template struct DDtimeIntegrator<0>;
 
 } // end namespace
 #endif

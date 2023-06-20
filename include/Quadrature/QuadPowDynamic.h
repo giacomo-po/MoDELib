@@ -69,19 +69,28 @@ namespace model
     {
         static const Eigen::Matrix<double,Eigen::Dynamic,pOrder+1>& uPow(const int& N)
         {
-            assert(N==qOrder && "quadrature order N not found in QuadPowDynamic");
+            if(N!=qOrder)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadPowDynamic");
+            }
             return  QuadPow<pOrder,qOrder,QuadratureRule>::uPow;
         }
         
         static const Eigen::Matrix<double,Eigen::Dynamic,pOrder>& duPow(const int& N)
         {
-            assert(N==qOrder && "quadrature order N not found in QuadPowDynamic");
+            if(N!=qOrder)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadPowDynamic");
+            }
             return  QuadPow<pOrder,qOrder,QuadratureRule>::duPow;
         }
         
         static const Eigen::Matrix<double,Eigen::Dynamic,pOrder-1>& dduPow(const int& N)
         {
-            assert(N==qOrder && "quadrature order N not found in QuadPowDynamic");
+            if(N!=qOrder)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadPowDynamic");
+            }
             return  QuadPow<pOrder,qOrder,QuadratureRule>::dduPow;
         }
     };

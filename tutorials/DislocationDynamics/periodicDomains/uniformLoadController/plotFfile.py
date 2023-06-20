@@ -40,7 +40,7 @@ ax11.plot(e_33, s_33,'m')
 
 
 
-e_33_E=e_33[e_33<0.001];
+e_33_E=np.linspace(0,0.001,2);
 
 #print(e_33)
 ax11.plot(e_33_E,E_SI*e_33_E)

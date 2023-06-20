@@ -40,7 +40,11 @@ namespace model
         static const double& weight(const short unsigned int & N,
                                     const short unsigned int & k)
         {
-            assert(k < N          && "k must be less than N");
+//            assert(k < N          && "k must be less than N");
+            if(k>=N)
+            {
+                throw std::runtime_error("k must be less than N");
+            }
             return (N==order)? Quadrature<dim,order,QuadratureRule>::weight(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::weight(N,k);
         }
         
@@ -49,7 +53,11 @@ namespace model
                                         const short unsigned int & k)
         {
 //            std::cout<<"order="<<order<<std::endl;
-            assert(k < N          && "k must be less than N");
+//            assert(k < N          && "k must be less than N");
+            if(k>=N)
+            {
+                throw std::runtime_error("k must be less than N");
+            }
             return (N==order)? Quadrature<dim,order,QuadratureRule>::abscissa(k) : QuadratureDynamic<dim,QuadratureRule,otherOrders...>::abscissa(N,k);
         }
         
@@ -186,8 +194,16 @@ namespace model
         static const double& weight(const short unsigned int & N,
                                     const short unsigned int & k)
         {
-            assert(k < N          && "k must be less than N");
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            //            assert(k < N          && "k must be less than N");
+            //            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(k>=N)
+            {
+                throw std::runtime_error("k must be less than N");
+            }
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             return Quadrature<dim,order,QuadratureRule>::weight(k);
         }
         
@@ -195,8 +211,16 @@ namespace model
         static const VectorDim abscissa(const short unsigned int & N,
                                         const short unsigned int & k)
         {
-            assert(k < N          && "k must be less than N");
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(k < N          && "k must be less than N");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(k>=N)
+            {
+                throw std::runtime_error("k must be less than N");
+            }
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             return Quadrature<dim,order,QuadratureRule>::abscissa(k);
         }
         
@@ -205,7 +229,11 @@ namespace model
                               IntegrandType (*fp)(const double&),
                               IntegrandType &intgrl)
         {
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             Quadrature<dim,order,QuadratureRule>::integrate(fp,intgrl);
         }
         
@@ -215,7 +243,11 @@ namespace model
                               IntegrandType (AnyClass::*mfp)(const VectorDim&, const Args&...) const,
                               const Args&...args)
         {
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             Quadrature<dim,order,QuadratureRule>::integrate(C,intgrl,mfp,args...);
         }
         
@@ -225,7 +257,11 @@ namespace model
                               IntegrandType (AnyClass::*mfp)(const int&, const Args&... ) const,
                               const Args&...args)
         {
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             Quadrature<dim,order,QuadratureRule>::integrate(C,intgrl,mfp,args...);
         }
         
@@ -234,7 +270,11 @@ namespace model
                             void (AnyClass::*mfp)(const VectorDim&, const Args&...),
                             const Args&...args)
         {
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             Quadrature<dim,order,QuadratureRule>::execute(C,mfp,args...);
         }
         
@@ -243,7 +283,11 @@ namespace model
                             void (AnyClass::*mfp)(const int&, const Args&...),
                             const Args&...args)
         {
-            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+//            assert(N==order && "quadrature order N not found in QuadratureDynamic");
+            if(N!=order)
+            {
+                throw std::runtime_error("quadrature order N not found in QuadratureDynamic");
+            }
             Quadrature<dim,order,QuadratureRule>::execute(C,mfp,args...);
         }
         

@@ -17,7 +17,7 @@ ExternalStrain0 = 0.0 0.0 0.0
 
 ExternalStrainRate = 0.0 0.0 0.0
 		     0.0 0.0 0.0
-		     0.0 0.0 1e-9;
+		     0.0 0.0 1e-10;
 
 # MachineStiffnessRatio=0 means pure stress control,  
 # MachineStiffnessRatio=infinity (such as 1e20) means pure strain control

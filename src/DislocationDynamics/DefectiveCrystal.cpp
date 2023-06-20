@@ -196,7 +196,7 @@ namespace model
                 DN->io().output(simulationParameters.runID);
                 DN->moveGlide(simulationParameters.dt);
                 DN->executeSingleGlideStepDiscreteEvents(simulationParameters.runID);
-                if (true)
+                if (DN->capMaxVelocity)
                 {
                     std::cout<<redBoldColor<<"( "<<(DislocationNode<dim,corder>::totalCappedNodes)<<" total nodes capped "<<defaultColor<<std::endl;
                     std::cout<<redBoldColor<<", "<<(double(DislocationNode<dim,corder>::totalCappedNodes)/double(DN->networkNodes().size()))<<" fraction of nodes capped "
