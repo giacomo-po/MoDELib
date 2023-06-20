@@ -166,7 +166,7 @@ namespace model
         velocity=vNew;
         projectVelocity();
 
-        if (this->network().capMaxVelocity)
+        if (this->network().capMaxVelocity && !this->network().timeIntegrator.isTimeStepControlling(*this))
         {
             //Need to cap the max velocity based on the time step
             const double vmax=this->network().timeIntegrator.dxMax/this->network().timeIntegrator.dtMax;

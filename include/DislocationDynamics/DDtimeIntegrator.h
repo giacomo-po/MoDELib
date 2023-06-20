@@ -76,9 +76,7 @@ namespace model
                     long int vmaxID=-1;
                     for (const auto &nodeIter : DN.networkNodes())
                     {
-                        if (    !nodeIter.second.lock()->isBoundaryNode()
-                            && nodeIter.second.lock()->glidePlanes().size() < 3
-                        )
+                        if (isTimeStepControlling(*nodeIter.second.lock()))
                         {
                             const double vNorm(nodeIter.second.lock()->get_V().norm());
                             if (vNorm > vmax)
@@ -143,6 +141,32 @@ namespace model
             }
             return dt_temp;
 
+        }
+        
+        template <typename DislocationNodeType>
+        bool isTimeStepControlling(const DislocationNodeType& node)
+        {
+            switch (timeIntegrationMethod)
+            {
+                case 0: //Constant time step
+                {
+                    return false;
+                    break;
+                }
+                                        
+                case 1: //Adaptive time stepper, velocity base
+                {
+                    return (!node.isBoundaryNode()
+                    /*  */ && node.glidePlanes().size() ==1);
+                    break;
+                }
+                    
+                default: //Adaptive time stepper, velocity base
+                {
+                    return true;
+                    break;
+                }
+            }
         }
         
         /**********************************************************************/

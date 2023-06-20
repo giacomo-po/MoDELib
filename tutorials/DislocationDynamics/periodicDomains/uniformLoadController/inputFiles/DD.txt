@@ -3,7 +3,7 @@
 simulationType=2; # 0=finite sample no FEM, 1=finite sample with FEM, 2=periodic images, 3=periodic fem
 useDislocations=1;
 useCracks=0;
-Nsteps=100000;		# total number of simulation steps
+Nsteps=300000;		# total number of simulation steps
 startAtTimeStep = -1;  # time step for restart. -1 means last available step in file F/F_0.txt
 
 ######################################
@@ -27,7 +27,7 @@ periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 # TIME STEPPING
 # Maximum nodal displacement per time step (this controls time step size) 
 timeIntegrationMethod=1; # 0 for constant time integration 
-capMaxVelocity=0;
+capMaxVelocity=1;
 timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
 dxMax=10; # max modal step for timeIntegrationMethod=1
 dpdMax=1e-7; # max plastic distortion step for timeIntegrationMethod=2
