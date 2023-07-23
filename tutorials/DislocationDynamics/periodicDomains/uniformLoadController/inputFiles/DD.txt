@@ -74,7 +74,7 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=100;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;
