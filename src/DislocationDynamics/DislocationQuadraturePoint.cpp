@@ -391,6 +391,8 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocitiesK
 {
     for(const auto& shift : parentSegment.network().periodicShifts)
     {
+        
+        
         SegmentSegmentDistance<dim> ssd(ss.P0,ss.P1,
                                         parentSegment.source->get_P()+shift,parentSegment.sink->get_P()+shift);
         
@@ -430,13 +432,6 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocitiesK
         {
             for (auto& qPoint : quadraturePoints())
             {
-//                std::cout<<parentSegment.tag()<<std::endl;
-//                if(   parentSegment.source->sID==9
-//                   && parentSegment.sink->sID==10
-//                   && qPoint.qID==0)
-//                {
-//                    std::cout<<(ss.P0-shift).transpose()<<" "<<(ss.P1-shift).transpose()<<std::endl;
-//                }
                 qPoint.elasticEnergyPerLength += ss.elasticInteractionEnergy(qPoint.r+shift,qPoint.rl,parentSegment.burgers());
             }
         }
@@ -494,6 +489,7 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
                     {
                         
                         const StraightDislocationSegment<dim>& ss(link.second.lock()->straight);
+                        
                         
                         updateForcesAndVelocitiesKernel(parentSegment,ss,L0,c);
 

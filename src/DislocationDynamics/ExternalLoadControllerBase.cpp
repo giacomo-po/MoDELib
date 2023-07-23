@@ -22,10 +22,12 @@ namespace model
         template <int dim>
         ExternalLoadControllerBase<dim>::ExternalLoadControllerBase(const std::string& _inputFileName) :
         /* init list */ inputFileName(_inputFileName)
-        /* init list */,ExternalStress(MatrixDim::Zero())
+        /* init list */,ExternalStress0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStress0",dim,dim,true))
         /* init list */,ExternalStressRate(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStressRate",dim,dim,true))
-        /* init list */,ExternalStrain(MatrixDim::Zero())
+        /* init list */,ExternalStrain0(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStrain0",dim,dim,true))
         /* init list */,ExternalStrainRate(TextFileParser(this->inputFileName).readMatrix<double>("ExternalStrainRate",dim,dim,true))
+        /* init list */,ExternalStress(MatrixDim::Zero())
+        /* init list */,ExternalStrain(MatrixDim::Zero())
         /* init list */,plasticStrain(MatrixDim::Zero())
         /* init list */,MachineStiffnessRatio(TextFileParser(this->inputFileName).readMatrix<double>("MachineStiffnessRatio",1,voigtSize,true))
         /* init list */,lambda(1.0)
@@ -34,16 +36,22 @@ namespace model
         /* init list */,strainmultimachinestiffness(Eigen::Matrix<double,voigtSize,voigtSize>::Zero())
         {
             std::cout<<greenBoldColor<<"Reading ExternalLoadController file: "<<inputFileName<<defaultColor<<std::endl;
+            if((ExternalStress0-ExternalStress0.transpose()).norm()>DBL_EPSILON)
+            {
+                throw std::runtime_error("ExternalStress0 is not symmetric.");
+            }
             if((ExternalStressRate-ExternalStressRate.transpose()).norm()>DBL_EPSILON)
             {
                 throw std::runtime_error("ExternalStressRate is not symmetric.");
             }
+            if((ExternalStrain0-ExternalStrain0.transpose()).norm()>DBL_EPSILON)
+            {
+                throw std::runtime_error("ExternalStrain0 is not symmetric.");
+            }
             if((ExternalStrainRate-ExternalStrainRate.transpose()).norm()>DBL_EPSILON)
             {
-                throw std::runtime_error("ExternalStressRate is not symmetric.");
+                throw std::runtime_error("ExternalStrainRate is not symmetric.");
             }
-//            assert((ExternalStressRate-ExternalStressRate.transpose()).norm()<DBL_EPSILON && "ExternalStressRate is not symmetric.");
-//            assert((ExternalStrainRate-ExternalStrainRate.transpose()).norm()<DBL_EPSILON && "ExternalStrainRate is not symmetric.");
         }
         
         /**************************************************************************/

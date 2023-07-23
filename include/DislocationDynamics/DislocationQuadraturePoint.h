@@ -35,6 +35,7 @@ namespace model
         static constexpr int Ndof= SplineBase<dim,corder>::Ndof;
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef Eigen::Matrix<float,dim,dim> MatrixDimF;
         typedef Eigen::Matrix<double,dim,Ndof> MatrixDimNdof;
         typedef Eigen::Matrix<double,Ncoeff,Ncoeff> MatrixNcoeff;
         typedef Eigen::Matrix<double,Ncoeff,dim> MatrixNcoeffDim;

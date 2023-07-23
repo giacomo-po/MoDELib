@@ -193,6 +193,7 @@ namespace model
                 DN->storeSingleGlideStepDiscreteEvents(simulationParameters.runID);
                 DN->solveGlide(simulationParameters.runID);
                 simulationParameters.dt=DN->timeIntegrator.getGlideTimeIncrement(*DN); // TO DO: MAKE THIS std::min between DN and CrackSystem
+                DN->updateRates();
                 DN->io().output(simulationParameters.runID);
                 DN->moveGlide(simulationParameters.dt);
                 DN->executeSingleGlideStepDiscreteEvents(simulationParameters.runID);
@@ -244,6 +245,16 @@ namespace model
             return temp;
         }
 
+template <int _dim, short unsigned int corder>
+typename DefectiveCrystal<_dim,corder>::MatrixDim DefectiveCrystal<_dim,corder>::plasticStrain() const
+{/*!\param[in] P position vector
+  * \returns The stress field in the DefectiveCrystal at P
+  * Note:
+  */
+    MatrixDim temp(plasticDistortion());
+    return 0.5*(temp+temp.transpose());
+}
+
         /**********************************************************************/
         template <int _dim, short unsigned int corder>
         typename DefectiveCrystal<_dim,corder>::MatrixDim DefectiveCrystal<_dim,corder>::plasticDistortionRate() const
@@ -273,6 +284,8 @@ namespace model
             MatrixDim temp(plasticDistortionRate());
             return 0.5*(temp+temp.transpose());
         }
+
+
 //
 template class DefectiveCrystal <3,0>;
     

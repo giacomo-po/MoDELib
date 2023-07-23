@@ -54,8 +54,8 @@ alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
 ######################################
 # NETWORK REMESHING
 remeshFrequency=1; # Enable/disable node redistribution 
-Lmin=50; # min segment length (in Burgers vector units)
-Lmax=200; # max segment length (in Burgers vector units)
+Lmin=100; # min segment length (in Burgers vector units)
+Lmax=400; # max segment length (in Burgers vector units)
 relativeAreaThreshold=0.001;
 
 ######################################
@@ -74,7 +74,7 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=1;
+outputFrequency=100;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;

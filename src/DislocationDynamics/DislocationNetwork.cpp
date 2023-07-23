@@ -46,17 +46,13 @@ DislocationNetwork<dim,corder>::DislocationNetwork(const DefectiveCrystalParamet
 /* init */,computeDDinteractions(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeDDinteractions",true))
 /* init */,outputFrequency(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFrequency",true))
 /* init */,outputBinary(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
-///* init */,outputGlidePlanes(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true))
 /* init */,outputMeshDisplacement(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputMeshDisplacement",true))
 /* init */,outputFEMsolution(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputFEMsolution",true))
-///* init */,outputDislocationLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputDislocationLength",true))
-///* init */,outputPlasticDistortionRate(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputPlasticDistortionRate",true))
 /* init */,outputQuadraturePoints(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputQuadraturePoints",true))
 /* init */,outputLinkingNumbers(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLinkingNumbers",true))
 /* init */,outputLoopLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputLoopLength",true))
 /* init */,outputSegmentPairDistances(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("outputSegmentPairDistances",true))
 /* init */,computeElasticEnergyPerLength(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("computeElasticEnergyPerLength",true))
-///* init */,useLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<int>("useLineTension",true))
 /* init */,alphaLineTension(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("alphaLineTension",true))
 /* init */,use_velocityFilter(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("use_velocityFilter",true))
 /* init */,velocityReductionFactor(TextFileParser(simulationParameters.traitsIO.ddFile).readScalar<double>("velocityReductionFactor",true))
@@ -419,6 +415,18 @@ void DislocationNetwork<dim,corder>::updateGeometry()
     VerboseDislocationNetwork(3,"DislocationNetwork::updateGeometry DONE"<<std::endl;);
 }
 
+template <int dim, short unsigned int corder>
+void DislocationNetwork<dim,corder>::updateRates()
+{
+    VerboseDislocationNetwork(2,"DislocationNetwork::updateRates"<<std::endl;);
+    for(auto& loop : this->loops())
+    {// copmute slipped areas and right-handed normal // TODO: PARALLELIZE THIS LOOP
+        loop.second.lock()->updateRates();
+    }
+    // updatePlasticDistortionRateFromAreas();
+    VerboseDislocationNetwork(3,"DislocationNetwork::updateRates DONE"<<std::endl;);
+}
+
 
 template <int dim, short unsigned int corder>
 typename DislocationNetwork<dim,corder>::DislocationNetworkIOType& DislocationNetwork<dim,corder>::io()
@@ -486,6 +494,13 @@ typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder
 // {
 //     return  _plasticDistortionRateFromAreas;
 // }
+
+template <int dim, short unsigned int corder>
+typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticStrain() const
+{/*!\returns the plastic strain rate tensor generated during the last time step.
+  */
+    return (plasticDistortion()+plasticDistortion().transpose())*0.5;
+}
 
 template <int dim, short unsigned int corder>
 typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder>::plasticStrainRate() const

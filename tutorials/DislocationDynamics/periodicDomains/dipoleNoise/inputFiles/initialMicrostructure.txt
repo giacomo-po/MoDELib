@@ -1,0 +1,14 @@
+microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
+#microstructureFile = ../../../MicrostructureLibrary/periodicDipoleDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/periodicLoopDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;
+#microstructureFile = ../../../MicrostructureLibrary/prismaticLoops.txt;
+#microstructureFile = ../../../MicrostructureLibrary/prismaticLoopDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsIndividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/polyhedronInclusionIndividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/VTKindividual.txt;
+
+### FCC-specific
+#microstructureFile = ../../../MicrostructureLibrary/SFTindividual.txt;
+#microstructureFile = ../../../MicrostructureLibrary/SFTdensity.txt;

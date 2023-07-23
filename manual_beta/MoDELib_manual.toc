@@ -1,44 +1,45 @@
-\contentsline {chapter}{\numberline {1}The elastic theory of discrete dislocations}{5}{chapter.1}
-\contentsline {section}{\numberline {1.1}Eigendistortion theory in elastic media}{5}{section.1.1}
-\contentsline {subsection}{\numberline {1.1.1}Eigendistortion theory in infinite anisotropic media}{5}{subsection.1.1.1}
-\contentsline {subsection}{\numberline {1.1.2}Eigendistortion theory in infinite isotropic media}{8}{subsection.1.1.2}
-\contentsline {subsubsection}{Elastic distortion}{9}{section*.4}
-\contentsline {subsubsection}{Elastic strain}{9}{section*.5}
-\contentsline {subsubsection}{Stress}{10}{section*.6}
-\contentsline {subsection}{\numberline {1.1.3}Eigendistortion theory in finite media: the superposition principle}{10}{subsection.1.1.3}
-\contentsline {section}{\numberline {1.2}Discrete dislocation loops}{11}{section.1.2}
-\contentsline {subsection}{\numberline {1.2.1}Discrete dislocation loops in infinite anisotropic media}{11}{subsection.1.2.1}
-\contentsline {subsection}{\numberline {1.2.2}Discrete dislocation loops in infinite isotropic media}{12}{subsection.1.2.2}
-\contentsline {subsubsection}{Stress field}{12}{section*.8}
-\contentsline {subsection}{\numberline {1.2.3}Line-integral representation of the solid angle subtended by a loop}{13}{subsection.1.2.3}
-\contentsline {subsubsection}{Numerical implementation}{13}{section*.9}
-\contentsline {subsection}{\numberline {1.2.4}Multipole expansion}{15}{subsection.1.2.4}
-\contentsline {subsubsection}{Stress field}{15}{section*.10}
-\contentsline {subsubsection}{Displacement field}{16}{section*.11}
-\contentsline {subsubsection}{Interaction Energy}{16}{section*.12}
-\contentsline {subsection}{\numberline {1.2.5}Plastic strain rate}{16}{subsection.1.2.5}
-\contentsline {subsection}{\numberline {1.2.6}Discrete dislocations in finite media}{17}{subsection.1.2.6}
-\contentsline {subsection}{\numberline {1.2.7}Force vector of a triangular element due to a straight segments}{17}{subsection.1.2.7}
-\contentsline {subsection}{\numberline {1.2.8}Discrete dislocations in periodic media}{18}{subsection.1.2.8}
-\contentsline {chapter}{\numberline {2}Discrete Dislocation Dynamics in MoDELib}{19}{chapter.2}
-\contentsline {section}{\numberline {2.1}Topology of dislocation networks}{19}{section.2.1}
-\contentsline {subsection}{\numberline {2.1.1}Topological operations}{19}{subsection.2.1.1}
-\contentsline {chapter}{\numberline {A}Review of tensor calculus}{21}{appendix.A}
-\contentsline {section}{\numberline {A.1}Mathematical preliminaries}{21}{section.A.1}
-\contentsline {subsection}{\numberline {A.1.1}Kelvin-Stokes Theorem}{21}{subsection.A.1.1}
-\contentsline {subsection}{\numberline {A.1.2}Surface Divergence Theorem}{21}{subsection.A.1.2}
-\contentsline {subsection}{\numberline {A.1.3}Surface Transport Theorem}{21}{subsection.A.1.3}
-\contentsline {subsection}{\numberline {A.1.4}Solid angles and line integration}{22}{subsection.A.1.4}
-\contentsline {section}{\numberline {A.2}OLD NOTES: Elastic Energy of a Dislocation Loop}{23}{section.A.2}
-\contentsline {subsection}{\numberline {A.2.1}Volume to Surface}{23}{subsection.A.2.1}
-\contentsline {section}{\numberline {A.3}Convolution integrals}{24}{section.A.3}
-\contentsline {section}{\numberline {A.4}The nabla operator}{25}{section.A.4}
-\contentsline {section}{\numberline {A.5}The Green's tensor and the F-tensor in classical anisotropic elasticity}{25}{section.A.5}
-\contentsline {chapter}{\numberline {B}Elastic fields of piecewise-straight dislocations loop}{26}{appendix.B}
-\contentsline {subsection}{\numberline {B.0.1}Straight segments}{26}{subsection.B.0.1}
-\contentsline {subsection}{\numberline {B.0.2}Stress field of a straight segment}{31}{subsection.B.0.2}
-\contentsline {subsubsection}{Stress of a straight segment on a distant point}{32}{section*.15}
-\contentsline {subsubsection}{Stress of a straight segment in the neighborhood of a far point}{34}{section*.16}
-\contentsline {subsection}{\numberline {B.0.3}Straight Displacement}{35}{subsection.B.0.3}
-\contentsline {subsubsection}{Straight Solid Angle}{35}{section*.17}
-\contentsline {subsubsection}{Non-singular Straight Solid Angle}{37}{section*.18}
+\contentsline {chapter}{\numberline {1}The elastic theory of discrete dislocations}{5}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Eigendistortion theory in elastic media}{5}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Eigendistortion theory in infinite anisotropic media}{5}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Eigendistortion theory in infinite isotropic media}{8}{subsection.1.1.2}%
+\contentsline {subsubsection}{Elastic distortion}{9}{section*.4}%
+\contentsline {subsubsection}{Elastic strain}{9}{section*.5}%
+\contentsline {subsubsection}{Stress}{10}{section*.6}%
+\contentsline {subsection}{\numberline {1.1.3}Eigendistortion theory in finite media: the superposition principle}{10}{subsection.1.1.3}%
+\contentsline {section}{\numberline {1.2}Discrete dislocation loops}{11}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Discrete dislocation loops in infinite anisotropic media}{11}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Discrete dislocation loops in infinite isotropic media}{12}{subsection.1.2.2}%
+\contentsline {subsubsection}{Stress field}{12}{section*.8}%
+\contentsline {subsection}{\numberline {1.2.3}Line-integral representation of the solid angle subtended by a loop}{13}{subsection.1.2.3}%
+\contentsline {subsubsection}{Numerical implementation}{13}{section*.9}%
+\contentsline {subsection}{\numberline {1.2.4}Multipole expansion}{15}{subsection.1.2.4}%
+\contentsline {subsubsection}{Stress field}{15}{section*.10}%
+\contentsline {subsubsection}{Displacement field}{16}{section*.11}%
+\contentsline {subsubsection}{Interaction Energy}{16}{section*.12}%
+\contentsline {subsection}{\numberline {1.2.5}Plastic strain rate}{16}{subsection.1.2.5}%
+\contentsline {subsection}{\numberline {1.2.6}Discrete dislocations in finite media}{17}{subsection.1.2.6}%
+\contentsline {subsection}{\numberline {1.2.7}Force vector of a triangular element due to a straight segments}{17}{subsection.1.2.7}%
+\contentsline {subsection}{\numberline {1.2.8}Discrete dislocations in periodic media}{18}{subsection.1.2.8}%
+\contentsline {chapter}{\numberline {2}Discrete Dislocation Dynamics in MoDELib}{19}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Topology of dislocation networks}{19}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Topological operations}{19}{subsection.2.1.1}%
+\contentsline {section}{\numberline {2.2}Uniform load controller}{20}{section.2.2}%
+\contentsline {chapter}{\numberline {A}Review of tensor calculus}{22}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Mathematical preliminaries}{22}{section.A.1}%
+\contentsline {subsection}{\numberline {A.1.1}Kelvin-Stokes Theorem}{22}{subsection.A.1.1}%
+\contentsline {subsection}{\numberline {A.1.2}Surface Divergence Theorem}{22}{subsection.A.1.2}%
+\contentsline {subsection}{\numberline {A.1.3}Surface Transport Theorem}{22}{subsection.A.1.3}%
+\contentsline {subsection}{\numberline {A.1.4}Solid angles and line integration}{23}{subsection.A.1.4}%
+\contentsline {section}{\numberline {A.2}OLD NOTES: Elastic Energy of a Dislocation Loop}{24}{section.A.2}%
+\contentsline {subsection}{\numberline {A.2.1}Volume to Surface}{24}{subsection.A.2.1}%
+\contentsline {section}{\numberline {A.3}Convolution integrals}{25}{section.A.3}%
+\contentsline {section}{\numberline {A.4}The nabla operator}{26}{section.A.4}%
+\contentsline {section}{\numberline {A.5}The Green's tensor and the F-tensor in classical anisotropic elasticity}{26}{section.A.5}%
+\contentsline {chapter}{\numberline {B}Elastic fields of piecewise-straight dislocations loop}{27}{appendix.B}%
+\contentsline {subsection}{\numberline {B.0.1}Straight segments}{27}{subsection.B.0.1}%
+\contentsline {subsection}{\numberline {B.0.2}Stress field of a straight segment}{32}{subsection.B.0.2}%
+\contentsline {subsubsection}{Stress of a straight segment on a distant point}{33}{section*.15}%
+\contentsline {subsubsection}{Stress of a straight segment in the neighborhood of a far point}{35}{section*.16}%
+\contentsline {subsection}{\numberline {B.0.3}Straight Displacement}{36}{subsection.B.0.3}%
+\contentsline {subsubsection}{Straight Solid Angle}{36}{section*.17}%
+\contentsline {subsubsection}{Non-singular Straight Solid Angle}{38}{section*.18}%

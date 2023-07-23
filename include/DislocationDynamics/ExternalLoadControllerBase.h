@@ -44,11 +44,16 @@ namespace model
         const std::string inputFileName;
         
                 //External stress control parameter
+        
+        const MatrixDim ExternalStress0;
+        const MatrixDim ExternalStressRate;
+        const MatrixDim ExternalStrain0;
+        const MatrixDim ExternalStrainRate;
+
+        
                 MatrixDim ExternalStress;
-                MatrixDim ExternalStressRate;
                 MatrixDim ExternalStrain;
                 //External strain control parameter
-                MatrixDim ExternalStrainRate;
                 MatrixDim plasticStrain;
                 //finite machine stiffness effect
                 Eigen::Matrix<double,1,voigtSize> MachineStiffnessRatio;    //0 is stress control; infinity is pure strain control.

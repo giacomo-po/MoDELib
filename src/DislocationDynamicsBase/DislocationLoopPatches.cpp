@@ -53,13 +53,8 @@ void DislocationLoopPatches<dim>::update(const std::vector<VectorDim>& linkShift
             
             for(const auto& localPos : localLoopPosOnPeriodicPlane)
             {
-                //                        const VectorDim globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
-                
                 globalLoopPos.push_back(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
                 localLoopPos.push_back(patch->glidePlane->localPosition(globalLoopPos.back()));
-                //
-                //
-                //                        localLoopPosOnPatchPlane.push_back(patch->glidePlane->localPosition(globalPos));
             }
             GlobalPatchPositionType::emplace(patch,globalLoopPos);
             LocalPatchPositionType::emplace(patch,localLoopPos);

@@ -205,6 +205,8 @@ namespace model
         {
             const MatrixDim temp = nonSymmStress(x);
             return material.C2*(temp+temp.transpose());
+//            const Eigen::Matrix<float,dim,dim> tempF((material.C2*(temp+temp.transpose())).template cast<float>());
+//            return tempF.template cast<double>();
         }
         
         template <int dim>

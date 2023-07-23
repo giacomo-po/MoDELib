@@ -87,6 +87,7 @@ namespace model
         std::shared_ptr<SlipSystem> searchSlipSystem() const;
         void updateSlipSystem();
         void updateGeometry();
+        void updateRates();
         MatrixDim plasticDistortion() const;
         MatrixDim plasticDistortionRate() const;
         VectorDim burgers() const;

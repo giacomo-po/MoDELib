@@ -621,7 +621,7 @@ void DislocationLoop<dim,corder>::updateGeometry()
 {
     VerboseDislocationLoop(2,"DislocationLoop "<<this->sID<<" updateGeometry"<<std::endl;);
     nA.setZero();
-    nAR.setZero();
+//    nAR.setZero();
     if(glidePlane)
     {// remove numerical errors by projecting along glidePlane->unitNormal
         if(this->loopLinks().size())
@@ -629,14 +629,13 @@ void DislocationLoop<dim,corder>::updateGeometry()
             const VectorDim P0((*this->loopLinks().begin())->source->get_P());
             for(const auto& loopLink : this->loopLinks())
             {
-                const VectorDim linkChord(loopLink->sink->get_P()-loopLink->source->get_P());
+//                const VectorDim linkChord(loopLink->sink->get_P()-loopLink->source->get_P());
                 nA+= 0.5*(loopLink->source->get_P()-P0).cross(loopLink->sink->get_P()-loopLink->source->get_P());
-                // nAR+=0.5*V0.cross(linkChord)+0.25*(loopLink->sink->networkNode->get_V()-loopLink->source->networkNode->get_V()).cross(linkChord);
-                nAR+=0.5*(loopLink->source->networkNode->get_V()+loopLink->sink->networkNode->get_V()).cross(linkChord);
+//                nAR+=0.5*(loopLink->source->networkNode->get_V()+loopLink->sink->networkNode->get_V()).cross(linkChord);
             }
         }
         _slippedArea=nA.norm();
-        _slippedAreaRate=nA.dot(nAR)/_slippedArea;
+//        _slippedAreaRate=nA.dot(nAR)/_slippedArea;
         _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
         const double nnDot(_rightHandedUnitNormal.dot(glidePlane->unitNormal));
         _rightHandedNormal= nnDot>=0.0? glidePlane->n : ReciprocalLatticeDirection<dim>(glidePlane->n*(-1));
@@ -664,7 +663,7 @@ void DislocationLoop<dim,corder>::updateGeometry()
                 nA.setZero();
             }
             _slippedArea=nA.norm();
-            _slippedAreaRate=0.0; //Slipped area rate will be zero because it is sessile (Discuss this with Dr. Po)
+//            _slippedAreaRate=0.0; //Slipped area rate will be zero because it is sessile (Discuss this with Dr. Po)
             _rightHandedUnitNormal= _slippedArea>FLT_EPSILON? (nA/_slippedArea).eval() : VectorDim::Zero();
             _rightHandedNormal= grain.singleCrystal->reciprocalLatticeDirection(_rightHandedUnitNormal);
             VerboseDislocationLoop(3,"non-glide _rightHandedUnitNormal= "<<_rightHandedUnitNormal.transpose()<<std::endl;);
@@ -691,74 +690,26 @@ void DislocationLoop<dim,corder>::updateGeometry()
             }
         }
         _patches.update(linkShifts,globalNodePos);
-        
-//        std::shared_ptr<PeriodicPlanePatch<dim>> _barycentricPatch;
-//        VectorDim barycenter(VectorDim::Zero());
-//        size_t barycenterCunter(0);
-//        for(const auto& loopLink : linkSeq)
-//        {
-//            if(!loopLink->source->periodicPlaneEdge.first && !loopLink->source->periodicPlaneEdge.second)
-//            {
-//                barycenter+=loopLink->source->get_P();
-//                barycenterCunter++;
-//            }
-//        }
-//        if(barycenterCunter>0)
-//        {
-//            barycenter/=barycenterCunter;
-//        }
-//        const VectorDim oldPatchShift(_barycentricPatch? _barycentricPatch->shift : VectorDim::Zero());
-//        const auto pLocalNew(periodicGlidePlane->referencePlane->localPosition(barycenter));
-//        _barycentricPatch=periodicGlidePlane->getPatch(periodicGlidePlane->findPatch(pLocalNew,oldPatchShift));
-//        _barycentricNodes.clear();
-//        for(const auto& loopLink : linkSeq)
-//        {
-//            if(!loopLink->source->periodicPlaneEdge.first && !loopLink->source->periodicPlaneEdge.second)
-//            {
-//                _barycentricNodes.push_back(loopLink->source->get_P()+_barycentricPatch->shift);
-//            }
-//        }
-        
     }
-    
-    // Update patches
-//    if(periodicGlidePlane)
-//    {
-//        _patches.clear();
-//        std::vector<VectorDim> linkShifts;
-//        std::vector<Eigen::Matrix<double,dim-1,1>> localNodePos;
-//        for(const auto& link : this->linkSequence())
-//        {// Collect patches of the loop
-//            if(link->periodicPlanePatch())
-//            {
-//                linkShifts.push_back(link->periodicPlanePatch()->shift);
-//            }
-//            if(   !link->source->periodicPlaneEdge.first
-//               && !link->source->periodicPlaneEdge.second)
-//            {// source is not a bnd node
-//                localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(link->source->get_P()));
-//            }
-//        }
-//
-//        const auto loopPatches(periodicGlidePlane->filledPatches(linkShifts));
-//        for(const auto& patch : loopPatches)
-//        {
-//            std::vector<Eigen::Matrix<double,dim-1,1>> localPatchPos;
-//            for(const auto& edge : patch->edges())
-//            {
-//                localPatchPos.push_back(*edge->source);
-//            }
-//
-//            const auto localLoopPosOnPeriodicPlane(SutherlandHodgman::clip(localNodePos,localPatchPos));
-//            std::vector<Eigen::Matrix<double,dim-1,1>> localLoopPosOnPatchPlane;
-//            for(const auto& localPos : localLoopPosOnPeriodicPlane)
-//            {
-//                const VectorDim globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
-//                localLoopPosOnPatchPlane.push_back(patch->glidePlane->localPosition(globalPos));
-//            }
-//            _patches.emplace(patch,localLoopPosOnPatchPlane);
-//        }
-//    }
+}
+
+template <int dim, short unsigned int corder>
+void DislocationLoop<dim,corder>::updateRates()
+{
+    VerboseDislocationLoop(2,"DislocationLoop "<<this->sID<<" updateRates"<<std::endl;);
+    nAR.setZero();
+    if(glidePlane)
+    {// remove numerical errors by projecting along glidePlane->unitNormal
+        if(this->loopLinks().size())
+        {
+            for(const auto& loopLink : this->loopLinks())
+            {
+                const VectorDim linkChord(loopLink->sink->get_P()-loopLink->source->get_P());
+                nAR+=0.5*(loopLink->source->networkNode->get_V()+loopLink->sink->networkNode->get_V()).cross(linkChord);
+            }
+        }
+        _slippedAreaRate=nA.dot(nAR)/_slippedArea;
+    }
 }
 
 //template <int dim, short unsigned int corder>

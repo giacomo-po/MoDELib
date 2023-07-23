@@ -183,9 +183,11 @@ namespace model
         void setConfiguration(const DDconfigIO<dim>&);
         MatrixDim plasticDistortionRate() const;
         MatrixDim plasticDistortion() const;
+        MatrixDim plasticStrain() const;
         std::map<std::pair<int,int>,double> slipSystemPlasticDistortion() const;
         MatrixDim plasticStrainRate() const;
         void updateGeometry();//
+        void updateRates();//
         DislocationNetworkIOType& io();
         const DislocationNetworkIOType& io() const;
         std::tuple<double,double,double,double> networkLength() const;

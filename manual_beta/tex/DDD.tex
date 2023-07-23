@@ -58,3 +58,7 @@ perform discrete events:\\
  During the initialization phase a mesh of the simulation domain is prepared, material properties are selected, and an initial dislocation microstructure is generated. In. MoDELib, these processes are automated as explained in section \ref{runningMoDELib}. During the main simulation loop the mutual interaction forces between dislocations are computed using semi-analytical expressions derived from the elastic theory of dislocations described in section \ref{elasticTheoryDislocations}. This is typically the most time-consuming part of a single simulation step. External loads and possibly other stress sources are then added to determine the total force on each line element of a dislocation. Overdamped dynamics is then invoked to compute the local dislocation velocity given the local force, using special functions called \textit{mobility laws}. A Finite Element (FE) scheme is then employed to find the velocity of the discretization points (nodes) which determine the dislocation configuration. Once ta new configuration is obtained through a simple time-marching scheme, a series of processes takes place to update the dislocation topology due to discrete physical events such as collisions, cross slip, etc.
 
 In the remainder of this chapter we develop the necessary theoretical background necessary to understand the  DDD method. We then proceed to the description of the MoDELib implementation. 
+
+
+
+

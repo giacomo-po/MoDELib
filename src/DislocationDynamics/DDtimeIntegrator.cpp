@@ -18,7 +18,7 @@ namespace model
     /******************************************************************/
     DDtimeIntegrator::DDtimeIntegrator(const std::string& fileName):
     /*                  init                    */  dxMax(TextFileParser(fileName).readScalar<double>("dxMax", true))
-    /*                  init                    */, shearWaveSpeedFraction(1.0e-5)
+    /*                  init                    */, shearWaveSpeedFraction(1.0e-7)
     /*                  init                    */, timeIntegrationMethod(TextFileParser(fileName).readScalar<int>("timeIntegrationMethod", true))
     /*                  init                    */, dtMax(TextFileParser(fileName).readScalar<double>("timeStep", true))
     /*                  init                    */, dpdMax(TextFileParser(fileName).readScalar<double>("dpdMax", true))
