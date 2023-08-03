@@ -120,6 +120,12 @@ namespace model
         writeConfigFiles(0);        
     }
 
+const DDtraitsIO& MicrostructureGenerator::traits() const
+{
+    return traitsIO;
+}
+
+
     const DDconfigIO<3>& MicrostructureGenerator::config() const
     {
         return configIO;
@@ -208,27 +214,34 @@ namespace model
         return inclusionID;
     }
 
-size_t MicrostructureGenerator::insertInclusion(const std::vector<VectorDimD>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type)
+size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vector3d>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type)
 {
     const size_t inclusionID(configIO.sphericalInclusions().size()+configIO.polyhedronInclusions().size());
     configIO.polyhedronInclusions().emplace_back(inclusionID,eT,vrc,type);
     const size_t startNodeID(configIO.polyhedronInclusionNodes().size());
-//    const size_t startNodeID(0);
-    for(size_t k=0;k<polyNodes.size();++k)
+    
+    size_t nodeCounter(0);
+    for(const auto& node : polyNodes)
     {
-//        configIO.polyhedronInclusionNodes().emplace_back(inclusionID,startNodeID+k,polyNodes[k]);
-        configIO.polyhedronInclusionNodes().emplace_back(startNodeID+k,polyNodes[k]);
-
+        configIO.polyhedronInclusionNodes().emplace_back(startNodeID+nodeCounter,node.second);
+        nodeCounter++;
     }
+    
     for(const auto& pair : faceMap)
     {
         const size_t& faceID(pair.first);
         for(size_t k=0;k<pair.second.size();++k)
         {
             const size_t k1(k<pair.second.size()-1? k+1 : 0);
-            const size_t sourceID(startNodeID + pair.second[k]);
-            const size_t   sinkID(startNodeID + pair.second[k1]);
-            configIO.polyhedronInclusionEdges().emplace_back(inclusionID,faceID,sourceID,sinkID);
+            
+            const auto sourceIter(polyNodes.find(pair.second[k]));
+            const auto sinkIter(polyNodes.find(pair.second[k1]));
+            if(sourceIter!=polyNodes.end() && sinkIter!=polyNodes.end())
+            {
+                const size_t sourceID(startNodeID +std::distance(polyNodes.begin(),sourceIter));
+                const size_t sinkID(startNodeID +std::distance(polyNodes.begin(),sinkIter));
+                configIO.polyhedronInclusionEdges().emplace_back(inclusionID,faceID,sourceID,sinkID);
+            }
         }
     }
     

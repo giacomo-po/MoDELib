@@ -1,0 +1,28 @@
+type=PolyhedronInclusions;
+style=individual;
+tag=polyincl0;
+nodes=0 0 0
+      1 0 0
+      1 1 0
+      0 1 0
+      0 0 1
+      1 0 1
+      1 1 1
+      0 1 1;
+
+faces=
+0 : 0 3 2 1
+1 : 4 5 6 7
+2 : 1 5 4 0
+3 : 3 7 6 2
+4 : 1 2 6 5
+5 : 0 4 7 3;
+
+# Transform y=A(x-x0)
+x0=-1.5 -1.0 -1.0;
+A=300 100 0
+  0 300 0
+  0 0 300];
+inclusionsEigenDistortions=0.03 0 0 0 0.03 0 0 0 0.03;
+inclusionVelocityReductionFactors=1;
+phaseIDs=0; # ID of secondPhase 

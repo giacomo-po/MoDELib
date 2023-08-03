@@ -43,6 +43,7 @@
 #include <MicrostructureGenerator.h>
 #include <PolyhedronInclusionsGenerator.h>
 #include <PlaneLineIntersection.h>
+#include <GmshReader.h>
 
 namespace model
 {
@@ -127,18 +128,32 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
         
         std::cout<<magentaBoldColor<<"Generating polyhedral individual inclusions"<<defaultColor<<std::endl;
 
-        Eigen::Matrix<double,Eigen::Dynamic,3> nodes(this->parser.template readMatrixCols<double>("nodes",3,true));
-        const auto faces(this->parser.template readArrayMap<size_t,size_t>("faces",true));
-        
-        const Eigen::Matrix<double,1,3> x0(this->parser.readMatrix<double>("x0",1,3,true));
+        const std::string mshFile=mg.traits().inputFilesFolder+"/"+this->parser.readString("mshFile",true);
+        const Eigen::Matrix<double,3,1> x0(this->parser.readMatrix<double>("x0",1,3,true).transpose());
         const Eigen::Matrix<double,3,3> A(this->parser.readMatrix<double>("A",3,3,true));
 
-        std::vector<Eigen::Matrix<double,3,1>> scaledNodes;
-        for(int i=0;i<nodes.rows();++i)
+        std::cout<<"mshFile="<<mshFile<<std::endl;
+        GmshReader mshReader(mshFile);
+        
+        std::map<size_t,Eigen::Vector3d> scaledNodes;
+        
+        for(const auto& node : mshReader.nodes())
         {
-            scaledNodes.push_back(A*(nodes.row(i)-x0).transpose());
+            scaledNodes.emplace(node.first,A*(node.second-x0));
         }
         
+        std::map<size_t,std::vector<size_t>> faces;
+        size_t eleCounter(0);
+        for(const auto& ele : mshReader.elements())
+        {
+            if(ele.second.type==2)
+            {// 3-nodes triangle
+                faces.emplace(eleCounter,ele.second.nodeIDs);
+                eleCounter++;
+            }
+            
+        }
+
         const Eigen::Matrix<double,1,3*3> eT(this->parser.readMatrix<double>("inclusionsEigenDistortions",1,3*3,true));
         const double vrc(this->parser.readScalar<double>("inclusionVelocityReductionFactors",true));
         const int phaseIDs(this->parser.readScalar<int>("phaseIDs",true));
@@ -147,46 +162,10 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
 
         
         
-//        const std::vector<double> inclusionRadii_SI(this->parser.readArray<double>("inclusionRadii_SI",true));
-//
-//        std::cout<<magentaBoldColor<<"Generating individual inclusions"<<defaultColor<<std::endl;
-//        if(inclusionRadii_SI.size())
-//        {
-////            const std::vector<int> periodicDipoleExitFaceIDs(this->parser.readArray<int>("periodicDipoleExitFaceIDs",true));
-//            const Eigen::Matrix<double,Eigen::Dynamic,dim> inclusionsCenters(this->parser.readMatrix<double>("inclusionsCenters",inclusionRadii_SI.size(),dim,true));
-//            const Eigen::Matrix<double,Eigen::Dynamic,dim*dim> inclusionsEigenDistortions(this->parser.readMatrix<double>("inclusionsEigenDistortions",inclusionRadii_SI.size(),dim*dim,true));
-//            const std::vector<double> inclusionVRF(this->parser.readArray<double>("inclusionVelocityReductionFactors",true));
-//            const std::vector<int> phaseIDs(this->parser.readArray<int>("phaseIDs",true));
-//
-//            if(int(inclusionRadii_SI.size())!=inclusionsCenters.rows())
-//            {
-//                throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO inclusionsCenters.rows()="+std::to_string(inclusionsCenters.rows()));
-//            }
-//            if(int(inclusionRadii_SI.size())!=inclusionsEigenDistortions.rows())
-//            {
-//                throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO inclusionsEigenDistortions.rows()="+std::to_string(inclusionsEigenDistortions.rows()));
-//            }
-//            if(inclusionRadii_SI.size()!=inclusionVRF.size())
-//            {
-//                throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO inclusionVRF.size()="+std::to_string(inclusionVRF.size()));
-//            }
-//            if(inclusionRadii_SI.size()!=phaseIDs.size())
-//            {
-//                throw std::runtime_error("inclusionRadii_SI.size()="+std::to_string(inclusionRadii_SI.size())+" NOT EQUAL TO phaseIDs.size()="+std::to_string(phaseIDs.size()));
-//            }
-//
-//            for(size_t k=0;k<inclusionRadii_SI.size();++k)
-//            {
-//                if(generateSingle(mg,inclusionsCenters.row(k),inclusionRadii_SI[k]/mg.poly.b_SI,inclusionsEigenDistortions.row(k),inclusionVRF[k],phaseIDs[k]))
-//                {
-//                    std::cout<<"generated inclusion"<<std::endl;
-//                }
-//            }
-//        }
         
     }
 
-    bool PolyhedronInclusionsGenerator::generateSingle(MicrostructureGenerator& mg,const std::vector<VectorDimD>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type)
+    bool PolyhedronInclusionsGenerator::generateSingle(MicrostructureGenerator& mg,const std::map<size_t,Eigen::Vector3d>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type)
     {
         
         

@@ -49,7 +49,7 @@ namespace model
 class PolyhedronInclusionsGenerator : public MicrostructureGeneratorBase
 {
     
-    bool generateSingle(MicrostructureGenerator& mg,const std::vector<VectorDimD>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type);
+    bool generateSingle(MicrostructureGenerator& mg,const std::map<size_t,Eigen::Vector3d>& polyNodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,1,dim*dim>& eTrow, const double& vrc,const int&type);
     
 
     

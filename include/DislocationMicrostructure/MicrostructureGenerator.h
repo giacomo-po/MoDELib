@@ -78,6 +78,7 @@ namespace model
         
         MicrostructureGenerator(const std::string& folderName);
         
+        const DDtraitsIO& traits() const;
         const DDconfigIO<3>& config() const;
         const DDauxIO<3>& aux() const;
         size_t insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType);
@@ -86,7 +87,7 @@ namespace model
         size_t insertNetworkNode(const VectorDimD& networkNodePos);
         size_t insertInclusion(const VectorDimD& pos,const double& R, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
 
-        size_t insertInclusion(const std::vector<VectorDimD>& nodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
+        size_t insertInclusion(const std::map<size_t,Eigen::Vector3d>& nodes,const std::map<size_t,std::vector<size_t>>& faceMap, const Eigen::Matrix<double,dim,dim>& eT, const double& vrc,const int&type);
 
 
         void writeConfigFiles(const size_t& fileID);

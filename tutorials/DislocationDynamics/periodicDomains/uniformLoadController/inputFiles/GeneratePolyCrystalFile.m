@@ -4,8 +4,8 @@ close all
 
 format long
 
-alignToSlipSystem0=0;
-lattice='bcc';
+alignToSlipSystem0=1;
+lattice='fcc';
 
 if(alignToSlipSystem0)
 switch lattice
