@@ -53,7 +53,7 @@ L(:,i)=A*Nr;
 Ln(i)=norm(L(:,i));
 end
 
-scaling=4000;
+scaling=1000;
 T=round(scaling*diag(1./Ln))
 
 %T=[1000 0 0

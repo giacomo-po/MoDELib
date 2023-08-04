@@ -101,6 +101,8 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     connect(spinBox,SIGNAL(valueChanged(int)), this, SLOT(resetPlanes()));
     connect(computeButton,SIGNAL(released()), this, SLOT(compute()));
     connect(fieldComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(plotField()));
+    connect(minScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
+    connect(maxScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
 
     
     
