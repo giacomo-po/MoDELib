@@ -17,37 +17,119 @@
 #include <vtkCellData.h>
 
 #include <DDFieldWidget.h>
+#include <StressStraight.h>
 
 namespace model
 {
 
+double FieldDataPnt::value(const int& valID) const
+{
+    switch (valID)
+    {
+        case 0:
+            return stressDD(0,0);
+            break;
+        case 1:
+            return stressDD(0,1);
+            break;
+        case 2:
+            return stressDD(0,2);
+            break;
+        case 3:
+            return stressDD(1,1);
+            break;
+        case 4:
+            return stressDD(1,2);
+            break;
+        case 5:
+            return stressDD(2,2);
+            break;
+        
+        default:
+            return 0.0;
+            break;
+    }
+}
+
+
 DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                              vtkRenderer* const renderer_in,
-                             const SimplicialMesh<3>& mesh_in):
+                             Polycrystal<3>& poly_in,
+                             const DDconfigIO<3>& configIO_in):
 /* init */ mainLayout(new QGridLayout(this))
 /* init */,boxLabel(new QLabel(tr("# of planes")))
 /* init */,spinBox(new QSpinBox(this))
-/* init */,computeButton(new QPushButton(tr("Compute")))
 /* init */,groupBox(new QGroupBox(tr("&Planes")))
+/* init */,computeButton(new QPushButton(tr("Compute")))
+/* init */,fieldComboBox(new QComboBox(this))
+/* init */,customScaleBox(new QGroupBox(tr("&Custom scale")))
+/* init */,minScale(new QLineEdit(tr("0")))
+/* init */,maxScale(new QLineEdit(tr("1")))
+/* init */,lut(vtkSmartPointer<vtkLookupTable>::New())
+/* init */,scalarBar(vtkSmartPointer<vtkScalarBarActor>::New())
 /* init */,renWin(renWin_in)
 /* init */,renderer(renderer_in)
-/* init */,mesh(mesh_in)
+/* init */,poly(poly_in)
+/* init */,configIO(configIO_in)
 {
     
     QVBoxLayout* groupBoxLayout = new QVBoxLayout();
     groupBox->setLayout(groupBoxLayout);
 
-    mainLayout->addWidget(boxLabel,0,0,1,1);
-    mainLayout->addWidget(spinBox,0,1,1,1);
-    mainLayout->addWidget(computeButton,1,0,1,2);
-    mainLayout->addWidget(groupBox,2,0,1,2);
+    QGridLayout* autoscaleLayout = new QGridLayout();
+    customScaleBox->setCheckable(true);
+    customScaleBox->setChecked(false);
 
-    this->setLayout(mainLayout);
+//    minScale->setEnabled(false);
+//    maxScale->setEnabled(false);
+    autoscaleLayout->addWidget(minScale,0,0,1,1);
+    autoscaleLayout->addWidget(maxScale,0,1,1,1);
+    customScaleBox->setLayout(autoscaleLayout);
+
+
+    fieldComboBox->insertItem(0,"stress_11");
+    fieldComboBox->insertItem(1,"stress_12");
+    fieldComboBox->insertItem(2,"stress_13");
+//    fieldComboBox->insertItem(3,"stress_21");
+    fieldComboBox->insertItem(4,"stress_22");
+    fieldComboBox->insertItem(5,"stress_23");
+//    fieldComboBox->insertItem(6,"stress_31");
+//    fieldComboBox->insertItem(7,"stress_32");
+    fieldComboBox->insertItem(8,"stress_33");
+
     
     connect(spinBox,SIGNAL(valueChanged(int)), this, SLOT(resetPlanes()));
     connect(computeButton,SIGNAL(released()), this, SLOT(compute()));
+    connect(fieldComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(plotField()));
+
+    
+    
+//    connect(customScaleBox,SIGNAL(toggled(bool)), this, SLOT(toggleAutoscale()));
+    
+    mainLayout->addWidget(boxLabel,0,0,1,1);
+    mainLayout->addWidget(spinBox,0,1,1,1);
+    mainLayout->addWidget(groupBox,1,0,1,2);
+    mainLayout->addWidget(computeButton,2,0,1,2);
+    mainLayout->addWidget(fieldComboBox,3,0,1,2);
+    mainLayout->addWidget(customScaleBox,4,0,1,2);
+    this->setLayout(mainLayout);
+
+    
+    scalarBar->VisibilityOff();
+    scalarBar->SetNumberOfLabels(4);
+    scalarBar->GetLabelTextProperty()->SetColor(0,0,0);
+    lut->SetHueRange(0.66667, 0.0);
+    scalarBar->SetLookupTable( lut );
+    lut->Build();
+
 
 }
+
+//void DDFieldWidget::toggleAutoscale()
+//{
+//    minScale->setEnabled(!customScaleBox->isChecked());
+//    maxScale->setEnabled(!customScaleBox->isChecked());
+//}
 
 void DDFieldWidget::compute()
 {
@@ -62,16 +144,144 @@ void DDFieldWidget::compute()
                 auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
                 if (ddPlaneField)
                 {
-                    ddPlaneField->compute();
+                    ddPlaneField->compute(configIO);
                 }
             }
         }
     }
+    plotField();
 }
 
-void DDPlaneField::compute()
+void DDFieldWidget::plotField()
 {
-    std::cout<<"DDPlaneField computing "<<std::endl;
+    if(groupBox->layout())
+    {
+        const int valID(fieldComboBox->currentIndex());
+
+        // Compute lut range if customScaleBox is off
+        if(!customScaleBox->isChecked())
+        {// compute range
+            double minValue=std::numeric_limits<double>::max();
+            double maxValue=-std::numeric_limits<double>::max();
+            for(int k=0;k<groupBox->layout()->count();++k)
+            {
+                QLayoutItem *item = groupBox->layout()->itemAt(k);
+                QWidget* widget = item->widget();
+                if(widget)
+                {
+                    auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
+                    if (ddPlaneField)
+                    {
+                        if(ddPlaneField->groupBox->isChecked())
+                        {
+                            for(const auto& vtx : ddPlaneField->dataPnts())
+                            {
+                                const double value(vtx.value(valID));
+                                minValue=std::min(minValue,value);
+                                maxValue=std::max(maxValue,value);
+                            }
+                        }
+                    }
+                }
+            }
+            minScale->setText(QString::fromStdString(std::to_string(minValue)));
+            maxScale->setText(QString::fromStdString(std::to_string(maxValue)));
+        }
+        
+        // Set lut range
+        try
+        {
+            double lutMin(std::stod(minScale->text().toStdString().c_str()));
+//            minScale->setStyleSheet("color: black");
+            try
+            {
+                double lutMax(std::stod(maxScale->text().toStdString().c_str()));
+//                maxScale->setStyleSheet("color: black");
+                lut->SetTableRange(lutMin, lutMax);
+                
+                for(int k=0;k<groupBox->layout()->count();++k)
+                {
+                    QLayoutItem *item = groupBox->layout()->itemAt(k);
+                    QWidget* widget = item->widget();
+                    if(widget)
+                    {
+                        auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
+                        if (ddPlaneField)
+                        {
+                            if(ddPlaneField->groupBox->isChecked())
+                            {
+                                ddPlaneField->plotField(valID,lut);
+                            }
+                        }
+                    }
+                }
+                renWin->Render();
+            }
+            catch (const std::exception& e)
+            {
+//                maxScale->setStyleSheet("color: red");
+            }
+        }
+        catch (const std::exception& e)
+        {
+//            minScale->setStyleSheet("color: red");
+        }
+    }
+}
+
+void DDPlaneField::compute(const DDconfigIO<3>& ddConfig)
+{
+    std::cout<<"DDPlaneField computing "<<dataPnts().size()<<" points..."<<std::flush;
+    const auto t0= std::chrono::system_clock::now();
+
+    for(size_t vtkID=0;vtkID<dataPnts().size();++vtkID)
+    {
+        auto& vtx(dataPnts()[vtkID]);
+        // DD stress
+        vtx.stressDD.setZero();
+//        vtx.vacancyConcDD=0.0;
+//        vtx.clusterConcentrationDD.setZero();
+//        Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero());
+        for (const auto& segment : ddConfig.segments())
+        {
+            if(segment.second.meshLocation==0 || segment.second.meshLocation==2)
+            {// segment inside mesh or on grain boundary
+                auto itSource(ddConfig.nodeMap().find(segment.second.sourceID)); //source
+//                assert(itSource!=ddConfig.nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
+                auto   itSink(ddConfig.nodeMap().find(segment.second.sinkID)); //sink
+//                assert(  itSink!=ddConfig.nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
+                if(itSource!=ddConfig.nodeMap().end() && itSink!=ddConfig.nodeMap().end())
+                {
+                    const auto& sourceNode(ddConfig.nodes()[itSource->second]);
+                    const auto&   sinkNode(ddConfig.nodes()[itSink->second]);
+                    StressStraight<3> ss(poly,sourceNode.P,sinkNode.P,segment.second.b);
+                    vtx.stressDD+=ss.stress(vtx.P);
+                }
+                else
+                {
+
+                }
+//                if(bvpSolver.poly.icp)
+//                {
+//                    vtx.clusterConcentrationDD+=ss.clusterConcentration(vtx.P,itSource->second->V,itSink->second->V,*bvpSolver.poly.icp);
+//                }
+//                else
+//                {
+//                    vtx.vacancyConcDD+=ss.vacancyConcentration(vtx.P,itSource->second->V,itSink->second->V,bvpSolver.poly.Dv);
+//                }
+            }
+        }
+//        // FEM solution
+//        vtx.stressFEM=bvpSolver.stress(vtx.P,simplexGuess); // simplexGuess is updated too
+//        vtx.displacementFEM=bvpSolver.displacement(vtx.P,simplexGuess); // simplexGuess is updated too
+//        vtx.vacancyConcFEM=bvpSolver.vacancyConcentration(vtx.P,simplexGuess);
+//        vtx.NHdisp=bvpSolver.NHcreepDisplacement(vtx.P,simplexGuess);
+//        //vtx.NHdisp=eval(bvpSolver.jT)(vtx.P,simplexGuess);
+//        vtx.clusterConcentrationFEM=bvpSolver.clusterConcentration(vtx.P,simplexGuess);
+    }
+    
+    std::cout<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
+//    plotField();
 }
 
 void DDFieldWidget::clearLayout(QLayout *layout)
@@ -97,11 +307,32 @@ void DDFieldWidget::resetPlanes()
     std::cout<<"Resetting "<<spinBox->value()<<" planes"<<std::endl;
     for(int k=0;k<spinBox->value();++k)
     {
-        DDPlaneField* planeField(new DDPlaneField(renWin,renderer,mesh));
+        DDPlaneField* planeField(new DDPlaneField(renWin,renderer,poly));
         planeField->resetPlane();
         groupBox->layout()->addWidget(planeField);
     }
     renWin->Render();
+}
+
+void DDPlaneField::plotField(const int& valID,const vtkSmartPointer<vtkLookupTable>& lut)
+{
+    vtkSmartPointer<vtkUnsignedCharArray> fieldColors(vtkSmartPointer<vtkUnsignedCharArray>::New());
+    fieldColors->SetNumberOfComponents(3);
+    for(auto& vtx : dataPnts())
+    {
+        const double value(vtx.value(valID));
+        double dclr[3];
+        lut->GetColor(value, dclr);
+        unsigned char cclr[3];
+        for(unsigned int j = 0; j < 3; j++)
+        {
+            cclr[j] = static_cast<unsigned char>(255.0 * dclr[j]);
+        }
+        fieldColors->InsertNextTypedTuple(cclr);
+    }
+    meshPolydata->GetPointData()->SetScalars(fieldColors);
+    meshPolydata->Modified();
+    meshMapper->SetScalarModeToUsePointData();
 }
 
 const std::deque<FieldDataPnt>& DDPlaneField::dataPnts() const
@@ -116,7 +347,7 @@ std::deque<FieldDataPnt>& DDPlaneField::dataPnts()
 
 DDPlaneField::DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,
                            vtkRenderer* const renderer_in,
-                           const SimplicialMesh<3>& mesh_in):
+                           const Polycrystal<3>& poly_in):
 /* init */ mainLayout(new QGridLayout(this))
 /* init */,groupBox(new QGroupBox(tr("&Plane")))
 /* init */,posEdit(new QLineEdit("0 0 0"))
@@ -127,9 +358,9 @@ DDPlaneField::DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,
 /* init */,meshActor(vtkSmartPointer<vtkActor>::New())
 /* init */,renWin(renWin_in)
 /* init */,renderer(renderer_in)
-/* init */,mesh(mesh_in)
+/* init */,poly(poly_in)
 {
-    const VectorDim c(0.5*(mesh.xMax()+mesh.xMin()));
+    const VectorDim c(0.5*(poly.mesh.xMax()+poly.mesh.xMin()));
     posEdit->setText(QString::fromStdString(std::to_string(c(0))+" "+std::to_string(c(1))+" "+std::to_string(c(2))));
     
     const VectorDim n(Eigen::Matrix<double,3,1>::Random());
@@ -193,7 +424,7 @@ void DDPlaneField::resetPlane()
                     const double nNorm(N.norm());
                     if(nNorm>FLT_EPSILON)
                     {
-                        plane.reset(new MeshPlane<3>(mesh,P,N));
+                        plane.reset(new MeshPlane<3>(poly.mesh,P,N));
                         std::deque<Eigen::Matrix<double,2,1>> boundaryPts;
                         std::deque<Eigen::Matrix<double,2,1>> internalPts;
                         for(const auto& bndLine : plane->meshIntersections)

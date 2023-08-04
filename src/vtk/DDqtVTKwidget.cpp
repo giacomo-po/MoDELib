@@ -37,7 +37,7 @@ namespace model
     /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
     /* init */,meshActor(new SimplicialMeshActor(renderWindow,renderer,mesh))
     /* init */,ddConfigVtk(new DDconfigVtk(traitsIO,renderWindow,renderer,openglWidget,poly,periodicGlidePlaneFactory))
-    /* init */,ddField(new DDFieldWidget(renderWindow,renderer,mesh))
+    /* init */,ddField(new DDFieldWidget(renderWindow,renderer,poly,*ddConfigVtk))
 //    /* init */,chartActor(new ChartActor(traitsIO,renderWindow,renderer))
     {
         renderer->SetBackground(1,1,1);

@@ -12,97 +12,59 @@
 #include <Eigen/Dense>
 
 #include <memory>
-//#include <random>
-//#include <algorithm>
-//
 #include <QGroupBox>
 #include <QGridLayout>
-//#include <QCheckBox>
-//#include <QLabel>
 #include <QWidget>
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
-//
-//#include <vtkVersion.h>
+#include <QComboBox>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkActor.h>
-//#include <vtkProperty.h>
-//#include <vtkRenderer.h>
-//#include <vtkTriangle.h>
-//#include <vtkCellData.h>
-//#include <vtkPlane.h>
-//#include <vtkClipPolyData.h>
-//#include <vtkRenderWindowInteractor.h>
-//#include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
-//#include <vtkActor.h>
-//#include <vtkCamera.h>
-//#include <vtkPolyDataMapper.h>
-//#include <vtkDataSetMapper.h>
-//#include <vtkPolyData.h>
-//#include <vtkStripper.h>
-//#include <vtkFeatureEdges.h>
-//#include <vtkActor.h>
-//#include <vtkProperty.h>
-//#include <vtkPolyDataMapper.h>
-//#include <vtkClipPolyData.h>
-//#include <vtkPlane.h>
-//#include <vtkSphereSource.h>
-//#include <vtkPlane.h>
-//#include <vtkCommand.h>
-//#include <vtkImplicitPlaneWidget2.h>
-//#include <vtkImplicitPlaneRepresentation.h>
-//#include <vtkNamedColors.h>
-//#include <vtkLookupTable.h>
-//#include <vtkUnsignedCharArray.h>
-//#include <vtkPointData.h>
-//#include <vtkGenericOpenGLRenderWindow.h>
-//#include <vtkPlane.h>
-//#include <vtkCommand.h>
-//#include <vtkImplicitPlaneWidget2.h>
-//#include <vtkImplicitPlaneRepresentation.h>
-//#include <vtkAxesActor.h>
-//#include <vtkOrientationMarkerWidget.h>
-//#include <vtkCubeAxesActor.h>
-//#include <vtkGlyph3D.h>
-//#include <vtkArrowSource.h>
-//#include <vtkDoubleArray.h>
-//
-//#include <TextFileParser.h>
-//
+#include <vtkLookupTable.h>
+#include <vtkScalarBarActor.h>
+#include <vtkTextProperty.h>
+#include <vtkPointData.h>
+
+
 #include <SimplicialMesh.h>
 #include <MeshPlane.h>
 #include <TriangularMesh.h>
+#include <DDconfigIO.h>
+#include <Polycrystal.h>
 
 namespace model
 {
 
     struct FieldDataPnt
     {
-        
         const Eigen::Matrix<double,3,1> P;
         double solidAngle;
-//        Eigen::Matrix<double,3,1> displacementDD;
-
+        //        Eigen::Matrix<double,3,1> displacementDD;
+        Eigen::Matrix<double,3,3> stressDD;
+        
         FieldDataPnt(const Eigen::Matrix<double,3,1>& Pin);
         
+        double value(const int& valID) const;
     };
 
 
     struct DDPlaneField : public QWidget
-                        , public TriangularMesh
-                        , public std::deque<FieldDataPnt>
+    , public TriangularMesh
+    , public std::deque<FieldDataPnt>
     {
         
         Q_OBJECT
+        
+    public:
 
         typedef Eigen::Matrix<double,3,1> VectorDim;
-
+        
         QGridLayout* mainLayout;
         QGroupBox* groupBox;
         
@@ -113,27 +75,26 @@ namespace model
         vtkSmartPointer<vtkPolyData> meshPolydata;
         vtkSmartPointer<vtkPolyDataMapper> meshMapper;
         vtkSmartPointer<vtkActor> meshActor;
-
+        
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
-        const SimplicialMesh<3>& mesh;
+        const Polycrystal<3>& poly;
         std::shared_ptr<MeshPlane<3>> plane;
-
-        public slots:
-            
-            void resetPlane();
+        
+    public slots:
+        
+        void resetPlane();
         void modify();
-
-        public:
-
-        DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in,const SimplicialMesh<3>& mesh_in);
+        
+    public:
+        
+        DDPlaneField(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in,const Polycrystal<3>& poly_in);
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute();
+        void compute(const DDconfigIO<3>& configIO);
+        void plotField(const int& valID,const vtkSmartPointer<vtkLookupTable>& lut);
 
-        
-//        DDField(vtkRenderer* const renderer, const SimplicialMesh<3>& mesh_in);
     };
 
 
@@ -145,28 +106,35 @@ namespace model
         QGridLayout* mainLayout;
         QLabel* boxLabel;
         QSpinBox* spinBox;
-        QPushButton* computeButton;
         QGroupBox* groupBox;
+        QPushButton* computeButton;
+        QComboBox* fieldComboBox;
+        QGroupBox* customScaleBox;
+        QLineEdit* minScale;
+        QLineEdit* maxScale;
+        vtkSmartPointer<vtkLookupTable> lut;
+        vtkSmartPointer<vtkScalarBarActor> scalarBar;
 
+        
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
-        const SimplicialMesh<3>& mesh;
-//        std::vector<std::shared_ptr<DDPlaneField>> planes;
+        const Polycrystal<3>& poly;
+        const DDconfigIO<3>& configIO;
         
-    private slots:
-        
+        private slots:
         void clearLayout(QLayout *layout);
         void resetPlanes();
         void compute();
+//        void toggleAutoscale();
+        void plotField();
+
 
     public:
- 
-        DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in, const SimplicialMesh<3>& mesh_in);
         
-        
+        DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in, Polycrystal<3>& poly_in,const DDconfigIO<3>& configIO_in);
         
     };
-    
+
 } // namespace model
 #endif
 
