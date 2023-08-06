@@ -59,7 +59,7 @@ namespace model
     /* init */,a(_a)
     /* init */,a2(a*a)
     {
-        std::cout<<"Creating SphericalInclusion "<<this->sID<<" (type "<<this->phaseID<<"):\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<this->eT<<std::endl;
+//        std::cout<<"Creating SphericalInclusion "<<this->sID<<" (type "<<this->phaseID<<"):\n C="<<C.transpose()<<"\n a="<<a<<"\n eT="<<this->eT<<std::endl;
     }
 
     /**********************************************************************/

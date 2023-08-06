@@ -15,13 +15,10 @@
 #include <QFuture>
 #include <QtCore>
 #include <QtConcurrent/QtConcurrentRun>
+#include <QImage>
 
 #include <DDconfigVtk.h>
 #include <SimplicialMesh.h>
-
-//#include <QSize>
-//#include <QPixmap>
-#include <QImage>
 
 namespace model
 {
@@ -38,10 +35,11 @@ namespace model
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren))
         /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
-        /* init */,inclusions(new InclusionActor(renWin,ren))
+        /* init */,inclusions(new InclusionActor(renWin,ren,poly))
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
         /* init */,chartActor(new ChartActor(traitsIO,renderWindow,ren))
+        /* init */,ddField(new DDFieldWidget(renderWindow,ren,poly,*this,*segments,*inclusions))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -59,7 +57,8 @@ namespace model
             tabWidget->addTab(glidePlanes, tr(std::string("GlidePlanes").c_str()));
             tabWidget->addTab(quadrature, tr(std::string("Quadrature").c_str()));
             tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));
-            
+            tabWidget->addTab(ddField, tr(std::string("Fields").c_str()));
+
             saveImage->setText("save PNG");
 
 
@@ -171,6 +170,7 @@ namespace model
         {
             try
             {
+                
                 configIO().read(frameID);
                 auxIO().read(frameID);
                 nodes->updateConfiguration(*this);
@@ -180,7 +180,7 @@ namespace model
                 glidePlanes->updateConfiguration(*this);
                 quadrature->updateConfiguration(*this);
                 chartActor->updateConfiguration(frameID);
-                
+//                ddField->compute();
 
                 
                 if(saveImage->isChecked())

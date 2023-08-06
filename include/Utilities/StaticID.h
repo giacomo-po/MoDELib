@@ -73,6 +73,12 @@ namespace model
 			count =  newCount;
             count_used=false;
 		}
+        
+        static void force_count(const size_t& newCount)
+        {
+            count =  newCount;
+            count_used=false;
+        }
 		
         /**********************************************************************/
 		static void set_increment(const size_t& newIncrement)

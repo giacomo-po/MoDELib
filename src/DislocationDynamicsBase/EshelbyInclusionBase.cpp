@@ -62,6 +62,8 @@ namespace model
         assert((_eT-_eT.transpose()).norm()<FLT_EPSILON && "eT is not symmetric.");
     }
 
+    template <int dim>
+    EshelbyInclusionBase<dim>::~EshelbyInclusionBase(){};
   
     template class EshelbyInclusionBase<3>;
 

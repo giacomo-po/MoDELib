@@ -24,6 +24,7 @@
 
 #include <DDconfigIO.h>
 #include <DDauxIO.h>
+#include <DDFieldWidget.h>
 #include <SimplicialMesh.h>
 #include <NetworkNodeActor.h>
 #include <NetworkLinkActor.h>
@@ -36,13 +37,17 @@
 
 namespace model
 {
-    struct DDconfigVtk : public QWidget,
-                         public DDconfigIO<3>,
-                         public DDauxIO<3>
+    struct DDconfigVtk : public QWidget
+                        ,private DDconfigIO<3>
+                        ,private DDauxIO<3>
     {
+        
+
         
         Q_OBJECT
         
+        
+    public:
         vtkGenericOpenGLRenderWindow* const renderWindow;
         QVTKOpenGLStereoWidget* const qvtkGLwidget;
         const DDtraitsIO& traitsIO;
@@ -53,6 +58,7 @@ namespace model
         GlidePlaneActor* glidePlanes;
         QuadratureActor* quadrature;
         ChartActor* chartActor;
+        DDFieldWidget* ddField;
 
         private slots:
         bool updateConfiguration();
@@ -83,6 +89,8 @@ namespace model
         DDconfigIO<3>& configIO();
         const DDauxIO<3>& auxIO() const;
         DDauxIO<3>& auxIO();
+
+
     };
     
 }

@@ -37,7 +37,7 @@ namespace model
     /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
     /* init */,meshActor(new SimplicialMeshActor(renderWindow,renderer,mesh))
     /* init */,ddConfigVtk(new DDconfigVtk(traitsIO,renderWindow,renderer,openglWidget,poly,periodicGlidePlaneFactory))
-    /* init */,ddField(new DDFieldWidget(renderWindow,renderer,poly,*ddConfigVtk))
+//    /* init */,ddField(new DDFieldWidget(renderWindow,renderer,poly,*ddConfigVtk))
 //    /* init */,chartActor(new ChartActor(traitsIO,renderWindow,renderer))
     {
         renderer->SetBackground(1,1,1);
@@ -49,7 +49,7 @@ namespace model
         
         tabWidget->addTab(ddConfigVtk, tr(std::string("Config").c_str()));
         tabWidget->addTab(meshActor, tr(std::string("Mesh").c_str()));
-        tabWidget->addTab(ddField, tr(std::string("Fields").c_str()));
+//        tabWidget->addTab(ddField, tr(std::string("Fields").c_str()));
 
 //        tabWidget->addTab(chartActor, tr(std::string("Chart").c_str()));
 

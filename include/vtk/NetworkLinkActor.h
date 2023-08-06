@@ -82,6 +82,7 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper0;
         vtkSmartPointer<vtkActor> tubeActor0;
 
+        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3> > _segments;
         
         public:
                 
@@ -89,7 +90,7 @@ namespace model
         NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);
         void updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData);
         Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
-        
+        const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& segments() const;
     };
     
 } // namespace model

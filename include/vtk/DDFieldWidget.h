@@ -20,6 +20,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QComboBox>
+#include <QCheckBox>
 #include <vtkSmartPointer.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
@@ -37,6 +38,9 @@
 #include <TriangularMesh.h>
 #include <DDconfigIO.h>
 #include <Polycrystal.h>
+//#include <DDconfigVtk.h>
+#include <NetworkLinkActor.h>
+#include <InclusionActor.h>
 
 namespace model
 {
@@ -47,10 +51,11 @@ namespace model
         double solidAngle;
         //        Eigen::Matrix<double,3,1> displacementDD;
         Eigen::Matrix<double,3,3> stressDD;
-        
+        Eigen::Matrix<double,3,3> stressIN;
+
         FieldDataPnt(const Eigen::Matrix<double,3,1>& Pin);
         
-        double value(const int& valID) const;
+        double value(const int& valID,const bool& useDD,const bool& useIN) const;
     };
 
 
@@ -92,8 +97,8 @@ namespace model
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute(const DDconfigIO<3>& configIO);
-        void plotField(const int& valID,const vtkSmartPointer<vtkLookupTable>& lut);
+        void compute(const DDconfigIO<3>& configIO,const NetworkLinkActor& segments,const InclusionActor& inclusions);
+        void plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut);
 
     };
 
@@ -109,6 +114,8 @@ namespace model
         QGroupBox* groupBox;
         QPushButton* computeButton;
         QComboBox* fieldComboBox;
+        QCheckBox* dislocationsCheck;
+        QCheckBox* inclusionsCheck;
         QGroupBox* customScaleBox;
         QLineEdit* minScale;
         QLineEdit* maxScale;
@@ -119,19 +126,29 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
         const Polycrystal<3>& poly;
+//        const DDconfigVtk& configVTK;
         const DDconfigIO<3>& configIO;
+        const NetworkLinkActor& segments;
+        const InclusionActor& inclusions;
         
-        private slots:
+    private slots:
         void clearLayout(QLayout *layout);
         void resetPlanes();
-        void compute();
 //        void toggleAutoscale();
         void plotField();
+
+   public slots:
+        void compute();
 
 
     public:
         
-        DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,vtkRenderer* const renderer_in, Polycrystal<3>& poly_in,const DDconfigIO<3>& configIO_in);
+        DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
+                      vtkRenderer* const renderer_in,
+                      const Polycrystal<3>& poly_in,
+                      const DDconfigIO<3>& configIO_in,
+                      const NetworkLinkActor& segments_in,
+                      const InclusionActor& inclusions_in);
         
     };
 

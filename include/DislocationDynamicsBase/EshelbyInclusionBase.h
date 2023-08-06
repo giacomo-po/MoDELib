@@ -69,7 +69,7 @@ namespace model
                          const int& _phaseID,
                          const std::shared_ptr<SecondPhase<dim>>& sph);
   
-        
+        virtual ~EshelbyInclusionBase();
         virtual bool contains(const VectorDim& x) const =0 ;
         virtual MatrixDim stress(const VectorDim& x) const =0;
         

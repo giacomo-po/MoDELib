@@ -143,6 +143,10 @@ namespace model
 
         }
         
+const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& NetworkLinkActor::segments() const
+{
+    return _segments;
+}
 
         
         /**********************************************************************/
@@ -153,7 +157,7 @@ namespace model
             
 //            std::cout<<"Updating segments..."<<std::flush;
 //            const auto t2= std::chrono::system_clock::now();
-            const auto segments=configIO.segments(); // compute and store segments from configIO
+            _segments=configIO.segments(); // compute and store segments from configIO
 
             vtkSmartPointer<vtkFloatArray> radii(vtkSmartPointer<vtkFloatArray>::New());
             vtkSmartPointer<vtkUnsignedCharArray> colors(vtkSmartPointer<vtkUnsignedCharArray>::New());
@@ -166,7 +170,7 @@ namespace model
             vtkSmartPointer<vtkCellArray> cellsBnd(vtkSmartPointer<vtkCellArray>::New());
             vtkSmartPointer<vtkCellArray> cells0(vtkSmartPointer<vtkCellArray>::New());
 
-            for (const auto& segment : segments)
+            for (const auto& segment : segments())
             {
                 
                 auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source

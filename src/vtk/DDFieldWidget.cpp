@@ -22,28 +22,47 @@
 namespace model
 {
 
-double FieldDataPnt::value(const int& valID) const
+FieldDataPnt::FieldDataPnt(const Eigen::Matrix<double,3,1>& Pin):
+/* init */ P(Pin)
+/* init */,solidAngle(0.0)
+/* init */,stressDD(Eigen::Matrix<double,3,3>::Zero())
+/* init */,stressIN(Eigen::Matrix<double,3,3>::Zero())
+{
+    
+}
+
+double FieldDataPnt::value(const int& valID,const bool& useDD,const bool& useIN) const
 {
     switch (valID)
     {
         case 0:
-            return stressDD(0,0);
+            return stressDD(0,0)*useDD+stressIN(0,0)*useIN;
             break;
         case 1:
-            return stressDD(0,1);
+            return stressDD(0,1)*useDD+stressIN(0,1)*useIN;
             break;
         case 2:
-            return stressDD(0,2);
+            return stressDD(0,2)*useDD+stressIN(0,2)*useIN;
             break;
         case 3:
-            return stressDD(1,1);
+            return stressDD(1,1)*useDD+stressIN(1,1)*useIN;
             break;
         case 4:
-            return stressDD(1,2);
+            return stressDD(1,2)*useDD+stressIN(1,2)*useIN;
             break;
         case 5:
-            return stressDD(2,2);
+            return stressDD(2,2)*useDD+stressIN(2,2)*useIN;
             break;
+        case 6:
+            return value(0,useDD,useIN)+value(3,useDD,useIN)+value(5,useDD,useIN);
+            break;
+        case 7:
+        {
+            const Eigen::Matrix<double,3,3> stress(stressDD*useDD+stressIN*useIN);
+            const Eigen::Matrix<double,3,3> stressDev(stress-stress.trace()/3.0*Eigen::Matrix<double,3,3>::Identity());
+            return std::sqrt((stressDev*stressDev).trace()*1.5);
+            break;
+        }
         
         default:
             return 0.0;
@@ -54,14 +73,18 @@ double FieldDataPnt::value(const int& valID) const
 
 DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                              vtkRenderer* const renderer_in,
-                             Polycrystal<3>& poly_in,
-                             const DDconfigIO<3>& configIO_in):
+                             const Polycrystal<3>& poly_in,
+                             const DDconfigIO<3>& configIO_in,
+                             const NetworkLinkActor& segments_in,
+                             const InclusionActor& inclusions_in):
 /* init */ mainLayout(new QGridLayout(this))
 /* init */,boxLabel(new QLabel(tr("# of planes")))
 /* init */,spinBox(new QSpinBox(this))
 /* init */,groupBox(new QGroupBox(tr("&Planes")))
 /* init */,computeButton(new QPushButton(tr("Compute")))
 /* init */,fieldComboBox(new QComboBox(this))
+/* init */,dislocationsCheck(new QCheckBox("dislocations",this))
+/* init */,inclusionsCheck(new QCheckBox("inclusions",this))
 /* init */,customScaleBox(new QGroupBox(tr("&Custom scale")))
 /* init */,minScale(new QLineEdit(tr("0")))
 /* init */,maxScale(new QLineEdit(tr("1")))
@@ -71,6 +94,8 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
 /* init */,renderer(renderer_in)
 /* init */,poly(poly_in)
 /* init */,configIO(configIO_in)
+/* init */,segments(segments_in)
+/* init */,inclusions(inclusions_in)
 {
     
     QVBoxLayout* groupBoxLayout = new QVBoxLayout();
@@ -91,11 +116,16 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     fieldComboBox->insertItem(1,"stress_12");
     fieldComboBox->insertItem(2,"stress_13");
 //    fieldComboBox->insertItem(3,"stress_21");
-    fieldComboBox->insertItem(4,"stress_22");
-    fieldComboBox->insertItem(5,"stress_23");
+    fieldComboBox->insertItem(3,"stress_22");
+    fieldComboBox->insertItem(4,"stress_23");
 //    fieldComboBox->insertItem(6,"stress_31");
 //    fieldComboBox->insertItem(7,"stress_32");
-    fieldComboBox->insertItem(8,"stress_33");
+    fieldComboBox->insertItem(5,"stress_33");
+    fieldComboBox->insertItem(6,"tr(stress)");
+    fieldComboBox->insertItem(7,"stress_VM");
+
+    dislocationsCheck->setChecked(true);
+    inclusionsCheck->setChecked(true);
 
     
     connect(spinBox,SIGNAL(valueChanged(int)), this, SLOT(resetPlanes()));
@@ -103,16 +133,18 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     connect(fieldComboBox,SIGNAL(currentIndexChanged(int)), this, SLOT(plotField()));
     connect(minScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
     connect(maxScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
+    connect(dislocationsCheck,SIGNAL(stateChanged(int)), this, SLOT(plotField()));
+    connect(inclusionsCheck,SIGNAL(stateChanged(int)), this, SLOT(plotField()));
 
-    
-    
 //    connect(customScaleBox,SIGNAL(toggled(bool)), this, SLOT(toggleAutoscale()));
     
     mainLayout->addWidget(boxLabel,0,0,1,1);
     mainLayout->addWidget(spinBox,0,1,1,1);
     mainLayout->addWidget(groupBox,1,0,1,2);
-    mainLayout->addWidget(computeButton,2,0,1,2);
-    mainLayout->addWidget(fieldComboBox,3,0,1,2);
+    mainLayout->addWidget(computeButton,2,0,1,1);
+    mainLayout->addWidget(fieldComboBox,3,0,1,1);
+    mainLayout->addWidget(dislocationsCheck,2,1,1,1);
+    mainLayout->addWidget(inclusionsCheck,3,1,1,1);
     mainLayout->addWidget(customScaleBox,4,0,1,2);
     this->setLayout(mainLayout);
 
@@ -146,7 +178,7 @@ void DDFieldWidget::compute()
                 auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
                 if (ddPlaneField)
                 {
-                    ddPlaneField->compute(configIO);
+                    ddPlaneField->compute(configIO,segments,inclusions);
                 }
             }
         }
@@ -178,7 +210,7 @@ void DDFieldWidget::plotField()
                         {
                             for(const auto& vtx : ddPlaneField->dataPnts())
                             {
-                                const double value(vtx.value(valID));
+                                const double value(vtx.value(valID,dislocationsCheck->isChecked(),inclusionsCheck->isChecked()));
                                 minValue=std::min(minValue,value);
                                 maxValue=std::max(maxValue,value);
                             }
@@ -212,7 +244,7 @@ void DDFieldWidget::plotField()
                         {
                             if(ddPlaneField->groupBox->isChecked())
                             {
-                                ddPlaneField->plotField(valID,lut);
+                                ddPlaneField->plotField(valID,dislocationsCheck->isChecked(),inclusionsCheck->isChecked(),lut);
                             }
                         }
                     }
@@ -231,7 +263,7 @@ void DDFieldWidget::plotField()
     }
 }
 
-void DDPlaneField::compute(const DDconfigIO<3>& ddConfig)
+void DDPlaneField::compute(const DDconfigIO<3>& configIO,const NetworkLinkActor& segments,const InclusionActor& inclusions)
 {
     std::cout<<"DDPlaneField computing "<<dataPnts().size()<<" points..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();
@@ -244,18 +276,16 @@ void DDPlaneField::compute(const DDconfigIO<3>& ddConfig)
 //        vtx.vacancyConcDD=0.0;
 //        vtx.clusterConcentrationDD.setZero();
 //        Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero());
-        for (const auto& segment : ddConfig.segments())
+        for (const auto& segment : segments.segments())
         {
             if(segment.second.meshLocation==0 || segment.second.meshLocation==2)
             {// segment inside mesh or on grain boundary
-                auto itSource(ddConfig.nodeMap().find(segment.second.sourceID)); //source
-//                assert(itSource!=ddConfig.nodeMap().end() && "SOURCE VERTEX NOT FOUND IN V-FILE");
-                auto   itSink(ddConfig.nodeMap().find(segment.second.sinkID)); //sink
-//                assert(  itSink!=ddConfig.nodeMap().end() &&   "SINK VERTEX NOT FOUND IN V-FILE");
-                if(itSource!=ddConfig.nodeMap().end() && itSink!=ddConfig.nodeMap().end())
+                auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
+                auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
+                if(itSource!=configIO.nodeMap().end() && itSink!=configIO.nodeMap().end())
                 {
-                    const auto& sourceNode(ddConfig.nodes()[itSource->second]);
-                    const auto&   sinkNode(ddConfig.nodes()[itSink->second]);
+                    const auto& sourceNode(configIO.nodes()[itSource->second]);
+                    const auto&   sinkNode(configIO.nodes()[itSink->second]);
                     StressStraight<3> ss(poly,sourceNode.P,sinkNode.P,segment.second.b);
                     vtx.stressDD+=ss.stress(vtx.P);
                 }
@@ -272,6 +302,12 @@ void DDPlaneField::compute(const DDconfigIO<3>& ddConfig)
 //                    vtx.vacancyConcDD+=ss.vacancyConcentration(vtx.P,itSource->second->V,itSink->second->V,bvpSolver.poly.Dv);
 //                }
             }
+        }
+        
+        vtx.stressIN.setZero();
+        for(const auto& inclusion : inclusions.eshelbyInclusions() )
+        {
+            vtx.stressIN+=inclusion.second->stress(vtx.P);
         }
 //        // FEM solution
 //        vtx.stressFEM=bvpSolver.stress(vtx.P,simplexGuess); // simplexGuess is updated too
@@ -316,13 +352,13 @@ void DDFieldWidget::resetPlanes()
     renWin->Render();
 }
 
-void DDPlaneField::plotField(const int& valID,const vtkSmartPointer<vtkLookupTable>& lut)
+void DDPlaneField::plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut)
 {
     vtkSmartPointer<vtkUnsignedCharArray> fieldColors(vtkSmartPointer<vtkUnsignedCharArray>::New());
     fieldColors->SetNumberOfComponents(3);
     for(auto& vtx : dataPnts())
     {
-        const double value(vtx.value(valID));
+        const double value(vtx.value(valID,useDD,useIN));
         double dclr[3];
         lut->GetColor(value, dclr);
         unsigned char cclr[3];
@@ -487,12 +523,6 @@ void DDPlaneField::resetPlane()
     }
 }
 
-FieldDataPnt::FieldDataPnt(const Eigen::Matrix<double,3,1>& Pin) :
-    /* init */ P(Pin)
-    /* init */,solidAngle(0.0)
-{
-
-}
 
 } // namespace model
 #endif
