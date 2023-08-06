@@ -44,10 +44,12 @@
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <PeriodicGlidePlaneFactory.h>
+#include <DislocationLoopPatches.h>
 
 namespace model
 {
     struct NetworkLoopActor : public QWidget
+    /*                     */,private std::map<size_t,DislocationLoopPatches<3>>
     {
 //        static constexpr int dim=3;
 //        enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
@@ -83,7 +85,6 @@ namespace model
         vtkSmartPointer<vtkPolyDataMapper> areaMapper;
         vtkSmartPointer<vtkActor> areaActor;
 
-
         
         public:
                 
@@ -94,6 +95,9 @@ namespace model
                          const Polycrystal<3>& poly_in,
                          PeriodicGlidePlaneFactory<3>& pgf);
         void updateConfiguration(const DDconfigIO<3>& configIO);
+        const std::map<size_t,DislocationLoopPatches<3>>& loopPatches() const;
+        std::map<size_t,DislocationLoopPatches<3>>& loopPatches();
+
 //        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
         
     };

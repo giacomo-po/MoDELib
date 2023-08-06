@@ -56,7 +56,7 @@ PrismaticLoopGenerator::PrismaticLoopGenerator(const std::string& fileName) :
     
 }
 
-double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& guessCenter,const double& radius)
+double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& guessCenter,const double& radius,const double& L)
 {
     std::pair<bool,const Simplex<dim,dim>*> found(mg.mesh.search(guessCenter));
     if(found.first)
@@ -176,7 +176,7 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
                 throw std::runtime_error("Cannot determine periodic box size.");
             }
             
-            const double L(50.0);
+//            const double L(50.0);
             const VectorDimD step(L*b.cartesian());
             for(size_t k1=0;k1<planes.size();++k1)
             {
@@ -250,7 +250,7 @@ void PrismaticLoopGenerator::generateDensity(MicrostructureGenerator& mg)
             try
             {
                 
-                density+=generateSingle(mg,rSS,L0.cartesian(),radius)/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
+                density+=generateSingle(mg,rSS,L0.cartesian(),radius,50.0)/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
                 std::cout<<"prismatic loop density="<<density<<std::endl;
             }
             catch(const std::exception& e)
@@ -270,6 +270,8 @@ void PrismaticLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
         std::cout<<magentaBoldColor<<"Generating individual prismatic loops"<<defaultColor<<std::endl;
         const std::vector<double> prismaticLoopRadii(this->parser.readArray<double>("prismaticLoopRadii_SI",true));
         const Eigen::Matrix<double,Eigen::Dynamic,dim> prismaticLoopCenters(this->parser.readMatrix<double>("prismaticLoopCenters",prismaticLoopSlipSystemIDs.size(),dim,true));
+        const const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
+
         //            const std::vector<int> prismaticLoopSides(this->parser.readArray<int>("prismaticLoopSides",true));
         
         if(prismaticLoopSlipSystemIDs.size()!=prismaticLoopRadii.size())
@@ -280,10 +282,14 @@ void PrismaticLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
         {
             throw std::runtime_error("prismaticLoopSlipSystemIDs.size()="+std::to_string(prismaticLoopSlipSystemIDs.size())+" NOT EQUAL TO prismaticLoopCenters.rows()="+std::to_string(prismaticLoopCenters.rows()));
         }
+        if(prismaticLoopSlipSystemIDs.size()!=prismaticLoopSteps.size())
+        {
+            throw std::runtime_error("prismaticLoopSlipSystemIDs.size()="+std::to_string(prismaticLoopSlipSystemIDs.size())+" NOT EQUAL TO prismaticLoopSteps.size()="+std::to_string(prismaticLoopSteps.size()));
+        }
         
         for(size_t k=0;k<prismaticLoopSlipSystemIDs.size();++k)
         {
-            generateSingle(mg,prismaticLoopSlipSystemIDs[k],prismaticLoopCenters.row(k),prismaticLoopRadii[k]/mg.poly.b_SI);
+            generateSingle(mg,prismaticLoopSlipSystemIDs[k],prismaticLoopCenters.row(k),prismaticLoopRadii[k]/mg.poly.b_SI,prismaticLoopSteps[k]);
         }
     }
     

@@ -207,8 +207,10 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     vtkNew<vtkCellArray> areaPolygons;
     
     size_t areaPointID(0);
-    const auto loopNodeSequence(configIO.loopNodeSequence());
-    for(const auto& pair : loopNodeSequence)
+//    const auto loopNodeSequence(configIO.loopNodeSequence());
+    //loopNodeSequence()=configIO.loopNodeSequence();
+    loopPatches().clear();
+    for(const auto& pair : configIO.loopNodeSequence())
     {
         const auto& loopID(pair.first);
         const auto& loopIO(configIO.loops()[configIO.loopMap().at(loopID)]);
@@ -234,9 +236,10 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
                 }
             }
             
-            DislocationLoopPatches<3> loopPatches(periodicGlidePlane);
-            loopPatches.update(nodeShifts,nodePos);
-            
+            DislocationLoopPatches<3> currentPatches(periodicGlidePlane);
+            currentPatches.update(nodeShifts,nodePos);
+            loopPatches().emplace(loopID,currentPatches);
+
 //            for(const auto& loopNodeID : pair.second)
 //            {
 //                const auto& loopNodeIO(configIO.loopNodes()[configIO.loopNodeMap().at(loopNodeID)]);
@@ -250,7 +253,7 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
 //            const auto loopPatches(periodicGlidePlane->filledPatches(nodeShifts));
             
             
-            for(const auto& pair : loopPatches.globalPatches())
+            for(const auto& pair : currentPatches.globalPatches())
             {
 //                std::vector<Eigen::Matrix<double,2,1>> localPatchPos;
 //                for(const auto& edge : patch->edges())
@@ -283,6 +286,17 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     
     std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 }
+
+const std::map<size_t,DislocationLoopPatches<3>>& NetworkLoopActor::loopPatches() const
+{
+    return *this;
+}
+
+std::map<size_t,DislocationLoopPatches<3>>& NetworkLoopActor::loopPatches()
+{
+    return *this;
+}
+
 
 /**********************************************************************/
 void NetworkLoopActor::modify()

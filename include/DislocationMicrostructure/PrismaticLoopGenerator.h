@@ -49,7 +49,7 @@ namespace model
     class PrismaticLoopGenerator : public MicrostructureGeneratorBase
     {
         
-        static double generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius);
+        static double generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius,const double& step);
 
 //        static void insertJunctionLoop(MicrostructureGenerator& mg,
 //                                std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>>& uniqueNetworkNodeMap,

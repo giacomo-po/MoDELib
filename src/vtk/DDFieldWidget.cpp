@@ -63,7 +63,10 @@ double FieldDataPnt::value(const int& valID,const bool& useDD,const bool& useIN)
             return std::sqrt((stressDev*stressDev).trace()*1.5);
             break;
         }
-        
+        case 8:
+            return solidAngle;
+            break;
+
         default:
             return 0.0;
             break;
@@ -75,6 +78,7 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                              vtkRenderer* const renderer_in,
                              const Polycrystal<3>& poly_in,
                              const DDconfigIO<3>& configIO_in,
+                             const NetworkLoopActor& loops_in,
                              const NetworkLinkActor& segments_in,
                              const InclusionActor& inclusions_in):
 /* init */ mainLayout(new QGridLayout(this))
@@ -94,6 +98,7 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
 /* init */,renderer(renderer_in)
 /* init */,poly(poly_in)
 /* init */,configIO(configIO_in)
+/* init */,loops(loops_in)
 /* init */,segments(segments_in)
 /* init */,inclusions(inclusions_in)
 {
@@ -123,6 +128,7 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     fieldComboBox->insertItem(5,"stress_33");
     fieldComboBox->insertItem(6,"tr(stress)");
     fieldComboBox->insertItem(7,"stress_VM");
+    fieldComboBox->insertItem(8,"solid angle");
 
     dislocationsCheck->setChecked(true);
     inclusionsCheck->setChecked(true);
@@ -178,7 +184,7 @@ void DDFieldWidget::compute()
                 auto* ddPlaneField = dynamic_cast<DDPlaneField*>(widget);
                 if (ddPlaneField)
                 {
-                    ddPlaneField->compute(configIO,segments,inclusions);
+                    ddPlaneField->compute(configIO,loops,segments,inclusions);
                 }
             }
         }
@@ -263,7 +269,7 @@ void DDFieldWidget::plotField()
     }
 }
 
-void DDPlaneField::compute(const DDconfigIO<3>& configIO,const NetworkLinkActor& segments,const InclusionActor& inclusions)
+void DDPlaneField::compute(const DDconfigIO<3>& configIO,const NetworkLoopActor& loops,const NetworkLinkActor& segments,const InclusionActor& inclusions)
 {
     std::cout<<"DDPlaneField computing "<<dataPnts().size()<<" points..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();
@@ -271,6 +277,13 @@ void DDPlaneField::compute(const DDconfigIO<3>& configIO,const NetworkLinkActor&
     for(size_t vtkID=0;vtkID<dataPnts().size();++vtkID)
     {
         auto& vtx(dataPnts()[vtkID]);
+        
+        vtx.solidAngle=0.0;
+        for(const auto& patch : loops.loopPatches())
+        {
+            vtx.solidAngle+=patch.second.solidAngle(vtx.P);
+        }
+        
         // DD stress
         vtx.stressDD.setZero();
 //        vtx.vacancyConcDD=0.0;

@@ -1,8 +1,9 @@
 type=PrismaticLoop;
 style=individual;
 tag=prl0;
-prismaticLoopSlipSystemIDs=18 20 22;
-prismaticLoopRadii_SI=1e-7 2e-7 2e-8; [m] loop radii
-prismaticLoopCenters=500 500 500
+prismaticLoopSlipSystemIDs=0 -1 -1;
+prismaticLoopRadii_SI=1e-8 2e-7 2e-8; [m] loop radii
+prismaticLoopSteps=1200 50 50; # [b] distance from sessile loop (not important, used for debug)
+prismaticLoopCenters=600 700 400
                      500 600 500
 		    500 500 500;

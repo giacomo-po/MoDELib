@@ -41,6 +41,7 @@
 //#include <DDconfigVtk.h>
 #include <NetworkLinkActor.h>
 #include <InclusionActor.h>
+#include <NetworkLoopActor.h>
 
 namespace model
 {
@@ -97,7 +98,7 @@ namespace model
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute(const DDconfigIO<3>& configIO,const NetworkLinkActor& segments,const InclusionActor& inclusions);
+        void compute(const DDconfigIO<3>& configIO,const NetworkLoopActor& loops,const NetworkLinkActor& segments,const InclusionActor& inclusions);
         void plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut);
 
     };
@@ -126,8 +127,8 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
         const Polycrystal<3>& poly;
-//        const DDconfigVtk& configVTK;
         const DDconfigIO<3>& configIO;
+        const NetworkLoopActor& loops;
         const NetworkLinkActor& segments;
         const InclusionActor& inclusions;
         
@@ -140,13 +141,13 @@ namespace model
    public slots:
         void compute();
 
-
     public:
         
         DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                       vtkRenderer* const renderer_in,
                       const Polycrystal<3>& poly_in,
                       const DDconfigIO<3>& configIO_in,
+                      const NetworkLoopActor& loops_in,
                       const NetworkLinkActor& segments_in,
                       const InclusionActor& inclusions_in);
         
