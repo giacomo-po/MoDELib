@@ -74,16 +74,20 @@ namespace model
 //            controlsBox->setLayout(mainLayout);
             this->setLayout(mainLayout);
 
-            
-            updateConfiguration(0);
-            
-            
             connect(frameIDedit,SIGNAL(returnPressed()), this, SLOT(updateConfiguration()));
             connect(plusFrameButton,SIGNAL(pressed()), this, SLOT(nextConfiguration()));
             connect(minusFrameButton,SIGNAL(pressed()), this, SLOT(prevConfiguration()));
             connect(playFrameButton,SIGNAL(pressed()), this, SLOT(playConfigurations()));
 
+            connect(frameIDedit,SIGNAL(returnPressed()), ddField, SLOT(compute()));
+            connect(plusFrameButton,SIGNAL(pressed()), ddField, SLOT(compute()));
+            connect(minusFrameButton,SIGNAL(pressed()), ddField, SLOT(compute()));
+            connect(playFrameButton,SIGNAL(pressed()), ddField, SLOT(compute()));
 
+            
+            QApplication::processEvents();
+            updateConfiguration(0);
+            
 //            connect(frameIDedit,SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(updateConfiguration()));
         }
 
