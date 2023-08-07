@@ -263,7 +263,7 @@ namespace model
 
 
     template<int dim>
-    std::vector<typename SimplicialMesh<dim>::VectorDim> SimplicialMesh<dim>::periodicShifts() const
+    std::vector<typename SimplicialMesh<dim>::VectorDim> SimplicialMesh<dim>::periodicBasis() const
     {
         std::map<size_t,const PlanarMeshFace<dim>* const> periodicMeshFaces;
         for(const auto& region : this->regions())

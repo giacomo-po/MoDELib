@@ -19,8 +19,6 @@
 #include <IDreader.h>
 #include <DDtraitsIO.h>
 
-
-
 namespace model
 {
     
@@ -30,14 +28,9 @@ namespace model
         enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC_IMAGES=2,PERIODIC_FEM=3};
 
         const DDtraitsIO traitsIO;
-//        const std::string simulationFolder;
         const int simulationType;
         const bool useDislocations;
         const bool useCracks;
-
-//        const int periodicImages_x;
-//        const int periodicImages_y;
-//        const int periodicImages_z;
         const std::vector<int> periodicImageSize;
         const long int Nsteps;
         const int timeIntegrationMethod;
@@ -46,14 +39,11 @@ namespace model
         const std::string externalLoadControllerName;
         const double virtualSegmentDistance;
         const bool use_stochasticForce;
-
-
         
         long int runID;
         double totalTime;
         double dt;
         
-        /**********************************************************************/
         void manageRestart();
 
     private:
@@ -62,11 +52,9 @@ namespace model
 
     public:
         
-        
-        /**********************************************************************/
         DefectiveCrystalParameters(const std::string& folderName) ;
-        
         bool isPeriodicSimulation() const;
+        
     };
 }
 #endif

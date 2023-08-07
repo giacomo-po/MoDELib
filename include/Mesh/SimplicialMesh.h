@@ -88,7 +88,7 @@ namespace model
         
         void identifyParallelFaces(const std::set<int>&);
         
-        std::vector<VectorDim> periodicShifts() const;
+        std::vector<VectorDim> periodicBasis() const;
 
         
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID);

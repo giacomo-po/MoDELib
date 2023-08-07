@@ -12,6 +12,7 @@
 
 
 #include <PolyhedronInclusion.h>
+#include <numbers>
 
 namespace model
 {
@@ -122,44 +123,73 @@ const std::map<size_t,Plane<dim>>& PolyhedronInclusion<dim>::planes() const
         return contained;
     }
 
-    /**********************************************************************/
     template <int dim>
-    typename PolyhedronInclusion<dim>::MatrixDim PolyhedronInclusion<dim>::stress(const VectorDim& x) const
+    double PolyhedronInclusion<dim>::eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const
+    {
+//        return  0.125/(std::numbers::pi*(1.0-this->nu))*(Psi_ijkl_a[voigtIndex(i,j)][voigtIndex(k,l)]
+//                                                         -2.0*this->nu*d[2][2]*Phi_ij_a[voigtIndex(i,j)]
+//                                                         -(1.0-this->nu)*(Phi_ij_a[voigtIndex(i,l)]*d[j][k]
+//                                                                          +Phi_ij_a[voigtIndex(j,k)]*d[i][l]
+//                                                                          +Phi_ij_a[voigtIndex(j,l)]*d[i][k]
+//                                                                          +Phi_ij_a[voigtIndex(i,k)]*d[j][l]));
+        return 0.0;
+    }
+
+    template <int dim>
+    Eigen::Matrix<double,PolyhedronInclusion<dim>::voigtSize,PolyhedronInclusion<dim>::voigtSize> PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
     {
         
-        if(this->eTNorm>FLT_EPSILON)
+        Eigen::Matrix<double,voigtSize,voigtSize> temp(Eigen::Matrix<double,voigtSize,voigtSize>::Zero());
+        
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(0,0,0,0,x);
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(0,0,1,1,x);
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(0,0,2,2,x);
+        
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(1,1,0,0,x);
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(1,1,1,1,x);
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(1,1,2,2,x);
+
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(2,2,0,0,x);
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(2,2,1,1,x);
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(2,2,2,2,x);
+
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(0,1,0,1,x);
+        temp(voigtTraits.voigtIndex(0,2),voigtTraits.voigtIndex(0,2))=2.0*eshelbyTensorComponent(0,2,0,2,x);
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(1,2,1,2,x);
+
+        return temp;
+    }
+
+
+    template <int dim>
+    typename PolyhedronInclusion<dim>::MatrixDim PolyhedronInclusion<dim>::strain(const VectorDim& x) const
+    {
+        return this->eTNorm>FLT_EPSILON? voigtTraits.v2m(eshelbyTensorVoigt(x)*voigtTraits.m2v(this->eT,true),true) : MatrixDim::Zero();
+    }
+
+    template <int dim>
+    typename PolyhedronInclusion<dim>::MatrixDim PolyhedronInclusion<dim>::elasticStrain(const VectorDim& x) const
+    {
+        if(contains(x))
         {
-//            const VectorDim r(x-C);
-//            const double R2(r.squaredNorm());
-//            const double R(sqrt(R2));
-//
-//            if(R>a)
-//            {
-//                const double R3=std::pow(R,3);
-//                const double R4=std::pow(R,4);
-//                const double a2R2=std::pow(a,2)/R2;
-//                const double a3R3=std::pow(a,3)/R3;
-//
-//                const VectorDim pTr=this->pT*r;
-//                const double pTrr=pTr.dot(r);
-//                const double pTt=this->pT.trace();
-//                return a3R3/2.0/(1-this->nu)*( (10.0*(1.0-2.0*this->nu)+6.0*a2R2)/15.0*this->pT
-//                                        +(2.0*this->nu-2.0*a2R2)/R2*(pTr*r.transpose()+r*pTr.transpose())
-//                                        +((3.0*a2R2-5.0*(1.0-2.0*this->nu))/15.0*pTt + (1.0-2.0*this->nu-a2R2)/R2*pTrr)*MatrixDim::Identity()
-//                                        +(-(5.0-7.0*a2R2)/R4*pTrr+(1.0-a2R2)/R2*pTt)*r*r.transpose()
-//                                        );
-//            }
-//            else
-//            {
-//                return 2.0*this->mu*((L+this->nu/(1.0-2.0*this->nu)*(2.0*M+3.0*L))*this->eT.trace()*MatrixDim::Identity()+2.0*M*this->eT)-this->pT;
-//            }
-            return MatrixDim::Zero();
+            return strain(x)-this->eT;
         }
         else
         {
-            return MatrixDim::Zero();
+            return strain(x);
         }
     }
+
+    template <int dim>
+    typename PolyhedronInclusion<dim>::MatrixDim PolyhedronInclusion<dim>::stress(const VectorDim& x) const
+    {
+        const MatrixDim elStrain(elasticStrain(x));
+        return this->lambda*elStrain.trace()*MatrixDim::Identity()+2.0*this->mu*elStrain;
+    }
+
+    template <int dim>
+    const SymmetricVoigtTraits<dim> PolyhedronInclusion<dim>::voigtTraits=SymmetricVoigtTraits<dim>((typename SymmetricVoigtTraits<dim>::VoigtSizeMatrixType()<<0,0,1,1,2,2,1,2,0,2,0,1).finished());
+    //const typename PolyhedronInclusion<dim>::VoigtSizeMatrixType PolyhedronInclusion<dim>::voigtOrder=(PolyhedronInclusion<dim>::VoigtSizeMatrixType()<<0,0,0,1,0,2,1,1,1,2,2,2).finished();
 
     template class PolyhedronInclusion<3>;
 

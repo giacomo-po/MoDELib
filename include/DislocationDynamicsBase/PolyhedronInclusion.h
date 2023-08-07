@@ -21,35 +21,23 @@
 #include <EshelbyInclusionBase.h>
 #include <PolyhedronInclusionNodeIO.h>
 #include <Plane.h>
+#include <VoigtTraits.h>
 
 namespace model
 {
-    
     
     template <int dim>
     class PolyhedronInclusion : public EshelbyInclusionBase<dim>
     /*                      */, private std::map<size_t,Plane<dim>>
     {
+        static constexpr int voigtSize=SymmetricVoigtTraits<dim>::voigtSize;
         typedef Eigen::Matrix<double,dim,dim> MatrixDim;
         typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
     public:
-//        const double nu;
-//        const double mu;
-//        const double mobilityReduction;
-//        const int phaseID;
-//        const std::shared_ptr<SecondPhase<dim>> secondPhase;
-//        const double L;
-//        const double M;
-//        const double K;
 
-//        VectorDim C;
-//        double a;
-//        double a2;
-//        MatrixDim eT;
-//        double eTNorm;
-//        MatrixDim pT;
-        
+        static const SymmetricVoigtTraits<dim> voigtTraits;
+
         
     public:
         
@@ -77,11 +65,15 @@ namespace model
         
         bool contains(const VectorDim& x) const override;
         MatrixDim stress(const VectorDim& x) const override;
+        MatrixDim elasticStrain(const VectorDim& x) const ;
+        MatrixDim strain(const VectorDim& x) const ;
+        double eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const;
+        Eigen::Matrix<double,voigtSize,voigtSize> eshelbyTensorVoigt(const VectorDim& x) const ;
         const std::map<size_t,Plane<dim>>& planes() const;
-
+        
+        
     };
-    
-    
+        
 //    template <int dim>
 //    std::map<const GammaSurface*,GammaSurface> PolyhedronInclusion<dim>::gammaSurfaceMap;
 }

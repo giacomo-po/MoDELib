@@ -57,7 +57,7 @@ namespace model
             temp.push_back(VectorDim::Zero());
             if(params.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
             {
-                const auto shiftVectors(m.periodicShifts());
+                const auto shiftVectors(m.periodicBasis());
                 std::cout<<"Box periodicity vectors ("<<shiftVectors.size()<<"):"<<std::endl;
                 for(const auto& shift : shiftVectors)
                 {

@@ -35,6 +35,7 @@ namespace model
     public:
         const double nu;
         const double mu;
+        const double lambda;
         const double mobilityReduction;
         const int phaseID;
         const std::shared_ptr<SecondPhase<dim>> secondPhase;

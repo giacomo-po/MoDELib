@@ -159,7 +159,7 @@ double PrismaticLoopGenerator::generateSingle(MicrostructureGenerator& mg,const 
             
             
             //Create glissile loops on prism planes
-            const auto periodicShifts(mg.mesh.periodicShifts());
+            const auto periodicShifts(mg.mesh.periodicBasis());
             Eigen::Matrix<double,3,3> box(Eigen::Matrix<double,3,3>::Zero());
             Eigen::Matrix<double,3,3> invBox(Eigen::Matrix<double,3,3>::Zero());
             

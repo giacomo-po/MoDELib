@@ -52,6 +52,7 @@ namespace model
                                             const std::shared_ptr<SecondPhase<dim>>& sph) :
     /* init */ nu(_nu)
     /* init */,mu(_mu)
+    /* init */,lambda(2.0*mu*nu/(1.0-2.0*nu))
     /* init */,mobilityReduction(_mobilityReduction)
     /* init */,phaseID(_phaseID)
     /* init */,secondPhase(sph)
