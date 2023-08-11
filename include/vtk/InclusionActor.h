@@ -14,7 +14,7 @@
 #include <QWidget>
 #include <QGridLayout>
 #include <QCheckBox>
-
+#include <QSlider>
 
 #include <vtkVersion.h>
 #include <vtkSmartPointer.h>
@@ -75,6 +75,8 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         QGridLayout* mainLayout;
         QCheckBox* showInclusions;
+        QSlider* sliderInclusionOpacity;
+
 
         vtkSmartPointer<vtkUnstructuredGrid> grid;
         vtkSmartPointer<vtkSphereSource> sphereSource;

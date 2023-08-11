@@ -38,11 +38,21 @@ namespace model
 
         static const SymmetricVoigtTraits<dim> voigtTraits;
 
+        static std::map<size_t,std::vector<std::pair<size_t,VectorDim>>> getFaces(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodesMap,
+                                                                                  const std::map<size_t,std::vector<size_t>>& faceIDs);
         
+        static double PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir);
+        static double Phi_u_II_a(double a, double b, double le);
+        static double Phi_u_II_b(double a, double b, double le);
+        static double Phi_u_II_le(double a, double b, double le);
+        
+        double PHI_ij(int i, int j,const VectorDim& x) const;
+
+
     public:
         
         const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodes;
-        const std::map<size_t,std::vector<size_t>> faces;
+        const std::map<size_t,std::vector<std::pair<size_t,VectorDim>>> faces;
         
 //        static std::map<const GammaSurface*,GammaSurface> gammaSurfaceMap;
 //
@@ -53,8 +63,8 @@ namespace model
 
         
         /**********************************************************************/
-        PolyhedronInclusion(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodes_in,
-                            const std::map<size_t,std::vector<size_t>>& faces_in,
+        PolyhedronInclusion(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodesMap,
+                            const std::map<size_t,std::vector<size_t>>& faceIDs,
                          const MatrixDim& _eT,
                          const double& _nu,
                          const double& _mu,

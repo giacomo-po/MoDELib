@@ -133,6 +133,7 @@ typename InclusionActor::EshelbyInclusionContainerType& InclusionActor::eshelbyI
     /* init */ renderWindow(renWin)
     /* init */,mainLayout(new QGridLayout(this))
     /* init */,showInclusions(new QCheckBox(this))
+    /* init */,sliderInclusionOpacity(new QSlider(this))
     /* init */,grid(vtkSmartPointer<vtkUnstructuredGrid>::New())
     /* init */,sphereSource(vtkSmartPointer<vtkSphereSource>::New())
     /* init */,glyph3D(vtkSmartPointer<vtkGlyph3D>::New())
@@ -148,6 +149,14 @@ typename InclusionActor::EshelbyInclusionContainerType& InclusionActor::eshelbyI
         mainLayout->addWidget(showInclusions,0,0,1,1);
         this->setLayout(mainLayout);
         connect(showInclusions,SIGNAL(stateChanged(int)), this, SLOT(modify()));
+        
+        sliderInclusionOpacity->setMinimum(0);
+        sliderInclusionOpacity->setMaximum(10);
+        sliderInclusionOpacity->setValue(5);
+        sliderInclusionOpacity->setOrientation(Qt::Horizontal);
+        connect(sliderInclusionOpacity,SIGNAL(valueChanged(int)), this, SLOT(modify()));
+        mainLayout->addWidget(sliderInclusionOpacity,1,0,1,1);
+
         
         sphereSource->SetPhiResolution(20);
         sphereSource->SetThetaResolution(20);
@@ -170,6 +179,8 @@ typename InclusionActor::EshelbyInclusionContainerType& InclusionActor::eshelbyI
     void InclusionActor::modify()
     {
         actor->SetVisibility(showInclusions->isChecked());
+        actor->GetProperty()->SetOpacity(sliderInclusionOpacity->value()/10.0);
+
         renderWindow->Render();
     }
 
