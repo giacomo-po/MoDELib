@@ -87,7 +87,12 @@ namespace model
     {/*!\returns a std::vector of ReciprocalLatticeDirection(s) corresponding
       * the slip systems of the Hexagonal lattice
       */
-        const std::shared_ptr<DislocationMobilityBase> fccMobility(new DislocationMobilityFCC(material));
+        
+        const std::string dislocationMobilityType(TextFileParser(polyFile).readString("dislocationMobilityType",true));
+        DislocationMobilitySelector mobilitySelector("FCC");
+        const std::shared_ptr<DislocationMobilityBase> fccMobility(mobilitySelector.getMobility(dislocationMobilityType,material));
+//
+//        const std::shared_ptr<DislocationMobilityBase> fccMobility(new DislocationMobilityFCC(material));
         
         std::vector<std::shared_ptr<SlipSystem>> temp;
         

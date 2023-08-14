@@ -8,5 +8,6 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationMobilityHEXbasal.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationMobilityHEXprismatic.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DislocationMobilityHEXpyramidal.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationMobilitySelector.cpp
 		)
 

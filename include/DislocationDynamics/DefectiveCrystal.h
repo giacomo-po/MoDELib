@@ -54,7 +54,7 @@ namespace model
                                                                                           const DefectiveCrystalType& dc,
                                                                                           const long int& rID);
                 
-        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,const DefectiveCrystalParameters& params);
+//        static std::vector<VectorDim> getPeriodicShifts(const SimplicialMesh<dim>& m,const DefectiveCrystalParameters& params);
         void updateLoadControllers(const long int& runID, const bool& isClimbStep);
         
     public:

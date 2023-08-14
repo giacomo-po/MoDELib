@@ -483,8 +483,8 @@ void DislocationQuadraturePointContainer<dim,corder>::updateForcesAndVelocities(
                 for(const auto& link : parentSegment.network().networkLinks())
                 {
                     if(   !link.second.lock()->hasZeroBurgers()
-                       && !(link.second.lock()->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-                       //                           && !(link.second.lock()->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+                       && !(link.second.lock()->isBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
+                       //                           && !(link.second.lock()->isVirtualBoundarySegment() && parentSegment.network().simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
                        )
                     {
                         

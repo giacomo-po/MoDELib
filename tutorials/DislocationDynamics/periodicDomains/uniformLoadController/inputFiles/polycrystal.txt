@@ -16,6 +16,9 @@ C2G1=1.000000000000000 0.000000000000000 0.000000000000000
  periodicFaceIDs=0 1 2 3 4 5 ;
  
 #################
+dislocationMobilityType=default; # default or NeuralNetwork
+
+#################
 # GlidePlaneNoise
 gridSize=256 256 ; # size of grid on the glide plane
  gridSpacing_SI=1.000000e-10 1.000000e-10 ; # [m] spacing of grid on the glide plane

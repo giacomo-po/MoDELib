@@ -30,12 +30,15 @@ namespace model
     class PolyhedronInclusion : public EshelbyInclusionBase<dim>
     /*                      */, private std::map<size_t,Plane<dim>>
     {
-        static constexpr int voigtSize=SymmetricVoigtTraits<dim>::voigtSize;
-        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
-        typedef Eigen::Matrix<double,dim,1>   VectorDim;
         
     public:
 
+        static constexpr int voigtSize=SymmetricVoigtTraits<dim>::voigtSize;
+        typedef Eigen::Matrix<double,dim,dim> MatrixDim;
+        typedef Eigen::Matrix<double,dim,1>   VectorDim;
+        typedef Eigen::Matrix<double,voigtSize,voigtSize> MatrixVoigt;
+        
+    private:
         static const SymmetricVoigtTraits<dim> voigtTraits;
 
         static std::map<size_t,std::vector<std::pair<size_t,VectorDim>>> getFaces(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodesMap,
@@ -54,15 +57,6 @@ namespace model
         const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodes;
         const std::map<size_t,std::vector<std::pair<size_t,VectorDim>>> faces;
         
-//        static std::map<const GammaSurface*,GammaSurface> gammaSurfaceMap;
-//
-//        static void addSlipSystems(const std::vector<std::shared_ptr<SlipSystem>>& slipSystems);
-        
-        
-//        double misfitEnergy(const Eigen::Matrix<double,3,1>& b, const GammaSurface* const matrixGammaSurface) const;
-
-        
-        /**********************************************************************/
         PolyhedronInclusion(const std::map<size_t,PolyhedronInclusionNodeIO<dim>>& nodesMap,
                             const std::map<size_t,std::vector<size_t>>& faceIDs,
                          const MatrixDim& _eT,
@@ -78,13 +72,9 @@ namespace model
         MatrixDim elasticStrain(const VectorDim& x) const ;
         MatrixDim strain(const VectorDim& x) const ;
         double eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const;
-        Eigen::Matrix<double,voigtSize,voigtSize> eshelbyTensorVoigt(const VectorDim& x) const ;
+        MatrixVoigt eshelbyTensorVoigt(const VectorDim& x) const ;
         const std::map<size_t,Plane<dim>>& planes() const;
         
-        
     };
-        
-//    template <int dim>
-//    std::map<const GammaSurface*,GammaSurface> PolyhedronInclusion<dim>::gammaSurfaceMap;
 }
 #endif

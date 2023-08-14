@@ -18,6 +18,9 @@ namespace model
     struct DDtraitsIO
     {
         
+        enum SimulationType{FINITE_NO_FEM=0,FINITE_FEM=1,PERIODIC_IMAGES=2,PERIODIC_FEM=3};
+
+        
         const std::string simulationFolder;
         const std::string inputFilesFolder;
         const std::string evlFolder;

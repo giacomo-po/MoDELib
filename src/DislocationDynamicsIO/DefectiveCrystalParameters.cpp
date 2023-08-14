@@ -75,13 +75,13 @@ namespace model
         /* init */,simulationType(TextFileParser(traitsIO.ddFile).readScalar<int>("simulationType",true))
         /* init */,useDislocations(TextFileParser(traitsIO.ddFile).readScalar<int>("useDislocations",true))
         /* init */,useCracks(TextFileParser(traitsIO.ddFile).readScalar<int>("useCracks",true))
-        /* init */,periodicImageSize(simulationType==PERIODIC_IMAGES? TextFileParser(traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
+        /* init */,periodicImageSize(simulationType==DDtraitsIO::PERIODIC_IMAGES? TextFileParser(traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
         /* init */,Nsteps(TextFileParser(traitsIO.ddFile).readScalar<size_t>("Nsteps",true))
         /* init */,timeIntegrationMethod(TextFileParser(traitsIO.ddFile).readScalar<int>("timeIntegrationMethod",true))
         /* init */,useSubCycling(TextFileParser(traitsIO.ddFile).readScalar<int>("useSubCycling",true))
         /* init */,subcyclingBins(getSubCyclingSet(TextFileParser(traitsIO.ddFile).readArray<int>("subcyclingBins",true)))
         /* init */,externalLoadControllerName(TextFileParser(traitsIO.ddFile).readString("externalLoadControllerName",true))
-        /* init */,virtualSegmentDistance((simulationType==FINITE_FEM || simulationType==PERIODIC_FEM || simulationType==PERIODIC_IMAGES)? TextFileParser(traitsIO.ddFile).readScalar<double>("virtualSegmentDistance",true) : 0.0)
+        /* init */,virtualSegmentDistance((simulationType==DDtraitsIO::FINITE_FEM || simulationType==DDtraitsIO::PERIODIC_FEM || simulationType==DDtraitsIO::PERIODIC_IMAGES)? TextFileParser(traitsIO.ddFile).readScalar<double>("virtualSegmentDistance",true) : 0.0)
         /* init */,use_stochasticForce(TextFileParser(traitsIO.ddFile).readScalar<int>("use_stochasticForce",true))
         /* init */,runID(TextFileParser(traitsIO.ddFile).readScalar<long int>("startAtTimeStep",true))
         /* init */,totalTime(0.0)
@@ -98,7 +98,7 @@ namespace model
         
         bool DefectiveCrystalParameters::isPeriodicSimulation() const
         {
-            return simulationType==PERIODIC_IMAGES || simulationType==PERIODIC_FEM;
+            return simulationType==DDtraitsIO::PERIODIC_IMAGES || simulationType==DDtraitsIO::PERIODIC_FEM;
         }
         
   }

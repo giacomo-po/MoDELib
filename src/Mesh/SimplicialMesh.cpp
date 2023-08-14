@@ -297,6 +297,55 @@ namespace model
         return temp;
     }
 
+template <int dim>
+std::vector<typename SimplicialMesh<dim>::VectorDim> SimplicialMesh<dim>::periodicShifts(const std::vector<int>& periodicImageSize) const
+{
+    // Set up periodic shifts
+    std::vector<VectorDim> temp;
+    temp.push_back(VectorDim::Zero());
+    if(periodicImageSize.size())
+    {
+        const auto shiftVectors(periodicBasis());
+        std::cout<<"Box periodicity vectors ("<<shiftVectors.size()<<"):"<<std::endl;
+        for(const auto& shift : shiftVectors)
+        {
+            std::cout<<shift.transpose()<<std::endl;
+        }
+        
+        if(shiftVectors.size()!=periodicImageSize.size())
+        {
+            std::cout<<"shiftVectors.size()="<<shiftVectors.size()<<std::endl;
+            std::cout<<"periodicImageSize.size()="<<periodicImageSize.size()<<std::endl;
+            throw std::runtime_error("shiftVectors.size() must equal periodicImageSize.size()");
+        }
+        
+        
+        for(size_t k=0;k<shiftVectors.size();++k)
+        {
+            const auto shiftVector(shiftVectors[k]);
+            const int imageSize(std::abs(periodicImageSize[k]));
+            std::vector<VectorDim> newTemp;
+            for(const auto& v:temp)
+            {// grab existing shift vectors
+                for(int i=-imageSize;i<=imageSize;++i)
+                {// add current shift times corresponding image size
+                    newTemp.push_back(v+i*shiftVector);
+                }
+            }
+            temp.swap(newTemp);
+        }
+    }
+    
+    std::cout<<"Image shift vectors ("<<temp.size()<<"):"<<std::endl;
+    for(const auto& shift : temp)
+    {
+        std::cout<<shift.transpose()<<std::endl;
+    }
+    
+    return temp;
+    
+}
+
     
     /**********************************************************************/
     template<int dim>

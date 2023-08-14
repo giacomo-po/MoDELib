@@ -89,8 +89,9 @@ namespace model
         void identifyParallelFaces(const std::set<int>&);
         
         std::vector<VectorDim> periodicBasis() const;
-
         
+        std::vector<VectorDim> periodicShifts(const std::vector<int>& periodicImageSize) const;
+
         void insertSimplex(const typename SimplexTraits<dim,dim>::SimplexIDType& xIN,const int& regionID);
         
         std::pair<bool,const Simplex<_dim,_dim>*> search(const Eigen::Matrix<double,dim,1>& P) const;

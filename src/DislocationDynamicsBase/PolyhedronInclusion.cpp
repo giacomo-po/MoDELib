@@ -282,10 +282,10 @@ double PolyhedronInclusion<dim>::PHI_ij(int i, int j, const VectorDim& x) const
     }
 
     template <int dim>
-    Eigen::Matrix<double,PolyhedronInclusion<dim>::voigtSize,PolyhedronInclusion<dim>::voigtSize> PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
+    typename PolyhedronInclusion<dim>::MatrixVoigt PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
     {
         
-        Eigen::Matrix<double,voigtSize,voigtSize> temp(Eigen::Matrix<double,voigtSize,voigtSize>::Zero());
+        MatrixVoigt temp(MatrixVoigt::Zero());
         
         temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(0,0,0,0,x);
         temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(0,0,1,1,x);

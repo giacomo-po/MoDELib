@@ -60,10 +60,10 @@ typename SymmetricVoigtTraits<dim>::MatrixDim SymmetricVoigtTraits<dim>::v2m(con
 }
 
 template <int dim>
-Eigen::Matrix<double,SymmetricVoigtTraits<dim>::voigtSize,1> SymmetricVoigtTraits<dim>::m2v(const MatrixDim& input_matrix, const bool& is_strain) const
+typename SymmetricVoigtTraits<dim>::VectorVoigt SymmetricVoigtTraits<dim>::m2v(const MatrixDim& input_matrix, const bool& is_strain) const
 {
     //from matrix to voigt format
-    Eigen::Matrix<double,voigtSize,1> temp(Eigen::Matrix<double,voigtSize,1>::Zero());
+    VectorVoigt temp(VectorVoigt::Zero());
     for (size_t i=0;i<voigtSize;i++)
     {
         if(is_strain && tensorIndex.row(i)[0] != tensorIndex.row(i)[1])

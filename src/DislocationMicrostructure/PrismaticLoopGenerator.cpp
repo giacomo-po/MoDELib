@@ -270,7 +270,7 @@ void PrismaticLoopGenerator::generateIndividual(MicrostructureGenerator& mg)
         std::cout<<magentaBoldColor<<"Generating individual prismatic loops"<<defaultColor<<std::endl;
         const std::vector<double> prismaticLoopRadii(this->parser.readArray<double>("prismaticLoopRadii_SI",true));
         const Eigen::Matrix<double,Eigen::Dynamic,dim> prismaticLoopCenters(this->parser.readMatrix<double>("prismaticLoopCenters",prismaticLoopSlipSystemIDs.size(),dim,true));
-        const const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
+        const std::vector<double> prismaticLoopSteps(this->parser.readArray<double>("prismaticLoopSteps",true));
 
         //            const std::vector<int> prismaticLoopSides(this->parser.readArray<int>("prismaticLoopSides",true));
         

@@ -69,6 +69,7 @@ fID=fopen('polycrystal.txt','w');
 fprintf(fID,['materialFile=../../../MaterialsLibrary/' material '.txt; \n']);
 fprintf(fID,'enablePartials=0; \n');
 fprintf(fID,'absoluteTemperature = 300; # [K] simulation temperature \n');
+fprintf(fID,'dislocationMobilityType=default; # default or FCC,BCC,HEXbasal,HEXprismatic,HEXpyramidal \n');
 fprintf(fID,'meshFile=../../../MeshLibrary/unitCube.msh; \n');
 fprintf(fID,'C2G1=');
 fprintf(fID,'%1.15f ',C2G1(1,:));

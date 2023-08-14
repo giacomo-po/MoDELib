@@ -591,8 +591,8 @@ typename DislocationNetwork<dim,corder>::VectorDim DislocationNetwork<dim,corder
     for(const auto& link : this->networkLinks())
     {// sum line-integral part of displacement field per segment
         if(   !link.second.lock()->hasZeroBurgers()
-           //                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM)
-           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+           //                   && (!link.second->isBoundarySegment() || simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM)
+           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
            )
         {
             for(const auto& shift : periodicShifts)
@@ -630,8 +630,8 @@ typename DislocationNetwork<dim,corder>::MatrixDim DislocationNetwork<dim,corder
     for(const auto& link : this->networkLinks())
     {// sum stress field per segment
         if(   !link.second.lock()->hasZeroBurgers()
-           && !(link.second.lock()->isBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
-           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DefectiveCrystalParameters::PERIODIC_IMAGES)
+           && !(link.second.lock()->isBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::FINITE_NO_FEM) // exclude boundary segments even if they are non-zero Burgers
+           //                   && !(link.second->isVirtualBoundarySegment() && simulationParameters.simulationType==DDtraitsIO::PERIODIC_IMAGES)
            )
         {
             for(const auto& shift : periodicShifts)

@@ -140,7 +140,7 @@ namespace model
                         for(size_t k=0;k<face.second.size();++k)
                         {
                             const size_t k1(k<face.second.size()-1? k+1 : 0);
-                            temp.polyhedronInclusionEdges().emplace_back(polyhedronDerived->sID,face.first,face.second[k],face.second[k1]);
+                            temp.polyhedronInclusionEdges().emplace_back(polyhedronDerived->sID,face.first,face.second[k].first,face.second[k1].first);
                         }
                     }
                 }
@@ -174,7 +174,7 @@ namespace model
                 
                 for(auto& node : fieldPoints)
                 {// add FEM solution and output
-                    if(DN.simulationParameters.simulationType==DefectiveCrystalParameters::FINITE_FEM)
+                    if(DN.simulationParameters.simulationType==DDtraitsIO::FINITE_FEM)
                     {
                         const size_t femID=DN.bvpSolver->finiteElement().mesh2femIDmap().at(node.pointID)->gID;
                         node+=DN.bvpSolver->displacement().dofs(femID);

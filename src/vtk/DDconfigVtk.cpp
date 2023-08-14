@@ -39,7 +39,7 @@ namespace model
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
         /* init */,chartActor(new ChartActor(traitsIO,renderWindow,ren))
-        /* init */,ddField(new DDFieldWidget(renderWindow,ren,poly,*this,*loops,*segments,*inclusions))
+        /* init */,ddField(new DDFieldWidget(renderWindow,ren,traitsIO,poly,*this,*loops,*segments,*inclusions))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))

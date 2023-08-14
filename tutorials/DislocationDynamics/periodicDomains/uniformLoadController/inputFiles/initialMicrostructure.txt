@@ -4,7 +4,7 @@
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;
 microstructureFile = ../../../MicrostructureLibrary/prismaticLoops.txt;
 #microstructureFile = ../../../MicrostructureLibrary/prismaticLoopDensity.txt;
-microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsDensity.txt;
+#microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/sphericalInclusionsIndividual.txt;
 #microstructureFile = ../../../MicrostructureLibrary/polyhedronInclusionIndividual.txt;
 #microstructureFile = ../../../MicrostructureLibrary/VTKindividual.txt;

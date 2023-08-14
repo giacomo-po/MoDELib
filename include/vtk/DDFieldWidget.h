@@ -33,6 +33,7 @@
 #include <vtkPointData.h>
 
 
+#include <DDtraitsIO.h>
 #include <SimplicialMesh.h>
 #include <MeshPlane.h>
 #include <TriangularMesh.h>
@@ -98,7 +99,7 @@ namespace model
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute(const DDconfigIO<3>& configIO,const NetworkLoopActor& loops,const NetworkLinkActor& segments,const InclusionActor& inclusions);
+        void compute(const std::vector<VectorDim>& periodicShifts,const DDconfigIO<3>& configIO,const NetworkLoopActor& loops,const NetworkLinkActor& segments,const InclusionActor& inclusions);
         void plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut);
 
     };
@@ -108,6 +109,8 @@ namespace model
     {
         
         Q_OBJECT
+        
+        typedef Eigen::Matrix<double,3,1> VectorDim;
         
         QGridLayout* mainLayout;
         QLabel* boxLabel;
@@ -126,7 +129,11 @@ namespace model
         
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
+        const DDtraitsIO& traitsIO;
         const Polycrystal<3>& poly;
+        const int simulationType;
+        const std::vector<int> periodicImageSize;
+        const std::vector<VectorDim> periodicShifts;
         const DDconfigIO<3>& configIO;
         const NetworkLoopActor& loops;
         const NetworkLinkActor& segments;
@@ -145,6 +152,7 @@ namespace model
         
         DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                       vtkRenderer* const renderer_in,
+                      const DDtraitsIO& traitsIO_in,
                       const Polycrystal<3>& poly_in,
                       const DDconfigIO<3>& configIO_in,
                       const NetworkLoopActor& loops_in,

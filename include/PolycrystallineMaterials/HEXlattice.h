@@ -20,7 +20,7 @@
 #include <DislocationMobilityHEX.h>
 #include <RationalLatticeDirection.h>
 #include <SingleCrystalBase.h>
-#include <DislocationMobilityHEX.h>
+#include <DislocationMobilitySelector.h>
 //#include <SecondPhase.h>
 
 namespace model
