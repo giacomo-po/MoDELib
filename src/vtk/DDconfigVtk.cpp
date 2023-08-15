@@ -32,14 +32,16 @@ namespace model
         /* init */,renderWindow(renWin)
         /* init */,qvtkGLwidget(qvtkGLwidget_in)
         /* init */,traitsIO(traitsIO_in)
+        /* init */,configFields(traitsIO,*this,poly,pgpf)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
-        /* init */,segments(new NetworkLinkActor(renWin,ren))
-        /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
-        /* init */,inclusions(new InclusionActor(renWin,ren,poly))
+        /* init */,segments(new NetworkLinkActor(renWin,ren,configFields))
+//        /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
+        /* init */,loops(new NetworkLoopActor(renWin,ren,configFields))
+        /* init */,inclusions(new InclusionActor(renWin,ren,configFields))
         /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
         /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
         /* init */,chartActor(new ChartActor(traitsIO,renderWindow,ren))
-        /* init */,ddField(new DDFieldWidget(renderWindow,ren,traitsIO,poly,*this,*loops,*segments,*inclusions))
+        /* init */,ddField(new DDFieldWidget(renderWindow,ren,configFields))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
         /* init */,plusFrameButton(new QPushButton(">"))
@@ -177,15 +179,14 @@ namespace model
                 
                 configIO().read(frameID);
                 auxIO().read(frameID);
+                configFields.updateConfiguration();
                 nodes->updateConfiguration(*this);
-                segments->updateConfiguration(*this,nodes->nodePolyData);
-                loops->updateConfiguration(*this);
-                inclusions->updateConfiguration(*this);
+                segments->updateConfiguration(nodes->nodePolyData);
+                loops->updateConfiguration();
+                inclusions->updateConfiguration();
                 glidePlanes->updateConfiguration(*this);
                 quadrature->updateConfiguration(*this);
                 chartActor->updateConfiguration(frameID);
-//                ddField->compute();
-
                 
                 if(saveImage->isChecked())
                 {

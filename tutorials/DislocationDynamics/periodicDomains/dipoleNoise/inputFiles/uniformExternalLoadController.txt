@@ -3,9 +3,9 @@
 enable=1;
 relaxSteps=0;
 
-ExternalStress0 = 0.0 0.0 0.0
+ExternalStress0 = 0.0 0.0 0.01
 		 0.0 0.0 0.0
-		 0.0 0.0 0.0;
+		 0.01 0.0 0.0;
 
 ExternalStressRate = 0.0 0.0 0.0
 		     0.0 0.0 0.0
@@ -17,10 +17,10 @@ ExternalStrain0 = 0.0 0.0 0.0
 
 ExternalStrainRate = 0.0 0.0 0.0
 		     0.0 0.0 0.0
-		     0.0 0.0 1e-10;
+		     0.0 0.0 0.0;
 
 # MachineStiffnessRatio=0 means pure stress control,  
 # MachineStiffnessRatio=infinity (such as 1e20) means pure strain control
 # voigt format 11 22 33 12 23 13
-MachineStiffnessRatio =0.0 0.0 1e20 0.0 0.0 0.0;
+MachineStiffnessRatio =0.0 0.0 0.0 0.0 0.0 0.0;
 

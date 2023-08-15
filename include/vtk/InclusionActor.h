@@ -34,11 +34,7 @@
 #include <vtkRenderer.h>
 #include <vtkDataSetMapper.h>
 
-#include <DDconfigIO.h>
-#include <EshelbyInclusionBase.h>
-#include <SphericalInclusion.h>
-#include <PolyhedronInclusion.h>
-#include <Polycrystal.h>
+#include <DDconfigFields.h>
 
 // VTK documentation
 // http://vtk.1045678.n5.nabble.com/VTK-slow-to-display-300-vtkSphereSource-in-real-time-td5740730.html
@@ -49,25 +45,15 @@
 namespace model
 {
     
-    /**************************************************************************/
-    /**************************************************************************/
     struct InclusionActor : public QWidget
-    /*                  */,public std::map<size_t,std::shared_ptr<EshelbyInclusionBase<3>>>
-    /*                  */,public std::map<size_t,PolyhedronInclusionNodeIO<3>>
-
     {
         
         static constexpr int dim=3;
         typedef Eigen::Matrix<float,dim,1>  VectorDim;
         typedef Eigen::Matrix<float,dim,dim,1>  MatrixDim;
-        typedef std::map<size_t,std::shared_ptr<EshelbyInclusionBase<3>>> EshelbyInclusionContainerType;
-        typedef std::map<size_t,PolyhedronInclusionNodeIO<3>> PolyhedronInclusionNodeContainerType;
-
         
         Q_OBJECT
-        
-        void updateInclusions(const DDconfigIO<3>& configIO);
-        
+                
         private slots:
             void modify();
 
@@ -87,19 +73,14 @@ namespace model
         
         vtkSmartPointer<vtkDataSetMapper> polyhedronMapper;
         vtkSmartPointer<vtkActor> polyhedronActor;
+                
+    public:
+        const DDconfigFields<3>& configFields;
         
-//        vtkSmartPointer<vtkPoints> polyhedronPoints;
         
     public:
-        const Polycrystal<3>& poly;
-        
-    public:
-        InclusionActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const Polycrystal<3>& poly_in);
-        void updateConfiguration(const DDconfigIO<3>& configIO);
-        const PolyhedronInclusionNodeContainerType& polyhedronInclusionNodes() const;
-        PolyhedronInclusionNodeContainerType& polyhedronInclusionNodes();
-        const EshelbyInclusionContainerType& eshelbyInclusions() const;
-        EshelbyInclusionContainerType& eshelbyInclusions();
+        InclusionActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const DDconfigFields<3>& configFields_in);
+        void updateConfiguration();
 
     };
         

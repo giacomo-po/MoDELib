@@ -23,6 +23,7 @@
 #include <vtkGenericOpenGLRenderWindow.h>
 
 #include <DDconfigIO.h>
+#include <DDconfigFields.h>
 #include <DDauxIO.h>
 #include <DDFieldWidget.h>
 #include <SimplicialMesh.h>
@@ -42,8 +43,6 @@ namespace model
                         ,private DDauxIO<3>
     {
         
-
-        
         Q_OBJECT
         
         
@@ -51,6 +50,7 @@ namespace model
         vtkGenericOpenGLRenderWindow* const renderWindow;
         QVTKOpenGLStereoWidget* const qvtkGLwidget;
         const DDtraitsIO& traitsIO;
+        DDconfigFields<3> configFields;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
         NetworkLoopActor* loops;
@@ -89,7 +89,6 @@ namespace model
         DDconfigIO<3>& configIO();
         const DDauxIO<3>& auxIO() const;
         DDauxIO<3>& auxIO();
-
 
     };
     

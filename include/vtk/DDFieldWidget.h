@@ -40,9 +40,10 @@
 #include <DDconfigIO.h>
 #include <Polycrystal.h>
 //#include <DDconfigVtk.h>
-#include <NetworkLinkActor.h>
-#include <InclusionActor.h>
-#include <NetworkLoopActor.h>
+//#include <NetworkLinkActor.h>
+//#include <InclusionActor.h>
+//#include <NetworkLoopActor.h>
+#include <DDconfigFields.h>
 
 namespace model
 {
@@ -99,7 +100,7 @@ namespace model
         ~DDPlaneField();
         const std::deque<FieldDataPnt>& dataPnts() const;
         std::deque<FieldDataPnt>& dataPnts();
-        void compute(const std::vector<VectorDim>& periodicShifts,const DDconfigIO<3>& configIO,const NetworkLoopActor& loops,const NetworkLinkActor& segments,const InclusionActor& inclusions);
+        void compute(const DDconfigFields<3>& configFields);
         void plotField(const int& valID,const bool& useDD,const bool& useIN,const vtkSmartPointer<vtkLookupTable>& lut);
 
     };
@@ -129,20 +130,11 @@ namespace model
         
         vtkGenericOpenGLRenderWindow* const renWin;
         vtkRenderer* const renderer;
-        const DDtraitsIO& traitsIO;
-        const Polycrystal<3>& poly;
-        const int simulationType;
-        const std::vector<int> periodicImageSize;
-        const std::vector<VectorDim> periodicShifts;
-        const DDconfigIO<3>& configIO;
-        const NetworkLoopActor& loops;
-        const NetworkLinkActor& segments;
-        const InclusionActor& inclusions;
+        const DDconfigFields<3>& configFields;
         
     private slots:
         void clearLayout(QLayout *layout);
         void resetPlanes();
-//        void toggleAutoscale();
         void plotField();
 
    public slots:
@@ -152,12 +144,7 @@ namespace model
         
         DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
                       vtkRenderer* const renderer_in,
-                      const DDtraitsIO& traitsIO_in,
-                      const Polycrystal<3>& poly_in,
-                      const DDconfigIO<3>& configIO_in,
-                      const NetworkLoopActor& loops_in,
-                      const NetworkLinkActor& segments_in,
-                      const InclusionActor& inclusions_in);
+                      const  DDconfigFields<3>& configFields_in);
         
     };
 

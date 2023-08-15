@@ -218,6 +218,7 @@ size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vec
 {
     const size_t inclusionID(configIO.sphericalInclusions().size()+configIO.polyhedronInclusions().size());
     configIO.polyhedronInclusions().emplace_back(inclusionID,eT,vrc,type);
+
     const size_t startNodeID(configIO.polyhedronInclusionNodes().size());
     
     size_t nodeCounter(0);
@@ -234,10 +235,11 @@ size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vec
         {
             const size_t k1(k<pair.second.size()-1? k+1 : 0);
             
+
             const auto sourceIter(polyNodes.find(pair.second[k]));
             const auto sinkIter(polyNodes.find(pair.second[k1]));
             if(sourceIter!=polyNodes.end() && sinkIter!=polyNodes.end())
-            {
+            {                
                 const size_t sourceID(startNodeID +std::distance(polyNodes.begin(),sourceIter));
                 const size_t sinkID(startNodeID +std::distance(polyNodes.begin(),sinkIter));
                 configIO.polyhedronInclusionEdges().emplace_back(inclusionID,faceID,sourceID,sinkID);

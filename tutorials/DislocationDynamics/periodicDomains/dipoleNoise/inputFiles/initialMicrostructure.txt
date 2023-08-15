@@ -1,4 +1,4 @@
-microstructureFile = ../../../MicrostructureLibrary/periodicDipole.txt;
+microstructureFile = ./periodicDipole.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicDipoleDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoopDensity.txt;
 #microstructureFile = ../../../MicrostructureLibrary/periodicLoops.txt;

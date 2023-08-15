@@ -44,12 +44,13 @@
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <PeriodicGlidePlaneFactory.h>
-#include <DislocationLoopPatches.h>
+//#include <DislocationLoopPatches.h>
+#include <DDconfigFields.h>
 
 namespace model
 {
     struct NetworkLoopActor : public QWidget
-    /*                     */,private std::map<size_t,DislocationLoopPatches<3>>
+//    /*                     */,private std::map<size_t,DislocationLoopPatches<3>>
     {
 //        static constexpr int dim=3;
 //        enum ColorScheme {colorBurgers=0,colorSessile=1,colorNormal=2,colorEdgeScrew=3,colorComponent=4};
@@ -66,15 +67,8 @@ namespace model
         QCheckBox* showLoops;
         
         QGroupBox* slippedAreaBox;
-//        QCheckBox* showSlippedArea;
         QSlider* sliderSlippedArea;
-//        QColorDialog* colorSlippedArea;
 
-//        double tubeRadius;
-//        ColorScheme clr;
-
-
-//        vtkSmartPointer<vtkPoints> loopPoints;
         vtkSmartPointer<vtkPolyData> loopPolyData;
         vtkSmartPointer<vtkPolyDataMapper> loopMapper;
         vtkSmartPointer<vtkActor> loopActor;
@@ -88,17 +82,11 @@ namespace model
         
         public:
                 
-        const Polycrystal<3>& poly;
-        PeriodicGlidePlaneFactory<3>& periodicGlidePlaneFactory;
+        const DDconfigFields<3>& configFields;
         
         NetworkLoopActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,
-                         const Polycrystal<3>& poly_in,
-                         PeriodicGlidePlaneFactory<3>& pgf);
-        void updateConfiguration(const DDconfigIO<3>& configIO);
-        const std::map<size_t,DislocationLoopPatches<3>>& loopPatches() const;
-        std::map<size_t,DislocationLoopPatches<3>>& loopPatches();
-
-//        Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
+                         const DDconfigFields<3>& configFields_in);
+        void updateConfiguration();
         
     };
     

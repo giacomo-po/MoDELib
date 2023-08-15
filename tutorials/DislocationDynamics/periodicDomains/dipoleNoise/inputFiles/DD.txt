@@ -26,16 +26,16 @@ periodicImageSize= 1 1 1; # number of images for each periodic shift vector
 ######################################
 # TIME STEPPING
 # Maximum nodal displacement per time step (this controls time step size) 
-timeIntegrationMethod=1; # 0 for constant time integration 
+timeIntegrationMethod=0; # 0 for constant time integration 
 capMaxVelocity=1;
-timeStep=200; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
-dxMax=10; # max modal step for timeIntegrationMethod=1
+timeStep=20; #Max time step is used in two way...1) If time integration method is 0, then this is the time step used, and (2) If the time step method is 1, this is used to cap the velocity if cap #velocity is enabled
+dxMax=1; # max modal step for timeIntegrationMethod=1
 dpdMax=1e-7; # max plastic distortion step for timeIntegrationMethod=2
-use_velocityFilter=1;
+use_velocityFilter=0;
 velocityReductionFactor=0.75;
 use_stochasticForce=0;
 stochasticForceSeed=-1;
-useSubCycling=1;
+useSubCycling=0;
 subcyclingBins=1 2 5 10 50 100;
 
 ######################################
@@ -54,8 +54,8 @@ alphaLineTension=0.1; # dimensionless scale factor in for line tension forces
 ######################################
 # NETWORK REMESHING
 remeshFrequency=1; # Enable/disable node redistribution 
-Lmin=100; # min segment length (in Burgers vector units)
-Lmax=400; # max segment length (in Burgers vector units)
+Lmin=5; # min segment length (in Burgers vector units)
+Lmax=20; # max segment length (in Burgers vector units)
 relativeAreaThreshold=0.001;
 
 ######################################
@@ -74,12 +74,12 @@ grainBoundaryTransmissionModel=0;
 ######################################
 # OUTPUT
 # Options for output files:
-outputFrequency=100;
+outputFrequency=10;
 outputBinary=0;
 computeElasticEnergyPerLength=0;
 outputMeshDisplacement=0;
 outputFEMsolution=0;
-outputQuadraturePoints=0;
+outputQuadraturePoints=1;
 outputLinkingNumbers=0;
 outputLoopLength=0;
 

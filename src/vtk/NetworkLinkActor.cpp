@@ -49,7 +49,7 @@ namespace model
     
         
         /**********************************************************************/
-        NetworkLinkActor::NetworkLinkActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer) :
+        NetworkLinkActor::NetworkLinkActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,const DDconfigFields<3>& configFields_in) :
         /* init */ renderWindow(renWin)
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,showLinks(new QCheckBox(this))
@@ -70,6 +70,7 @@ namespace model
         /* init */,tubeActorBnd(vtkSmartPointer<vtkActor>::New())
         /* init */,tubeMapper0(vtkSmartPointer<vtkPolyDataMapper>::New())
         /* init */,tubeActor0(vtkSmartPointer<vtkActor>::New())
+        /* init */,configFields(configFields_in)
         {
             showLinks->setChecked(true);
             showLinks->setText("links");
@@ -143,21 +144,21 @@ namespace model
 
         }
         
-const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& NetworkLinkActor::segments() const
-{
-    return _segments;
-}
+//const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& NetworkLinkActor::segments() const
+//{
+//    return _segments;
+//}
 
         
         /**********************************************************************/
-        void NetworkLinkActor::updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData)
+        void NetworkLinkActor::updateConfiguration(vtkPolyData* const nodePolyData)
         {// https://stackoverflow.com/questions/6878263/remove-individual-points-from-vtkpoints
             std::cout<<"Updating links..."<<std::flush;
             const auto t0= std::chrono::system_clock::now();
             
 //            std::cout<<"Updating segments..."<<std::flush;
 //            const auto t2= std::chrono::system_clock::now();
-            _segments=configIO.segments(); // compute and store segments from configIO
+//            _segments=configIO.segments(); // compute and store segments from configIO
 
             vtkSmartPointer<vtkFloatArray> radii(vtkSmartPointer<vtkFloatArray>::New());
             vtkSmartPointer<vtkUnsignedCharArray> colors(vtkSmartPointer<vtkUnsignedCharArray>::New());
@@ -170,20 +171,20 @@ const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& NetworkLinkAct
             vtkSmartPointer<vtkCellArray> cellsBnd(vtkSmartPointer<vtkCellArray>::New());
             vtkSmartPointer<vtkCellArray> cells0(vtkSmartPointer<vtkCellArray>::New());
 
-            for (const auto& segment : segments())
+            for (const auto& segment : configFields.segments())
             {
                 
-                auto itSource(configIO.nodeMap().find(segment.second.sourceID)); //source
-                if(itSource!=configIO.nodeMap().end())
+                auto itSource(configFields.configIO.nodeMap().find(segment.second.sourceID)); //source
+                if(itSource!=configFields.configIO.nodeMap().end())
                 {
-                    auto   itSink(configIO.nodeMap().find(segment.second.sinkID)); //sink
-                    if(itSink!=configIO.nodeMap().end())
+                    auto   itSink(configFields.configIO.nodeMap().find(segment.second.sinkID)); //sink
+                    if(itSink!=configFields.configIO.nodeMap().end())
                     {
                         vtkSmartPointer<vtkLine> line(vtkSmartPointer<vtkLine>::New());
-                        line->GetPointIds()->SetId(0, std::distance(configIO.nodeMap().begin(),itSource)); // the second 0 is the index of the Origin in linesPolyData's points
-                        line->GetPointIds()->SetId(1, std::distance(configIO.nodeMap().begin(),itSink));
+                        line->GetPointIds()->SetId(0, std::distance(configFields.configIO.nodeMap().begin(),itSource)); // the second 0 is the index of the Origin in linesPolyData's points
+                        line->GetPointIds()->SetId(1, std::distance(configFields.configIO.nodeMap().begin(),itSink));
                         
-                        const auto chord(configIO.nodes()[itSink->second].P-configIO.nodes()[itSource->second].P);
+                        const auto chord(configFields.configIO.nodes()[itSink->second].P-configFields.configIO.nodes()[itSource->second].P);
                         const double burgersNorm(segment.second.b.norm());
                         if(burgersNorm>FLT_EPSILON)
                         {

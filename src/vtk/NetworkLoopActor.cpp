@@ -38,12 +38,9 @@
 #include <vtkPolygon.h>
 #include <vtkCellArray.h>
 
-//#include <IDreader.h>
-//#include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
 #include <NetworkLoopActor.h>
-//#include <SutherlandHodgman.h>
 #include <DislocationLoopPatches.h>
 
 namespace model
@@ -52,15 +49,12 @@ namespace model
 
 /**********************************************************************/
 NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const renderer,
-                                   const Polycrystal<3>& poly_in,
-                                   PeriodicGlidePlaneFactory<3>& pgf) :
+                                   const DDconfigFields<3>& configFields_in) :
 /* init */ renderWindow(renWin)
 /* init */,mainLayout(new QGridLayout(this))
 /* init */,showLoops(new QCheckBox(this))
 /* init */,slippedAreaBox(new QGroupBox(tr("&Slip Area")))
-//        /* init */,showSlippedArea(new QCheckBox(this))
 /* init */,sliderSlippedArea(new QSlider(this))
-//        /* init */,colorSlippedArea(new QColorDialog(slippedAreaBox))
 /* init */,loopPolyData(vtkSmartPointer<vtkPolyData>::New())
 /* init */,loopMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
 /* init */,loopActor(vtkSmartPointer<vtkActor>::New())
@@ -68,8 +62,7 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 /* init */,areaTriangleFilter(vtkSmartPointer<vtkTriangleFilter>::New())
 /* init */,areaMapper(vtkSmartPointer<vtkPolyDataMapper>::New())
 /* init */,areaActor(vtkSmartPointer<vtkActor>::New())
-/* init */,poly(poly_in)
-/* init */,periodicGlidePlaneFactory(pgf)
+/* init */,configFields(configFields_in)
 {
     showLoops->setChecked(false);
     showLoops->setText("Loops");
@@ -149,8 +142,7 @@ NetworkLoopActor::NetworkLoopActor(vtkGenericOpenGLRenderWindow* const renWin,vt
 
 
 
-/**********************************************************************/
-void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
+void NetworkLoopActor::updateConfiguration()
 {
     std::cout<<"Updating loops..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();
@@ -159,9 +151,9 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     
     vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     std::map<size_t,size_t> loopNodesMap; // nodeID,nodePositionInDDauxIO
-    for(size_t k=0;k<configIO.loopNodes().size();++k)
+    for(size_t k=0;k<configFields.configIO.loopNodes().size();++k)
     {
-        const auto& node(configIO.loopNodes()[k]);
+        const auto& node(configFields.configIO.loopNodes()[k]);
         loopNodesMap.emplace(node.sID,k);
         
         points->InsertNextPoint(node.P(0),
@@ -170,7 +162,7 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     }
     
     vtkSmartPointer<vtkCellArray> cells(vtkSmartPointer<vtkCellArray>::New());
-    for(const auto& loopLink : configIO.loopLinks())
+    for(const auto& loopLink : configFields.configIO.loopLinks())
     {
         
         const auto sourceIter(loopNodesMap.find(loopLink.sourceID));
@@ -207,79 +199,22 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     vtkNew<vtkCellArray> areaPolygons;
     
     size_t areaPointID(0);
-//    const auto loopNodeSequence(configIO.loopNodeSequence());
-    //loopNodeSequence()=configIO.loopNodeSequence();
-    loopPatches().clear();
-    for(const auto& pair : configIO.loopNodeSequence())
+    for(const auto& currentPatches : configFields.loopPatches())
     {
-        const auto& loopID(pair.first);
-        const auto& loopIO(configIO.loops()[configIO.loopMap().at(loopID)]);
-        const auto& grain(poly.grain(loopIO.grainID));
-        GlidePlaneKey<3> glidePlaneKey(loopIO.P, grain.singleCrystal->reciprocalLatticeDirection(loopIO.N));
-        std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(periodicGlidePlaneFactory.get(glidePlaneKey));
-        
-//        std::vector<Eigen::Matrix<double,2,1>> localNodePos;
-        
-        if(true)
+        for(const auto& pair : currentPatches.second.globalPatches())
         {
-            
-            std::vector<Eigen::Matrix<double,3,1>> nodeShifts;
-            std::vector<Eigen::Matrix<double,3,1>> nodePos;
-
-            for(const auto& loopNodeID : pair.second)
+            vtkNew<vtkPolygon> polygon;
+            for(const auto& globalPos : pair.second)
             {
-                const auto& loopNodeIO(configIO.loopNodes()[configIO.loopNodeMap().at(loopNodeID)]);
-                nodeShifts.push_back(loopNodeIO.periodicShift);
-                if(loopNodeIO.edgeIDs.first<0 && loopNodeIO.edgeIDs.second<0)
-                {
-                    nodePos.push_back(loopNodeIO.P);
-                }
+                areaPoints->InsertNextPoint(globalPos(0),
+                                            globalPos(1),
+                                            globalPos(2));
+                polygon->GetPointIds()->InsertNextId(areaPointID);
+                areaPointID++;
             }
-            
-            DislocationLoopPatches<3> currentPatches(periodicGlidePlane);
-            currentPatches.update(nodeShifts,nodePos);
-            loopPatches().emplace(loopID,currentPatches);
-
-//            for(const auto& loopNodeID : pair.second)
-//            {
-//                const auto& loopNodeIO(configIO.loopNodes()[configIO.loopNodeMap().at(loopNodeID)]);
-//                nodeShifts.push_back(loopNodeIO.periodicShift);
-//                if(loopNodeIO.edgeIDs.first<0 && loopNodeIO.edgeIDs.second<0)
-//                {
-//                    localNodePos.push_back(periodicGlidePlane->referencePlane->localPosition(loopNodeIO.P));
-//                }
-//            }
-//
-//            const auto loopPatches(periodicGlidePlane->filledPatches(nodeShifts));
-            
-            
-            for(const auto& pair : currentPatches.globalPatches())
-            {
-//                std::vector<Eigen::Matrix<double,2,1>> localPatchPos;
-//                for(const auto& edge : patch->edges())
-//                {
-//                    localPatchPos.push_back(*edge->source);
-//                }
-//
-//                const auto localLoopPosOnPeriodicPlane(SutherlandHodgman::clip(localNodePos,localPatchPos));
-                
-                vtkNew<vtkPolygon> polygon;
-                for(const auto& globalPos : pair.second)
-                {
-//                    const Eigen::Matrix<double,3,1> globalPos(periodicGlidePlane->referencePlane->globalPosition(localPos)+patch->shift);
-                    areaPoints->InsertNextPoint(globalPos(0),
-                                                globalPos(1),
-                                                globalPos(2));
-                    
-                    polygon->GetPointIds()->InsertNextId(areaPointID);
-                    
-                    areaPointID++;
-                }
-                areaPolygons->InsertNextCell(polygon);
-            }
+            areaPolygons->InsertNextCell(polygon);
         }
     }
-    
     areaPolyData->SetPoints(areaPoints);
     areaPolyData->SetPolys(areaPolygons);
     areaTriangleFilter->Update();
@@ -287,18 +222,6 @@ void NetworkLoopActor::updateConfiguration(const DDconfigIO<3>& configIO)
     std::cout<<magentaColor<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
 }
 
-const std::map<size_t,DislocationLoopPatches<3>>& NetworkLoopActor::loopPatches() const
-{
-    return *this;
-}
-
-std::map<size_t,DislocationLoopPatches<3>>& NetworkLoopActor::loopPatches()
-{
-    return *this;
-}
-
-
-/**********************************************************************/
 void NetworkLoopActor::modify()
 {
     
@@ -309,8 +232,6 @@ void NetworkLoopActor::modify()
     
     renderWindow->Render();
 }
-
-
 
 } // namespace model
 #endif

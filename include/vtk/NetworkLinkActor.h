@@ -39,6 +39,7 @@
 #include <PlanarPolygon.h>
 #include <DDconfigIO.h>
 #include <MeshPlane.h>
+#include <DDconfigFields.h>
 
 namespace model
 {
@@ -81,16 +82,15 @@ namespace model
         vtkSmartPointer<vtkActor> tubeActorBnd;
         vtkSmartPointer<vtkPolyDataMapper> tubeMapper0;
         vtkSmartPointer<vtkActor> tubeActor0;
-
-        std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3> > _segments;
         
         public:
-                
         
-        NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const);
-        void updateConfiguration(const DDconfigIO<3>& configIO,vtkPolyData* const nodePolyData);
+        const DDconfigFields<3>& configFields;
+                
+        NetworkLinkActor(vtkGenericOpenGLRenderWindow* const,vtkRenderer* const,const DDconfigFields<3>& configFields_in);
+        void updateConfiguration(vtkPolyData* const nodePolyData);
+
         Eigen::Matrix<int,3,1> computeColor(const VectorDim& burgers, const VectorDim& chord, const VectorDim& planeNormal) const;
-        const std::map<std::pair<size_t,size_t>,DislocationSegmentIO<3>>& segments() const;
     };
     
 } // namespace model
