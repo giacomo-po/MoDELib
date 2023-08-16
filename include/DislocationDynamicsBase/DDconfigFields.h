@@ -14,8 +14,7 @@
 
 #include <Eigen/Dense>
 
-#include <DDtraitsIO.h>
-#include <Polycrystal.h>
+#include <DislocationDynamicsBase.h>
 #include <DDconfigIO.h>
 #include <DislocationLoopPatches.h>
 #include <PeriodicGlidePlaneFactory.h>
@@ -42,15 +41,16 @@ namespace model
         typedef std::map<size_t,std::shared_ptr<EshelbyInclusionBase<dim>>> EshelbyInclusionContainerType;
         typedef std::map<size_t,PolyhedronInclusionNodeIO<dim>> PolyhedronInclusionNodeContainerType;
         
-        const DDtraitsIO& traitsIO;
-        const Polycrystal<dim>& poly;
-        const int simulationType;
-        const std::vector<int> periodicImageSize;
+        DislocationDynamicsBase<dim>& ddBase;
+//        const DDtraitsIO& traitsIO;
+//        const Polycrystal<dim>& poly;
+//        const int simulationType;
+//        const std::vector<int> periodicImageSize;
         const std::vector<VectorDim> periodicShifts;
         const DDconfigIO<dim>& configIO;
-        PeriodicGlidePlaneFactory<3>& periodicGlidePlaneFactory;
+//        PeriodicGlidePlaneFactory<3>& periodicGlidePlaneFactory;
         
-        DDconfigFields(const DDtraitsIO& traitsIO_in,const DDconfigIO<dim>& configIO_in,const Polycrystal<dim>& poly_in,PeriodicGlidePlaneFactory<3>& pgpf);
+        DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in);
         void updateConfiguration();
         const std::map<size_t,DislocationLoopPatches<dim>>& loopPatches() const;
         std::map<size_t,DislocationLoopPatches<dim>>& loopPatches();

@@ -18,14 +18,15 @@ namespace model
 {
 
     template <int dim>
-    DDconfigFields<dim>::DDconfigFields(const DDtraitsIO& traitsIO_in,const DDconfigIO<dim>& configIO_in,const Polycrystal<dim>& poly_in,PeriodicGlidePlaneFactory<3>& pgpf):
-    /* init */ traitsIO(traitsIO_in)
-    /* init */,poly(poly_in)
-    /* init */,simulationType(TextFileParser(traitsIO.ddFile).readScalar<int>("simulationType",true))
-    /* init */,periodicImageSize(simulationType==DDtraitsIO::PERIODIC_IMAGES? TextFileParser(traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
-    /* init */,periodicShifts(poly.mesh.periodicShifts(periodicImageSize))
+    DDconfigFields<dim>::DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in):
+//    /* init */ traitsIO(traitsIO_in)
+//    /* init */,poly(poly_in)
+//    /* init */,simulationType(TextFileParser(traitsIO.ddFile).readScalar<int>("simulationType",true))
+//    /* init */,periodicImageSize(simulationType==DDtraitsIO::PERIODIC_IMAGES? TextFileParser(traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
+    /* init */ ddBase(ddBase_in)
+    /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
     /* init */,configIO(configIO_in)
-    /* init */,periodicGlidePlaneFactory(pgpf)
+//    /* init */,periodicGlidePlaneFactory(pgpf)
     {
         
     }
@@ -48,9 +49,9 @@ namespace model
         {
             const auto& loopID(pair.first);
             const auto& loopIO(configIO.loops()[configIO.loopMap().at(loopID)]);
-            const auto& grain(poly.grain(loopIO.grainID));
+            const auto& grain(ddBase.poly.grain(loopIO.grainID));
             GlidePlaneKey<3> glidePlaneKey(loopIO.P, grain.singleCrystal->reciprocalLatticeDirection(loopIO.N));
-            std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(periodicGlidePlaneFactory.get(glidePlaneKey));
+            std::shared_ptr<PeriodicGlidePlane<3>> periodicGlidePlane(ddBase.periodicGlidePlaneFactory.get(glidePlaneKey));
             
             std::vector<Eigen::Matrix<double,3,1>> nodeShifts;
             std::vector<Eigen::Matrix<double,3,1>> nodePos;
@@ -74,18 +75,18 @@ namespace model
         for(const auto& inclusion : configIO.sphericalInclusions())
         {
             //        std::cout<<"Creating spherical inclusion "<<inclusion.inclusionID<<std::endl;
-            const std::pair<bool,const Simplex<dim,dim>*> searchPair(poly.mesh.search(inclusion.C));
+            const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(inclusion.C));
             if(searchPair.first)
             {
                 
-                const auto& grain(poly.grain(searchPair.second->region->regionID));
+                const auto& grain(ddBase.poly.grain(searchPair.second->region->regionID));
                 if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                 {
                     const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
                     EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
                     
                     
-                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+                    std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new SphericalInclusion<dim>(inclusion.C,inclusion.a,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
                     
                     eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
                 }
@@ -135,7 +136,7 @@ namespace model
                     std::set<size_t> grainIDs;
                     for(const auto& nodePtr : uniquePolyNodes)
                     {
-                        const std::pair<bool,const Simplex<dim,dim>*> searchPair(poly.mesh.search(nodePtr->P));
+                        const std::pair<bool,const Simplex<dim,dim>*> searchPair(ddBase.mesh.search(nodePtr->P));
                         if(searchPair.first)
                         {
                             grainIDs.insert(searchPair.second->region->regionID);
@@ -149,12 +150,12 @@ namespace model
                     // Add inclusion
                     if(grainIDs.size()==1)
                     {
-                        const auto& grain(poly.grain(*grainIDs.begin()));
+                        const auto& grain(ddBase.poly.grain(*grainIDs.begin()));
                         if(inclusion.phaseID<int(grain.singleCrystal->secondPhases().size()))
                         {
                             const auto secondPhase(grain.singleCrystal->secondPhases()[inclusion.phaseID]);
                             EshelbyInclusionBase<dim>::set_count(inclusion.inclusionID);
-                            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,poly.nu,poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
+                            std::shared_ptr<EshelbyInclusionBase<dim>> iptr(new PolyhedronInclusion<dim>( polyhedronInclusionNodes(),faces,inclusion.eT,ddBase.poly.nu,ddBase.poly.mu,inclusion.mobilityReduction,inclusion.phaseID,secondPhase));
                             eshelbyInclusions().emplace(inclusion.inclusionID,iptr);
                         }
                         else
@@ -258,7 +259,7 @@ typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::dislocationStress(
             {
                 const auto& sourceNode(configIO.nodes()[itSource->second]);
                 const auto&   sinkNode(configIO.nodes()[itSink->second]);
-                StressStraight<3> ss(poly,sourceNode.P,sinkNode.P,segment.second.b);
+                StressStraight<3> ss(ddBase.poly,sourceNode.P,sinkNode.P,segment.second.b);
                 for(const auto& shift : periodicShifts)
                 {
                     temp+=ss.stress(x+shift);

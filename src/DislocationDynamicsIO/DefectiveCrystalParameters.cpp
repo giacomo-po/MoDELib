@@ -83,6 +83,7 @@ namespace model
         /* init */,externalLoadControllerName(TextFileParser(traitsIO.ddFile).readString("externalLoadControllerName",true))
         /* init */,virtualSegmentDistance((simulationType==DDtraitsIO::FINITE_FEM || simulationType==DDtraitsIO::PERIODIC_FEM || simulationType==DDtraitsIO::PERIODIC_IMAGES)? TextFileParser(traitsIO.ddFile).readScalar<double>("virtualSegmentDistance",true) : 0.0)
         /* init */,use_stochasticForce(TextFileParser(traitsIO.ddFile).readScalar<int>("use_stochasticForce",true))
+        /* init */,periodicFaceIDs(TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
         /* init */,runID(TextFileParser(traitsIO.ddFile).readScalar<long int>("startAtTimeStep",true))
         /* init */,totalTime(0.0)
         /* init */,dt(10.0)

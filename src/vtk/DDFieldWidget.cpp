@@ -265,78 +265,14 @@ void DDPlaneField::compute(const DDconfigFields<3>& configFields)
 {
     std::cout<<"DDPlaneField computing "<<dataPnts().size()<<" points..."<<std::flush;
     const auto t0= std::chrono::system_clock::now();
-
     for(size_t vtkID=0;vtkID<dataPnts().size();++vtkID)
     {
         auto& vtx(dataPnts()[vtkID]);
         vtx.solidAngle=configFields.solidAngle(vtx.P);
         vtx.stressDD=configFields.dislocationStress(vtx.P);
         vtx.stressIN=configFields.inclusionStress(vtx.P);
-
-
-//            for(const auto& patch : configFields.loopPatches())
-//            {
-//                for(const auto& shift : configFields.periodicShifts)
-//                {
-//                    vtx.solidAngle+=patch.second.solidAngle(vtx.P+shift);
-//                }
-//            }
-            
-            // DD stress
-    //        vtx.vacancyConcDD=0.0;
-    //        vtx.clusterConcentrationDD.setZero();
-    //        Eigen::Matrix<double,3,3> stress(Eigen::Matrix<double,3,3>::Zero());
-//            for (const auto& segment : configFields.segments())
-//            {
-//                if(segment.second.meshLocation==0 || segment.second.meshLocation==2)
-//                {// segment inside mesh or on grain boundary
-//                    auto itSource(configFields.configIO.nodeMap().find(segment.second.sourceID)); //source
-//                    auto   itSink(configFields.configIO.nodeMap().find(segment.second.sinkID)); //sink
-//                    if(itSource!=configFields.configIO.nodeMap().end() && itSink!=configFields.configIO.nodeMap().end())
-//                    {
-//                        const auto& sourceNode(configFields.configIO.nodes()[itSource->second]);
-//                        const auto&   sinkNode(configFields.configIO.nodes()[itSink->second]);
-//                        StressStraight<3> ss(poly,sourceNode.P,sinkNode.P,segment.second.b);
-//                        for(const auto& shift : configFields.periodicShifts)
-//                        {
-//                            vtx.stressDD+=ss.stress(vtx.P+shift);
-//                        }
-//                    }
-//                    else
-//                    {
-//
-//                    }
-//    //                if(bvpSolver.poly.icp)
-//    //                {
-//    //                    vtx.clusterConcentrationDD+=ss.clusterConcentration(vtx.P,itSource->second->V,itSink->second->V,*bvpSolver.poly.icp);
-//    //                }
-//    //                else
-//    //                {
-//    //                    vtx.vacancyConcDD+=ss.vacancyConcentration(vtx.P,itSource->second->V,itSink->second->V,bvpSolver.poly.Dv);
-//    //                }
-//                }
-//            }
-            
-//            for(const auto& inclusion : configFields.eshelbyInclusions() )
-//            {
-//                for(const auto& shift : configFields.periodicShifts)
-//                {
-//                    vtx.stressIN+=inclusion.second->stress(vtx.P+shift);
-//                }
-//            }
-    //        // FEM solution
-    //        vtx.stressFEM=bvpSolver.stress(vtx.P,simplexGuess); // simplexGuess is updated too
-    //        vtx.displacementFEM=bvpSolver.displacement(vtx.P,simplexGuess); // simplexGuess is updated too
-    //        vtx.vacancyConcFEM=bvpSolver.vacancyConcentration(vtx.P,simplexGuess);
-    //        vtx.NHdisp=bvpSolver.NHcreepDisplacement(vtx.P,simplexGuess);
-    //        //vtx.NHdisp=eval(bvpSolver.jT)(vtx.P,simplexGuess);
-    //        vtx.clusterConcentrationFEM=bvpSolver.clusterConcentration(vtx.P,simplexGuess);
-        
-        
     }
-    
     std::cout<<magentaColor<<"["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<defaultColor<<std::endl;
-//    plotField();
 }
 
 void DDFieldWidget::clearLayout(QLayout *layout)
@@ -362,7 +298,7 @@ void DDFieldWidget::resetPlanes()
     std::cout<<"Resetting "<<spinBox->value()<<" planes"<<std::endl;
     for(int k=0;k<spinBox->value();++k)
     {
-        DDPlaneField* planeField(new DDPlaneField(renWin,renderer,configFields.poly));
+        DDPlaneField* planeField(new DDPlaneField(renWin,renderer,configFields.ddBase.poly));
         planeField->resetPlane();
         groupBox->layout()->addWidget(planeField);
     }

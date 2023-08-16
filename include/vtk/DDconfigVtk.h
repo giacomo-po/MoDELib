@@ -22,7 +22,7 @@
 #include <vtkRenderer.h>
 #include <vtkGenericOpenGLRenderWindow.h>
 
-#include <DDconfigIO.h>
+#include <DislocationDynamicsBase.h>
 #include <DDconfigFields.h>
 #include <DDauxIO.h>
 #include <DDFieldWidget.h>
@@ -49,7 +49,8 @@ namespace model
     public:
         vtkGenericOpenGLRenderWindow* const renderWindow;
         QVTKOpenGLStereoWidget* const qvtkGLwidget;
-        const DDtraitsIO& traitsIO;
+//        const DDtraitsIO& traitsIO;
+        DislocationDynamicsBase<3>& ddBase;
         DDconfigFields<3> configFields;
         NetworkNodeActor* nodes;
         NetworkLinkActor* segments;
@@ -77,12 +78,10 @@ namespace model
         QCheckBox* saveImage;
         QTabWidget* tabWidget;
 
-        DDconfigVtk(const DDtraitsIO& traitsIO_in,
-                    vtkGenericOpenGLRenderWindow* const,
+        DDconfigVtk(vtkGenericOpenGLRenderWindow* const,
                     vtkRenderer* const ren,
                     QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
-                    const Polycrystal<3>& poly,
-                    PeriodicGlidePlaneFactory<3>& pgpf);
+                    DislocationDynamicsBase<3>& ddBase_in);
         bool updateConfiguration(const size_t& frameID);
         void modify();
         const DDconfigIO<3>& configIO() const;

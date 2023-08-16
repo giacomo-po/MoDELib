@@ -4,4 +4,4 @@ tag=plp0;
 periodicLoopSlipSystemIDs=0;
 periodicLoopRadii_SI=5.0e-8; [m] loop radii
 periodicLoopSides=100; [-] number of side of loop polygon
-periodicLoopCenters=500 500 500;
+periodicLoopCenters=500 500 900;

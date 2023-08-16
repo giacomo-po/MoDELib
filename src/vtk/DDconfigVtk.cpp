@@ -24,23 +24,22 @@ namespace model
 {
         
         /**********************************************************************/
-        DDconfigVtk::DDconfigVtk(const DDtraitsIO& traitsIO_in,vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
+        DDconfigVtk::DDconfigVtk(vtkGenericOpenGLRenderWindow* const renWin,vtkRenderer* const ren,
                                  QVTKOpenGLStereoWidget* const qvtkGLwidget_in,
-                                 const Polycrystal<3>& poly,PeriodicGlidePlaneFactory<3>& pgpf) :
-        /* init */ DDconfigIO<3>(traitsIO_in.evlFolder,"")
-        /* init */,DDauxIO<3>(traitsIO_in.auxFolder,"")
+                                 DislocationDynamicsBase<3>& ddBase_in) :
+        /* init */ DDconfigIO<3>(ddBase_in.simulationParameters.traitsIO.evlFolder,"")
+        /* init */,DDauxIO<3>(ddBase_in.simulationParameters.traitsIO.auxFolder,"")
         /* init */,renderWindow(renWin)
         /* init */,qvtkGLwidget(qvtkGLwidget_in)
-        /* init */,traitsIO(traitsIO_in)
-        /* init */,configFields(traitsIO,*this,poly,pgpf)
+        /* init */,ddBase(ddBase_in)
+        /* init */,configFields(ddBase,*this)
         /* init */,nodes(new NetworkNodeActor(renWin,ren))
         /* init */,segments(new NetworkLinkActor(renWin,ren,configFields))
-//        /* init */,loops(new NetworkLoopActor(renWin,ren,poly,pgpf))
         /* init */,loops(new NetworkLoopActor(renWin,ren,configFields))
         /* init */,inclusions(new InclusionActor(renWin,ren,configFields))
-        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,poly,traitsIO))
-        /* init */,quadrature(new QuadratureActor(renWin,ren,poly,traitsIO))
-        /* init */,chartActor(new ChartActor(traitsIO,renderWindow,ren))
+        /* init */,glidePlanes(new GlidePlaneActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
+        /* init */,quadrature(new QuadratureActor(renWin,ren,ddBase.poly,ddBase.simulationParameters.traitsIO))
+        /* init */,chartActor(new ChartActor(ddBase.simulationParameters.traitsIO,renderWindow,ren))
         /* init */,ddField(new DDFieldWidget(renderWindow,ren,configFields))
         /* init */,mainLayout(new QGridLayout(this))
         /* init */,frameIDedit(new QLineEdit("0"))
@@ -73,7 +72,6 @@ namespace model
 
 
             mainLayout->addWidget(tabWidget,2,0,1,5);
-//            controlsBox->setLayout(mainLayout);
             this->setLayout(mainLayout);
 
             connect(frameIDedit,SIGNAL(returnPressed()), this, SLOT(updateConfiguration()));
@@ -89,8 +87,6 @@ namespace model
             
             QApplication::processEvents();
             updateConfiguration(0);
-            
-//            connect(frameIDedit,SIGNAL(keyPressEvent(QKeyEvent*)), this, SLOT(updateConfiguration()));
         }
 
         const DDconfigIO<3>& DDconfigVtk::configIO() const
@@ -191,7 +187,7 @@ namespace model
                 if(saveImage->isChecked())
                 {
                     QImage img=qvtkGLwidget->grabFramebuffer();
-                    img.save(QString::fromStdString(traitsIO.evlFolder+"/img_"+std::to_string(frameID)+".png"), "PNG", -1);
+                    img.save(QString::fromStdString(ddBase.simulationParameters.traitsIO.evlFolder+"/img_"+std::to_string(frameID)+".png"), "PNG", -1);
                 }
                 return true;
             }

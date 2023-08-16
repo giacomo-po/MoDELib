@@ -16,4 +16,5 @@ target_sources(${PROJECT_NAME} PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/StressStraight.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/VoigtTraits.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/DDconfigFields.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/DislocationDynamicsBase.cpp
 		)

@@ -39,7 +39,8 @@ namespace model
         const std::string externalLoadControllerName;
         const double virtualSegmentDistance;
         const bool use_stochasticForce;
-        
+        const std::set<int> periodicFaceIDs;
+
         long int runID;
         double totalTime;
         double dt;
