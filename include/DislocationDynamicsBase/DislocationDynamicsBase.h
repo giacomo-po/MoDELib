@@ -21,9 +21,6 @@
 #include <Polycrystal.h>
 #include <GlidePlaneFactory.h>
 #include <PeriodicGlidePlaneFactory.h>
-//#include <CrackSystem.h>
-//#include <FEMnodeEvaluation.h>
-//#include <DislocationNetwork.h>
 
 
 namespace model

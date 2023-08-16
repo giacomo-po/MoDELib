@@ -27,38 +27,38 @@ namespace model
 {
 
     /**********************************************************************/
-    MicrostructureGenerator::MicrostructureGenerator(const std::string& folderName) :
-    /* init*/ traitsIO(folderName)
-    /* init*/,configIO(traitsIO.evlFolder)
-    /* init*/,auxIO(traitsIO.auxFolder)
-    /* init*/,outputBinary(TextFileParser(traitsIO.ddFile).readScalar<int>("outputBinary",true))
-    /* init */,periodicFaceIDs(TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
+    MicrostructureGenerator::MicrostructureGenerator(DislocationDynamicsBase<3>& ddBase_in) :
+    /* init*/ configIO(ddBase_in.simulationParameters.traitsIO.evlFolder)
+    /* init*/,auxIO(ddBase_in.simulationParameters.traitsIO.auxFolder)
+    /* init*/,ddBase(ddBase_in)
+    /* init*/,outputBinary(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputBinary",true))
+//    /* init */,periodicFaceIDs(TextFileParser(ddBase.simulationParameters.traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
 //    /* init */,meshFilename(folderName+"/inputFiles/"+TextFileParser(folderName+"/inputFiles/polycrystal.txt").readString("meshFile",true))
-    /* init */,mesh(traitsIO.meshFile,TextFileParser(traitsIO.polyFile).readMatrix<double>("A",3,3,true),
-                    TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
-    /* init*/,minSize(0.1*std::min(mesh.xMax(0)-mesh.xMin(0),std::min(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-    /* init*/,maxSize(std::max(mesh.xMax(0)-mesh.xMin(0),std::max(mesh.xMax(1)-mesh.xMin(1),mesh.xMax(2)-mesh.xMin(2))))
-    /* init*/,poly(traitsIO.polyFile,mesh)
-    /* init*/,glidePlaneFactory(poly)
-    /* init*/,periodicGlidePlaneFactory(poly, glidePlaneFactory)
+//    /* init */,mesh(ddBase.simulationParameters.traitsIO.meshFile,TextFileParser(ddBase.simulationParameters.traitsIO.polyFile).readMatrix<double>("A",3,3,true),
+//                    TextFileParser(ddBase.simulationParameters.traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),periodicFaceIDs)
+    /* init*/,minSize(0.1*std::min(ddBase.mesh.xMax(0)-ddBase.mesh.xMin(0),std::min(ddBase.mesh.xMax(1)-ddBase.mesh.xMin(1),ddBase.mesh.xMax(2)-ddBase.mesh.xMin(2))))
+    /* init*/,maxSize(std::max(ddBase.mesh.xMax(0)-ddBase.mesh.xMin(0),std::max(ddBase.mesh.xMax(1)-ddBase.mesh.xMin(1),ddBase.mesh.xMax(2)-ddBase.mesh.xMin(2))))
+//    /* init*/,poly(ddBase.simulationParameters.traitsIO.polyFile,mesh)
+//    /* init*/,glidePlaneFactory(poly)
+//    /* init*/,periodicGlidePlaneFactory(poly, glidePlaneFactory)
     {
         
-        std::cout<<greenBoldColor<<"Generating microstructure for "<<folderName<<defaultColor<<std::endl;
+        std::cout<<greenBoldColor<<"Generating microstructure for "<<ddBase.simulationParameters.traitsIO.simulationFolder<<defaultColor<<std::endl;
         
         
         // Some sanity checks
-        if(mesh.volume()<FLT_EPSILON)
+        if(ddBase.mesh.volume()<FLT_EPSILON)
         {
-            throw std::runtime_error("mesh "+traitsIO.meshFile+" is empty.");
+            throw std::runtime_error("mesh "+ddBase.simulationParameters.traitsIO.meshFile+" is empty.");
         }
         
         
-//        std::ifstream initialMicrostructureFile(traitsIO.microstructureFile);
-        const auto microstructureFiles(TextFileParser(traitsIO.microstructureFile).readStringVector("microstructureFile"));
+//        std::ifstream initialMicrostructureFile(ddBase.simulationParameters.traitsIO.microstructureFile);
+        const auto microstructureFiles(TextFileParser(ddBase.simulationParameters.traitsIO.microstructureFile).readStringVector("microstructureFile"));
         
         for(const auto& pair : microstructureFiles)
         {
-            const std::string microstructureFileName(std::filesystem::path(traitsIO.microstructureFile).parent_path().string()+"/"+TextFileParser::removeSpaces(pair.first));
+            const std::string microstructureFileName(std::filesystem::path(ddBase.simulationParameters.traitsIO.microstructureFile).parent_path().string()+"/"+TextFileParser::removeSpaces(pair.first));
             const std::string microstructureType(TextFileParser(microstructureFileName).readString("type",false));
             const std::string tag(TextFileParser(microstructureFileName).readString("tag",false));
             bool success(false);
@@ -122,7 +122,7 @@ namespace model
 
 const DDtraitsIO& MicrostructureGenerator::traits() const
 {
-    return traitsIO;
+    return ddBase.simulationParameters.traitsIO;
 }
 
 
@@ -256,7 +256,7 @@ size_t MicrostructureGenerator::insertInclusion(const std::map<size_t,Eigen::Vec
     void MicrostructureGenerator::writeConfigFiles(const size_t& fileID)
     {
         
-//        const int outputGlidePlanes(TextFileParser(traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
+//        const int outputGlidePlanes(TextFileParser(ddBase.simulationParameters.traitsIO.ddFile).readScalar<int>("outputGlidePlanes",true));
 
         
 //        if(outputGlidePlanes)
@@ -287,7 +287,7 @@ bool MicrostructureGenerator::allPointsInGrain(const std::vector<VectorDimD>& po
     bool temp=true;
     for(const auto& point : points)
     {
-        temp*=mesh.searchRegion(grainID,point).first;
+        temp*=ddBase.mesh.searchRegion(grainID,point).first;
         if(!temp)
         {
             break;

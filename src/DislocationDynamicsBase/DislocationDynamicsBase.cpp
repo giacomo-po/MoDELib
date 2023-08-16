@@ -39,7 +39,7 @@ DislocationDynamicsBase<_dim>::DislocationDynamicsBase( const std::string& folde
     }
 }
 
-template class DislocationDynamicsBase<3>;
+template struct DislocationDynamicsBase<3>;
 
 } // namespace model
 #endif

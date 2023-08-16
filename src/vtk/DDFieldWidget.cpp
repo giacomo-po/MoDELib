@@ -17,7 +17,6 @@
 #include <vtkCellData.h>
 
 #include <DDFieldWidget.h>
-//#include <StressStraight.h>
 
 namespace model
 {
@@ -102,8 +101,6 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     customScaleBox->setCheckable(true);
     customScaleBox->setChecked(false);
 
-//    minScale->setEnabled(false);
-//    maxScale->setEnabled(false);
     autoscaleLayout->addWidget(minScale,0,0,1,1);
     autoscaleLayout->addWidget(maxScale,0,1,1,1);
     customScaleBox->setLayout(autoscaleLayout);
@@ -133,8 +130,9 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
     connect(maxScale,SIGNAL(returnPressed()), this, SLOT(plotField()));
     connect(dislocationsCheck,SIGNAL(stateChanged(int)), this, SLOT(plotField()));
     connect(inclusionsCheck,SIGNAL(stateChanged(int)), this, SLOT(plotField()));
+    connect(customScaleBox,SIGNAL(toggled(bool)), this, SLOT(plotField()));
 
-//    connect(customScaleBox,SIGNAL(toggled(bool)), this, SLOT(toggleAutoscale()));
+    
     
     mainLayout->addWidget(boxLabel,0,0,1,1);
     mainLayout->addWidget(spinBox,0,1,1,1);
@@ -156,12 +154,6 @@ DDFieldWidget::DDFieldWidget(vtkGenericOpenGLRenderWindow* const renWin_in,
 
 
 }
-
-//void DDFieldWidget::toggleAutoscale()
-//{
-//    minScale->setEnabled(!customScaleBox->isChecked());
-//    maxScale->setEnabled(!customScaleBox->isChecked());
-//}
 
 void DDFieldWidget::compute()
 {

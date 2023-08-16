@@ -65,21 +65,21 @@ namespace model
             double density=0.0;
             while(density<targetPeriodicDipoleDensity)
             {
-                const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
+                const std::pair<LatticeVector<dim>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
                 const LatticeVector<dim> L0=rp.first;
                 const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
                 const int rSS(ssDist(generator)); // a random SlipSystem
 //                const auto& slipSystem(*poly.grain(grainID).singleCrystal->slipSystems()[rSS]);
-                std::uniform_int_distribution<> fDist(0,mg.poly.grain(grainID).region.faces().size()-1);
+                std::uniform_int_distribution<> fDist(0,mg.ddBase.poly.grain(grainID).region.faces().size()-1);
                 const int rF(fDist(generator)); // a random face
-                auto faceIter(mg.poly.grain(grainID).region.faces().begin());
+                auto faceIter(mg.ddBase.poly.grain(grainID).region.faces().begin());
                 std::advance(faceIter,rF);
 
                 try
                 {
                     generateSingle(mg,rSS,L0.cartesian(),faceIter->first,100,0,20.0);
-                    density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
+                    density+=2.0*faceIter->second->periodicFacePair.first.norm()/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
                     std::cout<<"periodic dipole density="<<density<<std::endl;
                 }
                 catch(const std::exception& e)
@@ -175,7 +175,7 @@ namespace model
         
         if(rSS>=0)
         {
-            std::pair<bool,const Simplex<dim,dim>*> found(mg.mesh.search(dipolePoint));
+            std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(dipolePoint));
             if(!found.first)
             {
                 std::cout<<"Point "<<dipolePoint.transpose()<<" is outside mesh. EXITING."<<std::endl;
@@ -183,8 +183,8 @@ namespace model
             }
             
             const int grainID(found.second->region->regionID);
-            assert(mg.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
-            const auto& grain(mg.poly.grain(grainID));
+            assert(mg.ddBase.poly.grains().size()==1 && "Periodic dislocations only supported for single crystals");
+            const auto& grain(mg.ddBase.poly.grain(grainID));
 
             if(rSS<int(grain.singleCrystal->slipSystems().size()))
             {
@@ -210,7 +210,7 @@ namespace model
                             const VectorDimD planePoint(dipolePoint-0.5*dipoleHeight*slipSystem.n.interplaneVector());
                             const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(planePoint));
                             GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
-                            std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
+                            std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.ddBase.periodicGlidePlaneFactory.get(glidePlaneKey));
                             //                        const VectorDimD P0(glidePlane->snapToPlane(dipolePoint));
                             const VectorDimD P0(grain.singleCrystal->snapToLattice(planePoint).cartesian()); // WARNING: this may shift the point compared to the input.
                             
@@ -224,10 +224,10 @@ namespace model
                                 {
 
                                     GlidePlaneKey<3> parallelGlidePlaneKey(planeIndex+dipoleHeight, slipSystem.n);
-                                    std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
+                                    std::shared_ptr<PeriodicGlidePlane<3>> parallelglidePlane(mg.ddBase.periodicGlidePlaneFactory.get(parallelGlidePlaneKey));
 
                                     GlidePlaneKey<3> prismaticPlaneKey(P0, grain.singleCrystal->reciprocalLatticeDirection(glidePlane->referencePlane->unitNormal.cross(AB)));
-                                    std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.periodicGlidePlaneFactory.get(prismaticPlaneKey));
+                                    std::shared_ptr<PeriodicGlidePlane<3>> prismaticGlidePlane(mg.ddBase.periodicGlidePlaneFactory.get(prismaticPlaneKey));
 
                                     if(parallelglidePlane && prismaticGlidePlane)
                                     {

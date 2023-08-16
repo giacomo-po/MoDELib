@@ -55,7 +55,7 @@ namespace model
 
     void PeriodicLoopGenerator::generateSingle(MicrostructureGenerator& mg,const int& rSS,const VectorDimD& center,const double& radius,const size_t& sides)
     {
-        std::pair<bool,const Simplex<dim,dim>*> found(mg.mesh.search(center));
+        std::pair<bool,const Simplex<dim,dim>*> found(mg.ddBase.mesh.search(center));
         if(!found.first)
         {
             std::cout<<"Point "<<center.transpose()<<" is outside mesh. EXITING."<<std::endl;
@@ -63,8 +63,8 @@ namespace model
         }
         
         const int grainID(found.second->region->regionID);
-        assert(mg.poly.grains.size()==1 && "Periodic dislocations only supported for single crystals");
-        const auto& grain(mg.poly.grain(grainID));
+        assert(mg.ddBase.poly.grains.size()==1 && "Periodic dislocations only supported for single crystals");
+        const auto& grain(mg.ddBase.poly.grain(grainID));
         
         if(rSS>=0 && rSS<int(grain.singleCrystal->slipSystems().size()))
         {
@@ -73,7 +73,7 @@ namespace model
             
             const long int planeIndex(slipSystem.n.closestPlaneIndexOfPoint(center));
             GlidePlaneKey<3> glidePlaneKey(planeIndex, slipSystem.n);
-            std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.periodicGlidePlaneFactory.get(glidePlaneKey));
+            std::shared_ptr<PeriodicGlidePlane<3>> glidePlane(mg.ddBase.periodicGlidePlaneFactory.get(glidePlaneKey));
             const VectorDimD P0(glidePlane->referencePlane->snapToPlane(center));
             
             std::vector<VectorDimD> loopNodePos;
@@ -111,21 +111,21 @@ namespace model
             const int numberOfSides(this->parser.readScalar<int>("numberOfSides",true));
             const double radiusDistributionMean(this->parser.readScalar<double>("radiusDistributionMean",true));
             const double radiusDistributionStd(this->parser.readScalar<double>("radiusDistributionStd",true));
-            std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.poly.b_SI,radiusDistributionStd/mg.poly.b_SI);
+            std::normal_distribution<double> radiusDistribution(radiusDistributionMean/mg.ddBase.poly.b_SI,radiusDistributionStd/mg.ddBase.poly.b_SI);
             std::mt19937 generator;
             double density=0.0;
             while(density<targetDensity)
             {
-                const std::pair<LatticeVector<dim>, int> rp(mg.poly.randomLatticePointInMesh());
+                const std::pair<LatticeVector<dim>, int> rp(mg.ddBase.poly.randomLatticePointInMesh());
                 const LatticeVector<dim> L0=rp.first;
                 const size_t grainID=rp.second;
-                std::uniform_int_distribution<> ssDist(0,mg.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
+                std::uniform_int_distribution<> ssDist(0,mg.ddBase.poly.grain(grainID).singleCrystal->slipSystems().size()-1);
                 const int rSS(ssDist(generator)); // a random SlipSystem
                 const double radius(radiusDistribution(generator));
                 try
                 {
                     generateSingle(mg,rSS,L0.cartesian(),radius,numberOfSides);
-                    density+=2.0*std::numbers::pi*radius/mg.mesh.volume()/std::pow(mg.poly.b_SI,2);
+                    density+=2.0*std::numbers::pi*radius/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,2);
                     std::cout<<"periodic loop density="<<density<<std::endl;
                 }
                 catch(const std::exception& e)
@@ -162,7 +162,7 @@ namespace model
             
             for(size_t k=0;k<periodicLoopSlipSystemIDs.size();++k)
             {
-                generateSingle(mg,periodicLoopSlipSystemIDs[k],periodicLoopCenters.row(k),periodicLoopRadii[k]/mg.poly.b_SI,periodicLoopSides[k]);
+                generateSingle(mg,periodicLoopSlipSystemIDs[k],periodicLoopCenters.row(k),periodicLoopRadii[k]/mg.ddBase.poly.b_SI,periodicLoopSides[k]);
             }
         }
         

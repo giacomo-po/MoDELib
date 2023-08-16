@@ -23,16 +23,8 @@ namespace model
     /* init */,openglWidget(new QVTKOpenGLStereoWidget(this))
     /* init */,renderWindow(vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New())
     /* init */,renderer(vtkSmartPointer<vtkRenderer>::New())
-//    /* init */,traitsIO(getWorkingDir())
     /* init */,ddBase(getWorkingDir())
     /* init */,workingDirLabel(new QLabel(QString::fromStdString(ddBase.simulationParameters.traitsIO.simulationFolder)))
-//    /* init */,mesh(traitsIO.meshFile,
-//                    TextFileParser(traitsIO.polyFile).readMatrix<double>("A",3,3,true),
-//                    TextFileParser(traitsIO.polyFile).readMatrix<double>("x0",1,3,true).transpose(),
-//                    TextFileParser(traitsIO.polyFile).template readSet<int>("periodicFaceIDs",true))
-//    /* init */,poly(traitsIO.polyFile,mesh)
-//    /* init */,glidePlaneFactory(poly)
-//    /* init */,periodicGlidePlaneFactory(poly,glidePlaneFactory)
     /* init */,meshActor(new SimplicialMeshActor(renderWindow,renderer,ddBase.mesh))
     /* init */,ddConfigVtk(new DDconfigVtk(renderWindow,renderer,openglWidget,ddBase))
     {

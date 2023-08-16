@@ -71,7 +71,7 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
 ////            const double inclusionsDiameterLognormalDistribution_S(this->parser.readScalar<double>("diameterLognormalDistribution_S",true));
 ////            const double inclusionsDiameterLognormalDistribution_A(this->parser.readScalar<double>("diameterLognormalDistribution_A",true));
 ////            const Eigen::Matrix<double,1,dim*dim> inclusionsTransformationEigenDistortion(this->parser.readMatrix<double>("transformationEigenDistortion",1,dim*dim,true));
-////            const Eigen::Matrix<double,1,dim> patternVector(this->parser.readMatrix<double>("patternVector",1,dim,true)/mg.poly.b_SI);
+////            const Eigen::Matrix<double,1,dim> patternVector(this->parser.readMatrix<double>("patternVector",1,dim,true)/mg.ddBase.poly.b_SI);
 ////            const double velocityReductionFactor(this->parser.readScalar<double>("velocityReductionFactor",true));
 ////            const int phaseIDs(this->parser.readScalar<int>("phaseID",true));
 ////
@@ -87,23 +87,23 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
 ////            while(density<targetInclusionDensity)
 ////            {
 ////
-////                const double diameter = distribution(generator)*inclusionsDiameterLognormalDistribution_A/mg.poly.b_SI;
+////                const double diameter = distribution(generator)*inclusionsDiameterLognormalDistribution_A/mg.ddBase.poly.b_SI;
 ////                const double radius(0.5*diameter);
-////                std::pair<LatticeVector<dim>,int> pointPair=mg.poly.randomLatticePointInMesh();
+////                std::pair<LatticeVector<dim>,int> pointPair=mg.ddBase.poly.randomLatticePointInMesh();
 ////                VectorDimD P=pointPair.first.cartesian();
 ////                const int& grainID(pointPair.second);
 ////
 ////                if(applyPattern)
 ////                {
-////                    const VectorDimD globalVector(mg.poly.grain(grainID).singleCrystal->C2G*patternVector.transpose());
-////                    const VectorDimD globalDir(mg.poly.grain(grainID).singleCrystal->C2G*patternDir);
+////                    const VectorDimD globalVector(mg.ddBase.poly.grain(grainID).singleCrystal->C2G*patternVector.transpose());
+////                    const VectorDimD globalDir(mg.ddBase.poly.grain(grainID).singleCrystal->C2G*patternDir);
 ////                    const long long pointHeigth=std::round(P.dot(globalDir)/patternHeigth);
 ////                    const VectorDimD O(pointHeigth*globalVector);
 ////                    P-=(P-O).dot(globalDir)*globalDir;
 ////                }
 ////                if(generateSingle(mg,P,radius,inclusionsTransformationEigenDistortion,velocityReductionFactor,phaseIDs))
 ////                {
-////                    density+=1.0/mg.mesh.volume()/std::pow(mg.poly.b_SI,3);
+////                    density+=1.0/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,3);
 ////                    std::cout<<"inclusion density="<<density<<std::endl;
 ////                }
 ////
@@ -175,12 +175,12 @@ PolyhedronInclusionsGenerator::PolyhedronInclusionsGenerator(const std::string& 
         mg.insertInclusion(polyNodes,faceMap, eT, vrc,type);
         return true;
         
-//        if(   mg.mesh.search(C+VectorDimD::UnitX()*R).first
-//           && mg.mesh.search(C-VectorDimD::UnitX()*R).first
-//           && mg.mesh.search(C+VectorDimD::UnitY()*R).first
-//           && mg.mesh.search(C-VectorDimD::UnitY()*R).first
-//           && mg.mesh.search(C+VectorDimD::UnitZ()*R).first
-//           && mg.mesh.search(C-VectorDimD::UnitZ()*R).first)
+//        if(   mg.ddBase.mesh.search(C+VectorDimD::UnitX()*R).first
+//           && mg.ddBase.mesh.search(C-VectorDimD::UnitX()*R).first
+//           && mg.ddBase.mesh.search(C+VectorDimD::UnitY()*R).first
+//           && mg.ddBase.mesh.search(C-VectorDimD::UnitY()*R).first
+//           && mg.ddBase.mesh.search(C+VectorDimD::UnitZ()*R).first
+//           && mg.ddBase.mesh.search(C-VectorDimD::UnitZ()*R).first)
 //        {
 //            if(allowOverlap)
 //            {

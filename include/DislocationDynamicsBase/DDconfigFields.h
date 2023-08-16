@@ -42,13 +42,8 @@ namespace model
         typedef std::map<size_t,PolyhedronInclusionNodeIO<dim>> PolyhedronInclusionNodeContainerType;
         
         DislocationDynamicsBase<dim>& ddBase;
-//        const DDtraitsIO& traitsIO;
-//        const Polycrystal<dim>& poly;
-//        const int simulationType;
-//        const std::vector<int> periodicImageSize;
         const std::vector<VectorDim> periodicShifts;
         const DDconfigIO<dim>& configIO;
-//        PeriodicGlidePlaneFactory<3>& periodicGlidePlaneFactory;
         
         DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in);
         void updateConfiguration();

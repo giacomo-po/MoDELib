@@ -55,21 +55,11 @@ private:
     
 
 public:
-    
-//    const std::string workingDir;
-    
+        
     DislocationDynamicsBase<3> ddBase;
-//    const DDtraitsIO traitsIO;
     QLabel* workingDirLabel;
-//    SimplicialMesh<3> mesh;
-//    Polycrystal<3> poly;
-//    GlidePlaneFactory<3> glidePlaneFactory;
-//    PeriodicGlidePlaneFactory<3> periodicGlidePlaneFactory;
     SimplicialMeshActor* meshActor;
     DDconfigVtk* ddConfigVtk;
-//    DDFieldWidget* ddField;
-//    ChartActor* chartActor;
-    
     
     DDqtVTKwidget(QWidget *parent);
     

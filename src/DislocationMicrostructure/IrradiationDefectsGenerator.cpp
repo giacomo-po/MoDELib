@@ -55,41 +55,41 @@ namespace model
 
     void IrradiationDefectsGenerator::generateDensity(MicrostructureGenerator& mg)
     {
-        if(mg.poly.crystalStructure=="FCC")
+        if(mg.ddBase.poly.crystalStructure=="FCC")
         {
             generateDensityFCC(mg);
         }
-        else if(mg.poly.crystalStructure=="BCC")
+        else if(mg.ddBase.poly.crystalStructure=="BCC")
         {
             
         }
-        else if(mg.poly.crystalStructure=="HCP")
+        else if(mg.ddBase.poly.crystalStructure=="HCP")
         {
             
         }
         else
         {
-            throw std::runtime_error("Unknown crystal structure"+mg.poly.crystalStructure);
+            throw std::runtime_error("Unknown crystal structure"+mg.ddBase.poly.crystalStructure);
         }
     }
 
     void IrradiationDefectsGenerator::generateIndividual(MicrostructureGenerator& mg)
     {
-        if(mg.poly.crystalStructure=="FCC")
+        if(mg.ddBase.poly.crystalStructure=="FCC")
         {
             generateIndividualFCC(mg);
         }
-        else if(mg.poly.crystalStructure=="BCC")
+        else if(mg.ddBase.poly.crystalStructure=="BCC")
         {
             
         }
-        else if(mg.poly.crystalStructure=="HCP")
+        else if(mg.ddBase.poly.crystalStructure=="HCP")
         {
             
         }
         else
         {
-            throw std::runtime_error("Unknown crystal structure"+mg.poly.crystalStructure);
+            throw std::runtime_error("Unknown crystal structure"+mg.ddBase.poly.crystalStructure);
         }
 
     }
@@ -98,11 +98,11 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
 {
     if(sftSize>1.0)
     {
-        std::pair<bool,const Simplex<dim,dim>*> found=mg.mesh.search(basePoint);
+        std::pair<bool,const Simplex<dim,dim>*> found=mg.ddBase.mesh.search(basePoint);
         if(found.first)
         {
             const int grainID=found.second->region->regionID;
-            const auto& grain(mg.poly.grain(grainID));
+            const auto& grain(mg.ddBase.poly.grain(grainID));
             const auto& singleCrystal(grain.singleCrystal);
 
 
@@ -153,7 +153,7 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
                             throw std::runtime_error("Cannot determine plane of SFT face 012.");
                         }
                         GlidePlaneKey<3> basePlaneKey012(heightPair012.second, n012);
-                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane012(mg.periodicGlidePlaneFactory.get(basePlaneKey012));
+                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane012(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey012));
                         mg.insertJunctionLoop(facePos012, glidePlane012,
                                               b012,n012.cartesian().normalized(),
                                               nodePos[0],grainID,DislocationLoopIO<dim>::SESSILELOOP);
@@ -173,7 +173,7 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
                             throw std::runtime_error("Cannot determine plane of SFT face 230.");
                         }
                         GlidePlaneKey<3> basePlaneKey230(heightPair230.second, n230);
-                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane230(mg.periodicGlidePlaneFactory.get(basePlaneKey230));
+                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane230(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey230));
                         mg.insertJunctionLoop(facePos230, glidePlane230,
                                               b230,n230.cartesian().normalized(),
                                               nodePos[2],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
@@ -193,7 +193,7 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
                             throw std::runtime_error("Cannot determine plane of SFT face 031.");
                         }
                         GlidePlaneKey<3> basePlaneKey031(heightPair031.second, n031);
-                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane031(mg.periodicGlidePlaneFactory.get(basePlaneKey031));
+                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane031(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey031));
                         mg.insertJunctionLoop(facePos031, glidePlane031,
                                               b031,n031.cartesian().normalized(),
                                               nodePos[0],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
@@ -213,7 +213,7 @@ bool IrradiationDefectsGenerator::generateSingleSFT(MicrostructureGenerator& mg,
                             throw std::runtime_error("Cannot determine plane of SFT face132.");
                         }
                         GlidePlaneKey<3> basePlaneKey132(heightPair132.second, n132);
-                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane132(mg.periodicGlidePlaneFactory.get(basePlaneKey132));
+                        std::shared_ptr<PeriodicGlidePlane<3>> glidePlane132(mg.ddBase.periodicGlidePlaneFactory.get(basePlaneKey132));
                         mg.insertJunctionLoop(facePos132, glidePlane132,
                                               b132,n132.cartesian().normalized(),
                                               nodePos[1],grainID,DislocationLoopIO<dim>::GLISSILELOOP);
@@ -285,7 +285,7 @@ void IrradiationDefectsGenerator::generateIndividualFCC(MicrostructureGenerator&
             const int& planeID(sftPlaneIDs[k]);
             const VectorDimD basePoint(sftBasePoints.row(k));
             const bool inverted(sftIsInverted[k]);
-            const int sftSize(std::round(sftSizes[k]/mg.poly.b_SI));
+            const int sftSize(std::round(sftSizes[k]/mg.ddBase.poly.b_SI));
             ndefects+=generateSingleSFT(mg,planeID,basePoint,inverted,sftSize);
         }
         std::cout<<"Generated "<<ndefects<<" STFs"<<std::endl;
@@ -315,12 +315,12 @@ void IrradiationDefectsGenerator::generateDensityFCC(MicrostructureGenerator& mg
         if(targetSFTdensity>0.0)
         {
             size_t ndefects=0;
-            double defectsDensity=ndefects/mg.mesh.volume()/std::pow(mg.poly.b_SI,3);
+            double defectsDensity=ndefects/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,3);
             while(defectsDensity<targetSFTdensity)
             {
-                const int sftSize(std::round(sftSizeDistribution(generator)/mg.poly.b_SI));
-                ndefects+=generateSingleSFT(mg,planeNormalDistribution(generator),mg.poly.randomPoint(),invertedThompsonTetrahedronDistribution(generator),sftSize);
-                defectsDensity=ndefects/mg.mesh.volume()/std::pow(mg.poly.b_SI,3);
+                const int sftSize(std::round(sftSizeDistribution(generator)/mg.ddBase.poly.b_SI));
+                ndefects+=generateSingleSFT(mg,planeNormalDistribution(generator),mg.ddBase.poly.randomPoint(),invertedThompsonTetrahedronDistribution(generator),sftSize);
+                defectsDensity=ndefects/mg.ddBase.mesh.volume()/std::pow(mg.ddBase.poly.b_SI,3);
                 std::cout<<"SFT density="<<defectsDensity<<std::endl;
             }
         }

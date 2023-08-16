@@ -19,14 +19,9 @@ namespace model
 
     template <int dim>
     DDconfigFields<dim>::DDconfigFields(DislocationDynamicsBase<dim>& ddBase_in,const DDconfigIO<dim>& configIO_in):
-//    /* init */ traitsIO(traitsIO_in)
-//    /* init */,poly(poly_in)
-//    /* init */,simulationType(TextFileParser(traitsIO.ddFile).readScalar<int>("simulationType",true))
-//    /* init */,periodicImageSize(simulationType==DDtraitsIO::PERIODIC_IMAGES? TextFileParser(traitsIO.ddFile).readArray<int>("periodicImageSize",true) : std::vector<int>())
     /* init */ ddBase(ddBase_in)
     /* init */,periodicShifts(ddBase.mesh.periodicShifts(ddBase.simulationParameters.periodicImageSize))
     /* init */,configIO(configIO_in)
-//    /* init */,periodicGlidePlaneFactory(pgpf)
     {
         
     }
