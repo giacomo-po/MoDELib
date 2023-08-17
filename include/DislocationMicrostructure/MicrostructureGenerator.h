@@ -18,6 +18,7 @@
 #include <Eigen/LU>
 #include <Eigen/Cholesky>
 #include <limits>
+#include <memory>
 
 //#include <Simplex.h>
 #include <SimplicialMesh.h>
@@ -55,29 +56,26 @@ namespace model
 
 //        DDtraitsIO traitsIO;
         DDconfigIO<3> configIO;
-        DDauxIO<dim> auxIO;
+        DDauxIO<3> auxIO;
 
     public:
         
 //        const TextFileParser parser;
         DislocationDynamicsBase<3>& ddBase;
         const bool outputBinary;
-//        const int meshID;
-//        const std::set<int> periodicFaceIDs;
-//        const std::string meshFilename;
-//        const SimplicialMesh<dim> mesh;
         const double minSize;
         const double maxSize;
-//        const Polycrystal<dim> poly;
-//        GlidePlaneFactory<dim> glidePlaneFactory;
-//        PeriodicGlidePlaneFactory<dim> periodicGlidePlaneFactory;
         std::map<VectorDimD,size_t,CompareVectorsByComponent<double,dim,float>> uniqueNetworkNodeMap;
         
         MicrostructureGenerator(DislocationDynamicsBase<3>& ddBase_in);
         
+        void readMicrostructureFile();
         const DDtraitsIO& traits() const;
         const DDconfigIO<3>& config() const;
         const DDauxIO<3>& aux() const;
+        DDconfigIO<3>& config();
+        DDauxIO<3>& aux();
+
         size_t insertLoop(const VectorDimD& b,const VectorDimD& unitNormal,const VectorDimD& P0,const size_t& grainID,const DislocationLoopType& loopType);
         size_t insertLoopNode(const size_t& loopID,const VectorDimD& loopNodePos,const size_t& networkNodeID,const VectorDimD& loopNodeShift,const std::pair<short int,short int>& periodicEdgeIDs);
         std::vector<size_t> insertLoopLinks(const size_t& loopID,const std::vector<size_t>& loopNodeIDs);

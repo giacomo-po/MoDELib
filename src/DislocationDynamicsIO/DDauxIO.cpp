@@ -20,7 +20,15 @@ namespace model
         {
             
         }
-        
+
+template<int dim>
+void DDauxIO<dim>::clear()
+{
+    meshNodes().clear();
+    periodicGlidePlanePatches().clear();
+    quadraturePoints().clear();
+}
+
         template<int dim>
         void DDauxIO<dim>::addPeriodicGlidePlane(const PeriodicGlidePlane<dim>& pgp)
         {
@@ -182,8 +190,8 @@ namespace model
         template<int dim>
         void DDauxIO<dim>::readBin(const size_t& runID)
         {
+            clear();
             const std::string filename(this->getBinFilename(runID));
-            
             std::ifstream infile (filename.c_str(), std::ios::in|std::ios::binary);
             if(infile.is_open())
             {
@@ -224,8 +232,8 @@ namespace model
         template<int dim>
         void DDauxIO<dim>::readTxt(const size_t& runID)
         {
+            clear();
             const std::string filename(this->getTxtFilename(runID));
-            
             std::ifstream infile (filename.c_str(), std::ios::in);
             if(infile.is_open())
             {
@@ -263,7 +271,7 @@ namespace model
                 ss.str("");
                 ss.clear();
 
-                meshNodes().clear();
+//                meshNodes().clear();
                 meshNodes().reserve(sizeMP);
                 for(size_t k=0;k<sizeMP;++k)
                 {
@@ -274,7 +282,7 @@ namespace model
                     ss.clear();
                 }
                 
-                quadraturePoints().clear();
+//                quadraturePoints().clear();
                 quadraturePoints().reserve(sizeQP);
                 for(size_t k=0;k<sizeQP;++k)
                 {
@@ -296,7 +304,7 @@ namespace model
 //                    ss.clear();
 //                }
                 
-                periodicGlidePlanePatches().clear();
+//                periodicGlidePlanePatches().clear();
                 periodicGlidePlanePatches().reserve(sizePPP);
                 for(size_t k=0;k<sizePPP;++k)
                 {

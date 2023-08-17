@@ -56,20 +56,20 @@ namespace model
         std::map<size_t,const size_t> _nodeMap;
         std::map<size_t, const size_t> _loopMap;
         
-        void make_maps();
         
         
     public:
         
         DDconfigIO(const std::string& folderName,const std::string& suffix="");
         
-        
+        void clear();
         const std::vector<DislocationNodeIO<dim> >& nodes() const;
         std::vector<DislocationNodeIO<dim> >& nodes();
         const std::vector<DislocationLoopNodeIO<dim> >& loopNodes() const;
         std::vector<DislocationLoopNodeIO<dim> >& loopNodes();
         const std::vector<DislocationLoopIO<dim> >& loops() const;
         std::vector<DislocationLoopIO<dim> >& loops();
+        const DislocationLoopIO<dim>& loop(const size_t& loopID) const;
         const std::vector<DislocationLoopLinkIO<dim> >& loopLinks() const;
         std::vector<DislocationLoopLinkIO<dim> >& loopLinks();
         const std::vector<SphericalInclusionIO<dim> >& sphericalInclusions() const;
@@ -97,7 +97,9 @@ namespace model
         void readTxtStream(std::istream &infile);
         void bin2txt(const size_t& runID,const bool& writeSegments);
         std::map<size_t,std::vector<size_t>> loopNodeSequence() const;
-        
+        void finalize();
+        void print() const;
+
         //        std::map<std::pair<size_t,size_t>,std::set<size_t> > segmentloopMap() const
         //        {
         //

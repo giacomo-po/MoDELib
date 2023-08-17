@@ -10,6 +10,7 @@
 #ifndef model_DDconfigFields_cpp_
 #define model_DDconfigFields_cpp_
 
+#include <numbers>
 #include <DDconfigFields.h>
 #include <StressStraight.h>
 
@@ -37,7 +38,6 @@ namespace model
         polyhedronInclusionNodes().clear();
         eshelbyInclusions().clear();
         EshelbyInclusionBase<dim>::force_count(0);
-        
         
         // Update loop patches
         for(const auto& pair : configIO.loopNodeSequence())
@@ -239,6 +239,21 @@ namespace model
         }
         return temp;
     }
+
+template <int dim>
+typename DDconfigFields<dim>::VectorDim DDconfigFields<dim>::dislocationPlasticDisplacement(const VectorDim& x) const
+{
+    VectorDim temp(VectorDim::Zero());
+    for(const auto& patch : loopPatches())
+    {
+        const auto& loop(configIO.loop(patch.first));
+        for(const auto& shift : periodicShifts)
+        {
+            temp-=patch.second.solidAngle(x+shift)/4.0/std::numbers::pi*loop.B;
+        }
+    }
+    return temp;
+}
 
 template <int dim>
 typename  DDconfigFields<dim>::MatrixDim DDconfigFields<dim>::dislocationStress(const VectorDim& x) const

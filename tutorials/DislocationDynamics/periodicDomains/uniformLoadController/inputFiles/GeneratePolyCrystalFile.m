@@ -4,7 +4,7 @@ close all
 
 format long
 
-alignToSlipSystem0=0;
+alignToSlipSystem0=1;
 lattice='fcc';
 
 if(alignToSlipSystem0)

@@ -40,7 +40,7 @@ namespace model
 
 
     template <int dim>
-    void DDconfigIO<dim>::make_maps()
+    void DDconfigIO<dim>::finalize()
     {
         
         // node map
@@ -70,6 +70,22 @@ namespace model
     {
         
     }
+
+template <int dim>
+void DDconfigIO<dim>::clear()
+{
+    nodes().clear();
+    loops().clear();
+    loopLinks().clear();
+    loopNodes().clear();
+    sphericalInclusions().clear();
+    polyhedronInclusions().clear();
+    polyhedronInclusionNodes().clear();
+    polyhedronInclusionEdges().clear();
+    nodeMap().clear();
+    loopNodeMap().clear();
+    loopMap().clear();
+}
 
 
     template <int dim>
@@ -108,7 +124,20 @@ namespace model
         return *this;
     }
 
-
+    template <int dim>
+    const DislocationLoopIO<dim>& DDconfigIO<dim>::loop(const size_t& loopID) const
+    {
+        const auto loopIter(loopMap().find(loopID));
+        if(loopIter!=loopMap().end())
+        {
+            return loops()[loopIter->second];
+        }
+        else
+        {
+            throw std::runtime_error("loopID not found");
+            return loops()[0];
+        }
+    }
 
     template <int dim>
     const std::vector<DislocationLoopLinkIO<dim>>& DDconfigIO<dim>::loopLinks() const
@@ -513,18 +542,19 @@ std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdge
     void DDconfigIO<dim>::readBin(const size_t& runID)
     {
         
-        nodes().clear();
-        loops().clear();
-        loopLinks().clear();
-        loopNodes().clear();
-        sphericalInclusions().clear();
-        polyhedronInclusions().clear();
-        polyhedronInclusionNodes().clear();
-        polyhedronInclusionEdges().clear();
-        nodeMap().clear();
-        loopNodeMap().clear();
-        loopMap().clear();
-        
+//        nodes().clear();
+//        loops().clear();
+//        loopLinks().clear();
+//        loopNodes().clear();
+//        sphericalInclusions().clear();
+//        polyhedronInclusions().clear();
+//        polyhedronInclusionNodes().clear();
+//        polyhedronInclusionEdges().clear();
+//        nodeMap().clear();
+//        loopNodeMap().clear();
+//        loopMap().clear();
+  
+        clear();
         
         const std::string filename(this->getBinFilename(runID));
         
@@ -576,17 +606,10 @@ std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdge
 
             
             infile.close();
-            make_maps();
+            finalize();
             std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-            std::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
-            std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-            std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
-            std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
-            std::cout<<"  "<<sphericalInclusions().size()<<" SphericalInclusions "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusions().size()<<" polyhedronInclusions "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusionNodes().size()<<" polyhedronInclusionNodes "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusionEdges().size()<<" polyhedronInclusionEdges "<<std::endl;
 
+            print();
         }
         else
         {
@@ -610,19 +633,11 @@ std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdge
         {
             const auto t0=std::chrono::system_clock::now();
             std::cout<<"reading "<<filename<<std::flush;
-            
             readTxtStream(infile);
             infile.close();
-            
             std::cout<<" ["<<(std::chrono::duration<double>(std::chrono::system_clock::now()-t0)).count()<<" sec]"<<std::endl;
-            std::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
-            std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
-            std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
-            std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
-            std::cout<<"  "<<sphericalInclusions().size()<<" SphericalInclusions "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusions().size()<<" polyhedronInclusions "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusionNodes().size()<<" polyhedronInclusionNodes "<<std::endl;
-            std::cout<<"  "<<polyhedronInclusionEdges().size()<<" polyhedronInclusionEdges "<<std::endl;
+
+            print();
         }
         else
         {
@@ -634,22 +649,36 @@ std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdge
         
     }
 
+template <int dim>
+void DDconfigIO<dim>::print() const
+{
+    std::cout<<"  "<<nodes().size()<<" nodes "<<std::endl;
+    std::cout<<"  "<<loops().size()<<" loops "<<std::endl;
+    std::cout<<"  "<<loopLinks().size()<<" loopLinks "<<std::endl;
+    std::cout<<"  "<<loopNodes().size()<<" loopNodes "<<std::endl;
+    std::cout<<"  "<<sphericalInclusions().size()<<" SphericalInclusions "<<std::endl;
+    std::cout<<"  "<<polyhedronInclusions().size()<<" polyhedronInclusions "<<std::endl;
+    std::cout<<"  "<<polyhedronInclusionNodes().size()<<" polyhedronInclusionNodes "<<std::endl;
+    std::cout<<"  "<<polyhedronInclusionEdges().size()<<" polyhedronInclusionEdges "<<std::endl;
+}
+
     template <int dim>
     void DDconfigIO<dim>::readTxtStream(std::istream &infile)
     {
         
-        nodes().clear();
-        loops().clear();
-        loopLinks().clear();
-        loopNodes().clear();
-        sphericalInclusions().clear();
-        polyhedronInclusions().clear();
-        polyhedronInclusionNodes().clear();
-        polyhedronInclusionEdges().clear();
-        nodeMap().clear();
-        loopNodeMap().clear();
-        loopMap().clear();
-        
+//        nodes().clear();
+//        loops().clear();
+//        loopLinks().clear();
+//        loopNodes().clear();
+//        sphericalInclusions().clear();
+//        polyhedronInclusions().clear();
+//        polyhedronInclusionNodes().clear();
+//        polyhedronInclusionEdges().clear();
+//        nodeMap().clear();
+//        loopNodeMap().clear();
+//        loopMap().clear();
+            
+        clear();
         size_t sizeV;
         size_t sizeL;
         size_t sizeE;
@@ -792,7 +821,7 @@ std::vector<PolyhedronInclusionEdgeIO>& DDconfigIO<dim>::polyhedronInclusionEdge
         }
         
         
-        make_maps();
+        finalize();
         
     }
 

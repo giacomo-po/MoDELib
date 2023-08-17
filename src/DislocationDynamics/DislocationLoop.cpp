@@ -434,20 +434,20 @@ double DislocationLoop<dim,corder>::solidAngle(const VectorDim& x) const
     {
         if(_slippedArea>FLT_EPSILON)
         {// a right-handed normal for the loop can be determined
-            
-            for(const auto& pair : _patches.globalPatches())
-            {
-                const auto patchGlidePlane(pair.first->patchBoundary->referencePlane);
-                std::vector<std::pair<VectorDim,VectorDim>> segments;
-                for(size_t k=0;k<pair.second.size();++k)
-                {
-                    const size_t k1(k+1==pair.second.size()? 0 : k+1);
-//                    segments.emplace_back(patchGlidePlane->globalPosition(pair.second[k]),patchGlidePlane->globalPosition(pair.second[k1]));
-                    segments.emplace_back(pair.second[k],pair.second[k1]);
-                }
-                temp+=planarSolidAngle(x,patchGlidePlane->P,rightHandedUnitNormal(),segments);
-                
-            }
+            temp+=_patches.solidAngle(x);
+//            for(const auto& pair : _patches.globalPatches())
+//            {
+////                const auto patchGlidePlane(pair.first->patchBoundary->referencePlane);
+////                std::vector<std::pair<VectorDim,VectorDim>> segments;
+////                for(size_t k=0;k<pair.second.size();++k)
+////                {
+////                    const size_t k1(k+1==pair.second.size()? 0 : k+1);
+//////                    segments.emplace_back(patchGlidePlane->globalPosition(pair.second[k]),patchGlidePlane->globalPosition(pair.second[k1]));
+////                    segments.emplace_back(pair.second[k],pair.second[k1]);
+////                }
+////                temp+=planarSolidAngle(x,patchGlidePlane->P,rightHandedUnitNormal(),segments);
+//                temp+=solidAngle(x);
+//            }
             
             
             //                std::vector<std::pair<VectorDim,VectorDim>> segments;

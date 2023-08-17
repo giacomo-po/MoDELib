@@ -35,6 +35,7 @@ namespace model
         typedef Eigen::Matrix<double,dim,1> VectorDim;
         
         DDauxIO(const std::string& folderName,const std::string& suffix="");
+        void clear();
         void addPeriodicGlidePlane(const PeriodicGlidePlane<dim>& pgp);
         const std::vector<MeshNodeIO<dim>>& meshNodes() const;
         std::vector<MeshNodeIO<dim>>& meshNodes();

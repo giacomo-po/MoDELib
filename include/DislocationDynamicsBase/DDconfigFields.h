@@ -56,6 +56,7 @@ namespace model
         const EshelbyInclusionContainerType& eshelbyInclusions() const;
         EshelbyInclusionContainerType& eshelbyInclusions();
         double solidAngle(const VectorDim& x) const;
+        VectorDim dislocationPlasticDisplacement(const VectorDim& x) const;
         MatrixDim dislocationStress(const VectorDim& x) const;
         MatrixDim inclusionStress(const VectorDim& x) const;
 
