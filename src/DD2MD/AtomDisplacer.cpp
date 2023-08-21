@@ -73,15 +73,25 @@ typename AtomDisplacer::VectorDim AtomDisplacer::dislocationPlasticDisplacement(
     return dislocationPlasticDisplacement((VectorDim()<<x,y,z).finished());
 }
 
-//pybind11::array_t<double, pybind11::array::c_style> AtomDisplacer::dislocationPlasticDisplacement(const double& x,const double& y,const double& z) const
-//{
-//    const VectorDim temp(dislocationPlasticDisplacement ((VectorDim()<<x,y,z).finished()));
-//    pybind11::array_t<double, pybind11::array::c_style> outArray;
-//    outArray[0] = temp[0];
-//    outArray[1] = temp[1];
-//    outArray[2] = temp[2];
-//    return outArray;
-//}
+typename AtomDisplacer::MatrixDim AtomDisplacer::dislocationStress(const VectorDim& x) const
+{
+    return configFields.dislocationStress(x);
+}
+
+typename AtomDisplacer::MatrixDim AtomDisplacer::dislocationStress(const double& x,const double& y,const double& z) const
+{
+    return dislocationStress((VectorDim()<<x,y,z).finished());
+}
+
+typename AtomDisplacer::MatrixDim AtomDisplacer::inclusionStress(const VectorDim& x) const
+{
+    return configFields.inclusionStress(x);
+}
+
+typename AtomDisplacer::MatrixDim AtomDisplacer::inclusionStress(const double& x,const double& y,const double& z) const
+{
+    return inclusionStress((VectorDim()<<x,y,z).finished());
+}
 
 PYBIND11_MODULE(DD2MD,m)
 {
@@ -92,29 +102,11 @@ PYBIND11_MODULE(DD2MD,m)
         .def("readConfiguration", &model::AtomDisplacer::readConfiguration)
         .def("writeConfiguration", &model::AtomDisplacer::writeConfiguration)
         .def("solidAngle", static_cast<double (model::AtomDisplacer::*)(const double&,const double&,const double&) const>(&model::AtomDisplacer::solidAngle))
-//        .def("dislocationPlasticDisplacement", static_cast<pybind11::array_t<double, pybind11::array::c_style> (model::AtomDisplacer::*)(const double&,const double&,const double&) const>(&model::AtomDisplacer::dislocationPlasticDisplacement))
         .def("dislocationPlasticDisplacement", static_cast<typename model::AtomDisplacer::VectorDim (model::AtomDisplacer::*)(const double&,const double&,const double&) const>(&model::AtomDisplacer::dislocationPlasticDisplacement))
+        .def("dislocationStress", static_cast<typename model::AtomDisplacer::MatrixDim (model::AtomDisplacer::*)(const double&,const double&,const double&) const>(&model::AtomDisplacer::dislocationStress))
+        .def("inclusionStress", static_cast<typename model::AtomDisplacer::MatrixDim (model::AtomDisplacer::*)(const double&,const double&,const double&) const>(&model::AtomDisplacer::inclusionStress))
     ;
 }
-
-
-//    PYBIND11_MODULE(DD2MD,m)
-//    {
-//        namespace py=pybind11;
-//        py::class_<model::AtomDisplacer>(m,"AtomDisplacer")
-//            .def(py::init([](const std::string& folderName)
-//                          {
-//                            return std::unique_ptr<AtomDisplacer>(new AtomDisplacer(folderName));
-//
-//                            }
-//                          ),
-//                 py::arg("folderName")
-//                 )
-//    //        .def(py::init([](const std::string& folderName){return DD2MD(folderName);}),
-//    //             py::arg("folderName",none(false))
-//    //             )
-//        ;
-//    }
 
 }
 #endif

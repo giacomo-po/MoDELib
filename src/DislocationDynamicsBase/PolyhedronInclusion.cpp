@@ -149,7 +149,6 @@ std::map<size_t,std::vector<std::pair<size_t,typename PolyhedronInclusion<dim>::
 template <int dim>
 double PolyhedronInclusion<dim>::Phi_u_II_a(double a, double b, double le)
 {
-//    double result;
     if (a != 0 && b != 0 && le != 0) {
         return -a / abs(a) * atan(le / b) + asin(a * le * abs(b) / (b * sqrt((a * a + b * b) * (b * b + le * le))));
     }
@@ -160,15 +159,14 @@ double PolyhedronInclusion<dim>::Phi_u_II_a(double a, double b, double le)
 
         return 0.0;
     }
-    else { // a, b, le equals zero
-        return 0.0;
-    }
+
+    // a, b, le equals zero
+    return 0.0;
 }
 
 template <int dim>
 double PolyhedronInclusion<dim>::Phi_u_II_b(double a, double b, double le)
 {
-//    double result;
     double dis = sqrt(a * a + b * b + le * le);
     if (a != 0 && b != 0 && le != 0) {
         return (1.0 / (b * b + le * le)) * (
@@ -193,15 +191,14 @@ double PolyhedronInclusion<dim>::Phi_u_II_b(double a, double b, double le)
             return (-dis + abs(a)) / le + atanh(le / dis);
         }
     }
-    else { // a, b, le equals zero
-        return 0.0;
-    }
+    
+    // a, b, le equals zero
+    return 0.0;
 }
 
 template <int dim>
 double PolyhedronInclusion<dim>::Phi_u_II_le(double a, double b, double le)
 {
-//    double result;
     if (a != 0 && b != 0 && le != 0) {
         return b * (a * a + b * b + le * le - sqrt(a * a + b * b + le * le) * abs(a)) / ((b * b + le * le) * sqrt(a * a + b * b + le * le));
     }
@@ -218,27 +215,22 @@ double PolyhedronInclusion<dim>::Phi_u_II_le(double a, double b, double le)
             return (sqrt(a * a + b * b) - abs(a)) / b;
         }
         else if (b == 0 && le != 0) {
-            return 0;
+            return 0.0;
         }
         else if (b == 0 && le == 0) {
-            return 0;
+            return 0.0;
         }
     }
+    
+    return 0.0;
 }
 
 template <int dim>
 double PolyhedronInclusion<dim>::PHI_ij(int i, int j, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
 {
-//    double result = 0.0;
-//    result = -(Svnorm[i]) * (-(Phi_u_II_a(a, b, lp) - Phi_u_II_a(a, b, lm)) * Svnorm[j]
-//        - (Phi_u_II_b(a, b, lp) - Phi_u_II_b(a, b, lm)) * Vnorm[j]
-//        - (Phi_u_II_le(a, b, lp)) * Vdir[j] + (Phi_u_II_le(a, b, lm)) * Vdir[j]
-//        );
     return -(Svnorm[i]) * (-(Phi_u_II_a(a, b, lp) - Phi_u_II_a(a, b, lm)) * Svnorm[j]
                            - (Phi_u_II_b(a, b, lp) - Phi_u_II_b(a, b, lm)) * Vnorm[j]
-                           - (Phi_u_II_le(a, b, lp)) * Vdir[j] + (Phi_u_II_le(a, b, lm)) * Vdir[j]
-                           );
-
+                           - (Phi_u_II_le(a, b, lp)) * Vdir[j] + (Phi_u_II_le(a, b, lm)) * Vdir[j]);
 }
 
 template <int dim>
@@ -251,19 +243,327 @@ double PolyhedronInclusion<dim>::PHI_ij(int i, int j, const VectorDim& x) const
         const auto& P1(face.second[1].second);
         const auto& P2(face.second[2].second);
         const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
-            const double a(Svnorm.dot(P0-x));
-            for(size_t e=0;e<face.second.size();++e)
-            {
-                const size_t e1(e<face.second.size()-1? e+1 : 0);
-                const VectorDim& vm(face.second[e].second);
-                const VectorDim& vp(face.second[e1].second);
-                const VectorDim Vdir((vp-vm).normalized());
-                const VectorDim Vnorm(Vdir.cross(Svnorm));
-                const double b((vp-x).dot(Vnorm));
-                const double lm((vm-x).dot(Vdir));
-                const double lp((vp-x).dot(Vdir));
-                result+=PHI_ij(i,j,a,b,lm,lp,Svnorm,Vnorm,Vdir);
-            }
+        const double a(Svnorm.dot(P0-x));
+        for(size_t e=0;e<face.second.size();++e)
+        {
+            const size_t e1(e<face.second.size()-1? e+1 : 0);
+            const VectorDim& vm(face.second[e].second);
+            const VectorDim& vp(face.second[e1].second);
+            const VectorDim Vdir((vp-vm).normalized());
+            const VectorDim Vnorm(Vdir.cross(Svnorm));
+            const double b((vp-x).dot(Vnorm));
+            const double lm((vm-x).dot(Vdir));
+            const double lp((vp-x).dot(Vdir));
+            result+=PHI_ij(i,j,a,b,lm,lp,Svnorm,Vnorm,Vdir);
+        }
+    }
+    return result;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_a_a(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a < 0 && b != 0 && le != 0) {
+        return a * b * le / ((a * a + b * b) * dis) + 2.0 * atan(le / b) + 2.0 * atan(a * le / (b * dis));
+    }
+    else if (a > 0 && b != 0 && le != 0) {
+        return a * b * le / ((a * a + b * b) * dis) - 2.0 * atan(le / b) + 2.0 * atan(a * le / (b * dis));
+    }
+        
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_a_b(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a < 0 && b != 0 && le != 0) {
+        return -le * (2.0 * a * a + b * b + a * b * b / dis) / ((a * a + b * b) * (dis - a)) + atanh(le / dis);
+    }
+    else if (a > 0 && b != 0 && le != 0) {
+        return 2.0 * a * le / (b * b + le * le) + (le / dis) * (-2.0 + b * b / (a * a + b * b) - 2.0 * a * a / (b * b + le * le)) + atanh(le / dis);
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return -le / dis + atanh(le / dis);
+        }
+        else {   // include b = 0, le != 0, this is infinite
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le != 0) {
+            return 2.0 * (abs(a) - dis) / le + atanh(le / dis);
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_a_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (b / (b * b + le * le)) * (-2.0 * abs(a) + dis + (a * a) / dis);
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return b / dis;
+        }
+        else {
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return ((2.0 * a * a + b * b) / dis - 2.0 * abs(a)) / b;
+        }
+        else if (b == 0 && le != 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_b_b(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (a * b * le / ((a * a + b * b) * pow(b * b + le * le, 2.0) * dis)) * (
+            2.0 * pow(a, 4.0) - le * le * (b * b + le * le) + a * a * (3.0 * b * b + le * le) - 2.0 * (a * a + b * b) * dis * abs(a)
+            );
+    }
+    
+    return 0.0;
+
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_b_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (a / (pow(b * b + le * le, 2.0) * dis)) * (
+            -pow(a * b, 2.0) + (a * a + b * b) * le * le + pow(le, 4.0) + (b * b - le * le) * dis * abs(a)
+            );
+    }
+    else if (a == 0) {
+        return 0.0;
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return a * (-a * a / dis + abs(a)) / (b * b);
+        }
+        else if (b == 0 && le != 0) {
+            return a * (dis - abs(a)) / (le * le);
+        }
+        else if (b == 0 && le == 0) {
+            return 0.5 * a / abs(a);
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_a_le_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return -a * b * le * (
+            a * a + dis * dis - 2.0 * dis * abs(a)
+            ) / (pow(b * b + le * le, 2.0) * dis);
+    }
+
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_b_b_b(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (1.0 / (3.0 * (a * a + b * b) * pow(b * b + le * le, 3.0) * dis)) * (
+            2.0 * pow(a, 6.0) * le * (-3.0 * b * b + le * le) - b * b * le * pow(b * b + le * le, 2.0) * (3.0 * b * b + 4.0 * le * le)
+            - a * a * le * (b * b + le * le) * (3.0 * pow(b, 4.0) + pow(le, 4.0)) + pow(a, 4.0) * (-9.0 * pow(b, 4.0) * le + pow(le, 5.0))
+            )
+            - 2.0 * le * (-3.0 * b * b + le * le) * pow(abs(a), 3.0) / (3.0 * pow(b * b + le * le, 3.0))
+            + atanh(le / dis);
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return -le * (3.0 * b * b + 4.0 * le * le) / (3.0 * dis * dis * dis) + atanh(le / dis);
+        }
+        else { // infinite
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le != 0) {
+            return (1.0 / (3.0 * pow(le, 3.0) * dis)) * (2.0 * pow(a, 4.0) + a * a * le * le - pow(le, 4.0)) - 2.0 * pow(abs(a), 3.0) / (3.0 * le * le * le) + atanh(le / dis);
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_b_b_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (b / (3.0 * pow(b * b + le * le, 3.0) * dis)) * (
+            2.0 * pow(a, 4.0) * (b * b - 3.0 * le * le) + a * a * (b * b - 3.0 * le * le) * (b * b + le * le)
+            + pow(b * b + le * le, 2.0) * (2.0 * b * b + 3.0 * le * le) - 2.0 * (b * b - 3.0 * le * le) * dis * pow(abs(a), 3.0)
+            );
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return b * (2.0 * b * b + 3.0 * le * le) / (3.0 * dis * dis * dis);
+        }
+        else {
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return (2.0 * pow(a, 4.0) + pow(a * b, 2.0) + 2.0 * pow(b, 4.0) - 2.0 * dis * pow(abs(a), 3.0)) / (3.0 * pow(b, 3.0) * dis);
+        }
+        else if (b == 0 && le != 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_b_le_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+         return (le / (3.0 * pow(b * b + le * le, 3.0) * dis)) * (
+            pow(a, 4.0) * (6.0 * b * b - 2.0 * le * le) + a * a * (3.0 * b * b - le * le) * (b * b + le * le)
+            + le * le * pow(b * b + le * le, 2.0) + 2.0 * (-3.0 * b * b + le * le) * dis * pow(abs(a), 3.0)
+            );
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return pow(le, 3.0) / (3.0 * dis * dis * dis);
+        }
+        else if (le != 0) {
+            return 0.0; // le / (3.0 * abs(le));
+        }
+        else {
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le != 0) {
+            return (-2.0 * pow(a, 4.0) - pow(a * le, 2.0) + pow(le, 4.0) + 2.0 * dis * pow(abs(a), 3.0)) / (3.0 * dis * pow(le, 3.0));
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+template <int dim>
+double PolyhedronInclusion<dim>::Psi_I1_le_le_le(double a, double b, double le)
+{
+    double dis = sqrt(a * a + b * b + le * le);
+    if (a != 0 && b != 0 && le != 0) {
+        return (b / (3.0 * pow(b * b + le * le, 3.0) * dis)) * (
+            -2.0 * pow(a, 4.0) * (b * b - 3.0 * le * le) - a * a * (b * b - 3.0 * le * le) * (b * b + le * le)
+            + b * b * pow(b * b + le * le, 2.0) + 2.0 * (b * b - 3.0 * le * le) * dis * pow(abs(a), 3.0)
+            );
+    }
+    else if (a == 0) {
+        if (b != 0) {
+            return pow(b, 3.0) / (3.0 * dis * dis * dis);
+        }
+        else {
+            return 0.0;
+        }
+    }
+    else if (a != 0) {
+        if (b != 0 && le == 0) {
+            return (-2.0 * pow(a, 4.0) - pow(a * b, 2.0) + pow(b, 4.0) + 2.0 * dis * pow(abs(a), 3.0)) / (3.0 * dis * pow(b, 3.0));
+        }
+        else if (b == 0 && le != 0) {
+            return 0.0;
+        }
+        else if (b == 0 && le == 0) {
+            return 0.0;
+        }
+    }
+    
+    return 0.0;
+}
+
+
+template <int dim>
+double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, double a, double b, double lm, double lp, const VectorDim& Svnorm, const VectorDim& Vnorm, const VectorDim& Vdir)
+{
+    return (-(Psi_I1_a_a_a(a, b, lp) - Psi_I1_a_a_a(a, b, lm)) * Svnorm[i] * Svnorm[j] * Svnorm[k] - (Psi_I1_b_b_b(a, b, lp) - Psi_I1_b_b_b(a, b, lm)) * Vnorm[i] * Vnorm[j] * Vnorm[k]
+       - (Psi_I1_le_le_le(a, b, lp) - Psi_I1_le_le_le(a, b, lm)) * Vdir[i] * Vdir[j] * Vdir[k] - (Psi_I1_a_a_b(a, b, lp) - Psi_I1_a_a_b(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vnorm[k] + Svnorm[i] * Vnorm[j] * Svnorm[k] + Vnorm[i] * Svnorm[j] * Svnorm[k])
+       - (Psi_I1_a_a_le(a, b, lp) - Psi_I1_a_a_le(a, b, lm)) * (Svnorm[i] * Svnorm[j] * Vdir[k] + Svnorm[i] * Vdir[j] * Svnorm[k] + Vdir[i] * Svnorm[j] * Svnorm[k]) - (Psi_I1_a_b_b(a, b, lp) - Psi_I1_a_b_b(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vnorm[k] + Svnorm[j] * Vnorm[i] * Vnorm[k] + Svnorm[k] * Vnorm[j] * Vnorm[i])
+       - (Psi_I1_b_b_le(a, b, lp) - Psi_I1_b_b_le(a, b, lm)) * (Vdir[i] * Vnorm[j] * Vnorm[k] + Vdir[j] * Vnorm[i] * Vnorm[k] + Vdir[k] * Vnorm[i] * Vnorm[j]) - (Psi_I1_a_le_le(a, b, lp) - Psi_I1_a_le_le(a, b, lm)) * (Svnorm[i] * Vdir[j] * Vdir[k] + Svnorm[j] * Vdir[i] * Vdir[k] + Svnorm[k] * Vdir[i] * Vdir[j])
+       - (Psi_I1_b_le_le(a, b, lp) - Psi_I1_b_le_le(a, b, lm)) * (Vnorm[i] * Vdir[j] * Vdir[k] + Vnorm[j] * Vdir[i] * Vdir[k] + Vnorm[k] * Vdir[i] * Vdir[j])
+       - (Psi_I1_a_b_le(a, b, lp) - Psi_I1_a_b_le(a, b, lm)) * (Svnorm[i] * Vnorm[j] * Vdir[k] + Svnorm[i] * Vnorm[k] * Vdir[j] + Svnorm[j] * Vnorm[i] * Vdir[k] + Svnorm[k] * Vnorm[i] * Vdir[j] + Svnorm[j] * Vnorm[k] * Vdir[i] + Svnorm[k] * Vnorm[j] * Vdir[i])) * (-Svnorm[l]);
+}
+
+
+template <int dim>
+double PolyhedronInclusion<dim>::PSI_ijkl(int i, int j, int k, int l, const VectorDim& x) const
+{
+    double result=0.0;
+    for(const auto& face : faces)
+    {
+        const auto& P0(face.second[0].second);
+        const auto& P1(face.second[1].second);
+        const auto& P2(face.second[2].second);
+        const VectorDim Svnorm((P1-P0).cross(P2-P1).normalized());
+        const double a(Svnorm.dot(P0-x));
+        for(size_t e=0;e<face.second.size();++e)
+        {
+            const size_t e1(e<face.second.size()-1? e+1 : 0);
+            const VectorDim& vm(face.second[e].second);
+            const VectorDim& vp(face.second[e1].second);
+            const VectorDim Vdir((vp-vm).normalized());
+            const VectorDim Vnorm(Vdir.cross(Svnorm));
+            const double b((vp-x).dot(Vnorm));
+            const double lm((vm-x).dot(Vdir));
+            const double lp((vp-x).dot(Vdir));
+            result+=PSI_ijkl(i,j,k,l,a,b,lm,lp,Svnorm,Vnorm,Vdir);
+        }
     }
     return result;
 }
@@ -271,38 +571,71 @@ double PolyhedronInclusion<dim>::PHI_ij(int i, int j, const VectorDim& x) const
     template <int dim>
     double PolyhedronInclusion<dim>::eshelbyTensorComponent(const int&i,const int&j,const int&k,const int&l,const VectorDim& x) const
     {
+        auto delta_xy = [] (const int x, const int y) -> int {return x==y;};
 //        return  0.125/(std::numbers::pi*(1.0-this->nu))*(Psi_ijkl_a[voigtIndex(i,j)][voigtIndex(k,l)]
 //                                                         -2.0*this->nu*d[2][2]*Phi_ij_a[voigtIndex(i,j)]
 //                                                         -(1.0-this->nu)*(Phi_ij_a[voigtIndex(i,l)]*d[j][k]
 //                                                                          +Phi_ij_a[voigtIndex(j,k)]*d[i][l]
 //                                                                          +Phi_ij_a[voigtIndex(j,l)]*d[i][k]
 //                                                                          +Phi_ij_a[voigtIndex(i,k)]*d[j][l]));
-//        return PHI_ij(0,0,x);
-        return 0.0;
+        
+        return  0.125/(std::numbers::pi*(1.0-this->nu))*(PSI_ijkl(i,j,k,l,x)
+                                                         -2.0*this->nu*delta_xy(k,l)*PHI_ij(i,j,x)
+                                                         -(1.0-this->nu)*(PHI_ij(i,l,x)*delta_xy(j,k)
+                                                                          +PHI_ij(j,k,x)*delta_xy(i,l)
+                                                                          +PHI_ij(j,l,x)*delta_xy(i,k)
+                                                                          +PHI_ij(i,k,x)*delta_xy(j,l)));
     }
 
     template <int dim>
-    typename PolyhedronInclusion<dim>::MatrixVoigt PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
+    typename PolyhedronInclusion<dim>::MatrixVoigtSize PolyhedronInclusion<dim>::eshelbyTensorVoigt(const VectorDim& x) const
     {
         
-        MatrixVoigt temp(MatrixVoigt::Zero());
+        Eigen::Matrix<double,voigtSize,voigtSize> temp(Eigen::Matrix<double,voigtSize,voigtSize>::Zero());
         
         temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(0,0,0,0,x);
         temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(0,0,1,1,x);
         temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(0,0,2,2,x);
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(0,0,1,2,x);
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(0,0,2,0,x);
+        temp(voigtTraits.voigtIndex(0,0),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(0,0,0,1,x);
         
         temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(1,1,0,0,x);
         temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(1,1,1,1,x);
         temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(1,1,2,2,x);
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(1,1,1,2,x);
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(1,1,2,0,x);
+        temp(voigtTraits.voigtIndex(1,1),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(1,1,0,1,x);
 
         temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,0))=eshelbyTensorComponent(2,2,0,0,x);
         temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,1))=eshelbyTensorComponent(2,2,1,1,x);
         temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,2))=eshelbyTensorComponent(2,2,2,2,x);
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(1,2))=eshelbyTensorComponent(2,2,1,2,x);
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(2,0))=eshelbyTensorComponent(2,2,2,0,x);
+        temp(voigtTraits.voigtIndex(2,2),voigtTraits.voigtIndex(0,1))=eshelbyTensorComponent(2,2,0,1,x);
 
         temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(0,1,0,1,x);
-        temp(voigtTraits.voigtIndex(0,2),voigtTraits.voigtIndex(0,2))=2.0*eshelbyTensorComponent(0,2,0,2,x);
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(0,1,0,0,x);
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(0,1,1,1,x);
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(0,1,2,2,x);
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(0,1,1,2,x);
+        temp(voigtTraits.voigtIndex(0,1),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(0,1,2,0,x);
+        
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(2,0,2,0,x);
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(2,0,0,0,x);
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(2,0,1,1,x);
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(2,0,2,2,x);
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(2,0,1,2,x);
+        temp(voigtTraits.voigtIndex(2,0),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(2,0,0,1,x);
+        
         temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,2))=2.0*eshelbyTensorComponent(1,2,1,2,x);
-
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,0))=2.0*eshelbyTensorComponent(1,2,0,0,x);
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(1,1))=2.0*eshelbyTensorComponent(1,2,1,1,x);
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,2))=2.0*eshelbyTensorComponent(1,2,2,2,x);
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(2,0))=2.0*eshelbyTensorComponent(1,2,2,0,x);
+        temp(voigtTraits.voigtIndex(1,2),voigtTraits.voigtIndex(0,1))=2.0*eshelbyTensorComponent(1,2,0,1,x);
+        
+        
         return temp;
     }
 

@@ -27,6 +27,8 @@ namespace model
     {
         
         typedef Eigen::Matrix<double,3,1> VectorDim;
+        typedef Eigen::Matrix<double,3,3> MatrixDim;
+
     
         AtomDisplacer(const std::string& folderName);
         
@@ -43,8 +45,11 @@ namespace model
         double solidAngle(const VectorDim& x) const;
         double solidAngle(const double& x,const double& y,const double& z) const;
         VectorDim dislocationPlasticDisplacement(const VectorDim& x) const;
-//        pybind11::array_t<double, pybind11::array::c_style> dislocationPlasticDisplacement(const double& x,const double& y,const double& z) const;
         VectorDim dislocationPlasticDisplacement(const double& x,const double& y,const double& z) const;
+        MatrixDim dislocationStress(const VectorDim& x) const;
+        MatrixDim dislocationStress(const double& x,const double& y,const double& z) const;
+        MatrixDim inclusionStress(const VectorDim& x) const;
+        MatrixDim inclusionStress(const double& x,const double& y,const double& z) const;
 
 
     };
